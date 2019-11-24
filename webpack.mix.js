@@ -1,12 +1,12 @@
 let mix = require('laravel-mix');
 
-// Allow both "rename-me.js" && "rename-me.min.js"
+// Allow both "minimal.js" && "minimal.min.js"
 // to both exist in the mix.manifest file.
 require('laravel-mix-merge-manifest');
 
 const outputFileName = process.env.NODE_ENV === 'production'
-    ? 'rename-me.min.js'
-    : 'rename-me.js'
+    ? 'minimal.min.js'
+    : 'minimal.js'
 
 mix
     .js('src/index.js', outputFileName)

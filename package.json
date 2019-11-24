@@ -1,0 +1,33 @@
+{
+  "main": "dist/rename-me.js",
+  "name": "rename-me",
+  "scripts": {
+    "test": "jest",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
+    "unminified": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "minified": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "watch": "npm run unminified -- --watch",
+    "build": "npm run unminified && npm run minified"
+  },
+  "author": "Caleb Porzio",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babel-jest": "^24.8.0",
+    "cross-env": "^5.2.0",
+    "cross-spawn": "^6.0.5",
+    "dom-testing-library": "^3.19.4",
+    "false": "^0.0.4",
+    "get-value": "^3.0.1",
+    "jest": "^24.8.0",
+    "jest-dom": "^3.5.0",
+    "jsdom-simulant": "^1.1.2",
+    "laravel-mix": "^4.1.2",
+    "laravel-mix-merge-manifest": "^0.1.2",
+    "mock-echo": "^1.1.0",
+    "promise-polyfill": "^8.1.3",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "dependencies": {}
+}

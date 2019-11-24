@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <style>
+        </style>
+    </head>
+    <body>
+        <div x-data='{ "isOpen": false, "count": 1 }'>
+            <button x-on:click="$data.isOpen = ! $data.isOpen">toggle</button>
+            <button x-on:click="$data.count++">inc</button>
+
+            <input type="checkbox" x-bind:checked="$data.count % 2">
+            <input type="text" x-on:input="$data.count = $event.target.value">
+            <input type="text" x-bind:value="$data.count">
+        </div>
+
+        <script src="/dist/rename-me.js"></script>
+        <script>
+            window.rename.start()
+        </script>
+    </body>
+</html>

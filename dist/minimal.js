@@ -217,7 +217,7 @@ function () {
     value: function updateBoundAttributes() {
       var self = this;
       Object(_utils__WEBPACK_IMPORTED_MODULE_0__["debounce"])(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"], 5)(this.el, function (el) {
-        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'bind').forEach(function (_ref2) {
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'bind').concat(Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'text')).forEach(function (_ref2) {
           var type = _ref2.type,
               value = _ref2.value,
               modifiers = _ref2.modifiers,
@@ -234,7 +234,7 @@ function () {
           if (self.concernedData.filter(function (i) {
             return isConscernedWith.includes(i);
           }).length > 0) {
-            self.updateBoundAttributeValue(el, value, result);
+            self.updateBoundAttributeValue(el, type, value, result);
           }
         });
       });
@@ -245,7 +245,7 @@ function () {
       var _this2 = this;
 
       Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"])(this.el, function (el) {
-        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'bind').forEach(function (_ref3) {
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'bind').concat(Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'text')).forEach(function (_ref3) {
           var type = _ref3.type,
               value = _ref3.value,
               modifiers = _ref3.modifiers,
@@ -259,14 +259,16 @@ function () {
           });
           var result = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(expression, proxiedData);
 
-          _this2.updateBoundAttributeValue(el, value, result);
+          _this2.updateBoundAttributeValue(el, type, value, result);
         });
       });
     }
   }, {
     key: "updateBoundAttributeValue",
-    value: function updateBoundAttributeValue(el, attrName, value) {
-      if (attrName === 'class') {
+    value: function updateBoundAttributeValue(el, type, attrName, value) {
+      if (type === 'text') {
+        el.innerText = value;
+      } else if (attrName === 'class') {
         // Use the class object syntax that vue uses to toggle them.
         Object.keys(value).forEach(function (className) {
           if (value[className]) {
@@ -387,12 +389,12 @@ function saferEvalNoReturn(expression, dataContext) {
   return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with($data) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 }
 function isXAttr(attr) {
-  var xAttrRE = /x-(on|bind|data):/;
+  var xAttrRE = /x-(on|bind|data|text)/;
   return xAttrRE.test(attr.name);
 }
 function getXAttrs(el, name) {
   return Array.from(el.attributes).filter(isXAttr).map(function (attr) {
-    var typeMatch = attr.name.match(/x-(on|bind|data):/);
+    var typeMatch = attr.name.match(/x-(on|bind|data|text)/);
     var valueMatch = attr.name.match(/:([a-zA-Z\-]+)/);
     var modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     return {

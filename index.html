@@ -5,28 +5,15 @@
         </style>
     </head>
     <body>
-        <div id="outer">
-            outer
-            <div x-data="{ isOpen: true }">
-                <button x-on:click="$data.isOpen = true"></button>
+        <div x-data="{ name: 'bar' }">
+            <input type="text" x-on:input="name = $event.target.value">
 
-                <ul x-bind:value="$data.isOpen" x-on:click.away="$data.isOpen = false">
-                    <li>...</li>
-                </ul>
-            </div>
-        </div>
-
-        <div x-data='{ isOpen: false, name: ""}'>
-            <button x-on:click="isOpen = ! isOpen">toggle</button>
-
-            <div x-bind:class="{ 'hidden' : ! isOpen }" x-on:click.away="isOpen = false">
-                <p>hey, I'm a dropdown<p>
-            </div>
+            <span x-text="name"></span>
         </div>
 
         <script src="/dist/minimal.js"></script>
         <script>
-            window.minimal.start('hey')
+            window.minimal.start()
         </script>
     </body>
 </html>

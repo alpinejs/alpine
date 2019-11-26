@@ -84,7 +84,7 @@ export default class Component {
     updateBoundAttributes() {
         var self = this
         debounce(walk, 5)(this.el, function (el) {
-            getXAttrs(el, 'bind').forEach(({ type, value, modifiers, expression }) => {
+            getXAttrs(el, 'bind').concat(getXAttrs(el, 'text')).forEach(({ type, value, modifiers, expression }) => {
                 var isConscernedWith = []
 
                 const proxiedData = new Proxy(self.data, {
@@ -98,34 +98,36 @@ export default class Component {
                 const result = saferEval(expression, proxiedData)
 
                 if (self.concernedData.filter(i => isConscernedWith.includes(i)).length > 0) {
-                    self.updateBoundAttributeValue(el, value, result)
+                    self.updateBoundAttributeValue(el, type, value, result)
                 }
             })
         })
     }
 
     updateAllBoundAttributes() {
-            walk(this.el, el => {
-                getXAttrs(el, 'bind').forEach(({ type, value, modifiers, expression }) => {
-                    var isConscernedWith = []
+        walk(this.el, el => {
+            getXAttrs(el, 'bind').concat(getXAttrs(el, 'text')).forEach(({ type, value, modifiers, expression }) => {
+                var isConscernedWith = []
 
-                    const proxiedData = new Proxy(this.data, {
-                        get(object, prop) {
-                            isConscernedWith.push(prop)
+                const proxiedData = new Proxy(this.data, {
+                    get(object, prop) {
+                        isConscernedWith.push(prop)
 
-                            return object[prop]
-                        }
-                    })
-
-                    const result = saferEval(expression, proxiedData)
-
-                    this.updateBoundAttributeValue(el, value, result)
+                        return object[prop]
+                    }
                 })
+
+                const result = saferEval(expression, proxiedData)
+
+                this.updateBoundAttributeValue(el, type, value, result)
             })
+        })
     }
 
-    updateBoundAttributeValue(el, attrName, value) {
-        if (attrName === 'class') {
+    updateBoundAttributeValue(el, type, attrName, value) {
+        if (type === 'text') {
+            el.innerText = value
+        } else if (attrName === 'class') {
             // Use the class object syntax that vue uses to toggle them.
             Object.keys(value).forEach(className => {
                 if (value[className]) {

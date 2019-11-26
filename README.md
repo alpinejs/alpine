@@ -4,31 +4,31 @@
 `<script src="https://cdn.jsdelivr.net/gh/minimaljs/minimal/dist/minimal.min.js"></script>`
 
 ### Use
-*Dropdown*
+*Dropdown/Modal*
 ```
 <div x-data="{ hide: true }">
     <button x-on:click="$data.hide = false">...</button>
 
-    <ul class="hidden" x-bind:class="{ 'hidden': $data.hide }" :click="$data.hide = true">
+    <ul class="hidden" x-bind:class="{ 'hidden': $data.hide }" :click.away="$data.hide = true">
         ...
     </ul>
 </div>
 ```
 
-*Modal*
+*Tabs*
 ```
-<div x-data="{ show: true }">
-    <button x-on:click="$data.show = ! $data.show">toggle</button>
+<div x-data="{ currentTab: 'foo' }">
+    <button x-bind:class="{ 'active': currentTab === 'foo' }" x-on:click="currentTab = 'foo'">Foo</button>
+    <button x-bind:class="{ 'active': currentTab === 'bar' }" x-on:click="currentTab = 'bar'">Bar</button>
 
-    <div x-bind:class="{ 'hidden': ! $data.show }">...</div>
+    <div class="hidden" x-bind:class="{ 'hidden': currentTab !== 'foo' }">Tab Foo</div>
+    <div class="hidden" x-bind:class="{ 'hidden': currentTab !== 'bar' }">Tab Bar</div>
 </div>
 ```
 
-*Tabs*
+### Directives
 
-You can bind expressions to any attribute using `x-bind`, and you can run expressions on any event using `x-on`.
-
-The data is "reactive", when some data updates, only the expressions conscerned with it will.
-
-### Goals
-* Get rid of `$data.show` and just use `show`
+--- | ---
+`x-data="[object]"` | This is what denotes a new component, the data declared inside this object is read, manipulated, and reacted to by other directives in the component.
+`x-bind:[attrbute]="[expression]"` | The attribute referenced by `x-bind` will be set the result of the JS expression passed in. It will automatically refresh if data it depends on changes.
+`x-on:[event]="[expression]"` | The element will be listening for the specified event, and fire the expression when it happens

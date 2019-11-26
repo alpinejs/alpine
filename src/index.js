@@ -1,6 +1,7 @@
+/* @flow */
 import Component from './component'
 
-var rename = {
+const minimal = {
     start: function () {
         const rootEls = document.querySelectorAll('[x-data]');
 
@@ -10,8 +11,8 @@ var rename = {
     }
 }
 
-if (! window.rename) {
-    window.rename = rename
+if (! window.minimal) {
+    window.minimal = minimal
 }
 
-export default rename
+export default minimal

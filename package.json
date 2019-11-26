@@ -1,6 +1,6 @@
 {
-  "main": "dist/rename-me.js",
-  "name": "rename-me",
+  "main": "dist/minimal.js",
+  "name": "minimal",
   "scripts": {
     "test": "jest",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
@@ -12,6 +12,7 @@
   "author": "Caleb Porzio",
   "license": "MIT",
   "devDependencies": {
+    "@babel/cli": "^7.7.4",
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "babel-jest": "^24.8.0",

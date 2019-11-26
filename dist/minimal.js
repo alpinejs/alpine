@@ -107,6 +107,14 @@ return /******/ (function(modules) { // webpackBootstrap
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Component; });
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -122,11 +130,10 @@ function () {
     _classCallCheck(this, Component);
 
     this.el = el;
-    this.data = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(this.el.getAttribute('x-data'));
+    this.data = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(this.el.getAttribute('x-data'), {});
+    this.concernedData = [];
     this.registerListeners();
-    this.updateBoundAttributes(function () {
-      return true;
-    });
+    this.updateAllBoundAttributes();
   }
 
   _createClass(Component, [{
@@ -134,38 +141,61 @@ function () {
     value: function registerListeners() {
       var _this = this;
 
-      // Do a sweep through the component, find out what events children are
-      // listening for so we can do "event delegation" on the root.
-      // The reason for using event delegation is so that new
-      // DOM element listeners can potentially be added
-      // and they will be detected.
-      this.eventsThisComponentIsListeningFor().forEach(function (eventName) {
-        _this.el.addEventListener(eventName, function (e) {
-          if (e.target.hasAttribute("x-on:".concat(eventName))) {
-            var mutatedDataItems = []; // Detect if the listener action mutated some data,
-            // this way we can selectively update bindings.
+      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"])(this.el, function (el) {
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'on').forEach(function (_ref) {
+          var type = _ref.type,
+              value = _ref.value,
+              modifiers = _ref.modifiers,
+              expression = _ref.expression;
 
-            var proxiedData = new Proxy(_this.data, {
-              set: function set(obj, property, value) {
-                var setWasSuccessful = Reflect.set(obj, property, value);
-                mutatedDataItems.push(property);
-                return setWasSuccessful;
-              }
-            });
-            var expression = e.target.getAttribute("x-on:".concat(eventName));
-            Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(expression, {
-              '$data': proxiedData,
-              '$event': e
-            });
+          if (modifiers.includes('away')) {
+            // Listen for this event at the root level.
+            document.addEventListener(value, function (e) {
+              var _this$concernedData;
 
-            _this.updateBoundAttributes(function (isConscernedWith) {
-              return mutatedDataItems.filter(function (i) {
-                return isConscernedWith.includes(i);
-              }).length > 0;
+              // Don't do anything if the click came form the element or within it.
+              if (el.contains(e.target)) return; // Don't do anything if this element isn't currently visible.
+
+              if (el.offsetWidth < 1 && el.offsetHeight < 1) return; // Now that we are sure the element is visible, AND the click
+              // is from outside it, let's run the expression.
+
+              (_this$concernedData = _this.concernedData).push.apply(_this$concernedData, _toConsumableArray(_this.evaluateExpressionWithEvent(expression, e)));
+
+              _this.concernedData = _this.concernedData.filter(_utils__WEBPACK_IMPORTED_MODULE_0__["onlyUnique"]);
+
+              _this.updateBoundAttributes();
+            });
+          } else {
+            el.addEventListener(value, function (e) {
+              var _this$concernedData2;
+
+              (_this$concernedData2 = _this.concernedData).push.apply(_this$concernedData2, _toConsumableArray(_this.evaluateExpressionWithEvent(expression, e)));
+
+              _this.concernedData = _this.concernedData.filter(_utils__WEBPACK_IMPORTED_MODULE_0__["onlyUnique"]);
+
+              _this.updateBoundAttributes();
             });
           }
         });
       });
+    }
+  }, {
+    key: "evaluateExpressionWithEvent",
+    value: function evaluateExpressionWithEvent(expression, event) {
+      var mutatedDataItems = []; // Detect if the listener action mutated some data,
+      // this way we can selectively update bindings.
+
+      var proxiedData = new Proxy(this.data, {
+        set: function set(obj, property, value) {
+          var setWasSuccessful = Reflect.set(obj, property, value);
+          mutatedDataItems.push(property);
+          return setWasSuccessful;
+        }
+      });
+      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEvalNoReturn"])(expression, proxiedData, {
+        '$event': event
+      });
+      return mutatedDataItems;
     }
   }, {
     key: "eventsThisComponentIsListeningFor",
@@ -184,30 +214,53 @@ function () {
     }
   }, {
     key: "updateBoundAttributes",
-    value: function updateBoundAttributes(ifConcernedWith) {
+    value: function updateBoundAttributes() {
+      var self = this;
+      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["debounce"])(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"], 5)(this.el, function (el) {
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'bind').forEach(function (_ref2) {
+          var type = _ref2.type,
+              value = _ref2.value,
+              modifiers = _ref2.modifiers,
+              expression = _ref2.expression;
+          var isConscernedWith = [];
+          var proxiedData = new Proxy(self.data, {
+            get: function get(object, prop) {
+              isConscernedWith.push(prop);
+              return object[prop];
+            }
+          });
+          var result = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(expression, proxiedData);
+
+          if (self.concernedData.filter(function (i) {
+            return isConscernedWith.includes(i);
+          }).length > 0) {
+            self.updateBoundAttributeValue(el, value, result);
+          }
+        });
+      });
+    }
+  }, {
+    key: "updateAllBoundAttributes",
+    value: function updateAllBoundAttributes() {
       var _this2 = this;
 
       Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"])(this.el, function (el) {
-        if (Object(_utils__WEBPACK_IMPORTED_MODULE_0__["hasXAttr"])(el, 'bind')) {
-          Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'bind').forEach(function (attr) {
-            var boundAttribute = attr.name.replace(/x-bind:/, '');
-            var expression = attr.value;
-            var isConscernedWith = [];
-            var proxiedData = new Proxy(_this2.data, {
-              get: function get(object, prop) {
-                isConscernedWith.push(prop);
-                return object[prop];
-              }
-            });
-            var result = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(expression, {
-              "$data": proxiedData
-            });
-
-            if (ifConcernedWith(isConscernedWith)) {
-              _this2.updateBoundAttributeValue(el, boundAttribute, result);
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'bind').forEach(function (_ref3) {
+          var type = _ref3.type,
+              value = _ref3.value,
+              modifiers = _ref3.modifiers,
+              expression = _ref3.expression;
+          var isConscernedWith = [];
+          var proxiedData = new Proxy(_this2.data, {
+            get: function get(object, prop) {
+              isConscernedWith.push(prop);
+              return object[prop];
             }
           });
-        }
+          var result = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(expression, proxiedData);
+
+          _this2.updateBoundAttributeValue(el, value, result);
+        });
       });
     }
   }, {
@@ -252,8 +305,9 @@ function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./component */ "./src/component.js");
+/* @flow */
 
-var rename = {
+var minimal = {
   start: function start() {
     var rootEls = document.querySelectorAll('[x-data]');
     rootEls.forEach(function (rootEl) {
@@ -262,11 +316,11 @@ var rename = {
   }
 };
 
-if (!window.rename) {
-  window.rename = rename;
+if (!window.minimal) {
+  window.minimal = minimal;
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (rename);
+/* harmony default export */ __webpack_exports__["default"] = (minimal);
 
 /***/ }),
 
@@ -274,15 +328,17 @@ if (!window.rename) {
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: walk, onlyUnique, saferEval, hasXAttr, getXAttrs */
+/*! exports provided: walk, debounce, onlyUnique, saferEval, saferEvalNoReturn, isXAttr, getXAttrs */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "walk", function() { return walk; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "debounce", function() { return debounce; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onlyUnique", function() { return onlyUnique; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "saferEval", function() { return saferEval; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hasXAttr", function() { return hasXAttr; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "saferEvalNoReturn", function() { return saferEvalNoReturn; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isXAttr", function() { return isXAttr; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getXAttrs", function() { return getXAttrs; });
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
@@ -301,23 +357,54 @@ function walk(el, callback) {
     node = node.nextElementSibling;
   }
 }
+function debounce(func, wait, immediate) {
+  var timeout;
+  return function () {
+    var context = this,
+        args = arguments;
+
+    var later = function later() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+}
+;
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
-function saferEval(expression) {
-  var scope = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  return new Function(Object.keys(scope), "\"use strict\"; return ".concat(expression)).apply(void 0, _toConsumableArray(Object.values(scope)));
+function saferEval(expression, dataContext) {
+  var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "var result; with($data) { result = ".concat(expression, " }; return result")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 }
-function hasXAttr(el, name) {
-  return !!Array.from(el.attributes).map(function (i) {
-    return i.name;
-  }).filter(function (i) {
-    return i.search(new RegExp("^x-".concat(name))) > -1;
-  }).length;
+function saferEvalNoReturn(expression, dataContext) {
+  var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with($data) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
+}
+function isXAttr(attr) {
+  var xAttrRE = /x-(on|bind|data):/;
+  return xAttrRE.test(attr.name);
 }
 function getXAttrs(el, name) {
-  return Array.from(el.attributes).filter(function (i) {
-    return i.name.search(new RegExp("^x-".concat(name))) > -1;
+  return Array.from(el.attributes).filter(isXAttr).map(function (attr) {
+    var typeMatch = attr.name.match(/x-(on|bind|data):/);
+    var valueMatch = attr.name.match(/:([a-zA-Z\-]+)/);
+    var modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
+    return {
+      type: typeMatch ? typeMatch[1] : null,
+      value: valueMatch ? valueMatch[1] : null,
+      modifiers: modifiers.map(function (i) {
+        return i.replace('.', '');
+      }),
+      expression: attr.value
+    };
+  }).filter(function (i) {
+    return i.type === name;
   });
 }
 

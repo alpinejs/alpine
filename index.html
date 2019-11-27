@@ -5,18 +5,44 @@
         </style>
     </head>
     <body>
+        <div x-data="{ foo: ['bar', 'baz'] }">
+            <select x-model="foo" multiple>
+                <option disabled value="">Please select one</option>
+                <option>bar</option>
+                <option>baz</option>
+            </select>
+
+            <span x-text="foo"></span>
+        </div>
         <div x-data="{ currentTab: 'foo' }">
             <button x-bind:class="{ 'active': currentTab === 'foo' }" x-on:click="currentTab = 'foo'">Foo</button>
             <button x-bind:class="{ 'active': currentTab === 'bar' }" x-on:click="currentTab = 'bar'">Bar</button>
 
-            <div class="hidden" x-bind:class="{ 'hidden': currentTab !== 'foo' }">Tab Foo</div>
+            <div x-bind:class="{ 'hidden': currentTab !== 'foo' }">Tab Foo</div>
             <div class="hidden" x-bind:class="{ 'hidden': currentTab !== 'bar' }">Tab Bar</div>
         </div>
 
-        <div x-data="{ name: 'bar' }">
-            <input type="text" x-on:input="name = $event.target.value">
+        <div x-data="{ foo: 'bar' }">
+            <input type="radio" x-model="foo" value="bar"></input>
+            <input type="radio" x-model="foo" value="baz"></input>
+
+            <span x-text="foo"></span>
+        </div>
+
+
+        <div x-data="{ name: 1 }">
+            <input type="text" x-model.number="name">
 
             <span x-text="name"></span>
+        </div>
+        <div x-data="{ foo: [] }">
+            <input type="checkbox" x-model="foo" value="bar"></input>
+            <input type="checkbox" x-model="foo" value="baz"></input>
+
+            <span x-text="foo"></span>
+        </div>
+        <div x-data="{}">
+            <span class="" x-bind:class="['hey']"></span>
         </div>
 
         <script src="/dist/minimal.js"></script>

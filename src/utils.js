@@ -42,16 +42,16 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
 }
 
 export function isXAttr(attr) {
-    const xAttrRE = /x-(on|bind|data|text)/
+    const xAttrRE = /x-(on|bind|data|text|model)/
 
     return xAttrRE.test(attr.name)
 }
 
-export function getXAttrs(el, name) {
+export function getXAttrs(el, type) {
     return Array.from(el.attributes)
         .filter(isXAttr)
         .map(attr => {
-            const typeMatch = attr.name.match(/x-(on|bind|data|text)/)
+            const typeMatch = attr.name.match(/x-(on|bind|data|text|model)/)
             const valueMatch = attr.name.match(/:([a-zA-Z\-]+)/)
             const modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
 
@@ -62,5 +62,10 @@ export function getXAttrs(el, name) {
                 expression: attr.value,
             }
         })
-        .filter(i => i.type === name)
+        .filter(i => {
+            // If no type is passed in for filtering, bypassfilter
+            if (! type) return true
+
+            return i.type === name
+        })
 }

@@ -132,151 +132,249 @@ function () {
     this.el = el;
     this.data = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(this.el.getAttribute('x-data'), {});
     this.concernedData = [];
-    this.registerListeners();
-    this.updateAllBoundAttributes();
+    this.initialize();
   }
 
   _createClass(Component, [{
-    key: "registerListeners",
-    value: function registerListeners() {
+    key: "initialize",
+    value: function initialize() {
       var _this = this;
 
       Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"])(this.el, function (el) {
-        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'on').forEach(function (_ref) {
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el).forEach(function (_ref) {
           var type = _ref.type,
               value = _ref.value,
               modifiers = _ref.modifiers,
               expression = _ref.expression;
 
-          if (modifiers.includes('away')) {
-            // Listen for this event at the root level.
-            document.addEventListener(value, function (e) {
-              var _this$concernedData;
+          switch (type) {
+            case 'on':
+              var event = value;
 
-              // Don't do anything if the click came form the element or within it.
-              if (el.contains(e.target)) return; // Don't do anything if this element isn't currently visible.
+              _this.registerListener(el, event, modifiers, expression);
 
-              if (el.offsetWidth < 1 && el.offsetHeight < 1) return; // Now that we are sure the element is visible, AND the click
-              // is from outside it, let's run the expression.
+              break;
 
-              (_this$concernedData = _this.concernedData).push.apply(_this$concernedData, _toConsumableArray(_this.evaluateExpressionWithEvent(expression, e)));
+            case 'model':
+              // If the element we are binding to is a select, a radio, or checkbox
+              // we'll listen for the change event instead of the "input" event.
+              var event = el.tagName.toLowerCase() === 'select' || ['checkbox', 'radio'].includes(el.type) || modifiers.includes('lazy') ? 'change' : 'input';
+              var rightSideOfExpression = '';
 
-              _this.concernedData = _this.concernedData.filter(_utils__WEBPACK_IMPORTED_MODULE_0__["onlyUnique"]);
+              if (el.type === 'checkbox') {
+                // If the data we are binding to is an array, toggle it's value inside the array.
+                if (Array.isArray(_this.data[expression])) {
+                  rightSideOfExpression = "$event.target.checked ? ".concat(expression, ".concat([$event.target.value]) : [...").concat(expression, ".splice(0, ").concat(expression, ".indexOf($event.target.value)), ...").concat(expression, ".splice(").concat(expression, ".indexOf($event.target.value)+1)]");
+                } else {
+                  rightSideOfExpression = "$event.target.checked";
+                }
+              } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
+                rightSideOfExpression = modifiers.includes('number') ? 'Array.from($event.target.selectedOptions).map(option => { return parseFloat(option.value || option.text) })' : 'Array.from($event.target.selectedOptions).map(option => { return option.value || option.text })';
+              } else {
+                rightSideOfExpression = modifiers.includes('number') ? 'parseFloat($event.target.value)' : modifiers.includes('trim') ? '$event.target.value.trim()' : '$event.target.value';
+              }
 
-              _this.updateBoundAttributes();
-            });
-          } else {
-            el.addEventListener(value, function (e) {
-              var _this$concernedData2;
+              if (el.type === 'radio') {
+                // Radio buttons only work properly when they share a name attribute.
+                // People might assume we take care of that for them, because
+                // they already set a shared "x-model" attribute.
+                if (!el.hasAttribute('name')) el.setAttribute('name', expression);
+              }
 
-              (_this$concernedData2 = _this.concernedData).push.apply(_this$concernedData2, _toConsumableArray(_this.evaluateExpressionWithEvent(expression, e)));
+              _this.registerListener(el, event, modifiers, "".concat(expression, " = ").concat(rightSideOfExpression));
 
-              _this.concernedData = _this.concernedData.filter(_utils__WEBPACK_IMPORTED_MODULE_0__["onlyUnique"]);
+              var attrName = 'value';
 
-              _this.updateBoundAttributes();
-            });
+              var _this$evaluateReturnE = _this.evaluateReturnExpression(expression),
+                  output = _this$evaluateReturnE.output;
+
+              _this.updateAttributeValue(el, attrName, output);
+
+              break;
+
+            case 'bind':
+              var attrName = value;
+
+              var _this$evaluateReturnE2 = _this.evaluateReturnExpression(expression),
+                  output = _this$evaluateReturnE2.output;
+
+              _this.updateAttributeValue(el, attrName, output);
+
+              break;
+
+            case 'text':
+              var _this$evaluateReturnE3 = _this.evaluateReturnExpression(expression),
+                  output = _this$evaluateReturnE3.output;
+
+              _this.updateTextValue(el, output);
+
+              break;
+
+            default:
+              break;
           }
         });
       });
     }
   }, {
-    key: "evaluateExpressionWithEvent",
-    value: function evaluateExpressionWithEvent(expression, event) {
-      var mutatedDataItems = []; // Detect if the listener action mutated some data,
-      // this way we can selectively update bindings.
-
-      var proxiedData = new Proxy(this.data, {
-        set: function set(obj, property, value) {
-          var setWasSuccessful = Reflect.set(obj, property, value);
-          mutatedDataItems.push(property);
-          return setWasSuccessful;
-        }
-      });
-      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEvalNoReturn"])(expression, proxiedData, {
-        '$event': event
-      });
-      return mutatedDataItems;
-    }
-  }, {
-    key: "eventsThisComponentIsListeningFor",
-    value: function eventsThisComponentIsListeningFor() {
-      var eventsToListenFor = [];
-      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"])(this.el, function (el) {
-        eventsToListenFor = eventsToListenFor.concat(Array.from(el.attributes).map(function (i) {
-          return i.name;
-        }).filter(function (i) {
-          return i.search('x-on') > -1;
-        }).map(function (i) {
-          return i.replace(/x-on:/, '');
-        }));
-      });
-      return eventsToListenFor.filter(_utils__WEBPACK_IMPORTED_MODULE_0__["onlyUnique"]);
-    }
-  }, {
-    key: "updateBoundAttributes",
-    value: function updateBoundAttributes() {
+    key: "refresh",
+    value: function refresh() {
       var self = this;
       Object(_utils__WEBPACK_IMPORTED_MODULE_0__["debounce"])(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"], 5)(this.el, function (el) {
-        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'bind').concat(Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'text')).forEach(function (_ref2) {
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el).forEach(function (_ref2) {
           var type = _ref2.type,
               value = _ref2.value,
               modifiers = _ref2.modifiers,
               expression = _ref2.expression;
-          var isConscernedWith = [];
-          var proxiedData = new Proxy(self.data, {
-            get: function get(object, prop) {
-              isConscernedWith.push(prop);
-              return object[prop];
-            }
-          });
-          var result = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(expression, proxiedData);
 
-          if (self.concernedData.filter(function (i) {
-            return isConscernedWith.includes(i);
-          }).length > 0) {
-            self.updateBoundAttributeValue(el, type, value, result);
+          switch (type) {
+            case 'bind':
+              var attrName = value;
+
+              var _self$evaluateReturnE = self.evaluateReturnExpression(expression),
+                  output = _self$evaluateReturnE.output,
+                  deps = _self$evaluateReturnE.deps;
+
+              if (self.concernedData.filter(function (i) {
+                return deps.includes(i);
+              }).length > 0) {
+                self.updateAttributeValue(el, attrName, output);
+              }
+
+              break;
+
+            case 'text':
+              var _self$evaluateReturnE2 = self.evaluateReturnExpression(expression),
+                  output = _self$evaluateReturnE2.output,
+                  deps = _self$evaluateReturnE2.deps;
+
+              if (self.concernedData.filter(function (i) {
+                return deps.includes(i);
+              }).length > 0) {
+                self.updateTextValue(el, output);
+              }
+
+              break;
+
+            default:
+              break;
           }
         });
       });
     }
   }, {
-    key: "updateAllBoundAttributes",
-    value: function updateAllBoundAttributes() {
+    key: "registerListener",
+    value: function registerListener(el, event, modifiers, expression) {
       var _this2 = this;
 
-      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"])(this.el, function (el) {
-        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'bind').concat(Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el, 'text')).forEach(function (_ref3) {
-          var type = _ref3.type,
-              value = _ref3.value,
-              modifiers = _ref3.modifiers,
-              expression = _ref3.expression;
-          var isConscernedWith = [];
-          var proxiedData = new Proxy(_this2.data, {
-            get: function get(object, prop) {
-              isConscernedWith.push(prop);
-              return object[prop];
-            }
-          });
-          var result = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(expression, proxiedData);
+      if (modifiers.includes('away')) {
+        // Listen for this event at the root level.
+        document.addEventListener(event, function (e) {
+          // Don't do anything if the click came form the element or within it.
+          if (el.contains(e.target)) return; // Don't do anything if this element isn't currently visible.
 
-          _this2.updateBoundAttributeValue(el, type, value, result);
+          if (el.offsetWidth < 1 && el.offsetHeight < 1) return; // Now that we are sure the element is visible, AND the click
+          // is from outside it, let's run the expression.
+
+          _this2.runListenerHandler(expression, e);
         });
-      });
+      } else {
+        el.addEventListener(event, function (e) {
+          _this2.runListenerHandler(expression, e);
+        });
+      }
     }
   }, {
-    key: "updateBoundAttributeValue",
-    value: function updateBoundAttributeValue(el, type, attrName, value) {
-      if (type === 'text') {
-        el.innerText = value;
-      } else if (attrName === 'class') {
-        // Use the class object syntax that vue uses to toggle them.
-        Object.keys(value).forEach(function (className) {
-          if (value[className]) {
-            el.classList.add(className);
+    key: "runListenerHandler",
+    value: function runListenerHandler(expression, e) {
+      var _this$concernedData;
+
+      var _this$evaluateCommand = this.evaluateCommandExpression(expression, {
+        '$event': e
+      }),
+          deps = _this$evaluateCommand.deps;
+
+      (_this$concernedData = this.concernedData).push.apply(_this$concernedData, _toConsumableArray(deps));
+
+      this.concernedData = this.concernedData.filter(_utils__WEBPACK_IMPORTED_MODULE_0__["onlyUnique"]);
+      this.refresh();
+    }
+  }, {
+    key: "evaluateReturnExpression",
+    value: function evaluateReturnExpression(expression) {
+      var affectedDataKeys = [];
+      var proxiedData = new Proxy(this.data, {
+        get: function get(object, prop) {
+          affectedDataKeys.push(prop);
+          return object[prop];
+        }
+      });
+      var result = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(expression, proxiedData);
+      return {
+        output: result,
+        deps: affectedDataKeys
+      };
+    }
+  }, {
+    key: "evaluateCommandExpression",
+    value: function evaluateCommandExpression(expression, extraData) {
+      var affectedDataKeys = [];
+      var proxiedData = new Proxy(this.data, {
+        set: function set(obj, property, value) {
+          var setWasSuccessful = Reflect.set(obj, property, value);
+          affectedDataKeys.push(property);
+          return setWasSuccessful;
+        }
+      });
+      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEvalNoReturn"])(expression, proxiedData, extraData);
+      return {
+        deps: affectedDataKeys
+      };
+    }
+  }, {
+    key: "updateTextValue",
+    value: function updateTextValue(el, value) {
+      el.innerText = value;
+    }
+  }, {
+    key: "updateAttributeValue",
+    value: function updateAttributeValue(el, attrName, value) {
+      if (attrName === 'value') {
+        if (el.type === 'radio') {
+          el.checked = el.value == value;
+        } else if (el.type === 'checkbox') {
+          if (Array.isArray(value)) {
+            // I'm purposely not using Array.includes here because it's
+            // strict, and because of Numeric/String mis-casting, I
+            // want the "includes" to be "fuzzy".
+            var valueFound = false;
+            value.forEach(function (val) {
+              if (val == el.value) {
+                valueFound = true;
+              }
+            });
+            el.checked = valueFound;
           } else {
-            el.classList.remove(className);
+            el.checked = !!value;
           }
-        });
+        } else if (el.tagName === 'SELECT') {
+          this.updateSelect(el, value);
+        } else {
+          el.value = value;
+        }
+      } else if (attrName === 'class') {
+        if (Array.isArray(value)) {
+          el.setAttribute('class', value.join(' '));
+        } else {
+          // Use the class object syntax that vue uses to toggle them.
+          Object.keys(value).forEach(function (className) {
+            if (value[className]) {
+              el.classList.add(className);
+            } else {
+              el.classList.remove(className);
+            }
+          });
+        }
       } else if (['disabled', 'readonly', 'required', 'checked'].includes(attrName)) {
         // Boolean attributes have to be explicitly added and removed, not just set.
         if (!!value) {
@@ -287,6 +385,16 @@ function () {
       } else {
         el.setAttribute(attrName, value);
       }
+    }
+  }, {
+    key: "updateSelect",
+    value: function updateSelect(el, value) {
+      var arrayWrappedValue = [].concat(value).map(function (value) {
+        return value + '';
+      });
+      Array.from(el.options).forEach(function (option) {
+        option.selected = arrayWrappedValue.includes(option.value || option.text);
+      });
     }
   }]);
 
@@ -313,6 +421,7 @@ var minimal = {
   start: function start() {
     var rootEls = document.querySelectorAll('[x-data]');
     rootEls.forEach(function (rootEl) {
+      // @todo - only set window.component in testing environments
       window.component = new _component__WEBPACK_IMPORTED_MODULE_0__["default"](rootEl);
     });
   }
@@ -389,12 +498,12 @@ function saferEvalNoReturn(expression, dataContext) {
   return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with($data) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 }
 function isXAttr(attr) {
-  var xAttrRE = /x-(on|bind|data|text)/;
+  var xAttrRE = /x-(on|bind|data|text|model)/;
   return xAttrRE.test(attr.name);
 }
-function getXAttrs(el, name) {
+function getXAttrs(el, type) {
   return Array.from(el.attributes).filter(isXAttr).map(function (attr) {
-    var typeMatch = attr.name.match(/x-(on|bind|data|text)/);
+    var typeMatch = attr.name.match(/x-(on|bind|data|text|model)/);
     var valueMatch = attr.name.match(/:([a-zA-Z\-]+)/);
     var modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     return {
@@ -406,6 +515,8 @@ function getXAttrs(el, name) {
       expression: attr.value
     };
   }).filter(function (i) {
+    // If no type is passed in for filtering, bypassfilter
+    if (!type) return true;
     return i.type === name;
   });
 }

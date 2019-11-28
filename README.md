@@ -56,7 +56,6 @@ There are 5 directives available to you:
 Here's how they each work:
 
 ### `x-data`
----
 
 | | |
 --- | ---
@@ -67,8 +66,9 @@ Structure | `<div x-data="[JSON data object]">...</div>`
 
 Think of it like the `data` property of a Vue component.
 
-### `x-bind`
 ---
+
+### `x-bind`
 Example: `<input x-bind:type="inputType">`
 
 Structure: `<input x-bind:[attribute]="[expression]">`

@@ -6,7 +6,7 @@ You get to keep your DOM, and sprinkle in behavior as you see fit.
 
 Think of it like Tailwind for JavaScript.
 
-> Note: This tool's syntax is almost entirely borrowed from VueJs. I am forever grateful the gift it is to the web.
+> Note: This tool's syntax is almost entirely borrowed from VueJs. I am forever grateful for the gift it is to the web.
 
 ## Install
 Add the following script at the end of your `<head>` tag.

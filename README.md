@@ -70,9 +70,9 @@ Think of it like the `data` property of a Vue component.
 ---
 
 ### `x-bind`
-Example: `<input x-bind:type="inputType">`
+**Example:** `<input x-bind:type="inputType">`
 
-Structure: `<input x-bind:[attribute]="[expression]">`
+**Structure:** `<input x-bind:[attribute]="[expression]">`
 
 `x-bind` sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component's data object, and will update every-time it's data is updated.
 
@@ -89,11 +89,13 @@ For example:
 
 In this example, the "hidden" class will only be applied when the value of the `foo` data attribute is `true`.
 
-### `x-on`
 ---
-Example: `<button x-on:click="foo = 'bar'"></button>`
 
-Structure: `<button x-on:[event]="[expression]"></button>`
+### `x-on`
+
+**Example:** `<button x-on:click="foo = 'bar'"></button>`
+
+**Structure:** `<button x-on:[event]="[expression]"></button>`
 
 `x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as it's value is executed.
 
@@ -101,26 +103,28 @@ If any data is modified in the expression, other element attributes "bound" to t
 
 **`.away` modifier**
 
-Example: `<div x-on:click.away="showModal = false"></div>`
+**Example:** `<div x-on:click.away="showModal = false"></div>`
 
 When the `.away` modifier is present, the event handler will only be executed when the event originates from a source other than itself, or its children.
 
 This is useful for hiding dropdowns and modals when a user clicks away from them.
 
-### `x-model`
 ---
-Example: `<input type="text" x-model="foo">`
 
-Structure: `<input type="text" x-model="[data item]">`
+### `x-model`
+**Example:** `<input type="text" x-model="foo">`
+
+**Structure:** `<input type="text" x-model="[data item]">`
 
 `x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
 
 > Note: `x-model` is smart enough to detect changes on text inputs, checkboxes, radio buttons, textareas, selects, and multiple selects. It should behave [how Vue would](https://vuejs.org/v2/guide/forms.html) in those scenarios.
 
-### `x-text`
 ---
-Example: `<span x-text="foo"></span>`
 
-Structure: `<span x-text="[expression]"`
+### `x-text`
+**Example:** `<span x-text="foo"></span>`
+
+**Structure:** `<span x-text="[expression]"`
 
 `x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.

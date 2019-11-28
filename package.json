@@ -1,6 +1,6 @@
 {
-  "main": "dist/minimal.js",
-  "name": "minimal",
+  "main": "dist/project-x.js",
+  "name": "project-x",
   "scripts": {
     "test": "jest",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",

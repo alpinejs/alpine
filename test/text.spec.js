@@ -1,4 +1,4 @@
-import minimal from 'minimal'
+import projectX from 'projectX'
 import { wait } from 'dom-testing-library'
 
 test('x-text on init', async () => {
@@ -8,7 +8,7 @@ test('x-text on init', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
@@ -22,7 +22,7 @@ test('x-text on triggered update', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('') })
 

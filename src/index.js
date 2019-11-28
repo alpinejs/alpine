@@ -1,7 +1,7 @@
 /* @flow */
 import Component from './component'
 
-const minimal = {
+const projectX = {
     start: function () {
         this.discoverComponents()
 
@@ -55,8 +55,8 @@ const minimal = {
     }
 }
 
-if (! window.minimal) {
-    window.minimal = minimal
+if (! window.projectX) {
+    window.projectX = projectX
 }
 
-export default minimal
+export default projectX

@@ -1,4 +1,4 @@
-import minimal from 'minimal'
+import projectX from 'projectX'
 import { wait } from 'dom-testing-library'
 
 test('data modified in event listener updates effected attribute bindings', async () => {
@@ -10,7 +10,7 @@ test('data modified in event listener updates effected attribute bindings', asyn
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -30,7 +30,7 @@ test('data modified in event listener doesnt update uneffected attribute binding
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelectorAll('span')[0].getAttribute('output')).toEqual('bar')
     expect(document.querySelectorAll('span')[1].getAttribute('output')).toEqual('0')
@@ -63,7 +63,7 @@ test('click away', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelector('ul').getAttribute('value')).toEqual('true')
 

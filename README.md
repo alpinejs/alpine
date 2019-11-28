@@ -1,7 +1,7 @@
-## Minimal JS
+## Project X
 
 ### Install
-`<script src="https://cdn.jsdelivr.net/gh/minimaljs/minimal/dist/minimal.min.js"></script>`
+`<script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x/dist/project-x.min.js"></script>`
 
 ### Use
 *Dropdown/Modal*

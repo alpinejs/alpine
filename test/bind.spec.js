@@ -1,4 +1,4 @@
-import minimal from 'minimal'
+import projectX from 'projectX'
 
 test('attribute bindings are set on initialize', async () => {
     document.body.innerHTML = `
@@ -7,7 +7,7 @@ test('attribute bindings are set on initialize', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 })
@@ -19,7 +19,7 @@ test('class attribute bindings are removed by object syntax', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeFalsy()
 })
@@ -31,7 +31,7 @@ test('class attribute bindings are added by object syntax', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
@@ -43,7 +43,7 @@ test('class attribute bindings are removed by array syntax', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeFalsy()
 })
@@ -55,7 +55,7 @@ test('class attribute bindings are added by array syntax', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy
 })
@@ -70,7 +70,7 @@ test('boolean attributes set to false are removed from element', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelectorAll('input')[0].disabled).toBeFalsy()
     expect(document.querySelectorAll('input')[1].checked).toBeFalsy()
@@ -88,7 +88,7 @@ test('boolean attributes set to true are added to element', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelectorAll('input')[0].disabled).toBeTruthy()
     expect(document.querySelectorAll('input')[1].checked).toBeTruthy()

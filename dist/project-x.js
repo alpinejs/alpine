@@ -620,7 +620,7 @@ __webpack_require__.r(__webpack_exports__);
 /* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var _component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./component */ "./src/component.js");
 /* @flow */
 
-var minimal = {
+var projectX = {
   start: function start() {
     var _this = this;
 
@@ -672,11 +672,11 @@ var minimal = {
   }
 };
 
-if (!window.minimal) {
-  window.minimal = minimal;
+if (!window.projectX) {
+  window.projectX = projectX;
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (minimal);
+/* harmony default export */ __webpack_exports__["default"] = (projectX);
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../node_modules/process/browser.js */ "./node_modules/process/browser.js")))
 
 /***/ }),
@@ -776,7 +776,7 @@ function getXAttrs(el, type) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/calebporzio/Documents/Code/sites/minimal/src/index.js */"./src/index.js");
+module.exports = __webpack_require__(/*! /Users/calebporzio/Documents/Code/sites/project-x/src/index.js */"./src/index.js");
 
 
 /***/ })

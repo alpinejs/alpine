@@ -1,4 +1,4 @@
-import minimal from 'minimal'
+import projectX from 'projectX'
 import { wait, fireEvent } from 'dom-testing-library'
 
 test('x-model has value binding when initialized', async () => {
@@ -8,7 +8,7 @@ test('x-model has value binding when initialized', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelector('input').value).toEqual('bar')
 })
@@ -20,7 +20,7 @@ test('x-model updates value when updated via input event', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'baz' }})
 
@@ -34,7 +34,7 @@ test('x-model casts value to number if number modifier is present', async () => 
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: '123' }})
 
@@ -50,7 +50,7 @@ test('x-model trims value if trim modifier is present', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar   ' }})
 
@@ -64,7 +64,7 @@ test('x-model updates value when updated via changed event when lazy modifier is
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     fireEvent.change(document.querySelector('input'), { target: { value: 'baz' }})
 
@@ -80,7 +80,7 @@ test('x-model binds checkbox value', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelector('input').checked).toEqual(true)
     expect(document.querySelector('span').getAttribute('bar')).toEqual("true")
@@ -100,7 +100,7 @@ test('x-model binds checkbox value to array', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelectorAll('input')[0].checked).toEqual(true)
     expect(document.querySelectorAll('input')[1].checked).toEqual(false)
@@ -125,7 +125,7 @@ test('x-model binds radio value', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelectorAll('input')[0].checked).toEqual(true)
     expect(document.querySelectorAll('input')[1].checked).toEqual(false)
@@ -153,7 +153,7 @@ test('x-model binds select dropdown', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelectorAll('option')[0].selected).toEqual(false)
     expect(document.querySelectorAll('option')[1].selected).toEqual(true)
@@ -183,7 +183,7 @@ test('x-model binds multiple select dropdown', async () => {
         </div>
     `
 
-    minimal.start()
+    projectX.start()
 
     expect(document.querySelectorAll('option')[0].selected).toEqual(false)
     expect(document.querySelectorAll('option')[1].selected).toEqual(true)

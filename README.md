@@ -13,7 +13,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 ## Install
 Add the following script to the end of your `<head>` tag.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x/dist/project-x.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.1.0/dist/project-x.min.js" defer></script>
 ```
 
 ## Use

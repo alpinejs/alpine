@@ -6,7 +6,7 @@ You get to keep your DOM, and sprinkle in behavior as you see fit.
 
 It weighs only 3.6KB.
 
-Think of it like Tailwind for JavaScript.
+Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 > Note: This tool's syntax is almost entirely borrowed from VueJs. I am forever grateful for the gift that it is to the web.
 

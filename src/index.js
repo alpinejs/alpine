@@ -3,12 +3,55 @@ import Component from './component'
 
 const minimal = {
     start: function () {
+        this.discoverComponents()
+
+        // It's easier and more performant to just support Turbolinks than listen
+        // to MutationOberserver mutations at the document level.
+        document.addEventListener("turbolinks:load", () => {
+            this.discoverComponents()
+        })
+
+        var targetNode = document.querySelector('body');
+        var observerOptions = {
+            childList: true,
+            attributes: true,
+            subtree: true //Omit or set to false to observe only changes to the parent node.
+        }
+
+        var observer = new MutationObserver((mutations) => {
+            for (var i=0; i < mutations.length; i++){
+                if (mutations[i].addedNodes.length > 0) {
+                    mutations[i].addedNodes.forEach(node => {
+                        if (node.nodeType !== 1) return
+
+                        if (node.matches('[x-data]')) {
+                            this.initializeElement(node)
+                        }
+                    })
+                }
+              }
+        });
+
+        observer.observe(targetNode, observerOptions);
+    },
+
+    discoverComponents: function () {
         const rootEls = document.querySelectorAll('[x-data]');
 
         rootEls.forEach(rootEl => {
-            // @todo - only set window.component in testing environments
-            window.component = new Component(rootEl)
+            this.initializeElement(rootEl)
         })
+    },
+
+    initializeElement: function (el) {
+        if (process.env.JEST_WORKER_ID) {
+            // This is so the component is accessible to Jest tests.
+            // It's ok to put this in a loop because Jest tests
+            // typically test only 1 component.
+            window.component = new Component(el)
+        } else {
+            new Component(el)
+        }
     }
 }
 

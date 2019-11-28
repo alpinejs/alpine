@@ -3,8 +3,23 @@
         <style>
             .hidden { display: none; }
         </style>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.js" integrity="sha256-iM4Yzi/zLj/IshPWMC1IluRxTtRjMqjPGd97TZ9yYpU=" crossorigin="anonymous"></script>
+        <script src="/dist/minimal.js" defer></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.minimal.start()
+            })
+        </script>
     </head>
     <body>
+        <a href="/link-target">turbo-page</a>
+
+        <div>
+            <div id="goHere">
+                some nested thing
+            </div>
+        </div>
         <div x-data="{ foo: ['bar', 'baz'] }">
             <select x-model="foo" multiple>
                 <option disabled value="">Please select one</option>
@@ -45,9 +60,18 @@
             <span class="" x-bind:class="['hey']"></span>
         </div>
 
-        <script src="/dist/minimal.min.js"></script>
         <script>
-            window.minimal.start()
+            const thing = document.querySelector('#goHere')
+            const handler = (e) => {
+                thing.removeEventListener('click', handler)
+
+                const div = document.createElement('div')
+                div.setAttribute('x-data', '{hey: "there"}')
+                div.innerHTML = '<input type="text" x-model="hey"><h1 x-text="hey"></h1>'
+                e.target.appendChild(div)
+            }
+
+            var listener = thing.addEventListener('click', handler)
         </script>
     </body>
 </html>

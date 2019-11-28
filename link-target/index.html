@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <style>
+            .hidden { display: none; }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.js" integrity="sha256-iM4Yzi/zLj/IshPWMC1IluRxTtRjMqjPGd97TZ9yYpU=" crossorigin="anonymous"></script>
+        <script src="/dist/minimal.js" defer></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.minimal.start()
+            })
+        </script>
+    </head>
+    <body>
+        <div>hey</div>
+
+        <div x-data="{ lol: 'hey' }">
+            <input type="text" x-model="lol">
+            <span x-text="lol"></span>
+        </div>
+    </body>
+</html>

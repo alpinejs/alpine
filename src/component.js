@@ -23,39 +23,14 @@ export default class Component {
                     case 'model':
                         // If the element we are binding to is a select, a radio, or checkbox
                         // we'll listen for the change event instead of the "input" event.
-                        var event = (
-                            el.tagName.toLowerCase() === 'select')
-                            || (['checkbox', 'radio'].includes(el.type)
+                        var event = (el.tagName.toLowerCase() === 'select')
+                            || ['checkbox', 'radio'].includes(el.type)
                             || modifiers.includes('lazy')
-                            )
-                                ? 'change' : 'input'
+                            ? 'change' : 'input'
 
-                        var rightSideOfExpression = ''
-                        if (el.type === 'checkbox') {
-                            // If the data we are binding to is an array, toggle it's value inside the array.
-                            if (Array.isArray(this.data[expression])) {
-                                rightSideOfExpression = `$event.target.checked ? ${expression}.concat([$event.target.value]) : [...${expression}.splice(0, ${expression}.indexOf($event.target.value)), ...${expression}.splice(${expression}.indexOf($event.target.value)+1)]`
-                            } else {
-                                rightSideOfExpression = `$event.target.checked`
-                            }
-                        } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
-                            rightSideOfExpression = modifiers.includes('number')
-                                ? 'Array.from($event.target.selectedOptions).map(option => { return parseFloat(option.value || option.text) })'
-                                : 'Array.from($event.target.selectedOptions).map(option => { return option.value || option.text })'
-                        } else {
-                            rightSideOfExpression = modifiers.includes('number')
-                                ? 'parseFloat($event.target.value)'
-                                : (modifiers.includes('trim') ? '$event.target.value.trim()' : '$event.target.value')
-                        }
+                        const listenerExpression = this.generateExpressionForXModelListener(el, modifiers, expression)
 
-                        if (el.type === 'radio') {
-                            // Radio buttons only work properly when they share a name attribute.
-                            // People might assume we take care of that for them, because
-                            // they already set a shared "x-model" attribute.
-                            if (! el.hasAttribute('name')) el.setAttribute('name', expression)
-                        }
-
-                        this.registerListener(el, event, modifiers, `${expression} = ${rightSideOfExpression}`)
+                        this.registerListener(el, event, modifiers, listenerExpression)
 
                         var attrName = 'value'
                         var { output } = this.evaluateReturnExpression(expression)
@@ -107,6 +82,35 @@ export default class Component {
                 }
             })
         })
+    }
+
+    generateExpressionForXModelListener(el, modifiers, dataKey) {
+        var rightSideOfExpression = ''
+        if (el.type === 'checkbox') {
+            // If the data we are binding to is an array, toggle it's value inside the array.
+            if (Array.isArray(this.data[dataKey])) {
+                rightSideOfExpression = `$event.target.checked ? ${dataKey}.concat([$event.target.value]) : [...${dataKey}.splice(0, ${dataKey}.indexOf($event.target.value)), ...${dataKey}.splice(${dataKey}.indexOf($event.target.value)+1)]`
+            } else {
+                rightSideOfExpression = `$event.target.checked`
+            }
+        } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
+            rightSideOfExpression = modifiers.includes('number')
+                ? 'Array.from($event.target.selectedOptions).map(option => { return parseFloat(option.value || option.text) })'
+                : 'Array.from($event.target.selectedOptions).map(option => { return option.value || option.text })'
+        } else {
+            rightSideOfExpression = modifiers.includes('number')
+                ? 'parseFloat($event.target.value)'
+                : (modifiers.includes('trim') ? '$event.target.value.trim()' : '$event.target.value')
+        }
+
+        if (el.type === 'radio') {
+            // Radio buttons only work properly when they share a name attribute.
+            // People might assume we take care of that for them, because
+            // they already set a shared "x-model" attribute.
+            if (! el.hasAttribute('name')) el.setAttribute('name', dataKey)
+        }
+
+        return `${dataKey} = ${rightSideOfExpression}`
     }
 
     registerListener(el, event, modifiers, expression) {

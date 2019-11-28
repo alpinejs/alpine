@@ -48,6 +48,7 @@ There are 5 directives available to you:
 Here's how they each work:
 
 ### x-data
+---
 Example: `<div x-data="{ foo: 'bar' }">...</div>`
 
 Structure: `<div x-data="[JSON data object]">...</div>`
@@ -65,7 +66,8 @@ Structure: `<input x-bind:[attribute]="[expression]">`
 
 > Note: attribute bindings ONLY update when their dependancies update. The framework is smart enough to observe data changes and detect which bindings care about them.
 
-#### `x-bind` Class Attribute
+**`x-bind` for class attributes**
+
 `x-bind` behaves a little differently when binding to the `class` attribute.
 
 For classes, you pass in an object who's keys are class names, and values are boolean expressions to determine if those class names are applied or not.
@@ -84,8 +86,7 @@ Structure: `<button x-on:[event]="[expression]"></button>`
 
 If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
 
-#### Modifiers
-**`.away`**
+**`.away` modifier**
 
 Example: `<div x-on:click.away="showModal = false"></div>`
 
@@ -99,3 +100,12 @@ Example: `<input type="text" x-model="foo">`
 Structure: `<input type="text" x-model="[data item]">`
 
 `x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
+
+> Note: `x-model` is smart enough to detect changes on text inputs, checkboxes, radio buttons, textareas, selects, and multiple selects. It should behave [how Vue would](https://vuejs.org/v2/guide/forms.html) in those scenarios.
+
+### `x-text`
+Example: `<span x-text="foo"></span>`
+
+Structure: `<span x-text="[expression]"`
+
+`x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.

@@ -1,8 +1,11 @@
 /* @flow */
 import Component from './component'
+import { domReady, isTesting } from './utils'
 
 const projectX = {
-    start: function () {
+    start: async function () {
+        await domReady()
+
         this.discoverComponents()
 
         // It's easier and more performant to just support Turbolinks than listen
@@ -44,10 +47,8 @@ const projectX = {
     },
 
     initializeElement: function (el) {
-        if (process.env.JEST_WORKER_ID) {
-            // This is so the component is accessible to Jest tests.
-            // It's ok to put this in a loop because Jest tests
-            // typically test only 1 component.
+        if (isTesting()) {
+            // This is so the (usually only one) component is accessible to Jest tests.
             window.component = new Component(el)
         } else {
             new Component(el)
@@ -55,8 +56,9 @@ const projectX = {
     }
 }
 
-if (! window.projectX) {
+if (! window.projectX && ! isTesting()) {
     window.projectX = projectX
+    window.projectX.start()
 }
 
 export default projectX

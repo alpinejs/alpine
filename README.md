@@ -58,6 +58,7 @@ Here's how they each work:
 ### `x-data`
 ---
 
+| | |
 --- | ---
 Example | `<div x-data="{ foo: 'bar' }">...</div>`
 Structure | `<div x-data="[JSON data object]">...</div>`

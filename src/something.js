@@ -2,7 +2,7 @@
 
 const validDivisionCharRE = /[\w).+\-_$\]]/
 
-export function parseFilters (exp: string): string {
+export function parseFilters(exp: string): string {
   let inSingle = false
   let inDouble = false
   let inTemplateString = false
@@ -39,15 +39,33 @@ export function parseFilters (exp: string): string {
       }
     } else {
       switch (c) {
-        case 0x22: inDouble = true; break         // "
-        case 0x27: inSingle = true; break         // '
-        case 0x60: inTemplateString = true; break // `
-        case 0x28: paren++; break                 // (
-        case 0x29: paren--; break                 // )
-        case 0x5B: square++; break                // [
-        case 0x5D: square--; break                // ]
-        case 0x7B: curly++; break                 // {
-        case 0x7D: curly--; break                 // }
+        case 0x22:
+          inDouble = true;
+          break // "
+        case 0x27:
+          inSingle = true;
+          break // '
+        case 0x60:
+          inTemplateString = true;
+          break // `
+        case 0x28:
+          paren++;
+          break // (
+        case 0x29:
+          paren--;
+          break // )
+        case 0x5B:
+          square++;
+          break // [
+        case 0x5D:
+          square--;
+          break // ]
+        case 0x7B:
+          curly++;
+          break // {
+        case 0x7D:
+          curly--;
+          break // }
       }
       if (c === 0x2f) { // /
         let j = i - 1
@@ -70,7 +88,7 @@ export function parseFilters (exp: string): string {
     pushFilter()
   }
 
-  function pushFilter () {
+  function pushFilter() {
     (filters || (filters = [])).push(exp.slice(lastFilterIndex, i).trim())
     lastFilterIndex = i + 1
   }
@@ -84,7 +102,7 @@ export function parseFilters (exp: string): string {
   return expression
 }
 
-function wrapFilter (exp: string, filter: string): string {
+function wrapFilter(exp: string, filter: string): string {
   const i = filter.indexOf('(')
   if (i < 0) {
     // _f: resolveFilter

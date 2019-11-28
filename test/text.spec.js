@@ -2,19 +2,21 @@ import projectX from 'projectX'
 import { wait } from 'dom-testing-library'
 
 test('x-text on init', async () => {
-    document.body.innerHTML = `
+  document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">
             <span x-text="foo"></span>
         </div>
     `
 
-    projectX.start()
+  projectX.start()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+  await wait(() => {
+    expect(document.querySelector('span').innerText).toEqual('bar')
+  })
 })
 
 test('x-text on triggered update', async () => {
-    document.body.innerHTML = `
+  document.body.innerHTML = `
         <div x-data="{ foo: '' }">
             <button x-on:click="foo = 'bar'"></button>
 
@@ -22,11 +24,15 @@ test('x-text on triggered update', async () => {
         </div>
     `
 
-    projectX.start()
+  projectX.start()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('') })
+  await wait(() => {
+    expect(document.querySelector('span').innerText).toEqual('')
+  })
 
-    document.querySelector('button').click()
+  document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+  await wait(() => {
+    expect(document.querySelector('span').innerText).toEqual('bar')
+  })
 })

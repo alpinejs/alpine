@@ -95,17 +95,3 @@ test('boolean attributes set to true are added to element', async () => {
     expect(document.querySelectorAll('input')[2].required).toBeTruthy()
     expect(document.querySelectorAll('input')[3].readOnly).toBeTruthy()
 })
-
-test('x-cloak is removed', async () => {
-    document.body.innerHTML = `
-        <div x-data="{ hidden: true }">
-            <span x-cloak></span>
-        </div>
-    `
-
-    expect(document.querySelector('span').getAttribute('x-cloak')).not.toBeNull()
-
-    projectX.start()
-
-    expect(document.querySelector('span').getAttribute('x-cloak')).toBeNull()
-})

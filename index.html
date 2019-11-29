@@ -2,6 +2,7 @@
     <head>
         <style>
             .hidden { display: none; }
+            [x-cloak] { display: none; }
         </style>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.js" integrity="sha256-iM4Yzi/zLj/IshPWMC1IluRxTtRjMqjPGd97TZ9yYpU=" crossorigin="anonymous"></script>
@@ -14,9 +15,9 @@
             <button x-on:click="open = true">Open Dropdown</button>
 
             <ul
-                class="hidden"
                 x-bind:class="{ 'hidden': ! open }"
                 x-on:click.away="open = false"
+                x-cloak
             >
                 Dropdown Body
             </ul>

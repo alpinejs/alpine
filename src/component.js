@@ -48,6 +48,10 @@ export default class Component {
                         this.updateTextValue(el, output)
                         break;
 
+                    case 'cloak':
+                        el.removeAttribute('x-cloak')
+                        break;
+
                     default:
                         break;
                 }

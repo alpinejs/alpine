@@ -1222,7 +1222,7 @@ var projectX = {
             // to MutationOberserver mutations at the document level.
 
             document.addEventListener("turbolinks:load", function () {
-              _this.discoverComponents();
+              _this.discoverUndiscoveredComponents();
             });
             targetNode = document.querySelector('body');
             observerOptions = {
@@ -1258,6 +1258,16 @@ var projectX = {
     var rootEls = document.querySelectorAll('[x-data]');
     rootEls.forEach(function (rootEl) {
       _this2.initializeElement(rootEl);
+    });
+  },
+  discoverUndiscoveredComponents: function discoverUndiscoveredComponents() {
+    var _this3 = this;
+
+    var rootEls = document.querySelectorAll('[x-data]');
+    Array.from(rootEls).filter(function (el) {
+      return el.__x === undefined;
+    }).forEach(function (rootEl) {
+      _this3.initializeElement(rootEl);
     });
   },
   initializeElement: function initializeElement(el) {

@@ -13,7 +13,7 @@ const projectX = {
         // It's easier and more performant to just support Turbolinks than listen
         // to MutationOberserver mutations at the document level.
         document.addEventListener("turbolinks:load", () => {
-            this.discoverComponents()
+            this.discoverUndiscoveredComponents()
         })
 
         var targetNode = document.querySelector('body');
@@ -46,6 +46,16 @@ const projectX = {
         rootEls.forEach(rootEl => {
             this.initializeElement(rootEl)
         })
+    },
+
+    discoverUndiscoveredComponents: function () {
+        const rootEls = document.querySelectorAll('[x-data]');
+
+        Array.from(rootEls)
+            .filter(el => el.__x === undefined)
+            .forEach(rootEl => {
+                this.initializeElement(rootEl)
+            })
     },
 
     initializeElement: function (el) {

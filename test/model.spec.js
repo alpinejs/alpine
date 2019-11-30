@@ -31,6 +31,22 @@ test('x-model updates value when updated via input event', async () => {
     await wait(() => { expect(document.querySelector('input').value).toEqual('baz') })
 })
 
+test('x-model reflects data changed elsewhere', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <input x-model="foo"></input>
+
+            <button x-on:click="foo = 'baz'"></button>
+        </div>
+    `
+
+    projectX.start()
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('input').value).toEqual('baz') })
+})
+
 test('x-model casts value to number if number modifier is present', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: null }">

@@ -958,12 +958,25 @@ function () {
               expression = _ref2.expression;
 
           switch (type) {
-            case 'bind':
-              var attrName = value;
-
+            case 'model':
               var _self$evaluateReturnE = self.evaluateReturnExpression(expression),
                   output = _self$evaluateReturnE.output,
                   deps = _self$evaluateReturnE.deps;
+
+              if (self.concernedData.filter(function (i) {
+                return deps.includes(i);
+              }).length > 0) {
+                self.updateAttributeValue(el, 'value', output);
+              }
+
+              break;
+
+            case 'bind':
+              var attrName = value;
+
+              var _self$evaluateReturnE2 = self.evaluateReturnExpression(expression),
+                  output = _self$evaluateReturnE2.output,
+                  deps = _self$evaluateReturnE2.deps;
 
               if (self.concernedData.filter(function (i) {
                 return deps.includes(i);
@@ -974,9 +987,9 @@ function () {
               break;
 
             case 'text':
-              var _self$evaluateReturnE2 = self.evaluateReturnExpression(expression),
-                  output = _self$evaluateReturnE2.output,
-                  deps = _self$evaluateReturnE2.deps;
+              var _self$evaluateReturnE3 = self.evaluateReturnExpression(expression),
+                  output = _self$evaluateReturnE3.output,
+                  deps = _self$evaluateReturnE3.deps;
 
               if (self.concernedData.filter(function (i) {
                 return deps.includes(i);

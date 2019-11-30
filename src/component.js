@@ -60,6 +60,13 @@ export default class Component {
         debounce(walk, 5)(this.el, function (el) {
             getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
                 switch (type) {
+                    case 'model':
+                        var { output, deps } = self.evaluateReturnExpression(expression)
+
+                        if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
+                            self.updateAttributeValue(el, 'value', output)
+                        }
+                        break;
                     case 'bind':
                         const attrName = value
                         var { output, deps } = self.evaluateReturnExpression(expression)

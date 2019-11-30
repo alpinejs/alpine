@@ -56,11 +56,12 @@ test('data modified in event listener doesnt update uneffected attribute binding
 
 test('click away', async () => {
     document.body.innerHTML = `
+        <style>.hidden { display: none; }</style>
         <div id="outer">
             <div x-data="{ isOpen: true }">
                 <button x-on:click="isOpen = true"></button>
 
-                <ul x-bind:value="isOpen" x-on:click.away="isOpen = false">
+                <ul x-bind:class="{ 'hidden': ! isOpen }" x-on:click.away="isOpen = false">
                     <li>...</li>
                 </ul>
             </div>
@@ -69,21 +70,21 @@ test('click away', async () => {
 
     projectX.start()
 
-    expect(document.querySelector('ul').getAttribute('value')).toEqual('true')
+    expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false)
 
     document.querySelector('li').click()
 
-    await wait(() => { expect(document.querySelector('ul').getAttribute('value')).toEqual('true') })
+    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false) })
 
     document.querySelector('ul').click()
 
-    await wait(() => { expect(document.querySelector('ul').getAttribute('value')).toEqual('true') })
+    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false) })
 
     document.querySelector('#outer').click()
 
-    await wait(() => { expect(document.querySelector('ul').getAttribute('value')).toEqual('false') })
+    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(true) })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('ul').getAttribute('value')).toEqual('true') })
+    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false) })
 })

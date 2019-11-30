@@ -8,15 +8,44 @@ const projectX = {
             await domReady()
         }
 
-        this.discoverComponents()
+        this.discoverComponents(el => {
+            this.initializeElement(el)
+        })
 
         // It's easier and more performant to just support Turbolinks than listen
         // to MutationOberserver mutations at the document level.
         document.addEventListener("turbolinks:load", () => {
-            this.discoverUndiscoveredComponents()
+            this.discoverUninitializedComponents(el => {
+                this.initializeElement(el)
+            })
         })
 
+        this.listenForNewUninitializedComponentsAtRunTime(el => {
+            this.initializeElement(el)
+        })
+    },
+
+    discoverComponents: function (callback) {
+        const rootEls = document.querySelectorAll('[x-data]');
+
+        rootEls.forEach(rootEl => {
+            callback(rootEl)
+        })
+    },
+
+    discoverUninitializedComponents: function (callback) {
+        const rootEls = document.querySelectorAll('[x-data]');
+
+        Array.from(rootEls)
+            .filter(el => el.__x === undefined)
+            .forEach(rootEl => {
+                callback(rootEl)
+            })
+    },
+
+    listenForNewUninitializedComponentsAtRunTime: function (callback) {
         var targetNode = document.querySelector('body');
+
         var observerOptions = {
             childList: true,
             attributes: true,
@@ -30,7 +59,7 @@ const projectX = {
                         if (node.nodeType !== 1) return
 
                         if (node.matches('[x-data]')) {
-                            this.initializeElement(node)
+                            callback(node)
                         }
                     })
                 }
@@ -38,24 +67,6 @@ const projectX = {
         });
 
         observer.observe(targetNode, observerOptions);
-    },
-
-    discoverComponents: function () {
-        const rootEls = document.querySelectorAll('[x-data]');
-
-        rootEls.forEach(rootEl => {
-            this.initializeElement(rootEl)
-        })
-    },
-
-    discoverUndiscoveredComponents: function () {
-        const rootEls = document.querySelectorAll('[x-data]');
-
-        Array.from(rootEls)
-            .filter(el => el.__x === undefined)
-            .forEach(rootEl => {
-                this.initializeElement(rootEl)
-            })
     },
 
     initializeElement: function (el) {

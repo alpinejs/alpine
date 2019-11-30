@@ -5,7 +5,7 @@ global.MutationObserver = class {
     observe() {}
 }
 
-test('auto-detect new components and dont loose state of existing ones', async () => {
+test('auto-detect new components and dont lose state of existing ones', async () => {
     var runObserver
 
     global.MutationObserver = class {

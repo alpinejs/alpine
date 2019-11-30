@@ -856,14 +856,6 @@ try {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Component; });
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -879,12 +871,30 @@ function () {
     _classCallCheck(this, Component);
 
     this.el = el;
-    this.data = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(this.el.getAttribute('x-data'), {});
-    this.concernedData = [];
+    var rawData = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(this.el.getAttribute('x-data'), {});
+    this.data = this.wrapDataInObservable(rawData);
     this.initialize();
   }
 
   _createClass(Component, [{
+    key: "wrapDataInObservable",
+    value: function wrapDataInObservable(data) {
+      this.concernedData = [];
+      var self = this;
+      return new Proxy(data, {
+        set: function set(obj, property, value) {
+          var setWasSuccessful = Reflect.set(obj, property, value);
+
+          if (self.concernedData.indexOf(property) === -1) {
+            self.concernedData.push(property);
+          }
+
+          self.refresh();
+          return setWasSuccessful;
+        }
+      });
+    }
+  }, {
     key: "initialize",
     value: function initialize() {
       var _this = this;
@@ -954,7 +964,13 @@ function () {
     key: "refresh",
     value: function refresh() {
       var self = this;
-      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["debounce"])(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"], 5)(this.el, function (el) {
+
+      var walkThenClearDependancyTracker = function walkThenClearDependancyTracker(rootEl, callback) {
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"])(rootEl, callback);
+        self.concernedData = [];
+      };
+
+      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["debounce"])(walkThenClearDependancyTracker, 5)(this.el, function (el) {
         Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el).forEach(function (_ref2) {
           var type = _ref2.type,
               value = _ref2.value,
@@ -1064,17 +1080,9 @@ function () {
   }, {
     key: "runListenerHandler",
     value: function runListenerHandler(expression, e) {
-      var _this$concernedData;
-
-      var _this$evaluateCommand = this.evaluateCommandExpression(expression, {
+      this.evaluateCommandExpression(expression, {
         '$event': e
-      }),
-          deps = _this$evaluateCommand.deps;
-
-      (_this$concernedData = this.concernedData).push.apply(_this$concernedData, _toConsumableArray(deps));
-
-      this.concernedData = this.concernedData.filter(_utils__WEBPACK_IMPORTED_MODULE_0__["onlyUnique"]);
-      this.refresh();
+      });
     }
   }, {
     key: "evaluateReturnExpression",
@@ -1095,18 +1103,7 @@ function () {
   }, {
     key: "evaluateCommandExpression",
     value: function evaluateCommandExpression(expression, extraData) {
-      var affectedDataKeys = [];
-      var proxiedData = new Proxy(this.data, {
-        set: function set(obj, property, value) {
-          var setWasSuccessful = Reflect.set(obj, property, value);
-          affectedDataKeys.push(property);
-          return setWasSuccessful;
-        }
-      });
-      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEvalNoReturn"])(expression, proxiedData, extraData);
-      return {
-        deps: affectedDataKeys
-      };
+      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEvalNoReturn"])(expression, this.data, extraData);
     }
   }, {
     key: "updateTextValue",
@@ -1204,7 +1201,6 @@ var projectX = {
   start: function start() {
     var _this = this;
 
-    var targetNode, observerOptions, observer;
     return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.async(function start$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -1218,57 +1214,62 @@ var projectX = {
             return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.awrap(Object(_utils__WEBPACK_IMPORTED_MODULE_2__["domReady"])());
 
           case 3:
-            this.discoverComponents(); // It's easier and more performant to just support Turbolinks than listen
+            this.discoverComponents(function (el) {
+              _this.initializeElement(el);
+            }); // It's easier and more performant to just support Turbolinks than listen
             // to MutationOberserver mutations at the document level.
 
             document.addEventListener("turbolinks:load", function () {
-              _this.discoverUndiscoveredComponents();
+              _this.discoverUninitializedComponents(function (el) {
+                _this.initializeElement(el);
+              });
             });
-            targetNode = document.querySelector('body');
-            observerOptions = {
-              childList: true,
-              attributes: true,
-              subtree: true
-            };
-            observer = new MutationObserver(function (mutations) {
-              for (var i = 0; i < mutations.length; i++) {
-                if (mutations[i].addedNodes.length > 0) {
-                  mutations[i].addedNodes.forEach(function (node) {
-                    if (node.nodeType !== 1) return;
-
-                    if (node.matches('[x-data]')) {
-                      _this.initializeElement(node);
-                    }
-                  });
-                }
-              }
+            this.listenForNewUninitializedComponentsAtRunTime(function (el) {
+              _this.initializeElement(el);
             });
-            observer.observe(targetNode, observerOptions);
 
-          case 9:
+          case 6:
           case "end":
             return _context.stop();
         }
       }
     }, null, this);
   },
-  discoverComponents: function discoverComponents() {
-    var _this2 = this;
-
+  discoverComponents: function discoverComponents(callback) {
     var rootEls = document.querySelectorAll('[x-data]');
     rootEls.forEach(function (rootEl) {
-      _this2.initializeElement(rootEl);
+      callback(rootEl);
     });
   },
-  discoverUndiscoveredComponents: function discoverUndiscoveredComponents() {
-    var _this3 = this;
-
+  discoverUninitializedComponents: function discoverUninitializedComponents(callback) {
     var rootEls = document.querySelectorAll('[x-data]');
     Array.from(rootEls).filter(function (el) {
       return el.__x === undefined;
     }).forEach(function (rootEl) {
-      _this3.initializeElement(rootEl);
+      callback(rootEl);
     });
+  },
+  listenForNewUninitializedComponentsAtRunTime: function listenForNewUninitializedComponentsAtRunTime(callback) {
+    var targetNode = document.querySelector('body');
+    var observerOptions = {
+      childList: true,
+      attributes: true,
+      subtree: true
+    };
+    var observer = new MutationObserver(function (mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        if (mutations[i].addedNodes.length > 0) {
+          mutations[i].addedNodes.forEach(function (node) {
+            if (node.nodeType !== 1) return;
+
+            if (node.matches('[x-data]')) {
+              callback(node);
+            }
+          });
+        }
+      }
+    });
+    observer.observe(targetNode, observerOptions);
   },
   initializeElement: function initializeElement(el) {
     el.__x = new _component__WEBPACK_IMPORTED_MODULE_1__["default"](el);

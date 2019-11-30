@@ -4,11 +4,30 @@ export default class Component {
     constructor(el) {
         this.el = el
 
-        this.data = saferEval(this.el.getAttribute('x-data'), {})
+        const rawData = saferEval(this.el.getAttribute('x-data'), {})
 
-        this.concernedData = []
+        this.data = this.wrapDataInObservable(rawData)
 
         this.initialize()
+    }
+
+    wrapDataInObservable(data) {
+        this.concernedData = []
+
+        var self = this
+        return new Proxy(data, {
+            set(obj, property, value) {
+                const setWasSuccessful = Reflect.set(obj, property, value)
+
+                if (self.concernedData.indexOf(property) === -1) {
+                    self.concernedData.push(property)
+                }
+
+                self.refresh()
+
+                return setWasSuccessful
+            }
+        })
     }
 
     initialize() {
@@ -61,7 +80,14 @@ export default class Component {
 
     refresh() {
         var self = this
-        debounce(walk, 5)(this.el, function (el) {
+
+        const walkThenClearDependancyTracker = (rootEl, callback) => {
+            walk(rootEl, callback)
+
+            self.concernedData = []
+        }
+
+        debounce(walkThenClearDependancyTracker, 5)(this.el, function (el) {
             getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
                 switch (type) {
                     case 'model':
@@ -149,12 +175,7 @@ export default class Component {
     }
 
     runListenerHandler(expression, e) {
-        const { deps } = this.evaluateCommandExpression(expression, { '$event': e })
-
-        this.concernedData.push(...deps)
-        this.concernedData = this.concernedData.filter(onlyUnique)
-
-        this.refresh()
+        this.evaluateCommandExpression(expression, { '$event': e })
     }
 
     evaluateReturnExpression(expression) {
@@ -177,21 +198,7 @@ export default class Component {
     }
 
     evaluateCommandExpression(expression, extraData) {
-        var affectedDataKeys = []
-
-        const proxiedData = new Proxy(this.data, {
-            set(obj, property, value) {
-                const setWasSuccessful = Reflect.set(obj, property, value)
-
-                affectedDataKeys.push(property)
-
-                return setWasSuccessful
-            }
-        })
-
-        saferEvalNoReturn(expression, proxiedData, extraData)
-
-        return { deps: affectedDataKeys }
+        saferEvalNoReturn(expression, this.data, extraData)
     }
 
     updateTextValue(el, value) {

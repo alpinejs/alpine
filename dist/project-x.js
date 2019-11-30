@@ -1050,6 +1050,9 @@ function () {
         });
       } else {
         el.addEventListener(event, function (e) {
+          if (modifiers.includes('prevent')) e.preventDefault();
+          if (modifiers.includes('stop')) e.stopPropagation();
+
           _this2.runListenerHandler(expression, e);
         });
       }

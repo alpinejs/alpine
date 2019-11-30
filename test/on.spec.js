@@ -54,6 +54,42 @@ test('data modified in event listener doesnt update uneffected attribute binding
     })
 })
 
+test('.stop modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <button x-on:click="foo = 'baz'">
+                <span></span>
+            </button>
+        </div>
+    `
+
+    projectX.start()
+
+    expect(document.querySelector('div').__x.data.foo).toEqual('bar')
+
+    document.querySelector('span').click()
+
+    await wait(() => {
+        expect(document.querySelector('div').__x.data.foo).toEqual('baz')
+    })
+})
+
+test('.prevent modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{}">
+            <input type="checkbox" x-on:click.prevent>
+        </div>
+    `
+
+    projectX.start()
+
+    expect(document.querySelector('input').checked).toEqual(false)
+
+    document.querySelector('input').click()
+
+    expect(document.querySelector('input').checked).toEqual(false)
+})
+
 test('click away', async () => {
     document.body.innerHTML = `
         <style>.hidden { display: none; }</style>

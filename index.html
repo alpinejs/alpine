@@ -10,6 +10,13 @@
     <body>
         <a href="/link-target">turbo-page</a>
 
+        <div x-data="{ foo: 'bar' }">
+            <div x-on:click="foo = 'baz'">
+                <button x-on:click.stop></button>
+            </div>
+
+            <span x-text="foo"></span>
+        </div>
 
         <div x-data="{ foo: 'bar' }">
             <input x-model="foo"></input>

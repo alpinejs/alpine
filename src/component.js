@@ -136,6 +136,9 @@ export default class Component {
             })
         } else {
             el.addEventListener(event, e => {
+                if (modifiers.includes('prevent')) e.preventDefault()
+                if (modifiers.includes('stop')) e.stopPropagation()
+
                 this.runListenerHandler(expression, e)
             })
         }

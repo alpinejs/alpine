@@ -1,5 +1,9 @@
-import projectX from 'projectX'
+import projectX from 'project-x'
 import { wait, fireEvent } from 'dom-testing-library'
+
+global.MutationObserver = class {
+    observe() {}
+}
 
 test('x-model has value binding when initialized', async () => {
     document.body.innerHTML = `
@@ -38,7 +42,7 @@ test('x-model casts value to number if number modifier is present', async () => 
 
     fireEvent.input(document.querySelector('input'), { target: { value: '123' }})
 
-    await wait(() => { expect(window.component.data.foo).toEqual(123) })
+    await wait(() => { expect(document.querySelector('[x-data]').__x.data.foo).toEqual(123) })
 })
 
 test('x-model trims value if trim modifier is present', async () => {

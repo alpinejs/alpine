@@ -12,7 +12,8 @@ export function domReady() {
 }
 
 export function isTesting() {
-    return process.env.JEST_WORKER_ID !== undefined;
+    return navigator.userAgent, navigator.userAgent.includes("Node.js")
+        || navigator.userAgent.includes("jsdom")
 }
 
 export function walk(el, callback) {

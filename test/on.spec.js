@@ -1,5 +1,9 @@
-import projectX from 'projectX'
+import projectX from 'project-x'
 import { wait } from 'dom-testing-library'
+
+global.MutationObserver = class {
+    observe() {}
+}
 
 test('data modified in event listener updates effected attribute bindings', async () => {
     document.body.innerHTML = `

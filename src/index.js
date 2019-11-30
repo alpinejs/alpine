@@ -4,7 +4,9 @@ import { domReady, isTesting } from './utils'
 
 const projectX = {
     start: async function () {
-        await domReady()
+        if (! isTesting()) {
+            await domReady()
+        }
 
         this.discoverComponents()
 
@@ -18,7 +20,7 @@ const projectX = {
         var observerOptions = {
             childList: true,
             attributes: true,
-            subtree: true //Omit or set to false to observe only changes to the parent node.
+            subtree: true,
         }
 
         var observer = new MutationObserver((mutations) => {
@@ -47,12 +49,7 @@ const projectX = {
     },
 
     initializeElement: function (el) {
-        if (isTesting()) {
-            // This is so the (usually only one) component is accessible to Jest tests.
-            window.component = new Component(el)
-        } else {
-            new Component(el)
-        }
+        el.__x = new Component(el)
     }
 }
 

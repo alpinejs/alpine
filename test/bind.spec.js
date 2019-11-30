@@ -1,4 +1,8 @@
-import projectX from 'projectX'
+import projectX from 'project-x'
+
+global.MutationObserver = class {
+    observe() {}
+}
 
 test('attribute bindings are set on initialize', async () => {
     document.body.innerHTML = `

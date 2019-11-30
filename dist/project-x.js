@@ -940,6 +940,10 @@ function () {
 
               break;
 
+            case 'cloak':
+              el.removeAttribute('x-cloak');
+              break;
+
             default:
               break;
           }
@@ -1349,12 +1353,12 @@ function saferEvalNoReturn(expression, dataContext) {
   return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with($data) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 }
 function isXAttr(attr) {
-  var xAttrRE = /x-(on|bind|data|text|model)/;
+  var xAttrRE = /x-(on|bind|data|text|model|cloak)/;
   return xAttrRE.test(attr.name);
 }
 function getXAttrs(el, type) {
   return Array.from(el.attributes).filter(isXAttr).map(function (attr) {
-    var typeMatch = attr.name.match(/x-(on|bind|data|text|model)/);
+    var typeMatch = attr.name.match(/x-(on|bind|data|text|model|cloak)/);
     var valueMatch = attr.name.match(/:([a-zA-Z\-]+)/);
     var modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     return {

@@ -43,7 +43,7 @@ Add the following script to the end of your `<head>` section.
 
 ## Learn
 
-There are 5 directives available to you:
+There are 6 directives available to you:
 
 | Directive
 | --- |
@@ -52,6 +52,7 @@ There are 5 directives available to you:
 | `x-on` |
 | `x-model` |
 | `x-text` |
+| `x-cloak` |
 
 Here's how they each work:
 
@@ -109,6 +110,16 @@ When the `.away` modifier is present, the event handler will only be executed wh
 
 This is useful for hiding dropdowns and modals when a user clicks away from them.
 
+**`.prevent` modifier**
+**Example:** `<input type="checkbox" x-on:click.prevent>`
+
+Adding `.prevent` to an event listener will call `preventDefault` on the triggered event. In the above example, this means the checkbox wouldn't actually get checked when a user clicks on it.
+
+**`.stop` modifier**
+**Example:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
+
+Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
+
 ---
 
 ### `x-model`
@@ -128,3 +139,16 @@ This is useful for hiding dropdowns and modals when a user clicks away from them
 **Structure:** `<span x-text="[expression]"`
 
 `x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.
+
+---
+
+### `x-cloak`
+**Example:** `<div x-data="{}" x-cloak></div>`
+
+`x-cloak` attributes are removed from elements when Project-X initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
+
+```html
+<style>
+    [x-cloak] { display: none; }
+</style>
+```

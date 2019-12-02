@@ -1,4 +1,4 @@
-import { walk, onlyUnique, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
+import { walkSkippingNestedComponents, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
 
 export default class Component {
     constructor(el) {
@@ -31,7 +31,7 @@ export default class Component {
     }
 
     initialize() {
-        walk(this.el, el => {
+        walkSkippingNestedComponents(this.el, el => {
             getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
                 switch (type) {
                     case 'on':
@@ -82,7 +82,7 @@ export default class Component {
         var self = this
 
         const walkThenClearDependancyTracker = (rootEl, callback) => {
-            walk(rootEl, callback)
+            walkSkippingNestedComponents(rootEl, callback)
 
             self.concernedData = []
         }

@@ -899,7 +899,7 @@ function () {
     value: function initialize() {
       var _this = this;
 
-      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"])(this.el, function (el) {
+      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walkSkippingNestedComponents"])(this.el, function (el) {
         Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el).forEach(function (_ref) {
           var type = _ref.type,
               value = _ref.value,
@@ -966,7 +966,7 @@ function () {
       var self = this;
 
       var walkThenClearDependancyTracker = function walkThenClearDependancyTracker(rootEl, callback) {
-        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walk"])(rootEl, callback);
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walkSkippingNestedComponents"])(rootEl, callback);
         self.concernedData = [];
       };
 
@@ -1289,14 +1289,14 @@ if (!window.projectX && !Object(_utils__WEBPACK_IMPORTED_MODULE_2__["isTesting"]
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: domReady, isTesting, walk, debounce, onlyUnique, saferEval, saferEvalNoReturn, isXAttr, getXAttrs */
+/*! exports provided: domReady, isTesting, walkSkippingNestedComponents, debounce, onlyUnique, saferEval, saferEvalNoReturn, isXAttr, getXAttrs */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "domReady", function() { return domReady; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isTesting", function() { return isTesting; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "walk", function() { return walk; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "walkSkippingNestedComponents", function() { return walkSkippingNestedComponents; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "debounce", function() { return debounce; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onlyUnique", function() { return onlyUnique; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "saferEval", function() { return saferEval; });
@@ -1325,11 +1325,12 @@ function domReady() {
 function isTesting() {
   return navigator.userAgent, navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
 }
-function walk(el, callback) {
+function walkSkippingNestedComponents(el, callback) {
   callback(el);
   var node = el.firstElementChild;
 
   while (node) {
+    if (node.hasAttribute('x-data')) return;
     walk(node, callback);
     node = node.nextElementSibling;
   }

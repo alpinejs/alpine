@@ -16,12 +16,14 @@ export function isTesting() {
         || navigator.userAgent.includes("jsdom")
 }
 
-export function walk(el, callback) {
+export function walkSkippingNestedComponents(el, callback) {
     callback(el)
 
     let node = el.firstElementChild
 
     while (node) {
+        if (node.hasAttribute('x-data')) return
+
         walk(node, callback)
         node = node.nextElementSibling
     }

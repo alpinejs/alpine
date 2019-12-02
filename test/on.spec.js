@@ -87,7 +87,7 @@ test('click away', async () => {
 
     document.querySelector('#outer').click()
 
-    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(true) })
+    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false) })
 
     document.querySelector('button').click()
 

@@ -5,9 +5,18 @@
             [x-cloak] { display: none; }
         </style>
 
-        <script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.2.0/dist/project-x.min.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.3.0/dist/project-x.min.js" defer></script>
     </head>
     <body>
+        <div x-data="{ foo: 'bar' }">
+            <span x-text="foo"></span>
+
+            <div x-data="{ foo: 'bob' }">
+                <span x-ref="lob">hey</span>
+                <button x-on:click="console.log($refs.lob)">Something</button>
+            </div>
+        </div>
+
         <div x-data="{ foo: 'bar' }">
             <div x-on:click="foo = 'baz'">
                 <button x-on:click.stop></button>

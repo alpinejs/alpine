@@ -175,7 +175,10 @@ export default class Component {
     }
 
     runListenerHandler(expression, e) {
-        this.evaluateCommandExpression(expression, { '$event': e })
+        this.evaluateCommandExpression(expression, {
+            '$event': e,
+            '$refs': this.getRefsProxy()
+        })
     }
 
     evaluateReturnExpression(expression) {
@@ -260,6 +263,30 @@ export default class Component {
 
         Array.from(el.options).forEach(option => {
             option.selected = arrayWrappedValue.includes(option.value || option.text)
+        })
+    }
+
+    getRefsProxy() {
+        var self = this
+
+        // One of the goals of this project is to not hold elements in memory, but rather re-evaluate
+        // the DOM when the system needs something from it. This way, the framework is flexible and
+        // friendly to outside DOM changes from libraries like Vue/Livewire.
+        // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
+        return new Proxy({}, {
+            get(object, property) {
+                var ref
+
+                // We can't just query the DOM because it's hard to filter out refs in
+                // nested components.
+                walkSkippingNestedComponents(self.el, el => {
+                    if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
+                        ref = el
+                    }
+                })
+
+                return ref
+            }
         })
     }
 }

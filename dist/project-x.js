@@ -1081,7 +1081,8 @@ function () {
     key: "runListenerHandler",
     value: function runListenerHandler(expression, e) {
       this.evaluateCommandExpression(expression, {
-        '$event': e
+        '$event': e,
+        '$refs': this.getRefsProxy()
       });
     }
   }, {
@@ -1168,6 +1169,28 @@ function () {
       });
       Array.from(el.options).forEach(function (option) {
         option.selected = arrayWrappedValue.includes(option.value || option.text);
+      });
+    }
+  }, {
+    key: "getRefsProxy",
+    value: function getRefsProxy() {
+      var self = this; // One of the goals of this project is to not hold elements in memory, but rather re-evaluate
+      // the DOM when the system needs something from it. This way, the framework is flexible and
+      // friendly to outside DOM changes from libraries like Vue/Livewire.
+      // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
+
+      return new Proxy({}, {
+        get: function get(object, property) {
+          var ref; // We can't just query the DOM because it's hard to filter out refs in
+          // nested components.
+
+          Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walkSkippingNestedComponents"])(self.el, function (el) {
+            if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
+              ref = el;
+            }
+          });
+          return ref;
+        }
       });
     }
   }]);
@@ -1331,7 +1354,7 @@ function walkSkippingNestedComponents(el, callback) {
 
   while (node) {
     if (node.hasAttribute('x-data')) return;
-    walk(node, callback);
+    walkSkippingNestedComponents(node, callback);
     node = node.nextElementSibling;
   }
 }
@@ -1365,12 +1388,12 @@ function saferEvalNoReturn(expression, dataContext) {
   return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with($data) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 }
 function isXAttr(attr) {
-  var xAttrRE = /x-(on|bind|data|text|model|cloak)/;
+  var xAttrRE = /x-(on|bind|data|text|model|cloak|ref)/;
   return xAttrRE.test(attr.name);
 }
 function getXAttrs(el, type) {
   return Array.from(el.attributes).filter(isXAttr).map(function (attr) {
-    var typeMatch = attr.name.match(/x-(on|bind|data|text|model|cloak)/);
+    var typeMatch = attr.name.match(/x-(on|bind|data|text|model|cloak|ref)/);
     var valueMatch = attr.name.match(/:([a-zA-Z\-]+)/);
     var modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     return {

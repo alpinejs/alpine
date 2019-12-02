@@ -46,7 +46,7 @@ Add the following script to the end of your `<head>` section.
 
 ## Learn
 
-There are 6 directives available to you:
+There are 7 directives available to you:
 
 | Directive
 | --- |
@@ -55,6 +55,7 @@ There are 6 directives available to you:
 | `x-on` |
 | `x-model` |
 | `x-text` |
+| `x-ref` |
 | `x-cloak` |
 
 Here's how they each work:
@@ -142,6 +143,17 @@ Adding `.stop` to an event listener will call `stopPropagation` on the triggered
 **Structure:** `<span x-text="[expression]"`
 
 `x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.
+
+---
+
+### `x-ref`
+**Example:** `<div x-ref="foo"></div><button x-on:click="$refs.foo.innerText = 'bar'"></button>`
+
+**Structure:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
+
+`x-ref` provides a convenient way to retrieve raw DOM elements out of your component. By setting an `x-ref` attribute on an element, you are making it available to all event handlers inside an object called `$refs`.
+
+This is a helpful alternative to setting ids and using `document.querySelector` all over the place.
 
 ---
 

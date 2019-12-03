@@ -97,7 +97,7 @@ You can extract data (and behavior) into reausable functions:
 </script>
 ```
 
-You can also mix-in multiple data objects with syntax:
+You can also mix-in multiple data objects using object destructuring:
 
 ```html
 <div x-data="{...dropdown(), ...tabs()}">

@@ -60,8 +60,18 @@ test('.prevent modifier', async () => {
 })
 
 test('click away', async () => {
+    // Because jsDom doesn't support .offsetHeight and offsetWidth, we have to
+    // make our own implementation using a specific class added to the class. Ugh.
+    Object.defineProperties(window.HTMLElement.prototype, {
+        offsetHeight: {
+          get: function() { return this.classList.contains('hidden') ? 0 : 1 }
+        },
+        offsetWidth: {
+          get: function() { return this.classList.contains('hidden') ? 0 : 1 }
+        }
+    });
+
     document.body.innerHTML = `
-        <style>.hidden { display: none; }</style>
         <div id="outer">
             <div x-data="{ isOpen: true }">
                 <button x-on:click="isOpen = true"></button>

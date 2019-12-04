@@ -16,8 +16,6 @@ Add the following script to the end of your `<head>` section.
 
 ## Use
 
-> These examples use the `.hidden` class from Tailwind. If you aren't using tailwind, just add `.hidden { display: none; }` to your stylesheet.
-
 *Dropdown/Modal*
 ```html
 <div x-data="{ open: false }">

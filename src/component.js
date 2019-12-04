@@ -67,6 +67,11 @@ export default class Component {
                         this.updateTextValue(el, output)
                         break;
 
+                    case 'show':
+                        var { output } = this.evaluateReturnExpression(expression)
+                        this.updateVisibility(el, output)
+                        break;
+
                     case 'cloak':
                         el.removeAttribute('x-cloak')
                         break;
@@ -111,6 +116,14 @@ export default class Component {
 
                         if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
                             self.updateTextValue(el, output)
+                        }
+                        break;
+
+                    case 'show':
+                        var { output, deps } = self.evaluateReturnExpression(expression)
+
+                        if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
+                            self.updateVisibility(el, output)
                         }
                         break;
 
@@ -206,6 +219,18 @@ export default class Component {
 
     updateTextValue(el, value) {
         el.innerText = value
+    }
+
+    updateVisibility(el, value) {
+        if (! value) {
+            el.style.display = 'none'
+        } else {
+            if (el.style.length === 1 && el.style.display !== '') {
+                el.removeAttribute('style')
+            } else {
+                el.style.removeProperty('display')
+            }
+        }
     }
 
     updateAttributeValue(el, attrName, value) {

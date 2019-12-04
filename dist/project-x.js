@@ -950,6 +950,14 @@ function () {
 
               break;
 
+            case 'show':
+              var _this$evaluateReturnE4 = _this.evaluateReturnExpression(expression),
+                  output = _this$evaluateReturnE4.output;
+
+              _this.updateVisibility(el, output);
+
+              break;
+
             case 'cloak':
               el.removeAttribute('x-cloak');
               break;
@@ -1015,6 +1023,19 @@ function () {
                 return deps.includes(i);
               }).length > 0) {
                 self.updateTextValue(el, output);
+              }
+
+              break;
+
+            case 'show':
+              var _self$evaluateReturnE4 = self.evaluateReturnExpression(expression),
+                  output = _self$evaluateReturnE4.output,
+                  deps = _self$evaluateReturnE4.deps;
+
+              if (self.concernedData.filter(function (i) {
+                return deps.includes(i);
+              }).length > 0) {
+                self.updateVisibility(el, output);
               }
 
               break;
@@ -1110,6 +1131,19 @@ function () {
     key: "updateTextValue",
     value: function updateTextValue(el, value) {
       el.innerText = value;
+    }
+  }, {
+    key: "updateVisibility",
+    value: function updateVisibility(el, value) {
+      if (!value) {
+        el.style.display = 'none';
+      } else {
+        if (el.style.length === 1 && el.style.display !== '') {
+          el.removeAttribute('style');
+        } else {
+          el.style.removeProperty('display');
+        }
+      }
     }
   }, {
     key: "updateAttributeValue",
@@ -1388,12 +1422,12 @@ function saferEvalNoReturn(expression, dataContext) {
   return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with($data) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 }
 function isXAttr(attr) {
-  var xAttrRE = /x-(on|bind|data|text|model|cloak|ref)/;
+  var xAttrRE = /x-(on|bind|data|text|model|show|cloak|ref)/;
   return xAttrRE.test(attr.name);
 }
 function getXAttrs(el, type) {
   return Array.from(el.attributes).filter(isXAttr).map(function (attr) {
-    var typeMatch = attr.name.match(/x-(on|bind|data|text|model|cloak|ref)/);
+    var typeMatch = attr.name.match(/x-(on|bind|data|text|model|show|cloak|ref)/);
     var valueMatch = attr.name.match(/:([a-zA-Z\-]+)/);
     var modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     return {

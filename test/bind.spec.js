@@ -71,6 +71,7 @@ test('boolean attributes set to false are removed from element', async () => {
             <input x-bind:checked="isSet"></input>
             <input x-bind:required="isSet"></input>
             <input x-bind:readonly="isSet"></input>
+            <input x-bind:hidden="isSet"></input>
         </div>
     `
 
@@ -80,6 +81,7 @@ test('boolean attributes set to false are removed from element', async () => {
     expect(document.querySelectorAll('input')[1].checked).toBeFalsy()
     expect(document.querySelectorAll('input')[2].required).toBeFalsy()
     expect(document.querySelectorAll('input')[3].readOnly).toBeFalsy()
+    expect(document.querySelectorAll('input')[4].hidden).toBeFalsy()
 })
 
 test('boolean attributes set to true are added to element', async () => {

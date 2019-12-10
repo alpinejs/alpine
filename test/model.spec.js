@@ -1,5 +1,5 @@
 import projectX from 'project-x'
-import { wait, fireEvent } from 'dom-testing-library'
+import { wait, fireEvent } from '@testing-library/dom'
 
 global.MutationObserver = class {
     observe() {}

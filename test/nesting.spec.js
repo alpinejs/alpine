@@ -1,5 +1,5 @@
 import projectX from 'project-x'
-import { wait } from 'dom-testing-library'
+import { wait } from '@testing-library/dom'
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 global.MutationObserver = class {

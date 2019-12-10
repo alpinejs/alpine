@@ -1090,7 +1090,8 @@ function () {
           _this2.runListenerHandler(expression, e);
         });
       } else {
-        el.addEventListener(event, function (e) {
+        var node = modifiers.includes('window') ? window : el;
+        node.addEventListener(event, function (e) {
           if (modifiers.includes('prevent')) e.preventDefault();
           if (modifiers.includes('stop')) e.stopPropagation();
 

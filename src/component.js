@@ -178,7 +178,9 @@ export default class Component {
                 this.runListenerHandler(expression, e)
             })
         } else {
-            el.addEventListener(event, e => {
+            const node = modifiers.includes('window') ? window : el
+
+            node.addEventListener(event, e => {
                 if (modifiers.includes('prevent')) e.preventDefault()
                 if (modifiers.includes('stop')) e.stopPropagation()
 

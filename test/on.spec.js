@@ -59,6 +59,24 @@ test('.prevent modifier', async () => {
     expect(document.querySelector('input').checked).toEqual(false)
 })
 
+test('.window modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <div x-on:click.window="foo = 'baz'"></div>
+
+            <span x-bind:foo="foo"></span>
+        </div>
+    `
+
+    projectX.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
+
+    document.body.click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+})
+
 test('click away', async () => {
     // Because jsDom doesn't support .offsetHeight and offsetWidth, we have to
     // make our own implementation using a specific class added to the class. Ugh.

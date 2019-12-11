@@ -40,6 +40,18 @@ test('class attribute bindings are added by object syntax', async () => {
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
 
+test('class attribute bindings are added by nested object syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ nested: { isOn: true } }">
+            <span x-bind:class="{ 'foo': nested.isOn }"></span>
+        </div>
+    `
+
+    projectX.start()
+
+    expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
+})
+
 test('class attribute bindings are removed by array syntax', async () => {
     document.body.innerHTML = `
         <div x-data="{}">
@@ -99,3 +111,4 @@ test('boolean attributes set to true are added to element', async () => {
     expect(document.querySelectorAll('input')[2].required).toBeTruthy()
     expect(document.querySelectorAll('input')[3].readOnly).toBeTruthy()
 })
+

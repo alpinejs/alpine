@@ -15,19 +15,31 @@ export default class Component {
         this.concernedData = []
 
         var self = this
-        return new Proxy(data, {
+
+        const proxyHandler = keyPrefix => ({
             set(obj, property, value) {
+                const propertyName = keyPrefix + '.' + property
+
                 const setWasSuccessful = Reflect.set(obj, property, value)
 
-                if (self.concernedData.indexOf(property) === -1) {
-                    self.concernedData.push(property)
+                if (self.concernedData.indexOf(propertyName) === -1) {
+                    self.concernedData.push(propertyName)
                 }
 
                 self.refresh()
 
                 return setWasSuccessful
+            },
+            get(target, key) {
+                if (typeof target[key] === 'object' && target[key] !== null) {
+                    return new Proxy(target[key], proxyHandler(keyPrefix + '.' + key))
+                }
+
+                return target[key]
             }
         })
+
+        return new Proxy(data, proxyHandler())
     }
 
     initialize() {
@@ -199,13 +211,27 @@ export default class Component {
     evaluateReturnExpression(expression) {
         var affectedDataKeys = []
 
-        const proxiedData = new Proxy(this.data, {
+        const proxyHandler = prefix => ({
             get(object, prop) {
-                affectedDataKeys.push(prop)
+                if (typeof object[prop] === 'object' && object[prop] !== null && !Array.isArray(object[prop])) {
+                    return new Proxy(object[prop], proxyHandler(prefix + '.' + prop))
+                }
+
+                if (typeof prop === 'string') {
+                    affectedDataKeys.push(prefix + '.' + prop)
+                } else {
+                    affectedDataKeys.push(prop)
+                }
+
+                if (typeof object[prop] === 'object' && object[prop] !== null) {
+                    return new Proxy(object[prop], proxyHandler(prefix + '.' + prop))
+                }
 
                 return object[prop]
             }
         })
+
+        const proxiedData = new Proxy(this.data, proxyHandler())
 
         const result = saferEval(expression, proxiedData)
 

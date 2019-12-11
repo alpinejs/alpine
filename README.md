@@ -132,6 +132,17 @@ For example:
 
 In this example, the "hidden" class will only be applied when the value of the `foo` data attribute is `true`.
 
+**`x-bind` for boolean attributes**
+
+`x-bind` supports boolean attributes in the same way that value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.
+
+For example:
+`<button x-bind:disabled="myVar">Click me</button>`
+
+This will add or remove the `disabled` attribute when `myVar` is true or false respectively. 
+
+Most common boolean attributes are supported, like `readonly`, `required`, etc.
+
 ---
 
 ### `x-on`

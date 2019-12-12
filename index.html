@@ -1,154 +1,171 @@
 <html>
     <head>
         <style>
-            .hidden { display: none; }
             [x-cloak] { display: none; }
         </style>
 
-
+        <script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.4.2/dist/project-x.min.js" defer></script>
     </head>
     <body>
-        <div x-data="{ someText: 'bar' }">
-            <span x-text="someText"></span>
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Demo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Dropdown</td>
+                    <td>
+                        <div x-data="{ open: false }">
+                            <button x-on:click="open = true">Open Dropdown</button>
 
-            <div x-data="{ someScopedText: 'bob' }">
-                <span x-ref="lob">hey</span>
-                <button x-on:click="console.log($refs.lob)">Something</button>
-            </div>
-        </div>
+                            <ul
+                                x-bind:class="{ 'hidden': ! open }"
+                                x-on:click.away="open = false"
+                                x-cloak
+                            >
+                                Dropdown Body
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
 
-        <hr>
+                <tr>
+                    <td>Tabs</td>
+                    <td>
+                        <div x-data="{ currentTab: 'tab1' }">
+                            <button x-bind:class="{ 'active': currentTab === 'tab1' }" x-on:click="currentTab = 'tab1'">Foo</button>
+                            <button x-bind:class="{ 'active': currentTab === 'tab2' }" x-on:click="currentTab = 'tab2'">Bar</button>
 
-        <div x-data="{ someText: 'bar' }">
-            <div x-on:click="someText = 'baz'">
-                <button x-on:click.stop>Change to baz</button>
-            </div>
+                            <div x-bind:class="{ 'hidden': currentTab !== 'tab1' }">Tab Foo</div>
+                            <div class="hidden" x-bind:class="{ 'hidden': currentTab !== 'tab2' }">Tab Bar</div>
+                        </div>
+                    </td>
+                </tr>
 
-            <span x-text="someText"></span>
-        </div>
+                <tr>
+                    <td>Data Binding</td>
+                    <td>
+                        <div x-data="{ text: 'foo', checkbox: ['foo'], radio: 'foo', select: 'foo', 'multiselect': ['foo'] }">
+                            <div x-text="JSON.stringify($data)"></div>
+                            Text:
+                            <input type="text" x-model="text">
+                            Checkbox:
+                            <input type="checkbox" x-model="checkbox" value="foo">
+                            <input type="checkbox" x-model="checkbox" value="bar">
+                            Radio:
+                            <input type="radio" x-model="radio" value="foo">
+                            <input type="radio" x-model="radio" value="bar">
+                            Select:
+                            <select x-model="select">
+                                <option>foo</option>
+                                <option>bar</option>
+                            </select>
+                            Multiple Select:
+                            <select x-model="multiselect" multiple>
+                                <option>foo</option>
+                                <option>bar</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
 
-        <hr>
+                <tr>
+                    <td>Cast to number</td>
+                    <td>
+                        <div x-data="{ number: 1 }">
+                            <div x-text="JSON.stringify($data.number)"></div>
+                            <input type="text" x-model.number="number">
+                        </div>
+                    </td>
+                </tr>
 
-        <div x-data="{ count: 0 }">
-            <span x-text="count"></span>
-        </div>
+                <tr>
+                    <td>Nested Binding</td>
+                    <td>
+                        <div x-data="{ foo: { bar: 'baz' } }">
+                            <div x-text="foo.bar"></div>
+                            <input type="text" x-model="foo.bar">
+                        </div>
+                    </td>
+                </tr>
 
-        <hr>
+                <tr>
+                    <td>On Click</td>
+                    <td>
+                        <div x-data="{ show: false }">
+                            <div x-show="show">Hi There!</div>
 
-        <div x-data="{ someText: 'bar' }">
-            <input x-model="someText"></input>
+                            <button x-on:click="show = ! show">Show/Hide</button>
+                        </div>
+                    </td>
+                </tr>
 
-            <button x-on:click="someText = 'baz'">Change to baz</button>
-        </div>
+                <tr>
+                    <td>Refs</td>
+                    <td>
+                        <div x-data="{ someText: 'bar' }">
+                            <div x-ref="remove-target">Remove Me</div>
 
-        <hr>
+                            <button x-on:click="$refs['remove-target'].remove()">Remove</button>
+                        </div>
+                    </td>
+                </tr>
 
-        <div x-data="{ open: false }">
-            <button x-on:click="open = true">Open Dropdown</button>
+                <tr>
+                    <td>x-on:click.stop</td>
+                    <td>
+                        <div x-data="{ someText: 'bar' }">
+                            <span x-text="someText"></span>
 
-            <ul
-                x-bind:class="{ 'hidden': ! open }"
-                x-on:click.away="open = false"
-                x-cloak
-            >
-                Dropdown Body
-            </ul>
-        </div>
+                            <div x-on:click="someText = 'baz'">
+                                <button x-on:click.stop>Shouldn't change to baz</button>
+                            </div>
 
-        <hr>
+                        </div>
+                    </td>
+                </tr>
 
-        <div x-data="{ choices: ['bar', 'baz'] }">
-            <select x-model="choices" multiple>
-                <option disabled value="">Please select one</option>
-                <option>bar</option>
-                <option>baz</option>
-            </select>
+                <tr>
+                    <td>x-on:click.prevent</td>
+                    <td>
+                        <div x-data="{}">
+                            <a href="https://google.com" x-on:click.prevent>Shouldn't go to Google</a>
+                        </div>
+                    </td>
+                </tr>
 
-            <span x-text="choices"></span>
-        </div>
+                <tr>
+                    <td>Append DOM</td>
+                    <td>
+                        <div id="goHere">Click me.</div>
+                        <script>
+                            const thing = document.querySelector('#goHere')
+                            const handler = (e) => {
+                                thing.removeEventListener('click', handler)
 
-        <hr>
+                                const div = document.createElement('div')
+                                div.setAttribute('x-data', '{hey: "there"}')
+                                div.innerHTML = '<input type="text" x-model="hey"><h1 x-text="hey"></h1>'
+                                e.target.appendChild(div)
+                            }
 
-        <div x-data="{ currentTab: 'tab1' }">
-            <button x-bind:class="{ 'active': currentTab === 'tab1' }" x-on:click="currentTab = 'tab1'">Foo</button>
-            <button x-bind:class="{ 'active': currentTab === 'tab2' }" x-on:click="currentTab = 'tab2'">Bar</button>
+                            var listener = thing.addEventListener('click', handler)
+                        </script>
+                    </td>
+                </tr>
 
-            <div x-bind:class="{ 'hidden': currentTab !== 'tab1' }">Tab Foo</div>
-            <div class="hidden" x-bind:class="{ 'hidden': currentTab !== 'tab2' }">Tab Bar</div>
-        </div>
-
-        <hr>
-
-        <div x-data="{ someArr: 'bar' }">
-            <input type="radio" x-model="someArr" value="bar"></input>
-            <input type="radio" x-model="someArr" value="baz"></input>
-
-            <span x-text="someArr"></span>
-        </div>
-
-        <hr>
-
-        <div x-data="{ name: 1 }">
-            <input type="text" x-model.number="name">
-
-            <span x-text="name"></span>
-        </div>
-
-        <hr>
-
-        <div id="goHere">
-            Click me.
-        </div>
-
-        <hr>
-
-        <div x-data="{ someArr: [] }">
-            <input type="checkbox" x-model="someArr" value="bar"></input>
-            <input type="checkbox" x-model="someArr" value="baz"></input>
-
-            <span x-text="someArr"></span>
-        </div>
-
-        <hr>
-
-        <div x-data="{}">
-            <span class="" x-bind:class="['hey']"></span>
-        </div>
-
-        <hr>
-
-        <div x-data="{ nested: { deeperNested: false, evenDeeper: { someFlag: false } } }">
-            <!-- Doesn't work, the class doesn't get attached on click. -->
-            <p x-bind:class="{ 'works': nested.deeperNested }" x-on:click="nested.deeperNested = true">
-                Append nested class
-            </p>
-
-            <p x-bind:class="{ 'works': nested.evenDeeper.someFlag }" x-on:click="nested.evenDeeper.someFlag = true">
-                Append even deeper nested class
-            </p>
-        </div>
-
-        <hr>
-
-        <div x-data="{ some: { nested: { obj: 'Some nested model' } }}">
-            <input type="text" x-model="some.nested.obj">
-            <span x-text="some.nested.obj"></span>
-        </div>
-
-        <script>
-            const thing = document.querySelector('#goHere')
-            const handler = (e) => {
-                thing.removeEventListener('click', handler)
-
-                const div = document.createElement('div')
-                div.setAttribute('x-data', '{hey: "there"}')
-                div.innerHTML = '<input type="text" x-model="hey"><h1 x-text="hey"></h1>'
-                e.target.appendChild(div)
-            }
-
-            var listener = thing.addEventListener('click', handler)
-        </script>
-
-        <script src="./dist/project-x.js"></script>
+                <tr>
+                    <td>Cloak</td>
+                    <td>
+                        <div x-data="{}" x-cloak>
+                            I'm cloaked
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </body>
 </html>

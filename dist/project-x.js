@@ -1218,7 +1218,7 @@ function () {
             }
           });
         }
-      } else if (['disabled', 'readonly', 'required', 'checked'].includes(attrName)) {
+      } else if (['disabled', 'readonly', 'required', 'checked', 'hidden'].includes(attrName)) {
         // Boolean attributes have to be explicitly added and removed, not just set.
         if (!!value) {
           el.setAttribute(attrName, '');

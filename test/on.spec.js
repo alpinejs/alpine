@@ -23,6 +23,25 @@ test('data modified in event listener updates effected attribute bindings', asyn
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
+test('nested data modified in event listener updates effected attribute bindings', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ nested: { foo: 'bar' } }">
+            <button x-on:click="nested.foo = 'baz'"></button>
+
+            <span x-bind:foo="nested.foo"></span>
+        </div>
+    `
+
+    projectX.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+})
+
+
 test('.stop modifier', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">

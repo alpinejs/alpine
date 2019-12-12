@@ -5,35 +5,43 @@
             [x-cloak] { display: none; }
         </style>
 
-        <script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.4.0/dist/project-x.min.js" defer></script>
+
     </head>
     <body>
-        <div x-data="{ foo: 'bar' }">
-            <span x-text="foo"></span>
+        <div x-data="{ someText: 'bar' }">
+            <span x-text="someText"></span>
 
-            <div x-data="{ foo: 'bob' }">
+            <div x-data="{ someScopedText: 'bob' }">
                 <span x-ref="lob">hey</span>
                 <button x-on:click="console.log($refs.lob)">Something</button>
             </div>
         </div>
 
-        <div x-data="{ foo: 'bar' }">
-            <div x-on:click="foo = 'baz'">
-                <button x-on:click.stop></button>
+        <hr>
+
+        <div x-data="{ someText: 'bar' }">
+            <div x-on:click="someText = 'baz'">
+                <button x-on:click.stop>Change to baz</button>
             </div>
 
-            <span x-text="foo"></span>
+            <span x-text="someText"></span>
         </div>
+
+        <hr>
 
         <div x-data="{ count: 0 }">
             <span x-text="count"></span>
         </div>
 
-        <div x-data="{ foo: 'bar' }">
-            <input x-model="foo"></input>
+        <hr>
 
-            <button x-on:click="foo = 'baz'"></button>
+        <div x-data="{ someText: 'bar' }">
+            <input x-model="someText"></input>
+
+            <button x-on:click="someText = 'baz'">Change to baz</button>
         </div>
+
+        <hr>
 
         <div x-data="{ open: false }">
             <button x-on:click="open = true">Open Dropdown</button>
@@ -47,49 +55,84 @@
             </ul>
         </div>
 
-        <div>
-            <div id="goHere">
-                some nested thing
-            </div>
-        </div>
-        <div x-data="{ foo: ['bar', 'baz'] }">
-            <select x-model="foo" multiple>
+        <hr>
+
+        <div x-data="{ choices: ['bar', 'baz'] }">
+            <select x-model="choices" multiple>
                 <option disabled value="">Please select one</option>
                 <option>bar</option>
                 <option>baz</option>
             </select>
 
-            <span x-text="foo"></span>
-        </div>
-        <div x-data="{ currentTab: 'foo' }">
-            <button x-bind:class="{ 'active': currentTab === 'foo' }" x-on:click="currentTab = 'foo'">Foo</button>
-            <button x-bind:class="{ 'active': currentTab === 'bar' }" x-on:click="currentTab = 'bar'">Bar</button>
-
-            <div x-bind:class="{ 'hidden': currentTab !== 'foo' }">Tab Foo</div>
-            <div class="hidden" x-bind:class="{ 'hidden': currentTab !== 'bar' }">Tab Bar</div>
+            <span x-text="choices"></span>
         </div>
 
-        <div x-data="{ foo: 'bar' }">
-            <input type="radio" x-model="foo" value="bar"></input>
-            <input type="radio" x-model="foo" value="baz"></input>
+        <hr>
 
-            <span x-text="foo"></span>
+        <div x-data="{ currentTab: 'tab1' }">
+            <button x-bind:class="{ 'active': currentTab === 'tab1' }" x-on:click="currentTab = 'tab1'">Foo</button>
+            <button x-bind:class="{ 'active': currentTab === 'tab2' }" x-on:click="currentTab = 'tab2'">Bar</button>
+
+            <div x-bind:class="{ 'hidden': currentTab !== 'tab1' }">Tab Foo</div>
+            <div class="hidden" x-bind:class="{ 'hidden': currentTab !== 'tab2' }">Tab Bar</div>
         </div>
 
+        <hr>
+
+        <div x-data="{ someArr: 'bar' }">
+            <input type="radio" x-model="someArr" value="bar"></input>
+            <input type="radio" x-model="someArr" value="baz"></input>
+
+            <span x-text="someArr"></span>
+        </div>
+
+        <hr>
 
         <div x-data="{ name: 1 }">
             <input type="text" x-model.number="name">
 
             <span x-text="name"></span>
         </div>
-        <div x-data="{ foo: [] }">
-            <input type="checkbox" x-model="foo" value="bar"></input>
-            <input type="checkbox" x-model="foo" value="baz"></input>
 
-            <span x-text="foo"></span>
+        <hr>
+
+        <div id="goHere">
+            Click me.
         </div>
+
+        <hr>
+
+        <div x-data="{ someArr: [] }">
+            <input type="checkbox" x-model="someArr" value="bar"></input>
+            <input type="checkbox" x-model="someArr" value="baz"></input>
+
+            <span x-text="someArr"></span>
+        </div>
+
+        <hr>
+
         <div x-data="{}">
             <span class="" x-bind:class="['hey']"></span>
+        </div>
+
+        <hr>
+
+        <div x-data="{ nested: { deeperNested: false, evenDeeper: { someFlag: false } } }">
+            <!-- Doesn't work, the class doesn't get attached on click. -->
+            <p x-bind:class="{ 'works': nested.deeperNested }" x-on:click="nested.deeperNested = true">
+                Append nested class
+            </p>
+
+            <p x-bind:class="{ 'works': nested.evenDeeper.someFlag }" x-on:click="nested.evenDeeper.someFlag = true">
+                Append even deeper nested class
+            </p>
+        </div>
+
+        <hr>
+
+        <div x-data="{ some: { nested: { obj: 'Some nested model' } }}">
+            <input type="text" x-model="some.nested.obj">
+            <span x-text="some.nested.obj"></span>
         </div>
 
         <script>
@@ -105,5 +148,7 @@
 
             var listener = thing.addEventListener('click', handler)
         </script>
+
+        <script src="./dist/project-x.js"></script>
     </body>
 </html>

@@ -220,3 +220,24 @@ test('x-model binds multiple select dropdown', async () => {
         expect(document.querySelector('span').innerText).toEqual(['bar', 'baz'])
     })
 })
+
+test('x-model binds nested keys', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ some: { nested: { key: 'foo' } } }">
+            <input type="text" x-model="some.nested.key">
+            <span x-text="some.nested.key"></span>
+        </div>
+    `
+
+    projectX.start()
+
+    expect(document.querySelector('input').value).toEqual('foo')
+    expect(document.querySelector('span').innerText).toEqual('foo')
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('bar')
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
+})

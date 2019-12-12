@@ -856,6 +856,8 @@ try {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Component; });
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -881,18 +883,31 @@ function () {
     value: function wrapDataInObservable(data) {
       this.concernedData = [];
       var self = this;
-      return new Proxy(data, {
-        set: function set(obj, property, value) {
-          var setWasSuccessful = Reflect.set(obj, property, value);
 
-          if (self.concernedData.indexOf(property) === -1) {
-            self.concernedData.push(property);
+      var proxyHandler = function proxyHandler(keyPrefix) {
+        return {
+          set: function set(obj, property, value) {
+            var propertyName = keyPrefix + '.' + property;
+            var setWasSuccessful = Reflect.set(obj, property, value);
+
+            if (self.concernedData.indexOf(propertyName) === -1) {
+              self.concernedData.push(propertyName);
+            }
+
+            self.refresh();
+            return setWasSuccessful;
+          },
+          get: function get(target, key) {
+            if (_typeof(target[key]) === 'object' && target[key] !== null) {
+              return new Proxy(target[key], proxyHandler(keyPrefix + '.' + key));
+            }
+
+            return target[key];
           }
+        };
+      };
 
-          self.refresh();
-          return setWasSuccessful;
-        }
-      });
+      return new Proxy(data, proxyHandler());
     }
   }, {
     key: "initialize",
@@ -1111,12 +1126,30 @@ function () {
     key: "evaluateReturnExpression",
     value: function evaluateReturnExpression(expression) {
       var affectedDataKeys = [];
-      var proxiedData = new Proxy(this.data, {
-        get: function get(object, prop) {
-          affectedDataKeys.push(prop);
-          return object[prop];
-        }
-      });
+
+      var proxyHandler = function proxyHandler(prefix) {
+        return {
+          get: function get(object, prop) {
+            if (_typeof(object[prop]) === 'object' && object[prop] !== null && !Array.isArray(object[prop])) {
+              return new Proxy(object[prop], proxyHandler(prefix + '.' + prop));
+            }
+
+            if (typeof prop === 'string') {
+              affectedDataKeys.push(prefix + '.' + prop);
+            } else {
+              affectedDataKeys.push(prop);
+            }
+
+            if (_typeof(object[prop]) === 'object' && object[prop] !== null) {
+              return new Proxy(object[prop], proxyHandler(prefix + '.' + prop));
+            }
+
+            return object[prop];
+          }
+        };
+      };
+
+      var proxiedData = new Proxy(this.data, proxyHandler());
       var result = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(expression, proxiedData);
       return {
         output: result,

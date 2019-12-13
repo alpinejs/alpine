@@ -1417,12 +1417,13 @@ function isTesting() {
   return navigator.userAgent, navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
 }
 function walkSkippingNestedComponents(el, callback) {
+  var isRoot = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+  if (el.hasAttribute('x-data') && !isRoot) return;
   callback(el);
   var node = el.firstElementChild;
 
   while (node) {
-    if (node.hasAttribute('x-data')) return;
-    walkSkippingNestedComponents(node, callback);
+    walkSkippingNestedComponents(node, callback, false);
     node = node.nextElementSibling;
   }
 }

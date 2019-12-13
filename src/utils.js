@@ -16,15 +16,16 @@ export function isTesting() {
         || navigator.userAgent.includes("jsdom")
 }
 
-export function walkSkippingNestedComponents(el, callback) {
+export function walkSkippingNestedComponents(el, callback, isRoot = true) {
+    if (el.hasAttribute('x-data') && ! isRoot) return
+
     callback(el)
 
     let node = el.firstElementChild
 
     while (node) {
-        if (node.hasAttribute('x-data')) return
+        walkSkippingNestedComponents(node, callback, false)
 
-        walkSkippingNestedComponents(node, callback)
         node = node.nextElementSibling
     }
 }

@@ -27,3 +27,19 @@ test('can nest components', async () => {
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
+
+test('can access parent properties after nested components', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <div x-data="{ foo: 'bob' }">
+                <button x-on:click="foo = 'baz'">Something</button>
+            </div>
+
+            <span x-text="foo"></span>
+        </div>
+    `
+
+    projectX.start()
+
+    expect(document.querySelector('span').innerText).toEqual('bar')
+})

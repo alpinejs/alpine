@@ -1,4 +1,4 @@
-import projectX from 'project-x'
+import Alpine from 'alpinejs'
 import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
@@ -14,7 +14,7 @@ test('can reference elements from event listeners', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(undefined)
 

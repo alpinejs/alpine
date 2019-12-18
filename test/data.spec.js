@@ -1,4 +1,4 @@
-import projectX from 'project-x'
+import Alpine from 'alpinejs'
 import { fireEvent, wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
@@ -12,7 +12,7 @@ test('data manipulated on component object is reactive', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     document.querySelector('div').__x.data.foo = 'baz'
 

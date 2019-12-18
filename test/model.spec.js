@@ -1,4 +1,4 @@
-import projectX from 'project-x'
+import Alpine from 'alpinejs'
 import { wait, fireEvent } from '@testing-library/dom'
 
 global.MutationObserver = class {
@@ -12,7 +12,7 @@ test('x-model has value binding when initialized', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('bar')
 })
@@ -24,7 +24,7 @@ test('x-model updates value when updated via input event', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'baz' }})
 
@@ -40,7 +40,7 @@ test('x-model reflects data changed elsewhere', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     document.querySelector('button').click()
 
@@ -54,7 +54,7 @@ test('x-model casts value to number if number modifier is present', async () => 
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: '123' }})
 
@@ -70,7 +70,7 @@ test('x-model trims value if trim modifier is present', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar   ' }})
 
@@ -84,7 +84,7 @@ test('x-model updates value when updated via changed event when lazy modifier is
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     fireEvent.change(document.querySelector('input'), { target: { value: 'baz' }})
 
@@ -100,7 +100,7 @@ test('x-model binds checkbox value', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('input').checked).toEqual(true)
     expect(document.querySelector('span').getAttribute('bar')).toEqual("true")
@@ -120,7 +120,7 @@ test('x-model binds checkbox value to array', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelectorAll('input')[0].checked).toEqual(true)
     expect(document.querySelectorAll('input')[1].checked).toEqual(false)
@@ -145,7 +145,7 @@ test('x-model binds radio value', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelectorAll('input')[0].checked).toEqual(true)
     expect(document.querySelectorAll('input')[1].checked).toEqual(false)
@@ -173,7 +173,7 @@ test('x-model binds select dropdown', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelectorAll('option')[0].selected).toEqual(false)
     expect(document.querySelectorAll('option')[1].selected).toEqual(true)
@@ -203,7 +203,7 @@ test('x-model binds multiple select dropdown', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelectorAll('option')[0].selected).toEqual(false)
     expect(document.querySelectorAll('option')[1].selected).toEqual(true)
@@ -229,7 +229,7 @@ test('x-model binds nested keys', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('foo')
     expect(document.querySelector('span').innerText).toEqual('foo')

@@ -1,4 +1,4 @@
-import projectX from 'project-x'
+import Alpine from 'alpinejs'
 import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
@@ -12,7 +12,7 @@ test('x-text on init', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
@@ -26,7 +26,7 @@ test('x-text on triggered update', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('') })
 

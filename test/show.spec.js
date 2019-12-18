@@ -1,4 +1,4 @@
-import projectX from 'project-x'
+import Alpine from 'alpinejs'
 import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
@@ -14,7 +14,7 @@ test('x-show toggles display: none; with no other style attributes', async () =>
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
 
@@ -32,7 +32,7 @@ test('x-show toggles display: none; with no other style attributes', async () =>
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').getAttribute('style')).toEqual('color: blue;')
 

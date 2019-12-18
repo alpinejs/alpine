@@ -1,4 +1,4 @@
-import projectX from 'project-x'
+import Alpine from 'alpinejs'
 import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
@@ -14,7 +14,7 @@ test('x-cloak is removed', async () => {
 
     expect(document.querySelector('span').getAttribute('x-cloak')).not.toBeNull()
 
-    projectX.start()
+    Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').getAttribute('x-cloak')).toBeNull() })
 })

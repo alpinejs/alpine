@@ -1,17 +1,17 @@
-# Project X
+# Alpine.js
 
-Project X offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
+Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
 
 You get to keep your DOM, and sprinkle in behavior as you see fit.
 
 Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
-> Note: This tool's syntax is almost entirely borrowed from [Vue.js](https://vuejs.org/). I am forever grateful for the gift that it is to the web.
+> Note: This tool's syntax is almost entirely borrowed from [Vue.js](https://vuejs.org/)(and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
 
 ## Install
 Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.4.4/dist/project-x.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.0.0/dist/alpine.min.js" defer></script>
 ```
 
 ## Use
@@ -219,7 +219,7 @@ This is a helpful alternative to setting ids and using `document.querySelector` 
 ### `x-cloak`
 **Example:** `<div x-data="{}" x-cloak></div>`
 
-`x-cloak` attributes are removed from elements when Project-X initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
+`x-cloak` attributes are removed from elements when Alpine initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
 
 ```html
 <style>

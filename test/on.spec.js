@@ -1,4 +1,4 @@
-import projectX from 'project-x'
+import Alpine from 'alpinejs'
 import { wait } from '@testing-library/dom'
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -15,7 +15,7 @@ test('data modified in event listener updates effected attribute bindings', asyn
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -33,7 +33,7 @@ test('nested data modified in event listener updates effected attribute bindings
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -52,7 +52,7 @@ test('.stop modifier', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('div').__x.data.foo).toEqual('bar')
 
@@ -70,7 +70,7 @@ test('.prevent modifier', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('input').checked).toEqual(false)
 
@@ -88,7 +88,7 @@ test('.window modifier', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -106,7 +106,7 @@ test('.once modifier', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
 
@@ -145,7 +145,7 @@ test('click away', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false)
 

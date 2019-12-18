@@ -2,7 +2,7 @@
 import Component from './component'
 import { domReady, isTesting } from './utils'
 
-const projectX = {
+const Alpine = {
     start: async function () {
         if (! isTesting()) {
             await domReady()
@@ -66,7 +66,7 @@ const projectX = {
               }
         });
 
-        observer.observe(targetNode, observerOptions);
+        observer.observe(targetNode, observerOptions)
     },
 
     initializeElement: function (el) {
@@ -74,9 +74,9 @@ const projectX = {
     }
 }
 
-if (! window.projectX && ! isTesting()) {
-    window.projectX = projectX
-    window.projectX.start()
+if (! window.Alpine && ! isTesting()) {
+    window.Alpine = Alpine
+    window.Alpine.start()
 }
 
-export default projectX
+export default Alpine

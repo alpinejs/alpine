@@ -9,6 +9,8 @@ export default class Component {
         this.data = this.wrapDataInObservable(rawData)
 
         this.initialize()
+
+        this.listenForNewElementsToInitialize()
     }
 
     wrapDataInObservable(data) {
@@ -44,55 +46,87 @@ export default class Component {
 
     initialize() {
         walkSkippingNestedComponents(this.el, el => {
-            getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
-                switch (type) {
-                    case 'on':
-                        var event = value
-                        this.registerListener(el, event, modifiers, expression)
-                        break;
-
-                    case 'model':
-                        // If the element we are binding to is a select, a radio, or checkbox
-                        // we'll listen for the change event instead of the "input" event.
-                        var event = (el.tagName.toLowerCase() === 'select')
-                            || ['checkbox', 'radio'].includes(el.type)
-                            || modifiers.includes('lazy')
-                            ? 'change' : 'input'
-
-                        const listenerExpression = this.generateExpressionForXModelListener(el, modifiers, expression)
-
-                        this.registerListener(el, event, modifiers, listenerExpression)
-
-                        var attrName = 'value'
-                        var { output } = this.evaluateReturnExpression(expression)
-                        this.updateAttributeValue(el, attrName, output)
-                        break;
-
-                    case 'bind':
-                        var attrName = value
-                        var { output } = this.evaluateReturnExpression(expression)
-                        this.updateAttributeValue(el, attrName, output)
-                        break;
-
-                    case 'text':
-                        var { output } = this.evaluateReturnExpression(expression)
-                        this.updateTextValue(el, output)
-                        break;
-
-                    case 'show':
-                        var { output } = this.evaluateReturnExpression(expression)
-                        this.updateVisibility(el, output)
-                        break;
-
-                    case 'cloak':
-                        el.removeAttribute('x-cloak')
-                        break;
-
-                    default:
-                        break;
-                }
-            })
+            this.initializeElement(el)
         })
+    }
+
+    initializeElement(el) {
+        getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
+            switch (type) {
+                case 'on':
+                    var event = value
+                    this.registerListener(el, event, modifiers, expression)
+                    break;
+
+                case 'model':
+                    // If the element we are binding to is a select, a radio, or checkbox
+                    // we'll listen for the change event instead of the "input" event.
+                    var event = (el.tagName.toLowerCase() === 'select')
+                        || ['checkbox', 'radio'].includes(el.type)
+                        || modifiers.includes('lazy')
+                        ? 'change' : 'input'
+
+                    const listenerExpression = this.generateExpressionForXModelListener(el, modifiers, expression)
+
+                    this.registerListener(el, event, modifiers, listenerExpression)
+
+                    var attrName = 'value'
+                    var { output } = this.evaluateReturnExpression(expression)
+                    this.updateAttributeValue(el, attrName, output)
+                    break;
+
+                case 'bind':
+                    var attrName = value
+                    var { output } = this.evaluateReturnExpression(expression)
+                    this.updateAttributeValue(el, attrName, output)
+                    break;
+
+                case 'text':
+                    var { output } = this.evaluateReturnExpression(expression)
+                    this.updateTextValue(el, output)
+                    break;
+
+                case 'show':
+                    var { output } = this.evaluateReturnExpression(expression)
+                    this.updateVisibility(el, output)
+                    break;
+
+                case 'cloak':
+                    el.removeAttribute('x-cloak')
+                    break;
+
+                default:
+                    break;
+            }
+        })
+    }
+
+    listenForNewElementsToInitialize() {
+        var targetNode = this.el
+
+        var observerOptions = {
+            childList: true,
+            attributes: false,
+            subtree: true,
+        }
+
+        var observer = new MutationObserver((mutations) => {
+            for (var i=0; i < mutations.length; i++){
+                if (mutations[i].addedNodes.length > 0) {
+                    mutations[i].addedNodes.forEach(node => {
+                        if (node.nodeType !== 1) return
+
+                        if (node.matches('[x-data]')) return
+
+                        if (getXAttrs(node).length > 0) {
+                            this.initializeElement(node)
+                        }
+                    })
+                }
+              }
+        });
+
+        observer.observe(targetNode, observerOptions);
     }
 
     refresh() {
@@ -334,7 +368,7 @@ export default class Component {
     getRefsProxy() {
         var self = this
 
-        // One of the goals of this project is to not hold elements in memory, but rather re-evaluate
+        // One of the goals of this  is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and
         // friendly to outside DOM changes from libraries like Vue/Livewire.
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.

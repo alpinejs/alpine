@@ -1,4 +1,4 @@
-import projectX from 'project-x'
+import Alpine from 'alpinejs'
 
 global.MutationObserver = class {
     observe() {}
@@ -11,7 +11,7 @@ test('attribute bindings are set on initialize', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 })
@@ -23,7 +23,7 @@ test('class attribute bindings are removed by object syntax', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeFalsy()
 })
@@ -35,7 +35,7 @@ test('class attribute bindings are added by object syntax', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
@@ -47,7 +47,7 @@ test('class attribute bindings are added by nested object syntax', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
@@ -59,7 +59,7 @@ test('class attribute bindings are removed by array syntax', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeFalsy()
 })
@@ -71,7 +71,7 @@ test('class attribute bindings are added by array syntax', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy
 })
@@ -87,7 +87,7 @@ test('boolean attributes set to false are removed from element', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelectorAll('input')[0].disabled).toBeFalsy()
     expect(document.querySelectorAll('input')[1].checked).toBeFalsy()
@@ -106,11 +106,10 @@ test('boolean attributes set to true are added to element', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelectorAll('input')[0].disabled).toBeTruthy()
     expect(document.querySelectorAll('input')[1].checked).toBeTruthy()
     expect(document.querySelectorAll('input')[2].required).toBeTruthy()
     expect(document.querySelectorAll('input')[3].readOnly).toBeTruthy()
 })
-

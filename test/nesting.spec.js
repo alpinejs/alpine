@@ -1,4 +1,4 @@
-import projectX from 'project-x'
+import Alpine from 'alpinejs'
 import { wait } from '@testing-library/dom'
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -17,7 +17,7 @@ test('can nest components', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 
@@ -39,7 +39,7 @@ test('can access parent properties after nested components', async () => {
         </div>
     `
 
-    projectX.start()
+    Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 })

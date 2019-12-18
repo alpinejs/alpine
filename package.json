@@ -1,10 +1,10 @@
 {
-  "main": "dist/project-x.js",
-  "name": "project-x",
-  "version": "0.4.4",
+  "main": "dist/alpine.js",
+  "name": "alpinejs",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "git://github.com/calebporzio/project-x.git"
+    "url": "git://github.com/alpinejs/alpine.git"
   },
   "scripts": {
     "test": "npx jest",

@@ -876,6 +876,7 @@ function () {
     var rawData = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(this.el.getAttribute('x-data'), {});
     this.data = this.wrapDataInObservable(rawData);
     this.initialize();
+    this.listenForNewElementsToInitialize();
   }
 
   _createClass(Component, [{
@@ -915,73 +916,107 @@ function () {
       var _this = this;
 
       Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walkSkippingNestedComponents"])(this.el, function (el) {
-        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el).forEach(function (_ref) {
-          var type = _ref.type,
-              value = _ref.value,
-              modifiers = _ref.modifiers,
-              expression = _ref.expression;
-
-          switch (type) {
-            case 'on':
-              var event = value;
-
-              _this.registerListener(el, event, modifiers, expression);
-
-              break;
-
-            case 'model':
-              // If the element we are binding to is a select, a radio, or checkbox
-              // we'll listen for the change event instead of the "input" event.
-              var event = el.tagName.toLowerCase() === 'select' || ['checkbox', 'radio'].includes(el.type) || modifiers.includes('lazy') ? 'change' : 'input';
-
-              var listenerExpression = _this.generateExpressionForXModelListener(el, modifiers, expression);
-
-              _this.registerListener(el, event, modifiers, listenerExpression);
-
-              var attrName = 'value';
-
-              var _this$evaluateReturnE = _this.evaluateReturnExpression(expression),
-                  output = _this$evaluateReturnE.output;
-
-              _this.updateAttributeValue(el, attrName, output);
-
-              break;
-
-            case 'bind':
-              var attrName = value;
-
-              var _this$evaluateReturnE2 = _this.evaluateReturnExpression(expression),
-                  output = _this$evaluateReturnE2.output;
-
-              _this.updateAttributeValue(el, attrName, output);
-
-              break;
-
-            case 'text':
-              var _this$evaluateReturnE3 = _this.evaluateReturnExpression(expression),
-                  output = _this$evaluateReturnE3.output;
-
-              _this.updateTextValue(el, output);
-
-              break;
-
-            case 'show':
-              var _this$evaluateReturnE4 = _this.evaluateReturnExpression(expression),
-                  output = _this$evaluateReturnE4.output;
-
-              _this.updateVisibility(el, output);
-
-              break;
-
-            case 'cloak':
-              el.removeAttribute('x-cloak');
-              break;
-
-            default:
-              break;
-          }
-        });
+        _this.initializeElement(el);
       });
+    }
+  }, {
+    key: "initializeElement",
+    value: function initializeElement(el) {
+      var _this2 = this;
+
+      Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el).forEach(function (_ref) {
+        var type = _ref.type,
+            value = _ref.value,
+            modifiers = _ref.modifiers,
+            expression = _ref.expression;
+
+        switch (type) {
+          case 'on':
+            var event = value;
+
+            _this2.registerListener(el, event, modifiers, expression);
+
+            break;
+
+          case 'model':
+            // If the element we are binding to is a select, a radio, or checkbox
+            // we'll listen for the change event instead of the "input" event.
+            var event = el.tagName.toLowerCase() === 'select' || ['checkbox', 'radio'].includes(el.type) || modifiers.includes('lazy') ? 'change' : 'input';
+
+            var listenerExpression = _this2.generateExpressionForXModelListener(el, modifiers, expression);
+
+            _this2.registerListener(el, event, modifiers, listenerExpression);
+
+            var attrName = 'value';
+
+            var _this2$evaluateReturn = _this2.evaluateReturnExpression(expression),
+                output = _this2$evaluateReturn.output;
+
+            _this2.updateAttributeValue(el, attrName, output);
+
+            break;
+
+          case 'bind':
+            var attrName = value;
+
+            var _this2$evaluateReturn2 = _this2.evaluateReturnExpression(expression),
+                output = _this2$evaluateReturn2.output;
+
+            _this2.updateAttributeValue(el, attrName, output);
+
+            break;
+
+          case 'text':
+            var _this2$evaluateReturn3 = _this2.evaluateReturnExpression(expression),
+                output = _this2$evaluateReturn3.output;
+
+            _this2.updateTextValue(el, output);
+
+            break;
+
+          case 'show':
+            var _this2$evaluateReturn4 = _this2.evaluateReturnExpression(expression),
+                output = _this2$evaluateReturn4.output;
+
+            _this2.updateVisibility(el, output);
+
+            break;
+
+          case 'cloak':
+            el.removeAttribute('x-cloak');
+            break;
+
+          default:
+            break;
+        }
+      });
+    }
+  }, {
+    key: "listenForNewElementsToInitialize",
+    value: function listenForNewElementsToInitialize() {
+      var _this3 = this;
+
+      var targetNode = this.el;
+      var observerOptions = {
+        childList: true,
+        attributes: false,
+        subtree: true
+      };
+      var observer = new MutationObserver(function (mutations) {
+        for (var i = 0; i < mutations.length; i++) {
+          if (mutations[i].addedNodes.length > 0) {
+            mutations[i].addedNodes.forEach(function (node) {
+              if (node.nodeType !== 1) return;
+              if (node.matches('[x-data]')) return;
+
+              if (Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(node).length > 0) {
+                _this3.initializeElement(node);
+              }
+            });
+          }
+        }
+      });
+      observer.observe(targetNode, observerOptions);
     }
   }, {
     key: "refresh",
@@ -1091,7 +1126,7 @@ function () {
   }, {
     key: "registerListener",
     value: function registerListener(el, event, modifiers, expression) {
-      var _this2 = this;
+      var _this4 = this;
 
       if (modifiers.includes('away')) {
         var handler = function handler(e) {
@@ -1101,7 +1136,7 @@ function () {
           if (el.offsetWidth < 1 && el.offsetHeight < 1) return; // Now that we are sure the element is visible, AND the click
           // is from outside it, let's run the expression.
 
-          _this2.runListenerHandler(expression, e);
+          _this4.runListenerHandler(expression, e);
 
           if (modifiers.includes('once')) {
             document.removeEventListener(event, handler);
@@ -1117,7 +1152,7 @@ function () {
           if (modifiers.includes('prevent')) e.preventDefault();
           if (modifiers.includes('stop')) e.stopPropagation();
 
-          _this2.runListenerHandler(expression, e);
+          _this4.runListenerHandler(expression, e);
 
           if (modifiers.includes('once')) {
             node.removeEventListener(event, _handler);
@@ -1255,7 +1290,7 @@ function () {
   }, {
     key: "getRefsProxy",
     value: function getRefsProxy() {
-      var self = this; // One of the goals of this project is to not hold elements in memory, but rather re-evaluate
+      var self = this; // One of the goals of this  is to not hold elements in memory, but rather re-evaluate
       // the DOM when the system needs something from it. This way, the framework is flexible and
       // friendly to outside DOM changes from libraries like Vue/Livewire.
       // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
@@ -1301,7 +1336,7 @@ __webpack_require__.r(__webpack_exports__);
 /* @flow */
 
 
-var projectX = {
+var Alpine = {
   start: function start() {
     var _this = this;
 
@@ -1380,12 +1415,12 @@ var projectX = {
   }
 };
 
-if (!window.projectX && !Object(_utils__WEBPACK_IMPORTED_MODULE_2__["isTesting"])()) {
-  window.projectX = projectX;
-  window.projectX.start();
+if (!window.Alpine && !Object(_utils__WEBPACK_IMPORTED_MODULE_2__["isTesting"])()) {
+  window.Alpine = Alpine;
+  window.Alpine.start();
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (projectX);
+/* harmony default export */ __webpack_exports__["default"] = (Alpine);
 
 /***/ }),
 
@@ -1502,7 +1537,7 @@ function getXAttrs(el, type) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/calebporzio/Documents/Code/sites/project-x/src/index.js */"./src/index.js");
+module.exports = __webpack_require__(/*! /Users/calebporzio/Documents/Code/sites/alpine/src/index.js */"./src/index.js");
 
 
 /***/ })

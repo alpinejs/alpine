@@ -54,6 +54,25 @@ Alpine.start()
 </div>
 ```
 
+You can even use if for non-trivial things:
+*Pre-fetching a dropdown's HTML content on hover*
+```html
+<div x-data="{ open: false }">
+    <button
+        x-on:mouseenter.once="
+            fetch('/dropdown-partial.html')
+                .then(response => response.text())
+                .then(html => { $refs.dropdown.innerHTML = html })
+        "
+        x-on:click="open = true"
+    >Show Dropdown</button>
+
+    <div x-ref="dropdown" x-show="open" x-on:click.away="open = false">
+        Loading Spinner...
+    </div>
+</div>
+```
+
 ## Learn
 
 There are 7 directives available to you:

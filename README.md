@@ -11,7 +11,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 ## Install
 Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.4.0/dist/project-x.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.4.4/dist/project-x.min.js" defer></script>
 ```
 
 ## Use

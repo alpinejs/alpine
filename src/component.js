@@ -177,8 +177,7 @@ export default class Component {
 
     registerListener(el, event, modifiers, expression) {
         if (modifiers.includes('away')) {
-            // Listen for this event at the root level.
-            document.addEventListener(event, e => {
+            const handler = e => {
                 // Don't do anything if the click came form the element or within it.
                 if (el.contains(e.target)) return
 
@@ -188,16 +187,29 @@ export default class Component {
                 // Now that we are sure the element is visible, AND the click
                 // is from outside it, let's run the expression.
                 this.runListenerHandler(expression, e)
-            })
+
+                if (modifiers.includes('once')) {
+                    document.removeEventListener(event, handler)
+                }
+            }
+
+            // Listen for this event at the root level.
+            document.addEventListener(event, handler)
         } else {
             const node = modifiers.includes('window') ? window : el
 
-            node.addEventListener(event, e => {
+            const handler = e => {
                 if (modifiers.includes('prevent')) e.preventDefault()
                 if (modifiers.includes('stop')) e.stopPropagation()
 
                 this.runListenerHandler(expression, e)
-            })
+
+                if (modifiers.includes('once')) {
+                    node.removeEventListener(event, handler)
+                }
+            }
+
+            node.addEventListener(event, handler)
         }
     }
 

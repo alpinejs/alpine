@@ -5,7 +5,7 @@
             [x-cloak] { display: none; }
         </style>
 
-        <script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.4.3/dist/project-x.min.js" defer></script>
+        <script src="https://cdn.jsdelivr.net/gh/calebporzio/project-x@v0.4.4/dist/project-x.min.js" defer></script>
     </head>
     <body>
         <table>
@@ -134,6 +134,15 @@
                     <td>
                         <div x-data="{}">
                             <a href="https://google.com" x-on:click.prevent>Shouldn't go to Google</a>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>x-on:click.once</td>
+                    <td>
+                        <div x-data="{ count: 0 }">
+                            <button x-on:click.once="count++">I've been clicked: <span x-text="count"></span></button>
                         </div>
                     </td>
                 </tr>

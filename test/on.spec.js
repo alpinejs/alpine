@@ -1,5 +1,6 @@
 import projectX from 'project-x'
 import { wait } from '@testing-library/dom'
+const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 global.MutationObserver = class {
     observe() {}
@@ -94,6 +95,30 @@ test('.window modifier', async () => {
     document.body.click()
 
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+})
+
+test('.once modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <button x-on:click.once="count = count+1"></button>
+
+            <span x-bind:foo="count"
+        </div>
+    `
+
+    projectX.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('1') })
+
+    document.querySelector('button').click()
+
+    await timeout(25)
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('1')
 })
 
 test('click away', async () => {

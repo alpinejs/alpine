@@ -1,7 +1,7 @@
 {
   "main": "dist/project-x.js",
   "name": "project-x",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "repository": {
     "type": "git",
     "url": "git://github.com/calebporzio/project-x.git"

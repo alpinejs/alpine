@@ -139,7 +139,7 @@ In this example, the "hidden" class will only be applied when the value of the `
 For example:
 `<button x-bind:disabled="myVar">Click me</button>`
 
-This will add or remove the `disabled` attribute when `myVar` is true or false respectively. 
+This will add or remove the `disabled` attribute when `myVar` is true or false respectively.
 
 Most common boolean attributes are supported, like `readonly`, `required`, etc.
 
@@ -177,6 +177,11 @@ Adding `.stop` to an event listener will call `stopPropagation` on the triggered
 **Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
 Adding `.window` to an event listener will install the listener on the global window object instead of the DOM node on which it is declared. This is useful for when you want to modify component state when something changes with the window, like the resize event. In this example, when the window grows larger than 768 pixels wide, we will close the modal/dropdown, otherwise maintain the same state.
+
+**`.once` modifier**
+**Example:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
+
+Adding the `.once` modifer to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
 
 ---
 

@@ -1094,8 +1094,7 @@ function () {
       var _this2 = this;
 
       if (modifiers.includes('away')) {
-        // Listen for this event at the root level.
-        document.addEventListener(event, function (e) {
+        var handler = function handler(e) {
           // Don't do anything if the click came form the element or within it.
           if (el.contains(e.target)) return; // Don't do anything if this element isn't currently visible.
 
@@ -1103,15 +1102,29 @@ function () {
           // is from outside it, let's run the expression.
 
           _this2.runListenerHandler(expression, e);
-        });
+
+          if (modifiers.includes('once')) {
+            document.removeEventListener(event, handler);
+          }
+        }; // Listen for this event at the root level.
+
+
+        document.addEventListener(event, handler);
       } else {
         var node = modifiers.includes('window') ? window : el;
-        node.addEventListener(event, function (e) {
+
+        var _handler = function _handler(e) {
           if (modifiers.includes('prevent')) e.preventDefault();
           if (modifiers.includes('stop')) e.stopPropagation();
 
           _this2.runListenerHandler(expression, e);
-        });
+
+          if (modifiers.includes('once')) {
+            node.removeEventListener(event, _handler);
+          }
+        };
+
+        node.addEventListener(event, _handler);
       }
     }
   }, {

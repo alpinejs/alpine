@@ -1258,11 +1258,15 @@ function () {
           el.setAttribute('class', value.join(' '));
         } else {
           // Use the class object syntax that vue uses to toggle them.
-          Object.keys(value).forEach(function (className) {
-            if (value[className]) {
-              el.classList.add(className);
+          Object.keys(value).forEach(function (classNames) {
+            if (value[classNames]) {
+              classNames.split(' ').forEach(function (className) {
+                return el.classList.add(className);
+              });
             } else {
-              el.classList.remove(className);
+              classNames.split(' ').forEach(function (className) {
+                return el.classList.remove(className);
+              });
             }
           });
         }
@@ -1537,7 +1541,7 @@ function getXAttrs(el, type) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/calebporzio/Documents/Code/sites/alpine/src/index.js */"./src/index.js");
+module.exports = __webpack_require__(/*! C:\web\playground\alpine\src\index.js */"./src/index.js");
 
 
 /***/ })

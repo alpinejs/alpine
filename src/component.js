@@ -91,6 +91,11 @@ export default class Component {
                     this.updateVisibility(el, output)
                     break;
 
+                case 'if':
+                    var { output } = this.evaluateReturnExpression(expression)
+                    this.updatePresence(el, output)
+                    break;
+
                 case 'cloak':
                     el.removeAttribute('x-cloak')
                     break;
@@ -170,6 +175,14 @@ export default class Component {
 
                         if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
                             self.updateVisibility(el, output)
+                        }
+                        break;
+
+                    case 'if':
+                        var { output, deps } = self.evaluateReturnExpression(expression)
+
+                        if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
+                            self.updatePresence(el, output)
                         }
                         break;
 
@@ -304,6 +317,22 @@ export default class Component {
             } else {
                 el.style.removeProperty('display')
             }
+        }
+    }
+
+    updatePresence(el, expressionResult) {
+        if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags.`)
+
+        const elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true
+
+        if (expressionResult && ! elementHasAlreadyBeenAdded) {
+            const clone = document.importNode(el.content, true);
+
+            el.parentElement.insertBefore(clone, el.nextElementSibling)
+
+            el.nextElementSibling.__x_inserted_me = true
+        } else if (! expressionResult && elementHasAlreadyBeenAdded) {
+            el.nextElementSibling.remove()
         }
     }
 

@@ -982,6 +982,14 @@ function () {
 
             break;
 
+          case 'if':
+            var _this2$evaluateReturn5 = _this2.evaluateReturnExpression(expression),
+                output = _this2$evaluateReturn5.output;
+
+            _this2.updatePresence(el, output);
+
+            break;
+
           case 'cloak':
             el.removeAttribute('x-cloak');
             break;
@@ -1086,6 +1094,19 @@ function () {
                 return deps.includes(i);
               }).length > 0) {
                 self.updateVisibility(el, output);
+              }
+
+              break;
+
+            case 'if':
+              var _self$evaluateReturnE5 = self.evaluateReturnExpression(expression),
+                  output = _self$evaluateReturnE5.output,
+                  deps = _self$evaluateReturnE5.deps;
+
+              if (self.concernedData.filter(function (i) {
+                return deps.includes(i);
+              }).length > 0) {
+                self.updatePresence(el, output);
               }
 
               break;
@@ -1225,6 +1246,20 @@ function () {
         } else {
           el.style.removeProperty('display');
         }
+      }
+    }
+  }, {
+    key: "updatePresence",
+    value: function updatePresence(el, expressionResult) {
+      if (el.nodeName.toLowerCase() !== 'template') console.warn("Alpine: [x-if] directive should only be added to <template> tags.");
+      var elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true;
+
+      if (expressionResult && !elementHasAlreadyBeenAdded) {
+        var clone = document.importNode(el.content, true);
+        el.parentElement.insertBefore(clone, el.nextElementSibling);
+        el.nextElementSibling.__x_inserted_me = true;
+      } else if (!expressionResult && elementHasAlreadyBeenAdded) {
+        el.nextElementSibling.remove();
       }
     }
   }, {
@@ -1505,12 +1540,12 @@ function saferEvalNoReturn(expression, dataContext) {
   return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with($data) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 }
 function isXAttr(attr) {
-  var xAttrRE = /x-(on|bind|data|text|model|show|cloak|ref)/;
+  var xAttrRE = /x-(on|bind|data|text|model|if|show|cloak|ref)/;
   return xAttrRE.test(attr.name);
 }
 function getXAttrs(el, type) {
   return Array.from(el.attributes).filter(isXAttr).map(function (attr) {
-    var typeMatch = attr.name.match(/x-(on|bind|data|text|model|show|cloak|ref)/);
+    var typeMatch = attr.name.match(/x-(on|bind|data|text|model|if|show|cloak|ref)/);
     var valueMatch = attr.name.match(/:([a-zA-Z\-]+)/);
     var modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     return {

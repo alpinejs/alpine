@@ -56,7 +56,7 @@ Alpine.start()
 </div>
 ```
 
-You can even use if for non-trivial things:
+You can even use it for non-trivial things:
 *Pre-fetching a dropdown's HTML content on hover*
 ```html
 <div x-data="{ open: false }">

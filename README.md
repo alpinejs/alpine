@@ -190,6 +190,14 @@ Most common boolean attributes are supported, like `readonly`, `required`, etc.
 
 If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
 
+**`keydown` modifiers**
+
+**Example:** `<input type="text" x-on:keydown.escape="open = false">`
+
+You can specify specific keys to listen for using keydown modifiers appended to the `x-on:keydown` directive. Note that the modifiers are kebab-cased versions of `Event.key` values.
+
+Examples: `enter`, `escape`, `arrow-up`, `arrow-down`
+
 **`.away` modifier**
 
 **Example:** `<div x-on:click.away="showModal = false"></div>`

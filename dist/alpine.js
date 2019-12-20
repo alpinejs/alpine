@@ -1170,6 +1170,10 @@ function () {
         var node = modifiers.includes('window') ? window : el;
 
         var _handler = function _handler(e) {
+          var modifiersWithoutWindow = modifiers.filter(function (i) {
+            return i !== 'window';
+          });
+          if (event === 'keydown' && modifiersWithoutWindow.length > 0 && !modifiersWithoutWindow.includes(Object(_utils__WEBPACK_IMPORTED_MODULE_0__["kebabCase"])(e.key))) return;
           if (modifiers.includes('prevent')) e.preventDefault();
           if (modifiers.includes('stop')) e.stopPropagation();
 
@@ -1463,13 +1467,14 @@ if (!window.Alpine && !Object(_utils__WEBPACK_IMPORTED_MODULE_2__["isTesting"])(
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: domReady, isTesting, walkSkippingNestedComponents, debounce, onlyUnique, saferEval, saferEvalNoReturn, isXAttr, getXAttrs */
+/*! exports provided: domReady, isTesting, kebabCase, walkSkippingNestedComponents, debounce, onlyUnique, saferEval, saferEvalNoReturn, isXAttr, getXAttrs */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "domReady", function() { return domReady; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isTesting", function() { return isTesting; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "kebabCase", function() { return kebabCase; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "walkSkippingNestedComponents", function() { return walkSkippingNestedComponents; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "debounce", function() { return debounce; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onlyUnique", function() { return onlyUnique; });
@@ -1498,6 +1503,9 @@ function domReady() {
 }
 function isTesting() {
   return navigator.userAgent, navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
+}
+function kebabCase(subject) {
+  return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
 }
 function walkSkippingNestedComponents(el, callback) {
   var isRoot = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;

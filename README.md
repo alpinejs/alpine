@@ -88,6 +88,7 @@ There are 7 directives available to you:
 | [`x-model`](#x-model) |
 | [`x-text`](#x-text) |
 | [`x-ref`](#x-ref) |
+| [`x-if`](#x-if) |
 | [`x-cloak`](#x-cloak) |
 
 Here's how they each work:
@@ -247,6 +248,17 @@ Adding the `.once` modifer to an event listener will ensure that the listener wi
 `x-ref` provides a convenient way to retrieve raw DOM elements out of your component. By setting an `x-ref` attribute on an element, you are making it available to all event handlers inside an object called `$refs`.
 
 This is a helpful alternative to setting ids and using `document.querySelector` all over the place.
+
+---
+
+### `x-if`
+**Example:** `<template x-if="true"><div>Some Element</div></template>`
+
+**Structure:** `<template x-if="[expression]"><div>Some Element</div></template>`
+
+For cases where `x-show` isn't sufficient (`x-show` sets an element to `display: none` if it's false), `x-if` can be used to  actually remove an element completely from the DOM.
+
+It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work it's magic.
 
 ---
 

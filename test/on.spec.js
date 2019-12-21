@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs'
-import { wait } from '@testing-library/dom'
+import { wait, fireEvent } from '@testing-library/dom'
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 global.MutationObserver = class {
@@ -119,6 +119,28 @@ test('.once modifier', async () => {
     await timeout(25)
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('1')
+})
+
+test('keydown modifiers', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <input type="text" x-on:keydown="count++" x-on:keydown.enter="count++">
+
+            <span x-text="count"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(2) })
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'Escape' })
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(3) })
 })
 
 test('click away', async () => {

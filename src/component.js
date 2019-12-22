@@ -1,4 +1,4 @@
-import { walkSkippingNestedComponents, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
+import { walkSkippingNestedComponents, kebabCase, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
 
 export default class Component {
     constructor(el) {
@@ -91,6 +91,11 @@ export default class Component {
                     this.updateVisibility(el, output)
                     break;
 
+                case 'if':
+                    var { output } = this.evaluateReturnExpression(expression)
+                    this.updatePresence(el, output)
+                    break;
+
                 case 'cloak':
                     el.removeAttribute('x-cloak')
                     break;
@@ -102,16 +107,16 @@ export default class Component {
     }
 
     listenForNewElementsToInitialize() {
-        var targetNode = this.el
+        const targetNode = this.el
 
-        var observerOptions = {
+        const observerOptions = {
             childList: true,
             attributes: false,
             subtree: true,
         }
 
-        var observer = new MutationObserver((mutations) => {
-            for (var i=0; i < mutations.length; i++){
+        const observer = new MutationObserver((mutations) => {
+            for (let i=0; i < mutations.length; i++){
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
                         if (node.nodeType !== 1) return
@@ -124,7 +129,7 @@ export default class Component {
                     })
                 }
               }
-        });
+        })
 
         observer.observe(targetNode, observerOptions);
     }
@@ -170,6 +175,14 @@ export default class Component {
 
                         if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
                             self.updateVisibility(el, output)
+                        }
+                        break;
+
+                    case 'if':
+                        var { output, deps } = self.evaluateReturnExpression(expression)
+
+                        if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
+                            self.updatePresence(el, output)
                         }
                         break;
 
@@ -233,6 +246,10 @@ export default class Component {
             const node = modifiers.includes('window') ? window : el
 
             const handler = e => {
+                const modifiersWithoutWindow = modifiers.filter(i => i !== 'window')
+
+                if (event === 'keydown' && modifiersWithoutWindow.length > 0 && ! modifiersWithoutWindow.includes(kebabCase(e.key))) return
+
                 if (modifiers.includes('prevent')) e.preventDefault()
                 if (modifiers.includes('stop')) e.stopPropagation()
 
@@ -304,6 +321,22 @@ export default class Component {
             } else {
                 el.style.removeProperty('display')
             }
+        }
+    }
+
+    updatePresence(el, expressionResult) {
+        if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags.`)
+
+        const elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true
+
+        if (expressionResult && ! elementHasAlreadyBeenAdded) {
+            const clone = document.importNode(el.content, true);
+
+            el.parentElement.insertBefore(clone, el.nextElementSibling)
+
+            el.nextElementSibling.__x_inserted_me = true
+        } else if (! expressionResult && elementHasAlreadyBeenAdded) {
+            el.nextElementSibling.remove()
         }
     }
 

@@ -982,6 +982,14 @@ function () {
 
             break;
 
+          case 'if':
+            var _this2$evaluateReturn5 = _this2.evaluateReturnExpression(expression),
+                output = _this2$evaluateReturn5.output;
+
+            _this2.updatePresence(el, output);
+
+            break;
+
           case 'cloak':
             el.removeAttribute('x-cloak');
             break;
@@ -1090,6 +1098,19 @@ function () {
 
               break;
 
+            case 'if':
+              var _self$evaluateReturnE5 = self.evaluateReturnExpression(expression),
+                  output = _self$evaluateReturnE5.output,
+                  deps = _self$evaluateReturnE5.deps;
+
+              if (self.concernedData.filter(function (i) {
+                return deps.includes(i);
+              }).length > 0) {
+                self.updatePresence(el, output);
+              }
+
+              break;
+
             default:
               break;
           }
@@ -1149,6 +1170,10 @@ function () {
         var node = modifiers.includes('window') ? window : el;
 
         var _handler = function _handler(e) {
+          var modifiersWithoutWindow = modifiers.filter(function (i) {
+            return i !== 'window';
+          });
+          if (event === 'keydown' && modifiersWithoutWindow.length > 0 && !modifiersWithoutWindow.includes(Object(_utils__WEBPACK_IMPORTED_MODULE_0__["kebabCase"])(e.key))) return;
           if (modifiers.includes('prevent')) e.preventDefault();
           if (modifiers.includes('stop')) e.stopPropagation();
 
@@ -1225,6 +1250,20 @@ function () {
         } else {
           el.style.removeProperty('display');
         }
+      }
+    }
+  }, {
+    key: "updatePresence",
+    value: function updatePresence(el, expressionResult) {
+      if (el.nodeName.toLowerCase() !== 'template') console.warn("Alpine: [x-if] directive should only be added to <template> tags.");
+      var elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true;
+
+      if (expressionResult && !elementHasAlreadyBeenAdded) {
+        var clone = document.importNode(el.content, true);
+        el.parentElement.insertBefore(clone, el.nextElementSibling);
+        el.nextElementSibling.__x_inserted_me = true;
+      } else if (!expressionResult && elementHasAlreadyBeenAdded) {
+        el.nextElementSibling.remove();
       }
     }
   }, {
@@ -1337,8 +1376,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
 
 
-/* @flow */
-
 
 var Alpine = {
   start: function start() {
@@ -1358,17 +1395,17 @@ var Alpine = {
 
           case 3:
             this.discoverComponents(function (el) {
-              _this.initializeElement(el);
+              _this.initializeComponent(el);
             }); // It's easier and more performant to just support Turbolinks than listen
             // to MutationOberserver mutations at the document level.
 
             document.addEventListener("turbolinks:load", function () {
               _this.discoverUninitializedComponents(function (el) {
-                _this.initializeElement(el);
+                _this.initializeComponent(el);
               });
             });
             this.listenForNewUninitializedComponentsAtRunTime(function (el) {
-              _this.initializeElement(el);
+              _this.initializeComponent(el);
             });
 
           case 6:
@@ -1404,17 +1441,14 @@ var Alpine = {
         if (mutations[i].addedNodes.length > 0) {
           mutations[i].addedNodes.forEach(function (node) {
             if (node.nodeType !== 1) return;
-
-            if (node.matches('[x-data]')) {
-              callback(node);
-            }
+            if (node.matches('[x-data]')) callback(node);
           });
         }
       }
     });
     observer.observe(targetNode, observerOptions);
   },
-  initializeElement: function initializeElement(el) {
+  initializeComponent: function initializeComponent(el) {
     el.__x = new _component__WEBPACK_IMPORTED_MODULE_1__["default"](el);
   }
 };
@@ -1432,13 +1466,14 @@ if (!window.Alpine && !Object(_utils__WEBPACK_IMPORTED_MODULE_2__["isTesting"])(
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: domReady, isTesting, walkSkippingNestedComponents, debounce, onlyUnique, saferEval, saferEvalNoReturn, isXAttr, getXAttrs */
+/*! exports provided: domReady, isTesting, kebabCase, walkSkippingNestedComponents, debounce, onlyUnique, saferEval, saferEvalNoReturn, isXAttr, getXAttrs */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "domReady", function() { return domReady; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isTesting", function() { return isTesting; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "kebabCase", function() { return kebabCase; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "walkSkippingNestedComponents", function() { return walkSkippingNestedComponents; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "debounce", function() { return debounce; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onlyUnique", function() { return onlyUnique; });
@@ -1467,6 +1502,9 @@ function domReady() {
 }
 function isTesting() {
   return navigator.userAgent, navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
+}
+function kebabCase(subject) {
+  return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
 }
 function walkSkippingNestedComponents(el, callback) {
   var isRoot = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -1509,12 +1547,12 @@ function saferEvalNoReturn(expression, dataContext) {
   return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with($data) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 }
 function isXAttr(attr) {
-  var xAttrRE = /x-(on|bind|data|text|model|show|cloak|ref)/;
+  var xAttrRE = /x-(on|bind|data|text|model|if|show|cloak|ref)/;
   return xAttrRE.test(attr.name);
 }
 function getXAttrs(el, type) {
   return Array.from(el.attributes).filter(isXAttr).map(function (attr) {
-    var typeMatch = attr.name.match(/x-(on|bind|data|text|model|show|cloak|ref)/);
+    var typeMatch = attr.name.match(/x-(on|bind|data|text|model|if|show|cloak|ref)/);
     var valueMatch = attr.name.match(/:([a-zA-Z\-]+)/);
     var modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     return {

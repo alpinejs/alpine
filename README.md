@@ -12,7 +12,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.0.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.1.0/dist/alpine.min.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -88,6 +88,7 @@ There are 7 directives available to you:
 | [`x-model`](#x-model) |
 | [`x-text`](#x-text) |
 | [`x-ref`](#x-ref) |
+| [`x-if`](#x-if) |
 | [`x-cloak`](#x-cloak) |
 
 Here's how they each work:
@@ -106,7 +107,7 @@ Think of it like the `data` property of a Vue component.
 
 **Extract Component Logic**
 
-You can extract data (and behavior) into reausable functions:
+You can extract data (and behavior) into reusable functions:
 
 ```html
 <div x-data="dropdown()">
@@ -153,7 +154,7 @@ You can also mix-in multiple data objects using object destructuring:
 
 `x-bind` sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component's data object, and will update every-time it's data is updated.
 
-> Note: attribute bindings ONLY update when their dependancies update. The framework is smart enough to observe data changes and detect which bindings care about them.
+> Note: attribute bindings ONLY update when their dependencies update. The framework is smart enough to observe data changes and detect which bindings care about them.
 
 **`x-bind` for class attributes**
 
@@ -188,6 +189,14 @@ Most common boolean attributes are supported, like `readonly`, `required`, etc.
 `x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as it's value is executed.
 
 If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
+
+**`keydown` modifiers**
+
+**Example:** `<input type="text" x-on:keydown.escape="open = false">`
+
+You can specify specific keys to listen for using keydown modifiers appended to the `x-on:keydown` directive. Note that the modifiers are kebab-cased versions of `Event.key` values.
+
+Examples: `enter`, `escape`, `arrow-up`, `arrow-down`
 
 **`.away` modifier**
 
@@ -247,6 +256,17 @@ Adding the `.once` modifer to an event listener will ensure that the listener wi
 `x-ref` provides a convenient way to retrieve raw DOM elements out of your component. By setting an `x-ref` attribute on an element, you are making it available to all event handlers inside an object called `$refs`.
 
 This is a helpful alternative to setting ids and using `document.querySelector` all over the place.
+
+---
+
+### `x-if`
+**Example:** `<template x-if="true"><div>Some Element</div></template>`
+
+**Structure:** `<template x-if="[expression]"><div>Some Element</div></template>`
+
+For cases where `x-show` isn't sufficient (`x-show` sets an element to `display: none` if it's false), `x-if` can be used to  actually remove an element completely from the DOM.
+
+It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work it's magic.
 
 ---
 

@@ -1372,8 +1372,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils */ "./src/utils.js");
 
 
-/* @flow */
-
 
 var Alpine = {
   start: function start() {
@@ -1393,17 +1391,17 @@ var Alpine = {
 
           case 3:
             this.discoverComponents(function (el) {
-              _this.initializeElement(el);
+              _this.initializeComponent(el);
             }); // It's easier and more performant to just support Turbolinks than listen
             // to MutationOberserver mutations at the document level.
 
             document.addEventListener("turbolinks:load", function () {
               _this.discoverUninitializedComponents(function (el) {
-                _this.initializeElement(el);
+                _this.initializeComponent(el);
               });
             });
             this.listenForNewUninitializedComponentsAtRunTime(function (el) {
-              _this.initializeElement(el);
+              _this.initializeComponent(el);
             });
 
           case 6:
@@ -1439,17 +1437,14 @@ var Alpine = {
         if (mutations[i].addedNodes.length > 0) {
           mutations[i].addedNodes.forEach(function (node) {
             if (node.nodeType !== 1) return;
-
-            if (node.matches('[x-data]')) {
-              callback(node);
-            }
+            if (node.matches('[x-data]')) callback(node);
           });
         }
       }
     });
     observer.observe(targetNode, observerOptions);
   },
-  initializeElement: function initializeElement(el) {
+  initializeComponent: function initializeComponent(el) {
     el.__x = new _component__WEBPACK_IMPORTED_MODULE_1__["default"](el);
   }
 };

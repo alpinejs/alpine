@@ -107,16 +107,16 @@ export default class Component {
     }
 
     listenForNewElementsToInitialize() {
-        var targetNode = this.el
+        const targetNode = this.el
 
-        var observerOptions = {
+        const observerOptions = {
             childList: true,
             attributes: false,
             subtree: true,
         }
 
-        var observer = new MutationObserver((mutations) => {
-            for (var i=0; i < mutations.length; i++){
+        const observer = new MutationObserver((mutations) => {
+            for (let i=0; i < mutations.length; i++){
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
                         if (node.nodeType !== 1) return
@@ -129,7 +129,7 @@ export default class Component {
                     })
                 }
               }
-        });
+        })
 
         observer.observe(targetNode, observerOptions);
     }

@@ -1,4 +1,3 @@
-/* @flow */
 import Component from './component'
 import { domReady, isTesting } from './utils'
 
@@ -9,19 +8,19 @@ const Alpine = {
         }
 
         this.discoverComponents(el => {
-            this.initializeElement(el)
+            this.initializeComponent(el)
         })
 
         // It's easier and more performant to just support Turbolinks than listen
         // to MutationOberserver mutations at the document level.
         document.addEventListener("turbolinks:load", () => {
             this.discoverUninitializedComponents(el => {
-                this.initializeElement(el)
+                this.initializeComponent(el)
             })
         })
 
         this.listenForNewUninitializedComponentsAtRunTime(el => {
-            this.initializeElement(el)
+            this.initializeComponent(el)
         })
     },
 
@@ -44,32 +43,30 @@ const Alpine = {
     },
 
     listenForNewUninitializedComponentsAtRunTime: function (callback) {
-        var targetNode = document.querySelector('body');
+        const targetNode = document.querySelector('body');
 
-        var observerOptions = {
+        const observerOptions = {
             childList: true,
             attributes: true,
             subtree: true,
         }
 
-        var observer = new MutationObserver((mutations) => {
-            for (var i=0; i < mutations.length; i++){
+        const observer = new MutationObserver((mutations) => {
+            for (let i=0; i < mutations.length; i++){
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
                         if (node.nodeType !== 1) return
 
-                        if (node.matches('[x-data]')) {
-                            callback(node)
-                        }
+                        if (node.matches('[x-data]')) callback(node)
                     })
                 }
               }
-        });
+        })
 
         observer.observe(targetNode, observerOptions)
     },
 
-    initializeElement: function (el) {
+    initializeComponent: function (el) {
         el.__x = new Component(el)
     }
 }

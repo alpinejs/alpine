@@ -1579,7 +1579,7 @@ function getXAttrs(el, type) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! C:\web\playground\alpine\src\index.js */"./src/index.js");
+module.exports = __webpack_require__(/*! /Users/calebporzio/Documents/Code/sites/alpine/src/index.js */"./src/index.js");
 
 
 /***/ })

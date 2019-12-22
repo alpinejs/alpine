@@ -1297,11 +1297,15 @@ function () {
           el.setAttribute('class', value.join(' '));
         } else {
           // Use the class object syntax that vue uses to toggle them.
-          Object.keys(value).forEach(function (className) {
-            if (value[className]) {
-              el.classList.add(className);
+          Object.keys(value).forEach(function (classNames) {
+            if (value[classNames]) {
+              classNames.split(' ').forEach(function (className) {
+                return el.classList.add(className);
+              });
             } else {
-              el.classList.remove(className);
+              classNames.split(' ').forEach(function (className) {
+                return el.classList.remove(className);
+              });
             }
           });
         }

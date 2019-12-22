@@ -370,11 +370,11 @@ export default class Component {
                 el.setAttribute('class', value.join(' '))
             } else {
                 // Use the class object syntax that vue uses to toggle them.
-                Object.keys(value).forEach(className => {
-                    if (value[className]) {
-                        el.classList.add(className)
+                Object.keys(value).forEach(classNames => {
+                    if (value[classNames]) {
+                        classNames.split(' ').forEach(className => el.classList.add(className))
                     } else {
-                        el.classList.remove(className)
+                        classNames.split(' ').forEach(className => el.classList.remove(className))
                     }
                 })
             }

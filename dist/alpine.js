@@ -888,7 +888,7 @@ function () {
       var proxyHandler = function proxyHandler(keyPrefix) {
         return {
           set: function set(obj, property, value) {
-            var propertyName = keyPrefix + '.' + property;
+            var propertyName = keyPrefix ? "".concat(keyPrefix, ".").concat(property) : property;
             var setWasSuccessful = Reflect.set(obj, property, value);
 
             if (self.concernedData.indexOf(propertyName) === -1) {
@@ -900,7 +900,8 @@ function () {
           },
           get: function get(target, key) {
             if (_typeof(target[key]) === 'object' && target[key] !== null) {
-              return new Proxy(target[key], proxyHandler(keyPrefix + '.' + key));
+              var propertyName = keyPrefix ? "".concat(keyPrefix, ".").concat(key) : key;
+              return new Proxy(target[key], proxyHandler(propertyName));
             }
 
             return target[key];
@@ -1007,11 +1008,22 @@ function () {
       var targetNode = this.el;
       var observerOptions = {
         childList: true,
-        attributes: false,
+        attributes: true,
         subtree: true
       };
       var observer = new MutationObserver(function (mutations) {
+        window.latestMutations = mutations;
+
         for (var i = 0; i < mutations.length; i++) {
+          if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
+            (function () {
+              var rawData = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(mutations[i].target.getAttribute('x-data'), {});
+              Object.keys(rawData).forEach(function (key) {
+                _this3.data[key] = rawData[key];
+              });
+            })();
+          }
+
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(function (node) {
               if (node.nodeType !== 1) return;
@@ -1030,6 +1042,34 @@ function () {
     key: "refresh",
     value: function refresh() {
       var self = this;
+      var actionByDirectiveType = {
+        'model': function model(_ref2) {
+          var el = _ref2.el,
+              output = _ref2.output;
+          self.updateAttributeValue(el, 'value', output);
+        },
+        'bind': function bind(_ref3) {
+          var el = _ref3.el,
+              attrName = _ref3.attrName,
+              output = _ref3.output;
+          self.updateAttributeValue(el, attrName, output);
+        },
+        'text': function text(_ref4) {
+          var el = _ref4.el,
+              output = _ref4.output;
+          self.updateTextValue(el, output);
+        },
+        'show': function show(_ref5) {
+          var el = _ref5.el,
+              output = _ref5.output;
+          self.updateVisibility(el, output);
+        },
+        'if': function _if(_ref6) {
+          var el = _ref6.el,
+              output = _ref6.output;
+          self.updatePresence(el, output);
+        }
+      };
 
       var walkThenClearDependancyTracker = function walkThenClearDependancyTracker(rootEl, callback) {
         Object(_utils__WEBPACK_IMPORTED_MODULE_0__["walkSkippingNestedComponents"])(rootEl, callback);
@@ -1037,82 +1077,24 @@ function () {
       };
 
       Object(_utils__WEBPACK_IMPORTED_MODULE_0__["debounce"])(walkThenClearDependancyTracker, 5)(this.el, function (el) {
-        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el).forEach(function (_ref2) {
-          var type = _ref2.type,
-              value = _ref2.value,
-              modifiers = _ref2.modifiers,
-              expression = _ref2.expression;
+        Object(_utils__WEBPACK_IMPORTED_MODULE_0__["getXAttrs"])(el).forEach(function (_ref7) {
+          var type = _ref7.type,
+              value = _ref7.value,
+              expression = _ref7.expression;
+          if (!actionByDirectiveType[type]) return;
 
-          switch (type) {
-            case 'model':
-              var _self$evaluateReturnE = self.evaluateReturnExpression(expression),
-                  output = _self$evaluateReturnE.output,
-                  deps = _self$evaluateReturnE.deps;
+          var _self$evaluateReturnE = self.evaluateReturnExpression(expression),
+              output = _self$evaluateReturnE.output,
+              deps = _self$evaluateReturnE.deps;
 
-              if (self.concernedData.filter(function (i) {
-                return deps.includes(i);
-              }).length > 0) {
-                self.updateAttributeValue(el, 'value', output);
-              }
-
-              break;
-
-            case 'bind':
-              var attrName = value;
-
-              var _self$evaluateReturnE2 = self.evaluateReturnExpression(expression),
-                  output = _self$evaluateReturnE2.output,
-                  deps = _self$evaluateReturnE2.deps;
-
-              if (self.concernedData.filter(function (i) {
-                return deps.includes(i);
-              }).length > 0) {
-                self.updateAttributeValue(el, attrName, output);
-              }
-
-              break;
-
-            case 'text':
-              var _self$evaluateReturnE3 = self.evaluateReturnExpression(expression),
-                  output = _self$evaluateReturnE3.output,
-                  deps = _self$evaluateReturnE3.deps;
-
-              if (self.concernedData.filter(function (i) {
-                return deps.includes(i);
-              }).length > 0) {
-                self.updateTextValue(el, output);
-              }
-
-              break;
-
-            case 'show':
-              var _self$evaluateReturnE4 = self.evaluateReturnExpression(expression),
-                  output = _self$evaluateReturnE4.output,
-                  deps = _self$evaluateReturnE4.deps;
-
-              if (self.concernedData.filter(function (i) {
-                return deps.includes(i);
-              }).length > 0) {
-                self.updateVisibility(el, output);
-              }
-
-              break;
-
-            case 'if':
-              var _self$evaluateReturnE5 = self.evaluateReturnExpression(expression),
-                  output = _self$evaluateReturnE5.output,
-                  deps = _self$evaluateReturnE5.deps;
-
-              if (self.concernedData.filter(function (i) {
-                return deps.includes(i);
-              }).length > 0) {
-                self.updatePresence(el, output);
-              }
-
-              break;
-
-            default:
-              break;
+          if (self.concernedData.filter(function (i) {
+            return deps.includes(i);
+          }).length > 0) {
+            actionByDirectiveType[type]({
+              el: el,
+              attrName: value,
+              output: output
+            });
           }
         });
       });
@@ -1125,7 +1107,7 @@ function () {
       if (el.type === 'checkbox') {
         // If the data we are binding to is an array, toggle it's value inside the array.
         if (Array.isArray(this.data[dataKey])) {
-          rightSideOfExpression = "$event.target.checked ? ".concat(dataKey, ".concat([$event.target.value]) : [...").concat(dataKey, ".splice(0, ").concat(dataKey, ".indexOf($event.target.value)), ...").concat(dataKey, ".splice(").concat(dataKey, ".indexOf($event.target.value)+1)]");
+          rightSideOfExpression = "$event.target.checked ? ".concat(dataKey, ".concat([$event.target.value]) : ").concat(dataKey, ".filter(i => i !== $event.target.value)");
         } else {
           rightSideOfExpression = "$event.target.checked";
         }
@@ -1167,7 +1149,7 @@ function () {
 
         document.addEventListener(event, handler);
       } else {
-        var node = modifiers.includes('window') ? window : el;
+        var listenerTarget = modifiers.includes('window') ? window : el;
 
         var _handler = function _handler(e) {
           var modifiersWithoutWindow = modifiers.filter(function (i) {
@@ -1180,11 +1162,11 @@ function () {
           _this4.runListenerHandler(expression, e);
 
           if (modifiers.includes('once')) {
-            node.removeEventListener(event, _handler);
+            listenerTarget.removeEventListener(event, _handler);
           }
         };
 
-        node.addEventListener(event, _handler);
+        listenerTarget.addEventListener(event, _handler);
       }
     }
   }, {
@@ -1203,20 +1185,17 @@ function () {
       var proxyHandler = function proxyHandler(prefix) {
         return {
           get: function get(object, prop) {
+            // Sometimes non-proxyable values are accessed. These are of type "symbol".
+            // We can ignore them.
+            if (_typeof(prop) === 'symbol') return;
+            var propertyName = prefix ? "".concat(prefix, ".").concat(prop) : prop; // If we are accessing an object prop, we'll make this proxy recursive to build
+            // a nested dependancy key.
+
             if (_typeof(object[prop]) === 'object' && object[prop] !== null && !Array.isArray(object[prop])) {
-              return new Proxy(object[prop], proxyHandler(prefix + '.' + prop));
+              return new Proxy(object[prop], proxyHandler(propertyName));
             }
 
-            if (typeof prop === 'string') {
-              affectedDataKeys.push(prefix + '.' + prop);
-            } else {
-              affectedDataKeys.push(prop);
-            }
-
-            if (_typeof(object[prop]) === 'object' && object[prop] !== null) {
-              return new Proxy(object[prop], proxyHandler(prefix + '.' + prop));
-            }
-
+            affectedDataKeys.push(propertyName);
             return object[prop];
           }
         };
@@ -1333,7 +1312,7 @@ function () {
   }, {
     key: "getRefsProxy",
     value: function getRefsProxy() {
-      var self = this; // One of the goals of this  is to not hold elements in memory, but rather re-evaluate
+      var self = this; // One of the goals of this is to not hold elements in memory, but rather re-evaluate
       // the DOM when the system needs something from it. This way, the framework is flexible and
       // friendly to outside DOM changes from libraries like Vue/Livewire.
       // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.

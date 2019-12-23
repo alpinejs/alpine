@@ -20,7 +20,7 @@ export default class Component {
 
         const proxyHandler = keyPrefix => ({
             set(obj, property, value) {
-                const propertyName = keyPrefix + '.' + property
+                const propertyName = keyPrefix ? `${keyPrefix}.${property}` : property
 
                 const setWasSuccessful = Reflect.set(obj, property, value)
 
@@ -34,7 +34,9 @@ export default class Component {
             },
             get(target, key) {
                 if (typeof target[key] === 'object' && target[key] !== null) {
-                    return new Proxy(target[key], proxyHandler(keyPrefix + '.' + key))
+                    const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key
+
+                    return new Proxy(target[key], proxyHandler(propertyName))
                 }
 
                 return target[key]
@@ -111,12 +113,22 @@ export default class Component {
 
         const observerOptions = {
             childList: true,
-            attributes: false,
+            attributes: true,
             subtree: true,
         }
 
         const observer = new MutationObserver((mutations) => {
+            window.latestMutations = mutations
+
             for (let i=0; i < mutations.length; i++){
+                if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
+                    const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})
+
+                    Object.keys(rawData).forEach(key => {
+                        this.data[key] = rawData[key]
+                    })
+                }
+
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
                         if (node.nodeType !== 1) return
@@ -137,6 +149,14 @@ export default class Component {
     refresh() {
         var self = this
 
+        const actionByDirectiveType = {
+            'model': ({el, output}) => { self.updateAttributeValue(el, 'value', output) },
+            'bind': ({el, attrName, output}) => { self.updateAttributeValue(el, attrName, output) },
+            'text': ({el, output}) => { self.updateTextValue(el, output) },
+            'show': ({el, output}) => { self.updateVisibility(el, output) },
+            'if': ({el, output}) => { self.updatePresence(el, output) },
+        }
+
         const walkThenClearDependancyTracker = (rootEl, callback) => {
             walkSkippingNestedComponents(rootEl, callback)
 
@@ -144,50 +164,13 @@ export default class Component {
         }
 
         debounce(walkThenClearDependancyTracker, 5)(this.el, function (el) {
-            getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
-                switch (type) {
-                    case 'model':
-                        var { output, deps } = self.evaluateReturnExpression(expression)
+            getXAttrs(el).forEach(({ type, value, expression }) => {
+                if (! actionByDirectiveType[type]) return
 
-                        if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
-                            self.updateAttributeValue(el, 'value', output)
-                        }
-                        break;
-                    case 'bind':
-                        const attrName = value
-                        var { output, deps } = self.evaluateReturnExpression(expression)
+                var { output, deps } = self.evaluateReturnExpression(expression)
 
-                        if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
-                            self.updateAttributeValue(el, attrName, output)
-                        }
-                        break;
-
-                    case 'text':
-                        var { output, deps } = self.evaluateReturnExpression(expression)
-
-                        if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
-                            self.updateTextValue(el, output)
-                        }
-                        break;
-
-                    case 'show':
-                        var { output, deps } = self.evaluateReturnExpression(expression)
-
-                        if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
-                            self.updateVisibility(el, output)
-                        }
-                        break;
-
-                    case 'if':
-                        var { output, deps } = self.evaluateReturnExpression(expression)
-
-                        if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
-                            self.updatePresence(el, output)
-                        }
-                        break;
-
-                    default:
-                        break;
+                if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
+                    (actionByDirectiveType[type])({ el, attrName: value, output })
                 }
             })
         })
@@ -198,7 +181,7 @@ export default class Component {
         if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle it's value inside the array.
             if (Array.isArray(this.data[dataKey])) {
-                rightSideOfExpression = `$event.target.checked ? ${dataKey}.concat([$event.target.value]) : [...${dataKey}.splice(0, ${dataKey}.indexOf($event.target.value)), ...${dataKey}.splice(${dataKey}.indexOf($event.target.value)+1)]`
+                rightSideOfExpression = `$event.target.checked ? ${dataKey}.concat([$event.target.value]) : ${dataKey}.filter(i => i !== $event.target.value)`
             } else {
                 rightSideOfExpression = `$event.target.checked`
             }
@@ -243,7 +226,7 @@ export default class Component {
             // Listen for this event at the root level.
             document.addEventListener(event, handler)
         } else {
-            const node = modifiers.includes('window') ? window : el
+            const listenerTarget = modifiers.includes('window') ? window : el
 
             const handler = e => {
                 const modifiersWithoutWindow = modifiers.filter(i => i !== 'window')
@@ -256,18 +239,18 @@ export default class Component {
                 this.runListenerHandler(expression, e)
 
                 if (modifiers.includes('once')) {
-                    node.removeEventListener(event, handler)
+                    listenerTarget.removeEventListener(event, handler)
                 }
             }
 
-            node.addEventListener(event, handler)
+            listenerTarget.addEventListener(event, handler)
         }
     }
 
     runListenerHandler(expression, e) {
         this.evaluateCommandExpression(expression, {
             '$event': e,
-            '$refs': this.getRefsProxy()
+            '$refs': this.getRefsProxy(),
         })
     }
 
@@ -276,19 +259,19 @@ export default class Component {
 
         const proxyHandler = prefix => ({
             get(object, prop) {
-                if (typeof object[prop] === 'object' && object[prop] !== null && !Array.isArray(object[prop])) {
-                    return new Proxy(object[prop], proxyHandler(prefix + '.' + prop))
+                // Sometimes non-proxyable values are accessed. These are of type "symbol".
+                // We can ignore them.
+                if (typeof prop === 'symbol') return
+
+                const propertyName = prefix ? `${prefix}.${prop}` : prop
+
+                // If we are accessing an object prop, we'll make this proxy recursive to build
+                // a nested dependancy key.
+                if (typeof object[prop] === 'object' && object[prop] !== null && ! Array.isArray(object[prop])) {
+                    return new Proxy(object[prop], proxyHandler(propertyName))
                 }
 
-                if (typeof prop === 'string') {
-                    affectedDataKeys.push(prefix + '.' + prop)
-                } else {
-                    affectedDataKeys.push(prop)
-                }
-
-                if (typeof object[prop] === 'object' && object[prop] !== null) {
-                    return new Proxy(object[prop], proxyHandler(prefix + '.' + prop))
-                }
+                affectedDataKeys.push(propertyName)
 
                 return object[prop]
             }
@@ -401,7 +384,7 @@ export default class Component {
     getRefsProxy() {
         var self = this
 
-        // One of the goals of this  is to not hold elements in memory, but rather re-evaluate
+        // One of the goals of this is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and
         // friendly to outside DOM changes from libraries like Vue/Livewire.
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.

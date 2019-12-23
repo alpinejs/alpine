@@ -84,7 +84,7 @@ You can even use it for non-trivial things:
 
 ## Learn
 
-There are 7 directives available to you:
+There are 9 directives available to you:
 
 | Directive
 | --- |

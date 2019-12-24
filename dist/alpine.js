@@ -1012,14 +1012,17 @@ function () {
         subtree: true
       };
       var observer = new MutationObserver(function (mutations) {
-        window.latestMutations = mutations;
-
         for (var i = 0; i < mutations.length; i++) {
+          // Filter out mutations triggered from child components.
+          if (!mutations[i].target.closest('[x-data]').isSameNode(_this3.el)) return;
+
           if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
             (function () {
               var rawData = Object(_utils__WEBPACK_IMPORTED_MODULE_0__["saferEval"])(mutations[i].target.getAttribute('x-data'), {});
               Object.keys(rawData).forEach(function (key) {
-                _this3.data[key] = rawData[key];
+                if (_this3.data[key] !== rawData[key]) {
+                  _this3.data[key] = rawData[key];
+                }
               });
             })();
           }

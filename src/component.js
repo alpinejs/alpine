@@ -118,14 +118,17 @@ export default class Component {
         }
 
         const observer = new MutationObserver((mutations) => {
-            window.latestMutations = mutations
-
             for (let i=0; i < mutations.length; i++){
+                // Filter out mutations triggered from child components.
+                if (! mutations[i].target.closest('[x-data]').isSameNode(this.el)) return
+
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
                     const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})
 
                     Object.keys(rawData).forEach(key => {
-                        this.data[key] = rawData[key]
+                        if (this.data[key] !== rawData[key]) {
+                            this.data[key] = rawData[key]
+                        }
                     })
                 }
 

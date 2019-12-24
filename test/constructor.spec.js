@@ -69,7 +69,7 @@ test('auto-initialize new elements added to a component', async () => {
     `
 
     runObservers[0]([
-        { addedNodes: [
+        { target: document.querySelector('#target'), addedNodes: [
             document.querySelector('#target span'),
             document.querySelector('#target button'),
         ] }

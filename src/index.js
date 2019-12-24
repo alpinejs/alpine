@@ -71,7 +71,7 @@ const Alpine = {
     }
 }
 
-if (! window.Alpine && ! isTesting()) {
+if (window !== undefined && ! window.Alpine && ! isTesting()) {
     window.Alpine = Alpine
     window.Alpine.start()
 }

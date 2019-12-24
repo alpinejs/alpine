@@ -1432,7 +1432,7 @@ var Alpine = {
   }
 };
 
-if (!window.Alpine && !Object(_utils__WEBPACK_IMPORTED_MODULE_2__["isTesting"])()) {
+if (window !== undefined && !window.Alpine && !Object(_utils__WEBPACK_IMPORTED_MODULE_2__["isTesting"])()) {
   window.Alpine = Alpine;
   window.Alpine.start();
 }

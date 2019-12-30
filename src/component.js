@@ -229,7 +229,11 @@ export default class Component {
             // Listen for this event at the root level.
             document.addEventListener(event, handler)
         } else {
-            const listenerTarget = modifiers.includes('window') ? window : el
+            const listenerTarget = modifiers.includes('window')
+                ? window
+                : modifiers.includes('document')
+                ? document
+                : el
 
             const handler = e => {
                 const modifiersWithoutWindow = modifiers.filter(i => i !== 'window')

@@ -6,6 +6,8 @@ export default class Component {
 
         const rawData = saferEval(this.el.getAttribute('x-data'), {})
 
+        rawData.$refs =  this.getRefsProxy()
+
         this.data = this.wrapDataInObservable(rawData)
 
         this.initialize()
@@ -253,7 +255,6 @@ export default class Component {
     runListenerHandler(expression, e) {
         this.evaluateCommandExpression(expression, {
             '$event': e,
-            '$refs': this.getRefsProxy(),
         })
     }
 

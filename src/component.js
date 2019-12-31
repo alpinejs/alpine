@@ -232,13 +232,11 @@ export default class Component {
             document.addEventListener(event, handler)
         } else {
             const listenerTarget = modifiers.includes('window')
-                ? window
-                : modifiers.includes('document')
-                ? document
-                : el
+                ? window : (modifiers.includes('document') ? document : el)
 
             const handler = e => {
-                const modifiersWithoutWindow = modifiers.filter(i => i !== 'window')
+                const modifiersWithoutWindowOrDocument = modifiers
+                    .filter(i => i !== 'window').filter(i => i !== 'document')
 
                 if (event === 'keydown' && modifiersWithoutWindow.length > 0 && ! modifiersWithoutWindow.includes(kebabCase(e.key))) return
 

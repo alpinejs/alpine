@@ -275,6 +275,8 @@ For cases where `x-show` isn't sufficient (`x-show` sets an element to `display:
 
 It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work it's magic.
 
+> Note: `x-if` must have a single element root inside the `<template></template>` tag.
+
 ---
 
 ### `x-cloak`

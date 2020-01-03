@@ -282,7 +282,7 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 
 ### `x-transition`
 **Example:**
-```
+```html
 <div
     x-show="open"
     x-transition:enter="ease-out transition-slow"
@@ -294,7 +294,7 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 >...</div>
 ```
 
-```
+```html
 <template x-if="open">
     <div
         x-transition:enter="ease-out transition-slow"

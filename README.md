@@ -82,7 +82,7 @@ You can even use it for non-trivial things:
 
 ## Learn
 
-There are 9 directives available to you:
+There are 10 directives available to you:
 
 | Directive
 | --- |
@@ -94,6 +94,7 @@ There are 9 directives available to you:
 | [`x-text`](#x-text) |
 | [`x-ref`](#x-ref) |
 | [`x-if`](#x-if) |
+| [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
 Here's how they each work:
@@ -276,6 +277,48 @@ For cases where `x-show` isn't sufficient (`x-show` sets an element to `display:
 It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work it's magic.
 
 > Note: `x-if` must have a single element root inside the `<template></template>` tag.
+
+---
+
+### `x-transition`
+**Example:**
+```
+<div
+    x-show="open"
+    x-transition:enter="ease-out transition-slow"
+    x-transition:enter-start="opacity-0 scale-90"
+    x-transition:enter-end="opacity-100 scale-100"
+    x-transition:leave="ease-in transition-slow"
+    x-transition:leave-start="opacity-100 scale-100"
+    x-transition:leave-end="opacity-0 scale-90"
+>...</div>
+```
+
+```
+<template x-if="open">
+    <div
+        x-transition:enter="ease-out transition-slow"
+        x-transition:enter-start="opacity-0 scale-90"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="ease-in transition-slow"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-90"
+    >...</div>
+</template>
+```
+
+Alpine offers a 6 different transition directives for applying classes to various stages of an element's transition from a "hidden" to a "shown" state. These directives work both with `x-show` AND `x-if`.
+
+These behave exactly like VueJs's transition directives, except they have different, more sensible names:
+
+| Directive | Description |
+| --- | --- |
+| `:enter` | Applied during the entire entering phase. |
+| `:enter-start` | Added before element is inserted, removed one frame after element is inserted. |
+| `:enter-end` | Added one frame after element is inserted (at the same time `enter-start` is removed), removed when transition/animation finishes.
+| `:leave` | Applied during the entire leaving phase. |
+| `:leave-start` | Added immediately when a leaving transition is triggered, removed after one frame. |
+| `:leave-end` | Added one frame after a leaving transition is triggered (at the same time `leave-start` is removed), removed when the transition/animation finishes.
 
 ---
 

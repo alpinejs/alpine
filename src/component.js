@@ -238,7 +238,7 @@ export default class Component {
                 const modifiersWithoutWindowOrDocument = modifiers
                     .filter(i => i !== 'window').filter(i => i !== 'document')
 
-                if (event === 'keydown' && modifiersWithoutWindow.length > 0 && ! modifiersWithoutWindow.includes(kebabCase(e.key))) return
+                if (event === 'keydown' && modifiersWithoutWindowOrDocument.length > 0 && ! modifiersWithoutWindowOrDocument.includes(kebabCase(e.key))) return
 
                 if (modifiers.includes('prevent')) e.preventDefault()
                 if (modifiers.includes('stop')) e.stopPropagation()

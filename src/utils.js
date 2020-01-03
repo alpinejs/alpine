@@ -66,7 +66,7 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
 }
 
 export function isXAttr(attr) {
-    const xAttrRE = /x-(on|bind|data|text|model|if|show|cloak|ref)/
+    const xAttrRE = /x-(on|bind|data|text|model|if|show|cloak|transition|ref)/
 
     return xAttrRE.test(attr.name)
 }
@@ -75,7 +75,7 @@ export function getXAttrs(el, type) {
     return Array.from(el.attributes)
         .filter(isXAttr)
         .map(attr => {
-            const typeMatch = attr.name.match(/x-(on|bind|data|text|model|if|show|cloak|ref)/)
+            const typeMatch = attr.name.match(/x-(on|bind|data|text|model|if|show|cloak|transition|ref)/)
             const valueMatch = attr.name.match(/:([a-zA-Z\-]+)/)
             const modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
 
@@ -90,6 +90,61 @@ export function getXAttrs(el, type) {
             // If no type is passed in for filtering, bypassfilter
             if (! type) return true
 
-            return i.type === name
+            return i.type === type
         })
+}
+
+export function transitionIn(el, callback, forceSkip = false) {
+    if (forceSkip) callback()
+
+    const attrs = getXAttrs(el, 'transition')
+
+    if (attrs.length < 1) callback()
+
+    const enter = (attrs.find(i => i.value === 'enter') || { expression: '' }).expression.split(' ').filter(i => i !== '')
+    const enterStart = (attrs.find(i => i.value === 'enter-start') || { expression: '' }).expression.split(' ').filter(i => i !== '')
+    const enterEnd = (attrs.find(i => i.value === 'enter-end') || { expression: '' }).expression.split(' ').filter(i => i !== '')
+
+    transition(el, enter, enterStart, enterEnd, callback, () => {})
+}
+
+export function transitionOut(el, callback, forceSkip = false) {
+    if (forceSkip) callback()
+
+    const attrs = getXAttrs(el, 'transition')
+
+    if (attrs.length < 1) callback()
+
+    const leave = (attrs.find(i => i.value === 'leave') || { expression: '' }).expression.split(' ').filter(i => i !== '')
+    const leaveStart = (attrs.find(i => i.value === 'leave-start') || { expression: '' }).expression.split(' ').filter(i => i !== '')
+    const leaveEnd = (attrs.find(i => i.value === 'leave-end') || { expression: '' }).expression.split(' ').filter(i => i !== '')
+
+    transition(el, leave, leaveStart, leaveEnd, () => {}, callback)
+}
+
+export function transition(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
+    el.classList.add(...classesStart)
+    el.classList.add(...classesDuring)
+
+    requestAnimationFrame(() => {
+        const duration = Number(getComputedStyle(el).transitionDuration.replace('s', '')) * 1000
+
+        hook1()
+
+        requestAnimationFrame(() => {
+            el.classList.remove(...classesStart)
+            el.classList.add(...classesEnd)
+
+            setTimeout(() => {
+                hook2()
+
+                // Adding an "isConnected" check, in case the callback
+                // removed the element from the DOM.
+                if (el.isConnected) {
+                    el.classList.remove(...classesDuring)
+                    el.classList.remove(...classesEnd)
+                }
+            }, duration);
+        })
+    });
 }

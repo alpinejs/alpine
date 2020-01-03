@@ -1,4 +1,4 @@
-import { walkSkippingNestedComponents, kebabCase, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
+import { walkSkippingNestedComponents, kebabCase, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
 
 export default class Component {
     constructor(el) {
@@ -92,7 +92,7 @@ export default class Component {
 
                 case 'show':
                     var { output } = this.evaluateReturnExpression(expression)
-                    this.updateVisibility(el, output)
+                    this.updateVisibility(el, output, true)
                     break;
 
                 case 'if':
@@ -301,16 +301,21 @@ export default class Component {
         el.innerText = value
     }
 
-    updateVisibility(el, value) {
+    updateVisibility(el, value, initialUpdate = false) {
         if (! value) {
-            el.style.display = 'none'
+            transitionOut(el, () => {
+                el.style.display = 'none'
+            }, initialUpdate)
         } else {
-            if (el.style.length === 1 && el.style.display !== '') {
-                el.removeAttribute('style')
-            } else {
-                el.style.removeProperty('display')
-            }
+            transitionIn(el, () => {
+                if (el.style.length === 1 && el.style.display !== '') {
+                    el.removeAttribute('style')
+                } else {
+                    el.style.removeProperty('display')
+                }
+            }, initialUpdate)
         }
+
     }
 
     updatePresence(el, expressionResult) {
@@ -324,8 +329,12 @@ export default class Component {
             el.parentElement.insertBefore(clone, el.nextElementSibling)
 
             el.nextElementSibling.__x_inserted_me = true
+
+            transitionIn(el.nextElementSibling, () => {})
         } else if (! expressionResult && elementHasAlreadyBeenAdded) {
-            el.nextElementSibling.remove()
+            transitionOut(el.nextElementSibling, () => {
+                el.nextElementSibling.remove()
+            })
         }
     }
 

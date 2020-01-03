@@ -8,6 +8,7 @@ export default {
         name: 'Alpine',
         file: 'dist/alpine.js',
         format: 'umd',
+        sourcemap: true,
     },
     plugins: [
         resolve(),

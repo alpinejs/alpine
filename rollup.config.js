@@ -1,4 +1,5 @@
 import resolve from "rollup-plugin-node-resolve"
+import filesize from 'rollup-plugin-filesize';
 import babel from 'rollup-plugin-babel';
 import { terser } from "rollup-plugin-terser";
 
@@ -19,6 +20,9 @@ export default {
         }),
         babel({
             exclude: 'node_modules/**'
+        }),
+        filesize({
+            showBrotliSize: 'true'
         })
     ]
 }

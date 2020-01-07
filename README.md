@@ -174,7 +174,9 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-bind`
+
 > Note: You are free to use the shorter ":" syntax: `:type="..."`
+
 **Example:** `<input x-bind:type="inputType">`
 
 **Structure:** `<input x-bind:[attribute]="[expression]">`
@@ -208,7 +210,9 @@ Most common boolean attributes are supported, like `readonly`, `required`, etc.
 ---
 
 ### `x-on`
+
 > Note: You are free to use the shorter "@" syntax: `@click="..."`
+
 **Example:** `<button x-on:click="foo = 'bar'"></button>`
 
 **Structure:** `<button x-on:[event]="[expression]"></button>`

@@ -8,11 +8,17 @@ export default class Component {
 
         rawData.$refs =  this.getRefsProxy()
 
+        this.runXInit(this.el.getAttribute('x-init'), rawData)
+
         this.data = this.wrapDataInObservable(rawData)
 
-        this.initialize()
+        this.initializeElements()
 
         this.listenForNewElementsToInitialize()
+    }
+
+    runXInit(initExpression, rawData) {
+        initExpression && saferEvalNoReturn(initExpression, rawData)
     }
 
     wrapDataInObservable(data) {
@@ -48,7 +54,7 @@ export default class Component {
         return new Proxy(data, proxyHandler())
     }
 
-    initialize() {
+    initializeElements() {
         walkSkippingNestedComponents(this.el, el => {
             this.initializeElement(el)
         })

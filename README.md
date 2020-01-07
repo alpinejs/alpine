@@ -105,8 +105,8 @@ And 2 magic objects/functions:
 
 | Magic object/function
 | --- |
-| `$refs`(#refs) |
-| `$nextTick`(#next-tick) |
+| [`$refs`](#refs) |
+| [`$nextTick`](#next-tick) |
 
 ### Directives
 

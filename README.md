@@ -103,7 +103,7 @@ There are 12 directives available to you:
 
 And 2 magic objects/functions:
 
-| Magic object/function
+| Magic Object/Functions
 | --- |
 | [`$refs`](#refs) |
 | [`$nextTick`](#next-tick) |

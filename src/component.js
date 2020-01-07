@@ -4,6 +4,14 @@ export default class Component {
     constructor(el) {
         this.el = el
 
+        this.$children = [];
+
+        this.$parent = this.el.parentElement.closest('[x-data]')
+        if(this.$parent) {
+            this.$parent = this.$parent.__x
+            this.$parent.$children.push(this)
+        }
+
         const rawData = saferEval(this.el.getAttribute('x-data'), {})
 
         rawData.$refs =  this.getRefsProxy()
@@ -38,9 +46,20 @@ export default class Component {
 
                 self.refresh()
 
+                self.$children.forEach(child => {
+                    if (child.concernedData.indexOf(propertyName) === -1) {
+                        child.concernedData.push('$parent.' + propertyName)
+                    }
+                    child.refresh()
+                })
+
                 return setWasSuccessful
             },
             get(target, key) {
+                if (key === '$parent' && self.$parent) {
+                    return self.$parent.data;
+                }
+
                 if (typeof target[key] === 'object' && target[key] !== null) {
                     const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key
 
@@ -48,6 +67,12 @@ export default class Component {
                 }
 
                 return target[key]
+            },
+            has(target, key) {
+                if (key === '$parent' && self.$parent) {
+                    return true
+                }
+                return key in target
             }
         })
 

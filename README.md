@@ -8,13 +8,13 @@ You get to keep your DOM, and sprinkle in behavior as you see fit.
 
 Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
-> Note: This tool's syntax is almost entirely borrowed from [Vue.js](https://vuejs.org/) (and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
+> Note: This tool's syntax is almost entirely borrowed from [Vue](https://vuejs.org/) (and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
 
 ## Install
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.3.1/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.4.0/dist/alpine.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -101,7 +101,14 @@ There are 12 directives available to you:
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
-Here's how they each work:
+And 2 magic objects/functions:
+
+| Magic object/function
+| --- |
+| `$refs`(#refs) |
+| `$nextTick`(#next-tick) |
+
+### Directives
 
 ---
 
@@ -354,3 +361,35 @@ These behave exactly like VueJs's transition directives, except they have differ
     [x-cloak] { display: none; }
 </style>
 ```
+
+### Magic Objects/Functions
+
+---
+
+### `$refs`
+**Example:**
+```html
+<span x-ref="foo">
+
+<button x-on:click="$refs.foo.innerText = 'bar'">
+```
+
+`$refs` is a magic object that can be used to retreive DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+
+---
+
+### `$nextTick`
+**Example:**
+```html
+<div x-data="{ fruit: 'apple' }">
+    <button
+        x-on:click="
+            fruit = 'pear';
+            $nextTick(() => { console.log($event.target.innerText) });
+        "
+        x-text="fruit"
+    >
+</div>
+```
+
+`$nextTick` is a magic function that allows you to only execute a given expression AFTER Alpine has made it's reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.

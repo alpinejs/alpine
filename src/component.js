@@ -4,9 +4,17 @@ export default class Component {
     constructor(el) {
         this.el = el
 
+        // For $nextTick().
+        this.tickStack = []
+        this.collectingTickCallbacks = false
+
         const rawData = saferEval(this.el.getAttribute('x-data'), {})
 
         rawData.$refs =  this.getRefsProxy()
+
+        rawData.$nextTick =  (callback) => {
+            this.delayRunByATick(callback)
+        }
 
         this.runXInit(this.el.getAttribute('x-init'), rawData)
 
@@ -15,6 +23,25 @@ export default class Component {
         this.initializeElements()
 
         this.listenForNewElementsToInitialize()
+    }
+
+    delayRunByATick(callback) {
+        if (this.collectingTickCallbacks) {
+            this.tickStack.push(callback)
+        } else {
+            callback()
+        }
+    }
+
+    startTick() {
+        this.collectingTickCallbacks = true
+    }
+
+    clearAndEndTick() {
+        this.tickStack.forEach(callable => callable())
+        this.tickStack = []
+
+        this.collectingTickCallbacks = false
     }
 
     runXInit(initExpression, rawData) {
@@ -183,7 +210,10 @@ export default class Component {
             walkSkippingNestedComponents(rootEl, callback)
 
             self.concernedData = []
+            self.clearAndEndTick()
         }
+
+        this.startTick()
 
         debounce(walkThenClearDependancyTracker, 5)(this.el, function (el) {
             getXAttrs(el).forEach(({ type, value, expression }) => {

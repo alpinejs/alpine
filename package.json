@@ -11,7 +11,7 @@
     "build": "npx rollup -c",
     "test": "npx jest",
     "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
-    "postpublish" : "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags"
+    "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags"
   },
   "author": "Caleb Porzio",
   "license": "MIT",
@@ -25,6 +25,7 @@
     "jsdom-simulant": "^1.1.2",
     "rollup": "^1.27.14",
     "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-filesize": "^6.2.1",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-terser": "^5.1.3"
   },

@@ -6,9 +6,11 @@ export default class Component {
 
         this.$children = [];
 
-        this.$parent = this.el.parentElement.closest('[x-data]')
-        if(this.$parent) {
-            this.$parent = this.$parent.__x
+        this.$parent = null
+
+        const parentNode = this.el.parentElement.closest('[x-data]')
+        if(parentNode && parentNode.__x) {
+            this.$parent = parentNode.__x
             this.$parent.$children.push(this)
         }
 
@@ -45,13 +47,6 @@ export default class Component {
                 }
 
                 self.refresh()
-
-                self.$children.forEach(child => {
-                    if (child.concernedData.indexOf(propertyName) === -1) {
-                        child.concernedData.push('$parent.' + propertyName)
-                    }
-                    child.refresh()
-                })
 
                 return setWasSuccessful
             },
@@ -214,6 +209,19 @@ export default class Component {
                 if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
                     (actionByDirectiveType[type])({ el, attrName: value, output })
                 }
+            })
+
+            // Trigger updates in children
+            self.$children.forEach(child => {
+                self.concernedData.forEach( parentPropertyName => {
+                    const propertyName = '$parent.' + parentPropertyName
+
+                    if (child.concernedData.indexOf(propertyName) === -1) {
+                        child.concernedData.push(propertyName)
+                    }
+                })
+
+                child.refresh()
             })
         })
     }

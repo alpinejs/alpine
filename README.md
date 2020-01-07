@@ -101,12 +101,13 @@ There are 12 directives available to you:
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
-And 2 magic objects/functions:
+And 3 magic objects/functions/properties:
 
-| Magic Object/Functions
+| Magic Object/Functions/Properties
 | --- |
 | [`$refs`](#refs) |
 | [`$nextTick`](#nexttick) |
+| [`$parent`](#parent) |
 
 ### Directives
 
@@ -393,3 +394,15 @@ These behave exactly like VueJs's transition directives, except they have differ
 ```
 
 `$nextTick` is a magic function that allows you to only execute a given expression AFTER Alpine has made it's reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+
+### `$parent`
+**Example:**
+```html
+<div x-data="{ foo: 'bar' }">
+    <div x-data="{}">
+        <span x-text="$parent.foo"></span>
+    </div>
+</div>
+```
+
+`$parent` is a magic property that allows you to access the scope of the parent component.

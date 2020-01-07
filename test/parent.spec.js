@@ -71,6 +71,7 @@ test('child component can update the parent scope', async () => {
 test('child component supports multiple levels of nesting', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">
+            <button x-on:click="foo = 'baz'"></button>
             <div x-data="{}">
                 <div x-data="{}">
                     <span x-text="$parent.$parent.foo"></span>
@@ -83,5 +84,11 @@ test('child component supports multiple levels of nesting', async () => {
 
     await wait(() => {
         expect(document.querySelector('span').innerText).toEqual('bar')
+    })
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('baz')
     })
 })

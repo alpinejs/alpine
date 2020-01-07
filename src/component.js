@@ -4,9 +4,9 @@ export default class Component {
     constructor(el) {
         this.el = el
 
-        this.$children = [];
-
         this.$parent = null
+
+        this.$children = [];
 
         const parentNode = this.el.parentElement.closest('[x-data]')
         if(parentNode && parentNode.__x) {
@@ -14,9 +14,17 @@ export default class Component {
             this.$parent.$children.push(this)
         }
 
+        // For $nextTick().
+        this.tickStack = []
+        this.collectingTickCallbacks = false
+
         const rawData = saferEval(this.el.getAttribute('x-data'), {})
 
         rawData.$refs =  this.getRefsProxy()
+
+        rawData.$nextTick =  (callback) => {
+            this.delayRunByATick(callback)
+        }
 
         this.runXInit(this.el.getAttribute('x-init'), rawData)
 
@@ -25,6 +33,25 @@ export default class Component {
         this.initializeElements()
 
         this.listenForNewElementsToInitialize()
+    }
+
+    delayRunByATick(callback) {
+        if (this.collectingTickCallbacks) {
+            this.tickStack.push(callback)
+        } else {
+            callback()
+        }
+    }
+
+    startTick() {
+        this.collectingTickCallbacks = true
+    }
+
+    clearAndEndTick() {
+        this.tickStack.forEach(callable => callable())
+        this.tickStack = []
+
+        this.collectingTickCallbacks = false
     }
 
     runXInit(initExpression, rawData) {
@@ -54,6 +81,11 @@ export default class Component {
                 if (key === '$parent' && self.$parent) {
                     return self.$parent.data;
                 }
+
+                if (key === 'isProxy') return true
+
+                // If the property we are trying to get is a proxy, just return it.
+                if (target[key] && target[key].isProxy) return target[key]
 
                 if (typeof target[key] === 'object' && target[key] !== null) {
                     const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key
@@ -198,7 +230,10 @@ export default class Component {
             walkSkippingNestedComponents(rootEl, callback)
 
             self.concernedData = []
+            self.clearAndEndTick()
         }
+
+        this.startTick()
 
         debounce(walkThenClearDependancyTracker, 5)(this.el, function (el) {
             getXAttrs(el).forEach(({ type, value, expression }) => {
@@ -454,6 +489,8 @@ export default class Component {
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
         return new Proxy({}, {
             get(object, property) {
+                if (property === 'isProxy') return true
+
                 var ref
 
                 // We can't just query the DOM because it's hard to filter out refs in

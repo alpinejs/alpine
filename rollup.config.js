@@ -1,7 +1,7 @@
-import resolve from "rollup-plugin-node-resolve"
-import filesize from 'rollup-plugin-filesize';
 import babel from 'rollup-plugin-babel';
+import filesize from 'rollup-plugin-filesize';
 import { terser } from "rollup-plugin-terser";
+import resolve from "rollup-plugin-node-resolve"
 
 export default {
     input: 'src/index.js',
@@ -13,6 +13,7 @@ export default {
     },
     plugins: [
         resolve(),
+        filesize(),
         terser({
             compress: {
                 drop_debugger: false,
@@ -20,9 +21,6 @@ export default {
         }),
         babel({
             exclude: 'node_modules/**'
-        }),
-        filesize({
-            showBrotliSize: 'true'
         })
     ]
 }

@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs'
+import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
     observe() {}
@@ -102,6 +103,19 @@ test('class attribute bindings are added by array syntax', async () => {
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy
 })
 
+test('class attribute bindings are synced by string syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{foo: 'bar baz'}">
+            <span class="" x-bind:class="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('bar')).toBeTruthy
+    expect(document.querySelector('span').classList.contains('baz')).toBeTruthy
+})
+
 test('boolean attributes set to false are removed from element', async () => {
     document.body.innerHTML = `
         <div x-data="{ isSet: false }">
@@ -138,4 +152,16 @@ test('boolean attributes set to true are added to element', async () => {
     expect(document.querySelectorAll('input')[1].checked).toBeTruthy()
     expect(document.querySelectorAll('input')[2].required).toBeTruthy()
     expect(document.querySelectorAll('input')[3].readOnly).toBeTruthy()
+})
+
+test('binding supports short syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <span :class="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
 })

@@ -66,18 +66,22 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
 }
 
 export function isXAttr(attr) {
+    const name = replaceAtAndColonWithStandardSyntax(attr.name)
+
     const xAttrRE = /x-(on|bind|data|text|html|model|if|show|cloak|transition|ref)/
 
-    return xAttrRE.test(attr.name)
+    return xAttrRE.test(name)
 }
 
 export function getXAttrs(el, type) {
     return Array.from(el.attributes)
         .filter(isXAttr)
         .map(attr => {
-            const typeMatch = attr.name.match(/x-(on|bind|data|text|html|model|if|show|cloak|transition|ref)/)
-            const valueMatch = attr.name.match(/:([a-zA-Z\-]+)/)
-            const modifiers = attr.name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
+            const name = replaceAtAndColonWithStandardSyntax(attr.name)
+
+            const typeMatch = name.match(/x-(on|bind|data|text|html|model|if|show|cloak|transition|ref)/)
+            const valueMatch = name.match(/:([a-zA-Z\-]+)/)
+            const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
 
             return {
                 type: typeMatch ? typeMatch[1] : null,
@@ -92,6 +96,16 @@ export function getXAttrs(el, type) {
 
             return i.type === type
         })
+}
+
+export function replaceAtAndColonWithStandardSyntax(name) {
+    if (name.startsWith('@')) {
+        return name.replace('@', 'x-on:')
+    } else if (name.startsWith(':')) {
+        return name.replace(':', 'x-bind:')
+    }
+
+    return name
 }
 
 export function transitionIn(el, callback, forceSkip = false) {

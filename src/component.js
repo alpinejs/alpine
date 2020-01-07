@@ -415,7 +415,9 @@ export default class Component {
                 el.value = value
             }
         } else if (attrName === 'class') {
-            if (Array.isArray(value)) {
+            if (typeof value === 'string') {
+                el.setAttribute('class', value)
+            } else if (Array.isArray(value)) {
                 el.setAttribute('class', value.join(' '))
             } else {
                 // Use the class object syntax that vue uses to toggle them.

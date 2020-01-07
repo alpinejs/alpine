@@ -205,3 +205,21 @@ test('click away', async () => {
 
     await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false) })
 })
+
+test('supports short syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <button @click="foo = 'baz'"></button>
+
+            <span x-bind:foo="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+})

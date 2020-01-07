@@ -1,12 +1,14 @@
 # Alpine.js
 
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
+
 Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
 
 You get to keep your DOM, and sprinkle in behavior as you see fit.
 
 Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
-> Note: This tool's syntax is almost entirely borrowed from [Vue.js](https://vuejs.org/)(and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
+> Note: This tool's syntax is almost entirely borrowed from [Vue.js](https://vuejs.org/) (and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
 
 ## Install
 
@@ -243,7 +245,7 @@ Adding `.window` to an event listener will install the listener on the global wi
 **`.once` modifier**
 **Example:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
 
-Adding the `.once` modifer to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
+Adding the `.once` modifier to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
 
 ---
 

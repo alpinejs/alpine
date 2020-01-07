@@ -41,6 +41,11 @@ export default class Component {
                 return setWasSuccessful
             },
             get(target, key) {
+                if (key === 'isProxy') return true
+
+                // If the property we are trying to get is a proxy, just return it.
+                if (target[key] && target[key].isProxy) return target[key]
+
                 if (typeof target[key] === 'object' && target[key] !== null) {
                     const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key
 
@@ -421,6 +426,8 @@ export default class Component {
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
         return new Proxy({}, {
             get(object, property) {
+                if (property === 'isProxy') return true
+
                 var ref
 
                 // We can't just query the DOM because it's hard to filter out refs in

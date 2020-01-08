@@ -139,9 +139,9 @@ You can extract data (and behavior) into reusable functions:
     function dropdown() {
         return {
             show: false,
-            open() { this.show = true },
-            close() { this.show = false },
-            isOpen() { return this.show === true },
+            open(): { this.show = true },
+            close(): { this.show = false },
+            isOpen(): { return this.show === true },
         }
     }
 </script>
@@ -181,7 +181,7 @@ You can also mix-in multiple data objects using object destructuring:
 
 **Structure:** `<input x-bind:[attribute]="[expression]">`
 
-`x-bind` sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component's data object, and will update every-time it's data is updated.
+`x-bind` sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component's data object, and will update every-time its data is updated.
 
 > Note: attribute bindings ONLY update when their dependencies update. The framework is smart enough to observe data changes and detect which bindings care about them.
 
@@ -189,7 +189,7 @@ You can also mix-in multiple data objects using object destructuring:
 
 `x-bind` behaves a little differently when binding to the `class` attribute.
 
-For classes, you pass in an object who's keys are class names, and values are boolean expressions to determine if those class names are applied or not.
+For classes, you pass in an object which keys are class names, and values are boolean expressions to determine if those class names are applied or not.
 
 For example:
 `<div x-bind:class="{ 'hidden': foo }"></div>`
@@ -217,7 +217,7 @@ Most common boolean attributes are supported, like `readonly`, `required`, etc.
 
 **Structure:** `<button x-on:[event]="[expression]"></button>`
 
-`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as it's value is executed.
+`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as its value is executed.
 
 If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
 
@@ -245,10 +245,10 @@ Adding `.prevent` to an event listener will call `preventDefault` on the trigger
 **`.stop` modifier**
 **Example:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
 
-Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
+Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means that the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
 
 **`.window` modifier**
-**Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
+**Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : true"></div>`
 
 Adding `.window` to an event listener will install the listener on the global window object instead of the DOM node on which it is declared. This is useful for when you want to modify component state when something changes with the window, like the resize event. In this example, when the window grows larger than 768 pixels wide, we will close the modal/dropdown, otherwise maintain the same state.
 
@@ -397,4 +397,4 @@ These behave exactly like VueJs's transition directives, except they have differ
 </div>
 ```
 
-`$nextTick` is a magic function that allows you to only execute a given expression AFTER Alpine has made it's reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+`$nextTick` is a magic function that allows you to only execute a given expression AFTER Alpine has made its reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.

@@ -8,6 +8,12 @@
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
+        <div x-data="{ foo: 'bar' }">
+            <span :class="foo"></span>
+
+            <button @click="foo = 'baz'">hey</button>
+        </div>
+
         <table>
             <thead>
                 <tr>

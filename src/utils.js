@@ -80,7 +80,7 @@ export function getXAttrs(el, type) {
             const name = replaceAtAndColonWithStandardSyntax(attr.name)
 
             const typeMatch = name.match(/x-(on|bind|data|text|html|model|if|show|cloak|transition|ref)/)
-            const valueMatch = name.match(/:([a-zA-Z\-]+)/)
+            const valueMatch = name.match(/:([a-zA-Z\-:]+)/)
             const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
 
             return {

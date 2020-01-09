@@ -14,7 +14,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.5.0/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.6.0/dist/alpine.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -84,12 +84,13 @@ You can even use it for non-trivial things:
 
 ## Learn
 
-There are 12 directives available to you:
+There are 13 directives available to you:
 
 | Directive
 | --- |
 | [`x-data`](#x-data) |
-| [`x-init`](#x-init) |
+| [`x-created`](#x-created) |
+| [`x-mounted`](#x-mounted) |
 | [`x-show`](#x-show) |
 | [`x-bind`](#x-bind) |
 | [`x-on`](#x-on) |
@@ -101,10 +102,11 @@ There are 12 directives available to you:
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
-And 2 magic objects/functions:
+And 3 magic properties:
 
-| Magic Object/Functions
+| Magic Properties
 | --- |
+| [`$el`](#el) |
 | [`$refs`](#refs) |
 | [`$nextTick`](#nexttick) |
 
@@ -155,12 +157,21 @@ You can also mix-in multiple data objects using object destructuring:
 
 ---
 
-### `x-init`
-**Example:** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz"></div>`
+### `x-created`
+**Example:** `<div x-data="{ foo: 'bar' }" x-created="foo = 'baz"></div>`
 
-**Structure:** `<div x-data="..." x-init="[expression]"></div>`
+**Structure:** `<div x-data="..." x-created="[expression]"></div>`
 
-`x-init` runs an expression (with the initial data object in scope) when a component is initialized.
+`x-created` runs an expression when a component is initialized, but BEFORE the component initializes the DOM.
+
+---
+
+### `x-mounted`
+**Example:** `<div x-data"{ foo: 'bar' }" x-mounted="foo = 'baz"></div>`
+
+**Structure:** `<div x-data="..." x-mounted="[expression]"></div>`
+
+`x-mounted` runs an expression when a component is initialized, and AFTER the component initializes the DOM.
 
 ---
 
@@ -367,9 +378,19 @@ These behave exactly like VueJs's transition directives, except they have differ
 </style>
 ```
 
-### Magic Objects/Functions
+### Magic Properties
 
 ---
+
+### `$el`
+**Example:**
+```html
+<div x-data>
+    <button @click="$el.innerHTML = 'foo'">Replace me with "foo"</button>
+</div>
+```
+
+`$el` is a magic property that can be used to retreive the root component DOM node.
 
 ### `$refs`
 **Example:**
@@ -379,7 +400,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 <button x-on:click="$refs.foo.innerText = 'bar'">
 ```
 
-`$refs` is a magic object that can be used to retreive DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+`$refs` is a magic property that can be used to retreive DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
 
 ---
 
@@ -397,4 +418,4 @@ These behave exactly like VueJs's transition directives, except they have differ
 </div>
 ```
 
-`$nextTick` is a magic function that allows you to only execute a given expression AFTER Alpine has made it's reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+`$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made it's reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.

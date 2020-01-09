@@ -5,6 +5,23 @@ global.MutationObserver = class {
     observe() {}
 }
 
+test('x-init', async () => {
+    var spanValue
+    window.setSpanValue = (el) => {
+        spanValue = el.innerHTML
+    }
+
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }" x-init="window.setSpanValue($refs.foo)">
+            <span x-text="foo" x-ref="foo">baz</span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(spanValue).toEqual('baz')
+})
+
 test('x-created', async () => {
     var spanValue
     window.setSpanValue = (el) => {

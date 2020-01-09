@@ -6,6 +6,7 @@ export default class Component {
 
         const dataAttr = this.$el.getAttribute('x-data')
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
+        const initExpression = this.$el.getAttribute('x-init')
         const createdExpression = this.$el.getAttribute('x-created')
         const mountedExpression = this.$el.getAttribute('x-mounted')
 
@@ -33,6 +34,13 @@ export default class Component {
         // For $nextTick().
         this.tickStack = []
         this.collectingTickCallbacks = false
+
+        if (initExpression) {
+            console.warn('AlpineJS Warning: "x-init" is depcricated and will be removed in the next major version. Use "x-created" instead.')
+            this.pauseReactivity = true
+            saferEvalNoReturn(this.$el.getAttribute('x-init'), this.$data)
+            this.pauseReactivity = false
+        }
 
         if (createdExpression) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.

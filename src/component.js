@@ -36,7 +36,7 @@ export default class Component {
         this.collectingTickCallbacks = false
 
         if (initExpression) {
-            console.warn('AlpineJS Warning: "x-init" is depcricated and will be removed in the next major version. Use "x-created" instead.')
+            console.warn('AlpineJS Warning: "x-init" is depricated and will be removed in the next major version. Use "x-created" instead.')
             this.pauseReactivity = true
             saferEvalNoReturn(this.$el.getAttribute('x-init'), this.$data)
             this.pauseReactivity = false

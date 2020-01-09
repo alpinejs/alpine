@@ -2,27 +2,103 @@ import { walkSkippingNestedComponents, kebabCase, saferEval, saferEvalNoReturn, 
 
 export default class Component {
     constructor(el) {
-        this.el = el
+        this.$el = el
+
+        const dataAttr = this.$el.getAttribute('x-data')
+        const dataExpression = dataAttr === '' ? '{}' : dataAttr
+        const createdExpression = this.$el.getAttribute('x-created')
+        const mountedExpression = this.$el.getAttribute('x-mounted')
+
+        const unobservedData = saferEval(dataExpression, {})
+
+        // Construct a Proxy-based observable. This will be used to handle reactivity.
+        this.$data = this.wrapDataInObservable(unobservedData)
+
+        // Walk through the raw data and set the "this" context of any functions
+        // to the observable, so data manipulations are reactive.
+        Object.keys(unobservedData).forEach(key => {
+            if (typeof unobservedData[key] === 'function') {
+                unobservedData[key] = unobservedData[key].bind(this.$data)
+            }
+        })
+
+        // After making user-supplied data methods reactive, we can now add
+        // our magic properties to the original data for access.
+        unobservedData.$el = this.$el
+        unobservedData.$refs = this.getRefsProxy()
+        unobservedData.$nextTick = (callback) => {
+            this.delayRunByATick(callback)
+        }
 
         // For $nextTick().
         this.tickStack = []
         this.collectingTickCallbacks = false
 
-        const rawData = saferEval(this.el.getAttribute('x-data'), {})
-
-        rawData.$refs =  this.getRefsProxy()
-
-        rawData.$nextTick =  (callback) => {
-            this.delayRunByATick(callback)
+        if (createdExpression) {
+            // We want to allow data manipulation, but not trigger DOM updates just yet.
+            // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
+            this.pauseReactivity = true
+            saferEvalNoReturn(this.$el.getAttribute('x-created'), this.$data)
+            this.pauseReactivity = false
         }
 
-        this.runXInit(this.el.getAttribute('x-init'), rawData)
-
-        this.data = this.wrapDataInObservable(rawData)
-
+        // Register all our listeners and set all our attribute bindings.
         this.initializeElements()
 
+        // Use mutation observer to detect new elements being added within this component at run-time.
+        // Alpine's just so darn flexible amirite?
         this.listenForNewElementsToInitialize()
+
+        if (mountedExpression) {
+            // Run an "x-mounted" hook to allow the user to do stuff after
+            // Alpine's got it's grubby little paws all over everything.
+            saferEvalNoReturn(mountedExpression, this.$data)
+        }
+    }
+
+    wrapDataInObservable(data) {
+        this.concernedData = []
+
+        var self = this
+
+        const proxyHandler = keyPrefix => ({
+            set(obj, property, value) {
+                const propertyName = keyPrefix ? `${keyPrefix}.${property}` : property
+
+                const setWasSuccessful = Reflect.set(obj, property, value)
+
+                // Don't react to data changes for cases like the `x-created` hook.
+                if (self.pauseReactivity) return
+
+                if (self.concernedData.indexOf(propertyName) === -1) {
+                    self.concernedData.push(propertyName)
+                }
+
+                self.refresh()
+
+                return setWasSuccessful
+            },
+            get(target, key) {
+                // This is because there is no way to do something like `typeof foo === 'Proxy'`.
+                if (key === 'isProxy') return true
+
+                // If the property we are trying to get is a proxy, just return it.
+                // Like in the case of $refs
+                if (target[key] && target[key].isProxy) return target[key]
+
+                // If accessing a nested property, retur this proxy recursively.
+                if (typeof target[key] === 'object' && target[key] !== null) {
+                    const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key
+
+                    return new Proxy(target[key], proxyHandler(propertyName))
+                }
+
+                // If none of the above, just return the flippin' value. Gawsh.
+                return target[key]
+            }
+        })
+
+        return new Proxy(data, proxyHandler())
     }
 
     delayRunByATick(callback) {
@@ -44,50 +120,8 @@ export default class Component {
         this.collectingTickCallbacks = false
     }
 
-    runXInit(initExpression, rawData) {
-        initExpression && saferEvalNoReturn(initExpression, rawData)
-    }
-
-    wrapDataInObservable(data) {
-        this.concernedData = []
-
-        var self = this
-
-        const proxyHandler = keyPrefix => ({
-            set(obj, property, value) {
-                const propertyName = keyPrefix ? `${keyPrefix}.${property}` : property
-
-                const setWasSuccessful = Reflect.set(obj, property, value)
-
-                if (self.concernedData.indexOf(propertyName) === -1) {
-                    self.concernedData.push(propertyName)
-                }
-
-                self.refresh()
-
-                return setWasSuccessful
-            },
-            get(target, key) {
-                if (key === 'isProxy') return true
-
-                // If the property we are trying to get is a proxy, just return it.
-                if (target[key] && target[key].isProxy) return target[key]
-
-                if (typeof target[key] === 'object' && target[key] !== null) {
-                    const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key
-
-                    return new Proxy(target[key], proxyHandler(propertyName))
-                }
-
-                return target[key]
-            }
-        })
-
-        return new Proxy(data, proxyHandler())
-    }
-
     initializeElements() {
-        walkSkippingNestedComponents(this.el, el => {
+        walkSkippingNestedComponents(this.$el, el => {
             this.initializeElement(el)
         })
     }
@@ -154,7 +188,7 @@ export default class Component {
     }
 
     listenForNewElementsToInitialize() {
-        const targetNode = this.el
+        const targetNode = this.$el
 
         const observerOptions = {
             childList: true,
@@ -165,14 +199,14 @@ export default class Component {
         const observer = new MutationObserver((mutations) => {
             for (let i=0; i < mutations.length; i++){
                 // Filter out mutations triggered from child components.
-                if (! mutations[i].target.closest('[x-data]').isSameNode(this.el)) return
+                if (! mutations[i].target.closest('[x-data]').isSameNode(this.$el)) return
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
                     const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})
 
                     Object.keys(rawData).forEach(key => {
-                        if (this.data[key] !== rawData[key]) {
-                            this.data[key] = rawData[key]
+                        if (this.$data[key] !== rawData[key]) {
+                            this.$data[key] = rawData[key]
                         }
                     })
                 }
@@ -215,7 +249,7 @@ export default class Component {
 
         this.startTick()
 
-        debounce(walkThenClearDependancyTracker, 5)(this.el, function (el) {
+        debounce(walkThenClearDependancyTracker, 5)(this.$el, function (el) {
             getXAttrs(el).forEach(({ type, value, expression }) => {
                 if (! actionByDirectiveType[type]) return
 
@@ -232,7 +266,7 @@ export default class Component {
         var rightSideOfExpression = ''
         if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle it's value inside the array.
-            if (Array.isArray(this.data[dataKey])) {
+            if (Array.isArray(this.$data[dataKey])) {
                 rightSideOfExpression = `$event.target.checked ? ${dataKey}.concat([$event.target.value]) : ${dataKey}.filter(i => i !== $event.target.value)`
             } else {
                 rightSideOfExpression = `$event.target.checked`
@@ -330,7 +364,7 @@ export default class Component {
             }
         })
 
-        const proxiedData = new Proxy(this.data, proxyHandler())
+        const proxiedData = new Proxy(this.$data, proxyHandler())
 
         const result = saferEval(expression, proxiedData)
 
@@ -341,7 +375,7 @@ export default class Component {
     }
 
     evaluateCommandExpression(expression, extraData) {
-        saferEvalNoReturn(expression, this.data, extraData)
+        saferEvalNoReturn(expression, this.$data, extraData)
     }
 
     updateTextValue(el, value) {
@@ -366,7 +400,6 @@ export default class Component {
                 }
             }, initialUpdate)
         }
-
     }
 
     updatePresence(el, expressionResult) {
@@ -464,7 +497,7 @@ export default class Component {
 
                 // We can't just query the DOM because it's hard to filter out refs in
                 // nested components.
-                walkSkippingNestedComponents(self.el, el => {
+                walkSkippingNestedComponents(self.$el, el => {
                     if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                         ref = el
                     }

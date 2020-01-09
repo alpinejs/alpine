@@ -54,12 +54,12 @@ test('.stop modifier', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('div').__x.data.foo).toEqual('bar')
+    expect(document.querySelector('div').__x.$data.foo).toEqual('bar')
 
     document.querySelector('span').click()
 
     await wait(() => {
-        expect(document.querySelector('div').__x.data.foo).toEqual('baz')
+        expect(document.querySelector('div').__x.$data.foo).toEqual('baz')
     })
 })
 

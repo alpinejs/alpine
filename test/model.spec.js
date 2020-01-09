@@ -58,7 +58,7 @@ test('x-model casts value to number if number modifier is present', async () => 
 
     fireEvent.input(document.querySelector('input'), { target: { value: '123' }})
 
-    await wait(() => { expect(document.querySelector('[x-data]').__x.data.foo).toEqual(123) })
+    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.foo).toEqual(123) })
 })
 
 test('x-model trims value if trim modifier is present', async () => {

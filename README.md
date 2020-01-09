@@ -170,7 +170,7 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-created`
-**Example:** `<div x-data"{ foo: 'bar' }" x-created="foo = 'baz"></div>`
+**Example:** `<div x-data="{ foo: 'bar' }" x-created="foo = 'baz"></div>`
 
 **Structure:** `<div x-data="..." x-created="[expression]"></div>`
 
@@ -179,7 +179,7 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-mounted`
-**Example:** `<div x-data"{ foo: 'bar' }" x-mounted="foo = 'baz"></div>`
+**Example:** `<div x-data="{ foo: 'bar' }" x-mounted="foo = 'baz"></div>`
 
 **Structure:** `<div x-data="..." x-mounted="[expression]"></div>`
 

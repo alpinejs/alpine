@@ -86,6 +86,9 @@ export default class Component {
                 // Like in the case of $refs
                 if (target[key] && target[key].isProxy) return target[key]
 
+                // If property is a DOM node, just return it. (like in the case of this.$el)
+                if (target[key] && target[key] instanceof Node) return target[key]
+
                 // If accessing a nested property, retur this proxy recursively.
                 if (typeof target[key] === 'object' && target[key] !== null) {
                     const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key

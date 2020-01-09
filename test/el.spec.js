@@ -20,3 +20,22 @@ test('$el', async () => {
 
     await wait(() => { expect(document.querySelector('div').innerHTML).toEqual('foo') })
 })
+
+test('$el doesnt return a proxy', async () => {
+    var isProxy
+    window.setIsProxy = function (el) {
+        isProxy = !! el.isProxy
+    }
+
+    document.body.innerHTML = `
+        <div x-data>
+            <button @click="setIsProxy($el)"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('button').click()
+
+    expect(isProxy).toEqual(false)
+})

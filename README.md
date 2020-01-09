@@ -170,7 +170,7 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-created`
-**Example:** `<div x-data"{ foo: 'bar' }" x-created="foo = 'baz"></div>`
+**Example:** `<div x-data="{ foo: 'bar' }" x-created="foo = 'baz"></div>`
 
 **Structure:** `<div x-data="..." x-created="[expression]"></div>`
 
@@ -179,7 +179,7 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-mounted`
-**Example:** `<div x-data"{ foo: 'bar' }" x-mounted="foo = 'baz"></div>`
+**Example:** `<div x-data="{ foo: 'bar' }" x-mounted="foo = 'baz"></div>`
 
 **Structure:** `<div x-data="..." x-mounted="[expression]"></div>`
 
@@ -402,7 +402,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 </div>
 ```
 
-`$el` is a magic property that can be used to retreive the root component DOM node.
+`$el` is a magic property that can be used to retrieve the root component DOM node.
 
 ### `$refs`
 **Example:**
@@ -412,7 +412,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 <button x-on:click="$refs.foo.innerText = 'bar'">
 ```
 
-`$refs` is a magic property that can be used to retreive DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+`$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
 
 ---
 

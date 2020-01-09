@@ -60,7 +60,7 @@ export function saferEval(expression, dataContext, additionalHelperVariables = {
 }
 
 export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
-    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `with($data) { ${expression} }`))(
+    return (new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
         dataContext, ...Object.values(additionalHelperVariables)
     )
 }

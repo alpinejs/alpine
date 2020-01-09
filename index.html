@@ -100,6 +100,20 @@
                 </tr>
 
                 <tr>
+                    <td>Nested Components</td>
+                    <td>
+                        <div x-data="{ foo: 'bar' }">
+                            <div x-data="{}">
+                                <div x-text="$parent.foo"></div>
+
+                                <button x-on:click="$parent.foo = 'baz'">Change to 'baz' from child scope</button>
+                            </div>
+                            <button x-on:click="foo = 'bob'">Change to 'bob' from parent scope</button>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>On Click</td>
                     <td>
                         <div x-data="{ show: false }">

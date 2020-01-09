@@ -390,7 +390,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 </div>
 ```
 
-`$el` is a magic property that can be used to retreive the root component DOM node.
+`$el` is a magic property that can be used to retrieve the root component DOM node.
 
 ### `$refs`
 **Example:**
@@ -400,7 +400,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 <button x-on:click="$refs.foo.innerText = 'bar'">
 ```
 
-`$refs` is a magic property that can be used to retreive DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+`$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
 
 ---
 

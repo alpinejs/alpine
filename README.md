@@ -127,7 +127,7 @@ Think of it like the `data` property of a Vue component.
 
 **Extract Component Logic**
 
-You can extract data (and behavior) into reusable s:
+You can extract data (and behavior) into reusable functions:
 
 ```html
 <div x-data="dropdown()">

@@ -223,3 +223,24 @@ test('supports short syntax', async () => {
 
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
+
+
+test('event with colon', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <div x-on:my:event.document="foo = 'baz'"></div>
+
+            <span x-bind:foo="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
+
+    var event = new CustomEvent('my:event');
+
+    document.dispatchEvent(event);
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+})

@@ -35,16 +35,17 @@ export default class Component {
         this.tickStack = []
         this.collectingTickCallbacks = false
 
+        var initReturnedCallback
         if (initExpression) {
-            console.warn('AlpineJS Warning: "x-init" is depricated and will be removed in the next major version. Use "x-created" instead.')
+            // We want to allow data manipulation, but not trigger DOM updates just yet.
+            // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
             this.pauseReactivity = true
-            saferEvalNoReturn(this.$el.getAttribute('x-init'), this.$data)
+            initReturnedCallback = saferEval(this.$el.getAttribute('x-init'), this.$data)
             this.pauseReactivity = false
         }
 
         if (createdExpression) {
-            // We want to allow data manipulation, but not trigger DOM updates just yet.
-            // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
+            console.warn('AlpineJS Warning: "x-created" is depricated and will be removed in the next major version. Use "x-init" instead.')
             this.pauseReactivity = true
             saferEvalNoReturn(this.$el.getAttribute('x-created'), this.$data)
             this.pauseReactivity = false
@@ -57,7 +58,14 @@ export default class Component {
         // Alpine's just so darn flexible amirite?
         this.listenForNewElementsToInitialize()
 
+        if (typeof initReturnedCallback === 'function') {
+            // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+            // Alpine's got it's grubby little paws all over everything.
+            initReturnedCallback.call(this.$data)
+        }
+
         if (mountedExpression) {
+            console.warn('AlpineJS Warning: "x-mounted" is depricated and will be removed in the next major version. Use "x-init" (with a callback return) for the same behavior.')
             // Run an "x-mounted" hook to allow the user to do stuff after
             // Alpine's got it's grubby little paws all over everything.
             saferEvalNoReturn(mountedExpression, this.$data)

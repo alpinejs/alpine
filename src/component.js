@@ -45,7 +45,7 @@ export default class Component {
         }
 
         if (createdExpression) {
-            console.warn('AlpineJS Warning: "x-created" is depricated and will be removed in the next major version. Use "x-init" instead.')
+            console.warn('AlpineJS Warning: "x-created" is deprecated and will be removed in the next major version. Use "x-init" instead.')
             this.pauseReactivity = true
             saferEvalNoReturn(this.$el.getAttribute('x-created'), this.$data)
             this.pauseReactivity = false
@@ -65,7 +65,7 @@ export default class Component {
         }
 
         if (mountedExpression) {
-            console.warn('AlpineJS Warning: "x-mounted" is depricated and will be removed in the next major version. Use "x-init" (with a callback return) for the same behavior.')
+            console.warn('AlpineJS Warning: "x-mounted" is deprecated and will be removed in the next major version. Use "x-init" (with a callback return) for the same behavior.')
             // Run an "x-mounted" hook to allow the user to do stuff after
             // Alpine's got it's grubby little paws all over everything.
             saferEvalNoReturn(mountedExpression, this.$data)

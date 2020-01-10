@@ -18,6 +18,7 @@ export default class Component {
 
         const dataAttr = this.$el.getAttribute('x-data')
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
+        const initExpression = this.$el.getAttribute('x-init')
         const createdExpression = this.$el.getAttribute('x-created')
         const mountedExpression = this.$el.getAttribute('x-mounted')
 
@@ -46,9 +47,17 @@ export default class Component {
         this.tickStack = []
         this.collectingTickCallbacks = false
 
-        if (createdExpression) {
+        var initReturnedCallback
+        if (initExpression) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
             // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
+            this.pauseReactivity = true
+            initReturnedCallback = saferEval(this.$el.getAttribute('x-init'), this.$data)
+            this.pauseReactivity = false
+        }
+
+        if (createdExpression) {
+            console.warn('AlpineJS Warning: "x-created" is deprecated and will be removed in the next major version. Use "x-init" instead.')
             this.pauseReactivity = true
             saferEvalNoReturn(this.$el.getAttribute('x-created'), this.$data)
             this.pauseReactivity = false
@@ -61,7 +70,14 @@ export default class Component {
         // Alpine's just so darn flexible amirite?
         this.listenForNewElementsToInitialize()
 
+        if (typeof initReturnedCallback === 'function') {
+            // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+            // Alpine's got it's grubby little paws all over everything.
+            initReturnedCallback.call(this.$data)
+        }
+
         if (mountedExpression) {
+            console.warn('AlpineJS Warning: "x-mounted" is deprecated and will be removed in the next major version. Use "x-init" (with a callback return) for the same behavior.')
             // Run an "x-mounted" hook to allow the user to do stuff after
             // Alpine's got it's grubby little paws all over everything.
             saferEvalNoReturn(mountedExpression, this.$data)
@@ -103,6 +119,9 @@ export default class Component {
                 // If the property we are trying to get is a proxy, just return it.
                 // Like in the case of $refs
                 if (target[key] && target[key].isProxy) return target[key]
+
+                // If property is a DOM node, just return it. (like in the case of this.$el)
+                if (target[key] && target[key] instanceof Node) return target[key]
 
                 // If accessing a nested property, retur this proxy recursively.
                 if (typeof target[key] === 'object' && target[key] !== null) {

@@ -88,6 +88,18 @@ test('class attribute bindings are removed by object syntax', async () => {
     expect(document.querySelector('span').classList.contains('foo')).toBeFalsy()
 })
 
+test('class attribute bindings are added by string syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ initialClass: 'foo' }">
+            <span x-bind:class="initialClass"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
+})
+
 test('class attribute bindings are added by object syntax', async () => {
     document.body.innerHTML = `
         <div x-data="{ isOn: true }">

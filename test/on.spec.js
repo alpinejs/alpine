@@ -54,12 +54,12 @@ test('.stop modifier', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('div').__x.data.foo).toEqual('bar')
+    expect(document.querySelector('div').__x.$data.foo).toEqual('bar')
 
     document.querySelector('span').click()
 
     await wait(() => {
-        expect(document.querySelector('div').__x.data.foo).toEqual('baz')
+        expect(document.querySelector('div').__x.$data.foo).toEqual('baz')
     })
 })
 
@@ -142,7 +142,7 @@ test('.once modifier', async () => {
 test('keydown modifiers', async () => {
     document.body.innerHTML = `
         <div x-data="{ count: 0 }">
-            <input type="text" x-on:keydown="count++" x-on:keydown.enter="count++">
+            <input type="text" x-on:keydown="count++" x-on:keydown.enter="count++" x-on:keydown.space="count++">
 
             <span x-text="count"></span>
         </div>
@@ -156,9 +156,17 @@ test('keydown modifiers', async () => {
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual(2) })
 
+    fireEvent.keyDown(document.querySelector('input'), { key: ' ' })
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(4) })
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'Spacebar' })
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(6) })
+
     fireEvent.keyDown(document.querySelector('input'), { key: 'Escape' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(3) })
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(7) })
 })
 
 test('click away', async () => {
@@ -220,6 +228,27 @@ test('supports short syntax', async () => {
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
     document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+})
+
+
+test('event with colon', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <div x-on:my:event.document="foo = 'baz'"></div>
+
+            <span x-bind:foo="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
+
+    var event = new CustomEvent('my:event');
+
+    document.dispatchEvent(event);
 
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })

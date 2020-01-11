@@ -1,98 +1,128 @@
-import { walkSkippingNestedComponents, kebabCase, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
+import { arrayUnique, walkSkippingNestedComponents, keyToModifier, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
 
 export default class Component {
     constructor(el) {
-        this.el = el
+        this.$el = el
 
-        // For $nextTick().
-        this.tickStack = []
-        this.collectingTickCallbacks = false
+        const dataAttr = this.$el.getAttribute('x-data')
+        const dataExpression = dataAttr === '' ? '{}' : dataAttr
+        const initExpression = this.$el.getAttribute('x-init')
+        const createdExpression = this.$el.getAttribute('x-created')
+        const mountedExpression = this.$el.getAttribute('x-mounted')
 
-        const rawData = saferEval(this.el.getAttribute('x-data'), {})
+        const unobservedData = saferEval(dataExpression, {})
 
-        rawData.$refs =  this.getRefsProxy()
+        // Construct a Proxy-based observable. This will be used to handle reactivity.
+        this.$data = this.wrapDataInObservable(unobservedData)
 
-        rawData.$nextTick =  (callback) => {
-            this.delayRunByATick(callback)
+        // After making user-supplied data methods reactive, we can now add
+        // our magic properties to the original data for access.
+        unobservedData.$el = this.$el
+        unobservedData.$refs = this.getRefsProxy()
+
+        this.nextTickStack = []
+        unobservedData.$nextTick = (callback) => {
+            this.nextTickStack.push(callback)
         }
 
-        this.runXInit(this.el.getAttribute('x-init'), rawData)
+        var initReturnedCallback
+        if (initExpression) {
+            // We want to allow data manipulation, but not trigger DOM updates just yet.
+            // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
+            this.pauseReactivity = true
+            initReturnedCallback = saferEval(this.$el.getAttribute('x-init'), this.$data)
+            this.pauseReactivity = false
+        }
 
-        this.data = this.wrapDataInObservable(rawData)
+        if (createdExpression) {
+            console.warn('AlpineJS Warning: "x-created" is deprecated and will be removed in the next major version. Use "x-init" instead.')
+            this.pauseReactivity = true
+            saferEvalNoReturn(this.$el.getAttribute('x-created'), this.$data)
+            this.pauseReactivity = false
+        }
 
+        // Register all our listeners and set all our attribute bindings.
         this.initializeElements()
 
+        // Use mutation observer to detect new elements being added within this component at run-time.
+        // Alpine's just so darn flexible amirite?
         this.listenForNewElementsToInitialize()
-    }
 
-    delayRunByATick(callback) {
-        if (this.collectingTickCallbacks) {
-            this.tickStack.push(callback)
-        } else {
-            callback()
+        if (typeof initReturnedCallback === 'function') {
+            // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+            // Alpine's got it's grubby little paws all over everything.
+            initReturnedCallback.call(this.$data)
         }
-    }
 
-    startTick() {
-        this.collectingTickCallbacks = true
-    }
-
-    clearAndEndTick() {
-        this.tickStack.forEach(callable => callable())
-        this.tickStack = []
-
-        this.collectingTickCallbacks = false
-    }
-
-    runXInit(initExpression, rawData) {
-        initExpression && saferEvalNoReturn(initExpression, rawData)
+        if (mountedExpression) {
+            console.warn('AlpineJS Warning: "x-mounted" is deprecated and will be removed in the next major version. Use "x-init" (with a callback return) for the same behavior.')
+            // Run an "x-mounted" hook to allow the user to do stuff after
+            // Alpine's got it's grubby little paws all over everything.
+            saferEvalNoReturn(mountedExpression, this.$data)
+        }
     }
 
     wrapDataInObservable(data) {
-        this.concernedData = []
-
         var self = this
 
-        const proxyHandler = keyPrefix => ({
+        const proxyHandler = {
             set(obj, property, value) {
-                const propertyName = keyPrefix ? `${keyPrefix}.${property}` : property
-
                 const setWasSuccessful = Reflect.set(obj, property, value)
 
-                if (self.concernedData.indexOf(propertyName) === -1) {
-                    self.concernedData.push(propertyName)
-                }
+                // Don't react to data changes for cases like the `x-created` hook.
+                if (self.pauseReactivity) return
 
-                self.refresh()
+                debounce(() => {
+                    self.refresh()
+
+                    // Walk through the $nextTick stack and clear it as we go.
+                    while (self.nextTickStack.length > 0) {
+                        self.nextTickStack.shift()()
+                    }
+                }, 0)()
 
                 return setWasSuccessful
             },
             get(target, key) {
-                if (key === 'isProxy') return true
-
                 // If the property we are trying to get is a proxy, just return it.
-                if (target[key] && target[key].isProxy) return target[key]
+                // Like in the case of $refs
+                if (target[key] && target[key].isRefsProxy) return target[key]
 
+                // If property is a DOM node, just return it. (like in the case of this.$el)
+                if (target[key] && target[key] instanceof Node) return target[key]
+
+                // If accessing a nested property, retur this proxy recursively.
+                // This enables reactivity on setting nested data.
                 if (typeof target[key] === 'object' && target[key] !== null) {
-                    const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key
-
-                    return new Proxy(target[key], proxyHandler(propertyName))
+                    return new Proxy(target[key], proxyHandler)
                 }
 
+                // If none of the above, just return the flippin' value. Gawsh.
                 return target[key]
             }
-        })
+        }
 
-        return new Proxy(data, proxyHandler())
+        return new Proxy(data, proxyHandler)
     }
 
     initializeElements() {
-        walkSkippingNestedComponents(this.el, el => {
+        walkSkippingNestedComponents(this.$el, el => {
             this.initializeElement(el)
         })
     }
 
     initializeElement(el) {
+        // To support class attribute merging, we have to know what the element's
+        // original class attribute looked like for reference.
+        if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
+            el.__originalClasses = el.getAttribute('class').split(' ')
+        }
+
+        this.registerListeners(el)
+        this.resolveBoundAttributes(el, true)
+    }
+
+    registerListeners(el) {
         getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'on':
@@ -111,35 +141,45 @@ export default class Component {
                     const listenerExpression = this.generateExpressionForXModelListener(el, modifiers, expression)
 
                     this.registerListener(el, event, modifiers, listenerExpression)
+                    break;
+                default:
+                    break;
+            }
+        })
+    }
 
+    resolveBoundAttributes(el, initialUpdate = false) {
+        getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
+            switch (type) {
+                case 'model':
                     var attrName = 'value'
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updateAttributeValue(el, attrName, output)
                     break;
 
                 case 'bind':
                     var attrName = value
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updateAttributeValue(el, attrName, output)
                     break;
 
                 case 'text':
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updateTextValue(el, output)
                     break;
 
                 case 'html':
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updateHtmlValue(el, output)
                     break;
 
                 case 'show':
-                    var { output } = this.evaluateReturnExpression(expression)
-                    this.updateVisibility(el, output, true)
+                    var output = this.evaluateReturnExpression(expression)
+                    this.updateVisibility(el, output, initialUpdate)
                     break;
 
                 case 'if':
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updatePresence(el, output)
                     break;
 
@@ -154,7 +194,7 @@ export default class Component {
     }
 
     listenForNewElementsToInitialize() {
-        const targetNode = this.el
+        const targetNode = this.$el
 
         const observerOptions = {
             childList: true,
@@ -165,14 +205,14 @@ export default class Component {
         const observer = new MutationObserver((mutations) => {
             for (let i=0; i < mutations.length; i++){
                 // Filter out mutations triggered from child components.
-                if (! mutations[i].target.closest('[x-data]').isSameNode(this.el)) return
+                if (! mutations[i].target.closest('[x-data]').isSameNode(this.$el)) return
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
                     const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})
 
                     Object.keys(rawData).forEach(key => {
-                        if (this.data[key] !== rawData[key]) {
-                            this.data[key] = rawData[key]
+                        if (this.$data[key] !== rawData[key]) {
+                            this.$data[key] = rawData[key]
                         }
                     })
                 }
@@ -195,36 +235,8 @@ export default class Component {
     }
 
     refresh() {
-        var self = this
-
-        const actionByDirectiveType = {
-            'model': ({el, output}) => { self.updateAttributeValue(el, 'value', output) },
-            'bind': ({el, attrName, output}) => { self.updateAttributeValue(el, attrName, output) },
-            'text': ({el, output}) => { self.updateTextValue(el, output) },
-            'html': ({el, output}) => { self.updateHtmlValue(el, output) },
-            'show': ({el, output}) => { self.updateVisibility(el, output) },
-            'if': ({el, output}) => { self.updatePresence(el, output) },
-        }
-
-        const walkThenClearDependancyTracker = (rootEl, callback) => {
-            walkSkippingNestedComponents(rootEl, callback)
-
-            self.concernedData = []
-            self.clearAndEndTick()
-        }
-
-        this.startTick()
-
-        debounce(walkThenClearDependancyTracker, 5)(this.el, function (el) {
-            getXAttrs(el).forEach(({ type, value, expression }) => {
-                if (! actionByDirectiveType[type]) return
-
-                var { output, deps } = self.evaluateReturnExpression(expression)
-
-                if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
-                    (actionByDirectiveType[type])({ el, attrName: value, output })
-                }
-            })
+        walkSkippingNestedComponents(this.$el, el => {
+            this.resolveBoundAttributes(el)
         })
     }
 
@@ -232,7 +244,7 @@ export default class Component {
         var rightSideOfExpression = ''
         if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle it's value inside the array.
-            if (Array.isArray(this.data[dataKey])) {
+            if (Array.isArray(this.$data[dataKey])) {
                 rightSideOfExpression = `$event.target.checked ? ${dataKey}.concat([$event.target.value]) : ${dataKey}.filter(i => i !== $event.target.value)`
             } else {
                 rightSideOfExpression = `$event.target.checked`
@@ -285,7 +297,7 @@ export default class Component {
                 const modifiersWithoutWindowOrDocument = modifiers
                     .filter(i => i !== 'window').filter(i => i !== 'document')
 
-                if (event === 'keydown' && modifiersWithoutWindowOrDocument.length > 0 && ! modifiersWithoutWindowOrDocument.includes(kebabCase(e.key))) return
+                if (event === 'keydown' && modifiersWithoutWindowOrDocument.length > 0 && ! modifiersWithoutWindowOrDocument.includes(keyToModifier(e.key))) return
 
                 if (modifiers.includes('prevent')) e.preventDefault()
                 if (modifiers.includes('stop')) e.stopPropagation()
@@ -308,40 +320,11 @@ export default class Component {
     }
 
     evaluateReturnExpression(expression) {
-        var affectedDataKeys = []
-
-        const proxyHandler = prefix => ({
-            get(object, prop) {
-                // Sometimes non-proxyable values are accessed. These are of type "symbol".
-                // We can ignore them.
-                if (typeof prop === 'symbol') return
-
-                const propertyName = prefix ? `${prefix}.${prop}` : prop
-
-                // If we are accessing an object prop, we'll make this proxy recursive to build
-                // a nested dependancy key.
-                if (typeof object[prop] === 'object' && object[prop] !== null && ! Array.isArray(object[prop])) {
-                    return new Proxy(object[prop], proxyHandler(propertyName))
-                }
-
-                affectedDataKeys.push(propertyName)
-
-                return object[prop]
-            }
-        })
-
-        const proxiedData = new Proxy(this.data, proxyHandler())
-
-        const result = saferEval(expression, proxiedData)
-
-        return {
-            output: result,
-            deps: affectedDataKeys
-        }
+        return saferEval(expression, this.$data)
     }
 
     evaluateCommandExpression(expression, extraData) {
-        saferEvalNoReturn(expression, this.data, extraData)
+        saferEvalNoReturn(expression, this.$data, extraData)
     }
 
     updateTextValue(el, value) {
@@ -366,7 +349,6 @@ export default class Component {
                 }
             }, initialUpdate)
         }
-
     }
 
     updatePresence(el, expressionResult) {
@@ -415,12 +397,10 @@ export default class Component {
                 el.value = value
             }
         } else if (attrName === 'class') {
-            if (typeof value === 'string') {
-                el.setAttribute('class', value)
-            } else if (Array.isArray(value)) {
-                el.setAttribute('class', value.join(' '))
-            } else {
-                // Use the class object syntax that vue uses to toggle them.
+            if (Array.isArray(value)) {
+                const originalClasses = el.__originalClasses || []
+                el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
+            } else if (typeof value === 'object') {
                 Object.keys(value).forEach(classNames => {
                     if (value[classNames]) {
                         classNames.split(' ').forEach(className => el.classList.add(className))
@@ -428,6 +408,10 @@ export default class Component {
                         classNames.split(' ').forEach(className => el.classList.remove(className))
                     }
                 })
+            } else {
+                const originalClasses = el.__originalClasses || []
+                const newClasses = value.split(' ')
+                el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
             }
         } else if (['disabled', 'readonly', 'required', 'checked', 'hidden'].includes(attrName)) {
             // Boolean attributes have to be explicitly added and removed, not just set.
@@ -458,13 +442,13 @@ export default class Component {
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
         return new Proxy({}, {
             get(object, property) {
-                if (property === 'isProxy') return true
+                if (property === 'isRefsProxy') return true
 
                 var ref
 
                 // We can't just query the DOM because it's hard to filter out refs in
                 // nested components.
-                walkSkippingNestedComponents(self.el, el => {
+                walkSkippingNestedComponents(self.$el, el => {
                     if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                         ref = el
                     }

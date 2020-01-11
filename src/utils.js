@@ -11,6 +11,18 @@ export function domReady() {
     })
 }
 
+export function arrayUnique(array) {
+    var a = array.concat();
+    for(var i=0; i<a.length; ++i) {
+        for(var j=i+1; j<a.length; ++j) {
+            if(a[i] === a[j])
+                a.splice(j--, 1);
+        }
+    }
+
+    return a;
+}
+
 export function isTesting() {
     return navigator.userAgent, navigator.userAgent.includes("Node.js")
         || navigator.userAgent.includes("jsdom")
@@ -18,6 +30,16 @@ export function isTesting() {
 
 export function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase()
+}
+
+export function keyToModifier(key) {
+    switch (key) {
+        case ' ':
+        case 'Spacebar':
+            return 'space'
+        default:
+            return kebabCase(key)
+    }
 }
 
 export function walkSkippingNestedComponents(el, callback, isRoot = true) {
@@ -34,23 +56,17 @@ export function walkSkippingNestedComponents(el, callback, isRoot = true) {
     }
 }
 
-export function debounce(func, wait, immediate) {
-    var timeout;
+export function debounce(func, wait) {
+    var timeout
     return function () {
-        var context = this, args = arguments;
+        var context = this, args = arguments
         var later = function () {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-    };
-};
-
-export function onlyUnique(value, index, self) {
-    return self.indexOf(value) === index;
+            timeout = null
+            func.apply(context, args)
+        }
+        clearTimeout(timeout)
+        timeout = setTimeout(later, wait)
+    }
 }
 
 export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
@@ -60,7 +76,7 @@ export function saferEval(expression, dataContext, additionalHelperVariables = {
 }
 
 export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
-    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `with($data) { ${expression} }`))(
+    return (new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
         dataContext, ...Object.values(additionalHelperVariables)
     )
 }
@@ -80,7 +96,7 @@ export function getXAttrs(el, type) {
             const name = replaceAtAndColonWithStandardSyntax(attr.name)
 
             const typeMatch = name.match(/x-(on|bind|data|text|html|model|if|show|cloak|transition|ref)/)
-            const valueMatch = name.match(/:([a-zA-Z\-]+)/)
+            const valueMatch = name.match(/:([a-zA-Z\-:]+)/)
             const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
 
             return {

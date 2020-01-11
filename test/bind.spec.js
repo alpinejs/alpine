@@ -138,18 +138,6 @@ test('class attribute bindings are added by nested object syntax', async () => {
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
 
-test('class attribute bindings are removed by array syntax', async () => {
-    document.body.innerHTML = `
-        <div x-data="{}">
-            <span class="foo" x-bind:class="[]"></span>
-        </div>
-    `
-
-    Alpine.start()
-
-    expect(document.querySelector('span').classList.contains('foo')).toBeFalsy()
-})
-
 test('class attribute bindings are added by array syntax', async () => {
     document.body.innerHTML = `
         <div x-data="{}">

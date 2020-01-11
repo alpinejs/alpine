@@ -112,6 +112,8 @@ export default class Component {
     }
 
     initializeElement(el) {
+        // To support class attribute merging, we have to know what the element's
+        // original class attribute looked like for reference.
         if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
             el.__originalClasses = el.getAttribute('class').split(' ')
         }

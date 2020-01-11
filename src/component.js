@@ -1,4 +1,4 @@
-import { walkSkippingNestedComponents, kebabCase, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
+import { walkSkippingNestedComponents, keyToModifier, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
 
 export default class Component {
     constructor(el) {
@@ -330,7 +330,7 @@ export default class Component {
                 const modifiersWithoutWindowOrDocument = modifiers
                     .filter(i => i !== 'window').filter(i => i !== 'document')
 
-                if (event === 'keydown' && modifiersWithoutWindowOrDocument.length > 0 && ! modifiersWithoutWindowOrDocument.includes(kebabCase(e.key))) return
+                if (event === 'keydown' && modifiersWithoutWindowOrDocument.length > 0 && ! modifiersWithoutWindowOrDocument.includes(keyToModifier(e.key))) return
 
                 if (modifiers.includes('prevent')) e.preventDefault()
                 if (modifiers.includes('stop')) e.stopPropagation()

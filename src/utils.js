@@ -20,6 +20,16 @@ export function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase()
 }
 
+export function keyToModifier(key) {
+    switch (key) {
+        case ' ':
+        case 'Spacebar':
+            return 'space'            
+        default:
+            return kebabCase(key)
+    }
+}
+
 export function walkSkippingNestedComponents(el, callback, isRoot = true) {
     if (el.hasAttribute('x-data') && ! isRoot) return
 

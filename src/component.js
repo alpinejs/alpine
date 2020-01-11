@@ -17,23 +17,22 @@ export default class Component {
 
         // Walk through the raw data and set the "this" context of any functions
         // to the observable, so data manipulations are reactive.
-        Object.keys(unobservedData).forEach(key => {
-            if (typeof unobservedData[key] === 'function') {
-                unobservedData[key] = unobservedData[key].bind(this.$data)
-            }
-        })
+        // Object.keys(unobservedData).forEach(key => {
+        //     if (typeof unobservedData[key] === 'function') {
+        //         unobservedData[key] = unobservedData[key].bind(this.$data)
+        //     }
+        // })
 
         // After making user-supplied data methods reactive, we can now add
         // our magic properties to the original data for access.
         unobservedData.$el = this.$el
         unobservedData.$refs = this.getRefsProxy()
-        unobservedData.$nextTick = (callback) => {
-            this.delayRunByATick(callback)
-        }
 
-        // For $nextTick().
-        this.tickStack = []
-        this.collectingTickCallbacks = false
+        // For $nextTick()
+        this.nextTickStack = []
+        unobservedData.$nextTick = (callback) => {
+            this.nextTickStack.push(callback)
+        }
 
         var initReturnedCallback
         if (initExpression) {
@@ -73,70 +72,46 @@ export default class Component {
     }
 
     wrapDataInObservable(data) {
-        this.concernedData = []
-
         var self = this
 
-        const proxyHandler = keyPrefix => ({
+        const proxyHandler = {
             set(obj, property, value) {
-                const propertyName = keyPrefix ? `${keyPrefix}.${property}` : property
-
                 const setWasSuccessful = Reflect.set(obj, property, value)
 
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return
 
-                if (self.concernedData.indexOf(propertyName) === -1) {
-                    self.concernedData.push(propertyName)
-                }
+                debounce(() => {
+                    self.refresh()
 
-                self.refresh()
+                    // Walk through the $nextTick stack and clear it as we go.
+                    while (self.nextTickStack.length > 0) {
+                        self.nextTickStack.shift()()
+                    }
+                }, 0)()
 
                 return setWasSuccessful
             },
             get(target, key) {
-                // This is because there is no way to do something like `typeof foo === 'Proxy'`.
-                if (key === 'isProxy') return true
-
                 // If the property we are trying to get is a proxy, just return it.
                 // Like in the case of $refs
-                if (target[key] && target[key].isProxy) return target[key]
+                if (target[key] && target[key].isRefsProxy) return target[key]
 
                 // If property is a DOM node, just return it. (like in the case of this.$el)
                 if (target[key] && target[key] instanceof Node) return target[key]
 
                 // If accessing a nested property, retur this proxy recursively.
+                // This enables reactivity on setting nested data.
                 if (typeof target[key] === 'object' && target[key] !== null) {
-                    const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key
-
-                    return new Proxy(target[key], proxyHandler(propertyName))
+                    return new Proxy(target[key], proxyHandler)
                 }
 
                 // If none of the above, just return the flippin' value. Gawsh.
                 return target[key]
             }
-        })
-
-        return new Proxy(data, proxyHandler())
-    }
-
-    delayRunByATick(callback) {
-        if (this.collectingTickCallbacks) {
-            this.tickStack.push(callback)
-        } else {
-            callback()
         }
-    }
 
-    startTick() {
-        this.collectingTickCallbacks = true
-    }
-
-    clearAndEndTick() {
-        this.tickStack.forEach(callable => callable())
-        this.tickStack = []
-
-        this.collectingTickCallbacks = false
+        return new Proxy(data, proxyHandler)
     }
 
     initializeElements() {
@@ -146,6 +121,11 @@ export default class Component {
     }
 
     initializeElement(el) {
+        this.registerListeners(el)
+        this.resolveBoundAttributes(el, true)
+    }
+
+    registerListeners(el) {
         getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'on':
@@ -164,35 +144,45 @@ export default class Component {
                     const listenerExpression = this.generateExpressionForXModelListener(el, modifiers, expression)
 
                     this.registerListener(el, event, modifiers, listenerExpression)
+                    break;
+                default:
+                    break;
+            }
+        })
+    }
 
+    resolveBoundAttributes(el, initialUpdate = false) {
+        getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
+            switch (type) {
+                case 'model':
                     var attrName = 'value'
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updateAttributeValue(el, attrName, output)
                     break;
 
                 case 'bind':
                     var attrName = value
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updateAttributeValue(el, attrName, output)
                     break;
 
                 case 'text':
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updateTextValue(el, output)
                     break;
 
                 case 'html':
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updateHtmlValue(el, output)
                     break;
 
                 case 'show':
-                    var { output } = this.evaluateReturnExpression(expression)
-                    this.updateVisibility(el, output, true)
+                    var output = this.evaluateReturnExpression(expression)
+                    this.updateVisibility(el, output, initialUpdate)
                     break;
 
                 case 'if':
-                    var { output } = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression)
                     this.updatePresence(el, output)
                     break;
 
@@ -248,36 +238,8 @@ export default class Component {
     }
 
     refresh() {
-        var self = this
-
-        const actionByDirectiveType = {
-            'model': ({el, output}) => { self.updateAttributeValue(el, 'value', output) },
-            'bind': ({el, attrName, output}) => { self.updateAttributeValue(el, attrName, output) },
-            'text': ({el, output}) => { self.updateTextValue(el, output) },
-            'html': ({el, output}) => { self.updateHtmlValue(el, output) },
-            'show': ({el, output}) => { self.updateVisibility(el, output) },
-            'if': ({el, output}) => { self.updatePresence(el, output) },
-        }
-
-        const walkThenClearDependancyTracker = (rootEl, callback) => {
-            walkSkippingNestedComponents(rootEl, callback)
-
-            self.concernedData = []
-            self.clearAndEndTick()
-        }
-
-        this.startTick()
-
-        debounce(walkThenClearDependancyTracker, 5)(this.$el, function (el) {
-            getXAttrs(el).forEach(({ type, value, expression }) => {
-                if (! actionByDirectiveType[type]) return
-
-                var { output, deps } = self.evaluateReturnExpression(expression)
-
-                if (self.concernedData.filter(i => deps.includes(i)).length > 0) {
-                    (actionByDirectiveType[type])({ el, attrName: value, output })
-                }
-            })
+        walkSkippingNestedComponents(this.$el, el => {
+            this.resolveBoundAttributes(el)
         })
     }
 
@@ -361,36 +323,7 @@ export default class Component {
     }
 
     evaluateReturnExpression(expression) {
-        var affectedDataKeys = []
-
-        const proxyHandler = prefix => ({
-            get(object, prop) {
-                // Sometimes non-proxyable values are accessed. These are of type "symbol".
-                // We can ignore them.
-                if (typeof prop === 'symbol') return
-
-                const propertyName = prefix ? `${prefix}.${prop}` : prop
-
-                // If we are accessing an object prop, we'll make this proxy recursive to build
-                // a nested dependancy key.
-                if (typeof object[prop] === 'object' && object[prop] !== null && ! Array.isArray(object[prop])) {
-                    return new Proxy(object[prop], proxyHandler(propertyName))
-                }
-
-                affectedDataKeys.push(propertyName)
-
-                return object[prop]
-            }
-        })
-
-        const proxiedData = new Proxy(this.$data, proxyHandler())
-
-        const result = saferEval(expression, proxiedData)
-
-        return {
-            output: result,
-            deps: affectedDataKeys
-        }
+        return saferEval(expression, this.$data)
     }
 
     evaluateCommandExpression(expression, extraData) {
@@ -510,7 +443,7 @@ export default class Component {
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
         return new Proxy({}, {
             get(object, property) {
-                if (property === 'isProxy') return true
+                if (property === 'isRefsProxy') return true
 
                 var ref
 

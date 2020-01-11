@@ -24,7 +24,7 @@ export function keyToModifier(key) {
     switch (key) {
         case ' ':
         case 'Spacebar':
-            return 'space'            
+            return 'space'
         default:
             return kebabCase(key)
     }
@@ -44,23 +44,17 @@ export function walkSkippingNestedComponents(el, callback, isRoot = true) {
     }
 }
 
-export function debounce(func, wait, immediate) {
-    var timeout;
+export function debounce(func, wait) {
+    var timeout
     return function () {
-        var context = this, args = arguments;
+        var context = this, args = arguments
         var later = function () {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-    };
-};
-
-export function onlyUnique(value, index, self) {
-    return self.indexOf(value) === index;
+            timeout = null
+            func.apply(context, args)
+        }
+        clearTimeout(timeout)
+        timeout = setTimeout(later, wait)
+    }
 }
 
 export function saferEval(expression, dataContext, additionalHelperVariables = {}) {

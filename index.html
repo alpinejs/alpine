@@ -226,6 +226,30 @@
                 </tr>
 
                 <tr>
+                    <td>Init function callback access refs and mutate data</td>
+                    <td>
+                        <div x-data="initialData()" x-init="init()">
+                            <div :style="'width: '+width+'px; background: purple;'">hey</div>
+
+                            <button x-ref="inc">increase</button>
+                        </div>
+
+                        <script>
+                            function initialData() {
+                                return {
+                                    width: 20,
+                                    init() {
+                                        this.$refs.inc.addEventListener('click', () => {
+                                            this.width = this.width + 20
+                                        })
+                                    }
+                                }
+                            }
+                        </script>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Cloak</td>
                     <td>
                         <div x-data="{}" x-cloak>

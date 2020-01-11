@@ -15,20 +15,11 @@ export default class Component {
         // Construct a Proxy-based observable. This will be used to handle reactivity.
         this.$data = this.wrapDataInObservable(unobservedData)
 
-        // Walk through the raw data and set the "this" context of any functions
-        // to the observable, so data manipulations are reactive.
-        // Object.keys(unobservedData).forEach(key => {
-        //     if (typeof unobservedData[key] === 'function') {
-        //         unobservedData[key] = unobservedData[key].bind(this.$data)
-        //     }
-        // })
-
         // After making user-supplied data methods reactive, we can now add
         // our magic properties to the original data for access.
         unobservedData.$el = this.$el
         unobservedData.$refs = this.getRefsProxy()
 
-        // For $nextTick()
         this.nextTickStack = []
         unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)

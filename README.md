@@ -14,7 +14,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.8.1/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.8.2/dist/alpine.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -233,6 +233,8 @@ If any data is modified in the expression, other element attributes "bound" to t
 You can specify specific keys to listen for using keydown modifiers appended to the `x-on:keydown` directive. Note that the modifiers are kebab-cased versions of `Event.key` values.
 
 Examples: `enter`, `escape`, `arrow-up`, `arrow-down`
+
+> Note: You can also listen for system-modifier key combinations like: `x-on:keydown.cmd.enter="foo"`
 
 **`.away` modifier**
 

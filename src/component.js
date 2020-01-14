@@ -294,10 +294,28 @@ export default class Component {
                 ? window : (modifiers.includes('document') ? document : el)
 
             const handler = e => {
-                const modifiersWithoutWindowOrDocument = modifiers
-                    .filter(i => i !== 'window').filter(i => i !== 'document')
+                const keyModifiers = modifiers.filter(i => i !== 'window').filter(i => i !== 'document')
 
-                if (event === 'keydown' && modifiersWithoutWindowOrDocument.length > 0 && ! modifiersWithoutWindowOrDocument.includes(keyToModifier(e.key))) return
+                // The user is scoping the keydown listener to a specific key using modifiers.
+                if (event === 'keydown' && keyModifiers.length > 0) {
+                    // The user is listening for a specific key.
+                    if (keyModifiers.length === 1 && ! keyModifiers.includes(keyToModifier(e.key))) return
+
+                    // The user is listening for key combinations.
+                    const systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super']
+                    const selectedSystemKeyModifiers = systemKeyModifiers.filter(modifier => keyModifiers.includes(modifier))
+
+                    if (selectedSystemKeyModifiers.length > 0) {
+                        const activelyPressedKeyModifiers = selectedSystemKeyModifiers.filter(modifier => {
+                            // Alias "cmd" and "super" to "meta"
+                            if (modifier === 'cmd' || modifier === 'super') modifier = 'meta'
+
+                            return e[`${modifier}Key`]
+                        })
+
+                        if (activelyPressedKeyModifiers.length === 0) return
+                    }
+                }
 
                 if (modifiers.includes('prevent')) e.preventDefault()
                 if (modifiers.includes('stop')) e.stopPropagation()

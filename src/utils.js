@@ -11,6 +11,18 @@ export function domReady() {
     })
 }
 
+export function arrayUnique(array) {
+    var a = array.concat();
+    for(var i=0; i<a.length; ++i) {
+        for(var j=i+1; j<a.length; ++j) {
+            if(a[i] === a[j])
+                a.splice(j--, 1);
+        }
+    }
+
+    return a;
+}
+
 export function isTesting() {
     return navigator.userAgent, navigator.userAgent.includes("Node.js")
         || navigator.userAgent.includes("jsdom")
@@ -22,6 +34,8 @@ export function kebabCase(subject) {
 
 export function keyToModifier(key) {
     switch (key) {
+        case '/':
+            return 'slash'
         case ' ':
         case 'Spacebar':
             return 'space'
@@ -113,11 +127,11 @@ export function replaceAtAndColonWithStandardSyntax(name) {
 }
 
 export function transitionIn(el, callback, forceSkip = false) {
-    if (forceSkip) callback()
+    if (forceSkip) return callback()
 
     const attrs = getXAttrs(el, 'transition')
 
-    if (attrs.length < 1) callback()
+    if (attrs.length < 1) return callback()
 
     const enter = (attrs.find(i => i.value === 'enter') || { expression: '' }).expression.split(' ').filter(i => i !== '')
     const enterStart = (attrs.find(i => i.value === 'enter-start') || { expression: '' }).expression.split(' ').filter(i => i !== '')
@@ -127,11 +141,11 @@ export function transitionIn(el, callback, forceSkip = false) {
 }
 
 export function transitionOut(el, callback, forceSkip = false) {
-    if (forceSkip) callback()
+    if (forceSkip) return callback()
 
     const attrs = getXAttrs(el, 'transition')
 
-    if (attrs.length < 1) callback()
+    if (attrs.length < 1) return callback()
 
     const leave = (attrs.find(i => i.value === 'leave') || { expression: '' }).expression.split(' ').filter(i => i !== '')
     const leaveStart = (attrs.find(i => i.value === 'leave-start') || { expression: '' }).expression.split(' ').filter(i => i !== '')

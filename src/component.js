@@ -1,4 +1,4 @@
-import { walkSkippingNestedComponents, keyToModifier, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
+import { arrayUnique, walkSkippingNestedComponents, keyToModifier, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
 
 export default class Component {
     constructor(el) {
@@ -112,6 +112,12 @@ export default class Component {
     }
 
     initializeElement(el) {
+        // To support class attribute merging, we have to know what the element's
+        // original class attribute looked like for reference.
+        if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
+            el.__originalClasses = el.getAttribute('class').split(' ')
+        }
+
         this.registerListeners(el)
         this.resolveBoundAttributes(el, true)
     }
@@ -391,12 +397,10 @@ export default class Component {
                 el.value = value
             }
         } else if (attrName === 'class') {
-            if (typeof value === 'string') {
-                el.setAttribute('class', value)
-            } else if (Array.isArray(value)) {
-                el.setAttribute('class', value.join(' '))
-            } else {
-                // Use the class object syntax that vue uses to toggle them.
+            if (Array.isArray(value)) {
+                const originalClasses = el.__originalClasses || []
+                el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
+            } else if (typeof value === 'object') {
                 Object.keys(value).forEach(classNames => {
                     if (value[classNames]) {
                         classNames.split(' ').forEach(className => el.classList.add(className))
@@ -404,6 +408,10 @@ export default class Component {
                         classNames.split(' ').forEach(className => el.classList.remove(className))
                     }
                 })
+            } else {
+                const originalClasses = el.__originalClasses || []
+                const newClasses = value.split(' ')
+                el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
             }
         } else if (['disabled', 'readonly', 'required', 'checked', 'hidden'].includes(attrName)) {
             // Boolean attributes have to be explicitly added and removed, not just set.

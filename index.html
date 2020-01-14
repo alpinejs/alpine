@@ -3,6 +3,15 @@
         <style>
             .hidden { display: none; }
             [x-cloak] { display: none; }
+            .opacity-0 { opacity: 0; }
+            .opacity-100 { opacity: 1; }
+            .transition-slow { transition-duration: 300ms; }
+            .transition-medium { transition-duration: 200ms; }
+            .transition-faster { transition-duration: 100ms; }
+            .scale-90 { transform: scale(0.9); }
+            .scale-100 { transform: scale(1); }
+            .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+            .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
         </style>
         <script src="/dist/alpine.js" defer></script>
     </head>
@@ -15,6 +24,19 @@
                 </tr>
             </thead>
             <tbody>
+                <tr>
+                    <td>Simple x-if</td>
+                    <td>
+                        <div x-data="{ show: false }">
+                            <template x-if="show">
+                                <span>hey</span>
+                            </template>
+
+                            <button @click="show = ! show"></button>
+                        </div>
+                    </td>
+                </tr>
+
                 <tr>
                     <td>Dropdown</td>
                     <td>
@@ -180,17 +202,6 @@
                 <tr>
                     <td>Transitions</td>
                     <td>
-                        <style>
-                            .opacity-0 { opacity: 0; }
-                                .opacity-100 { opacity: 1; }
-                                .transition-slow { transition-duration: 300ms; }
-                                .transition-medium { transition-duration: 200ms; }
-                                .transition-faster { transition-duration: 100ms; }
-                                .scale-90 { transform: scale(0.9); }
-                                .scale-100 { transform: scale(1); }
-                                .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
-                                .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
-                        </style>
                         <div x-data="{ open: false }">
                             <button x-on:click="open= ! open">
                                 Open Modal
@@ -221,6 +232,28 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Transitions (with x-if)</td>
+                    <td>
+                        <div x-data="{ open: false }">
+                            <button x-on:click="open= ! open">
+                                Open Modal
+                            </button>
+
+                            <template x-if="open">
+                                    <div x-transition:enter-start="opacity-0 scale-90"
+                                    x-transition:enter="ease-out transition-medium"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave="ease-in transition-faster"
+                                    x-transition:leave-end="opacity-0 scale-90">
+                                        hey
+                                    </div>
+                            <template>
                         </div>
                     </td>
                 </tr>

@@ -34,6 +34,8 @@ export function kebabCase(subject) {
 
 export function keyToModifier(key) {
     switch (key) {
+        case '/':
+            return 'slash'
         case ' ':
         case 'Spacebar':
             return 'space'

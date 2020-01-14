@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <style>
+            .hidden { display: none; }
+            [x-cloak] { display: none; }
+        </style>
+
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set%2CString.prototype.startsWith"></script>
+        <script src="https://cdn.jsdelivr.net/npm/proxy-polyfill@0.3.0/proxy.min.js"></script>
+
+        <script src="dist/alpine-ie11.js"></script>
+    </head>
+    <body>
+
+        <div x-data="{ foo: 'bar' }">
+            <span x-text="foo"></span>
+
+            <button x-on:click="foo = 'baz'">Click Here</button>
+        </div>
+
+    </body>
+</html>

@@ -455,6 +455,9 @@ export default class Component {
 
         var refObj = {}
 
+        // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
+        // we just loop on the element, look for any x-ref and create a the property on a fake object.
+        // We don't need to put a real value since it will be resolved by the proxy class
         if (window.document.documentMode) {
             walkSkippingNestedComponents(self.$el, el => {
                 if (el.hasAttribute('x-ref')) {

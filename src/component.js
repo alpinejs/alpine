@@ -20,7 +20,7 @@ export default class Component {
         unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)
         }
-        
+
         // Construct a Proxy-based observable. This will be used to handle reactivity.
         this.$data = this.wrapDataInObservable(unobservedData)
 
@@ -453,11 +453,21 @@ export default class Component {
     getRefsProxy() {
         var self = this
 
+        var refObj = {}
+
+        if (window.document.documentMode) {
+            walkSkippingNestedComponents(self.$el, el => {
+                if (el.hasAttribute('x-ref')) {
+                    refObj.el = true
+                }
+            })
+        }
+
         // One of the goals of this is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and
         // friendly to outside DOM changes from libraries like Vue/Livewire.
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
-        return new Proxy({}, {
+        return new Proxy(refObj, {
             get(object, property) {
                 if (property === 'isRefsProxy') return true
 

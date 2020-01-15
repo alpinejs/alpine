@@ -3,17 +3,19 @@
         <style>
             .hidden { display: none; }
             [x-cloak] { display: none; }
+            .opacity-0 { opacity: 0; }
+            .opacity-100 { opacity: 1; }
+            .transition-slow { transition-duration: 300ms; }
+            .transition-medium { transition-duration: 200ms; }
+            .transition-faster { transition-duration: 100ms; }
+            .scale-90 { transform: scale(0.9); }
+            .scale-100 { transform: scale(1); }
+            .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+            .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
         </style>
-
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
-        <div x-data="{ foo: 'bar' }">
-            <span :class="foo"></span>
-
-            <button @click="foo = 'baz'">hey</button>
-        </div>
-
         <table>
             <thead>
                 <tr>
@@ -23,16 +25,27 @@
             </thead>
             <tbody>
                 <tr>
+                    <td>Simple x-if</td>
+                    <td>
+                        <div x-data="{ show: false }">
+                            <template x-if="show">
+                                <span>hey</span>
+                            </template>
+
+                            <button @click="show = ! show"></button>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Dropdown</td>
                     <td>
                         <div x-data="{ open: false }">
-                            <button x-on:click="open = true">Open Dropdown</button>
-
+                            <button x-on:click="open= true">Open Dropdown</button>
                             <ul
                                 x-bind:class="{ 'hidden': ! open }"
-                                x-on:click.away="open = false"
-                                x-cloak
-                            >
+                                x-on:click.away="open= false"
+                                x-cloak>
                                 Dropdown Body
                             </ul>
                         </div>
@@ -43,11 +56,14 @@
                     <td>Tabs</td>
                     <td>
                         <div x-data="{ currentTab: 'tab1' }">
-                            <button x-bind:class="{ 'active': currentTab === 'tab1' }" x-on:click="currentTab = 'tab1'">Foo</button>
-                            <button x-bind:class="{ 'active': currentTab === 'tab2' }" x-on:click="currentTab = 'tab2'">Bar</button>
-
-                            <div x-bind:class="{ 'hidden': currentTab !== 'tab1' }">Tab Foo</div>
-                            <div class="hidden" x-bind:class="{ 'hidden': currentTab !== 'tab2' }">Tab Bar</div>
+                            <button x-bind:class="{ 'active': currentTab ===
+                                'tab1' }" x-on:click="currentTab= 'tab1'">Foo</button>
+                            <button x-bind:class="{ 'active': currentTab ===
+                                'tab2' }" x-on:click="currentTab= 'tab2'">Bar</button>
+                            <div x-bind:class="{ 'hidden': currentTab !== 'tab1'
+                                }">Tab Foo</div>
+                            <div class="hidden" x-bind:class="{ 'hidden':
+                                currentTab !== 'tab2' }">Tab Bar</div>
                         </div>
                     </td>
                 </tr>
@@ -55,22 +71,29 @@
                 <tr>
                     <td>Data Binding</td>
                     <td>
-                        <div x-data="{ text: 'foo', checkbox: ['foo'], radio: 'foo', select: 'foo', 'multiselect': ['foo'] }">
-                            <div x-text="JSON.stringify($data)"></div>
+                        <div x-data="{ text: 'foo', checkbox: ['foo'], radio:
+                            'foo', select: 'foo', 'multiselect': ['foo'] }">
                             Text:
+                            <span x-text="JSON.stringify(text)"></span>
                             <input type="text" x-model="text">
                             Checkbox:
-                            <input type="checkbox" x-model="checkbox" value="foo">
-                            <input type="checkbox" x-model="checkbox" value="bar">
+                            <span x-text="JSON.stringify(checkbox)"></span>
+                            <input type="checkbox" x-model="checkbox"
+                                value="foo">
+                            <input type="checkbox" x-model="checkbox"
+                                value="bar">
                             Radio:
+                            <span x-text="JSON.stringify(radio)"></span>
                             <input type="radio" x-model="radio" value="foo">
                             <input type="radio" x-model="radio" value="bar">
                             Select:
+                            <span x-text="JSON.stringify(select)"></span>
                             <select x-model="select">
                                 <option>foo</option>
                                 <option>bar</option>
                             </select>
                             Multiple Select:
+                            <span x-text="JSON.stringify(multiselect)"></span>
                             <select x-model="multiselect" multiple>
                                 <option>foo</option>
                                 <option>bar</option>
@@ -105,7 +128,7 @@
                         <div x-data="{ show: false }">
                             <div x-show="show">Hi There!</div>
 
-                            <button x-on:click="show = ! show">Show/Hide</button>
+                            <button x-on:click="show= ! show">Show/Hide</button>
                         </div>
                     </td>
                 </tr>
@@ -116,7 +139,8 @@
                         <div x-data="{ someText: 'bar' }">
                             <div x-ref="remove-target">Remove Me</div>
 
-                            <button x-on:click="$refs['remove-target'].remove()">Remove</button>
+                            <button
+                                x-on:click="$refs['remove-target'].remove()">Remove</button>
                         </div>
                     </td>
                 </tr>
@@ -127,7 +151,7 @@
                         <div x-data="{ someText: 'bar' }">
                             <span x-text="someText"></span>
 
-                            <div x-on:click="someText = 'baz'">
+                            <div x-on:click="someText= 'baz'">
                                 <button x-on:click.stop>Shouldn't change to baz</button>
                             </div>
 
@@ -139,7 +163,8 @@
                     <td>x-on:click.prevent</td>
                     <td>
                         <div x-data="{}">
-                            <a href="https://google.com" x-on:click.prevent>Shouldn't go to Google</a>
+                            <a href="https://google.com" x-on:click.prevent>Shouldn't
+                                go to Google</a>
                         </div>
                     </td>
                 </tr>
@@ -148,7 +173,8 @@
                     <td>x-on:click.once</td>
                     <td>
                         <div x-data="{ count: 0 }">
-                            <button x-on:click.once="count++">I've been clicked: <span x-text="count"></span></button>
+                            <button x-on:click.once="count++">I've been clicked:
+                                <span x-text="count"></span></button>
                         </div>
                     </td>
                 </tr>
@@ -169,6 +195,89 @@
                             }
 
                             var listener = thing.addEventListener('click', handler)
+                        </script>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Transitions</td>
+                    <td>
+                        <div x-data="{ open: false }">
+                            <button x-on:click="open= ! open">
+                                Open Modal
+                            </button>
+
+                            <div x-show="open"
+                                x-transition:enter="transition-medium"
+                                x-transition:leave="transition-medium">
+                                <div x-show="open"
+                                    x-transition:enter="transition-medium"
+                                    x-transition:enter-start="opacity-0"
+                                    x-transition:leave-end="opacity-0"
+                                    x-transition:leave="transition-medium"></div>
+                                <div x-show="open"
+                                    x-transition:enter-start="opacity-0 scale-90"
+                                    x-transition:enter="ease-out transition-medium"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave="ease-in transition-faster"
+                                    x-transition:leave-end="opacity-0 scale-90">
+                                    <div>
+                                        hey
+                                    </div>
+                                    <div>
+                                        <button x-on:click="open= false" type="button">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Transitions (with x-if)</td>
+                    <td>
+                        <div x-data="{ open: false }">
+                            <button x-on:click="open= ! open">
+                                Open Modal
+                            </button>
+
+                            <template x-if="open">
+                                    <div x-transition:enter-start="opacity-0 scale-90"
+                                    x-transition:enter="ease-out transition-medium"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave="ease-in transition-faster"
+                                    x-transition:leave-end="opacity-0 scale-90">
+                                        hey
+                                    </div>
+                            <template>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Init function callback access refs and mutate data</td>
+                    <td>
+                        <div x-data="initialData()" x-init="init()">
+                            <div :style="'width: '+width+'px; background: purple;'">hey</div>
+
+                            <button x-ref="inc">increase</button>
+                        </div>
+
+                        <script>
+                            function initialData() {
+                                return {
+                                    width: 20,
+                                    init() {
+                                        this.$refs.inc.addEventListener('click', () => {
+                                            this.width = this.width + 20
+                                        })
+                                    }
+                                }
+                            }
                         </script>
                     </td>
                 </tr>

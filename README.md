@@ -14,7 +14,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.5.0/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.8.2/dist/alpine.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -101,10 +101,11 @@ There are 12 directives available to you:
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
-And 2 magic objects/functions:
+And 3 magic properties:
 
-| Magic Object/Functions
+| Magic Properties
 | --- |
+| [`$el`](#el) |
 | [`$refs`](#refs) |
 | [`$nextTick`](#nexttick) |
 
@@ -160,7 +161,11 @@ You can also mix-in multiple data objects using object destructuring:
 
 **Structure:** `<div x-data="..." x-init="[expression]"></div>`
 
-`x-init` runs an expression (with the initial data object in scope) when a component is initialized.
+`x-init` runs an expression when a component is initialized.
+
+If you wish to run code AFTER Alpine has made it's initial updates to the DOM (something like a `mounted()` hook in VueJS), you can return a callback from `x-init`, and it will be run after:
+
+`x-init="return () => { // we have access to the post-dom-initialization state here // }"`
 
 ---
 
@@ -228,6 +233,8 @@ If any data is modified in the expression, other element attributes "bound" to t
 You can specify specific keys to listen for using keydown modifiers appended to the `x-on:keydown` directive. Note that the modifiers are kebab-cased versions of `Event.key` values.
 
 Examples: `enter`, `escape`, `arrow-up`, `arrow-down`
+
+> Note: You can also listen for system-modifier key combinations like: `x-on:keydown.cmd.enter="foo"`
 
 **`.away` modifier**
 
@@ -367,9 +374,19 @@ These behave exactly like VueJs's transition directives, except they have differ
 </style>
 ```
 
-### Magic Objects/Functions
+### Magic Properties
 
 ---
+
+### `$el`
+**Example:**
+```html
+<div x-data>
+    <button @click="$el.innerHTML = 'foo'">Replace me with "foo"</button>
+</div>
+```
+
+`$el` is a magic property that can be used to retrieve the root component DOM node.
 
 ### `$refs`
 **Example:**
@@ -379,7 +396,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 <button x-on:click="$refs.foo.innerText = 'bar'">
 ```
 
-`$refs` is a magic object that can be used to retreive DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+`$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
 
 ---
 
@@ -397,4 +414,10 @@ These behave exactly like VueJs's transition directives, except they have differ
 </div>
 ```
 
-`$nextTick` is a magic function that allows you to only execute a given expression AFTER Alpine has made it's reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+`$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made it's reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+
+## License
+
+Copyright © 2019-2020 Caleb Porzio and contributors
+
+Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.

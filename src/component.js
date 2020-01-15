@@ -154,6 +154,7 @@ export default class Component {
                 case 'model':
                     var attrName = 'value'
                     var output = this.evaluateReturnExpression(expression)
+                    if ( undefined === output && '.'.match(/\./).length ) output = ''
                     this.updateAttributeValue(el, attrName, output)
                     break;
 

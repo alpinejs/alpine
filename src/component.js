@@ -17,13 +17,13 @@ export default class Component {
 
         // After making user-supplied data methods reactive, we can now add
         // our magic properties to the original data for access.
-        unobservedData.$el = this.$el
-        unobservedData.$refs = this.getRefsProxy()
+        // unobservedData.$el = this.$el
+        // unobservedData.$refs = this.getRefsProxy()
 
-        this.nextTickStack = []
-        unobservedData.$nextTick = (callback) => {
-            this.nextTickStack.push(callback)
-        }
+        // this.nextTickStack = []
+        // unobservedData.$nextTick = (callback) => {
+        //     this.nextTickStack.push(callback)
+        // }
 
         var initReturnedCallback
         if (initExpression) {

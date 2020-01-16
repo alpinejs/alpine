@@ -55,8 +55,14 @@ const Alpine = {
             for (let i=0; i < mutations.length; i++){
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
+                        // Discard non-element nodes (like line-breaks)
                         if (node.nodeType !== 1) return
 
+                        // Discard any changes happening within an existing component.
+                        // They will take care of themselves.
+                        if (node.closest('[x-data]')) return
+
+                        // This is a new top-level component.
                         if (node.matches('[x-data]')) callback(node)
                     })
                 }

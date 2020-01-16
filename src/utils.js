@@ -178,25 +178,3 @@ export function transition(el, classesDuring, classesStart, classesEnd, hook1, h
         })
     });
 }
-
-export function parseFor (expression) {
-    const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/
-    const stripParensRE = /^\(|\)$/g
-    const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
-    const inMatch = expression.match(forAliasRE)
-    if (! inMatch) return
-    const res = {}
-    res.bunch = inMatch[2].trim()
-    const single = inMatch[1].trim().replace(stripParensRE, '')
-    const iteratorMatch = single.match(forIteratorRE)
-    if (iteratorMatch) {
-      res.single = single.replace(forIteratorRE, '').trim()
-      res.iterator1 = iteratorMatch[1].trim()
-      if (iteratorMatch[2]) {
-        res.iterator2 = iteratorMatch[2].trim()
-      }
-    } else {
-      res.single = single
-    }
-    return res
-  }

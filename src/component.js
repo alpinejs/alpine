@@ -1,4 +1,10 @@
-import { arrayUnique, walk, keyToModifier, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut, parseFor } from './utils'
+import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
+import { handleForDirective } from './directives/for'
+import { handleAttributeBindingDirective } from './directives/bind'
+import { handleShowDirective } from './directives/show'
+import { handleIfDirective } from './directives/if'
+import { registerModelListener } from './directives/model'
+import { registerListener } from './directives/on'
 
 export default class Component {
     constructor(el) {
@@ -123,10 +129,10 @@ export default class Component {
         })
     }
 
-    initializeElements(rootEl, extraVars = {}, skipForLoopSpawns = true) {
+    initializeElements(rootEl, extraVars = {}) {
         this.walkAndSkipNestedComponents(rootEl, el => {
             // Don't touch spawns from for loop
-            if (skipForLoopSpawns && el.__x_for_key !== undefined) return false
+            if (el.__x_for_key !== undefined) return false
 
             this.initializeElement(el, extraVars)
         }, el => {
@@ -150,10 +156,10 @@ export default class Component {
         this.resolveBoundAttributes(el, true, extraVars)
     }
 
-    updateElements(rootEl, extraVars = {}, skipForLoopSpawns = true) {
+    updateElements(rootEl, extraVars = {}) {
         this.walkAndSkipNestedComponents(rootEl, el => {
             // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
-            if (skipForLoopSpawns && el.__x_for_key !== undefined && ! el.isSameNode(this.$el)) return false
+            if (el.__x_for_key !== undefined && ! el.isSameNode(this.$el)) return false
 
             this.updateElement(el, extraVars)
         }, el => {
@@ -162,28 +168,18 @@ export default class Component {
     }
 
     updateElement(el, extraVars = {}) {
-        this.resolveBoundAttributes(el, true, extraVars)
+        this.resolveBoundAttributes(el, false, extraVars)
     }
 
     registerListeners(el, extraVars = {}) {
         getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'on':
-                    var event = value
-                    this.registerListener(el, event, modifiers, expression)
+                    registerListener(this, el, value, modifiers, expression)
                     break;
 
                 case 'model':
-                    // If the element we are binding to is a select, a radio, or checkbox
-                    // we'll listen for the change event instead of the "input" event.
-                    var event = (el.tagName.toLowerCase() === 'select')
-                        || ['checkbox', 'radio'].includes(el.type)
-                        || modifiers.includes('lazy')
-                        ? 'change' : 'input'
-
-                    const listenerExpression = this.generateExpressionForXModelListener(el, modifiers, expression)
-
-                    this.registerListener(el, event, modifiers, listenerExpression)
+                    registerModelListener(this, el, modifiers, expression)
                     break;
                 default:
                     break;
@@ -195,104 +191,38 @@ export default class Component {
         getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':
-                    var attrName = 'value'
-                    var output = this.evaluateReturnExpression(expression, extraVars)
-                    this.updateAttributeValue(el, attrName, output)
+                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars)
                     break;
 
                 case 'bind':
-                    var attrName = value
-                    //
-                    if (el.tagName.toLowerCase() === 'template' && attrName === 'key') return
-                    var output = this.evaluateReturnExpression(expression, extraVars)
-                    this.updateAttributeValue(el, attrName, output)
+                    // The :key binding on an x-for is special, ignore it.
+                    if (el.tagName.toLowerCase() === 'template' && value === 'key') return
+
+                    handleAttributeBindingDirective(this, el, value, expression, extraVars)
                     break;
 
                 case 'text':
-                    var output = this.evaluateReturnExpression(expression, extraVars)
-                    this.updateTextValue(el, output)
+                    el.innerText = this.evaluateReturnExpression(expression, extraVars)
                     break;
 
                 case 'html':
-                    var output = this.evaluateReturnExpression(expression, extraVars)
-                    this.updateHtmlValue(el, output)
+                    el.innerHTML = this.evaluateReturnExpression(expression, extraVars)
                     break;
 
                 case 'show':
                     var output = this.evaluateReturnExpression(expression, extraVars)
-                    this.updateVisibility(el, output, initialUpdate)
+
+                    handleShowDirective(el, output, initialUpdate)
                     break;
 
                 case 'if':
                     var output = this.evaluateReturnExpression(expression, extraVars)
-                    this.updatePresence(el, output)
+
+                    handleIfDirective(el, output, initialUpdate)
                     break;
 
                 case 'for':
-                        const { single, bunch, iterator1, iterator2 } = parseFor(expression)
-
-                        var output = this.evaluateReturnExpression(bunch)
-
-                        var previousEl = el
-                        output.forEach((i, index, group) => {
-                            const nextEl = previousEl.nextElementSibling
-                            let currentEl = nextEl
-                            const keyAttr = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0]
-
-                            let keyAliases = { [single]: i }
-                            if (iterator1) keyAliases[iterator1] = index
-                            if (iterator2) keyAliases[iterator2] = group
-
-                            const currentKey = keyAttr
-                                ? this.evaluateReturnExpression(keyAttr.expression, keyAliases)
-                                : index
-
-                            if (nextEl && nextEl.__x_for_key !== undefined) {
-                                // The key is not the same as the item in the dom.
-                                if (nextEl.__x_for_key !== currentKey) {
-                                    // Let's see if it's somewhere else.
-                                    var tmpCurrentEl = currentEl
-                                    while(tmpCurrentEl) {
-                                        if (tmpCurrentEl.__x_for_key === currentKey) {
-                                            el.parentElement.insertBefore(tmpCurrentEl, currentEl)
-                                            currentEl = tmpCurrentEl
-                                            break
-                                        }
-
-                                        tmpCurrentEl = (tmpCurrentEl.nextElementSibling && tmpCurrentEl.nextElementSibling.__x_for_key !== undefined) ? tmpCurrentEl.nextElementSibling : false
-                                    }
-
-                                }
-
-                                this.updateElements(currentEl, {'item': i}, false)
-                            } else {
-                                const clone = document.importNode(el.content, true);
-                                el.parentElement.insertBefore(clone, nextEl)
-
-                                currentEl = previousEl.nextElementSibling
-
-                                transitionIn(currentEl, () => {})
-
-                                this.initializeElements(currentEl, {[single]: i}, false)
-
-                                currentEl.__x_for_key = currentKey
-                            }
-
-                            previousEl = currentEl
-                        })
-
-                        // Clean up oldies
-                        var thing = (previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined) ? previousEl.nextElementSibling : false
-
-                        while(thing) {
-                            const thingImmutable = thing
-                            transitionOut(thing, () => {
-                                thingImmutable.remove()
-                            })
-
-                            thing = (thing.nextElementSibling && thing.nextElementSibling.__x_for_key !== undefined) ? thing.nextElementSibling : false
-                        }
-                    // this.updatePresence(el, output)
+                    handleForDirective(this, el, expression, initialUpdate)
                     break;
 
                 case 'cloak':
@@ -303,6 +233,14 @@ export default class Component {
                     break;
             }
         })
+    }
+
+    evaluateReturnExpression(expression, extraData) {
+        return saferEval(expression, this.$data, extraData)
+    }
+
+    evaluateCommandExpression(expression, extraData) {
+        saferEvalNoReturn(expression, this.$data, extraData)
     }
 
     listenForNewElementsToInitialize() {
@@ -345,217 +283,6 @@ export default class Component {
         })
 
         observer.observe(targetNode, observerOptions);
-    }
-
-    generateExpressionForXModelListener(el, modifiers, dataKey) {
-        var rightSideOfExpression = ''
-        if (el.type === 'checkbox') {
-            // If the data we are binding to is an array, toggle it's value inside the array.
-            if (Array.isArray(this.$data[dataKey])) {
-                rightSideOfExpression = `$event.target.checked ? ${dataKey}.concat([$event.target.value]) : ${dataKey}.filter(i => i !== $event.target.value)`
-            } else {
-                rightSideOfExpression = `$event.target.checked`
-            }
-        } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
-            rightSideOfExpression = modifiers.includes('number')
-                ? 'Array.from($event.target.selectedOptions).map(option => { return parseFloat(option.value || option.text) })'
-                : 'Array.from($event.target.selectedOptions).map(option => { return option.value || option.text })'
-        } else {
-            rightSideOfExpression = modifiers.includes('number')
-                ? 'parseFloat($event.target.value)'
-                : (modifiers.includes('trim') ? '$event.target.value.trim()' : '$event.target.value')
-        }
-
-        if (el.type === 'radio') {
-            // Radio buttons only work properly when they share a name attribute.
-            // People might assume we take care of that for them, because
-            // they already set a shared "x-model" attribute.
-            if (! el.hasAttribute('name')) el.setAttribute('name', dataKey)
-        }
-
-        return `${dataKey} = ${rightSideOfExpression}`
-    }
-
-    registerListener(el, event, modifiers, expression) {
-        if (modifiers.includes('away')) {
-            const handler = e => {
-                // Don't do anything if the click came form the element or within it.
-                if (el.contains(e.target)) return
-
-                // Don't do anything if this element isn't currently visible.
-                if (el.offsetWidth < 1 && el.offsetHeight < 1) return
-
-                // Now that we are sure the element is visible, AND the click
-                // is from outside it, let's run the expression.
-                this.runListenerHandler(expression, e)
-
-                if (modifiers.includes('once')) {
-                    document.removeEventListener(event, handler)
-                }
-            }
-
-            // Listen for this event at the root level.
-            document.addEventListener(event, handler)
-        } else {
-            const listenerTarget = modifiers.includes('window')
-                ? window : (modifiers.includes('document') ? document : el)
-
-            const handler = e => {
-                const keyModifiers = modifiers.filter(i => i !== 'window').filter(i => i !== 'document')
-
-                // The user is scoping the keydown listener to a specific key using modifiers.
-                if (event === 'keydown' && keyModifiers.length > 0) {
-                    // The user is listening for a specific key.
-                    if (keyModifiers.length === 1 && ! keyModifiers.includes(keyToModifier(e.key))) return
-
-                    // The user is listening for key combinations.
-                    const systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super']
-                    const selectedSystemKeyModifiers = systemKeyModifiers.filter(modifier => keyModifiers.includes(modifier))
-
-                    if (selectedSystemKeyModifiers.length > 0) {
-                        const activelyPressedKeyModifiers = selectedSystemKeyModifiers.filter(modifier => {
-                            // Alias "cmd" and "super" to "meta"
-                            if (modifier === 'cmd' || modifier === 'super') modifier = 'meta'
-
-                            return e[`${modifier}Key`]
-                        })
-
-                        if (activelyPressedKeyModifiers.length === 0) return
-                    }
-                }
-
-                if (modifiers.includes('prevent')) e.preventDefault()
-                if (modifiers.includes('stop')) e.stopPropagation()
-
-                this.runListenerHandler(expression, e)
-
-                if (modifiers.includes('once')) {
-                    listenerTarget.removeEventListener(event, handler)
-                }
-            }
-
-            listenerTarget.addEventListener(event, handler)
-        }
-    }
-
-    runListenerHandler(expression, e) {
-        this.evaluateCommandExpression(expression, {
-            '$event': e,
-        })
-    }
-
-    evaluateReturnExpression(expression, extraData) {
-        return saferEval(expression, this.$data, extraData)
-    }
-
-    evaluateCommandExpression(expression, extraData) {
-        saferEvalNoReturn(expression, this.$data, extraData)
-    }
-
-    updateTextValue(el, value) {
-        el.innerText = value
-    }
-
-    updateHtmlValue(el, value) {
-        el.innerHTML = value
-    }
-
-    updateVisibility(el, value, initialUpdate = false) {
-        if (! value) {
-            transitionOut(el, () => {
-                el.style.display = 'none'
-            }, initialUpdate)
-        } else {
-            transitionIn(el, () => {
-                if (el.style.length === 1 && el.style.display !== '') {
-                    el.removeAttribute('style')
-                } else {
-                    el.style.removeProperty('display')
-                }
-            }, initialUpdate)
-        }
-    }
-
-    updatePresence(el, expressionResult) {
-        if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags.`)
-
-        const elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true
-
-        if (expressionResult && ! elementHasAlreadyBeenAdded) {
-            const clone = document.importNode(el.content, true);
-
-            el.parentElement.insertBefore(clone, el.nextElementSibling)
-
-            el.nextElementSibling.__x_inserted_me = true
-
-            transitionIn(el.nextElementSibling, () => {})
-        } else if (! expressionResult && elementHasAlreadyBeenAdded) {
-            transitionOut(el.nextElementSibling, () => {
-                el.nextElementSibling.remove()
-            })
-        }
-    }
-
-    updateAttributeValue(el, attrName, value) {
-        if (attrName === 'value') {
-            if (el.type === 'radio') {
-                el.checked = el.value == value
-            } else if (el.type === 'checkbox') {
-                if (Array.isArray(value)) {
-                    // I'm purposely not using Array.includes here because it's
-                    // strict, and because of Numeric/String mis-casting, I
-                    // want the "includes" to be "fuzzy".
-                    let valueFound = false
-                    value.forEach(val => {
-                        if (val == el.value) {
-                            valueFound = true
-                        }
-                    })
-
-                    el.checked = valueFound
-                } else {
-                    el.checked = !! value
-                }
-            } else if (el.tagName === 'SELECT') {
-                this.updateSelect(el, value)
-            } else {
-                el.value = value
-            }
-        } else if (attrName === 'class') {
-            if (Array.isArray(value)) {
-                const originalClasses = el.__originalClasses || []
-                el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
-            } else if (typeof value === 'object') {
-                Object.keys(value).forEach(classNames => {
-                    if (value[classNames]) {
-                        classNames.split(' ').forEach(className => el.classList.add(className))
-                    } else {
-                        classNames.split(' ').forEach(className => el.classList.remove(className))
-                    }
-                })
-            } else {
-                const originalClasses = el.__originalClasses || []
-                const newClasses = value.split(' ')
-                el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
-            }
-        } else if (['disabled', 'readonly', 'required', 'checked', 'hidden'].includes(attrName)) {
-            // Boolean attributes have to be explicitly added and removed, not just set.
-            if (!! value) {
-                el.setAttribute(attrName, '')
-            } else {
-                el.removeAttribute(attrName)
-            }
-        } else {
-            el.setAttribute(attrName, value)
-        }
-    }
-
-    updateSelect(el, value) {
-        const arrayWrappedValue = [].concat(value).map(value => { return value + '' })
-
-        Array.from(el.options).forEach(option => {
-            option.selected = arrayWrappedValue.includes(option.value || option.text)
-        })
     }
 
     getRefsProxy() {

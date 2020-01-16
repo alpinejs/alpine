@@ -1,0 +1,65 @@
+import { arrayUnique } from '../utils'
+
+export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
+    var value = component.evaluateReturnExpression(expression, extraVars)
+
+    if (attrName === 'value') {
+        if (el.type === 'radio') {
+            el.checked = el.value == value
+        } else if (el.type === 'checkbox') {
+            if (Array.isArray(value)) {
+                // I'm purposely not using Array.includes here because it's
+                // strict, and because of Numeric/String mis-casting, I
+                // want the "includes" to be "fuzzy".
+                let valueFound = false
+                value.forEach(val => {
+                    if (val == el.value) {
+                        valueFound = true
+                    }
+                })
+
+                el.checked = valueFound
+            } else {
+                el.checked = !! value
+            }
+        } else if (el.tagName === 'SELECT') {
+            updateSelect(el, value)
+        } else {
+            el.value = value
+        }
+    } else if (attrName === 'class') {
+        if (Array.isArray(value)) {
+            const originalClasses = el.__originalClasses || []
+            el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
+        } else if (typeof value === 'object') {
+            Object.keys(value).forEach(classNames => {
+                if (value[classNames]) {
+                    classNames.split(' ').forEach(className => el.classList.add(className))
+                } else {
+                    classNames.split(' ').forEach(className => el.classList.remove(className))
+                }
+            })
+        } else {
+            const originalClasses = el.__originalClasses || []
+            const newClasses = value.split(' ')
+            el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
+        }
+    } else if (['disabled', 'readonly', 'required', 'checked', 'hidden'].includes(attrName)) {
+        // Boolean attributes have to be explicitly added and removed, not just set.
+        if (!! value) {
+            el.setAttribute(attrName, '')
+        } else {
+            el.removeAttribute(attrName)
+        }
+    } else {
+        el.setAttribute(attrName, value)
+    }
+}
+
+function updateSelect(el, value) {
+    const arrayWrappedValue = [].concat(value).map(value => { return value + '' })
+
+    Array.from(el.options).forEach(option => {
+        option.selected = arrayWrappedValue.includes(option.value || option.text)
+    })
+}

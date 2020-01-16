@@ -185,26 +185,26 @@ export default class Component {
 
                 case 'else':
                     let show;
-                    const prev = el.previousElementSibling;
+                    const prev = el.previousElementSibling
 
                     if (!prev) {
-                        console.warn('Cannot use x-else if there was no previous sibling');
+                        console.warn('AlpineJS Warning: Cannot use [x-else] if there was no previous sibling')
                     }
                     else if (prev.__x_inserted_me) {
                         // previous sibling appears to have been set via a x-if, so do
                         // not show this x-else.
-                        show = false;
+                        show = false
                     }
                     else if (prev.nodeName.toLowerCase() !== 'template' || !prev.hasAttribute('x-if')) {
-                        console.warn('Cannot use x-else if previous element was not a <template> element with "x-if" attribute');
+                        console.warn('AlpineJS Warning: Cannot use [x-else] if previous element was not a <template> element with "x-if" attribute')
                     }
                     else {
                         // Last did not have __x_inserted_me attribute - but check it was
                         // an element with v-if
-                        show=true;
+                        show = true
                     }
 
-                    this.updatePresence(el, show);
+                    this.updatePresence(el, show)
                     break;
 
                 case 'cloak':

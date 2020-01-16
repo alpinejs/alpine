@@ -13,6 +13,8 @@ test('auto-detect new components and dont lose state of existing ones', async ()
         <div id="A" x-data="{ foo: '' }">
             <input x-model="foo">
             <span x-text="foo"></span>
+
+            <div id="B"></div>
         </div>
     `
 
@@ -22,17 +24,65 @@ test('auto-detect new components and dont lose state of existing ones', async ()
 
     await wait(() => { expect(document.querySelector('#A span').innerText).toEqual('bar') })
 
-    const div = document.createElement('div')
-    div.setAttribute('id', 'B')
-    div.setAttribute('x-data', '{ foo: "baz" }')
-    div.innerHTML = `
-        <input x-model="foo">
-        <span x-text="foo"></span>
+    document.querySelector('#B').innerHTML = `
+        <div x-data="{foo: 'baz'}">
+            <input x-model="foo">
+            <span x-text="foo"></span>
+        </div>
     `
-    document.body.appendChild(div)
 
-    runObservers[1]([
-        { addedNodes: [ div ] }
+    runObservers[0]([
+        {
+            target: document.querySelector('#A'),
+            type: 'childList',
+            addedNodes: [ document.querySelector('#B div') ],
+        }
+    ])
+
+    await wait(() => {
+        expect(document.querySelector('#A span').innerText).toEqual('bar')
+        expect(document.querySelector('#B span').innerText).toEqual('baz')
+    })
+})
+
+test('auto-detect new components that are wrapped in non-new component tags', async () => {
+    var runObservers = []
+
+    global.MutationObserver = class {
+        constructor(callback) { runObservers.push(callback) }
+        observe() {}
+    }
+
+    document.body.innerHTML = `
+        <div id="A" x-data="{ foo: '' }">
+            <input x-model="foo">
+            <span x-text="foo"></span>
+
+            <div id="B"></div>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+
+    await wait(() => { expect(document.querySelector('#A span').innerText).toEqual('bar') })
+
+    document.querySelector('#B').innerHTML = `
+        <section>
+            <div x-data="{foo: 'baz'}">
+                <input x-model="foo">
+                <span x-text="foo"></span>
+            </div>
+        </section>
+    `
+
+    runObservers[0]([
+        {
+            target: document.querySelector('#A'),
+            type: 'childList',
+            addedNodes: [ document.querySelector('#B section') ],
+        }
     ])
 
     await wait(() => {

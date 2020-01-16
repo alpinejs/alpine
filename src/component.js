@@ -1,4 +1,4 @@
-import { arrayUnique, walkSkippingNestedComponents, keyToModifier, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
+import { arrayUnique, walk, keyToModifier, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
 
 export default class Component {
     constructor(el) {
@@ -41,7 +41,7 @@ export default class Component {
         }
 
         // Register all our listeners and set all our attribute bindings.
-        this.initializeElements()
+        this.initializeElements(this.$el)
 
         // Use mutation observer to detect new elements being added within this component at run-time.
         // Alpine's just so darn flexible amirite?
@@ -72,7 +72,7 @@ export default class Component {
                 if (self.pauseReactivity) return
 
                 debounce(() => {
-                    self.refresh()
+                    self.updateElements(self.$el)
 
                     // Walk through the $nextTick stack and clear it as we go.
                     while (self.nextTickStack.length > 0) {
@@ -104,9 +104,29 @@ export default class Component {
         return new Proxy(data, proxyHandler)
     }
 
-    initializeElements() {
-        walkSkippingNestedComponents(this.$el, el => {
+    walkAndSkipNestedComponents(el, callback, initializeComponentCallback = () => {}) {
+        walk(el, el => {
+            // We've hit a component.
+            if (el.hasAttribute('x-data')) {
+                // If it's not the current one.
+                if (! el.isSameNode(this.$el)) {
+                    // Initialize it if it's not.
+                    if (! el.__x) initializeComponentCallback(el)
+
+                    // Now we'll let that sub-component deal with itself.
+                    return false
+                }
+            }
+
+            callback(el)
+        })
+    }
+
+    initializeElements(rootEl) {
+        this.walkAndSkipNestedComponents(rootEl, el => {
             this.initializeElement(el)
+        }, el => {
+            el.__x = new Component(el)
         })
     }
 
@@ -119,6 +139,18 @@ export default class Component {
 
         this.registerListeners(el)
         this.resolveBoundAttributes(el, true)
+    }
+
+    updateElements(rootEl) {
+        this.walkAndSkipNestedComponents(rootEl, el => {
+            this.updateElement(el)
+        }, el => {
+            el.__x = new Component(el)
+        })
+    }
+
+    updateElement(el) {
+        this.resolveBoundAttributes(el)
     }
 
     registerListeners(el) {
@@ -220,23 +252,18 @@ export default class Component {
                     mutations[i].addedNodes.forEach(node => {
                         if (node.nodeType !== 1) return
 
-                        if (node.matches('[x-data]')) return
-
-                        if (getXAttrs(node).length > 0) {
-                            this.initializeElement(node)
+                        if (node.matches('[x-data]')) {
+                            node.__x = new Component(node)
+                            return
                         }
+
+                        this.initializeElements(node)
                     })
                 }
               }
         })
 
         observer.observe(targetNode, observerOptions);
-    }
-
-    refresh() {
-        walkSkippingNestedComponents(this.$el, el => {
-            this.resolveBoundAttributes(el)
-        })
     }
 
     generateExpressionForXModelListener(el, modifiers, dataKey) {
@@ -459,7 +486,7 @@ export default class Component {
         // we just loop on the element, look for any x-ref and create a the property on a fake object.
         // We don't need to put a real value since it will be resolved by the proxy class
         if (window.document.documentMode) {
-            walkSkippingNestedComponents(self.$el, el => {
+            this.walkAndSkipNestedComponents(self.$el, el => {
                 if (el.hasAttribute('x-ref')) {
                     refObj.el = true
                 }
@@ -478,7 +505,7 @@ export default class Component {
 
                 // We can't just query the DOM because it's hard to filter out refs in
                 // nested components.
-                walkSkippingNestedComponents(self.$el, el => {
+                self.walkAndSkipNestedComponents(self.$el, el => {
                     if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                         ref = el
                     }

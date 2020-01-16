@@ -44,15 +44,13 @@ export function keyToModifier(key) {
     }
 }
 
-export function walkSkippingNestedComponents(el, callback, isRoot = true) {
-    if (el.hasAttribute('x-data') && ! isRoot) return
-
-    callback(el)
+export function walk(el, callback) {
+    if (callback(el) === false) return
 
     let node = el.firstElementChild
 
     while (node) {
-        walkSkippingNestedComponents(node, callback, false)
+        walk(node, callback)
 
         node = node.nextElementSibling
     }

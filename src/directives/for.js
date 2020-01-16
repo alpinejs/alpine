@@ -3,37 +3,32 @@ import { transitionIn, transitionOut, getXAttrs } from '../utils'
 export function handleForDirective(component, el, expression, initialUpdate) {
     const { single, bunch, iterator1, iterator2 } = parseFor(expression)
 
-    var output = component.evaluateReturnExpression(bunch)
+    var items = component.evaluateReturnExpression(bunch)
 
+    // As we walk the array, we'll also walk the DOM (updating/creating as we go).
     var previousEl = el
-    output.forEach((i, index, group) => {
-        const nextEl = previousEl.nextElementSibling
-        let currentEl = nextEl
-        const keyAttr = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0]
+    items.forEach((i, index, group) => {
+        const currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group)
+        let currentEl = previousEl.nextElementSibling
 
-        let keyAliases = { [single]: i }
-        if (iterator1) keyAliases[iterator1] = index
-        if (iterator2) keyAliases[iterator2] = group
-
-        const currentKey = keyAttr
-            ? component.evaluateReturnExpression(keyAttr.expression, keyAliases)
-            : index
-
-        if (nextEl && nextEl.__x_for_key !== undefined) {
-            // The key is not the same as the item in the dom.
-            if (nextEl.__x_for_key !== currentKey) {
-                // Let's see if it's somewhere else.
+        // Let's check and see if the x-for has already generated an element last time it ran.
+        if (currentEl && currentEl.__x_for_key !== undefined) {
+            // If the the key's don't match.
+            if (currentEl.__x_for_key !== currentKey) {
+                // We'll look ahead to see if we can find it further down.
                 var tmpCurrentEl = currentEl
                 while(tmpCurrentEl) {
+                    // If we found it later in the DOM.
                     if (tmpCurrentEl.__x_for_key === currentKey) {
+                        // Move it to where it's supposed to be in the DOM.
                         el.parentElement.insertBefore(tmpCurrentEl, currentEl)
+                        // And set it as the current element as if we just created it.
                         currentEl = tmpCurrentEl
                         break
                     }
 
                     tmpCurrentEl = (tmpCurrentEl.nextElementSibling && tmpCurrentEl.nextElementSibling.__x_for_key !== undefined) ? tmpCurrentEl.nextElementSibling : false
                 }
-
             }
 
             // Temporarily remove the key indicator to allow the normal "updateElements" to work
@@ -44,13 +39,22 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             // Reset it for next time around.
             currentEl.__x_for_key = currentKey
         } else {
-            const clone = document.importNode(el.content, true);
-            el.parentElement.insertBefore(clone, nextEl)
+            // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
+            // extra items in the array that need to be added as new elements.
 
+            // Let's create a clone from the template.
+            const clone = document.importNode(el.content, true);
+            // Insert it where we are in the DOM.
+            el.parentElement.insertBefore(clone, currentEl)
+
+            // Set it as the current element.
             currentEl = previousEl.nextElementSibling
 
+            // And transition it in if it's not the first page load.
             transitionIn(currentEl, () => {}, initialUpdate)
 
+            // Now, let's walk the new DOM node and initialize everything,
+            // including new nested components.
             component.initializeElements(currentEl, {[single]: i})
 
             currentEl.__x_for_key = currentKey
@@ -59,23 +63,27 @@ export function handleForDirective(component, el, expression, initialUpdate) {
         previousEl = currentEl
     })
 
-    // Clean up oldies
-    var thing = (previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined) ? previousEl.nextElementSibling : false
+    // Now that we've added/updated/moved all the elements for the current state of the loop.
+    // Anything left over, we can get rid of.
+    var nextElementFromOldLoop = (previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined) ? previousEl.nextElementSibling : false
 
-    while(thing) {
-        const thingImmutable = thing
-        transitionOut(thing, () => {
-            thingImmutable.remove()
+    while(nextElementFromOldLoop) {
+        const nextElementFromOldLoopImmutable = nextElementFromOldLoop
+
+        transitionOut(nextElementFromOldLoop, () => {
+            nextElementFromOldLoopImmutable.remove()
         })
 
-        thing = (thing.nextElementSibling && thing.nextElementSibling.__x_for_key !== undefined) ? thing.nextElementSibling : false
+        nextElementFromOldLoop = (nextElementFromOldLoop.nextElementSibling && nextElementFromOldLoop.nextElementSibling.__x_for_key !== undefined) ? nextElementFromOldLoop.nextElementSibling : false
     }
 }
 
+// This was taken from VueJS 2.* core. Thanks Vue!
 function parseFor (expression) {
     const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/
     const stripParensRE = /^\(|\)$/g
     const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
+
     const inMatch = expression.match(forAliasRE)
     if (! inMatch) return
     const res = {}
@@ -83,13 +91,25 @@ function parseFor (expression) {
     const single = inMatch[1].trim().replace(stripParensRE, '')
     const iteratorMatch = single.match(forIteratorRE)
     if (iteratorMatch) {
-      res.single = single.replace(forIteratorRE, '').trim()
-      res.iterator1 = iteratorMatch[1].trim()
-      if (iteratorMatch[2]) {
-        res.iterator2 = iteratorMatch[2].trim()
-      }
+        res.single = single.replace(forIteratorRE, '').trim()
+        res.iterator1 = iteratorMatch[1].trim()
+        if (iteratorMatch[2]) {
+            res.iterator2 = iteratorMatch[2].trim()
+        }
     } else {
-      res.single = single
+        res.single = single
     }
     return res
   }
+
+function getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group) {
+    const keyAttr = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0]
+
+    let keyAliases = { [single]: i }
+    if (iterator1) keyAliases[iterator1] = index
+    if (iterator2) keyAliases[iterator2] = group
+
+    return keyAttr
+        ? component.evaluateReturnExpression(keyAttr.expression, keyAliases)
+        : index
+}

@@ -4,6 +4,10 @@ export function handleAttributeBindingDirective(component, el, attrName, express
     var value = component.evaluateReturnExpression(expression, extraVars)
 
     if (attrName === 'value') {
+        // If nested model key is undefined, set the default value to empty string
+        if ( undefined === value && expression.match(/\./).length ) {
+            value = ''
+        }
         if (el.type === 'radio') {
             el.checked = el.value == value
         } else if (el.type === 'checkbox') {

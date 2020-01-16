@@ -98,6 +98,7 @@ There are 12 directives available to you:
 | [`x-html`](#x-html) |
 | [`x-ref`](#x-ref) |
 | [`x-if`](#x-if) |
+| [`x-else`](#x-else) |
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
@@ -318,6 +319,21 @@ For cases where `x-show` isn't sufficient (`x-show` sets an element to `display:
 It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work it's magic.
 
 > Note: `x-if` must have a single element root inside the `<template></template>` tag.
+
+---
+
+### `x-else`
+
+**Example:** `
+    <template x-if="false"><div>Some (hidden) Element</div></template>
+    <template x-else><div>Some (visible) Element</div></template>
+    `
+
+**Structure:** `<template x-else><div>Some Element</div></template>`
+
+Use `x-else` after a `<template x-if="..."></template>` tag. If the previous tag was not shown, then the x-else one will be.
+
+> Note: Similar to `x-if`, the `x-else` must have a single element root inside the `<template></template>` tag.
 
 ---
 

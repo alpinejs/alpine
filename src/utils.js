@@ -32,18 +32,6 @@ export function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase()
 }
 
-export function keyToModifier(key) {
-    switch (key) {
-        case '/':
-            return 'slash'
-        case ' ':
-        case 'Spacebar':
-            return 'space'
-        default:
-            return kebabCase(key)
-    }
-}
-
 export function walk(el, callback) {
     if (callback(el) === false) return
 

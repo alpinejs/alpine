@@ -79,7 +79,7 @@
                   </span>
                 </template>
                 <input class="tags-input-text" placeholder="Add tag..."
-                  @keydown.enter="if (newTag.trim() !== '') tags.push(newTag.trim()); newTag = ''"
+                  @keydown.enter.prevent="if (newTag.trim() !== '') tags.push(newTag.trim()); newTag = ''"
                   x-model="newTag"
                 >
               </div>

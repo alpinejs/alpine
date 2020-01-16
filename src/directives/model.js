@@ -1,6 +1,6 @@
 import { registerListener } from './on'
 
-export function registerModelListener(component, el, modifiers, expression) {
+export function registerModelListener(component, el, modifiers, expression, extraVars = {}) {
     // If the element we are binding to is a select, a radio, or checkbox
     // we'll listen for the change event instead of the "input" event.
     var event = (el.tagName.toLowerCase() === 'select')
@@ -10,7 +10,7 @@ export function registerModelListener(component, el, modifiers, expression) {
 
     const listenerExpression = modelListenerExpression(component, el, modifiers, expression)
 
-    registerListener(component, el, event, modifiers, listenerExpression)
+    registerListener(component, el, event, modifiers, listenerExpression, extraVars)
 }
 
 function modelListenerExpression(component, el, modifiers, dataKey) {

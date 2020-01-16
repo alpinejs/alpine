@@ -1,6 +1,6 @@
 import { keyToModifier } from '../utils'
 
-export function registerListener(component, el, event, modifiers, expression) {
+export function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
     if (modifiers.includes('away')) {
         const handler = e => {
             // Don't do anything if the click came form the element or within it.
@@ -11,7 +11,7 @@ export function registerListener(component, el, event, modifiers, expression) {
 
             // Now that we are sure the element is visible, AND the click
             // is from outside it, let's run the expression.
-            runListenerHandler(component, expression, e)
+            runListenerHandler(component, expression, e, extraVars)
 
             if (modifiers.includes('once')) {
                 document.removeEventListener(event, handler)
@@ -51,7 +51,7 @@ export function registerListener(component, el, event, modifiers, expression) {
             if (modifiers.includes('prevent')) e.preventDefault()
             if (modifiers.includes('stop')) e.stopPropagation()
 
-            runListenerHandler(component, expression, e)
+            runListenerHandler(component, expression, e, extraVars)
 
             if (modifiers.includes('once')) {
                 listenerTarget.removeEventListener(event, handler)
@@ -62,8 +62,8 @@ export function registerListener(component, el, event, modifiers, expression) {
     }
 }
 
-function runListenerHandler(component, expression, e) {
-    component.evaluateCommandExpression(expression, {
-        '$event': e,
+function runListenerHandler(component, expression, e, extraVars) {
+    component.evaluateCommandExpression(expression, () => {
+        return {...extraVars(), '$event': e}
     })
 }

@@ -34,10 +34,11 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             // Temporarily remove the key indicator to allow the normal "updateElements" to work
             delete currentEl.__x_for_key
 
-            component.updateElements(currentEl, {'item': i})
-
-            // Reset it for next time around.
-            currentEl.__x_for_key = currentKey
+            currentEl.__x_for_alias = single
+            currentEl.__x_for_value = i
+            component.updateElements(currentEl, () => {
+                return {[currentEl.__x_for_alias]: currentEl.__x_for_value}
+            })
         } else {
             // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
             // extra items in the array that need to be added as new elements.
@@ -55,10 +56,16 @@ export function handleForDirective(component, el, expression, initialUpdate) {
 
             // Now, let's walk the new DOM node and initialize everything,
             // including new nested components.
-            component.initializeElements(currentEl, {[single]: i})
-
-            currentEl.__x_for_key = currentKey
+            // Note we are resolving the "extraData" alias stuff from the dom element value so that it's
+            // always up to date for listener handlers that don't get re-registered.
+            currentEl.__x_for_alias = single
+            currentEl.__x_for_value = i
+            component.initializeElements(currentEl, () => {
+                return {[currentEl.__x_for_alias]: currentEl.__x_for_value}
+            })
         }
+
+        currentEl.__x_for_key = currentKey
 
         previousEl = currentEl
     })
@@ -110,6 +117,6 @@ function getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, i
     if (iterator2) keyAliases[iterator2] = group
 
     return keyAttr
-        ? component.evaluateReturnExpression(keyAttr.expression, keyAliases)
+        ? component.evaluateReturnExpression(keyAttr.expression, () => keyAliases)
         : index
 }

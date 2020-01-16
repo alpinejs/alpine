@@ -1,4 +1,4 @@
-import { arrayUnique, walk, keyToModifier, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut } from './utils'
+import { arrayUnique, walk, keyToModifier, saferEval, saferEvalNoReturn, getXAttrs, debounce, transitionIn, transitionOut, parseFor } from './utils'
 
 export default class Component {
     constructor(el) {
@@ -119,42 +119,53 @@ export default class Component {
                 }
             }
 
-            callback(el)
+            return callback(el)
         })
     }
 
-    initializeElements(rootEl) {
+    initializeElements(rootEl, extraVars = {}, skipForLoopSpawns = true) {
         this.walkAndSkipNestedComponents(rootEl, el => {
-            this.initializeElement(el)
+            // Don't touch spawns from for loop
+            if (skipForLoopSpawns && el.__x_for_key !== undefined) return false
+
+            this.initializeElement(el, extraVars)
         }, el => {
             el.__x = new Component(el)
         })
+
+        // Walk through the $nextTick stack and clear it as we go.
+        while (this.nextTickStack.length > 0) {
+            this.nextTickStack.shift()()
+        }
     }
 
-    initializeElement(el) {
+    initializeElement(el, extraVars = {}) {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
         if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
             el.__originalClasses = el.getAttribute('class').split(' ')
         }
 
-        this.registerListeners(el)
-        this.resolveBoundAttributes(el, true)
+        this.registerListeners(el, extraVars)
+        this.resolveBoundAttributes(el, true, extraVars)
     }
 
-    updateElements(rootEl) {
+    updateElements(rootEl, extraVars = {}, skipForLoopSpawns = true) {
         this.walkAndSkipNestedComponents(rootEl, el => {
-            this.updateElement(el)
+            // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
+            if (skipForLoopSpawns && el.__x_for_key !== undefined && ! el.isSameNode(this.$el)) return false
+
+            this.updateElement(el, extraVars)
         }, el => {
             el.__x = new Component(el)
         })
     }
 
-    updateElement(el) {
-        this.resolveBoundAttributes(el)
+    updateElement(el, extraVars = {}) {
+        this.resolveBoundAttributes(el, true, extraVars)
     }
 
-    registerListeners(el) {
+    registerListeners(el, extraVars = {}) {
         getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'on':
@@ -180,39 +191,108 @@ export default class Component {
         })
     }
 
-    resolveBoundAttributes(el, initialUpdate = false) {
+    resolveBoundAttributes(el, initialUpdate = false, extraVars) {
         getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':
                     var attrName = 'value'
-                    var output = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression, extraVars)
                     this.updateAttributeValue(el, attrName, output)
                     break;
 
                 case 'bind':
                     var attrName = value
-                    var output = this.evaluateReturnExpression(expression)
+                    //
+                    if (el.tagName.toLowerCase() === 'template' && attrName === 'key') return
+                    var output = this.evaluateReturnExpression(expression, extraVars)
                     this.updateAttributeValue(el, attrName, output)
                     break;
 
                 case 'text':
-                    var output = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression, extraVars)
                     this.updateTextValue(el, output)
                     break;
 
                 case 'html':
-                    var output = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression, extraVars)
                     this.updateHtmlValue(el, output)
                     break;
 
                 case 'show':
-                    var output = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression, extraVars)
                     this.updateVisibility(el, output, initialUpdate)
                     break;
 
                 case 'if':
-                    var output = this.evaluateReturnExpression(expression)
+                    var output = this.evaluateReturnExpression(expression, extraVars)
                     this.updatePresence(el, output)
+                    break;
+
+                case 'for':
+                        const { single, bunch, iterator1, iterator2 } = parseFor(expression)
+
+                        var output = this.evaluateReturnExpression(bunch)
+
+                        var previousEl = el
+                        output.forEach((i, index, group) => {
+                            const nextEl = previousEl.nextElementSibling
+                            let currentEl = nextEl
+                            const keyAttr = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0]
+
+                            let keyAliases = { [single]: i }
+                            if (iterator1) keyAliases[iterator1] = index
+                            if (iterator2) keyAliases[iterator2] = group
+
+                            const currentKey = keyAttr
+                                ? this.evaluateReturnExpression(keyAttr.expression, keyAliases)
+                                : index
+
+                            if (nextEl && nextEl.__x_for_key !== undefined) {
+                                // The key is not the same as the item in the dom.
+                                if (nextEl.__x_for_key !== currentKey) {
+                                    // Let's see if it's somewhere else.
+                                    var tmpCurrentEl = currentEl
+                                    while(tmpCurrentEl) {
+                                        if (tmpCurrentEl.__x_for_key === currentKey) {
+                                            el.parentElement.insertBefore(tmpCurrentEl, currentEl)
+                                            currentEl = tmpCurrentEl
+                                            break
+                                        }
+
+                                        tmpCurrentEl = (tmpCurrentEl.nextElementSibling && tmpCurrentEl.nextElementSibling.__x_for_key !== undefined) ? tmpCurrentEl.nextElementSibling : false
+                                    }
+
+                                }
+
+                                this.updateElements(currentEl, {'item': i}, false)
+                            } else {
+                                const clone = document.importNode(el.content, true);
+                                el.parentElement.insertBefore(clone, nextEl)
+
+                                currentEl = previousEl.nextElementSibling
+
+                                transitionIn(currentEl, () => {})
+
+                                this.initializeElements(currentEl, {[single]: i}, false)
+
+                                currentEl.__x_for_key = currentKey
+                            }
+
+                            previousEl = currentEl
+                        })
+
+                        // Clean up oldies
+                        var thing = (previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined) ? previousEl.nextElementSibling : false
+
+                        while(thing) {
+                            const thingImmutable = thing
+                            transitionOut(thing, () => {
+                                thingImmutable.remove()
+                            })
+
+                            thing = (thing.nextElementSibling && thing.nextElementSibling.__x_for_key !== undefined) ? thing.nextElementSibling : false
+                        }
+                    // this.updatePresence(el, output)
                     break;
 
                 case 'cloak':
@@ -364,8 +444,8 @@ export default class Component {
         })
     }
 
-    evaluateReturnExpression(expression) {
-        return saferEval(expression, this.$data)
+    evaluateReturnExpression(expression, extraData) {
+        return saferEval(expression, this.$data, extraData)
     }
 
     evaluateCommandExpression(expression, extraData) {

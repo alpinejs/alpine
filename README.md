@@ -14,7 +14,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.8.2/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.9.0/dist/alpine.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -84,7 +84,7 @@ You can even use it for non-trivial things:
 
 ## Learn
 
-There are 12 directives available to you:
+There are 13 directives available to you:
 
 | Directive
 | --- |
@@ -98,6 +98,7 @@ There are 12 directives available to you:
 | [`x-html`](#x-html) |
 | [`x-ref`](#x-ref) |
 | [`x-if`](#x-if) |
+| [`x-for`](#x-for) |
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
@@ -318,6 +319,20 @@ For cases where `x-show` isn't sufficient (`x-show` sets an element to `display:
 It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work it's magic.
 
 > Note: `x-if` must have a single element root inside the `<template></template>` tag.
+
+---
+
+### `x-for`
+**Example:**
+```html
+<template x-for="item in items" :key="item">
+    <div x-text="item"></div>
+</template>
+```
+
+`x-for` is available for cases when you want to create new DOM nodes for each item in an array. This should appear similar to `v-for` in Vue, with one exception of needing to exist on a `template` tag, and not a regular DOM element.
+
+> Note: the `:key` binding is optional, but HIGHLY recommended.
 
 ---
 

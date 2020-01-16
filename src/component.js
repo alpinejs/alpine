@@ -12,18 +12,17 @@ export default class Component {
 
         const unobservedData = saferEval(dataExpression, {})
 
+        // Add our magic properties to the original data for access.
+        unobservedData.$el = this.$el
+        unobservedData.$refs = this.getRefsProxy()
+
+        this.nextTickStack = []
+        unobservedData.$nextTick = (callback) => {
+            this.nextTickStack.push(callback)
+        }
+
         // Construct a Proxy-based observable. This will be used to handle reactivity.
         this.$data = this.wrapDataInObservable(unobservedData)
-
-        // After making user-supplied data methods reactive, we can now add
-        // our magic properties to the original data for access.
-        // unobservedData.$el = this.$el
-        // unobservedData.$refs = this.getRefsProxy()
-
-        // this.nextTickStack = []
-        // unobservedData.$nextTick = (callback) => {
-        //     this.nextTickStack.push(callback)
-        // }
 
         var initReturnedCallback
         if (initExpression) {
@@ -454,11 +453,24 @@ export default class Component {
     getRefsProxy() {
         var self = this
 
+        var refObj = {}
+
+        // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
+        // we just loop on the element, look for any x-ref and create a the property on a fake object.
+        // We don't need to put a real value since it will be resolved by the proxy class
+        if (window.document.documentMode) {
+            walkSkippingNestedComponents(self.$el, el => {
+                if (el.hasAttribute('x-ref')) {
+                    refObj.el = true
+                }
+            })
+        }
+
         // One of the goals of this is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and
         // friendly to outside DOM changes from libraries like Vue/Livewire.
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
-        return new Proxy({}, {
+        return new Proxy(refObj, {
             get(object, property) {
                 if (property === 'isRefsProxy') return true
 

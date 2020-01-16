@@ -26,7 +26,7 @@ npm i alpinejs
 
 Include it in your script.
 ```js
-import Alpine from 'alpinejs'
+import 'alpinejs'
 ```
 
 For IE11, polyfills will need to be provided. Please load the following scripts before the Alpine script above.

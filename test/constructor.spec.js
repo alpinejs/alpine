@@ -1,6 +1,74 @@
 import Alpine from 'alpinejs'
 import { fireEvent, wait } from '@testing-library/dom'
 
+test('auto-detect new components at the top level', async () => {
+    var runObservers = []
+
+    global.MutationObserver = class {
+        constructor(callback) { runObservers.push(callback) }
+        observe() {}
+    }
+
+    document.body.innerHTML = `
+        <section></section>
+    `
+
+    Alpine.start()
+
+    document.querySelector('section').innerHTML = `
+        <div x-data="{ foo: '' }">
+            <input x-model="foo">
+            <span x-text="foo"></span>
+        </div>
+    `
+    runObservers[0]([
+        {
+            target: document.querySelector('section'),
+            type: 'childList',
+            addedNodes: [ document.querySelector('div') ],
+        }
+    ])
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+})
+
+test('auto-detect newsted new components at the top level', async () => {
+    var runObservers = []
+
+    global.MutationObserver = class {
+        constructor(callback) { runObservers.push(callback) }
+        observe() {}
+    }
+
+    document.body.innerHTML = `
+        <section></section>
+    `
+
+    Alpine.start()
+
+    document.querySelector('section').innerHTML = `
+        <article>
+            <div x-data="{ foo: '' }">
+                <input x-model="foo">
+                <span x-text="foo"></span>
+            </div>
+        </article>
+    `
+    runObservers[0]([
+        {
+            target: document.querySelector('section'),
+            type: 'childList',
+            addedNodes: [ document.querySelector('article') ],
+        }
+    ])
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+})
+
 test('auto-detect new components and dont lose state of existing ones', async () => {
     var runObservers = []
 

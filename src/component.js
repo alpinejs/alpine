@@ -236,10 +236,9 @@ export default class Component {
 
         const observer = new MutationObserver((mutations) => {
             for (let i=0; i < mutations.length; i++){
-                const closestParentComponent = mutations[i].target.closest('[x-data]')
-
                 // Filter out mutations triggered from child components.
-                if (closestParentComponent && ! closestParentComponent.isSameNode(this.el)) return
+                const closestParentComponent = mutations[i].target.closest('[x-data]')
+                if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) return
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
                     const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})

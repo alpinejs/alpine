@@ -174,3 +174,33 @@ test('can key by index', async () => {
 
     await wait(() => { expect(document.querySelectorAll('span').length).toEqual(3) })
 })
+
+test('listeners in loop get fresh iteration data even though they are only registered initially', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo'], output: '' }">
+            <button x-on:click="items = ['bar']"></button>
+
+            <template x-for="(item, index) in items">
+                <span x-text="item" x-on:click="output = item"></span>
+            </template>
+
+            <h1 x-text="output"></h1>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span').length).toEqual(1)
+
+    document.querySelector('span').click()
+
+    await wait(() => { expect(document.querySelector('h1').innerText).toEqual('foo') })
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+
+    document.querySelector('span').click()
+
+    await wait(() => { expect(document.querySelector('h1').innerText).toEqual('bar') })
+})

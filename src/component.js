@@ -128,7 +128,7 @@ export default class Component {
         })
     }
 
-    initializeElements(rootEl, extraVars = {}) {
+    initializeElements(rootEl, extraVars = () => {}) {
         this.walkAndSkipNestedComponents(rootEl, el => {
             // Don't touch spawns from for loop
             if (el.__x_for_key !== undefined) return false
@@ -144,7 +144,7 @@ export default class Component {
         }
     }
 
-    initializeElement(el, extraVars = {}) {
+    initializeElement(el, extraVars) {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
         if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
@@ -155,7 +155,7 @@ export default class Component {
         this.resolveBoundAttributes(el, true, extraVars)
     }
 
-    updateElements(rootEl, extraVars = {}) {
+    updateElements(rootEl, extraVars = () => {}) {
         this.walkAndSkipNestedComponents(rootEl, el => {
             // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
             if (el.__x_for_key !== undefined && ! el.isSameNode(this.$el)) return false
@@ -166,19 +166,19 @@ export default class Component {
         })
     }
 
-    updateElement(el, extraVars = {}) {
+    updateElement(el, extraVars) {
         this.resolveBoundAttributes(el, false, extraVars)
     }
 
-    registerListeners(el, extraVars = {}) {
+    registerListeners(el, extraVars) {
         getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'on':
-                    registerListener(this, el, value, modifiers, expression)
+                    registerListener(this, el, value, modifiers, expression, extraVars)
                     break;
 
                 case 'model':
-                    registerModelListener(this, el, modifiers, expression)
+                    registerModelListener(this, el, modifiers, expression, extraVars)
                     break;
                 default:
                     break;
@@ -234,12 +234,12 @@ export default class Component {
         })
     }
 
-    evaluateReturnExpression(expression, extraData) {
-        return saferEval(expression, this.$data, extraData)
+    evaluateReturnExpression(expression, extraVars = () => {}) {
+        return saferEval(expression, this.$data, extraVars())
     }
 
-    evaluateCommandExpression(expression, extraData) {
-        saferEvalNoReturn(expression, this.$data, extraData)
+    evaluateCommandExpression(expression, extraVars = () => {}) {
+        saferEvalNoReturn(expression, this.$data, extraVars())
     }
 
     listenForNewElementsToInitialize() {

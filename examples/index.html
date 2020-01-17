@@ -69,6 +69,22 @@
                 </tr>
 
                 <tr>
+                    <td>Simple x-else</td>
+                    <td>
+                        <div x-data="{ show: false }">
+                            <template x-if="show">
+                                <span>If block</span>
+                            </template>
+                            <template x-else>
+                                <span>Else block</span>
+                            </template>
+
+                            <button @click="show = ! show">Toggle between x-if and x-else elements</button>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Data Binding</td>
                     <td>
                         <div x-data="{ text: 'foo', checkbox: ['foo'], radio:

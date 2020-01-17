@@ -3,6 +3,7 @@ import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleShowDirective } from './directives/show'
 import { handleIfDirective } from './directives/if'
+import { handleElseDirective } from './directives/else'
 import { registerModelListener } from './directives/model'
 import { registerListener } from './directives/on'
 
@@ -221,12 +222,12 @@ export default class Component {
                     handleIfDirective(el, output, initialUpdate)
                     break;
 
-                case 'for':
-                    handleForDirective(this, el, expression, initialUpdate)
+                case 'else':
+                    handleElseDirective(el)
                     break;
 
-                case 'else':
-                    this.updateElsePresence(el)
+                case 'for':
+                    handleForDirective(this, el, expression, initialUpdate)
                     break;
 
                 case 'cloak':
@@ -287,27 +288,6 @@ export default class Component {
         })
 
         observer.observe(targetNode, observerOptions);
-    }
-
-    updateElsePresence(el) {
-        // TODO - move
-        let show = true
-
-        if (!el.previousElementSibling) {
-            console.warn('AlpineJS Warning: Cannot use [x-else] if there was no previous sibling')
-            show = false
-        }
-        else if (el.previousElementSibling.__x_inserted_me) {
-            // Previous sibling appears to have been shown so do not show this else block.
-            show = false
-        }
-        else if (el.previousElementSibling.nodeName.toLowerCase() !== 'template'
-            || !el.previousElementSibling.hasAttribute('x-if')) {
-            console.warn('AlpineJS Warning: Cannot use [x-else] if previous element was not a <template> element with "x-if" attribute')
-            show = false
-        }
-
-        this.updatePresence(el, show)
     }
 
     getRefsProxy() {

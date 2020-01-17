@@ -324,16 +324,17 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 
 ### `x-else`
 
-**Example:** `
+**Example:** 
+```html
     <template x-if="false"><div>Some (hidden) Element</div></template>
     <template x-else><div>Some (visible) Element</div></template>
-    `
+```
 
 **Structure:** `<template x-else><div>Some Element</div></template>`
 
 Use `x-else` after a `<template x-if="..."></template>` tag. If the previous tag was not shown, then the x-else one will be.
 
-> Note: Similar to `x-if`, the `x-else` must have a single element root inside the `<template></template>` tag.
+> Note: Similar to `x-if`, the `x-else` must have a single element root inside the `<template></template>` tag. 
 
 ---
 

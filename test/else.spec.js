@@ -20,8 +20,7 @@ afterEach(() => {
     console.warn = originalConsoleWarn;
 });
 
-// Test that the x-else is hidden, if the preceding x-if is shown.
-test('x-else hidden', () => {
+test('x-else hidden when previous x-if is shown', () => {
     document.body.innerHTML = `
         <div x-data="{ show: false }">
             <template x-if="show">
@@ -39,8 +38,7 @@ test('x-else hidden', () => {
     expect(document.querySelector('p.else')).toBeTruthy()
 })
 
-// Test that the x-else is shown, if the preceding x-if is hidden.
-test('x-else visible', () => {
+test('x-else visible when previous x-if is hidden', () => {
     document.body.innerHTML = `
         <div x-data="{ show: true }">
             <template x-if="show">

@@ -184,27 +184,7 @@ export default class Component {
                     break;
 
                 case 'else':
-                    let show;
-                    const prev = el.previousElementSibling
-
-                    if (!prev) {
-                        console.warn('AlpineJS Warning: Cannot use [x-else] if there was no previous sibling')
-                    }
-                    else if (prev.__x_inserted_me) {
-                        // previous sibling appears to have been set via a x-if, so do
-                        // not show this x-else.
-                        show = false
-                    }
-                    else if (prev.nodeName.toLowerCase() !== 'template' || !prev.hasAttribute('x-if')) {
-                        console.warn('AlpineJS Warning: Cannot use [x-else] if previous element was not a <template> element with "x-if" attribute')
-                    }
-                    else {
-                        // Last did not have __x_inserted_me attribute - but check it was
-                        // an element with v-if
-                        show = true
-                    }
-
-                    this.updatePresence(el, show)
+                    this.updateElsePresence(el)
                     break;
 
                 case 'cloak':
@@ -411,6 +391,26 @@ export default class Component {
                 el.nextElementSibling.remove()
             })
         }
+    }
+
+    updateElsePresence(el) {
+        let show = true
+
+        if (!el.previousElementSibling) {
+            console.warn('AlpineJS Warning: Cannot use [x-else] if there was no previous sibling')
+            show = false
+        }
+        else if (el.previousElementSibling.__x_inserted_me) {
+            // Previous sibling appears to have been shown so do not show this else block.
+            show = false
+        }
+        else if (el.previousElementSibling.nodeName.toLowerCase() !== 'template'
+            || !el.previousElementSibling.hasAttribute('x-if')) {
+            console.warn('AlpineJS Warning: Cannot use [x-else] if previous element was not a <template> element with "x-if" attribute')
+            show = false
+        }
+
+        this.updatePresence(el, show)
     }
 
     updateAttributeValue(el, attrName, value) {

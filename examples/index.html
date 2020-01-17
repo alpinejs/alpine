@@ -200,6 +200,52 @@
                 </tr>
 
                 <tr>
+                    <td>Append Nested DOM</td>
+                    <td>
+                        <div id="goHere2">Click me.</div>
+                        <script>
+                            const thing2 = document.querySelector('#goHere2')
+                            const handler2 = (e) => {
+                                thing2.removeEventListener('click', handler2)
+
+                                e.target.innerHTML = `
+                                    <article>
+                                        <div x-data="{hey: 'there'}">
+                                            <input type="text" x-model="hey"><h1 x-text="hey"></h1>
+                                        </div>
+                                    </article>
+                                `
+                            }
+
+                            var listener = thing2.addEventListener('click', handler2)
+                        </script>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>x-for</td>
+                    <td>
+                        <div x-data="{ items: ['foo', 'bar'], foo: 'bar' }">
+                            <input type="checkbox" x-model="items" value="foo">
+                            <input type="checkbox" x-model="items" value="bar">
+                            <input type="checkbox" x-model="items" value="baz">
+
+                            <button @click="items = ['bar', 'bob']">hey</button>
+
+                            <template x-for="item in items" :key="item">
+                                <div x-text="item" x-transition:enter-start="opacity-0 scale-90"
+                                    x-transition:enter="ease-out transition-medium"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave="ease-in transition-faster"
+                                    x-transition:leave-end="opacity-0 scale-90"
+                                ></div>
+                            </template>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Transitions</td>
                     <td>
                         <div x-data="{ open: false }">

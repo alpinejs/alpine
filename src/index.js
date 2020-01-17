@@ -32,8 +32,8 @@ const Alpine = {
         })
     },
 
-    discoverUninitializedComponents: function (callback) {
-        const rootEls = document.querySelectorAll('[x-data]');
+    discoverUninitializedComponents: function (callback, el = null) {
+        const rootEls = (el || document).querySelectorAll('[x-data]');
 
         Array.from(rootEls)
             .filter(el => el.__x === undefined)
@@ -55,9 +55,16 @@ const Alpine = {
             for (let i=0; i < mutations.length; i++){
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
+                        // Discard non-element nodes (like line-breaks)
                         if (node.nodeType !== 1) return
 
-                        if (node.matches('[x-data]')) callback(node)
+                        // Discard any changes happening within an existing component.
+                        // They will take care of themselves.
+                        if (node.parentElement.closest('[x-data]')) return
+
+                        this.discoverUninitializedComponents((el) => {
+                            this.initializeComponent(el)
+                        }, node.parentElement)
                     })
                 }
               }

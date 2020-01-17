@@ -32,27 +32,13 @@ export function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase()
 }
 
-export function keyToModifier(key) {
-    switch (key) {
-        case '/':
-            return 'slash'
-        case ' ':
-        case 'Spacebar':
-            return 'space'
-        default:
-            return kebabCase(key)
-    }
-}
-
-export function walkSkippingNestedComponents(el, callback, isRoot = true) {
-    if (el.hasAttribute('x-data') && ! isRoot) return
-
-    callback(el)
+export function walk(el, callback) {
+    if (callback(el) === false) return
 
     let node = el.firstElementChild
 
     while (node) {
-        walkSkippingNestedComponents(node, callback, false)
+        walk(node, callback)
 
         node = node.nextElementSibling
     }
@@ -86,7 +72,7 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
 export function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name)
 
-    const xAttrRE = /x-(on|bind|data|text|html|model|if|else|show|cloak|transition|ref)/
+    const xAttrRE = /x-(on|bind|data|text|html|model|if|else|for|show|cloak|transition|ref)/
 
     return xAttrRE.test(name)
 }
@@ -97,7 +83,7 @@ export function getXAttrs(el, type) {
         .map(attr => {
             const name = replaceAtAndColonWithStandardSyntax(attr.name)
 
-            const typeMatch = name.match(/x-(on|bind|data|text|html|model|if|else|show|cloak|transition|ref)/)
+            const typeMatch = name.match(/x-(on|bind|data|text|html|model|if|for|else|show|cloak|transition|ref)/)
             const valueMatch = name.match(/:([a-zA-Z\-:]+)/)
             const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
 

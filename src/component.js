@@ -15,6 +15,7 @@ export default class Component {
         const initExpression = this.$el.getAttribute('x-init')
         const createdExpression = this.$el.getAttribute('x-created')
         const mountedExpression = this.$el.getAttribute('x-mounted')
+        const watchExpression = this.$el.getAttribute('x-watch')
 
         const unobservedData = saferEval(dataExpression, {})
 
@@ -66,17 +67,36 @@ export default class Component {
             // Alpine's got it's grubby little paws all over everything.
             saferEvalNoReturn(mountedExpression, this.$data)
         }
+
+        this.watchers = {}
+        if (watchExpression) {
+            this.watchers = saferEval(watchExpression, {})
+        }
+    }
+
+    triggerWatcher(propertyName, newValue, oldValue) {
+        if (! this.watchers[propertyName]) return
+
+        const action = this.watchers[propertyName]
+
+        this.evaluateCommandExpression(action, () => ({$newValue: newValue, $oldValue: oldValue}))
     }
 
     wrapDataInObservable(data) {
         var self = this
 
-        const proxyHandler = {
+        const proxyHandler = keyPrefix => ({
             set(obj, property, value) {
+                const oldValue = Reflect.get(obj, property)
+
                 const setWasSuccessful = Reflect.set(obj, property, value)
 
+                // check if a a watcher is defined for the property and trigger it
+                const propertyName = keyPrefix ? `${keyPrefix}.${property}` : property
+                self.triggerWatcher(propertyName, value, oldValue)
+
                 // Don't react to data changes for cases like the `x-created` hook.
-                if (self.pauseReactivity) return
+                if (self.pauseReactivity) return setWasSuccessful
 
                 debounce(() => {
                     self.updateElements(self.$el)
@@ -100,15 +120,18 @@ export default class Component {
                 // If accessing a nested property, retur this proxy recursively.
                 // This enables reactivity on setting nested data.
                 if (typeof target[key] === 'object' && target[key] !== null) {
-                    return new Proxy(target[key], proxyHandler)
+                    // Pass the key prefix so we can resolve the watcher key correctly
+                    const propertyName = keyPrefix ? `${keyPrefix}.${key}` : key
+
+                    return new Proxy(target[key], proxyHandler(propertyName))
                 }
 
                 // If none of the above, just return the flippin' value. Gawsh.
                 return target[key]
             }
-        }
+        })
 
-        return new Proxy(data, proxyHandler)
+        return new Proxy(data, proxyHandler())
     }
 
     walkAndSkipNestedComponents(el, callback, initializeComponentCallback = () => {}) {
@@ -240,6 +263,7 @@ export default class Component {
     }
 
     evaluateCommandExpression(expression, extraVars = () => {}) {
+        console.log('TRIGGERING', expression, extraVars)
         saferEvalNoReturn(expression, this.$data, extraVars())
     }
 
@@ -265,6 +289,10 @@ export default class Component {
                             this.$data[key] = rawData[key]
                         }
                     })
+                }
+
+                if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-watch') {
+                    this.watchers = saferEval(mutations[i].target.getAttribute('x-watch'), {})
                 }
 
                 if (mutations[i].addedNodes.length > 0) {

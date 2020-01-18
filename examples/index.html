@@ -336,6 +336,18 @@
                         </div>
                     </td>
                 </tr>
+
+                <tr>
+                    <td>x-watch</td>
+                    <td>
+                        <div x-data="{ foo: '---', bar: '' }" x-watch="{ foo: 'bar = \'Old value was \' + $oldValue + \', new value is \' + $newValue' }">
+                            Foo: <span x-text="foo"></span><br>
+                            Bar: <span x-text="bar"></span><br>
+                            <button x-on:click="foo = new Date().toString()">Update foo</button>
+                        </div>
+                    </td>
+                </tr>
+
             </tbody>
         </table>
     </body>

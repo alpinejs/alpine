@@ -158,7 +158,7 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-init`
-**Example:** `<div x-data"{ foo: 'bar' }" x-init="foo = 'baz"></div>`
+**Example:** `<div x-data"{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
 
 **Structure:** `<div x-data="..." x-init="[expression]"></div>`
 

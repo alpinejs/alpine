@@ -202,7 +202,14 @@ export default class Component {
                     break;
 
                 case 'text':
-                    el.innerText = this.evaluateReturnExpression(expression, extraVars)
+                    var output = this.evaluateReturnExpression(expression, extraVars);
+
+                    // If nested model key is undefined, set the default value to empty string.
+                    if (output === undefined && expression.match(/\./).length) {
+                        output = ''
+                    }
+
+                    el.innerText = output
                     break;
 
                 case 'html':

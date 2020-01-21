@@ -257,9 +257,9 @@ export default class Component {
     }
 
     getDispatchFunction (el) {
-        return (event, detailObject = null) => {
+        return (event, detail = {}) => {
             el.dispatchEvent(new CustomEvent(event, {
-                detail: detailObject,
+                detail,
                 bubbles: true,
             }))
         }

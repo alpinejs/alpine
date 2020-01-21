@@ -3,7 +3,7 @@ import { transitionIn, transitionOut, getXAttrs } from '../utils'
 export function handleForDirective(component, el, expression, initialUpdate) {
     const { single, bunch, iterator1, iterator2 } = parseFor(expression)
 
-    var items = component.evaluateReturnExpression(bunch)
+    var items = component.evaluateReturnExpression(el, bunch)
 
     // As we walk the array, we'll also walk the DOM (updating/creating as we go).
     var previousEl = el
@@ -118,6 +118,6 @@ function getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, i
     if (iterator2) keyAliases[iterator2] = group
 
     return keyAttr
-        ? component.evaluateReturnExpression(keyAttr.expression, () => keyAliases)
+        ? component.evaluateReturnExpression(el, keyAttr.expression, () => keyAliases)
         : index
 }

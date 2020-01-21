@@ -203,10 +203,12 @@ export default class Component {
 
                 case 'text':
                     var output = this.evaluateReturnExpression(expression, extraVars);
-                    // If nested model key is undefined, set the default value to empty string
-                    if ( undefined === output && expression.match(/\./).length ) {
+
+                    // If nested model key is undefined, set the default value to empty string.
+                    if (output === undefined && expression.match(/\./).length) {
                         output = ''
                     }
+
                     el.innerText = output
                     break;
 

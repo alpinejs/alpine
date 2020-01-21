@@ -406,9 +406,9 @@ These behave exactly like VueJs's transition directives, except they have differ
 ### `$refs`
 **Example:**
 ```html
-<span x-ref="foo">
+<span x-ref="foo"></span>
 
-<button x-on:click="$refs.foo.innerText = 'bar'">
+<button x-on:click="$refs.foo.innerText = 'bar'"></button>
 ```
 
 `$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
@@ -425,7 +425,7 @@ These behave exactly like VueJs's transition directives, except they have differ
             $nextTick(() => { console.log($event.target.innerText) });
         "
         x-text="fruit"
-    >
+    ></button>
 </div>
 ```
 

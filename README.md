@@ -14,7 +14,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.8.2/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.9.5/dist/alpine.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -26,7 +26,7 @@ npm i alpinejs
 
 Include it in your script.
 ```js
-import Alpine from 'alpinejs'
+import 'alpinejs'
 ```
 
 For IE11, polyfills will need to be provided. Please load the following scripts before the Alpine script above.
@@ -84,7 +84,7 @@ You can even use it for non-trivial things:
 
 ## Learn
 
-There are 12 directives available to you:
+There are 13 directives available to you:
 
 | Directive
 | --- |
@@ -98,6 +98,7 @@ There are 12 directives available to you:
 | [`x-html`](#x-html) |
 | [`x-ref`](#x-ref) |
 | [`x-if`](#x-if) |
+| [`x-for`](#x-for) |
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
@@ -157,7 +158,7 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-init`
-**Example:** `<div x-data"{ foo: 'bar' }" x-init="foo = 'baz"></div>`
+**Example:** `<div x-data"{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
 
 **Structure:** `<div x-data="..." x-init="[expression]"></div>`
 
@@ -321,29 +322,43 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 
 ---
 
+### `x-for`
+**Example:**
+```html
+<template x-for="item in items" :key="item">
+    <div x-text="item"></div>
+</template>
+```
+
+`x-for` is available for cases when you want to create new DOM nodes for each item in an array. This should appear similar to `v-for` in Vue, with one exception of needing to exist on a `template` tag, and not a regular DOM element.
+
+> Note: the `:key` binding is optional, but HIGHLY recommended.
+
+---
+
 ### `x-transition`
 **Example:**
 ```html
 <div
     x-show="open"
-    x-transition:enter="ease-out transition-slow"
-    x-transition:enter-start="opacity-0 scale-90"
-    x-transition:enter-end="opacity-100 scale-100"
-    x-transition:leave="ease-in transition-slow"
-    x-transition:leave-start="opacity-100 scale-100"
-    x-transition:leave-end="opacity-0 scale-90"
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="opacity-0 transform scale-90"
+    x-transition:enter-end="opacity-100 transform scale-100"
+    x-transition:leave="transition ease-in duration-300"
+    x-transition:leave-start="opacity-100 transform scale-100"
+    x-transition:leave-end="opacity-0 transform scale-90"
 >...</div>
 ```
 
 ```html
 <template x-if="open">
     <div
-        x-transition:enter="ease-out transition-slow"
-        x-transition:enter-start="opacity-0 scale-90"
-        x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="ease-in transition-slow"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-90"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 transform scale-90"
+        x-transition:enter-end="opacity-100 transform scale-100"
+        x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-90"
     >...</div>
 </template>
 ```

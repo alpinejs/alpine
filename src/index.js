@@ -32,8 +32,8 @@ const Alpine = {
         })
     },
 
-    discoverUninitializedComponents: function (callback) {
-        const rootEls = document.querySelectorAll('[x-data]');
+    discoverUninitializedComponents: function (callback, el = null) {
+        const rootEls = (el || document).querySelectorAll('[x-data]');
 
         Array.from(rootEls)
             .filter(el => el.__x === undefined)
@@ -60,10 +60,11 @@ const Alpine = {
 
                         // Discard any changes happening within an existing component.
                         // They will take care of themselves.
-                        if (node.closest('[x-data]')) return
+                        if (node.parentElement.closest('[x-data]')) return
 
-                        // This is a new top-level component.
-                        if (node.matches('[x-data]')) callback(node)
+                        this.discoverUninitializedComponents((el) => {
+                            this.initializeComponent(el)
+                        }, node.parentElement)
                     })
                 }
               }
@@ -73,7 +74,9 @@ const Alpine = {
     },
 
     initializeComponent: function (el) {
-        el.__x = new Component(el)
+        if (! el.__x) {
+            el.__x = new Component(el)
+        }
     }
 }
 

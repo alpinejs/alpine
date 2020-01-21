@@ -241,3 +241,24 @@ test('x-model binds nested keys', async () => {
         expect(document.querySelector('span').innerText).toEqual('bar')
     })
 })
+
+test('x-model undefined nested model key defaults to empty string', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ some: { nested: {} } }">
+            <input type="text" x-model="some.nested.key">
+            <span x-text="some.nested.key"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('')
+    expect(document.querySelector('span').innerText).toEqual('')
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('bar')
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
+})

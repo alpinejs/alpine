@@ -202,7 +202,7 @@ export default class Component {
                     break;
 
                 case 'text':
-                    var output = this.evaluateReturnExpression(expression, extraVars);
+                    var output = this.evaluateReturnExpression(el, expression, extraVars);
 
                     // If nested model key is undefined, set the default value to empty string.
                     if (output === undefined && expression.match(/\./).length) {
@@ -213,17 +213,17 @@ export default class Component {
                     break;
 
                 case 'html':
-                    el.innerHTML = this.evaluateReturnExpression(expression, extraVars)
+                    el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars)
                     break;
 
                 case 'show':
-                    var output = this.evaluateReturnExpression(expression, extraVars)
+                    var output = this.evaluateReturnExpression(el, expression, extraVars)
 
                     handleShowDirective(el, output, initialUpdate)
                     break;
 
                 case 'if':
-                    var output = this.evaluateReturnExpression(expression, extraVars)
+                    var output = this.evaluateReturnExpression(el, expression, extraVars)
 
                     handleIfDirective(el, output, initialUpdate)
                     break;
@@ -242,12 +242,27 @@ export default class Component {
         })
     }
 
-    evaluateReturnExpression(expression, extraVars = () => {}) {
-        return saferEval(expression, this.$data, extraVars())
+    evaluateReturnExpression(el, expression, extraVars = () => {}) {
+        return saferEval(expression, this.$data, {
+            ...extraVars(),
+            $dispatch: this.getDispatchFunction(el),
+        })
     }
 
-    evaluateCommandExpression(expression, extraVars = () => {}) {
-        saferEvalNoReturn(expression, this.$data, extraVars())
+    evaluateCommandExpression(el, expression, extraVars = () => {}) {
+        saferEvalNoReturn(expression, this.$data, {
+            ...extraVars(),
+            $dispatch: this.getDispatchFunction(el),
+        })
+    }
+
+    getDispatchFunction (el) {
+        return (event, detailObject = null) => {
+            el.dispatchEvent(new CustomEvent(event, {
+                detail: detailObject,
+                bubbles: true,
+            }))
+        }
     }
 
     listenForNewElementsToInitialize() {

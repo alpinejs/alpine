@@ -76,12 +76,13 @@ export function handleForDirective(component, el, expression, initialUpdate) {
 
     while(nextElementFromOldLoop) {
         const nextElementFromOldLoopImmutable = nextElementFromOldLoop
+        const nextSibling = nextElementFromOldLoop.nextElementSibling
 
         transitionOut(nextElementFromOldLoop, () => {
             nextElementFromOldLoopImmutable.remove()
         })
 
-        nextElementFromOldLoop = (nextElementFromOldLoop.nextElementSibling && nextElementFromOldLoop.nextElementSibling.__x_for_key !== undefined) ? nextElementFromOldLoop.nextElementSibling : false
+        nextElementFromOldLoop = (nextSibling && nextSibling.__x_for_key !== undefined) ? nextSibling : false
     }
 }
 

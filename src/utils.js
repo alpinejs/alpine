@@ -32,18 +32,6 @@ export function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase()
 }
 
-export function keyToModifier(key) {
-    switch (key) {
-        case '/':
-            return 'slash'
-        case ' ':
-        case 'Spacebar':
-            return 'space'
-        default:
-            return kebabCase(key)
-    }
-}
-
 export function walk(el, callback) {
     if (callback(el) === false) return
 
@@ -153,6 +141,7 @@ export function transitionOut(el, callback, forceSkip = false) {
 }
 
 export function transition(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
+    const originalClasses = el.__x_original_classes || []
     el.classList.add(...classesStart)
     el.classList.add(...classesDuring)
 
@@ -162,7 +151,8 @@ export function transition(el, classesDuring, classesStart, classesEnd, hook1, h
         hook1()
 
         requestAnimationFrame(() => {
-            el.classList.remove(...classesStart)
+            // Don't remove classes that were in the original class attribute.
+            el.classList.remove(...classesStart.filter(i => !originalClasses.includes(i)))
             el.classList.add(...classesEnd)
 
             setTimeout(() => {
@@ -171,8 +161,8 @@ export function transition(el, classesDuring, classesStart, classesEnd, hook1, h
                 // Adding an "isConnected" check, in case the callback
                 // removed the element from the DOM.
                 if (el.isConnected) {
-                    el.classList.remove(...classesDuring)
-                    el.classList.remove(...classesEnd)
+                    el.classList.remove(...classesDuring.filter(i => !originalClasses.includes(i)))
+                    el.classList.remove(...classesEnd.filter(i => !originalClasses.includes(i)))
                 }
             }, duration);
         })

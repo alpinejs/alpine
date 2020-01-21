@@ -34,7 +34,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         }
     } else if (attrName === 'class') {
         if (Array.isArray(value)) {
-            const originalClasses = el.__originalClasses || []
+            const originalClasses = el.__x_original_classes || []
             el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
         } else if (typeof value === 'object') {
             Object.keys(value).forEach(classNames => {
@@ -45,7 +45,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
                 }
             })
         } else {
-            const originalClasses = el.__originalClasses || []
+            const originalClasses = el.__x_original_classes || []
             const newClasses = value.split(' ')
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }

@@ -144,3 +144,61 @@ test('transition out', async () => {
         }, 10)
     )
 })
+
+test('original class attribute classes are preserved after transition finishes', async () => {
+    var frameStack = []
+
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frameStack.push(callback)
+    });
+
+    jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
+        return { transitionDuration: '.01s' }
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: false }">
+            <button x-on:click="show = ! show"></button>
+
+            <span
+                x-show="show"
+                class="enter"
+                x-transition:enter="enter"
+            ></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
+
+    document.querySelector('button').click()
+
+    // Wait out the intial Alpine refresh debounce.
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 5)
+    )
+
+    expect(document.querySelector('span').classList.contains('enter')).toEqual(true)
+    expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
+
+    frameStack.pop()()
+
+    expect(document.querySelector('span').classList.contains('enter')).toEqual(true)
+    expect(document.querySelector('span').getAttribute('style')).toEqual(null)
+
+    frameStack.pop()()
+
+    expect(document.querySelector('span').classList.contains('enter')).toEqual(true)
+    expect(document.querySelector('span').getAttribute('style')).toEqual(null)
+
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            expect(document.querySelector('span').classList.contains('enter')).toEqual(true)
+            expect(document.querySelector('span').getAttribute('style')).toEqual(null)
+            resolve();
+        }, 10)
+    )
+})

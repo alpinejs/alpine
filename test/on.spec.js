@@ -191,6 +191,31 @@ test('keydown combo modifiers', async () => {
     await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
 })
 
+test('keydown with specified key and stop modifier only stops for specified key', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <article x-on:keydown="count++">
+                <input type="text" x-on:keydown.enter.stop>
+            </article>
+
+            <span x-text="count"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'Escape' })
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
+
+    await timeout(25)
+    expect(document.querySelector('span').innerText).toEqual(1)
+})
+
 test('click away', async () => {
     // Because jsDom doesn't support .offsetHeight and offsetWidth, we have to
     // make our own implementation using a specific class added to the class. Ugh.

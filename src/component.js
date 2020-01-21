@@ -149,7 +149,7 @@ export default class Component {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
         if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
-            el.__originalClasses = el.getAttribute('class').split(' ')
+            el.__x_original_classes = el.getAttribute('class').split(' ')
         }
 
         this.registerListeners(el, extraVars)
@@ -262,7 +262,8 @@ export default class Component {
         const observer = new MutationObserver((mutations) => {
             for (let i=0; i < mutations.length; i++){
                 // Filter out mutations triggered from child components.
-                if (! mutations[i].target.closest('[x-data]').isSameNode(this.$el)) return
+                const closestParentComponent = mutations[i].target.closest('[x-data]')
+                if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) return
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
                     const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})

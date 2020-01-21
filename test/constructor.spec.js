@@ -232,3 +232,25 @@ test('auto-detect x-data property changes at run-time', async () => {
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
 })
+
+test('nested components only get registered once on initialization', async () => {
+    global.MutationObserver = class {
+        constructor(callback) {}
+        observe() {}
+    }
+
+    var initCount = 0
+    window.registerInit = function () {
+        initCount = initCount + 1
+    }
+
+    document.body.innerHTML = `
+        <div x-data x-init="registerInit()">
+            <div x-data x-init="registerInit()"></div>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(initCount).toEqual(2)
+})

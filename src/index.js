@@ -74,7 +74,9 @@ const Alpine = {
     },
 
     initializeComponent: function (el) {
-        el.__x = new Component(el)
+        if (! el.__x) {
+            el.__x = new Component(el)
+        }
     }
 }
 

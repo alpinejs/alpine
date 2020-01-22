@@ -101,6 +101,7 @@ There are 13 directives available to you:
 | [`x-for`](#x-for) |
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
+| [`x-watch`](#x-watch) |
 
 And 3 magic properties:
 
@@ -388,6 +389,22 @@ These behave exactly like VueJs's transition directives, except they have differ
     [x-cloak] { display: none; }
 </style>
 ```
+
+---
+
+### `x-watch`
+**Example:** `<div x-data="{ foo: 'bar', 'baz': '' }" x-watch="foo: 'baz = \'Foo updated\''"></div>`
+
+**Structure:** `<div x-data="..." x-watch="{[variable_name]: [expression], ...}"></div>`
+
+The value of `x-watch` is an object where each key is a variable to observe from the component scope and each value is a callback to run whenever the variable is updated..
+
+The callback can access any of the variables/functions defined in the component scope or in the global context plus 2 magic properties, `$oldValue` and `$newValue`, containing the old and new value of the observed variable.
+
+If you wish to observe a nested variable, you can use the dot notation in the property key. In this case, due to the way javascript deals with object properties, the key must be a string.
+`<div x-data="{ foo: {bar: 'baz'} }" x-watch="'foo.bar': '...'"></div>`
+
+Currently, deep watching as in VueJS is not supported.
 
 ### Magic Properties
 

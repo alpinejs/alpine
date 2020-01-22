@@ -74,14 +74,6 @@ export default class Component {
         }
     }
 
-    triggerWatcher(propertyName, newValue, oldValue) {
-        if (! this.watchers[propertyName]) return
-
-        const action = this.watchers[propertyName]
-
-        this.evaluateCommandExpression(action, () => ({$newValue: newValue, $oldValue: oldValue}))
-    }
-
     wrapDataInObservable(data) {
         var self = this
 
@@ -91,12 +83,12 @@ export default class Component {
 
                 const setWasSuccessful = Reflect.set(obj, property, value)
 
-                // check if a a watcher is defined for the property and trigger it
-                const propertyName = keyPrefix ? `${keyPrefix}.${property}` : property
-                self.triggerWatcher(propertyName, value, oldValue)
-
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return setWasSuccessful
+
+                // check if a watcher is defined for this property and trigger it
+                const propertyName = keyPrefix ? `${keyPrefix}.${property}` : property
+                self.triggerWatcher(propertyName, value, oldValue)
 
                 debounce(() => {
                     self.updateElements(self.$el)
@@ -359,5 +351,13 @@ export default class Component {
                 return ref
             }
         })
+    }
+
+    triggerWatcher(propertyName, newValue, oldValue) {
+        if (! this.watchers[propertyName]) return
+
+        const action = this.watchers[propertyName]
+
+        this.evaluateCommandExpression(this.$el, action, () => ({$newValue: newValue, $oldValue: oldValue}))
     }
 }

@@ -329,6 +329,17 @@
                 </tr>
 
                 <tr>
+                    <td>Dispatch</td>
+                    <td>
+                        <div x-data="{ foo: 'bar' }" x-on:custom-event="foo = $event.detail.newValue">
+                            <span x-text="foo"></span>
+
+                            <button x-on:click="$dispatch('custom-event', {newValue: 'baz'})">Turn 'bar' to 'baz'</button>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Cloak</td>
                     <td>
                         <div x-data="{}" x-cloak>

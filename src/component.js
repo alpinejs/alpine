@@ -172,7 +172,7 @@ export default class Component {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
         if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
-            el.__originalClasses = el.getAttribute('class').split(' ')
+            el.__x_original_classes = el.getAttribute('class').split(' ')
         }
 
         this.registerListeners(el, extraVars)
@@ -225,21 +225,28 @@ export default class Component {
                     break;
 
                 case 'text':
-                    el.innerText = this.evaluateReturnExpression(expression, extraVars)
+                    var output = this.evaluateReturnExpression(el, expression, extraVars);
+
+                    // If nested model key is undefined, set the default value to empty string.
+                    if (output === undefined && expression.match(/\./).length) {
+                        output = ''
+                    }
+
+                    el.innerText = output
                     break;
 
                 case 'html':
-                    el.innerHTML = this.evaluateReturnExpression(expression, extraVars)
+                    el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars)
                     break;
 
                 case 'show':
-                    var output = this.evaluateReturnExpression(expression, extraVars)
+                    var output = this.evaluateReturnExpression(el, expression, extraVars)
 
                     handleShowDirective(el, output, initialUpdate)
                     break;
 
                 case 'if':
-                    var output = this.evaluateReturnExpression(expression, extraVars)
+                    var output = this.evaluateReturnExpression(el, expression, extraVars)
 
                     handleIfDirective(el, output, initialUpdate)
                     break;
@@ -258,13 +265,27 @@ export default class Component {
         })
     }
 
-    evaluateReturnExpression(expression, extraVars = () => {}) {
-        return saferEval(expression, this.$data, extraVars())
+    evaluateReturnExpression(el, expression, extraVars = () => {}) {
+        return saferEval(expression, this.$data, {
+            ...extraVars(),
+            $dispatch: this.getDispatchFunction(el),
+        })
     }
 
-    evaluateCommandExpression(expression, extraVars = () => {}) {
-        console.log('TRIGGERING', expression, extraVars)
-        saferEvalNoReturn(expression, this.$data, extraVars())
+    evaluateCommandExpression(el, expression, extraVars = () => {}) {
+        saferEvalNoReturn(expression, this.$data, {
+            ...extraVars(),
+            $dispatch: this.getDispatchFunction(el),
+        })
+    }
+
+    getDispatchFunction (el) {
+        return (event, detail = {}) => {
+            el.dispatchEvent(new CustomEvent(event, {
+                detail,
+                bubbles: true,
+            }))
+        }
     }
 
     listenForNewElementsToInitialize() {
@@ -279,7 +300,8 @@ export default class Component {
         const observer = new MutationObserver((mutations) => {
             for (let i=0; i < mutations.length; i++){
                 // Filter out mutations triggered from child components.
-                if (! mutations[i].target.closest('[x-data]').isSameNode(this.$el)) return
+                const closestParentComponent = mutations[i].target.closest('[x-data]')
+                if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) return
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
                     const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})

@@ -1,7 +1,7 @@
 import { transitionIn, transitionOut } from '../utils'
 
 export function handleIfDirective(el, expressionResult, initialUpdate) {
-    if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags.`)
+    if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if`)
 
     const elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true
 

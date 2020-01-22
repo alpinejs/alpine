@@ -1,9 +1,14 @@
 import { arrayUnique } from '../utils'
 
 export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
-    var value = component.evaluateReturnExpression(expression, extraVars)
+    var value = component.evaluateReturnExpression(el, expression, extraVars)
 
     if (attrName === 'value') {
+        // If nested model key is undefined, set the default value to empty string.
+        if (value === undefined && expression.match(/\./).length) {
+            value = ''
+        }
+
         if (el.type === 'radio') {
             el.checked = el.value == value
         } else if (el.type === 'checkbox') {
@@ -29,7 +34,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         }
     } else if (attrName === 'class') {
         if (Array.isArray(value)) {
-            const originalClasses = el.__originalClasses || []
+            const originalClasses = el.__x_original_classes || []
             el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
         } else if (typeof value === 'object') {
             Object.keys(value).forEach(classNames => {
@@ -40,7 +45,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
                 }
             })
         } else {
-            const originalClasses = el.__originalClasses || []
+            const originalClasses = el.__x_original_classes || []
             const newClasses = value.split(' ')
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }

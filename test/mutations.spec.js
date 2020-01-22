@@ -1,6 +1,6 @@
 import Alpine from 'alpinejs'
 
-test('catch disconnected nodes that were used as targets in for any mutations', async () => {
+test('catch disconnected nodes that were used as targets for any mutations', async () => {
     const runObservers = []
 
     global.MutationObserver = class {

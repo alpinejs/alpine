@@ -54,3 +54,45 @@ test('x-watch on nested elements', async () => {
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual(5) })
 })
+
+test('x-watch changes are detected at runtime', async () => {
+    var runObservers = []
+
+    global.MutationObserver = class {
+        constructor(callback) { runObservers.push(callback) }
+        observe() {}
+    }
+
+    document.body.innerHTML = `
+        <div id="A" x-data="{ foo: { bar: '---' }, count: 0 }"">
+            <button x-on:click="foo.bar = (new Date()).toString()">Update foo</button>
+
+            <div x-text="foo.bar"></div>
+
+            <span x-text="count"></div>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(0) })
+
+    document.querySelector('#A').setAttribute('x-watch', "{ 'foo.bar': 'count = count + 1' }")
+
+    runObservers[0]([
+        {
+            target: document.querySelector('#A'),
+            type: 'attributes',
+            attributeName: 'x-watch',
+            addedNodes: [],
+        }
+    ])
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+})

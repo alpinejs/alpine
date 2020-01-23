@@ -35,7 +35,7 @@ export default class Component {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
             // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
             this.pauseReactivity = true
-            initReturnedCallback = saferEval(this.$el.getAttribute('x-init'), this.$data)
+            initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression)
             this.pauseReactivity = false
         }
 

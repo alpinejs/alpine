@@ -14,7 +14,7 @@
 </blockquote>
 <h2 id="install">Install</h2>
 <p><strong>From CDN:</strong> Add the following script to the end of your <code>&lt;head&gt;</code> section.</p>
-<pre><code class="lang-html">&lt;script src=&quot;https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.9.1/dist/alpine.js&quot; defer&gt;&lt;/script&gt;
+<pre><code class="lang-html">&lt;script src=&quot;https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.9.5/dist/alpine.js&quot; defer&gt;&lt;/script&gt;
 </code></pre>
 <p>That&#39;s it. It will initialize itself.</p>
 <p><strong>From NPM:</strong> Install the package from NPM.</p>
@@ -169,7 +169,7 @@
 </code></pre>
 <hr>
 <h3 id="x-init"><code>x-init</code></h3>
-<p><strong>Example:</strong> <code>&lt;div x-data&quot;{ foo: &#39;bar&#39; }&quot; x-init=&quot;foo = &#39;baz&quot;&gt;&lt;/div&gt;</code></p>
+<p><strong>Example:</strong> <code>&lt;div x-data=&quot;{ foo: &#39;bar&#39; }&quot; x-init=&quot;foo = &#39;baz&#39;&quot;&gt;&lt;/div&gt;</code></p>
 <p><strong>Structure:</strong> <code>&lt;div x-data=&quot;...&quot; x-init=&quot;[expression]&quot;&gt;&lt;/div&gt;</code></p>
 <p><code>x-init</code> runs an expression when a component is initialized.</p>
 <p>If you wish to run code AFTER Alpine has made it&#39;s initial updates to the DOM (something like a <code>mounted()</code> hook in VueJS), you can return a callback from <code>x-init</code>, and it will be run after:</p>
@@ -286,22 +286,22 @@
 <p><strong>Example:</strong></p>
 <pre><code class="lang-html">&lt;div
     x-show=&quot;open&quot;
-    x-transition:enter=&quot;ease-out transition-slow&quot;
-    x-transition:enter-start=&quot;opacity-0 scale-90&quot;
-    x-transition:enter-end=&quot;opacity-100 scale-100&quot;
-    x-transition:leave=&quot;ease-in transition-slow&quot;
-    x-transition:leave-start=&quot;opacity-100 scale-100&quot;
-    x-transition:leave-end=&quot;opacity-0 scale-90&quot;
+    x-transition:enter=&quot;transition ease-out duration-300&quot;
+    x-transition:enter-start=&quot;opacity-0 transform scale-90&quot;
+    x-transition:enter-end=&quot;opacity-100 transform scale-100&quot;
+    x-transition:leave=&quot;transition ease-in duration-300&quot;
+    x-transition:leave-start=&quot;opacity-100 transform scale-100&quot;
+    x-transition:leave-end=&quot;opacity-0 transform scale-90&quot;
 &gt;...&lt;/div&gt;
 </code></pre>
 <pre><code class="lang-html">&lt;template x-if=&quot;open&quot;&gt;
     &lt;div
-        x-transition:enter=&quot;ease-out transition-slow&quot;
-        x-transition:enter-start=&quot;opacity-0 scale-90&quot;
-        x-transition:enter-end=&quot;opacity-100 scale-100&quot;
-        x-transition:leave=&quot;ease-in transition-slow&quot;
-        x-transition:leave-start=&quot;opacity-100 scale-100&quot;
-        x-transition:leave-end=&quot;opacity-0 scale-90&quot;
+        x-transition:enter=&quot;transition ease-out duration-300&quot;
+        x-transition:enter-start=&quot;opacity-0 transform scale-90&quot;
+        x-transition:enter-end=&quot;opacity-100 transform scale-100&quot;
+        x-transition:leave=&quot;transition ease-in duration-300&quot;
+        x-transition:leave-start=&quot;opacity-100 transform scale-100&quot;
+        x-transition:leave-end=&quot;opacity-0 transform scale-90&quot;
     &gt;...&lt;/div&gt;
 &lt;/template&gt;
 </code></pre>

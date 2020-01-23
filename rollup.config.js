@@ -14,28 +14,19 @@ export default [{
             format: 'umd',
             sourcemap: true,
         },
-        plugins: [
-            resolve(),
-            filesize(),
-            terser({
-                compress: {
-                    drop_debugger: false,
-                },
-            }),
-            babel({
-                exclude: 'node_modules/**',
-                presets: [
-                    [
-                        '@babel/preset-env',
-                        {
-                            targets: {
-                                node: 'current',
-                            },
-                        },
-                    ],
-                ],
-            })
-        ]
+            plugins: [
+                resolve(),
+                filesize(),
+                terser({
+                    mangle: false,
+                    compress: {
+                        drop_debugger: false,
+                    },
+                }),
+                babel({
+                    exclude: 'node_modules/**'
+                })
+            ]
     },
     {
         input: 'src/index.js',
@@ -49,9 +40,10 @@ export default [{
             resolve(),
             filesize(),
             terser({
-                compress: {
-                    drop_debugger: false,
-                },
+                    mangle: false,
+                    compress: {
+                        drop_debugger: false,
+                    }
             }),
             babel({
                 babelrc: false,

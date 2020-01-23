@@ -108,6 +108,7 @@ And 3 magic properties:
 | --- |
 | [`$el`](#el) |
 | [`$refs`](#refs) |
+| [`$dispatch`](#dispatch) |
 | [`$nextTick`](#nexttick) |
 
 ### Directives
@@ -412,6 +413,32 @@ These behave exactly like VueJs's transition directives, except they have differ
 ```
 
 `$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+
+---
+
+### `$dispatch`
+**Example:**
+```html
+<div @custom-event="console.log($event.detail.foo)">
+    <button @click="$dispatch('custom-event', { foo: 'bar' })">
+    <!-- When clicked, will console.log "bar" -->
+</div>
+```
+
+`$dispatch` is a shortcut for creating a `CustomEvent` and dispatching it using `.dispatchEvent()` internally. There are lots of good use cases for passing data around and between components using custom events. [Read here](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events) for more information on the underlying `CustomEvent` system in browsers.
+
+You will notice that any data passed as the second parameter to `$dispatch('some-event', { some: 'data' })`, becomes available through the new events "detail" property: `$event.detail.some`. Attaching custom event data to the `.detail` property is standard practice for `CustomEvent`s in browsers. [Read here](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) for more info.
+
+You can also use `$dispatch()` to trigger data updates for `x-model` bindings. For example:
+
+```html
+<div x-data="{ foo: 'bar' }">
+    <span x-model="foo">
+        <button @click="$dispatch('input', 'baz')">
+        <!-- After the button is clicked, `x-model` will catch the bubbling "input" event, and update foo to "baz". -->
+    </span>
+</div>
+```
 
 ---
 

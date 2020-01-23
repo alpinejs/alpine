@@ -15,6 +15,7 @@ export default {
         resolve(),
         filesize(),
         terser({
+            mangle: false,
             compress: {
                 drop_debugger: false,
             },

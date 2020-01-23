@@ -121,3 +121,19 @@ test('callbacks registered within x-mounted can affect reactive data changes', a
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bob') })
 })
+
+test('x-init is capable of dispatching an event', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }" @update-foo="foo = $event.detail.foo">
+            <div x-data x-init="$dispatch('update-foo', { foo: 'baz' })"></div>
+
+            <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('baz')
+    })
+})

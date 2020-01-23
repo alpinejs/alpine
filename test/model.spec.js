@@ -262,3 +262,23 @@ test('x-model undefined nested model key defaults to empty string', async () => 
         expect(document.querySelector('span').innerText).toEqual('bar')
     })
 })
+
+test('x-model can listen for custom input event dispatches', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }" x-model="foo">
+            <button @click="$dispatch('input', 'baz')"></button>
+
+            <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual('bar')
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('baz')
+    })
+})

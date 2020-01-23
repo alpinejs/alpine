@@ -15,11 +15,11 @@ test('catch disconnected nodes that were used as targets for any mutations', asy
 
     Alpine.start()
 
-    runObservers[0]([
+    runObservers.forEach(cb => cb([
         {
             target: document.createElement('div'),
             type: 'childList',
             addedNodes: [ document.createElement('div') ],
         }
-    ])
+    ]))
 })

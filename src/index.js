@@ -60,7 +60,7 @@ const Alpine = {
 
                         // Discard any changes happening within an existing component.
                         // They will take care of themselves.
-                        if (node.parentElement.closest('[x-data]')) return
+                        if (node.parentElement && node.parentElement.closest('[x-data]')) return
 
                         this.discoverUninitializedComponents((el) => {
                             this.initializeComponent(el)

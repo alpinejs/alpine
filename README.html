@@ -363,9 +363,9 @@
 <p><code>$el</code> is a magic property that can be used to retrieve the root component DOM node.</p>
 <h3 id="-refs"><code>$refs</code></h3>
 <p><strong>Example:</strong></p>
-<pre><code class="lang-html">&lt;span x-ref=&quot;foo&quot;&gt;
+<pre><code class="lang-html">&lt;span x-ref=&quot;foo&quot;&gt;&lt;/span&gt;
 
-&lt;button x-on:click=&quot;$refs.foo.innerText = &#39;bar&#39;&quot;&gt;
+&lt;button x-on:click=&quot;$refs.foo.innerText = &#39;bar&#39;&quot;&gt;&lt;/button&gt;
 </code></pre>
 <p><code>$refs</code> is a magic property that can be used to retrieve DOM elements marked with <code>x-ref</code> inside the component. This is useful when you need to manually manipulate DOM elements.</p>
 <hr>
@@ -396,7 +396,7 @@
             $nextTick(() =&gt; { console.log($event.target.innerText) });
         &quot;
         x-text=&quot;fruit&quot;
-    &gt;
+    &gt;&lt;/button&gt;
 &lt;/div&gt;
 </code></pre>
 <p><code>$nextTick</code> is a magic property that allows you to only execute a given expression AFTER Alpine has made it&#39;s reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it&#39;s reflected any data updates you&#39;ve made.</p>

@@ -75,7 +75,7 @@ export default class Component {
                 const setWasSuccessful = Reflect.set(obj, property, value)
 
                 // Don't react to data changes for cases like the `x-created` hook.
-                if (self.pauseReactivity) return
+                if (self.pauseReactivity) return setWasSuccessful
 
                 debounce(() => {
                     self.updateElements(self.$el)

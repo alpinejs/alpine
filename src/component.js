@@ -73,7 +73,15 @@ export default class Component {
 
         const proxyHandler = {
             set(obj, property, value) {
-                const setWasSuccessful = Reflect.set(obj, property, value)
+                let setWasSuccessful = false
+
+                // If value is an Alpine proxy (i.e. an element returned when sorting a list of objects),
+                // we want to set the original element to avoid a matryoshka effect (nested proxies). :)
+                if (value['$isProxy']) {
+                    setWasSuccessful = Reflect.set(obj, property, value['$originalTarget'])
+                } else {
+                    setWasSuccessful = Reflect.set(obj, property, value)
+                }
 
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return setWasSuccessful
@@ -90,6 +98,14 @@ export default class Component {
                 return setWasSuccessful
             },
             get(target, key) {
+                if (key === "$isProxy") {
+                    return true;
+                }
+
+                if (key === "$originalTarget") {
+                    return target;
+                }
+
                 // If the property we are trying to get is a proxy, just return it.
                 // Like in the case of $refs
                 if (target[key] && target[key].isRefsProxy) return target[key]
@@ -97,7 +113,7 @@ export default class Component {
                 // If property is a DOM node, just return it. (like in the case of this.$el)
                 if (target[key] && target[key] instanceof Node) return target[key]
 
-                // If accessing a nested property, retur this proxy recursively.
+                // If accessing a nested property, return this proxy recursively.
                 // This enables reactivity on setting nested data.
                 if (typeof target[key] === 'object' && target[key] !== null) {
                     return new Proxy(target[key], proxyHandler)

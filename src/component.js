@@ -73,7 +73,11 @@ export default class Component {
 
         const proxyHandler = {
             set(obj, property, value) {
-                const setWasSuccessful = Reflect.set(obj, property, value)
+                // If value is an Alpine proxy (i.e. an element returned when sorting a list of objects),
+                // we want to set the original element to avoid a matryoshka effect (nested proxies).
+                const setWasSuccessful = value['$isAlpineProxy']
+                    ? Reflect.set(obj, property, value['$originalTarget'])
+                    : Reflect.set(obj, property, value)
 
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return setWasSuccessful
@@ -90,14 +94,20 @@ export default class Component {
                 return setWasSuccessful
             },
             get(target, key) {
+                // Provide a way to determine if this object is an Alpine proxy or not.
+                if (key === "$isAlpineProxy") return true
+
+                // Provide a hook to access the underlying "proxied" data directly.
+                if (key === "$originalTarget") return target
+
                 // If the property we are trying to get is a proxy, just return it.
                 // Like in the case of $refs
-                if (target[key] && target[key].isRefsProxy) return target[key]
+                if (target[key] && target[key].$isRefsProxy) return target[key]
 
                 // If property is a DOM node, just return it. (like in the case of this.$el)
                 if (target[key] && target[key] instanceof Node) return target[key]
 
-                // If accessing a nested property, retur this proxy recursively.
+                // If accessing a nested property, return this proxy recursively.
                 // This enables reactivity on setting nested data.
                 if (typeof target[key] === 'object' && target[key] !== null) {
                     return new Proxy(target[key], proxyHandler)
@@ -317,7 +327,7 @@ export default class Component {
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
         return new Proxy({}, {
             get(object, property) {
-                if (property === 'isRefsProxy') return true
+                if (property === '$isRefsProxy') return true
 
                 var ref
 

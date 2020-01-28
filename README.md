@@ -102,7 +102,7 @@ There are 13 directives available to you:
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
-And 3 magic properties:
+And 4 magic properties:
 
 | Magic Properties
 | --- |
@@ -407,9 +407,9 @@ These behave exactly like VueJs's transition directives, except they have differ
 ### `$refs`
 **Example:**
 ```html
-<span x-ref="foo">
+<span x-ref="foo"></span>
 
-<button x-on:click="$refs.foo.innerText = 'bar'">
+<button x-on:click="$refs.foo.innerText = 'bar'"></button>
 ```
 
 `$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
@@ -452,7 +452,7 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
             $nextTick(() => { console.log($event.target.innerText) });
         "
         x-text="fruit"
-    >
+    ></button>
 </div>
 ```
 

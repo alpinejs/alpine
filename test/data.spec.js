@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs'
-import { fireEvent, wait } from '@testing-library/dom'
+import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
     observe() {}
@@ -64,40 +64,21 @@ test('functions in x-data are reactive', async () => {
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('baz') })
 })
 
-test('Proxy are not nested and duplicated when manipulating an array', async () => {
+test('Proxies are not nested and duplicated when manipulating an array', async () => {
     const util = require('util')
 
     document.body.innerHTML = `
-        <div id="A" x-data="{ list: [ {name: 'foo'}, {name: 'bar'} ] }">
+        <div x-data="{ list: [ {name: 'foo'}, {name: 'bar'} ] }">
             <span x-text="list[0].name"></span>
             <button x-on:click="list.sort((a, b) => (a.name > b.name) ? 1 : -1)"></button>
         </div>
     `
+
     Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo') })
 
-    // Getters should return a proxy when the element is an object so we don't break reactivity
-    expect(util.types.isProxy(document.querySelector('#A').__x.$data.list[0])).toEqual(true)
-    expect(util.types.isProxy(document.querySelector('#A').__x.$data.list[1])).toEqual(true)
-    // Control values '$isProxy' should be set to true
-    expect(document.querySelector('#A').__x.$data.list[0].$isProxy).toEqual(true)
-    expect(document.querySelector('#A').__x.$data.list[1].$isProxy).toEqual(true)
-    // Original values should not be proxies.
-    expect(util.types.isProxy(document.querySelector('#A').__x.$data.list[0].$originalTarget)).toEqual(false)
-    expect(util.types.isProxy(document.querySelector('#A').__x.$data.list[1].$originalTarget)).toEqual(false)
-
-    // Reorder
     document.querySelector('button').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 
-    // Getters should return a proxy when the element is an object so we don't break reactivity
-    expect(util.types.isProxy(document.querySelector('#A').__x.$data.list[0])).toEqual(true)
-    expect(util.types.isProxy(document.querySelector('#A').__x.$data.list[1])).toEqual(true)
-    // Control values '$isProxy' should still be set to true
-    expect(document.querySelector('#A').__x.$data.list[0].$isProxy).toEqual(true)
-    expect(document.querySelector('#A').__x.$data.list[1].$isProxy).toEqual(true)
-    // Original values should not be proxies.
-    expect(util.types.isProxy(document.querySelector('#A').__x.$data.list[0].$originalTarget)).toEqual(false)
-    expect(util.types.isProxy(document.querySelector('#A').__x.$data.list[1].$originalTarget)).toEqual(false)
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })

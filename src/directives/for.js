@@ -36,8 +36,18 @@ export function handleForDirective(component, el, expression, initialUpdate) {
 
             currentEl.__x_for_alias = single
             currentEl.__x_for_value = i
-            component.updateElements(currentEl, () => {
-                return {[currentEl.__x_for_alias]: currentEl.__x_for_value}
+            component.initializeElements(currentEl, () => {
+                return new Proxy(
+                    { [currentEl.__x_for_alias]: currentEl.__x_for_value },
+                    {
+                        set(obj, property, value) {
+                            if (property === currentEl.__x_for_alias) {
+                                return Reflect.set(group, index, value)
+                            }
+                            return Reflect.set(obj, property, value)
+                        }
+                    }
+                )
             })
         } else {
             // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
@@ -60,8 +70,19 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             // always up to date for listener handlers that don't get re-registered.
             currentEl.__x_for_alias = single
             currentEl.__x_for_value = i
+
             component.initializeElements(currentEl, () => {
-                return {[currentEl.__x_for_alias]: currentEl.__x_for_value}
+                return new Proxy(
+                    {[currentEl.__x_for_alias]: currentEl.__x_for_value},
+                    {
+                        set(obj, property, value) {
+                            if (property === currentEl.__x_for_alias) {
+                                return Reflect.set(group, index, value)
+                            }
+                            return Reflect.set(obj, property, value)
+                        }
+                    }
+                )
             })
         }
 

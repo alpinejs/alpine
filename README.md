@@ -102,7 +102,7 @@ There are 13 directives available to you:
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
-And 4 magic properties:
+And 5 magic properties:
 
 | Magic Properties
 | --- |

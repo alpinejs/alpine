@@ -108,8 +108,10 @@ And 4 magic properties:
 | --- |
 | [`$el`](#el) |
 | [`$refs`](#refs) |
+| [`$event`](#event) |
 | [`$dispatch`](#dispatch) |
 | [`$nextTick`](#nexttick) |
+
 
 ### Directives
 
@@ -413,6 +415,16 @@ These behave exactly like VueJs's transition directives, except they have differ
 ```
 
 `$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+
+---
+
+### `$event`
+**Example:**
+```html
+<input x-on:input="alert($event.target.value)">
+```
+
+`$event` is a magic property that can be used within an event listener to retrieve the native browser "Event" object.
 
 ---
 

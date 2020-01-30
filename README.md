@@ -102,14 +102,16 @@ There are 13 directives available to you:
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
-And 4 magic properties:
+And 5 magic properties:
 
 | Magic Properties
 | --- |
 | [`$el`](#el) |
 | [`$refs`](#refs) |
+| [`$event`](#event) |
 | [`$dispatch`](#dispatch) |
 | [`$nextTick`](#nexttick) |
+
 
 ### Directives
 
@@ -165,7 +167,7 @@ You can also mix-in multiple data objects using object destructuring:
 
 `x-init` runs an expression when a component is initialized.
 
-If you wish to run code AFTER Alpine has made it's initial updates to the DOM (something like a `mounted()` hook in VueJS), you can return a callback from `x-init`, and it will be run after:
+If you wish to run code AFTER Alpine has made its initial updates to the DOM (something like a `mounted()` hook in VueJS), you can return a callback from `x-init`, and it will be run after:
 
 `x-init="return () => { // we have access to the post-dom-initialization state here // }"`
 
@@ -188,7 +190,7 @@ If you wish to run code AFTER Alpine has made it's initial updates to the DOM (s
 
 **Structure:** `<input x-bind:[attribute]="[expression]">`
 
-`x-bind` sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component's data object, and will update every-time it's data is updated.
+`x-bind` sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component's data object, and will update every-time its data is updated.
 
 > Note: attribute bindings ONLY update when their dependencies update. The framework is smart enough to observe data changes and detect which bindings care about them.
 
@@ -224,7 +226,7 @@ Most common boolean attributes are supported, like `readonly`, `required`, etc.
 
 **Structure:** `<button x-on:[event]="[expression]"></button>`
 
-`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as it's value is executed.
+`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as its value is executed.
 
 If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
 
@@ -317,7 +319,7 @@ This is a helpful alternative to setting ids and using `document.querySelector` 
 
 For cases where `x-show` isn't sufficient (`x-show` sets an element to `display: none` if it's false), `x-if` can be used to  actually remove an element completely from the DOM.
 
-It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work it's magic.
+It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work its magic.
 
 > Note: `x-if` must have a single element root inside the `<template></template>` tag.
 
@@ -416,6 +418,16 @@ These behave exactly like VueJs's transition directives, except they have differ
 
 ---
 
+### `$event`
+**Example:**
+```html
+<input x-on:input="alert($event.target.value)">
+```
+
+`$event` is a magic property that can be used within an event listener to retrieve the native browser "Event" object.
+
+---
+
 ### `$dispatch`
 **Example:**
 ```html
@@ -456,7 +468,7 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 </div>
 ```
 
-`$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made it's reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+`$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made its reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
 
 ## License
 

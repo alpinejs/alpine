@@ -11,10 +11,11 @@ export function registerModelListener(component, el, modifiers, expression, extr
     const listenerExpression = `${expression} = rightSideOfExpression($event, ${expression})`
 
     registerListener(component, el, event, modifiers, listenerExpression, () => {
-        const data = extraVars()
-        data['rightSideOfExpression'] = generateModelAssignmentFunction(el, modifiers, expression)
+        let extraData = extraVars()
+        if (typeof extraData === 'undefined') extraData = {}
+        extraData['rightSideOfExpression'] = generateModelAssignmentFunction(el, modifiers, expression)
 
-        return data
+        return extraData
     })
 }
 

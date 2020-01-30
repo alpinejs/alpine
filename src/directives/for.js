@@ -36,7 +36,12 @@ export function handleForDirective(component, el, expression, initialUpdate) {
 
             currentEl.__x_for_alias = single
             currentEl.__x_for_value = i
-            component.initializeElements(currentEl, () => {
+
+            component.updateElements(currentEl, () => {
+                // We wrap the additional variables in a proxy
+                // so we will update the original variable
+                // if somebody reassign it from the item context
+                // or bind it to a model
                 return new Proxy(
                     { [currentEl.__x_for_alias]: currentEl.__x_for_value },
                     {
@@ -72,6 +77,10 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             currentEl.__x_for_value = i
 
             component.initializeElements(currentEl, () => {
+                // We wrap the additional variables in a proxy
+                // so we will update the original variable
+                // if somebody reassign it from the item context
+                // or bind it to a model
                 return new Proxy(
                     {[currentEl.__x_for_alias]: currentEl.__x_for_value},
                     {

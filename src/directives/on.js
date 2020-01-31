@@ -29,7 +29,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
 
         const handler = e => {
             if (isKeyEvent(event)) {
-                if (!useDebounce && isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
+                if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
                     return
                 }
             }

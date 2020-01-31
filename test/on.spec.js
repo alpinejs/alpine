@@ -299,3 +299,37 @@ test('event with colon', async () => {
 
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
+
+test('input with debounce modifier with 100 wait', async () => {
+    document.body.innerHTML = `
+        <div x-data="{}">
+            <input x-on:input.debounce.100="$refs.span.innerText = parseInt($refs.span.innerText,0) + 1" />
+            <span x-ref="span" x-text="0"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })    
+    
+    await timeout(100)
+
+    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(2) })    
+
+    await timeout(100)
+
+    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(3) })    
+})
+

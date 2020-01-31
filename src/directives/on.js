@@ -1,4 +1,4 @@
-import { kebabCase } from '../utils'
+import { kebabCase, debounce } from '../utils'
 
 export function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
     if (modifiers.includes('away')) {
@@ -24,9 +24,12 @@ export function registerListener(component, el, event, modifiers, expression, ex
         const listenerTarget = modifiers.includes('window')
             ? window : (modifiers.includes('document') ? document : el)
 
+        const useDebounce = modifiers.includes('debounce')
+        const wait = modifiers.length > 1 ? parseInt(modifiers[1]) : 250
+
         const handler = e => {
             if (isKeyEvent(event)) {
-                if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
+                if (!useDebounce && isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
                     return
                 }
             }
@@ -41,7 +44,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
             }
         }
 
-        listenerTarget.addEventListener(event, handler)
+        listenerTarget.addEventListener(event, useDebounce ? debounce(handler,wait) : handler)
     }
 }
 

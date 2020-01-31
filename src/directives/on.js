@@ -25,7 +25,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
             ? window : (modifiers.includes('document') ? document : el)
 
         const useDebounce = modifiers.includes('debounce')
-        const wait = modifiers.length > 1 ? parseInt(modifiers[1]) : 250
+        var wait = modifiers[modifiers.indexOf('debounce')+1] || 250;
 
         const handler = e => {
             if (isKeyEvent(event)) {

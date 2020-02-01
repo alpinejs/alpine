@@ -265,7 +265,6 @@ test('supports short syntax', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">
             <button @click="foo = 'baz'"></button>
-
             <span x-bind:foo="foo"></span>
         </div>
     `
@@ -300,36 +299,54 @@ test('event with colon', async () => {
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
-test('input with debounce modifier with 100 wait', async () => {
+test('input with debounce modifier and 100 wait', async () => {
     document.body.innerHTML = `
-        <div x-data="{}">
-            <input x-on:input.debounce.100="$refs.span.innerText = parseInt($refs.span.innerText,0) + 1" />
-            <span x-ref="span" x-text="0"></span>
+        <div x-data="{foo: 0}">
+          <input x-on:input.debounce.100="foo = foo+1" />
+          <span x-text="foo"></span>
         </div>
     `
 
     Alpine.start()
 
-    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
-    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
-    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })    
+    // At this point, wait time has not passed, so counter is still zero
+    await wait( () => { expect(document.querySelector('span').innerText).toEqual(0) })
     
     await timeout(100)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
-    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
-    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
     
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(2) })    
+    await timeout(100)
+    
+    // At this point, wait time has passed twice, so counter is 2
+    await wait( () => { expect(document.querySelector('span').innerText).toEqual(2) })
+})
+
+test('keyup with key modifier and debounce with 100 wait', async () => {
+    document.body.innerHTML = `
+        <div x-data="{foo: 0}">
+          <input x-on:keyDown.a.debounce.100="foo = foo+1" />
+          <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'b' })
 
     await timeout(100)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
-    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
-    fireEvent.input(document.querySelector('input'), { target: { value: '1' }})
+    await wait( () => { expect(document.querySelector('span').innerText).toEqual(0) })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(3) })    
+    fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
+    fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
+
+    await timeout(100)
+
+    await wait( () => { expect(document.querySelector('span').innerText).toEqual(1) })
 })
 

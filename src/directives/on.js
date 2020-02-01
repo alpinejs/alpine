@@ -25,7 +25,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
             ? window : (modifiers.includes('document') ? document : el)
 
         const useDebounce = modifiers.includes('debounce')
-        var wait = parseInt(modifiers[modifiers.indexOf('debounce')+1]) || 250
+        const wait = parseInt(modifiers[modifiers.indexOf('debounce')+1]) || 250
 
         const handler = e => {
             if (isKeyEvent(event)) {
@@ -62,6 +62,14 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
         return ! ['window', 'document', 'prevent', 'stop'].includes(i)
     })
+
+    // Extra check for debounce modifier to remove both debounce and optional wait modifier
+    if ( modifiers.includes('debounce') ) {
+        const debounceIndex = modifiers.indexOf('debounce');
+        keyModifiers = modifiers.filter( (modifier, index) => {
+            return ![debounceIndex,debounceIndex+1].includes(index)
+        })
+    }
 
     // If no modifier is specified, we'll call it a press.
     if (keyModifiers.length === 0) return false

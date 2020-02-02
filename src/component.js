@@ -328,7 +328,7 @@ export default class Component {
         if (window.document.documentMode) {
             this.walkAndSkipNestedComponents(self.$el, el => {
                 if (el.hasAttribute('x-ref')) {
-                    refObj.el = true
+                    refObj[el.getAttribute('x-ref')] = true
                 }
             })
         }

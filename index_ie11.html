@@ -3,22 +3,44 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge;"/>
 
-    <style>
-     .hidden { display: none; }
-    [x-cloak] { display: none; }
-    .opacity-0 { opacity: 0; }
-    .opacity-100 { opacity: 1; }
-    .transition-slow { transition-duration: 300ms; }
-    .transition-medium { transition-duration: 200ms; }
-    .transition-faster { transition-duration: 100ms; }
-    .scale-90 { transform: scale(0.9); }
-    .scale-100 { transform: scale(1); }
-    .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
-    .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
-    </style>
+<style>
+	.hidden {
+		display: none;
+	}
+	[x-cloak] {
+		display: none;
+	}
+	.opacity-0 {
+		opacity: 0;
+	}
+	.opacity-100 {
+		opacity: 1;
+	}
+	.transition-slow {
+		transition-duration: 300ms;
+	}
+	.transition-medium {
+		transition-duration: 200ms;
+	}
+	.transition-faster {
+		transition-duration: 100ms;
+	}
+	.scale-90 {
+		transform: scale(0.9);
+	}
+	.scale-100 {
+		transform: scale(1);
+	}
+	.ease-in {
+		transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+	}
+	.ease-out {
+		transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+	}
+</style>
 
     <script
-src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set%2CString.prototype.startsWith%2CArray.prototype.find%2CArray.prototype.findIndex%2CElement.prototype.closest">
+src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set%2CString.prototype.startsWith%2CArray.prototype.find%2CArray.prototype.findIndex%2CElement.prototype.closest%2CElement.prototype.remove">
 
     </script>
 
@@ -301,6 +323,7 @@ src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.fr
                         <div x-data="initialData()" x-init="init()">
                             <div :style="'width: '+width+'px; background: purple;'">hey</div>
                             <button x-on:click="console.log($refs.inc)">Click for ref</button>
+                            <button x-on:click="increaseSize()">Increase bar</button>
 
                             <button x-ref="inc">increase</button>
                         </div>
@@ -310,10 +333,14 @@ src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.fr
                                 return {
                                     width: 20,
                                     init: function() {
-                                        // console.log(this.$refs.inc);
-                                        // this.$refs.inc.addEventListener('click', function() {
-                                        //     this.width = this.width + 20
-                                        // })
+                                        this.$refs.inc.addEventListener('click', function() {
+                                            this.width = this.width + 20
+                                        })
+                                    },
+                                    increaseSize: function() {
+                                        this.width = this.width + 20
+                                        this.$refs.inc.innerText = "expanded";
+                                        console.log(this.$refs.inc)
                                     }
                                 }
                             }

@@ -321,6 +321,10 @@ export default class Component {
         var self = this
 
         var refObj = {}
+        
+        //add any properties that might be necessary for ie11 proxy
+        refObj.$isRefsProxy = false;
+        refObj.$isAlpineProxy = false;
 
         // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
         // we just loop on the element, look for any x-ref and create a the property on a fake object.

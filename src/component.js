@@ -18,7 +18,17 @@ export default class Component {
 
         const unobservedData = saferEval(dataExpression, {})
 
-        // Add our magic properties to the original data for access.
+        // For IE11, add our magic properties to the original data for access.
+        // Since the polyfill proxy does not allow properties to be added after creation 
+        unobservedData.$el = ''
+        unobservedData.$refs = ''
+        unobservedData.$nextTick = ''
+
+        // Construct a Proxy-based observable. This will be used to handle reactivity.
+        this.$data = this.wrapDataInObservable(unobservedData)
+
+        // After making user-supplied data methods reactive, we can now add
+        // our magic properties to the original data for access.
         unobservedData.$el = this.$el
         unobservedData.$refs = this.getRefsProxy()
 
@@ -26,9 +36,6 @@ export default class Component {
         unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)
         }
-
-        // Construct a Proxy-based observable. This will be used to handle reactivity.
-        this.$data = this.wrapDataInObservable(unobservedData)
 
         var initReturnedCallback
         if (initExpression) {

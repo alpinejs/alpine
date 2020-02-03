@@ -23,8 +23,6 @@ export default class Component {
         unobservedData.$el = ''
         unobservedData.$refs = ''
         unobservedData.$nextTick = ''
-        // unobservedData.$isAlpineProxy = ''
-        // unobservedData.$isRefsProxy = ''
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
         this.$data = this.wrapDataInObservable(unobservedData)

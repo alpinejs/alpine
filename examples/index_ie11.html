@@ -19,13 +19,16 @@
     </style>
 
     <script
-        src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set%2CString.prototype.startsWith%2CArray.prototype.find%2CArray.prototype.findIndex%2CElement.prototype.closest%2CElement.prototype.remove%2CCustomEvent">
+        src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set%2CString.prototype.startsWith%2CArray.prototype.find%2CArray.prototype.findIndex%2CElement.prototype.closest%2CElement.prototype.remove">
     </script>
 
 
     <script src="https://cdn.jsdelivr.net/npm/proxy-polyfill@0.3.0/proxy.min.js"></script>
 
-    <script src="dist/alpine-ie11.js"></script>
+
+    </script>
+
+    <script src="/dist/alpine-ie11.js"></script>
     <!--
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v0.4.0/dist/project-x.js" defer></script>
     -->
@@ -52,15 +55,19 @@
         <input type="text" x-model="text">
     </div>
 
-    <div x-data="{ text: 'foo'}">
-        <div x-on:custom-event="console.log($event.detail.foo)">
-            <button x-on:click="$dispatch('custom-event', { foo: 'bar' })">
-                Click
-                <!-- When clicked, will console.log "bar" -->
-            </button>
-        </div>
-    </div>
-
+<div x-data="{ text: 'foo'}">
+	<div x-on:custom-event="console.log($event.detail.foo)">
+    <br>
+		 When clicked, will console.log "bar"
+         <br>
+         (This does not work in IE11, adding CustomEvent polyfill breaks checkboxes)
+         <br>
+		<button x-on:click="$dispatch('custom-event', { foo: 'bar' })">
+			Click
+			<!-- When clicked, will console.log "bar" -->
+		</button>
+	</div>
+</div>
 
 
     <table>

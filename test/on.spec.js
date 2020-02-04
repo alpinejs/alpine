@@ -299,3 +299,28 @@ test('event with colon', async () => {
 
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
+
+
+test('prevent default action when an event returns false', async () => {
+    window.confirm = jest.fn().mockImplementation(() => false)
+
+    document.body.innerHTML = `
+        <div x-data="{}">
+            <input type="checkbox" x-on:click="return confirm('are you sure?')">
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').checked).toEqual(false)
+
+    document.querySelector('input').click()
+
+    expect(document.querySelector('input').checked).toEqual(false)
+
+    window.confirm = jest.fn().mockImplementation(() => true)
+
+    document.querySelector('input').click()
+
+    expect(document.querySelector('input').checked).toEqual(true)
+})

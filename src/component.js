@@ -260,7 +260,7 @@ export default class Component {
     }
 
     evaluateCommandExpression(el, expression, extraVars = () => {}) {
-        saferEvalNoReturn(expression, this.$data, {
+        return saferEvalNoReturn(expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
         })

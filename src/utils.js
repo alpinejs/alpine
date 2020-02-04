@@ -44,8 +44,21 @@ export function walk(el, callback) {
     }
 }
 
+// Taken from vue-debounce
+export function convertTime (time) {
+  const [amt, t = 'ms'] = String(time).split(/(ms|s)/i)
+  const types = {
+    ms: 1,
+    s: 1000
+  }
+
+  return Number(amt) * types[t]
+}
+
 export function debounce(func, wait) {
     var timeout
+    const timer = typeof wait === 'number' ? wait : convertTime(wait)
+
     return function () {
         var context = this, args = arguments
         var later = function () {
@@ -53,7 +66,7 @@ export function debounce(func, wait) {
             func.apply(context, args)
         }
         clearTimeout(timeout)
-        timeout = setTimeout(later, wait)
+        timeout = setTimeout(later, timer)
     }
 }
 

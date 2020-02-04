@@ -14,7 +14,7 @@
 </blockquote>
 <h2 id="install">Install</h2>
 <p><strong>From CDN:</strong> Add the following script to the end of your <code>&lt;head&gt;</code> section.</p>
-<pre><code class="lang-html">&lt;script src=&quot;https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.9.5/dist/alpine.js&quot; defer&gt;&lt;/script&gt;
+<pre><code class="lang-html">&lt;script src=&quot;https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.9.8/dist/alpine.js&quot; defer&gt;&lt;/script&gt;
 </code></pre>
 <p>That&#39;s it. It will initialize itself.</p>
 <p><strong>From NPM:</strong> Install the package from NPM.</p>
@@ -117,7 +117,7 @@
 </tr>
 </tbody>
 </table>
-<p>And 3 magic properties:</p>
+<p>And 5 magic properties:</p>
 <table>
 <thead>
 <tr>
@@ -130,6 +130,9 @@
 </tr>
 <tr>
 <td><a href="#refs"><code>$refs</code></a></td>
+</tr>
+<tr>
+<td><a href="#event"><code>$event</code></a></td>
 </tr>
 <tr>
 <td><a href="#dispatch"><code>$dispatch</code></a></td>
@@ -175,7 +178,7 @@
 <p><strong>Example:</strong> <code>&lt;div x-data=&quot;{ foo: &#39;bar&#39; }&quot; x-init=&quot;foo = &#39;baz&#39;&quot;&gt;&lt;/div&gt;</code></p>
 <p><strong>Structure:</strong> <code>&lt;div x-data=&quot;...&quot; x-init=&quot;[expression]&quot;&gt;&lt;/div&gt;</code></p>
 <p><code>x-init</code> runs an expression when a component is initialized.</p>
-<p>If you wish to run code AFTER Alpine has made it&#39;s initial updates to the DOM (something like a <code>mounted()</code> hook in VueJS), you can return a callback from <code>x-init</code>, and it will be run after:</p>
+<p>If you wish to run code AFTER Alpine has made its initial updates to the DOM (something like a <code>mounted()</code> hook in VueJS), you can return a callback from <code>x-init</code>, and it will be run after:</p>
 <p><code>x-init=&quot;return () =&gt; { // we have access to the post-dom-initialization state here // }&quot;</code></p>
 <hr>
 <h3 id="x-show"><code>x-show</code></h3>
@@ -189,7 +192,7 @@
 </blockquote>
 <p><strong>Example:</strong> <code>&lt;input x-bind:type=&quot;inputType&quot;&gt;</code></p>
 <p><strong>Structure:</strong> <code>&lt;input x-bind:[attribute]=&quot;[expression]&quot;&gt;</code></p>
-<p><code>x-bind</code> sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component&#39;s data object, and will update every-time it&#39;s data is updated.</p>
+<p><code>x-bind</code> sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component&#39;s data object, and will update every-time its data is updated.</p>
 <blockquote>
 <p>Note: attribute bindings ONLY update when their dependencies update. The framework is smart enough to observe data changes and detect which bindings care about them.</p>
 </blockquote>
@@ -212,7 +215,7 @@
 </blockquote>
 <p><strong>Example:</strong> <code>&lt;button x-on:click=&quot;foo = &#39;bar&#39;&quot;&gt;&lt;/button&gt;</code></p>
 <p><strong>Structure:</strong> <code>&lt;button x-on:[event]=&quot;[expression]&quot;&gt;&lt;/button&gt;</code></p>
-<p><code>x-on</code> attaches an event listener to the element it&#39;s declared on. When that event is emitted, the JavaScript expression set as it&#39;s value is executed.</p>
+<p><code>x-on</code> attaches an event listener to the element it&#39;s declared on. When that event is emitted, the JavaScript expression set as its value is executed.</p>
 <p>If any data is modified in the expression, other element attributes &quot;bound&quot; to this data, will be updated.</p>
 <p><strong><code>keydown</code> modifiers</strong></p>
 <p><strong>Example:</strong> <code>&lt;input type=&quot;text&quot; x-on:keydown.escape=&quot;open = false&quot;&gt;</code></p>
@@ -269,7 +272,7 @@
 <p><strong>Example:</strong> <code>&lt;template x-if=&quot;true&quot;&gt;&lt;div&gt;Some Element&lt;/div&gt;&lt;/template&gt;</code></p>
 <p><strong>Structure:</strong> <code>&lt;template x-if=&quot;[expression]&quot;&gt;&lt;div&gt;Some Element&lt;/div&gt;&lt;/template&gt;</code></p>
 <p>For cases where <code>x-show</code> isn&#39;t sufficient (<code>x-show</code> sets an element to <code>display: none</code> if it&#39;s false), <code>x-if</code> can be used to  actually remove an element completely from the DOM.</p>
-<p>It&#39;s important that <code>x-if</code> is used on a <code>&lt;template&gt;&lt;/template&gt;</code> tag because Alpine doesn&#39;t use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work it&#39;s magic.</p>
+<p>It&#39;s important that <code>x-if</code> is used on a <code>&lt;template&gt;&lt;/template&gt;</code> tag because Alpine doesn&#39;t use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work its magic.</p>
 <blockquote>
 <p>Note: <code>x-if</code> must have a single element root inside the <code>&lt;template&gt;&lt;/template&gt;</code> tag.</p>
 </blockquote>
@@ -369,6 +372,12 @@
 </code></pre>
 <p><code>$refs</code> is a magic property that can be used to retrieve DOM elements marked with <code>x-ref</code> inside the component. This is useful when you need to manually manipulate DOM elements.</p>
 <hr>
+<h3 id="-event"><code>$event</code></h3>
+<p><strong>Example:</strong></p>
+<pre><code class="lang-html">&lt;input x-on:input=&quot;alert($event.target.value)&quot;&gt;
+</code></pre>
+<p><code>$event</code> is a magic property that can be used within an event listener to retrieve the native browser &quot;Event&quot; object.</p>
+<hr>
 <h3 id="-dispatch"><code>$dispatch</code></h3>
 <p><strong>Example:</strong></p>
 <pre><code class="lang-html">&lt;div @custom-event=&quot;console.log($event.detail.foo)&quot;&gt;
@@ -399,7 +408,7 @@
     &gt;&lt;/button&gt;
 &lt;/div&gt;
 </code></pre>
-<p><code>$nextTick</code> is a magic property that allows you to only execute a given expression AFTER Alpine has made it&#39;s reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it&#39;s reflected any data updates you&#39;ve made.</p>
+<p><code>$nextTick</code> is a magic property that allows you to only execute a given expression AFTER Alpine has made its reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it&#39;s reflected any data updates you&#39;ve made.</p>
 <h2 id="license">License</h2>
 <p>Copyright © 2019-2020 Caleb Porzio and contributors</p>
 <p>Licensed under the MIT license, see <a href="LICENSE.md">LICENSE.md</a> for details.</p>

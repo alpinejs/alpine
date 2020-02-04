@@ -202,3 +202,101 @@ test('original class attribute classes are preserved after transition finishes',
         }, 10)
     )
 })
+
+test('transition in not called when item is already visible', async () => {
+    // Hijack "requestAnimationFrame" for finer-tuned control in this test.
+    var frameStack = []
+
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frameStack.push(callback)
+    });
+
+    // Hijack "getComputeStyle" because js-dom is weird with it.
+    // (hardcoding 10ms transition time for later assertions)
+    jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
+        return { transitionDuration: '.01s' }
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: true }">
+            <button x-on:click="show = true"></button>
+
+            <span
+                x-show="show"
+                x-transition:enter="enter"
+                x-transition:enter-start="enter-start"
+                x-transition:enter-end="enter-end"
+            ></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('style')).toEqual(null)
+
+    document.querySelector('button').click()
+
+    // Wait out the intial Alpine refresh debounce.
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 5)
+    )
+
+    // No animation queued
+    expect(frameStack.pop()).toEqual(undefined)
+
+    expect(document.querySelector('span').classList.contains('enter')).toEqual(false)
+    expect(document.querySelector('span').classList.contains('enter-start')).toEqual(false)
+    expect(document.querySelector('span').classList.contains('enter-end')).toEqual(false)
+    expect(document.querySelector('span').getAttribute('style')).toEqual(null)
+})
+
+test('transition out not called when item is already hidden', async () => {
+    // Hijack "requestAnimationFrame" for finer-tuned control in this test.
+    var frameStack = []
+
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frameStack.push(callback)
+    });
+
+    // Hijack "getComputeStyle" because js-dom is weird with it.
+    // (hardcoding 10ms transition time for later assertions)
+    jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
+        return { transitionDuration: '.01s' }
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: false }">
+            <button x-on:click="show = false"></button>
+
+            <span
+                x-show="show"
+                x-transition:leave="leave"
+                x-transition:leave-start="leave-start"
+                x-transition:leave-end="leave-end"
+            ></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
+
+    document.querySelector('button').click()
+
+    // Wait out the intial Alpine refresh debounce.
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 5)
+    )
+
+    // No animation queued
+    expect(frameStack.pop()).toEqual(undefined)
+
+    expect(document.querySelector('span').classList.contains('leave')).toEqual(false)
+    expect(document.querySelector('span').classList.contains('leave-start')).toEqual(false)
+    expect(document.querySelector('span').classList.contains('leave-end')).toEqual(false)
+    expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
+})

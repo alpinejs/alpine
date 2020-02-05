@@ -101,6 +101,24 @@
     <div x-data="{}" x-on:custom-event="alert('hello')">
         <button x-on:click="$dispatch('custom-event')">Send Alert</button>
     </div>
+
+
+    <h2>Dispatch 3 - Listen Window Level</h2>
+
+    <div x-data="{foo: 'bar'}" x-on:custom-event-bar.window="foo = $event.detail.newValue">
+            <span x-text="foo"></span>
+    </div>
+
+    <div x-data="{}" @custom-event-bar="console.log($event.detail.newValue)">
+        <div @custom-event-bar="console.log($event.detail.foo)">
+            <button
+                @click="$dispatch('custom-event-bar', { foo: 'bax1', newValue: 'bax2' })">
+                <!-- When clicked, will console.log "bar" -->
+                Click
+            </button>
+        </div>
+    </div>
+
     
 
     <h2>Binding</h2>

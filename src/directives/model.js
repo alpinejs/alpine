@@ -27,7 +27,7 @@ function generateModelAssignmentFunction(el, modifiers, expression) {
     }
 
     return (event, currentValue) => {
-        if (event instanceof CustomEvent) {
+        if (event instanceof CustomEvent && event.detail) {
             return event.detail
         } else if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle it's value inside the array.

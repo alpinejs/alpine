@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge;" />
+
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        [x-cloak] {
+            display: none;
+        }
+
+        .opacity-0 {
+            opacity: 0;
+        }
+
+        .opacity-100 {
+            opacity: 1;
+        }
+
+        .transition-slow {
+            transition-duration: 300ms;
+        }
+
+        .transition-medium {
+            transition-duration: 200ms;
+        }
+
+        .transition-faster {
+            transition-duration: 100ms;
+        }
+
+        .scale-90 {
+            transform: scale(0.9);
+        }
+
+        .scale-100 {
+            transform: scale(1);
+        }
+
+        .ease-in {
+            transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+        }
+
+        .ease-out {
+            transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+        }
+
+    </style>
+
+    <script
+        src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set%2CString.prototype.startsWith%2CArray.prototype.find%2CArray.prototype.findIndex%2CElement.prototype.closest%2CElement.prototype.remove">
+    </script>
+
+    <script>
+    // source: https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent
+;(function() {
+  if (typeof window.CustomEvent === "function") return false
+
+  function CustomEvent(event, params) {
+    params = params || { bubbles: false, cancelable: false, detail: undefined }
+    var evt = document.createEvent("CustomEvent")
+    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail)
+    return evt
+  }
+
+  CustomEvent.prototype = window.Event.prototype
+
+  window.CustomEvent = CustomEvent
+})()
+    
+    
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/proxy-polyfill@0.3.0/proxy.min.js"></script>
+
+    <script src="/dist/alpine-ie11.js"></script>
+    <!--
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v0.4.0/dist/project-x.js" defer></script>
+    -->
+</head>
+
+<body>
+
+
+
+    <h2>Dispatch 1</h2>
+
+
+    <div x-data="{ foo: 'bar' }" x-on:custom-event="foo = $event.detail.newValue">
+        <span x-text="foo"></span>
+
+        <button x-on:click="$dispatch('custom-event', {newValue: 'bazil'})">Turn 'bar' to 'baz'</button>
+    </div>
+
+    <h2>Dispatch 2</h2>
+
+    <div x-data="{}" x-on:custom-event="alert('hello')">
+        <button x-on:click="$dispatch('custom-event')">Send Alert</button>
+    </div>
+    
+
+    <h2>Binding</h2>
+
+    <div x-data="{ foo: 'bar'}">
+        Text:
+        <span x-text="JSON.stringify(foo)"></span>
+        <input type="text" x-model="foo">
+    </div>
+
+
+
+</body>
+
+</html>

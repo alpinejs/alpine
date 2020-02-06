@@ -5,7 +5,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
 
     if (attrName === 'value') {
         // If nested model key is undefined, set the default value to empty string.
-        if (value === undefined && (expression.match(/\./) || []).length) {
+        if (value === undefined && expression.match(/\./).length) {
             value = ''
         }
 

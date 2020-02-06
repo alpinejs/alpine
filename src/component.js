@@ -18,13 +18,13 @@ export default class Component {
 
         const unobservedData = saferEval(dataExpression, {})
 
-        // For IE11, add our magic properties to the original data for access.
-        // Since the polyfill proxy does not allow properties to be added after creation 
-        if (window.document.documentMode) {
-            unobservedData.$el = null 
-            unobservedData.$refs = null 
-            unobservedData.$nextTick = null 
-        }
+        /* IE11-ONLY:START */
+            // For IE11, add our magic properties to the original data for access.
+            // Since the polyfill proxy does not allow properties to be added after creation
+            unobservedData.$el = null
+            unobservedData.$refs = null
+            unobservedData.$nextTick = null
+        /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
         this.$data = this.wrapDataInObservable(unobservedData)
@@ -330,21 +330,22 @@ export default class Component {
         var self = this
 
         var refObj = {}
-        
-        //add any properties that might be necessary for ie11 proxy
-        refObj.$isRefsProxy = false;
-        refObj.$isAlpineProxy = false;
 
-        // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
-        // we just loop on the element, look for any x-ref and create a the property on a fake object.
-        // We don't need to put a real value since it will be resolved by the proxy class
-        if (window.document.documentMode) {
+        /* IE11-ONLY:START */
+            //add any properties that might be necessary for ie11 proxy
+            refObj.$isRefsProxy = false;
+            refObj.$isAlpineProxy = false;
+
+            // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
+            // we just loop on the element, look for any x-ref and create a the property on a fake object.
+            // We don't need to put a real value since it will be resolved by the proxy class
             this.walkAndSkipNestedComponents(self.$el, el => {
                 if (el.hasAttribute('x-ref')) {
                     refObj[el.getAttribute('x-ref')] = true
                 }
             })
-        }
+        /* IE11-ONLY:END */
+
 
         // One of the goals of this is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and

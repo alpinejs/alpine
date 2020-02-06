@@ -19,10 +19,10 @@
     </style>
 
     <script src="https://polyfill.io/v3/polyfill.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set%2CString.prototype.startsWith%2CArray.prototype.find%2CArray.prototype.findIndex%2CElement.prototype.closest%2CElement.prototype.remove%2CCustomEvent%2CElement.prototype.classList%2CHTMLTemplateElement"></script>
-    <script src="https://unpkg.com/shim-selected-options" async></script>
+    <script src="https://unpkg.com/shim-selected-options"></script>
     <script src="https://cdn.jsdelivr.net/npm/proxy-polyfill@0.3.0/proxy.min.js"></script>
 
-    <script src="/dist/alpine-ie11.js"></script>
+    <script src="/dist/alpine-ie11.js" defer></script>
     <!--
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v0.4.0/dist/project-x.js" defer></script>
     -->
@@ -38,7 +38,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>Simple x-if (not working in IE11)</td>
+                <td>Simple x-if</td>
                 <td>
                     <div x-data="{ show: false }">
                         <template x-if="show">
@@ -272,7 +272,7 @@
             </tr>
 
             <tr>
-                <td>Transitions (with x-if) (not working in IE11)</td>
+                <td>Transitions (with x-if)</td>
                 <td>
                     <div x-data="{ open: false }">
                         <button x-on:click="open= ! open">

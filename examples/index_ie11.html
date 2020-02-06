@@ -38,7 +38,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>Simple x-if</td>
+                <td>Simple x-if (not working in IE11)</td>
                 <td>
                     <div x-data="{ show: false }">
                         <template x-if="show">
@@ -210,7 +210,6 @@
                     </script>
                 </td>
             </tr>
-
             <tr>
                 <td>Transitions</td>
                 <td>
@@ -249,7 +248,7 @@
             </tr>
 
             <tr>
-                <td>Transitions (with x-if)</td>
+                <td>Transitions (with x-if) (not working in IE11)</td>
                 <td>
                     <div x-data="{ open: false }">
                         <button x-on:click="open= ! open">

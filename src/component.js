@@ -19,14 +19,12 @@ export default class Component {
         const unobservedData = saferEval(dataExpression, {})
 
         /* IE11-ONLY:START */
-        if (window.document.documentMode) {
             // For IE11, add our magic properties to the original data for access.
             // Since the polyfill proxy does not allow properties to be added after creation
-                unobservedData.$el = null
-                unobservedData.$refs = null
-                unobservedData.$nextTick = null
-            /* IE11-ONLY:END */
-        }
+            unobservedData.$el = null
+            unobservedData.$refs = null
+            unobservedData.$nextTick = null
+        /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
         this.$data = this.wrapDataInObservable(unobservedData)
@@ -334,7 +332,6 @@ export default class Component {
         var refObj = {}
 
         /* IE11-ONLY:START */
-        if (window.document.documentMode) {
             //add any properties that might be necessary for ie11 proxy
             refObj.$isRefsProxy = false;
             refObj.$isAlpineProxy = false;
@@ -347,7 +344,6 @@ export default class Component {
                     refObj[el.getAttribute('x-ref')] = true
                 }
             })
-        }
         /* IE11-ONLY:END */
 
 

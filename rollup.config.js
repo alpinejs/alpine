@@ -26,7 +26,7 @@ export default [{
                 exclude: 'node_modules/**'
             }),
             stripCode({
-                start_comment: 'IE11-ONLY:END',
+                start_comment: 'IE11-ONLY:START',
                 end_comment: 'IE11-ONLY:END'
             })
         ]

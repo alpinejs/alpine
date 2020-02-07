@@ -235,17 +235,19 @@ export default class Component {
     }
 
     evaluateReturnExpression(el, expression, extraVars = () => {}) {
-        return saferEval(expression, this.$data, {
-            ...extraVars(),
-            $dispatch: this.getDispatchFunction(el),
-        })
+        let extraVarsData = extraVars()
+        if (typeof extraVarsData === 'undefined') extraVarsData = {}
+        extraVarsData.$dispatch = this.getDispatchFunction(el)
+
+        return saferEval(expression, this.$data, extraVarsData)
     }
 
     evaluateCommandExpression(el, expression, extraVars = () => {}) {
-        return saferEvalNoReturn(expression, this.$data, {
-            ...extraVars(),
-            $dispatch: this.getDispatchFunction(el),
-        })
+        let extraVarsData = extraVars()
+        if (typeof extraVarsData === 'undefined') extraVarsData = {}
+        extraVarsData.$dispatch = this.getDispatchFunction(el)
+
+        return saferEvalNoReturn(expression, this.$data, extraVarsData)
     }
 
     getDispatchFunction (el) {

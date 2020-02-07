@@ -58,14 +58,14 @@ export function debounce(func, wait) {
 }
 
 export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
-    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var result; with($data) { result = ${expression} }; return result`))(
-        dataContext, ...Object.values(additionalHelperVariables)
+    return (new Function(['$data', '$extraVars'], `var result; with($extraVars) { with($data) { result = ${expression} } }; return result`))(
+        dataContext, additionalHelperVariables
     )
 }
 
 export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
-    return (new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
-        dataContext, ...Object.values(additionalHelperVariables)
+    return (new Function(['$data', '$extraVars'], `with($extraVars) { with($data) { ${expression} } }`))(
+        dataContext, additionalHelperVariables
     )
 }
 

@@ -36,9 +36,17 @@ export function handleForDirective(component, el, expression, initialUpdate) {
 
             currentEl.__x_for_alias = single
             currentEl.__x_for_value = i
-            component.updateElements(currentEl, () => {
-                return {[currentEl.__x_for_alias]: currentEl.__x_for_value}
+            var extraVars = {}
+            Object.defineProperty(extraVars, currentEl.__x_for_alias, {
+                get() {
+                    return currentEl.__x_for_value
+                },
+                set(newValue) {
+                    group[index] = newValue
+                },
+                configurable: true
             })
+            component.updateElements(currentEl, () => extraVars)
         } else {
             // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
             // extra items in the array that need to be added as new elements.
@@ -60,9 +68,17 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             // always up to date for listener handlers that don't get re-registered.
             currentEl.__x_for_alias = single
             currentEl.__x_for_value = i
-            component.initializeElements(currentEl, () => {
-                return {[currentEl.__x_for_alias]: currentEl.__x_for_value}
+            var extraVars = {}
+            Object.defineProperty(extraVars, currentEl.__x_for_alias, {
+                get() {
+                    return currentEl.__x_for_value
+                },
+                set(newValue) {
+                    group[index] = newValue
+                },
+                configurable: true
             })
+            component.initializeElements(currentEl, () => extraVars)
         }
 
         currentEl.__x_for_key = currentKey

@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs'
-import { wait } from '@testing-library/dom'
+import { wait, fireEvent } from '@testing-library/dom'
 
 global.MutationObserver = class {
     observe() {}
@@ -69,7 +69,7 @@ test('removes all elements when array is empty and previously had multiple items
     await wait(() => { expect(document.querySelectorAll('span').length).toEqual(0) })
 })
 
-test('elements inside of loop are reactive', async () => {
+test('elements inside of loop are reactive - update from component context', async () => {
     document.body.innerHTML = `
         <div x-data="{ items: ['first'], foo: 'bar' }">
             <button x-on:click="foo = 'baz'"></button>
@@ -96,6 +96,30 @@ test('elements inside of loop are reactive', async () => {
         expect(document.querySelector('h2').innerText).toEqual('baz')
     })
 })
+
+test('elements inside of loop are reactive - update from item context', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: ['first', 'second'] }">
+            <template x-for="item in items">
+                <div>
+                    <span x-text="item"></span>
+                    <button x-on:click="item = 'foo'"></button>
+                </div>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span')[0].innerText).toEqual('first')
+
+    document.querySelectorAll('button')[0].click()
+
+    await wait(() => {
+        expect(document.querySelectorAll('span')[0].innerText).toEqual('foo')
+    })
+})
+
 
 test('components inside of loop are reactive', async () => {
     document.body.innerHTML = `

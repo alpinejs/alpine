@@ -51,7 +51,11 @@ export function registerListener(component, el, event, modifiers, expression, ex
 
 function runListenerHandler(component, expression, e, extraVars) {
     return component.evaluateCommandExpression(e.target, expression, () => {
-        return {...extraVars(), '$event': e}
+        let extraVarsData = extraVars()
+        if (typeof extraVarsData === 'undefined') extraVarsData = {}
+        extraVarsData.$event = e
+
+        return extraVarsData
     })
 }
 

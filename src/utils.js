@@ -168,3 +168,26 @@ export function transition(el, classesDuring, classesStart, classesEnd, hook1, h
         })
     });
 }
+
+export function deepProxy(target, proxyHandler) {
+    // If target is null, return it.
+    if (target === null) return target;
+
+    // If target is not an object, return it.
+    if (typeof target !== 'object') return target;
+
+    // If target is a DOM node (like in the case of this.$el), return it.
+    if (target instanceof Node) return target
+
+    // If target is already an Alpine proxy, return it.
+    if (target['$isAlpineProxy']) return target;
+
+    // Otherwise proxy the properties recursively.
+    // This enables reactivity on setting nested data.
+    // Note that if a project is not a valid object, it won't be converted to a proxy
+    for (let property in target) {
+        target[property] = deepProxy(target[property], proxyHandler)
+    }
+
+    return new Proxy(target, proxyHandler)
+}

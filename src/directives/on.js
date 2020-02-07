@@ -38,10 +38,10 @@ export function registerListener(component, el, event, modifiers, expression, ex
 
             if (returnValue === false) {
                 e.preventDefault()
-            }
-
-            if (modifiers.includes('once')) {
-                listenerTarget.removeEventListener(event, handler)
+            } else {
+                if (modifiers.includes('once')) {
+                    listenerTarget.removeEventListener(event, handler)
+                }
             }
         }
 

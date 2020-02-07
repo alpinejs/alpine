@@ -1,4 +1,4 @@
-import { kebabCase, debounce } from '../utils'
+import { kebabCase, debounce, hasTimeFormat } from '../utils'
 
 export function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
     if (modifiers.includes('away')) {
@@ -25,7 +25,12 @@ export function registerListener(component, el, event, modifiers, expression, ex
             ? window : (modifiers.includes('document') ? document : el)
 
         const hasDebounceModifier = modifiers.includes('debounce')
-        const wait = modifiers[modifiers.indexOf('debounce')+1] || 250
+        let wait
+        if (hasTimeFormat(modifiers[modifiers.indexOf('debounce')+1])) {
+          wait = modifiers[modifiers.indexOf('debounce')+1]  
+        } else {
+            wait = '250ms'
+        }
 
         const handler = e => {
             if (isKeyEvent(event)) {
@@ -63,11 +68,15 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
         return ! ['window', 'document', 'prevent', 'stop'].includes(i)
     })
 
-    // Extra check for debounce modifier to remove both debounce and optional wait modifier
-    if ( modifiers.includes('debounce') ) {
-        const debounceIndex = modifiers.indexOf('debounce');
-        keyModifiers = modifiers.filter( (modifier, index) => {
-            return ![debounceIndex,debounceIndex+1].includes(index)
+    // Need to remove debounce and wait modifiers if present
+    if ( keyModifiers.includes('debounce') ) {
+        const debounceModifierIndex = keyModifiers.indexOf('debounce')
+        let debounceIndexes = [debounceModifierIndex]
+        if ( hasTimeFormat(keyModifiers[debounceModifierIndex+1]) ) {
+            debounceIndexes.push(debounceModifierIndex+1)
+        }
+        keyModifiers = keyModifiers.filter( (modifier, index) => {
+            return !debounceIndexes.includes(index)
         })
     }
 

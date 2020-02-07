@@ -299,10 +299,10 @@ test('event with colon', async () => {
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
-test('input with debounce modifier and 100 wait', async () => {
+test('input with debounce modifier and 100ms wait', async () => {
     document.body.innerHTML = `
         <div x-data="{foo: 0}">
-          <input x-on:input.debounce.100="foo = foo+1" />
+          <input x-on:input.debounce.100ms="foo = foo+1" />
           <span x-text="foo"></span>
         </div>
     `
@@ -326,10 +326,58 @@ test('input with debounce modifier and 100 wait', async () => {
     await wait( () => { expect(document.querySelector('span').innerText).toEqual(2) })
 })
 
-test('keyup with key modifier and debounce with 100 wait', async () => {
+test('keyup with key modifier and debounce with 100ms wait', async () => {
     document.body.innerHTML = `
         <div x-data="{foo: 0}">
-          <input x-on:keyDown.a.debounce.100="foo = foo+1" />
+          <input x-on:keydown.a.debounce.100ms="foo = foo+1" />
+          <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'b' })
+
+    await timeout(100)
+
+    await wait( () => { expect(document.querySelector('span').innerText).toEqual(0) })
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
+    fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
+
+    await timeout(100)
+
+    await wait( () => { expect(document.querySelector('span').innerText).toEqual(1) })
+})
+
+test('using key modifiers after debounce', async () => {
+    document.body.innerHTML = `
+        <div x-data="{foo: 0}">
+          <input x-on:keydown.debounce.a="foo = foo+1" />
+          <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'b' })
+
+    await timeout(250)
+
+    await wait( () => { expect(document.querySelector('span').innerText).toEqual(0) })
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
+    fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
+
+    await timeout(250)
+
+    await wait( () => { expect(document.querySelector('span').innerText).toEqual(1) })
+})
+
+test('using key modifiers after debounce.time(ms|s)', async () => {
+    document.body.innerHTML = `
+        <div x-data="{foo: 0}">
+          <input x-on:keydown.debounce.100ms.a="foo = foo+1" />
           <span x-text="foo"></span>
         </div>
     `

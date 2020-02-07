@@ -55,6 +55,10 @@ export function convertTime (time) {
   return Number(amt) * types[t]
 }
 
+export function hasTimeFormat(string) {
+    return /^[0-9]+(ms|s)$/.test(string)
+}
+
 export function debounce(func, wait) {
     var timeout
     const timer = typeof wait === 'number' ? wait : convertTime(wait)

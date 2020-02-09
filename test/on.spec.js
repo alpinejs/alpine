@@ -120,7 +120,7 @@ test('.once modifier', async () => {
         <div x-data="{ count: 0 }">
             <button x-on:click.once="count = count+1"></button>
 
-            <span x-bind:foo="count"
+            <span x-bind:foo="count"></span>
         </div>
     `
 
@@ -137,6 +137,32 @@ test('.once modifier', async () => {
     await timeout(25)
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('1')
+})
+
+test('.once modifier doest remove listener if false is returned', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <button x-on:click.once="return ++count === 2"></button>
+
+            <span x-bind:foo="count"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('1') })
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('2') })
+
+    await timeout(25)
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('2')
 })
 
 test('keydown modifiers', async () => {
@@ -298,4 +324,29 @@ test('event with colon', async () => {
     document.dispatchEvent(event);
 
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+})
+
+
+test('prevent default action when an event returns false', async () => {
+    window.confirm = jest.fn().mockImplementation(() => false)
+
+    document.body.innerHTML = `
+        <div x-data="{}">
+            <input type="checkbox" x-on:click="return confirm('are you sure?')">
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').checked).toEqual(false)
+
+    document.querySelector('input').click()
+
+    expect(document.querySelector('input').checked).toEqual(false)
+
+    window.confirm = jest.fn().mockImplementation(() => true)
+
+    document.querySelector('input').click()
+
+    expect(document.querySelector('input').checked).toEqual(true)
 })

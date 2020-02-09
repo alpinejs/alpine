@@ -1,7 +1,7 @@
 {
   "main": "dist/alpine.js",
   "name": "alpinejs",
-  "version": "1.9.7",
+  "version": "1.10.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/alpinejs/alpine.git"

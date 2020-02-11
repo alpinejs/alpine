@@ -2,43 +2,43 @@
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
 
-Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
+Alpine.js は、Vue や React などの大きなフレームワークのリアクティブで宣言的な性質をはるかに低いコストで提供します。
 
-You get to keep your DOM, and sprinkle in behavior as you see fit.
+DOM を保持し、適切な動作を施すことができます。
 
-Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
+[Tailwind](https://tailwindcss.com/) の JavaScript 版のようなものです。
 
-> Note: This tool's syntax is almost entirely borrowed from [Vue](https://vuejs.org/) (and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
+> 注意: このツールのシンタックスは、ほぼ完全に [Vue](https://vuejs.org/)（それと、[Angular](https://angularjs.org/) による拡張）から借用しています。ウェブからの賜り物に感謝しています。
 
 ## Install
 
-**From CDN:** Add the following script to the end of your `<head>` section.
+**CDNより:** `<head>` セクションの最後に次のスクリプトを追加します。
 ```html
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.10.1/dist/alpine.js" defer></script>
 ```
 
-That's it. It will initialize itself.
+それだけです。初期は自身で行われます。
 
-**From NPM:** Install the package from NPM.
+**NPMより:** NPM からパッケージをインストールします。
 ```js
 npm i alpinejs
 ```
 
-Include it in your script.
+各自スクリプトでインクルードします。
 ```js
 import 'alpinejs'
 ```
 
-For IE11, polyfills will need to be provided. Please load the following scripts before the Alpine script above.
+IE11 では、ポリフィルを提供する必要があります。次のスクリプトを上記の Alpine スクリプトの前にロードしてください。
 ```html
 <script src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/proxy-polyfill@0.3.0/proxy.min.js"></script>
 ```
 
-## Use
+## 使う
 
-*Dropdown/Modal*
+*ドロップダウン/モーダル*
 ```html
 <div x-data="{ open: false }">
     <button @click="open = true">Open Dropdown</button>
@@ -52,7 +52,7 @@ For IE11, polyfills will need to be provided. Please load the following scripts 
 </div>
 ```
 
-*Tabs*
+*タブ*
 ```html
 <div x-data="{ tab: 'foo' }">
     <button :class="{ 'active': tab === 'foo' }" @click="tab = 'foo'">Foo</button>
@@ -63,8 +63,8 @@ For IE11, polyfills will need to be provided. Please load the following scripts 
 </div>
 ```
 
-You can even use it for non-trivial things:
-*Pre-fetching a dropdown's HTML content on hover*
+自明ではないことにも使用できます:
+*ホバー時にドロップダウンの HTML コンテンツをプリフェッチする*
 ```html
 <div x-data="{ open: false }">
     <button
@@ -84,9 +84,9 @@ You can even use it for non-trivial things:
 
 ## Learn
 
-There are 13 directives available to you:
+次の13のディレクティブを使用できます。
 
-| Directive
+| ディレクティブ
 | --- |
 | [`x-data`](#x-data) |
 | [`x-init`](#x-init) |
@@ -102,9 +102,9 @@ There are 13 directives available to you:
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
-And 5 magic properties:
+それと5つのマジックプロパティ：
 
-| Magic Properties
+| マジックプロパティ
 | --- |
 | [`$el`](#el) |
 | [`$refs`](#refs) |
@@ -113,30 +113,30 @@ And 5 magic properties:
 | [`$nextTick`](#nexttick) |
 
 
-### Directives
+### ディレクティブ
 
 ---
 
 ### `x-data`
 
-**Example:** `<div x-data="{ foo: 'bar' }">...</div>`
+**例:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**Structure:** `<div x-data="[JSON data object]">...</div>`
+**構造:** `<div x-data="[JSON data object]">...</div>`
 
-`x-data` declares a new component scope. It tells the framework to initialize a new component with the following data object.
+`x-data` は新しいコンポーネントスコープを宣言します。フレームワークに、データオブジェクトを使用して新しいコンポーネントを初期化するよう指示します。
 
-Think of it like the `data` property of a Vue component.
+Vue コンポーネントの `data` プロパティのように考えてください。
 
-**Extract Component Logic**
+**コンポーネントロジックの抽出**
 
-You can extract data (and behavior) into reusable functions:
+データ（と動作）を再利用可能な関数に抽出できます:
 
 ```html
 <div x-data="dropdown()">
-    <button x-on:click="open()">Open</button>
+    <button x-on:click="open()">オープン</button>
 
     <div x-show="isOpen()" x-on:click.away="close()">
-        // Dropdown
+        // ドロップダウン
     </div>
 </div>
 
@@ -152,7 +152,7 @@ You can extract data (and behavior) into reusable functions:
 </script>
 ```
 
-You can also mix-in multiple data objects using object destructuring:
+オブジェクトの構造化を使用して、複数のデータオブジェクトを混在も出来ます:
 
 ```html
 <div x-data="{...dropdown(), ...tabs()}">
@@ -161,186 +161,186 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-init`
-**Example:** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
+**例:** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
 
-**Structure:** `<div x-data="..." x-init="[expression]"></div>`
+**構造:** `<div x-data="..." x-init="[式]"></div>`
 
-`x-init` runs an expression when a component is initialized.
+`x-init` はコンポーネントが初期化されると式を実行します。
 
-If you wish to run code AFTER Alpine has made its initial updates to the DOM (something like a `mounted()` hook in VueJS), you can return a callback from `x-init`, and it will be run after:
+Alpine が DOM（VueJS の `mounted()` フックのようなもの）に最初の更新を行った後にコードを実行したい場合、`x-init` からコールバックを返すことができ、その後実行されます：
 
-`x-init="return () => { // we have access to the post-dom-initialization state here // }"`
+`x-init="return () => { // ここで初期化後の DOM ステートにアクセスできます // }"`
 
 ---
 
 ### `x-show`
-**Example:** `<div x-show="open"></div>`
+**例:** `<div x-show="open"></div>`
 
-**Structure:** `<div x-show="[expression]"></div>`
+**構造:** `<div x-show="[式]]"></div>`
 
-`x-show` toggles the `display: none;` style on the element depending if the expression resolves to `true` or `false`.
+`x-show` は、式が `true` または `false` のどちらかの結果によって、要素の `display: none;` スタイルを切り替えます。
 
 ---
 
 ### `x-bind`
 
-> Note: You are free to use the shorter ":" syntax: `:type="..."`
+> 注意: 短い「:」シンタックスを使えます: `:type="..."`
 
-**Example:** `<input x-bind:type="inputType">`
+**例:** `<input x-bind:type="inputType">`
 
-**Structure:** `<input x-bind:[attribute]="[expression]">`
+**構造:** `<input x-bind:[属性]="[式]">`
 
-`x-bind` sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component's data object, and will update every-time its data is updated.
+`x-bind` は、属性の値を JavaScript 式の結果を設定します。この式は、コンポーネントのデータオブジェクトのすべてのキーにアクセスでき、データが更新されるたびに反映されます。
 
-> Note: attribute bindings ONLY update when their dependencies update. The framework is smart enough to observe data changes and detect which bindings care about them.
+> 注意: 属性バインディングは、依存関係が更新されたときにのみ更新されます。このフレームワークは、データの変化を観察し、どのバインディングがそれらを検出するのか最適化されています。
 
 **`x-bind` for class attributes**
 
-`x-bind` behaves a little differently when binding to the `class` attribute.
+`x-bind` は、`class` 属性にバインドするときの動作が少し異なります。
 
-For classes, you pass in an object who's keys are class names, and values are boolean expressions to determine if those class names are applied or not.
+クラスの場合、キーがクラス名であり、値がそれらのクラス名が適用されるかどうかを決定するブール式であるオブジェクトを渡します。
 
-For example:
+例:
 `<div x-bind:class="{ 'hidden': foo }"></div>`
 
-In this example, the "hidden" class will only be applied when the value of the `foo` data attribute is `true`.
+この例では、「hidden」クラスは、`foo` データ属性値が `true` の場合にのみ適用されます。
 
-**`x-bind` for boolean attributes**
+**ブール属性の `x-bind`**
 
-`x-bind` supports boolean attributes in the same way that value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.
+`x-bind` は、値属性と同じ方法でブール値属性をサポートします。条件として変数を使用するか、`true` または `false` に解決される JavaScript 式を使用します。
 
-For example:
+例:
 `<button x-bind:disabled="myVar">Click me</button>`
 
-This will add or remove the `disabled` attribute when `myVar` is true or false respectively.
+`myVar` が true または false の場合に `disabled` 属性を追加または削除します。
 
-Most common boolean attributes are supported, like `readonly`, `required`, etc.
+`readonly`, `required` など、最も一般的なブール属性がサポートされています。
 
 ---
 
 ### `x-on`
 
-> Note: You are free to use the shorter "@" syntax: `@click="..."`
+> 注意： より短い「@」シンタックスを自由に使用できます: `@click="..."`
 
-**Example:** `<button x-on:click="foo = 'bar'"></button>`
+**例:** `<button x-on:click="foo = 'bar'"></button>`
 
-**Structure:** `<button x-on:[event]="[expression]"></button>`
+**構造:** `<button x-on:[event]="[expression]"></button>`
 
-`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as its value is executed.
+`x-on` は、イベントリスナを宣言された要素にアタッチします。そのイベントが発行されると、その値として設定された JavaScript 式が実行されます。
 
-If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
+式でデータが変更されると、このデータに「バインドされた」他の要素属性が更新されます。
 
-**`keydown` modifiers**
+**`keydown` 修飾子**
 
-**Example:** `<input type="text" x-on:keydown.escape="open = false">`
+**例:** `<input type="text" x-on:keydown.escape="open = false">`
 
-You can specify specific keys to listen for using keydown modifiers appended to the `x-on:keydown` directive. Note that the modifiers are kebab-cased versions of `Event.key` values.
+`x-on：keydown` ディレクティブに追加された keydown 修飾子を使用し、待ち受けする特定のキーを指定できます。修飾子は `Event.key` 値のケバブケースであることに注意してください。
 
-Examples: `enter`, `escape`, `arrow-up`, `arrow-down`
+例: `enter`, `escape`, `arrow-up`, `arrow-down`
 
-> Note: You can also listen for system-modifier key combinations like: `x-on:keydown.cmd.enter="foo"`
+> 注意: 次のようなシステム修飾子キーの組み合わせを待ち受けもできます: `x-on：keydown.cmd.enter="foo"`
 
-**`.away` modifier**
+**`.away` 修飾子**
 
-**Example:** `<div x-on:click.away="showModal = false"></div>`
+**例:** `<div x-on:click.away="showModal = false"></div>`
 
-When the `.away` modifier is present, the event handler will only be executed when the event originates from a source other than itself, or its children.
+`.away` 修飾子を付与すると、イベントがそれ自体またはその子以外のソースから発生した場合にのみイベントハンドラは実行されます。
 
-This is useful for hiding dropdowns and modals when a user clicks away from them.
+ユーザがクリックしたときにドロップダウンやモーダルを非表示にするのに便利です。
 
-**`.prevent` modifier**
-**Example:** `<input type="checkbox" x-on:click.prevent>`
+**`.prevent` 修飾子**
+**例:** `<input type="checkbox" x-on:click.prevent>`
 
-Adding `.prevent` to an event listener will call `preventDefault` on the triggered event. In the above example, this means the checkbox wouldn't actually get checked when a user clicks on it.
+イベントリスナに `.prevent` を追加すると、トリガされたイベントで `preventDefault` が呼び出されます。上記の例では、ユーザがクリックしたときにチェックボックスが実際にチェックされないことを意味します。
 
-**`.stop` modifier**
-**Example:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
+**`.stop` 修飾子**
+**例:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
 
-Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
+イベントリスナに `.stop` を追加すると、トリガされたイベントで `stopPropagation` が呼び出されます。上記の例では、ボタンから外側の `<div>` に「click」イベントが浮上しないことを意味します。言い換えると、ユーザがボタンをクリックしても、`foo` は `'bar'` に設定されません。
 
-**`.window` modifier**
-**Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
+**`.window` 修飾子**
+**例:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
-Adding `.window` to an event listener will install the listener on the global window object instead of the DOM node on which it is declared. This is useful for when you want to modify component state when something changes with the window, like the resize event. In this example, when the window grows larger than 768 pixels wide, we will close the modal/dropdown, otherwise maintain the same state.
+イベントリスナに `.window` を付与すると、それが宣言されている DOM ノードではなく、グローバル window オブジェクトにリスナがインストールされます。これは、resize イベントなど window で何かが変更されたときにコンポーネントの状態を変更する場合に役立ちます。この例では、ウィンドウの幅が768ピクセルを超えた場合、モーダル/ドロップダウンを閉じます。それ以外の場合は同じ状態を維持します。
 
->Note: You can also use the `.document` modifier to attach listeners to `document` instead of `window`
+> 注意: `.document` 修飾子を使用して、リスナを `window` の代わりに `document` にアタッチすることもできます。
 
-**`.once` modifier**
-**Example:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
+**`.once` 修飾子**
+**例:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
 
-Adding the `.once` modifier to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
+イベントリスナに `.once` 修飾子を付与すると、リスナが1回だけ処理されることが保証されます。HTML パーシャルの取得など、1度だけ実行したい場合に便利です。
 
 ---
 
 ### `x-model`
-**Example:** `<input type="text" x-model="foo">`
+**例:** `<input type="text" x-model="foo">`
 
-**Structure:** `<input type="text" x-model="[data item]">`
+**構造:** `<input type="text" x-model="[data item]">`
 
-`x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
+`x-model` は要素に「双方向データバインディング」を追加します。つまり、入力要素の値はコンポーネントの項目データの値と同期します。
 
-> Note: `x-model` is smart enough to detect changes on text inputs, checkboxes, radio buttons, textareas, selects, and multiple selects. It should behave [how Vue would](https://vuejs.org/v2/guide/forms.html) in those scenarios.
+> 注意: `x-model` は、テキストインプット、チェックボックス、ラジオボタン、テキストエリア、セレクト、およびマルチセレクトの変更を検出するのに最適です。これらのシナリオでは [Vue の動作](https://vuejs.org/v2/guide/forms.html)が必要です。
 
 ---
 
 ### `x-text`
-**Example:** `<span x-text="foo"></span>`
+**例:** `<span x-text="foo"></span>`
 
-**Structure:** `<span x-text="[expression]"`
+**構造:** `<span x-text="[expression]"`
 
-`x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.
+`x-text` は `x-bind` と同様に機能しますが、属性値を更新する代わりに要素の `innerText` を更新します。
 
 ---
 
 ### `x-html`
-**Example:** `<span x-html="foo"></span>`
+**例:** `<span x-html="foo"></span>`
 
-**Structure:** `<span x-html="[expression]"`
+**構造:** `<span x-html="[expression]"`
 
-`x-html` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerHTML` of an element.
+`x-html` は `x-bind` と同様に機能しますが、属性の値を更新する代わりに要素の `innerHTML` を更新します。
 
 ---
 
 ### `x-ref`
-**Example:** `<div x-ref="foo"></div><button x-on:click="$refs.foo.innerText = 'bar'"></button>`
+**例:** `<div x-ref="foo"></div><button x-on:click="$refs.foo.innerText = 'bar'"></button>`
 
-**Structure:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
+**構造:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
 
-`x-ref` provides a convenient way to retrieve raw DOM elements out of your component. By setting an `x-ref` attribute on an element, you are making it available to all event handlers inside an object called `$refs`.
+`x-ref` は、コンポーネントから生 DOM 要素を取得する便利な方法を提供します。要素に `x-ref` 属性を設定することで、すべてのイベントハンドラで `$refs` というオブジェクト内から利用できるようになります。
 
-This is a helpful alternative to setting ids and using `document.querySelector` all over the place.
+これは、ID を設定し、あらゆる場所で `document.querySelector` を使用する代替手段に役立ちます。
 
 ---
 
 ### `x-if`
-**Example:** `<template x-if="true"><div>Some Element</div></template>`
+**例:** `<template x-if="true"><div>Some Element</div></template>`
 
-**Structure:** `<template x-if="[expression]"><div>Some Element</div></template>`
+**構造:** `<template x-if="[expression]"><div>Some Element</div></template>`
 
-For cases where `x-show` isn't sufficient (`x-show` sets an element to `display: none` if it's false), `x-if` can be used to  actually remove an element completely from the DOM.
+`x-show` では不十分な場合（`x-show` が false の場合、要素を `display： none` に設定します）、`x-if` を使用して DOM から要素を完全に削除できます。
 
-It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work its magic.
+Alpine は仮想 DOM を使用しないため、`<template></template>` タグで `x-if` を使用することが重要です。この実装により、Alpine は堅牢性を保ち、実際の DOM を使用してその仕様を働かせることができます。
 
-> Note: `x-if` must have a single element root inside the `<template></template>` tag.
+> 注意: `x-if` には、`<template></template>` タグ内に単一要素のルートが必要です。
 
 ---
 
 ### `x-for`
-**Example:**
+**例:**
 ```html
 <template x-for="item in items" :key="item">
     <div x-text="item"></div>
 </template>
 ```
 
-`x-for` is available for cases when you want to create new DOM nodes for each item in an array. This should appear similar to `v-for` in Vue, with one exception of needing to exist on a `template` tag, and not a regular DOM element.
+`x-for` は、配列の各アイテム毎に新しい DOM ノードを作成する場合に使用します。これは、Vue の `v-for` に似ています。ただし、通常の DOM 要素ではなく、`template` タグに存在する必要があります。
 
-> Note: the `:key` binding is optional, but HIGHLY recommended.
+> 注意: `：key` バインディングはオプションですが、強く推奨しています。
 
 ---
 
 ### `x-transition`
-**Example:**
+**例:**
 ```html
 <div
     x-show="open"
@@ -366,25 +366,25 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 </template>
 ```
 
-Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
+Alpine は、「非表示」と「表示」の遷移間のさまざまな段階にクラスを要素に適用するための6つの異なるトランジションディレクティブを提供します。これらのディレクティブは、`x-show` と `x-if` の両方で機能します。
 
-These behave exactly like VueJs's transition directives, except they have different, more sensible names:
+これらは、VueJs のトランジションディレクティブとまったく同じように動作しますが、より理にかなった異なる名前を持っています。
 
-| Directive | Description |
+| ディレクティブ | 説明 |
 | --- | --- |
-| `:enter` | Applied during the entire entering phase. |
-| `:enter-start` | Added before element is inserted, removed one frame after element is inserted. |
-| `:enter-end` | Added one frame after element is inserted (at the same time `enter-start` is removed), removed when transition/animation finishes.
-| `:leave` | Applied during the entire leaving phase. |
-| `:leave-start` | Added immediately when a leaving transition is triggered, removed after one frame. |
-| `:leave-end` | Added one frame after a leaving transition is triggered (at the same time `leave-start` is removed), removed when the transition/animation finishes.
+| `:enter` | エンターフェーズ全体に適用されます。 |
+| `:enter-start` | 要素が挿入される前に追加され、要素が挿入の1フレーム後に削除されます。 |
+| `:enter-end` | 要素が挿入後（`enter-start` が削除されると同時）の1フレームに追加され、トランジション/アニメーションが終了すると削除されます。
+| `:leave` | リーブフェーズ全体に適用されます。 |
+| `:leave-start` | リーブ遷移がトリガされるとすぐに追加され、1フレーム後に削除されます。 |
+| `:leave-end` | リーブ遷移がトリガされた後（同時に `leave-start` が削除される）の1フレームに追加され、トランジション/アニメーションが終了すると削除されます。
 
 ---
 
 ### `x-cloak`
-**Example:** `<div x-data="{}" x-cloak></div>`
+**例:** `<div x-data="{}" x-cloak></div>`
 
-`x-cloak` attributes are removed from elements when Alpine initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
+Alpine の初期化時に、要素から `x-cloak` 属性が削除されます。これは、事前に初期化された DOM を隠すのに役立ちます。これが機能するためには、通常、次のグローバルスタイルを追加します。:
 
 ```html
 <style>
@@ -392,62 +392,62 @@ These behave exactly like VueJs's transition directives, except they have differ
 </style>
 ```
 
-### Magic Properties
+### マジックプロパティ
 
 ---
 
 ### `$el`
-**Example:**
+**例:**
 ```html
 <div x-data>
-    <button @click="$el.innerHTML = 'foo'">Replace me with "foo"</button>
+    <button @click="$el.innerHTML = 'foo'">"foo"に置換します</button>
 </div>
 ```
 
-`$el` is a magic property that can be used to retrieve the root component DOM node.
+`$el` は、ルートコンポーネントの DOM ノードを取得するために使用できるマジックプロパティです。
 
 ### `$refs`
-**Example:**
+**例:**
 ```html
 <span x-ref="foo"></span>
 
 <button x-on:click="$refs.foo.innerText = 'bar'"></button>
 ```
 
-`$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+`$refs` は、コンポーネント内で `x-ref` でマークされた DOM 要素を取得するために使用できるマジックプロパティです。これは、DOM 要素を手動で操作する必要がある場合に便利です。
 
 ---
 
 ### `$event`
-**Example:**
+**例:**
 ```html
 <input x-on:input="alert($event.target.value)">
 ```
 
-`$event` is a magic property that can be used within an event listener to retrieve the native browser "Event" object.
+`$event` は、ネイティブブラウザの「Event」オブジェクトを取得するためにイベントリスナ内で使用できるマジックプロパティです。
 
 ---
 
 ### `$dispatch`
-**Example:**
+**例:**
 ```html
 <div @custom-event="console.log($event.detail.foo)">
     <button @click="$dispatch('custom-event', { foo: 'bar' })">
-    <!-- When clicked, will console.log "bar" -->
+    <!-- クリックされると、 console.log が「bar」を出力します -->
 </div>
 ```
 
-`$dispatch` is a shortcut for creating a `CustomEvent` and dispatching it using `.dispatchEvent()` internally. There are lots of good use cases for passing data around and between components using custom events. [Read here](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events) for more information on the underlying `CustomEvent` system in browsers.
+`$dispatch` は、`CustomEvent` を作成し、内部で `.dispatchEvent()` を使用してディスパッチするためのショートカットです。カスタムイベントを使用してコンポーネント間およびコンポーネント間でデータを渡すには、多くの適切なユースケースがあります。基礎となるブラウザの `CustomEvent` システムの詳細については、[こちらをご覧ください。](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events)
 
-You will notice that any data passed as the second parameter to `$dispatch('some-event', { some: 'data' })`, becomes available through the new events "detail" property: `$event.detail.some`. Attaching custom event data to the `.detail` property is standard practice for `CustomEvent`s in browsers. [Read here](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) for more info.
+`$dispatch('some-event', { some: 'data' })` の2番目のパラメータとして渡されるデータは、新しいイベントの「detail」プロパティ: `$event.detail.some` です。カスタムイベントデータを `.detail` プロパティにアタッチすることは、ブラウザの `CustomEvent` の標準的な方法です。詳細は[こちらをご覧ください。](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail)
 
-You can also use `$dispatch()` to trigger data updates for `x-model` bindings. For example:
+また、`$dispatch()` を使用して、`x-model` バインディングのデータ更新をトリガすることもできます。 例えば:
 
 ```html
 <div x-data="{ foo: 'bar' }">
     <span x-model="foo">
         <button @click="$dispatch('input', 'baz')">
-        <!-- After the button is clicked, `x-model` will catch the bubbling "input" event, and update foo to "baz". -->
+        <!-- ボタンがクリックされると、`x-model` は浮上する「input」イベントをキャッチし、foo を「baz」に更新します。 -->
     </span>
 </div>
 ```
@@ -455,7 +455,7 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 ---
 
 ### `$nextTick`
-**Example:**
+**例:**
 ```html
 <div x-data="{ fruit: 'apple' }">
     <button
@@ -468,10 +468,10 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 </div>
 ```
 
-`$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made its reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+`$nextTick` は、Alpine がリアクティブな DOM 更新を行った後、指定された式のみを実行できるマジックプロパティです。これは、データ更新が反映された後に DOM ステートとやり取りしたい場合に便利です。
 
-## License
+## ライセンス
 
 Copyright © 2019-2020 Caleb Porzio and contributors
 
-Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.
+MIT ライセンスの下でライセンスされています。詳細については、[LICENSE.md](LICENSE.md) を参照してください。

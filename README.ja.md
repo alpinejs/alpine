@@ -10,8 +10,6 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 > Note: This tool's syntax is almost entirely borrowed from [Vue](https://vuejs.org/) (and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
 
-[**日本語ドキュメント**](./README.ja.md)
-
 ## Install
 
 **From CDN:** Add the following script to the end of your `<head>` section.

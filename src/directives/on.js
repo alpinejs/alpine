@@ -25,6 +25,13 @@ export function registerListener(component, el, event, modifiers, expression, ex
             ? window : (modifiers.includes('document') ? document : el)
 
         const handler = e => {
+            if (listenerTarget === window || listenerTarget === document) {
+                if (!document.body.contains(el)) {
+                    listenerTarget.removeEventListener(event, handler);
+                    return;
+                }
+            }
+
             if (isKeyEvent(event)) {
                 if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
                     return

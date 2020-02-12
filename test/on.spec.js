@@ -97,6 +97,26 @@ test('.window modifier', async () => {
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
+test('unbinds global event handler when element is removed', async () => {
+    document._callCount = 0
+
+    document.body.innerHTML = `
+        <div x-data="{}">
+            <div x-on:click.window="document._callCount += 1"></div>
+        </div>
+    `
+
+    Alpine.start()
+
+    document.body.click()
+
+    document.body.innerHTML = ''
+
+    document.body.click()
+
+    expect(document._callCount).toEqual(1)
+})
+
 test('.document modifier', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">

@@ -171,7 +171,7 @@ export default class Component {
             return [value]
         }
   
-        eventNames = value.split(/[,\[\]]+/)
+        const eventNames = value.split(/[,\[\]]+/)
         eventNames.shift()
         eventNames.pop()
 

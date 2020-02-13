@@ -31,6 +31,9 @@ export default class Component {
             this.nextTickStack.push(callback)
         }
 
+        this.showDirectiveStack = []
+        this.showDirectiveLastElement
+
         var initReturnedCallback
         if (initExpression) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
@@ -131,6 +134,8 @@ export default class Component {
             el.__x = new Component(el)
         })
 
+        this.executeAndClearRemainingShowDirectiveStack()
+
         // Walk through the $nextTick stack and clear it as we go.
         while (this.nextTickStack.length > 0) {
             this.nextTickStack.shift()()
@@ -157,6 +162,34 @@ export default class Component {
         }, el => {
             el.__x = new Component(el)
         })
+
+        this.executeAndClearRemainingShowDirectiveStack()
+
+        // Walk through the $nextTick stack and clear it as we go.
+        while (this.nextTickStack.length > 0) {
+            this.nextTickStack.shift()()
+        }
+    }
+
+    executeAndClearRemainingShowDirectiveStack() {
+        // The goal here is to start all the x-show transitions
+        // and build a nested promise chain so that elements
+        // only hide when the children are finished hiding.
+        this.showDirectiveStack.reverse().map(thing => {
+            return new Promise(resolve => {
+                thing(finish => {
+                    resolve(finish)
+                })
+            })
+        }).reduce((nestedPromise, promise) => {
+            return nestedPromise.then(() => {
+                return promise.then(finish => finish())
+            })
+        }, Promise.resolve(() => {}))
+
+        // We've processed the handler stack. let's clear it.
+        this.showDirectiveStack = []
+        this.showDirectiveLastElement = undefined
     }
 
     updateElement(el, extraVars) {
@@ -211,7 +244,7 @@ export default class Component {
                 case 'show':
                     var output = this.evaluateReturnExpression(el, expression, extraVars)
 
-                    handleShowDirective(el, output, initialUpdate)
+                    handleShowDirective(this, el, output, modifiers, initialUpdate)
                     break;
 
                 case 'if':

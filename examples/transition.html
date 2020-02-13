@@ -1,0 +1,86 @@
+<html>
+    <head>
+        <style>
+            .hidden { display: none; }
+            [x-cloak] { display: none; }
+            .opacity-0 { opacity: 0; }
+            .opacity-100 { opacity: 1; }
+            .transition-slow { transition-duration: 3000ms; }
+            .transition-medium { transition-duration: 2000ms; }
+            .transition-fast { transition-duration: 1000ms; }
+            .scale-90 { transform: scale(0.9); }
+            .scale-100 { transform: scale(1); }
+            .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+            .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+        </style>
+        <script src="/dist/alpine.js" defer></script>
+    </head>
+    <body>
+        <div x-data="{ open: false }">
+                <div x-show.immediate="open">
+                    dog
+                    <div x-show="open"
+                        x-transition:enter-start="opacity-0 scale-90"
+                        x-transition:enter="ease-in transition-slow"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave="ease-out transition-slow"
+                        x-transition:leave-end="opacity-0 scale-90"
+                    >
+                        first
+                        <div x-show="open"
+                        x-transition:enter-start="opacity-0 scale-90"
+                        x-transition:enter="ease-in transition-medium"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave="ease-out transition-medium"
+                        x-transition:leave-end="opacity-0 scale-90"
+                    >
+                        second
+                    </div>
+                    </div>
+                </div>
+                    <!-- <div x-show="open"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave="ease-in transition-medium"
+                        x-transition:leave-end="opacity-0 scale-90"
+                    >
+                        second
+                        <div x-show="open"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave="ease-in transition-fast"
+                            x-transition:leave-end="opacity-0 scale-90"
+                        >
+                            third
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div x-show="open">
+                main
+                <div x-show="open"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave="ease-in transition-fast"
+                    x-transition:leave-end="opacity-0 scale-90"
+                >
+                    first
+                    <div x-show="open"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave="ease-in transition-medium"
+                        x-transition:leave-end="opacity-0 scale-90"
+                    >
+                        second
+                        <div x-show="open"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave="ease-in transition-fast"
+                            x-transition:leave-end="opacity-0 scale-90"
+                        >
+                            third
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+                <button @click="open = ! open">toggle</button>
+        </div>
+    </body>
+</html>

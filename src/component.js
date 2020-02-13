@@ -163,11 +163,27 @@ export default class Component {
         this.resolveBoundAttributes(el, false, extraVars)
     }
 
+    getEventNamesFromXAttrValue(value) {
+        const firstCharacter = value[0]
+        const lastCharacter = value[value.length]
+
+        if(firstCharacter !== '[' && lastCharacter !== ']') {
+            return [value]
+        }
+  
+        eventNames = value.split(/[,\[\]]+/)
+        eventNames.shift()
+        eventNames.pop()
+
+        return eventNames
+    }
+
     registerListeners(el, extraVars) {
         getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'on':
-                    registerListener(this, el, value, modifiers, expression, extraVars)
+                    let events = this.getEventNamesFromXAttrValue(value)
+                    events.forEach(event => registerListener(this, el, event, modifiers, expression, extraVars))
                     break;
 
                 case 'model':

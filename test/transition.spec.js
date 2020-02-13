@@ -281,6 +281,8 @@ test('transition out not called when item is already hidden', async () => {
 
     Alpine.start()
 
+    await new Promise(resolve => setTimeout(resolve, 1))
+
     expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
 
     document.querySelector('button').click()

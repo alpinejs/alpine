@@ -17,6 +17,7 @@ export default class Component {
         const mountedExpression = this.$el.getAttribute('x-mounted')
 
         const unobservedData = saferEval(dataExpression, {})
+        const initMethodExpression = unobservedData.hasOwnProperty('init') ? 'init()' : null
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
         this.$data = this.wrapDataInObservable(unobservedData)
@@ -32,11 +33,11 @@ export default class Component {
         }
 
         var initReturnedCallback
-        if (initExpression) {
+        if (initExpression || initMethodExpression) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
             // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
             this.pauseReactivity = true
-            initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression)
+            initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression ? initExpression : initMethodExpression)
             this.pauseReactivity = false
         }
 

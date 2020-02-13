@@ -52,6 +52,61 @@ test('x-init from data function with callback return for "x-mounted" functionali
     expect(valueB).toEqual('bar')
 })
 
+test('automatic init method from data function', async () => {
+    var spanValue
+    window.setSpanValue = (el) => {
+        spanValue = el.innerHTML
+    }
+    window.data = function() {
+        return {
+            foo: 'bar',
+            init() {
+                window.setSpanValue(this.$refs.foo)
+            }
+        }
+    }
+
+    document.body.innerHTML = `
+        <div x-data="window.data()">
+            <span x-text="foo" x-ref="foo">baz</span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(spanValue).toEqual('baz')
+})
+
+test('automatic init method from data function with callback return for "x-mounted" functionality', async () => {
+    var valueA
+    var valueB
+    window.setValueA = (el) => { valueA = el.innerHTML }
+    window.setValueB = (el) => { valueB = el.innerText }
+    window.data = function() {
+        return {
+            foo: 'bar',
+            init() {
+                window.setValueA(this.$refs.foo)
+
+                return () => {
+                    window.setValueB(this.$refs.foo)
+                }
+            }
+        }
+    }
+
+    document.body.innerHTML = `
+        <div x-data="window.data()">
+            <span x-text="foo" x-ref="foo">baz</span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(valueA).toEqual('baz')
+    expect(valueB).toEqual('bar')
+})
+
 test('x-created', async () => {
     var spanValue
     window.setSpanValue = (el) => {

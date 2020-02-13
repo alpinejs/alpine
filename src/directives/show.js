@@ -43,7 +43,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     // we encounter is NOT a child of another x-show element we
     // can execute the previous x-show stack (if one exists).
     if (component.showDirectiveLastElement && ! component.showDirectiveLastElement.contains(el)) {
-        component.executeAndClearRemainingShowDirectiveCallbacks()
+        component.executeAndClearRemainingShowDirectiveStack()
     }
 
     // We'll push the handler onto a stack to be handled later.

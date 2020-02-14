@@ -165,7 +165,7 @@ export default class Component {
 
     getEventNamesFromXAttrValue(value) {
         const firstCharacter = value[0]
-        const lastCharacter = value[value.length]
+        const lastCharacter = value[value.length - 1]
 
         if(firstCharacter !== '[' && lastCharacter !== ']') {
             return [value]

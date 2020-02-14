@@ -100,3 +100,29 @@ test('x-show does NOT wait for transitions to finish if .immediate is present', 
     expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
     expect(document.querySelector('h1').getAttribute('style')).toEqual(null)
 })
+
+test('x-show works with nested x-shows of different functions (hiding vs showing)', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ show1: true, show2: true }">
+            <span x-show="show1">
+                <h1 x-show="show2"></h1>
+            </span>
+
+            <button x-on:click="show1 = false"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('style')).toEqual(null)
+    expect(document.querySelector('h1').getAttribute('style')).toEqual(null)
+
+    document.querySelector('button').click()
+
+    await new Promise((resolve) => setTimeout(() => { resolve(); }, 50))
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
+        expect(document.querySelector('h1').getAttribute('style')).toEqual(null)
+    })
+})

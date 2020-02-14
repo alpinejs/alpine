@@ -326,6 +326,46 @@ test('event with colon', async () => {
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
+test('single event registered with bracket notation', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <button x-on:[click]="foo = 'baz'"></button>
+
+            <span x-bind:foo="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+})
+
+test('multiple events registered with bracket notation', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: true }">
+            <button x-on:[click,touchend]="foo = !foo"></button>
+
+            <span x-bind:foo="foo ? 'bar' : 'baz'"></span>
+        </div>
+    `
+
+    const span = document.querySelector('span')
+    const button = document.querySelector('button')
+    Alpine.start()
+
+    expect(span.getAttribute('foo')).toEqual('bar')
+
+    button.click()
+    await wait(() => { expect(span.getAttribute('foo')).toEqual('baz') })
+
+    var event = new Event('touchend');
+    button.dispatchEvent(event);
+    await wait(() => { expect(span.getAttribute('foo')).toEqual('bar') })
+})
 
 test('prevent default action when an event returns false', async () => {
     window.confirm = jest.fn().mockImplementation(() => false)

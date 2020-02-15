@@ -27,7 +27,7 @@ function generateModelAssignmentFunction(el, modifiers, expression) {
     }
 
     return (event, currentValue) => {
-        //check for event.detail. due to an issue where IE11 handles the event as a CustomEvent. The event should be undefined
+        // Check for event.detail due to an issue where IE11 handles other events as a CustomEvent.
         if (event instanceof CustomEvent && event.detail) {
             return event.detail
         } else if (el.type === 'checkbox') {

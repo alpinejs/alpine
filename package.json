@@ -7,8 +7,8 @@
         "url": "git://github.com/alpinejs/alpine.git"
     },
     "scripts": {
-        "watch": "concurrently \"rollup -c -w\" \"npx rollup -c rollup_ie11.config.js -w\"",
-        "build": "concurrently \"rollup -c\" \"npx rollup -c rollup_ie11.config.js\"",
+        "watch": "concurrently \"rollup -c -w\" \"npx rollup -c rollup-ie11.config.js -w\"",
+        "build": "concurrently \"rollup -c\" \"npx rollup -c rollup-ie11.config.js\"",
         "test": "npx jest",
         "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
         "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags"

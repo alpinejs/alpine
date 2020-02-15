@@ -1,18 +1,15 @@
 import babel from 'rollup-plugin-babel';
 import filesize from 'rollup-plugin-filesize';
-import {
-    terser
-} from "rollup-plugin-terser";
+import { terser } from "rollup-plugin-terser";
 import resolve from "rollup-plugin-node-resolve"
 import commonjs from '@rollup/plugin-commonjs'
 import multi from '@rollup/plugin-multi-entry';
 
-
-export default [{
+export default {
     input: ['src/polyfills.js', 'src/index.js'],
     output: {
         name: 'Alpine',
-        file: 'dist/alpine_ie11.js',
+        file: 'dist/alpine-ie11.js',
         format: 'umd',
         sourcemap: true,
     },
@@ -50,4 +47,4 @@ export default [{
             ]
         })
     ]
-}]
+}

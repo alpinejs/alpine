@@ -1,5 +1,4 @@
-// In use in the legacy build for IE11
-
+// For the IE11 build.
 import "shim-selected-options"
 import "proxy-polyfill/proxy.min.js"
 import "element-closest/browser.js"

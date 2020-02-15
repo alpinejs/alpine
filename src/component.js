@@ -20,7 +20,7 @@ export default class Component {
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
-            // Since the polyfill proxy does not allow properties to be added after creation
+            // The Proxy pollyfill does not allow properties to be added after creation.
             unobservedData.$el = null
             unobservedData.$refs = null
             unobservedData.$nextTick = null
@@ -347,20 +347,18 @@ export default class Component {
         var refObj = {}
 
         /* IE11-ONLY:START */
-            //add any properties that might be necessary for ie11 proxy
+            // Add any properties up-front that might be necessary for the Proxy pollyfill.
             refObj.$isRefsProxy = false;
             refObj.$isAlpineProxy = false;
 
             // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
-            // we just loop on the element, look for any x-ref and create a the property on a fake object.
-            // We don't need to put a real value since it will be resolved by the proxy class
+            // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
             this.walkAndSkipNestedComponents(self.$el, el => {
                 if (el.hasAttribute('x-ref')) {
                     refObj[el.getAttribute('x-ref')] = true
                 }
             })
         /* IE11-ONLY:END */
-
 
         // One of the goals of this is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and

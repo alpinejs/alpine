@@ -18,6 +18,14 @@ export default class Component {
 
         const unobservedData = saferEval(dataExpression, {})
 
+        /* IE11-ONLY:START */
+            // For IE11, add our magic properties to the original data for access.
+            // The Proxy pollyfill does not allow properties to be added after creation.
+            unobservedData.$el = null
+            unobservedData.$refs = null
+            unobservedData.$nextTick = null
+        /* IE11-ONLY:END */
+
         // Construct a Proxy-based observable. This will be used to handle reactivity.
         this.$data = this.wrapDataInObservable(unobservedData)
 
@@ -336,11 +344,27 @@ export default class Component {
     getRefsProxy() {
         var self = this
 
+        var refObj = {}
+
+        /* IE11-ONLY:START */
+            // Add any properties up-front that might be necessary for the Proxy pollyfill.
+            refObj.$isRefsProxy = false;
+            refObj.$isAlpineProxy = false;
+
+            // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
+            // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
+            this.walkAndSkipNestedComponents(self.$el, el => {
+                if (el.hasAttribute('x-ref')) {
+                    refObj[el.getAttribute('x-ref')] = true
+                }
+            })
+        /* IE11-ONLY:END */
+
         // One of the goals of this is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and
         // friendly to outside DOM changes from libraries like Vue/Livewire.
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
-        return new Proxy({}, {
+        return new Proxy(refObj, {
             get(object, property) {
                 if (property === '$isAlpineProxy') return true
 

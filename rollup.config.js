@@ -2,6 +2,7 @@ import babel from 'rollup-plugin-babel';
 import filesize from 'rollup-plugin-filesize';
 import { terser } from "rollup-plugin-terser";
 import resolve from "rollup-plugin-node-resolve"
+import stripCode from 'rollup-plugin-strip-code';
 
 export default {
     input: 'src/index.js',
@@ -22,6 +23,10 @@ export default {
         }),
         babel({
             exclude: 'node_modules/**'
+        }),
+        stripCode({
+            start_comment: 'IE11-ONLY:START',
+            end_comment: 'IE11-ONLY:END'
         })
     ]
 }

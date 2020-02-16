@@ -31,7 +31,7 @@ import 'alpinejs'
 
 **For IE11 support** Use the following script instead.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.10.1/dist/alpine-ie11.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.12.0/dist/alpine-ie11.js" defer></script>
 ```
 
 ## Use

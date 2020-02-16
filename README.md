@@ -184,7 +184,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 | Directive | Description |
 | --- | --- |
-| `x-show.transition` | A simultanious fade and scale. |
+| `x-show.transition` | A simultanious fade and scale. (opacity | scale: 0.95 | timing-function: cubic-bezier(0.4, 0.0, 0.2, 1) | duration-in: 150ms | duration-out: 75ms)
 | `x-show.transition.in` | Ony transition in. |
 | `x-show.transition.out` | Ony transition out. |
 | `x-show.transition.opacity` | Only use the fade. |

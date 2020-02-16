@@ -7,7 +7,7 @@
         "url": "git://github.com/alpinejs/alpine.git"
     },
     "scripts": {
-        "watch": "concurrently \"rollup -c -w\" \"npx rollup -c rollup-ie11.config.js -w\"",
+        "watch": "rollup -c -w",
         "build": "concurrently \"rollup -c\" \"npx rollup -c rollup-ie11.config.js\"",
         "test": "npx jest",
         "test:debug": "node --inspect node_modules/.bin/jest --runInBand",

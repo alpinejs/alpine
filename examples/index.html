@@ -318,8 +318,11 @@
 
                             <div x-show="open">
                                 I shouldn't leave until the transition finishes.
-                                <div x-show.transition="open">
-                                    I'm transitioning
+                                <div x-show="open"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave="ease-in transition-slow"
+                                    x-transition:leave-end="opacity-0 scale-90">
+                                        I'm transitioning
                                 </div>
                             </div>
                         </div>

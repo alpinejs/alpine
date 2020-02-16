@@ -113,25 +113,31 @@ export function replaceAtAndColonWithStandardSyntax(name) {
 }
 
 export function transitionIn(el, show, forceSkip = false) {
+    // We don't want to transition on the initial page load.
     if (forceSkip) return show()
 
     const attrs = getXAttrs(el, 'transition')
     const showAttr = getXAttrs(el, 'show')[0]
 
+    // If this is triggered by a x-show.transition.
     if (showAttr && showAttr.modifiers.includes('transition')) {
         let modifiers = showAttr.modifiers
 
+        // If x-show.transition.out, we'll skip the "in" transition.
         if (modifiers.includes('out') && ! modifiers.includes('in')) return show()
 
         const settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out')
 
+        // If x-show.transition.in...out... only use "in" related modifiers for this transition.
         modifiers = settingBothSidesOfTransition
             ? modifiers.filter((i, index) => index < modifiers.indexOf('out')) : modifiers
 
         transitionHelperIn(el, modifiers, show)
+    // Otherwise, we can assume x-transition:enter.
     } else if (attrs.length > 0) {
         transitionClassesIn(el, attrs, show)
     } else {
+    // If neither, just show that damn thing.
         show()
     }
 }
@@ -161,7 +167,7 @@ export function transitionOut(el, hide, forceSkip = false) {
 }
 
 export function transitionHelperIn(el, modifiers, showCallback) {
-    // Default values taken from: https://material.io/design/motion/speed.html#duration
+    // Default values inspired by: https://material.io/design/motion/speed.html#duration
     const styleValues = {
         duration: modifierValue(modifiers, 'duration', 150),
         origin: modifierValue(modifiers, 'origin', 'center'),
@@ -179,6 +185,9 @@ export function transitionHelperIn(el, modifiers, showCallback) {
 }
 
 export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
+    // Make the "out" transition .5x slower than the "in". (Visually better)
+    // HOWEVER, if they explicitly set a duration for the "out" transition,
+    // use that.
     const duration = settingBothSidesOfTransition
         ? modifierValue(modifiers, 'duration', 150)
         : modifierValue(modifiers, 'duration', 150) / 2
@@ -200,23 +209,29 @@ export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition,
 }
 
 function modifierValue(modifiers, key, fallback) {
+    // If the the modifier isn't present, use the default.
     if (modifiers.indexOf(key) === -1) return fallback
 
+    // If it IS present, grab the value after it: x-show.transition.duration.500ms
     const rawValue = modifiers[modifiers.indexOf(key) + 1]
-
-    if (key === 'scale') {
-        // Check if the very next value is NOT a number and return the fallback.
-        if (! isNumeric(rawValue)) return fallback
-    }
 
     if (! rawValue) return fallback
 
+    if (key === 'scale') {
+        // Check if the very next value is NOT a number and return the fallback.
+        // If x-show.transition.scale, we'll use the default scale value.
+        // That is how a user opts out of the opacity transition.
+        if (! isNumeric(rawValue)) return fallback
+    }
+
     if (key === 'duration') {
+        // Support x-show.transition.duration.500ms && duration.500
         let match = rawValue.match(/([0-9]+)ms/)
         if (match) return match[1]
     }
 
     if (key === 'origin') {
+        // Support chaining origin directions: x-show.transition.top.right
         if (['top', 'right', 'left', 'center', 'bottom'].includes(modifiers[modifiers.indexOf(key) + 2])) {
             return [rawValue, modifiers[modifiers.indexOf(key) + 2]].join(' ')
         }
@@ -226,13 +241,19 @@ function modifierValue(modifiers, key, fallback) {
 }
 
 export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
+    // If the user set these style values, we'll put them back when we're done with them.
     const opacityCache = el.style.opacity
     const transformCache = el.style.transform
     const transformOriginCache = el.style.transformOrigin
+
+    // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
     const noModifiers = ! modifiers.includes('opacity') && ! modifiers.includes('scale')
     const transitionOpacity = noModifiers || modifiers.includes('opacity')
     const transitionScale = noModifiers || modifiers.includes('scale')
 
+    // These are the explicit stages of a transition (same stages for in and for out).
+    // This way you can get a birds eye view of the hooks, and the differences
+    // between them.
     const stages = {
         start() {
             if (transitionOpacity) el.style.opacity = styleValues.first.opacity

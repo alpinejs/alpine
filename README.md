@@ -182,6 +182,12 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 `x-show.transition` is a convenience API for making your `x-show`s more pleasant using CSS transitions.
 
+```html
+<div x-show.transition="open">
+    These contents will be transitioned in and out.
+</div>
+```
+
 | Directive | Description |
 | --- | --- |
 | `x-show.transition` | A simultanious fade and scale. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)

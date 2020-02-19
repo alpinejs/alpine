@@ -7,35 +7,33 @@ import { registerModelListener } from './directives/model'
 import { registerListener } from './directives/on'
 
 export default class Component {
-    constructor(el) {
+    constructor(el, seedDataForCloning = null) {
         this.$el = el
 
         const dataAttr = this.$el.getAttribute('x-data')
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
         const initExpression = this.$el.getAttribute('x-init')
-        const createdExpression = this.$el.getAttribute('x-created')
-        const mountedExpression = this.$el.getAttribute('x-mounted')
 
-        const unobservedData = saferEval(dataExpression, {})
+        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {})
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
             // The Proxy pollyfill does not allow properties to be added after creation.
-            unobservedData.$el = null
-            unobservedData.$refs = null
-            unobservedData.$nextTick = null
+            this.unobservedData.$el = null
+            this.unobservedData.$refs = null
+            this.unobservedData.$nextTick = null
         /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
-        this.$data = this.wrapDataInObservable(unobservedData)
+        this.$data = this.wrapDataInObservable(this.unobservedData)
 
         // After making user-supplied data methods reactive, we can now add
         // our magic properties to the original data for access.
-        unobservedData.$el = this.$el
-        unobservedData.$refs = this.getRefsProxy()
+        this.unobservedData.$el = this.$el
+        this.unobservedData.$refs = this.getRefsProxy()
 
         this.nextTickStack = []
-        unobservedData.$nextTick = (callback) => {
+        this.unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)
         }
 
@@ -43,18 +41,12 @@ export default class Component {
         this.showDirectiveLastElement
 
         var initReturnedCallback
-        if (initExpression) {
+        // If x-init is present AND we aren't cloning (skip x-init on clone)
+        if (initExpression && ! seedDataForCloning) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
             // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
             this.pauseReactivity = true
             initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression)
-            this.pauseReactivity = false
-        }
-
-        if (createdExpression) {
-            console.warn('AlpineJS Warning: "x-created" is deprecated and will be removed in the next major version. Use "x-init" instead.')
-            this.pauseReactivity = true
-            saferEvalNoReturn(this.$el.getAttribute('x-created'), this.$data)
             this.pauseReactivity = false
         }
 
@@ -70,13 +62,18 @@ export default class Component {
             // Alpine's got it's grubby little paws all over everything.
             initReturnedCallback.call(this.$data)
         }
+    }
 
-        if (mountedExpression) {
-            console.warn('AlpineJS Warning: "x-mounted" is deprecated and will be removed in the next major version. Use "x-init" (with a callback return) for the same behavior.')
-            // Run an "x-mounted" hook to allow the user to do stuff after
-            // Alpine's got it's grubby little paws all over everything.
-            saferEvalNoReturn(mountedExpression, this.$data)
-        }
+    getUnobservedData() {
+        let rawData = {}
+
+        Object.keys(this.unobservedData).forEach(key => {
+            if (['$el', '$refs', '$nextTick'].includes(key)) return
+
+            rawData[key] = this.unobservedData[key]
+        })
+
+        return rawData
     }
 
     wrapDataInObservable(data) {

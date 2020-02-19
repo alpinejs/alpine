@@ -1,26 +1,43 @@
 import { transitionIn, transitionOut } from '../utils'
 
 export function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
+    const hide = () => {
+        el.style.display = 'none'
+    }
+
+    const show = () => {
+        if (el.style.length === 1 && el.style.display === 'none') {
+            el.removeAttribute('style')
+        } else {
+            el.style.removeProperty('display')
+        }
+    }
+
+    if (initialUpdate === true) {
+        if (value) {
+            show()
+        } else {
+            hide()
+        }
+        return
+    }
+
     const handle = (resolve) => {
         if (! value) {
             if ( el.style.display !== 'none' ) {
                 transitionOut(el, () => {
                     resolve(() => {
-                        el.style.display = 'none'
+                        hide()
                     })
-                }, initialUpdate)
+                })
             } else {
                 resolve(() => {})
             }
         } else {
             if ( el.style.display !== '' ) {
                 transitionIn(el, () => {
-                    if (el.style.length === 1) {
-                        el.removeAttribute('style')
-                    } else {
-                        el.style.removeProperty('display')
-                    }
-                }, initialUpdate)
+                    show()
+                })
             }
 
             // Resolve immediately, only hold up parent `x-show`s for hidin.

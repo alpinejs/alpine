@@ -77,6 +77,12 @@ const Alpine = {
         if (! el.__x) {
             el.__x = new Component(el)
         }
+    },
+
+    clone: function (component, newEl) {
+        if (! newEl.__x) {
+            newEl.__x = new Component(newEl, component.getUnobservedData())
+        }
     }
 }
 

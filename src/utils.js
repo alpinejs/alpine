@@ -339,7 +339,9 @@ export function transition(el, stages) {
     stages.during()
 
     requestAnimationFrame(() => {
-        const duration = Number(getComputedStyle(el).transitionDuration.replace('s', '')) * 1000
+        // Note: Safari's transitionDuration property will list out comma seperated transition durations
+        // for every single transition property. Let's grab the first one and call it a day.
+        let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000
 
         stages.show()
 

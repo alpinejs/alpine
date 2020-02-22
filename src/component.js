@@ -104,7 +104,7 @@ export default class Component {
                 if (key === "$isAlpineProxy") return true
                 
                 //binding the function key to the target it self
-                if (typeof target[key] === 'function') {
+                if (target instanceof RegExp) {
                     return target[key].bind(target);  
                 }
                 // Just return the flippin' value. Gawsh.

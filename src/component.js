@@ -322,7 +322,7 @@ export default class Component {
 
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
-                        if (node.nodeType !== 1) return
+                        if (node.nodeType !== 1 || node.__x_inserted_me) return
 
                         if (node.matches('[x-data]')) {
                             node.__x = new Component(node)

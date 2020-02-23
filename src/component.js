@@ -103,10 +103,6 @@ export default class Component {
                 // Provide a way to determine if this object is an Alpine proxy or not.
                 if (key === "$isAlpineProxy") return true
                 
-                //binding the function key to the target it self
-                if (target instanceof RegExp) {
-                    return target[key].bind(target);  
-                }
                 // Just return the flippin' value. Gawsh.
                 return target[key]
             }

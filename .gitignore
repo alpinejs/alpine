@@ -1,4 +1,4 @@
 /node_modules/
-*.lock
+yarn.lock
 SCRATCH.md
 COMMIT_MSG.aim.txt

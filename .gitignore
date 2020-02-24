@@ -1,3 +1,4 @@
 /node_modules/
+*.lock
 SCRATCH.md
 COMMIT_MSG.aim.txt

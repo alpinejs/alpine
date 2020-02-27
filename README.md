@@ -1,6 +1,7 @@
 # Alpine.js
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
+[![](https://data.jsdelivr.com/v1/package/gh/alpinejs/alpine/badge)](https://www.jsdelivr.com/package/gh/alpinejs/alpine)
 
 Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
 
@@ -14,7 +15,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.0.1/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@latest/dist/alpine.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -31,7 +32,7 @@ import 'alpinejs'
 
 **For IE11 support** Use the following script instead.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.0.1/dist/alpine-ie11.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@latest/dist/alpine-ie11.js" defer></script>
 ```
 
 ## Use
@@ -49,6 +50,7 @@ import 'alpinejs'
     </ul>
 </div>
 ```
+[Link to CodePen :pencil:](https://codepen.io/nainardev/pen/dyoWGyy)
 
 *Tabs*
 ```html
@@ -60,6 +62,7 @@ import 'alpinejs'
     <div x-show="tab === 'bar'">Tab Bar</div>
 </div>
 ```
+[Link to CodePen :pencil:](https://codepen.io/nainardev/pen/qBdmbRB)
 
 You can even use it for non-trivial things:
 *Pre-fetching a dropdown's HTML content on hover*

@@ -21,7 +21,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 That's it. It will initialize itself.
 
 **From NPM:** Install the package from NPM.
-```js
+```bash
 npm i alpinejs
 ```
 

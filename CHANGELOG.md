@@ -1,6 +1,9 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+### Documentation
+- **changelog:** generate first time
+
 
 <a name="v2.0.2"></a>
 ## [v2.0.2] - 2020-02-29

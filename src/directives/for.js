@@ -5,7 +5,16 @@ export function handleForDirective(component, el, expression, initialUpdate) {
 
     const { single, bunch, iterator1, iterator2 } = parseFor(expression)
 
-    var items = component.evaluateReturnExpression(el, bunch)
+    var items
+    const ifAttr = getXAttrs(el, 'if')[0]
+    if (ifAttr && ! component.evaluateReturnExpression(el, ifAttr.expression))  {
+        // If there is an "x-if" attribute in conjunction with an x-for,
+        // AND x-if resolves to false, just pretend the x-for is
+        // empty, effectively hiding it.
+        items = []
+    } else {
+        items = component.evaluateReturnExpression(el, bunch)
+    }
 
     // As we walk the array, we'll also walk the DOM (updating/creating as we go).
     var previousEl = el

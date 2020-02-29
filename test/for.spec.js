@@ -231,6 +231,34 @@ test('can use third iterator param (collection) inside of loop', async () => {
     expect(document.querySelector('h2').innerText).toEqual(["foo"])
 })
 
+test('can use x-if in conjunction with x-for', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo', 'bar'], show: false }">
+            <button @click="show = ! show"></button>
+
+            <template x-if="show" x-for="item in items">
+                <span x-text="item"></span>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span').length).toEqual(0)
+
+    document.querySelector('button').click()
+
+    await new Promise(resolve => setTimeout(resolve, 1))
+
+    expect(document.querySelectorAll('span').length).toEqual(2)
+
+    document.querySelector('button').click()
+
+    await new Promise(resolve => setTimeout(resolve, 1))
+
+    expect(document.querySelectorAll('span').length).toEqual(0)
+})
+
 test('listeners in loop get fresh iteration data even though they are only registered initially', async () => {
     document.body.innerHTML = `
         <div x-data="{ items: ['foo'], output: '' }">

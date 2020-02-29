@@ -1,5 +1,6 @@
 {
     "main": "dist/alpine.js",
+    "module": "dist/alpine-es.js",
     "name": "alpinejs",
     "version": "2.0.2",
     "repository": {

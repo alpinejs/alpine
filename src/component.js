@@ -218,7 +218,9 @@ export default class Component {
     }
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
-        getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
+        let attrs = getXAttrs(el)
+
+        attrs.forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':
                     handleAttributeBindingDirective(this, el, 'value', expression, extraVars)
@@ -253,6 +255,10 @@ export default class Component {
                     break;
 
                 case 'if':
+                    // If this element also has x-for on it, don't process x-if.
+                    // We will let the "x-for" directive handle the "if"ing.
+                    if (attrs.filter(i => i.type === 'for').length > 0) return
+
                     var output = this.evaluateReturnExpression(el, expression, extraVars)
 
                     handleIfDirective(el, output, initialUpdate)

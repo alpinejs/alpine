@@ -1,9 +1,20 @@
 import { transitionIn, transitionOut, getXAttrs } from '../utils'
 
 export function handleForDirective(component, el, expression, initialUpdate) {
+    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <tempate> tags.')
+
     const { single, bunch, iterator1, iterator2 } = parseFor(expression)
 
-    var items = component.evaluateReturnExpression(el, bunch)
+    var items
+    const ifAttr = getXAttrs(el, 'if')[0]
+    if (ifAttr && ! component.evaluateReturnExpression(el, ifAttr.expression))  {
+        // If there is an "x-if" attribute in conjunction with an x-for,
+        // AND x-if resolves to false, just pretend the x-for is
+        // empty, effectively hiding it.
+        items = []
+    } else {
+        items = component.evaluateReturnExpression(el, bunch)
+    }
 
     // As we walk the array, we'll also walk the DOM (updating/creating as we go).
     var previousEl = el
@@ -34,17 +45,23 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             // Temporarily remove the key indicator to allow the normal "updateElements" to work
             delete currentEl.__x_for_key
 
-            currentEl.__x_for_alias = single
-            currentEl.__x_for_value = i
+            let xForVars = {}
+            xForVars[single] = i
+            if (iterator1) xForVars[iterator1] = index
+            if (iterator2) xForVars[iterator2] = group
+            currentEl.__x_for = xForVars
             component.updateElements(currentEl, () => {
-                return {[currentEl.__x_for_alias]: currentEl.__x_for_value}
+                return currentEl.__x_for
             })
         } else {
             // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
             // extra items in the array that need to be added as new elements.
 
             // Let's create a clone from the template.
-            const clone = document.importNode(el.content, true);
+            const clone = document.importNode(el.content, true)
+
+            if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.')
+
             // Insert it where we are in the DOM.
             el.parentElement.insertBefore(clone, currentEl)
 
@@ -58,10 +75,13 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             // including new nested components.
             // Note we are resolving the "extraData" alias stuff from the dom element value so that it's
             // always up to date for listener handlers that don't get re-registered.
-            currentEl.__x_for_alias = single
-            currentEl.__x_for_value = i
+            let xForVars = {}
+            xForVars[single] = i
+            if (iterator1) xForVars[iterator1] = index
+            if (iterator2) xForVars[iterator2] = group
+            currentEl.__x_for = xForVars
             component.initializeElements(currentEl, () => {
-                return {[currentEl.__x_for_alias]: currentEl.__x_for_value}
+                return currentEl.__x_for
             })
         }
 

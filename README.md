@@ -14,7 +14,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.10.1/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -29,11 +29,9 @@ Include it in your script.
 import 'alpinejs'
 ```
 
-For IE11, polyfills will need to be provided. Please load the following scripts before the Alpine script above.
+**For IE11 support** Use the following script instead.
 ```html
-<script src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/proxy-polyfill@0.3.0/proxy.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.js" defer></script>
 ```
 
 ## Use
@@ -180,6 +178,36 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 `x-show` toggles the `display: none;` style on the element depending if the expression resolves to `true` or `false`.
 
+**x-show.transition**
+
+`x-show.transition` is a convenience API for making your `x-show`s more pleasant using CSS transitions.
+
+```html
+<div x-show.transition="open">
+    These contents will be transitioned in and out.
+</div>
+```
+
+| Directive | Description |
+| --- | --- |
+| `x-show.transition` | A simultanious fade and scale. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
+| `x-show.transition.in` | Ony transition in. |
+| `x-show.transition.out` | Ony transition out. |
+| `x-show.transition.opacity` | Only use the fade. |
+| `x-show.transition.scale` | Only use the scale. |
+| `x-show.transition.scale.75` | Customize the CSS scale transform `transform: scale(.75)`. |
+| `x-show.transition.duration.200ms` | Sets the "in" transition to 200ms. The out will be set to half that (100ms). |
+| `x-show.transition.origin.top.right` | Customize the CSS transform origin `transform-origin: top right`. |
+| `x-show.transition.in.duration.200ms.out.duration.50ms` | Different durations for "in" and "out". |
+
+> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although rediculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+
+> Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifer:
+```html
+<div x-show.immediate="open">
+    <div x-show.transition="open">
+</div>
+```
 ---
 
 ### `x-bind`

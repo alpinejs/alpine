@@ -25,10 +25,12 @@ export function registerListener(component, el, event, modifiers, expression, ex
             ? window : (modifiers.includes('document') ? document : el)
 
         const handler = e => {
+            // Remove this global event handler if the element that declared it
+            // has been removed. It's now stale.
             if (listenerTarget === window || listenerTarget === document) {
-                if (!document.body.contains(el)) {
-                    listenerTarget.removeEventListener(event, handler);
-                    return;
+                if (! document.body.contains(el)) {
+                    listenerTarget.removeEventListener(event, handler)
+                    return
                 }
             }
 

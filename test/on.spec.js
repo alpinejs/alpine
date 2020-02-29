@@ -97,7 +97,7 @@ test('.window modifier', async () => {
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
-test('unbinds global event handler when element is removed', async () => {
+test('unbind global event handler when element is removed', async () => {
     document._callCount = 0
 
     document.body.innerHTML = `
@@ -113,6 +113,8 @@ test('unbinds global event handler when element is removed', async () => {
     document.body.innerHTML = ''
 
     document.body.click()
+
+    await new Promise(resolve => setTimeout(resolve, 1))
 
     expect(document._callCount).toEqual(1)
 })

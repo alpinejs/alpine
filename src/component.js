@@ -7,43 +7,46 @@ import { registerModelListener } from './directives/model'
 import { registerListener } from './directives/on'
 
 export default class Component {
-    constructor(el) {
+    constructor(el, seedDataForCloning = null) {
         this.$el = el
 
         const dataAttr = this.$el.getAttribute('x-data')
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
         const initExpression = this.$el.getAttribute('x-init')
-        const createdExpression = this.$el.getAttribute('x-created')
-        const mountedExpression = this.$el.getAttribute('x-mounted')
 
-        const unobservedData = saferEval(dataExpression, {})
+        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {})
+
+        /* IE11-ONLY:START */
+            // For IE11, add our magic properties to the original data for access.
+            // The Proxy polyfill does not allow properties to be added after creation.
+            this.unobservedData.$el = null
+            this.unobservedData.$refs = null
+            this.unobservedData.$nextTick = null
+        /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
-        this.$data = this.wrapDataInObservable(unobservedData)
+        this.$data = this.wrapDataInObservable(this.unobservedData)
 
         // After making user-supplied data methods reactive, we can now add
         // our magic properties to the original data for access.
-        unobservedData.$el = this.$el
-        unobservedData.$refs = this.getRefsProxy()
+        this.unobservedData.$el = this.$el
+        this.unobservedData.$refs = this.getRefsProxy()
 
         this.nextTickStack = []
-        unobservedData.$nextTick = (callback) => {
+        this.unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)
         }
 
+        this.showDirectiveStack = []
+        this.showDirectiveLastElement
+
         var initReturnedCallback
-        if (initExpression) {
+        // If x-init is present AND we aren't cloning (skip x-init on clone)
+        if (initExpression && ! seedDataForCloning) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
             // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
             this.pauseReactivity = true
             initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression)
-            this.pauseReactivity = false
-        }
-
-        if (createdExpression) {
-            console.warn('AlpineJS Warning: "x-created" is deprecated and will be removed in the next major version. Use "x-init" instead.')
-            this.pauseReactivity = true
-            saferEvalNoReturn(this.$el.getAttribute('x-created'), this.$data)
             this.pauseReactivity = false
         }
 
@@ -59,13 +62,18 @@ export default class Component {
             // Alpine's got it's grubby little paws all over everything.
             initReturnedCallback.call(this.$data)
         }
+    }
 
-        if (mountedExpression) {
-            console.warn('AlpineJS Warning: "x-mounted" is deprecated and will be removed in the next major version. Use "x-init" (with a callback return) for the same behavior.')
-            // Run an "x-mounted" hook to allow the user to do stuff after
-            // Alpine's got it's grubby little paws all over everything.
-            saferEvalNoReturn(mountedExpression, this.$data)
-        }
+    getUnobservedData() {
+        let rawData = {}
+
+        Object.keys(this.unobservedData).forEach(key => {
+            if (['$el', '$refs', '$nextTick'].includes(key)) return
+
+            rawData[key] = this.unobservedData[key]
+        })
+
+        return rawData
     }
 
     wrapDataInObservable(data) {
@@ -131,6 +139,8 @@ export default class Component {
             el.__x = new Component(el)
         })
 
+        this.executeAndClearRemainingShowDirectiveStack()
+
         // Walk through the $nextTick stack and clear it as we go.
         while (this.nextTickStack.length > 0) {
             this.nextTickStack.shift()()
@@ -157,6 +167,34 @@ export default class Component {
         }, el => {
             el.__x = new Component(el)
         })
+
+        this.executeAndClearRemainingShowDirectiveStack()
+
+        // Walk through the $nextTick stack and clear it as we go.
+        while (this.nextTickStack.length > 0) {
+            this.nextTickStack.shift()()
+        }
+    }
+
+    executeAndClearRemainingShowDirectiveStack() {
+        // The goal here is to start all the x-show transitions
+        // and build a nested promise chain so that elements
+        // only hide when the children are finished hiding.
+        this.showDirectiveStack.reverse().map(thing => {
+            return new Promise(resolve => {
+                thing(finish => {
+                    resolve(finish)
+                })
+            })
+        }).reduce((nestedPromise, promise) => {
+            return nestedPromise.then(() => {
+                return promise.then(finish => finish())
+            })
+        }, Promise.resolve(() => {}))
+
+        // We've processed the handler stack. let's clear it.
+        this.showDirectiveStack = []
+        this.showDirectiveLastElement = undefined
     }
 
     updateElement(el, extraVars) {
@@ -180,7 +218,9 @@ export default class Component {
     }
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
-        getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
+        let attrs = getXAttrs(el)
+
+        attrs.forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':
                     handleAttributeBindingDirective(this, el, 'value', expression, extraVars)
@@ -211,10 +251,14 @@ export default class Component {
                 case 'show':
                     var output = this.evaluateReturnExpression(el, expression, extraVars)
 
-                    handleShowDirective(el, output, initialUpdate)
+                    handleShowDirective(this, el, output, modifiers, initialUpdate)
                     break;
 
                 case 'if':
+                    // If this element also has x-for on it, don't process x-if.
+                    // We will let the "x-for" directive handle the "if"ing.
+                    if (attrs.filter(i => i.type === 'for').length > 0) return
+
                     var output = this.evaluateReturnExpression(el, expression, extraVars)
 
                     handleIfDirective(el, output, initialUpdate)
@@ -303,11 +347,27 @@ export default class Component {
     getRefsProxy() {
         var self = this
 
+        var refObj = {}
+
+        /* IE11-ONLY:START */
+            // Add any properties up-front that might be necessary for the Proxy polyfill.
+            refObj.$isRefsProxy = false;
+            refObj.$isAlpineProxy = false;
+
+            // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
+            // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
+            this.walkAndSkipNestedComponents(self.$el, el => {
+                if (el.hasAttribute('x-ref')) {
+                    refObj[el.getAttribute('x-ref')] = true
+                }
+            })
+        /* IE11-ONLY:END */
+
         // One of the goals of this is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and
         // friendly to outside DOM changes from libraries like Vue/Livewire.
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
-        return new Proxy({}, {
+        return new Proxy(refObj, {
             get(object, property) {
                 if (property === '$isAlpineProxy') return true
 

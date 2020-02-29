@@ -254,3 +254,28 @@ test('nested components only get registered once on initialization', async () =>
 
     expect(initCount).toEqual(2)
 })
+
+test('can clone an existing component to a new element', async () => {
+    global.MutationObserver = class {
+        constructor(callback) {}
+        observe() {}
+    }
+
+    document.body.innerHTML = `
+        <h1 x-data="{ foo: 'bar' }"></h1>
+
+        <div id="insert-component-here"></div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('#insert-component-here').innerHTML = `
+        <h2 x-data="{ foo: 'baz' }">
+            <span x-text="foo"></span>
+        </h2>
+    `
+
+    Alpine.clone(document.querySelector('h1').__x, document.querySelector('h2'))
+
+    expect(document.querySelector('span').innerText).toEqual('bar')
+})

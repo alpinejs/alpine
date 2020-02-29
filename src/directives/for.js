@@ -1,7 +1,7 @@
 import { transitionIn, transitionOut, getXAttrs } from '../utils'
 
 export function handleForDirective(component, el, expression, initialUpdate) {
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <tempate> tags.')
+    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.')
 
     const { single, bunch, iterator1, iterator2 } = parseFor(expression)
 

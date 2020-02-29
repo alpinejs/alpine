@@ -195,6 +195,42 @@ test('can key by index', async () => {
     await wait(() => { expect(document.querySelectorAll('span').length).toEqual(3) })
 })
 
+test('can use index inside of loop', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo'] }">
+            <template x-for="(item, index) in items">
+                <div>
+                    <h1 x-text="items.indexOf(item)"></h1>
+                    <h2 x-text="index"></h2>
+                </div>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('h1').innerText).toEqual(0)
+    expect(document.querySelector('h2').innerText).toEqual(0)
+})
+
+test('can use third iterator param (collection) inside of loop', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo'] }">
+            <template x-for="(item, index, things) in items">
+                <div>
+                    <h1 x-text="items"></h1>
+                    <h2 x-text="things"></h2>
+                </div>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('h1').innerText).toEqual(["foo"])
+    expect(document.querySelector('h2').innerText).toEqual(["foo"])
+})
+
 test('listeners in loop get fresh iteration data even though they are only registered initially', async () => {
     document.body.innerHTML = `
         <div x-data="{ items: ['foo'], output: '' }">

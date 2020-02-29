@@ -2,7 +2,7 @@ style: github
 template: CHANGELOG.tpl.md
 info:
   title: CHANGELOG
-  repository_url: https://github.com/nandordudas/alpine
+  repository_url: https://github.com/alpinejs/alpine
 options:
   commits:
     filters:

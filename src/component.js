@@ -18,7 +18,7 @@ export default class Component {
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
-            // The Proxy pollyfill does not allow properties to be added after creation.
+            // The Proxy polyfill does not allow properties to be added after creation.
             this.unobservedData.$el = null
             this.unobservedData.$refs = null
             this.unobservedData.$nextTick = null
@@ -350,7 +350,7 @@ export default class Component {
         var refObj = {}
 
         /* IE11-ONLY:START */
-            // Add any properties up-front that might be necessary for the Proxy pollyfill.
+            // Add any properties up-front that might be necessary for the Proxy polyfill.
             refObj.$isRefsProxy = false;
             refObj.$isAlpineProxy = false;
 

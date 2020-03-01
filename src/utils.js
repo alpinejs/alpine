@@ -1,19 +1,8 @@
 /**
- * @return {void}
- */
-const __noop = () => { }
-
-/**
- * @param {string} content
- * @return {boolean}
- */
-const isNotEmptyString = content => content !== ''
-
-/**
  * @param {any} subject
  * @return {boolean}
  */
-const isNumeric = subject => !isNaN(subject)
+const isNumeric = (subject) => !isNaN(subject)
 
 /**
  * Thanks @stimulus:
@@ -22,8 +11,10 @@ const isNumeric = subject => !isNaN(subject)
  * @async
  */
 export function domReady() {
-    return new Promise(resolve =>
-        document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", resolve) : resolve()
+    return new Promise((resolve) =>
+        document.readyState === 'loading'
+            ? document.addEventListener('DOMContentLoaded', resolve)
+            : resolve()
     )
 }
 
@@ -35,9 +26,6 @@ export function arrayUnique(array) {
     return Array.isArray(array) ? [...new Set(array)] : [];
 }
 
-/**
- * @return {boolean}
- */
 export function isTesting() {
     return /(?:(jsdom|Node\.js))/.test(navigator.userAgent)
 }
@@ -106,9 +94,8 @@ export function isXAttr(attr) {
 export function getXAttrs(el, type) {
     return Array.from(el.attributes)
         .filter(isXAttr)
-        .map(attr => {
+        .map((attr) => {
             const name = replaceAtAndColonWithStandardSyntax(attr.name)
-
             const typeMatch = name.match(/x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)/)
             const valueMatch = name.match(/:([a-zA-Z\-:]+)/)
             const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
@@ -121,7 +108,7 @@ export function getXAttrs(el, type) {
             }
         })
         // If no type is passed in for filtering, bypass filter
-        .filter(i => !type ? true : i.type === type)
+        .filter((i) => !type ? true : i.type === type)
 }
 
 /**
@@ -219,7 +206,7 @@ export function transitionHelperIn(el, modifiers, showCallback) {
         },
     }
 
-    transitionHelper(el, modifiers, showCallback, __noop, styleValues)
+    transitionHelper(el, modifiers, showCallback, () => { }, styleValues)
 }
 
 export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
@@ -231,7 +218,7 @@ export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition,
         : modifierValue(modifiers, 'duration', 150) * 0.5
 
     const styleValues = {
-        duration: duration,
+        duration,
         origin: modifierValue(modifiers, 'origin', 'center'),
         first: {
             opacity: 1,
@@ -243,7 +230,7 @@ export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition,
         },
     }
 
-    transitionHelper(el, modifiers, __noop, hideCallback, styleValues)
+    transitionHelper(el, modifiers, () => { }, hideCallback, styleValues)
 }
 
 function modifierValue(modifiers, key, fallback) {
@@ -310,7 +297,7 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
             }
 
             if (transitionScale) {
-                el.style.transform = `scale(${styleValues.first.scale * 0.01})`
+                el.style.transform = `scale(${styleValues.first.scale / 100})`
             }
         },
         during() {
@@ -322,7 +309,7 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
                 transitionOpacity ? 'opacity' : '',
                 transitionScale ? 'transform' : '',
             ].join(' ').trim()
-            el.style.transitionDuration = `${styleValues.duration * 0.001}s`
+            el.style.transitionDuration = `${styleValues.duration / 1000}s`
             el.style.transitionTimingFunction = `cubic-bezier(0.4, 0.0, 0.2, 1)`
         },
         show() {
@@ -334,7 +321,7 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
             }
 
             if (transitionScale) {
-                el.style.transform = `scale(${styleValues.second.scale * 0.01})`
+                el.style.transform = `scale(${styleValues.second.scale / 100})`
             }
         },
         hide() {
@@ -363,33 +350,23 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
 }
 
 export function transitionClassesIn(el, directives, showCallback) {
-    const _filterEmptyExpression = ({ expression }) => expression && expression.split(' ').filter(isNotEmptyString)
     const _defaultExpression = Object.create(null, { expression: { value: '' } })
 
-    let enter = directives.find(({ value }) => value && value === 'enter')
-    let enterStart = directives.find(({ value }) => value && value === 'enter-start')
-    let enterEnd = directives.find(({ value }) => value && value === 'enter-end')
+    const enter = (directives.find(({ value }) => value === 'enter') || _defaultExpression).expression.split(' ').filter(Boolean)
+    const enterStart = (directives.find(({ value }) => value === 'enter-start') || _defaultExpression).expression.split(' ').filter(Boolean)
+    const enterEnd = (directives.find(({ value }) => value === 'enter-end') || _defaultExpression).expression.split(' ').filter(Boolean)
 
-    enter = enter ? _filterEmptyExpression(enter) : _defaultExpression
-    enterStart = enterStart ? _filterEmptyExpression(enterStart) : _defaultExpression
-    enterEnd = enterEnd ? _filterEmptyExpression(enterEnd) : _defaultExpression
-
-    transitionClasses(el, enter, enterStart, enterEnd, showCallback, __noop)
+    transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => { })
 }
 
 export function transitionClassesOut(el, directives, hideCallback) {
-    const _filterEmptyExpression = ({ expression }) => expression && expression.split(' ').filter(isNotEmptyString)
     const _defaultExpression = Object.create(null, { expression: { value: '' } })
 
-    let leave = directives.find(({ value }) => value && value === 'leave')
-    let leaveStart = directives.find(({ value }) => value && value === 'leave-start')
-    let leaveEnd = directives.find(({ value }) => value && value === 'leave-end')
+    const leave = (directives.find(({ value }) => value === 'leave') || _defaultExpression).expression.split(' ').filter(Boolean)
+    const leaveStart = (directives.find(({ value }) => value === 'leave-start') || _defaultExpression).expression.split(' ').filter(Boolean)
+    const leaveEnd = (directives.find(({ value }) => value === 'leave-end') || _defaultExpression).expression.split(' ').filter(Boolean)
 
-    leave = leave ? _filterEmptyExpression(leave) : _defaultExpression
-    leaveStart = leaveStart ? _filterEmptyExpression(leaveStart) : _defaultExpression
-    leaveEnd = leaveEnd ? _filterEmptyExpression(leaveEnd) : _defaultExpression
-
-    transitionClasses(el, leave, leaveStart, leaveEnd, __noop, hideCallback)
+    transitionClasses(el, leave, leaveStart, leaveEnd, () => { }, hideCallback)
 }
 
 export function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {

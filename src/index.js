@@ -1,93 +1,83 @@
 import Component from './component'
 import { domReady, isTesting } from './utils'
 
+const _isTesting = isTesting()
+
 const Alpine = {
-    start: async function () {
-        if (! isTesting()) {
+    async start() {
+        if (!_isTesting) {
             await domReady()
         }
 
-        this.discoverComponents(el => {
-            this.initializeComponent(el)
-        })
+        this.discoverComponents(this.initializeComponent)
 
         // It's easier and more performant to just support Turbolinks than listen
         // to MutationObserver mutations at the document level.
-        document.addEventListener("turbolinks:load", () => {
-            this.discoverUninitializedComponents(el => {
-                this.initializeComponent(el)
-            })
-        })
+        document.addEventListener(
+            'turbolinks:load',
+            () => this.discoverUninitializedComponents(this.initializeComponent),
+        )
 
-        this.listenForNewUninitializedComponentsAtRunTime(el => {
-            this.initializeComponent(el)
-        })
+        this.listenForNewUninitializedComponentsAtRunTime(this.initializeComponent)
     },
 
-    discoverComponents: function (callback) {
-        const rootEls = document.querySelectorAll('[x-data]');
-
-        rootEls.forEach(rootEl => {
-            callback(rootEl)
-        })
+    discoverComponents(callback) {
+        document.querySelectorAll('[x-data]').forEach(callback)
     },
 
-    discoverUninitializedComponents: function (callback, el = null) {
-        const rootEls = (el || document).querySelectorAll('[x-data]');
+    discoverUninitializedComponents(callback, el = null) {
+        const rootEls = (el || document).querySelectorAll('[x-data]')
 
-        Array.from(rootEls)
-            .filter(el => el.__x === undefined)
-            .forEach(rootEl => {
-                callback(rootEl)
-            })
+        Array.from(rootEls).filter(el => el.__x === undefined).forEach(callback)
     },
 
-    listenForNewUninitializedComponentsAtRunTime: function (callback) {
-        const targetNode = document.querySelector('body');
-
+    listenForNewUninitializedComponentsAtRunTime(callback) {
         const observerOptions = {
-            childList: true,
             attributes: true,
+            childList: true,
             subtree: true,
         }
 
         const observer = new MutationObserver((mutations) => {
-            for (let i=0; i < mutations.length; i++){
-                if (mutations[i].addedNodes.length > 0) {
-                    mutations[i].addedNodes.forEach(node => {
-                        // Discard non-element nodes (like line-breaks)
-                        if (node.nodeType !== 1) return
+            const _len = mutations.length
 
-                        // Discard any changes happening within an existing component.
-                        // They will take care of themselves.
-                        if (node.parentElement && node.parentElement.closest('[x-data]')) return
-
-                        this.discoverUninitializedComponents((el) => {
-                            this.initializeComponent(el)
-                        }, node.parentElement)
-                    })
+            for (let i = 0; i < _len; i++) {
+                if (mutations[i].addedNodes.length <= 0) {
+                    continue
                 }
-              }
+
+                mutations[i].addedNodes.forEach((node) => {
+                    // Discard non-element nodes (like line-breaks).
+                    if (node.nodeType !== 1) {
+                        return
+                    }
+
+                    // Discard any changes happening within an existing component.
+                    // They will take care of themselves.
+                    if (node.parentElement && node.parentElement.closest('[x-data]')) {
+                        return
+                    }
+
+                    this.discoverUninitializedComponents(callback, node.parentElement)
+                })
+            }
         })
 
-        observer.observe(targetNode, observerOptions)
+        observer.observe(document.body, observerOptions)
     },
 
-    initializeComponent: function (el) {
-        if (! el.__x) {
-            el.__x = new Component(el)
-        }
+    initializeComponent(el) {
+        !el.__x && (el.__x = new Component(el))
     },
 
-    clone: function (component, newEl) {
-        if (! newEl.__x) {
-            newEl.__x = new Component(newEl, component.getUnobservedData())
-        }
+    clone(component, newEl) {
+        !newEl.__x && (newEl.__x = new Component(newEl, component.getUnobservedData()))
     }
 }
 
-if (! isTesting()) {
+if (!_isTesting) {
     window.Alpine = Alpine
+
     window.Alpine.start()
 }
 

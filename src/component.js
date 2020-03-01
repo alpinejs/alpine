@@ -6,6 +6,8 @@ import { handleIfDirective } from './directives/if'
 import { registerModelListener } from './directives/model'
 import { registerListener } from './directives/on'
 
+const __noop = () => { }
+
 export default class Component {
     constructor(el, seedDataForCloning = null) {
         this.$el = el
@@ -33,20 +35,21 @@ export default class Component {
         this.unobservedData.$refs = this.getRefsProxy()
 
         this.nextTickStack = []
-        this.unobservedData.$nextTick = (callback) => {
-            this.nextTickStack.push(callback)
-        }
+        this.unobservedData.$nextTick = (callback) => this.nextTickStack.push(callback)
 
         this.showDirectiveStack = []
         this.showDirectiveLastElement
 
-        var initReturnedCallback
+        let initReturnedCallback
+
         // If x-init is present AND we aren't cloning (skip x-init on clone)
-        if (initExpression && ! seedDataForCloning) {
+        if (initExpression && !seedDataForCloning) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
             // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
             this.pauseReactivity = true
+
             initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression)
+
             this.pauseReactivity = false
         }
 
@@ -65,60 +68,63 @@ export default class Component {
     }
 
     getUnobservedData() {
-        let rawData = {}
+        const rawData = {}
+        let _criteria = (i) => !['$el', '$refs', '$nextTick'].includes(i)
+        let _keys = Object.keys(this.unobservedData)
 
-        Object.keys(this.unobservedData).forEach(key => {
-            if (['$el', '$refs', '$nextTick'].includes(key)) return
-
-            rawData[key] = this.unobservedData[key]
-        })
+        _keys.filter(_criteria).forEach((key) => (rawData[key] = this.unobservedData[key]))
 
         return rawData
     }
 
     wrapDataInObservable(data) {
-        var self = this
-
         const proxyHandler = {
-            set(obj, property, value) {
+            set: (obj, property, value) => {
                 // Set the value converting it to a "Deep Proxy" when required
                 // Note that if a project is not a valid object, it won't be converted to a proxy
                 const setWasSuccessful = Reflect.set(obj, property, deepProxy(value, proxyHandler))
 
                 // Don't react to data changes for cases like the `x-created` hook.
-                if (self.pauseReactivity) return setWasSuccessful
+                if (this.pauseReactivity) {
+                    return setWasSuccessful
+                }
 
                 debounce(() => {
-                    self.updateElements(self.$el)
+                    this.updateElements(this.$el)
 
                     // Walk through the $nextTick stack and clear it as we go.
-                    while (self.nextTickStack.length > 0) {
-                        self.nextTickStack.shift()()
+                    while (this.nextTickStack.length > 0) {
+                        this.nextTickStack.shift()()
                     }
                 }, 0)()
 
                 return setWasSuccessful
             },
             get(target, key) {
-                // Provide a way to determine if this object is an Alpine proxy or not.
-                if (key === "$isAlpineProxy") return true
+                return key === "$isAlpineProxy"
+                    // Provide a way to determine if this object is an Alpine proxy or not.
+                    ? true
+                    // Just return the flippin' value. Gawsh.
+                    : target[key]
 
-                // Just return the flippin' value. Gawsh.
-                return target[key]
             }
         }
 
         return deepProxy(data, proxyHandler)
     }
 
-    walkAndSkipNestedComponents(el, callback, initializeComponentCallback = () => {}) {
-        walk(el, el => {
+    walkAndSkipNestedComponents(el, callback, initializeComponentCallback = __noop) {
+        walk(el, (el) => {
             // We've hit a component.
             if (el.hasAttribute('x-data')) {
+
                 // If it's not the current one.
-                if (! el.isSameNode(this.$el)) {
+                if (!el.isSameNode(this.$el)) {
+
                     // Initialize it if it's not.
-                    if (! el.__x) initializeComponentCallback(el)
+                    if (!el.__x) {
+                        initializeComponentCallback(el)
+                    }
 
                     // Now we'll let that sub-component deal with itself.
                     return false
@@ -129,15 +135,15 @@ export default class Component {
         })
     }
 
-    initializeElements(rootEl, extraVars = () => {}) {
-        this.walkAndSkipNestedComponents(rootEl, el => {
-            // Don't touch spawns from for loop
-            if (el.__x_for_key !== undefined) return false
+    initializeElements(rootEl, extraVars = __noop) {
+        this.walkAndSkipNestedComponents(rootEl, (el) => {
+            // Don't touch spawns from for loop.
+            if (el.__x_for_key !== undefined) {
+                return false
+            }
 
             this.initializeElement(el, extraVars)
-        }, el => {
-            el.__x = new Component(el)
-        })
+        }, (el) => (el.__x = new Component(el)))
 
         this.executeAndClearRemainingShowDirectiveStack()
 
@@ -158,15 +164,16 @@ export default class Component {
         this.resolveBoundAttributes(el, true, extraVars)
     }
 
-    updateElements(rootEl, extraVars = () => {}) {
-        this.walkAndSkipNestedComponents(rootEl, el => {
-            // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
-            if (el.__x_for_key !== undefined && ! el.isSameNode(this.$el)) return false
+    updateElements(rootEl, extraVars = __noop) {
+        this.walkAndSkipNestedComponents(rootEl, (el) => {
+            // Don't touch spawns from for loop
+            // (and check if the root is actually a for loop in a parent, don't skip it).
+            if (el.__x_for_key !== undefined && !el.isSameNode(this.$el)) {
+                return false
+            }
 
             this.updateElement(el, extraVars)
-        }, el => {
-            el.__x = new Component(el)
-        })
+        }, (el) => (el.__x = new Component(el)))
 
         this.executeAndClearRemainingShowDirectiveStack()
 
@@ -180,17 +187,13 @@ export default class Component {
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
-        this.showDirectiveStack.reverse().map(thing => {
-            return new Promise(resolve => {
-                thing(finish => {
-                    resolve(finish)
-                })
-            })
-        }).reduce((nestedPromise, promise) => {
-            return nestedPromise.then(() => {
-                return promise.then(finish => finish())
-            })
-        }, Promise.resolve(() => {}))
+        this.showDirectiveStack
+            .reverse()
+            .map((thing) => new Promise((resolve) => thing((finish) => resolve(finish))))
+            .reduce((nestedPromise, promise) =>
+                nestedPromise.then(() => promise.then((finish) => finish())),
+                Promise.resolve(__noop),
+            )
 
         // We've processed the handler stack. let's clear it.
         this.showDirectiveStack = []
@@ -203,16 +206,12 @@ export default class Component {
 
     registerListeners(el, extraVars) {
         getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
-            switch (type) {
-                case 'on':
-                    registerListener(this, el, value, modifiers, expression, extraVars)
-                    break;
+            if (type === 'on') {
+                registerListener(this, el, value, modifiers, expression, extraVars)
+            }
 
-                case 'model':
-                    registerModelListener(this, el, modifiers, expression, extraVars)
-                    break;
-                default:
-                    break;
+            if (type === 'model') {
+                registerModelListener(this, el, modifiers, expression, extraVars)
             }
         })
     }
@@ -221,146 +220,145 @@ export default class Component {
         let attrs = getXAttrs(el)
 
         attrs.forEach(({ type, value, modifiers, expression }) => {
-            switch (type) {
-                case 'model':
-                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars)
-                    break;
+            let output
 
-                case 'bind':
-                    // The :key binding on an x-for is special, ignore it.
-                    if (el.tagName.toLowerCase() === 'template' && value === 'key') return
+            if (type === 'model') {
+                return handleAttributeBindingDirective(this, el, 'value', expression, extraVars)
+            }
 
-                    handleAttributeBindingDirective(this, el, value, expression, extraVars)
-                    break;
+            if (type === 'bind') {
+                return el.tagName.toLowerCase() === 'template' && value === 'key'
+                    ? null
+                    : handleAttributeBindingDirective(this, el, value, expression, extraVars)
+            }
 
-                case 'text':
-                    var output = this.evaluateReturnExpression(el, expression, extraVars);
+            if (type === 'text') {
+                // If nested model key is undefined, set the default value to empty string.
+                output === undefined && expression.match(/\./).length
+                    ? ''
+                    : this.evaluateReturnExpression(el, expression, extraVars)
 
-                    // If nested model key is undefined, set the default value to empty string.
-                    if (output === undefined && expression.match(/\./).length) {
-                        output = ''
-                    }
+                return (el.innerText = output)
+            }
 
-                    el.innerText = output
-                    break;
+            if (type === 'html') {
+                return (el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars))
+            }
 
-                case 'html':
-                    el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars)
-                    break;
+            if (type === 'show') {
+                output = this.evaluateReturnExpression(el, expression, extraVars)
 
-                case 'show':
-                    var output = this.evaluateReturnExpression(el, expression, extraVars)
+                return handleShowDirective(this, el, output, modifiers, initialUpdate)
+            }
 
-                    handleShowDirective(this, el, output, modifiers, initialUpdate)
-                    break;
+            if (type === 'if') {
+                // If this element also has x-for on it, don't process x-if.
+                // We will let the "x-for" directive handle the "if"ing.
+                if (attrs.filter(({ type }) => type === 'for').length > 0) {
+                    return
+                }
 
-                case 'if':
-                    // If this element also has x-for on it, don't process x-if.
-                    // We will let the "x-for" directive handle the "if"ing.
-                    if (attrs.filter(i => i.type === 'for').length > 0) return
+                output = this.evaluateReturnExpression(el, expression, extraVars)
 
-                    var output = this.evaluateReturnExpression(el, expression, extraVars)
+                return handleIfDirective(el, output, initialUpdate)
+            }
 
-                    handleIfDirective(el, output, initialUpdate)
-                    break;
+            if (type === 'for') {
+                return handleForDirective(this, el, expression, initialUpdate)
+            }
 
-                case 'for':
-                    handleForDirective(this, el, expression, initialUpdate)
-                    break;
-
-                case 'cloak':
-                    el.removeAttribute('x-cloak')
-                    break;
-
-                default:
-                    break;
+            if (type === 'cloak') {
+                return el.removeAttribute('x-cloak')
             }
         })
     }
 
-    evaluateReturnExpression(el, expression, extraVars = () => {}) {
+    evaluateReturnExpression(el, expression, extraVars = __noop) {
         return saferEval(expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
         })
     }
 
-    evaluateCommandExpression(el, expression, extraVars = () => {}) {
+    evaluateCommandExpression(el, expression, extraVars = __noop) {
         return saferEvalNoReturn(expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
         })
     }
 
-    getDispatchFunction (el) {
-        return (event, detail = {}) => {
-            el.dispatchEvent(new CustomEvent(event, {
-                detail,
-                bubbles: true,
-            }))
-        }
+    getDispatchFunction(el) {
+        return el
+            ? (event, detail = {}, bubbles = true) => el.dispatchEvent(new CustomEvent(event, { detail, bubbles }))
+            : null
     }
 
     listenForNewElementsToInitialize() {
+        const _attr = 'x-data'
         const targetNode = this.$el
 
         const observerOptions = {
-            childList: true,
             attributes: true,
+            childList: true,
             subtree: true,
         }
 
         const observer = new MutationObserver((mutations) => {
-            for (let i=0; i < mutations.length; i++){
+            const _len = mutations.length
+
+            for (let i = 0; i < _len; i++) {
+                const _item = mutations[i]
                 // Filter out mutations triggered from child components.
-                const closestParentComponent = mutations[i].target.closest('[x-data]')
-                if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) return
+                const closestParentComponent = _item.target.closest(`[${_attr}]`)
 
-                if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-                    const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})
-
-                    Object.keys(rawData).forEach(key => {
-                        if (this.$data[key] !== rawData[key]) {
-                            this.$data[key] = rawData[key]
-                        }
-                    })
+                if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) {
+                    return
                 }
 
-                if (mutations[i].addedNodes.length > 0) {
-                    mutations[i].addedNodes.forEach(node => {
-                        if (node.nodeType !== 1) return
+                if (_item.type === 'attributes' && _item.attributeName === _attr) {
+                    const rawData = saferEval(_item.target.getAttribute(_attr), {})
+                    const _criteria = (i) => this.$data[i] !== rawData[i]
 
-                        if (node.matches('[x-data]')) {
-                            node.__x = new Component(node)
-                            return
-                        }
-
-                        this.initializeElements(node)
-                    })
+                    Object.keys(rawData).filter(_criteria).forEach((key) => (this.$data[key] = rawData[key]))
                 }
-              }
+
+                if (_item.addedNodes.length <= 0) {
+                    continue
+                }
+
+                _item.addedNodes.forEach((node) => {
+                    if (node.nodeType !== 1) {
+                        return
+                    }
+
+                    if (node.matches(`[${_attr}]`)) {
+                        node.__x = new Component(node)
+
+                        return
+                    }
+
+                    this.initializeElements(node)
+                })
+            }
         })
 
-        observer.observe(targetNode, observerOptions);
+        observer.observe(targetNode, observerOptions)
     }
 
     getRefsProxy() {
-        var self = this
-
-        var refObj = {}
+        let refObj = {}
 
         /* IE11-ONLY:START */
             // Add any properties up-front that might be necessary for the Proxy polyfill.
-            refObj.$isRefsProxy = false;
-            refObj.$isAlpineProxy = false;
+            refObj.$isRefsProxy = false
+            refObj.$isAlpineProxy = false
 
             // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
             // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
-            this.walkAndSkipNestedComponents(self.$el, el => {
-                if (el.hasAttribute('x-ref')) {
-                    refObj[el.getAttribute('x-ref')] = true
-                }
-            })
+            this.walkAndSkipNestedComponents(
+                this.$el,
+                el => !el.hasAttribute('x-ref') && (refObj[el.getAttribute('x-ref')] = true),
+            )
         /* IE11-ONLY:END */
 
         // One of the goals of this is to not hold elements in memory, but rather re-evaluate
@@ -368,18 +366,18 @@ export default class Component {
         // friendly to outside DOM changes from libraries like Vue/Livewire.
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
         return new Proxy(refObj, {
-            get(object, property) {
-                if (property === '$isAlpineProxy') return true
+            get: (_, property) => {
+                if (property === '$isAlpineProxy') {
+                    return true
+                }
 
-                var ref
+                let ref
 
-                // We can't just query the DOM because it's hard to filter out refs in
-                // nested components.
-                self.walkAndSkipNestedComponents(self.$el, el => {
-                    if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
-                        ref = el
-                    }
-                })
+                // We can't just query the DOM because it's hard to filter out refs in nested components.
+                this.walkAndSkipNestedComponents(
+                    this.$el,
+                    (el) => el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property && (ref = el),
+                )
 
                 return ref
             }

@@ -67,10 +67,10 @@ export default class Component {
 
     getUnobservedData() {
         const rawData = {}
-        let _criteria = (i) => !['$el', '$refs', '$nextTick'].includes(i)
-        let _keys = Object.keys(this.unobservedData)
+        const _setData = (key) => (rawData[key] = this.unobservedData[key])
+        const _criteria = (i) => !['$el', '$refs', '$nextTick'].includes(i)
 
-        _keys.filter(_criteria).forEach((key) => (rawData[key] = this.unobservedData[key]))
+        Object.keys(this.unobservedData).filter(_criteria).forEach(_setData)
 
         return rawData
     }

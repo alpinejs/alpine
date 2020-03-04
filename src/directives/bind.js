@@ -49,7 +49,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             const newClasses = value.split(' ')
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
-    } else if (['disabled', 'readonly', 'required', 'checked', 'hidden', 'selected'].includes(attrName)) {
+    } else if (['disabled', 'readonly', 'required', 'checked', 'hidden', 'selected', 'open'].includes(attrName)) {
         // Boolean attributes have to be explicitly added and removed, not just set.
         if (!! value) {
             el.setAttribute(attrName, '')

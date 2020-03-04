@@ -242,7 +242,7 @@ For example:
 
 This will add or remove the `disabled` attribute when `myVar` is true or false respectively.
 
-Most common boolean attributes are supported, like `readonly`, `required`, etc.
+The following boolean attributes are currently supported: disabled, readonly, required, checked, hidden, selected, open.
 
 ---
 

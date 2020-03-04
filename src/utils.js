@@ -102,6 +102,15 @@ export function getXAttrs(el, type) {
         })
 }
 
+export function isBooleanAttr(attrName) {
+    // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
+    // RegEx matches roughly ordered by estimated usage
+    const booleanAttrRe =
+        /disabled|checked|required|readonly|hidden|open|selected|autofocus|itemscope|multiple|novalidate|allowfullscreen|allowpaymentrequest|formnovalidate|autoplay|controls|loop|muted|playsinline|default|ismap|reversed|async|defer|nomodule/
+
+    return booleanAttrRe.test(attrName)
+}
+
 export function replaceAtAndColonWithStandardSyntax(name) {
     if (name.startsWith('@')) {
         return name.replace('@', 'x-on:')

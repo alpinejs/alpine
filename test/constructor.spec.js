@@ -34,7 +34,7 @@ test('auto-detect new components at the top level', async () => {
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
 
-test('auto-detect newsted new components at the top level', async () => {
+test('auto-detect nested new components at the top level', async () => {
     var runObservers = []
 
     global.MutationObserver = class {

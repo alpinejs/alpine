@@ -6,7 +6,7 @@ global.MutationObserver = class {
     observe() {}
 }
 
-test('data modified in event listener updates effected attribute bindings', async () => {
+test('data modified in event listener updates affected attribute bindings', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">
             <button x-on:click="foo = 'baz'"></button>
@@ -24,7 +24,7 @@ test('data modified in event listener updates effected attribute bindings', asyn
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
-test('nested data modified in event listener updates effected attribute bindings', async () => {
+test('nested data modified in event listener updates affected attribute bindings', async () => {
     document.body.innerHTML = `
         <div x-data="{ nested: { foo: 'bar' } }">
             <button x-on:click="nested.foo = 'baz'"></button>
@@ -161,7 +161,7 @@ test('.once modifier', async () => {
     expect(document.querySelector('span').getAttribute('foo')).toEqual('1')
 })
 
-test('.once modifier doest remove listener if false is returned', async () => {
+test('.once modifier does not remove listener if false is returned', async () => {
     document.body.innerHTML = `
         <div x-data="{ count: 0 }">
             <button x-on:click.once="return ++count === 2"></button>

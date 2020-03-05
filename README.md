@@ -29,7 +29,7 @@ Include it in your script.
 import 'alpinejs'
 ```
 
-**For bundler users**, note that Alpine.js accesses functions that are in the global scope (`window`), you'll need to explicitly assign your functions to `window` for example `window.dropdown = function () {}` since with Webpack, Rollup, Parcel etc. `function`'s you define will default to module scope.
+**For bundler users**, note that Alpine.js accesses functions that are in the global scope (`window`), you'll need to explicitly assign your functions to `window` in order to use them with `x-data` for example `window.dropdown = function () {}` (this is because with Webpack, Rollup, Parcel etc. `function`'s you define will default to the module's scope not `window`).
 
 **For IE11 support** Use the following script instead.
 ```html

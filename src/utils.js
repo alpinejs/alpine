@@ -378,10 +378,23 @@ export function deepProxy(target, proxyHandler) {
     // This enables reactivity on setting nested data.
     // Note that if a project is not a valid object, it won't be converted to a proxy
     for (let property in target) {
-        target[property] = deepProxy(target[property], proxyHandler)
+        // Ignore readonly properties
+        const propertyDescriptor = getOwnPropertyDescriptor(target, property)
+        if (propertyDescriptor && propertyDescriptor.writable) {
+             target[property] = deepProxy(target[property], proxyHandler)
+        }
     }
 
     return new Proxy(target, proxyHandler)
+}
+
+function getOwnPropertyDescriptor(target, property) {
+    let propertyDescriptor = Object.getOwnPropertyDescriptor(target, property);
+    while (typeof propertyDescriptor === 'undefined' && target !== null) {
+        target = Object.getPrototypeOf(target)
+        propertyDescriptor = Object.getOwnPropertyDescriptor(target, property);
+    }
+    return propertyDescriptor
 }
 
 function isNumeric(subject){

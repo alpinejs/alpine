@@ -166,6 +166,10 @@ export default class Component {
         if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
             el.__x_original_classes = el.getAttribute('class').split(' ')
         }
+        if (el.hasAttribute('style') && getXAttrs(el).length > 0) {
+            // CSSStyleDeclaration, save the text representation of it
+            el.__x_original_style_text = el.style.cssText
+        }
 
         this.registerListeners(el, extraVars)
         this.resolveBoundAttributes(el, true, extraVars)

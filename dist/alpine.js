@@ -540,6 +540,10 @@
         } else {
           el.checked = !!value;
         }
+
+        if (typeof value === 'string') {
+          el.value = value;
+        }
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {

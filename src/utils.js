@@ -32,6 +32,58 @@ export function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase()
 }
 
+// Currently only supports kebab-case & already camelCase-d input
+// in case of camelCase input, should be a noop
+export function camelCase(kebabIn) {
+    const words = kebabIn.split('-')
+    let asCamel = words[0]
+    // Check if this _was_ actual kebab-case
+    if (words.length > 1) {
+        asCamel = asCamel.toLowerCase()
+        // Skip the first word since camelCase starts with lower
+        for (let i = 1; i < words.length; i++) {
+            const w = words[i]
+            asCamel += w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+        }
+    }
+    return asCamel
+}
+
+// Convert CSS to a rule object, inverse of `rulesObjToCssText`
+// CSSStyleDeclaration.cssText -> { rule: value } JS Object
+export function cssTextToRulesObj(cssText) {
+    const ruleObj = {}
+    if (cssText) {
+        cssText.split(';').forEach(styleRule => {
+            if (!styleRule) {
+                // skip empty strings and falsy values
+                return
+            }
+            const ruleEntries = styleRule.split(':')
+            if (ruleEntries.length < 2) {
+                // skip malformed rulename -> value pairs
+                // eg. display; width: 100px;
+                return
+            }
+            const ruleName = ruleEntries[0].trim()
+            const ruleValue = ruleEntries[1].trim()
+            ruleObj[ruleName] = ruleValue
+        })
+    }
+    return ruleObj
+}
+
+// Outputs CSS with no whitespace from rule object, inverse of `cssTextToRulesObj`
+// { rule: value } JS Object -> cssText
+export function rulesObjToCssText(rulesObj) {
+    return Object.keys(rulesObj)
+        // currently there's no need to kebabCase ruleName since
+        // it's coming from cssText/strings regardless and so should
+        // already be in kebab-case
+        .map(ruleName => `${ruleName}:${rulesObj[ruleName]}`)
+        .join(';')
+}
+
 export function walk(el, callback) {
     if (callback(el) === false) return
 

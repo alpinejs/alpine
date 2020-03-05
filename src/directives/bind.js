@@ -1,4 +1,5 @@
-import { arrayUnique , isBooleanAttr } from '../utils'
+
+import { arrayUnique, isBooleanAttr, camelCase, cssTextToRulesObj, rulesObjToCssText } from '../utils'
 
 export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
     var value = component.evaluateReturnExpression(el, expression, extraVars)
@@ -54,6 +55,48 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             const originalClasses = el.__x_original_classes || []
             const newClasses = value.split(' ')
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
+        }
+    } else if (attrName === 'style') {
+        if (Array.isArray(value)) {
+            const originalStyleCssText = el.__x_original_style_text || ''
+            const originalStyles = cssTextToRulesObj(originalStyleCssText)
+
+            const newStyles = {}
+            value.forEach(entry => {
+                const rulesObj = cssTextToRulesObj(entry)
+                Object.keys(rulesObj).forEach(ruleName => {
+                    newStyles[ruleName] = rulesObj[ruleName]
+                })
+            })
+
+            const newRuleNames = arrayUnique(Object.keys(originalStyles).concat(Object.keys(newStyles)))
+            const newActiveRules = {}
+            newRuleNames.forEach(ruleName => {
+                newActiveRules[ruleName] = newStyles[ruleName] || originalStyles[ruleName]
+            })
+
+            el.setAttribute('style', rulesObjToCssText(newActiveRules))
+        } else if (typeof value === 'object') {
+            Object.keys(value).forEach(styleName => {
+                if (value[styleName]) {
+                    el.style[camelCase(styleName)] = value[styleName]
+                } else {
+                    // Reset this style, use '' over null for IE support
+                    el.style[styleName] = ''
+                }
+            })
+        } else {
+            const originalStyleCssText = el.__x_original_style_text || ''
+            const originalStyles = cssTextToRulesObj(originalStyleCssText)
+            const newStyles = cssTextToRulesObj(value)
+
+            const newRuleNames = arrayUnique(Object.keys(originalStyles).concat(Object.keys(newStyles)))
+            const newActiveRules = {}
+            newRuleNames.forEach(ruleName => {
+                newActiveRules[ruleName] = newStyles[ruleName] || originalStyles[ruleName]
+            })
+
+            el.setAttribute('style', rulesObjToCssText(newActiveRules))
         }
     } else if (isBooleanAttr(attrName)) {
         // Boolean attributes have to be explicitly added and removed, not just set.

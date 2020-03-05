@@ -388,14 +388,27 @@ export function deepProxy(target, proxyHandler) {
     // If target is already an Alpine proxy, return it.
     if (target['$isAlpineProxy']) return target;
 
-    // Otherwise proxy the properties recursively.
+    // Otherwise, proxy the properties recursively.
     // This enables reactivity on setting nested data.
-    // Note that if a project is not a valid object, it won't be converted to a proxy
     for (let property in target) {
+        // Don't Proxy readonly properties.
+        if (propertyIsReadOnly(target, property)) continue
+
         target[property] = deepProxy(target[property], proxyHandler)
     }
 
     return new Proxy(target, proxyHandler)
+}
+
+function propertyIsReadOnly(target, property) {
+    let propertyDescriptor = Object.getOwnPropertyDescriptor(target, property)
+
+    while (typeof propertyDescriptor === 'undefined' && target !== null) {
+        target = Object.getPrototypeOf(target)
+        propertyDescriptor = Object.getOwnPropertyDescriptor(target, property);
+    }
+
+    return propertyDescriptor && ! propertyDescriptor.writable
 }
 
 function isNumeric(subject){

@@ -72,7 +72,7 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
 export function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name)
 
-    const xAttrRE = /x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)/
+    const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/
 
     return xAttrRE.test(name)
 }
@@ -83,7 +83,7 @@ export function getXAttrs(el, type) {
         .map(attr => {
             const name = replaceAtAndColonWithStandardSyntax(attr.name)
 
-            const typeMatch = name.match(/x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)/)
+            const typeMatch = name.match(/^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/)
             const valueMatch = name.match(/:([a-zA-Z\-:]+)/)
             const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
 

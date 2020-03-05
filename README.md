@@ -236,6 +236,24 @@ For example:
 
 In this example, the "hidden" class will only be applied when the value of the `foo` data attribute is `true`.
 
+**`x-bind` for style attributes**
+
+`x-bind` behaves a little differently when binding to the `style` attribute.
+
+For styles, you pass in an object who's keys are style names, and values are either CSS property values (strings) or falsy. If the value is falsy the style will not be applied.
+
+For example:
+`<div x-bind:class="{ display: foo && 'inline', fontSize: 20 + 'px' }"></div>`
+
+In this example, the "display" style will only be applied when the value of the `foo` data attribute is `true`.
+
+`style` bindings also support arrays and will merge/override rules.
+
+For example:
+`<div style="display: inline" x-bind:style="['display: hidden; width: 200px;', 'height: 20px;']"></div>`
+
+In this example, the "display" style will be set to "hidden", "width" will be "200px" and height will be "20px"
+
 **`x-bind` for boolean attributes**
 
 `x-bind` supports boolean attributes in the same way that value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.

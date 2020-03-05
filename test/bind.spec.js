@@ -175,6 +175,163 @@ test('class attribute bindings are synced by string syntax', async () => {
     expect(document.querySelector('span').classList.contains('baz')).toBeTruthy
 })
 
+test('style attribute bindings are merged by string syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ isOn: false }">
+            <span style="display: inline" x-bind:style="isOn ? 'margin-top: 10px': ''"></span>
+
+            <button @click="isOn = ! isOn"></button>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').style.display).toBeTruthy()
+    expect(document.querySelector('span').style.display).toEqual('inline')
+    expect(document.querySelector('span').style.marginTop).toBeFalsy()
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').style.display).toBeTruthy()
+        expect(document.querySelector('span').style.display).toEqual('inline')
+        expect(document.querySelector('span').style.marginTop).toBeTruthy()
+        expect(document.querySelector('span').style.marginTop).toEqual('10px')
+    })
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').style.display).toBeTruthy()
+        expect(document.querySelector('span').style.display).toEqual('inline')
+        expect(document.querySelector('span').style.marginTop).toBeFalsy()
+    })
+})
+
+test('style attribute bindings are merged by array syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ isOn: false }">
+            <span
+                style="display: inline"
+                x-bind:style="isOn ? ['display: hidden; width: 200px;', 'height: 20px;']: ['margin-left: 150px;']"
+            ></span>
+
+            <button @click="isOn = ! isOn"></button>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').style.display).toBeTruthy()
+    expect(document.querySelector('span').style.display).toEqual('inline')
+    expect(document.querySelector('span').style.width).toBeFalsy()
+    expect(document.querySelector('span').style.height).toBeFalsy()
+    expect(document.querySelector('span').style.marginLeft).toBeTruthy()
+    expect(document.querySelector('span').style.marginLeft).toEqual('150px')
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').style.display).toBeTruthy()
+    expect(document.querySelector('span').style.display).toEqual('hidden')
+    expect(document.querySelector('span').style.width).toBeTruthy()
+    expect(document.querySelector('span').style.width).toEqual('200px')
+    expect(document.querySelector('span').style.height).toBeTruthy()
+    expect(document.querySelector('span').style.height).toEqual('20px')
+    expect(document.querySelector('span').style.marginLeft).toBeFalsy()
+    })
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').style.display).toBeTruthy()
+        expect(document.querySelector('span').style.display).toEqual('inline')
+        expect(document.querySelector('span').style.width).toBeFalsy()
+        expect(document.querySelector('span').style.height).toBeFalsy()
+        expect(document.querySelector('span').style.marginLeft).toBeTruthy()
+        expect(document.querySelector('span').style.marginLeft).toEqual('150px')
+    })
+})
+
+test('style attribute bindings are removed by object syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ display: false }">
+            <span style="display: inline" x-bind:style="{ display: false }"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').style.display).toBeFalsy()
+})
+
+test('style attribute bindings are added by string syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ initialStyles: 'display: hidden' }">
+            <span x-bind:style="initialStyles"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').style.display).toBeTruthy()
+    expect(document.querySelector('span').style.display).toEqual('hidden')
+})
+
+test('style attribute bindings are added by object syntax, concatenation works & name is camelized', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ numberValue: 20 }">
+            <span x-bind:style="{ 'padding-left': numberValue + 'px' }"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').style.paddingLeft).toBeTruthy()
+    expect(document.querySelector('span').style.paddingLeft).toEqual('20px')
+})
+
+test('style attribute bindings are added by nested object syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ nested: { styleValue: '12px' } }">
+            <span x-bind:style="{ paddingLeft: nested.styleValue }"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').style.paddingLeft).toBeTruthy()
+    expect(document.querySelector('span').style.paddingLeft).toEqual('12px')
+})
+
+test('style attribute bindings are added by array syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{}">
+            <span class="" x-bind:style="['display: inline;', 'padding-top: 100px']"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').style.display).toBeTruthy()
+    expect(document.querySelector('span').style.display).toEqual('inline')
+    expect(document.querySelector('span').style.paddingTop).toBeTruthy()
+    expect(document.querySelector('span').style.paddingTop).toEqual('100px')
+})
+
+test('style attribute bindings are synced by string syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data="{foo: 'display: hidden; cursor: pointer;'}">
+            <span style="display: inline" x-bind:style="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').style.display).toBeTruthy()
+    expect(document.querySelector('span').style.display).toEqual('hidden')
+    expect(document.querySelector('span').style.cursor).toBeTruthy()
+    expect(document.querySelector('span').style.cursor).toEqual('pointer')
+})
+
 test('boolean attributes set to false are removed from element', async () => {
     document.body.innerHTML = `
         <div x-data="{ isSet: false }">

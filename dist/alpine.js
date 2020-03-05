@@ -80,6 +80,59 @@
   }
   function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
+  } // Currently only supports kebab-case & already camelCase-d input
+  // in case of camelCase input, should be a noop
+
+  function camelCase(kebabIn) {
+    const words = kebabIn.split('-');
+    let asCamel = words[0]; // Check if this _was_ actual kebab-case
+
+    if (words.length > 1) {
+      asCamel = asCamel.toLowerCase(); // Skip the first word since camelCase starts with lower
+
+      for (let i = 1; i < words.length; i++) {
+        const w = words[i];
+        asCamel += w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+      }
+    }
+
+    return asCamel;
+  } // Convert CSS to a rule object, inverse of `rulesObjToCssText`
+  // CSSStyleDeclaration.cssText -> { rule: value } JS Object
+
+  function cssTextToRulesObj(cssText) {
+    const ruleObj = {};
+
+    if (cssText) {
+      cssText.split(';').forEach(styleRule => {
+        if (!styleRule) {
+          // skip empty strings and falsy values
+          return;
+        }
+
+        const ruleEntries = styleRule.split(':');
+
+        if (ruleEntries.length < 2) {
+          // skip malformed rulename -> value pairs
+          // eg. display; width: 100px;
+          return;
+        }
+
+        const ruleName = ruleEntries[0].trim();
+        const ruleValue = ruleEntries[1].trim();
+        ruleObj[ruleName] = ruleValue;
+      });
+    }
+
+    return ruleObj;
+  } // Outputs CSS with no whitespace from rule object, inverse of `cssTextToRulesObj`
+  // { rule: value } JS Object -> cssText
+
+  function rulesObjToCssText(rulesObj) {
+    return Object.keys(rulesObj) // currently there's no need to kebabCase ruleName since
+    // it's coming from cssText/strings regardless and so should
+    // already be in kebab-case
+    .map(ruleName => `${ruleName}:${rulesObj[ruleName]}`).join(';');
   }
   function walk(el, callback) {
     if (callback(el) === false) return;
@@ -583,6 +636,43 @@
         const originalClasses = el.__x_original_classes || [];
         const newClasses = value.split(' ');
         el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
+      }
+    } else if (attrName === 'style') {
+      if (Array.isArray(value)) {
+        const originalStyleCssText = el.__x_original_style_text || '';
+        const originalStyles = cssTextToRulesObj(originalStyleCssText);
+        const newStyles = {};
+        value.forEach(entry => {
+          const rulesObj = cssTextToRulesObj(entry);
+          Object.keys(rulesObj).forEach(ruleName => {
+            newStyles[ruleName] = rulesObj[ruleName];
+          });
+        });
+        const newRuleNames = arrayUnique(Object.keys(originalStyles).concat(Object.keys(newStyles)));
+        const newActiveRules = {};
+        newRuleNames.forEach(ruleName => {
+          newActiveRules[ruleName] = newStyles[ruleName] || originalStyles[ruleName];
+        });
+        el.setAttribute('style', rulesObjToCssText(newActiveRules));
+      } else if (typeof value === 'object') {
+        Object.keys(value).forEach(styleName => {
+          if (value[styleName]) {
+            el.style[camelCase(styleName)] = value[styleName];
+          } else {
+            // Reset this style, use '' over null for IE support
+            el.style[styleName] = '';
+          }
+        });
+      } else {
+        const originalStyleCssText = el.__x_original_style_text || '';
+        const originalStyles = cssTextToRulesObj(originalStyleCssText);
+        const newStyles = cssTextToRulesObj(value);
+        const newRuleNames = arrayUnique(Object.keys(originalStyles).concat(Object.keys(newStyles)));
+        const newActiveRules = {};
+        newRuleNames.forEach(ruleName => {
+          newActiveRules[ruleName] = newStyles[ruleName] || originalStyles[ruleName];
+        });
+        el.setAttribute('style', rulesObjToCssText(newActiveRules));
       }
     } else if (isBooleanAttr(attrName)) {
       // Boolean attributes have to be explicitly added and removed, not just set.
@@ -1393,6 +1483,11 @@
       // original class attribute looked like for reference.
       if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
         el.__x_original_classes = el.getAttribute('class').split(' ');
+      }
+
+      if (el.hasAttribute('style') && getXAttrs(el).length > 0) {
+        // CSSStyleDeclaration, save the text representation of it
+        el.__x_original_style_text = el.style.cssText;
       }
 
       this.registerListeners(el, extraVars);

@@ -4468,10 +4468,48 @@
     }
   });
 
-  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
-  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('slice');
+  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('slice', { ACCESSORS: true, 0: 0, 1: 2 });
 
+  var SPECIES$6 = wellKnownSymbol('species');
+  var nativeSlice = [].slice;
   var max$1 = Math.max;
+
+  // `Array.prototype.slice` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.slice
+  // fallback for not array-like ES3 strings and DOM objects
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
+    slice: function slice(start, end) {
+      var O = toIndexedObject(this);
+      var length = toLength(O.length);
+      var k = toAbsoluteIndex(start, length);
+      var fin = toAbsoluteIndex(end === undefined ? length : end, length);
+      // inline `ArraySpeciesCreate` for usage native `Array#slice` where it's possible
+      var Constructor, result, n;
+      if (isArray(O)) {
+        Constructor = O.constructor;
+        // cross-realm fallback
+        if (typeof Constructor == 'function' && (Constructor === Array || isArray(Constructor.prototype))) {
+          Constructor = undefined;
+        } else if (isObject(Constructor)) {
+          Constructor = Constructor[SPECIES$6];
+          if (Constructor === null) Constructor = undefined;
+        }
+        if (Constructor === Array || Constructor === undefined) {
+          return nativeSlice.call(O, k, fin);
+        }
+      }
+      result = new (Constructor === undefined ? Array : Constructor)(max$1(fin - k, 0));
+      for (n = 0; k < fin; k++, n++) if (k in O) createProperty(result, n, O[k]);
+      result.length = n;
+      return result;
+    }
+  });
+
+  var HAS_SPECIES_SUPPORT$3 = arrayMethodHasSpeciesSupport('splice');
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+
+  var max$2 = Math.max;
   var min$3 = Math.min;
   var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
   var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
@@ -4479,7 +4517,7 @@
   // `Array.prototype.splice` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.splice
   // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$3 || !USES_TO_LENGTH$8 }, {
     splice: function splice(start, deleteCount /* , ...items */) {
       var O = toObject(this);
       var len = toLength(O.length);
@@ -4493,7 +4531,7 @@
         actualDeleteCount = len - actualStart;
       } else {
         insertCount = argumentsLength - 2;
-        actualDeleteCount = min$3(max$1(toInteger(deleteCount), 0), len - actualStart);
+        actualDeleteCount = min$3(max$2(toInteger(deleteCount), 0), len - actualStart);
       }
       if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER$1) {
         throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
@@ -4703,7 +4741,7 @@
     }
   });
 
-  var max$2 = Math.max;
+  var max$3 = Math.max;
   var min$4 = Math.min;
   var floor$1 = Math.floor;
   var SUBSTITUTION_SYMBOLS = /\$([$&'`]|\d\d?|<[^>]*>)/g;
@@ -4769,7 +4807,7 @@
           result = results[i];
 
           var matched = String(result[0]);
-          var position = max$2(min$4(toInteger(result.index), S.length), 0);
+          var position = max$3(min$4(toInteger(result.index), S.length), 0);
           var captures = [];
           // NOTE: This is equivalent to
           //   captures = result.slice(1).map(maybeToString)
@@ -4912,6 +4950,69 @@
   }
   function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
+  } // Currently only supports kebab-case & already camelCase-d input
+  // in case of camelCase input, should be a noop
+
+  function camelCase(kebabIn) {
+    var words = kebabIn.split('-');
+    var asCamel = words[0]; // Check if this _was_ actual kebab-case
+
+    if (words.length > 1) {
+      asCamel = asCamel.toLowerCase(); // Skip the first word since camelCase starts with lower
+
+      for (var i = 1; i < words.length; i++) {
+        var w = words[i];
+        asCamel += w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+      }
+    }
+
+    return asCamel;
+  } // Convert CSS to a rule object, inverse of `rulesObjToCssText`
+  // CSSStyleDeclaration.cssText -> { rule: value } JS Object
+
+  function cssTextToRulesObj(cssText) {
+    var _this2 = this;
+
+    var ruleObj = {};
+
+    if (cssText) {
+      cssText.split(';').forEach(function (styleRule) {
+        _newArrowCheck(this, _this2);
+
+        if (!styleRule) {
+          // skip empty strings and falsy values
+          return;
+        }
+
+        var ruleEntries = styleRule.split(':');
+
+        if (ruleEntries.length < 2) {
+          // skip malformed rulename -> value pairs
+          // eg. display; width: 100px;
+          return;
+        }
+
+        var ruleName = ruleEntries[0].trim();
+        var ruleValue = ruleEntries[1].trim();
+        ruleObj[ruleName] = ruleValue;
+      }.bind(this));
+    }
+
+    return ruleObj;
+  } // Outputs CSS with no whitespace from rule object, inverse of `cssTextToRulesObj`
+  // { rule: value } JS Object -> cssText
+
+  function rulesObjToCssText(rulesObj) {
+    var _this3 = this;
+
+    return Object.keys(rulesObj) // currently there's no need to kebabCase ruleName since
+    // it's coming from cssText/strings regardless and so should
+    // already be in kebab-case
+    .map(function (ruleName) {
+      _newArrowCheck(this, _this3);
+
+      return "".concat(ruleName, ":").concat(rulesObj[ruleName]);
+    }.bind(this)).join(';');
   }
   function walk(el, callback) {
     if (callback(el) === false) return;
@@ -4962,12 +5063,12 @@
     return xAttrRE.test(name);
   }
   function getXAttrs(el, type) {
-    var _this2 = this;
+    var _this4 = this;
 
     return Array.from(el.attributes).filter(isXAttr).map(function (attr) {
-      var _this3 = this;
+      var _this5 = this;
 
-      _newArrowCheck(this, _this2);
+      _newArrowCheck(this, _this4);
 
       var name = replaceAtAndColonWithStandardSyntax(attr.name);
       var typeMatch = name.match(xAttrRE);
@@ -4977,14 +5078,14 @@
         type: typeMatch ? typeMatch[1] : null,
         value: valueMatch ? valueMatch[1] : null,
         modifiers: modifiers.map(function (i) {
-          _newArrowCheck(this, _this3);
+          _newArrowCheck(this, _this5);
 
           return i.replace('.', '');
         }.bind(this)),
         expression: attr.value
       };
     }.bind(this)).filter(function (i) {
-      _newArrowCheck(this, _this2);
+      _newArrowCheck(this, _this4);
 
       // If no type is passed in for filtering, bypass filter
       if (!type) return true;
@@ -5007,7 +5108,7 @@
     return name;
   }
   function transitionIn(el, show) {
-    var _this4 = this;
+    var _this6 = this;
 
     var forceSkip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     // We don't want to transition on the initial page load.
@@ -5022,7 +5123,7 @@
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out'); // If x-show.transition.in...out... only use "in" related modifiers for this transition.
 
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this6);
 
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
@@ -5035,7 +5136,7 @@
     }
   }
   function transitionOut(el, hide) {
-    var _this5 = this;
+    var _this7 = this;
 
     var forceSkip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     if (forceSkip) return hide();
@@ -5047,7 +5148,7 @@
       if (modifiers.includes('in') && !modifiers.includes('out')) return hide();
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out');
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this5);
+        _newArrowCheck(this, _this7);
 
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
@@ -5059,7 +5160,7 @@
     }
   }
   function transitionHelperIn(el, modifiers, showCallback) {
-    var _this6 = this;
+    var _this8 = this;
 
     // Default values inspired by: https://material.io/design/motion/speed.html#duration
     var styleValues = {
@@ -5075,11 +5176,11 @@
       }
     };
     transitionHelper(el, modifiers, showCallback, function () {
-      _newArrowCheck(this, _this6);
+      _newArrowCheck(this, _this8);
     }.bind(this), styleValues);
   }
   function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
-    var _this7 = this;
+    var _this9 = this;
 
     // Make the "out" transition .5x slower than the "in". (Visually better)
     // HOWEVER, if they explicitly set a duration for the "out" transition,
@@ -5098,7 +5199,7 @@
       }
     };
     transitionHelper(el, modifiers, function () {
-      _newArrowCheck(this, _this7);
+      _newArrowCheck(this, _this9);
     }.bind(this), hideCallback, styleValues);
   }
 
@@ -5177,83 +5278,83 @@
     transition(el, stages);
   }
   function transitionClassesIn(el, directives, showCallback) {
-    var _this8 = this;
+    var _this10 = this;
 
     var enter = (directives.find(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'enter';
     }.bind(this)) || {
       expression: ''
     }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return i !== '';
     }.bind(this));
     var enterStart = (directives.find(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'enter-start';
     }.bind(this)) || {
       expression: ''
     }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return i !== '';
     }.bind(this));
     var enterEnd = (directives.find(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'enter-end';
     }.bind(this)) || {
       expression: ''
     }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return i !== '';
     }.bind(this));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
     }.bind(this));
   }
   function transitionClassesOut(el, directives, hideCallback) {
-    var _this9 = this;
+    var _this11 = this;
 
     var leave = (directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'leave';
     }.bind(this)) || {
       expression: ''
     }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
 
       return i !== '';
     }.bind(this));
     var leaveStart = (directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'leave-start';
     }.bind(this)) || {
       expression: ''
     }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
 
       return i !== '';
     }.bind(this));
     var leaveEnd = (directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'leave-end';
     }.bind(this)) || {
       expression: ''
     }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
 
       return i !== '';
     }.bind(this));
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
     }.bind(this), hideCallback);
   }
   function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
@@ -5274,12 +5375,12 @@
       },
       end: function end() {
         var _el$classList3,
-            _this10 = this,
+            _this12 = this,
             _el$classList4;
 
         // Don't remove classes that were in the original class attribute.
         (_el$classList3 = el.classList).remove.apply(_el$classList3, _toConsumableArray(classesStart.filter(function (i) {
-          _newArrowCheck(this, _this10);
+          _newArrowCheck(this, _this12);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -5291,17 +5392,17 @@
       },
       cleanup: function cleanup() {
         var _el$classList5,
-            _this11 = this,
+            _this13 = this,
             _el$classList6;
 
         (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(classesDuring.filter(function (i) {
-          _newArrowCheck(this, _this11);
+          _newArrowCheck(this, _this13);
 
           return !originalClasses.includes(i);
         }.bind(this))));
 
         (_el$classList6 = el.classList).remove.apply(_el$classList6, _toConsumableArray(classesEnd.filter(function (i) {
-          _newArrowCheck(this, _this11);
+          _newArrowCheck(this, _this13);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -5310,27 +5411,27 @@
     transition(el, stages);
   }
   function transition(el, stages) {
-    var _this12 = this;
+    var _this14 = this;
 
     stages.start();
     stages.during();
     requestAnimationFrame(function () {
-      var _this13 = this;
+      var _this15 = this;
 
-      _newArrowCheck(this, _this12);
+      _newArrowCheck(this, _this14);
 
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
       var duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000;
       stages.show();
       requestAnimationFrame(function () {
-        var _this14 = this;
+        var _this16 = this;
 
-        _newArrowCheck(this, _this13);
+        _newArrowCheck(this, _this15);
 
         stages.end();
         setTimeout(function () {
-          _newArrowCheck(this, _this14);
+          _newArrowCheck(this, _this16);
 
           stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
@@ -5583,6 +5684,61 @@
         var newClasses = value.split(' ');
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
+    } else if (attrName === 'style') {
+      if (Array.isArray(value)) {
+        var originalStyleCssText = el.__x_original_style_text || '';
+        var originalStyles = cssTextToRulesObj(originalStyleCssText);
+        var newStyles = {};
+        value.forEach(function (entry) {
+          var _this3 = this;
+
+          _newArrowCheck(this, _this);
+
+          var rulesObj = cssTextToRulesObj(entry);
+          Object.keys(rulesObj).forEach(function (ruleName) {
+            _newArrowCheck(this, _this3);
+
+            newStyles[ruleName] = rulesObj[ruleName];
+          }.bind(this));
+        }.bind(this));
+        var newRuleNames = arrayUnique(Object.keys(originalStyles).concat(Object.keys(newStyles)));
+        var newActiveRules = {};
+        newRuleNames.forEach(function (ruleName) {
+          _newArrowCheck(this, _this);
+
+          newActiveRules[ruleName] = newStyles[ruleName] || originalStyles[ruleName];
+        }.bind(this));
+        el.setAttribute('style', rulesObjToCssText(newActiveRules));
+      } else if (_typeof(value) === 'object') {
+        Object.keys(value).forEach(function (styleName) {
+          _newArrowCheck(this, _this);
+
+          if (value[styleName]) {
+            el.style[camelCase(styleName)] = value[styleName];
+          } else {
+            // Reset this style, use '' over null for IE support
+            el.style[styleName] = '';
+          }
+        }.bind(this));
+      } else {
+        var _originalStyleCssText = el.__x_original_style_text || '';
+
+        var _originalStyles = cssTextToRulesObj(_originalStyleCssText);
+
+        var _newStyles = cssTextToRulesObj(value);
+
+        var _newRuleNames = arrayUnique(Object.keys(_originalStyles).concat(Object.keys(_newStyles)));
+
+        var _newActiveRules = {};
+
+        _newRuleNames.forEach(function (ruleName) {
+          _newArrowCheck(this, _this);
+
+          _newActiveRules[ruleName] = _newStyles[ruleName] || _originalStyles[ruleName];
+        }.bind(this));
+
+        el.setAttribute('style', rulesObjToCssText(_newActiveRules));
+      }
     } else if (isBooleanAttr(attrName)) {
       // Boolean attributes have to be explicitly added and removed, not just set.
       if (!!value) {
@@ -5596,15 +5752,15 @@
   }
 
   function updateSelect(el, value) {
-    var _this3 = this;
+    var _this4 = this;
 
     var arrayWrappedValue = [].concat(value).map(function (value) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       return value + '';
     }.bind(this));
     Array.from(el.options).forEach(function (option) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       option.selected = arrayWrappedValue.includes(option.value || option.text);
     }.bind(this));
@@ -6245,6 +6401,11 @@
         // original class attribute looked like for reference.
         if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
           el.__x_original_classes = el.getAttribute('class').split(' ');
+        }
+
+        if (el.hasAttribute('style') && getXAttrs(el).length > 0) {
+          // CSSStyleDeclaration, save the text representation of it
+          el.__x_original_style_text = el.style.cssText;
         }
 
         this.registerListeners(el, extraVars);

@@ -1,8 +1,8 @@
 import babel from 'rollup-plugin-babel';
 import filesize from 'rollup-plugin-filesize';
-import { terser } from "rollup-plugin-terser";
 import resolve from "rollup-plugin-node-resolve"
 import stripCode from 'rollup-plugin-strip-code';
+import replace from '@rollup/plugin-replace';
 import pkg from './package.json';
 
 export default [
@@ -15,14 +15,10 @@ export default [
             sourcemap: true,
         },
         plugins: [
+            // 'observable-membrane' uses process.env. We don't have that...
+            replace({ "process.env.NODE_ENV": "'production'" }),
             resolve(),
             filesize(),
-            terser({
-                mangle: false,
-                compress: {
-                    drop_debugger: false,
-                },
-            }),
             babel({
                 exclude: 'node_modules/**'
             }),
@@ -41,14 +37,10 @@ export default [
             sourcemap: true,
         },
         plugins: [
+            // 'observable-membrane' uses process.env. We don't have that...
+            replace({ "process.env.NODE_ENV": "'production'" }),
             resolve(),
             filesize(),
-            terser({
-                mangle: false,
-                compress: {
-                    drop_debugger: false,
-                },
-            }),
             babel({
                 exclude: 'node_modules/**'
             }),

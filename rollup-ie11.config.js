@@ -1,8 +1,8 @@
 import babel from 'rollup-plugin-babel';
 import filesize from 'rollup-plugin-filesize';
-import { terser } from "rollup-plugin-terser";
-import resolve from "rollup-plugin-node-resolve"
-import commonjs from '@rollup/plugin-commonjs'
+import { terser } from 'rollup-plugin-terser';
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import multi from '@rollup/plugin-multi-entry';
 import replace from '@rollup/plugin-replace';
 

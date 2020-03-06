@@ -1246,11 +1246,11 @@
     }
 
     getUnobservedData() {
-      let unwrapedData = this.membrane.unwrapProxy(this.$data);
+      let unwrappedData = this.membrane.unwrapProxy(this.$data);
       let copy = {};
-      Object.keys(unwrapedData).forEach(key => {
+      Object.keys(unwrappedData).forEach(key => {
         if (['$el', '$refs', '$nextTick'].includes(key)) return;
-        copy[key] = unwrapedData[key];
+        copy[key] = unwrappedData[key];
       });
       return copy;
     }

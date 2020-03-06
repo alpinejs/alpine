@@ -106,10 +106,11 @@
     };
   }
   function saferEval(expression, dataContext, additionalHelperVariables = {}) {
-    return new Function(['$data', ...Object.keys(additionalHelperVariables)], `var result; with($data) { result = ${expression} }; return result`)(dataContext, ...Object.values(additionalHelperVariables));
+    return new Function(['$data', '$extras'], `var result; with($extras) { with($data) { result = ${expression} } }; return result`)(dataContext, additionalHelperVariables);
   }
   function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
-    return new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
+    if (!expression) expression = 'undefined';
+    return new Function(['$data', '$extras'], `with ($extras) { var result; with($data) { result = ${expression} }; if (typeof result === 'function') { if (typeof $event !== 'undefined') { result($event); } else { result(); } } };`)(dataContext, additionalHelperVariables);
   }
   function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name);

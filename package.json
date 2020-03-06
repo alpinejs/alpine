@@ -1,7 +1,7 @@
 {
     "main": "dist/alpine.js",
     "name": "alpinejs",
-    "version": "2.0.2",
+    "version": "2.1.0",
     "repository": {
         "type": "git",
         "url": "git://github.com/alpinejs/alpine.git"
@@ -20,6 +20,7 @@
         "@babel/preset-env": "^7.8.4",
         "@rollup/plugin-commonjs": "^11.0.2",
         "@rollup/plugin-multi-entry": "^3.0.0",
+        "@rollup/plugin-replace": "^2.3.1",
         "@testing-library/dom": "^6.12.2",
         "@testing-library/jest-dom": "^4.2.4",
         "@webcomponents/template": "^1.4.1",
@@ -32,6 +33,7 @@
         "element-remove": "^1.0.4",
         "jest": "^24.8.0",
         "jsdom-simulant": "^1.1.2",
+        "observable-membrane": "^0.26.1",
         "proxy-polyfill": "^0.3.0",
         "rollup": "^1.31.0",
         "rollup-plugin-babel": "^4.3.3",

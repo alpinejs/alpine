@@ -1,10 +1,11 @@
-import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, deepProxy } from './utils'
+import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleShowDirective } from './directives/show'
 import { handleIfDirective } from './directives/if'
 import { registerModelListener } from './directives/model'
 import { registerListener } from './directives/on'
+import ObservableMembrane from 'observable-membrane'
 
 export default class Component {
     constructor(el, seedDataForCloning = null) {
@@ -25,7 +26,9 @@ export default class Component {
         /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
-        this.$data = this.wrapDataInObservable(this.unobservedData)
+        let { membrane, data } = this.wrapDataInObservable(this.unobservedData)
+        this.$data = data
+        this.membrane = membrane
 
         // After making user-supplied data methods reactive, we can now add
         // our magic properties to the original data for access.
@@ -65,28 +68,25 @@ export default class Component {
     }
 
     getUnobservedData() {
-        let rawData = {}
+        let unwrappedData = this.membrane.unwrapProxy(this.$data)
+        let copy = {}
 
-        Object.keys(this.unobservedData).forEach(key => {
+        Object.keys(unwrappedData).forEach(key => {
             if (['$el', '$refs', '$nextTick'].includes(key)) return
 
-            rawData[key] = this.unobservedData[key]
+            copy[key] = unwrappedData[key]
         })
 
-        return rawData
+        return copy
     }
 
     wrapDataInObservable(data) {
         var self = this
 
-        const proxyHandler = {
-            set(obj, property, value) {
-                // Set the value converting it to a "Deep Proxy" when required
-                // Note that if a project is not a valid object, it won't be converted to a proxy
-                const setWasSuccessful = Reflect.set(obj, property, deepProxy(value, proxyHandler))
-
+        let membrane = new ObservableMembrane({
+            valueMutated(target, key) {
                 // Don't react to data changes for cases like the `x-created` hook.
-                if (self.pauseReactivity) return setWasSuccessful
+                if (self.pauseReactivity) return
 
                 debounce(() => {
                     self.updateElements(self.$el)
@@ -96,19 +96,13 @@ export default class Component {
                         self.nextTickStack.shift()()
                     }
                 }, 0)()
-
-                return setWasSuccessful
             },
-            get(target, key) {
-                // Provide a way to determine if this object is an Alpine proxy or not.
-                if (key === "$isAlpineProxy") return true
+        })
 
-                // Just return the flippin' value. Gawsh.
-                return target[key]
-            }
+        return {
+            data: membrane.getProxy(data),
+            membrane,
         }
-
-        return deepProxy(data, proxyHandler)
     }
 
     walkAndSkipNestedComponents(el, callback, initializeComponentCallback = () => {}) {

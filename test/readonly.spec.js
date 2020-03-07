@@ -22,10 +22,12 @@ test('read-only properties do not break the proxy', async () => {
 
     const input = document.querySelector('input')
     Object.defineProperty(input, 'files', {
-        get: () => [new File(["foo"], "foo.txt", {type: "text/plain"})]
+        get: () => [new File(['foo'], 'foo.txt', { type: 'text/plain' })]
     })
 
-    input.dispatchEvent(new Event('change'));
+    input.dispatchEvent(new Event('change'))
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(1)
+    })
 })

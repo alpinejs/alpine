@@ -16,5 +16,7 @@ test('x-cloak is removed', async () => {
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('x-cloak')).toBeNull() })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('x-cloak')).toBeNull()
+    })
 })

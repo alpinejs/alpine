@@ -26,9 +26,11 @@ test('x-model updates value when updated via input event', async () => {
 
     Alpine.start()
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'baz' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 'baz' } })
 
-    await wait(() => { expect(document.querySelector('input').value).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('baz')
+    })
 })
 
 test('x-model reflects data changed elsewhere', async () => {
@@ -44,7 +46,9 @@ test('x-model reflects data changed elsewhere', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('input').value).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('baz')
+    })
 })
 
 test('x-model casts value to number if number modifier is present', async () => {
@@ -56,9 +60,11 @@ test('x-model casts value to number if number modifier is present', async () => 
 
     Alpine.start()
 
-    fireEvent.input(document.querySelector('input'), { target: { value: '123' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: '123' } })
 
-    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.foo).toEqual(123) })
+    await wait(() => {
+        expect(document.querySelector('[x-data]').__x.$data.foo).toEqual(123)
+    })
 })
 
 test('x-model trims value if trim modifier is present', async () => {
@@ -72,9 +78,11 @@ test('x-model trims value if trim modifier is present', async () => {
 
     Alpine.start()
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'bar   ' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar   ' } })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
 })
 
 test('x-model updates value when updated via changed event when lazy modifier is present', async () => {
@@ -86,9 +94,11 @@ test('x-model updates value when updated via changed event when lazy modifier is
 
     Alpine.start()
 
-    fireEvent.change(document.querySelector('input'), { target: { value: 'baz' }})
+    fireEvent.change(document.querySelector('input'), { target: { value: 'baz' } })
 
-    await wait(() => { expect(document.querySelector('input').value).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('baz')
+    })
 })
 
 test('x-model binds checkbox value', async () => {
@@ -103,11 +113,13 @@ test('x-model binds checkbox value', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').checked).toEqual(true)
-    expect(document.querySelector('span').getAttribute('bar')).toEqual("true")
+    expect(document.querySelector('span').getAttribute('bar')).toEqual('true')
 
-    fireEvent.change(document.querySelector('input'), { target: { checked: false }})
+    fireEvent.change(document.querySelector('input'), { target: { checked: false } })
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('bar')).toEqual("false") })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('bar')).toEqual('false')
+    })
 })
 
 test('x-model binds checkbox value to array', async () => {
@@ -124,14 +136,14 @@ test('x-model binds checkbox value to array', async () => {
 
     expect(document.querySelectorAll('input')[0].checked).toEqual(true)
     expect(document.querySelectorAll('input')[1].checked).toEqual(false)
-    expect(document.querySelector('span').getAttribute('bar')).toEqual("bar")
+    expect(document.querySelector('span').getAttribute('bar')).toEqual('bar')
 
-    fireEvent.change(document.querySelectorAll('input')['1'], { target: { checked: true }})
+    fireEvent.change(document.querySelectorAll('input')['1'], { target: { checked: true } })
 
     await wait(() => {
         expect(document.querySelectorAll('input')[0].checked).toEqual(true)
         expect(document.querySelectorAll('input')[1].checked).toEqual(true)
-        expect(document.querySelector('span').getAttribute('bar')).toEqual("bar,baz")
+        expect(document.querySelector('span').getAttribute('bar')).toEqual('bar,baz')
     })
 })
 
@@ -151,7 +163,7 @@ test('x-model binds radio value', async () => {
     expect(document.querySelectorAll('input')[1].checked).toEqual(false)
     expect(document.querySelector('span').getAttribute('bar')).toEqual('bar')
 
-    fireEvent.change(document.querySelectorAll('input')[1], { target: { checked: true }})
+    fireEvent.change(document.querySelectorAll('input')[1], { target: { checked: true } })
 
     await wait(() => {
         expect(document.querySelectorAll('input')[0].checked).toEqual(false)
@@ -180,7 +192,7 @@ test('x-model binds select dropdown', async () => {
     expect(document.querySelectorAll('option')[2].selected).toEqual(false)
     expect(document.querySelector('span').innerText).toEqual('bar')
 
-    fireEvent.change(document.querySelector('select'), { target: { value: 'baz' }});
+    fireEvent.change(document.querySelector('select'), { target: { value: 'baz' } })
 
     await wait(() => {
         expect(document.querySelectorAll('option')[0].selected).toEqual(false)
@@ -211,7 +223,7 @@ test('x-model binds multiple select dropdown', async () => {
     expect(document.querySelector('span').innerText).toEqual(['bar'])
 
     document.querySelectorAll('option')[2].selected = true
-    fireEvent.change(document.querySelector('select'));
+    fireEvent.change(document.querySelector('select'))
 
     await wait(() => {
         expect(document.querySelectorAll('option')[0].selected).toEqual(false)
@@ -234,7 +246,7 @@ test('x-model binds nested keys', async () => {
     expect(document.querySelector('input').value).toEqual('foo')
     expect(document.querySelector('span').innerText).toEqual('foo')
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } })
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('bar')
@@ -255,7 +267,7 @@ test('x-model undefined nested model key defaults to empty string', async () => 
     expect(document.querySelector('input').value).toEqual('')
     expect(document.querySelector('span').innerText).toEqual('')
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } })
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('bar')

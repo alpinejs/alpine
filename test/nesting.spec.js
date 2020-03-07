@@ -25,7 +25,9 @@ test('can nest components', async () => {
 
     await timeout(20)
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
 })
 
 test('can access parent properties after nested components', async () => {

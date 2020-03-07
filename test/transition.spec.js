@@ -9,15 +9,15 @@ test('transition in', async () => {
     // Hijack "requestAnimationFrame" for finer-tuned control in this test.
     var frameStack = []
 
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
         frameStack.push(callback)
-    });
+    })
 
     // Hijack "getComputeStyle" because js-dom is weird with it.
     // (hardcoding 10ms transition time for later assertions)
     jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
         return { transitionDuration: '.01s' }
-    });
+    })
 
     document.body.innerHTML = `
         <div x-data="{ show: false }">
@@ -34,14 +34,16 @@ test('transition in', async () => {
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
+    })
 
     document.querySelector('button').click()
 
     // Wait out the intial Alpine refresh debounce.
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
         setTimeout(() => {
-            resolve();
+            resolve()
         }, 5)
     )
 
@@ -64,13 +66,13 @@ test('transition in', async () => {
     expect(document.querySelector('span').classList.contains('enter-end')).toEqual(true)
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
 
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
         setTimeout(() => {
             expect(document.querySelector('span').classList.contains('enter')).toEqual(false)
             expect(document.querySelector('span').classList.contains('enter-start')).toEqual(false)
             expect(document.querySelector('span').classList.contains('enter-end')).toEqual(false)
             expect(document.querySelector('span').getAttribute('style')).toEqual(null)
-            resolve();
+            resolve()
         }, 10)
     )
 })
@@ -79,15 +81,15 @@ test('transition out', async () => {
     // Hijack "requestAnimationFrame" for finer-tuned control in this test.
     var frameStack = []
 
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
         frameStack.push(callback)
-    });
+    })
 
     // Hijack "getComputeStyle" because js-dom is weird with it.
     // (hardcoding 10ms transition time for later assertions)
     jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
         return { transitionDuration: '.01s' }
-    });
+    })
 
     document.body.innerHTML = `
         <div x-data="{ show: true }">
@@ -104,14 +106,16 @@ test('transition out', async () => {
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual(null) })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('style')).toEqual(null)
+    })
 
     document.querySelector('button').click()
 
     // Wait out the intial Alpine refresh debounce.
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
         setTimeout(() => {
-            resolve();
+            resolve()
         }, 5)
     )
 
@@ -134,13 +138,13 @@ test('transition out', async () => {
     expect(document.querySelector('span').classList.contains('leave-end')).toEqual(true)
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
 
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
         setTimeout(() => {
             expect(document.querySelector('span').classList.contains('leave')).toEqual(false)
             expect(document.querySelector('span').classList.contains('leave-start')).toEqual(false)
             expect(document.querySelector('span').classList.contains('leave-end')).toEqual(false)
             expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
-            resolve();
+            resolve()
         }, 10)
     )
 })
@@ -148,13 +152,13 @@ test('transition out', async () => {
 test('original class attribute classes are preserved after transition finishes', async () => {
     var frameStack = []
 
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
         frameStack.push(callback)
-    });
+    })
 
     jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
         return { transitionDuration: '.01s' }
-    });
+    })
 
     document.body.innerHTML = `
         <div x-data="{ show: false }">
@@ -170,14 +174,16 @@ test('original class attribute classes are preserved after transition finishes',
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
+    })
 
     document.querySelector('button').click()
 
     // Wait out the intial Alpine refresh debounce.
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
         setTimeout(() => {
-            resolve();
+            resolve()
         }, 5)
     )
 
@@ -194,11 +200,11 @@ test('original class attribute classes are preserved after transition finishes',
     expect(document.querySelector('span').classList.contains('enter')).toEqual(true)
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
 
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
         setTimeout(() => {
             expect(document.querySelector('span').classList.contains('enter')).toEqual(true)
             expect(document.querySelector('span').getAttribute('style')).toEqual(null)
-            resolve();
+            resolve()
         }, 10)
     )
 })
@@ -207,15 +213,15 @@ test('transition in not called when item is already visible', async () => {
     // Hijack "requestAnimationFrame" for finer-tuned control in this test.
     var frameStack = []
 
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
         frameStack.push(callback)
-    });
+    })
 
     // Hijack "getComputeStyle" because js-dom is weird with it.
     // (hardcoding 10ms transition time for later assertions)
     jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
         return { transitionDuration: '.01s' }
-    });
+    })
 
     document.body.innerHTML = `
         <div x-data="{ show: true }">
@@ -237,9 +243,9 @@ test('transition in not called when item is already visible', async () => {
     document.querySelector('button').click()
 
     // Wait out the intial Alpine refresh debounce.
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
         setTimeout(() => {
-            resolve();
+            resolve()
         }, 5)
     )
 
@@ -256,15 +262,15 @@ test('transition out not called when item is already hidden', async () => {
     // Hijack "requestAnimationFrame" for finer-tuned control in this test.
     var frameStack = []
 
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
         frameStack.push(callback)
-    });
+    })
 
     // Hijack "getComputeStyle" because js-dom is weird with it.
     // (hardcoding 10ms transition time for later assertions)
     jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
         return { transitionDuration: '.01s' }
-    });
+    })
 
     document.body.innerHTML = `
         <div x-data="{ show: false }">
@@ -288,9 +294,9 @@ test('transition out not called when item is already hidden', async () => {
     document.querySelector('button').click()
 
     // Wait out the intial Alpine refresh debounce.
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
         setTimeout(() => {
-            resolve();
+            resolve()
         }, 5)
     )
 
@@ -310,7 +316,7 @@ test('transition with x-show.transition helper', async () => {
         'opacity: 1; transform: scale(1); transform-origin: center; transition-property: opacity transform; transition-duration: 0.15s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         '',
         'display: none;',
-        'display: none;',
+        'display: none;'
     ])
 
     await assertTransitionHelperStyleAttributeValues('x-show.transition.out', [
@@ -319,7 +325,7 @@ test('transition with x-show.transition helper', async () => {
         'opacity: 1; transform: scale(1); transform-origin: center; transition-property: opacity transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'opacity: 1; transform: scale(1); transform-origin: center; transition-property: opacity transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'opacity: 0; transform: scale(0.95); transform-origin: center; transition-property: opacity transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'display: none;',
+        'display: none;'
     ])
 
     await assertTransitionHelperStyleAttributeValues('x-show.transition', [
@@ -330,7 +336,7 @@ test('transition with x-show.transition helper', async () => {
         'opacity: 1; transform: scale(1); transform-origin: center; transition-property: opacity transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'opacity: 1; transform: scale(1); transform-origin: center; transition-property: opacity transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'opacity: 0; transform: scale(0.95); transform-origin: center; transition-property: opacity transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'display: none;',
+        'display: none;'
     ])
 
     await assertTransitionHelperStyleAttributeValues('x-show.transition.opacity', [
@@ -341,7 +347,7 @@ test('transition with x-show.transition helper', async () => {
         'opacity: 1; transition-property: opacity; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'opacity: 1; transition-property: opacity; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'opacity: 0; transition-property: opacity; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'display: none;',
+        'display: none;'
     ])
 
     await assertTransitionHelperStyleAttributeValues('x-show.transition.scale', [
@@ -352,7 +358,7 @@ test('transition with x-show.transition helper', async () => {
         'transform: scale(1); transform-origin: center; transition-property: transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(1); transform-origin: center; transition-property: transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(0.95); transform-origin: center; transition-property: transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'display: none;',
+        'display: none;'
     ])
 
     await assertTransitionHelperStyleAttributeValues('x-show.transition.scale.85', [
@@ -363,7 +369,7 @@ test('transition with x-show.transition helper', async () => {
         'transform: scale(1); transform-origin: center; transition-property: transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(1); transform-origin: center; transition-property: transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(0.85); transform-origin: center; transition-property: transform; transition-duration: 0.075s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'display: none;',
+        'display: none;'
     ])
 
     await assertTransitionHelperStyleAttributeValues('x-show.transition.scale.85.duration.200ms', [
@@ -374,7 +380,7 @@ test('transition with x-show.transition helper', async () => {
         'transform: scale(1); transform-origin: center; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(1); transform-origin: center; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(0.85); transform-origin: center; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'display: none;',
+        'display: none;'
     ])
 
     await assertTransitionHelperStyleAttributeValues('x-show.transition.scale.85.duration.200ms.origin.top', [
@@ -385,7 +391,7 @@ test('transition with x-show.transition helper', async () => {
         'transform: scale(1); transform-origin: top; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(1); transform-origin: top; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(0.85); transform-origin: top; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'display: none;',
+        'display: none;'
     ])
 
     await assertTransitionHelperStyleAttributeValues('x-show.transition.scale.85.duration.200ms.origin.top.left', [
@@ -396,34 +402,37 @@ test('transition with x-show.transition helper', async () => {
         'transform: scale(1); transform-origin: top left; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(1); transform-origin: top left; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(0.85); transform-origin: top left; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'display: none;',
+        'display: none;'
     ])
 
-    await assertTransitionHelperStyleAttributeValues('x-show.transition.in.scale.85.duration.200ms.origin.top.left.out.scale.75.duration.500ms.origin.bottom.right', [
-        'display: none; transform: scale(0.85); transform-origin: top left; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'transform: scale(0.85); transform-origin: top left; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'transform: scale(1); transform-origin: top left; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        '',
-        'transform: scale(1); transform-origin: bottom right; transition-property: transform; transition-duration: 0.5s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'transform: scale(1); transform-origin: bottom right; transition-property: transform; transition-duration: 0.5s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'transform: scale(0.75); transform-origin: bottom right; transition-property: transform; transition-duration: 0.5s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
-        'display: none;',
-    ])
+    await assertTransitionHelperStyleAttributeValues(
+        'x-show.transition.in.scale.85.duration.200ms.origin.top.left.out.scale.75.duration.500ms.origin.bottom.right',
+        [
+            'display: none; transform: scale(0.85); transform-origin: top left; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+            'transform: scale(0.85); transform-origin: top left; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+            'transform: scale(1); transform-origin: top left; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+            '',
+            'transform: scale(1); transform-origin: bottom right; transition-property: transform; transition-duration: 0.5s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+            'transform: scale(1); transform-origin: bottom right; transition-property: transform; transition-duration: 0.5s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+            'transform: scale(0.75); transform-origin: bottom right; transition-property: transform; transition-duration: 0.5s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+            'display: none;'
+        ]
+    )
 })
 
 async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleAttributeExpectations) {
     // Hijack "requestAnimationFrame" for finer-tuned control in this test.
     var frameStack = []
 
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
         frameStack.push(callback)
-    });
+    })
 
     // Hijack "getComputeStyle" because js-dom is weird with it.
     // (hardcoding 10ms transition time for later assertions)
     jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
         return { transitionDuration: '.02s' }
-    });
+    })
 
     document.body.innerHTML = `
         <div x-data="{ show: false }">
@@ -438,9 +447,9 @@ async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleA
     document.querySelector('button').click()
 
     // Wait out the intial Alpine refresh debounce.
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
         setTimeout(() => {
-            resolve();
+            resolve()
         }, 5)
     )
 
@@ -448,7 +457,7 @@ async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleA
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[index])
 
-    while(frameStack.length) {
+    while (frameStack.length) {
         frameStack.pop()()
         expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
     }
@@ -464,7 +473,7 @@ async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleA
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
 
-    while(frameStack.length) {
+    while (frameStack.length) {
         frameStack.pop()()
         expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
     }

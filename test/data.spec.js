@@ -16,7 +16,9 @@ test('data manipulated on component object is reactive', async () => {
 
     document.querySelector('div').__x.$data.foo = 'baz'
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('baz')
+    })
 })
 
 test('x-data attribute value is optional', async () => {
@@ -37,11 +39,11 @@ test('x-data can use attributes from a reusable function', async () => {
             <span x-text="foo"></span>
         </div>
     `
-        test = function() {
-            return {
-                foo: 'bar',
-            }
+    test = function() {
+        return {
+            foo: 'bar'
         }
+    }
 
     Alpine.start()
 
@@ -61,7 +63,9 @@ test('functions in x-data are reactive', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('baz')
+    })
 })
 
 test('Proxies are not nested and duplicated when manipulating an array', async () => {
@@ -77,31 +81,59 @@ test('Proxies are not nested and duplicated when manipulating an array', async (
 
     // Before this fix: https://github.com/alpinejs/alpine/pull/141
     // This test would create exponentially slower performance and eventually stall out.
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('foo')
+    })
     document.querySelector('button').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
     document.querySelector('h1').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('foo')
+    })
     document.querySelector('button').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
     document.querySelector('h1').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('foo')
+    })
     document.querySelector('button').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
     document.querySelector('h1').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('foo')
+    })
     document.querySelector('button').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
     document.querySelector('h1').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('foo')
+    })
     document.querySelector('button').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
     document.querySelector('h1').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('foo')
+    })
     document.querySelector('button').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
     document.querySelector('h1').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('foo')
+    })
     document.querySelector('button').click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
 })

@@ -5,7 +5,9 @@ test('auto-detect new components at the top level', async () => {
     var runObservers = []
 
     global.MutationObserver = class {
-        constructor(callback) { runObservers.push(callback) }
+        constructor(callback) {
+            runObservers.push(callback)
+        }
         observe() {}
     }
 
@@ -25,20 +27,24 @@ test('auto-detect new components at the top level', async () => {
         {
             target: document.querySelector('section'),
             type: 'childList',
-            addedNodes: [ document.querySelector('div') ],
+            addedNodes: [document.querySelector('div')]
         }
     ])
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
 })
 
 test('auto-detect nested new components at the top level', async () => {
     var runObservers = []
 
     global.MutationObserver = class {
-        constructor(callback) { runObservers.push(callback) }
+        constructor(callback) {
+            runObservers.push(callback)
+        }
         observe() {}
     }
 
@@ -60,20 +66,24 @@ test('auto-detect nested new components at the top level', async () => {
         {
             target: document.querySelector('section'),
             type: 'childList',
-            addedNodes: [ document.querySelector('article') ],
+            addedNodes: [document.querySelector('article')]
         }
     ])
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
 })
 
 test('auto-detect new components and dont lose state of existing ones', async () => {
     var runObservers = []
 
     global.MutationObserver = class {
-        constructor(callback) { runObservers.push(callback) }
+        constructor(callback) {
+            runObservers.push(callback)
+        }
         observe() {}
     }
 
@@ -88,9 +98,11 @@ test('auto-detect new components and dont lose state of existing ones', async ()
 
     Alpine.start()
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } })
 
-    await wait(() => { expect(document.querySelector('#A span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('#A span').innerText).toEqual('bar')
+    })
 
     document.querySelector('#B').innerHTML = `
         <div x-data="{foo: 'baz'}">
@@ -103,7 +115,7 @@ test('auto-detect new components and dont lose state of existing ones', async ()
         {
             target: document.querySelector('#A'),
             type: 'childList',
-            addedNodes: [ document.querySelector('#B div') ],
+            addedNodes: [document.querySelector('#B div')]
         }
     ])
 
@@ -117,7 +129,9 @@ test('auto-detect new components that are wrapped in non-new component tags', as
     var runObservers = []
 
     global.MutationObserver = class {
-        constructor(callback) { runObservers.push(callback) }
+        constructor(callback) {
+            runObservers.push(callback)
+        }
         observe() {}
     }
 
@@ -132,9 +146,11 @@ test('auto-detect new components that are wrapped in non-new component tags', as
 
     Alpine.start()
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } })
 
-    await wait(() => { expect(document.querySelector('#A span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('#A span').innerText).toEqual('bar')
+    })
 
     document.querySelector('#B').innerHTML = `
         <section>
@@ -149,7 +165,7 @@ test('auto-detect new components that are wrapped in non-new component tags', as
         {
             target: document.querySelector('#A'),
             type: 'childList',
-            addedNodes: [ document.querySelector('#B section') ],
+            addedNodes: [document.querySelector('#B section')]
         }
     ])
 
@@ -163,7 +179,9 @@ test('auto-initialize new elements added to a component', async () => {
     var runObservers = []
 
     global.MutationObserver = class {
-        constructor(callback) { runObservers.push(callback) }
+        constructor(callback) {
+            runObservers.push(callback)
+        }
         observe() {}
     }
 
@@ -187,25 +205,33 @@ test('auto-initialize new elements added to a component', async () => {
     `
 
     runObservers[0]([
-        { target: document.querySelector('#target'), addedNodes: [
-            document.querySelector('#target span'),
-            document.querySelector('#target button'),
-        ] }
+        {
+            target: document.querySelector('#target'),
+            addedNodes: [document.querySelector('#target span'), document.querySelector('#target button')]
+        }
     ])
 
-    await wait(() => { expect(document.querySelector('#target span').innerText).toEqual(0) })
+    await wait(() => {
+        expect(document.querySelector('#target span').innerText).toEqual(0)
+    })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
-    await wait(() => { expect(document.querySelector('#target span').innerText).toEqual(1) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(1)
+    })
+    await wait(() => {
+        expect(document.querySelector('#target span').innerText).toEqual(1)
+    })
 })
 
 test('auto-detect x-data property changes at run-time', async () => {
     var runObservers = []
 
     global.MutationObserver = class {
-        constructor(callback) { runObservers.push(callback) }
+        constructor(callback) {
+            runObservers.push(callback)
+        }
         observe() {}
     }
 
@@ -230,7 +256,9 @@ test('auto-detect x-data property changes at run-time', async () => {
         }
     ])
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(1)
+    })
 })
 
 test('nested components only get registered once on initialization', async () => {
@@ -240,7 +268,7 @@ test('nested components only get registered once on initialization', async () =>
     }
 
     var initCount = 0
-    window.registerInit = function () {
+    window.registerInit = function() {
         initCount = initCount + 1
     }
 
@@ -293,5 +321,7 @@ test('x-attributes are matched exactly', async () => {
 
     expect(document.getElementById('el1').style.display).toEqual('none')
     expect(document.getElementById('el2').style.display).not.toEqual('none')
-    await wait(() => { expect(document.getElementById('el3').style.display).not.toEqual('none') })
+    await wait(() => {
+        expect(document.getElementById('el3').style.display).not.toEqual('none')
+    })
 })

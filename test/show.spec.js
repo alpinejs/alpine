@@ -20,7 +20,9 @@ test('x-show toggles display: none; with no other style attributes', async () =>
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
+    })
 })
 
 test('x-show toggles display: none; with other style attributes', async () => {
@@ -38,7 +40,9 @@ test('x-show toggles display: none; with other style attributes', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('color: blue; display: none;') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('style')).toEqual('color: blue; display: none;')
+    })
 })
 
 test('x-show waits for transitions within it to finish before hiding an elements', async () => {
@@ -64,7 +68,11 @@ test('x-show waits for transitions within it to finish before hiding an elements
 
     document.querySelector('button').click()
 
-    await new Promise((resolve) => setTimeout(() => { resolve(); }, 50))
+    await new Promise(resolve =>
+        setTimeout(() => {
+            resolve()
+        }, 50)
+    )
 
     await wait(() => {
         expect(document.querySelector('span').getAttribute('style')).toEqual(null)
@@ -119,7 +127,11 @@ test('x-show works with nested x-shows of different functions (hiding vs showing
 
     document.querySelector('button').click()
 
-    await new Promise((resolve) => setTimeout(() => { resolve(); }, 50))
+    await new Promise(resolve =>
+        setTimeout(() => {
+            resolve()
+        }, 50)
+    )
 
     await wait(() => {
         expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')

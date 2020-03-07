@@ -22,5 +22,7 @@ test('x-if', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('p')).toBeTruthy() })
+    await wait(() => {
+        expect(document.querySelector('p')).toBeTruthy()
+    })
 })

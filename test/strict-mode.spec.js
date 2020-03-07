@@ -6,13 +6,13 @@ global.MutationObserver = class {
 }
 
 test('Proxy does not error in strict mode when reactivity is suspended', async () => {
-    "use strict"
+    'use strict'
 
-    global.statCounter = function () {
+    global.statCounter = function() {
         return {
             count: 0,
             init() {
-                this.count = 1200;
+                this.count = 1200
             }
         }
     }
@@ -26,5 +26,7 @@ test('Proxy does not error in strict mode when reactivity is suspended', async (
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1200) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(1200)
+    })
 })

@@ -14,7 +14,9 @@ test('x-text on init', async () => {
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
 })
 
 test('x-text on triggered update', async () => {
@@ -28,9 +30,13 @@ test('x-text on triggered update', async () => {
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('')
+    })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
 })

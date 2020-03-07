@@ -20,5 +20,7 @@ test('$dispatch', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('baz')
+    })
 })

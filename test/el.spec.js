@@ -18,13 +18,15 @@ test('$el', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('div').innerHTML).toEqual('foo') })
+    await wait(() => {
+        expect(document.querySelector('div').innerHTML).toEqual('foo')
+    })
 })
 
 test('$el doesnt return a proxy', async () => {
     var isProxy
-    window.setIsProxy = function (el) {
-        isProxy = !! el.isProxy
+    window.setIsProxy = function(el) {
+        isProxy = !!el.isProxy
     }
 
     document.body.innerHTML = `

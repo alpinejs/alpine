@@ -20,7 +20,9 @@ test('can reference elements from event listeners', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('lob') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('lob')
+    })
 })
 
 test('can reference elements from data object methods', async () => {
@@ -38,5 +40,7 @@ test('can reference elements from data object methods', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('lob') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('lob')
+    })
 })

@@ -7,7 +7,7 @@ global.MutationObserver = class {
 
 test('x-init', async () => {
     var spanValue
-    window.setSpanValue = (el) => {
+    window.setSpanValue = el => {
         spanValue = el.innerHTML
     }
 
@@ -25,8 +25,12 @@ test('x-init', async () => {
 test('x-init from data function with callback return for "x-mounted" functionality', async () => {
     var valueA
     var valueB
-    window.setValueA = (el) => { valueA = el.innerHTML }
-    window.setValueB = (el) => { valueB = el.innerText }
+    window.setValueA = el => {
+        valueA = el.innerHTML
+    }
+    window.setValueB = el => {
+        valueB = el.innerText
+    }
     window.data = function() {
         return {
             foo: 'bar',
@@ -67,7 +71,9 @@ test('callbacks registered within x-init can affect reactive data changes', asyn
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bob') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bob')
+    })
 })
 
 test('callbacks registered within x-init callback can affect reactive data changes', async () => {
@@ -85,7 +91,9 @@ test('callbacks registered within x-init callback can affect reactive data chang
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bob') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bob')
+    })
 })
 
 test('x-init is capable of dispatching an event', async () => {

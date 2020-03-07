@@ -20,5 +20,7 @@ test('$nextTick', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bob') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bob')
+    })
 })

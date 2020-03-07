@@ -14,7 +14,9 @@ test('x-html on init', async () => {
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').innerHTML).toEqual('<h1>bar</h1>') })
+    await wait(() => {
+        expect(document.querySelector('span').innerHTML).toEqual('<h1>bar</h1>')
+    })
 })
 
 test('x-html on triggered update', async () => {
@@ -28,9 +30,13 @@ test('x-html on triggered update', async () => {
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').innerHTML).toEqual('') })
+    await wait(() => {
+        expect(document.querySelector('span').innerHTML).toEqual('')
+    })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerHTML).toEqual('<h1>bar</h1>') })
+    await wait(() => {
+        expect(document.querySelector('span').innerHTML).toEqual('<h1>bar</h1>')
+    })
 })

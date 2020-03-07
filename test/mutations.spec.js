@@ -4,7 +4,9 @@ test('catch disconnected nodes that were used as targets for any mutations', asy
     const runObservers = []
 
     global.MutationObserver = class {
-        constructor(callback) { runObservers.push(callback) }
+        constructor(callback) {
+            runObservers.push(callback)
+        }
         observe() {}
     }
 
@@ -15,11 +17,13 @@ test('catch disconnected nodes that were used as targets for any mutations', asy
 
     Alpine.start()
 
-    runObservers.forEach(cb => cb([
-        {
-            target: document.createElement('div'),
-            type: 'childList',
-            addedNodes: [ document.createElement('div') ],
-        }
-    ]))
+    runObservers.forEach(cb =>
+        cb([
+            {
+                target: document.createElement('div'),
+                type: 'childList',
+                addedNodes: [document.createElement('div')]
+            }
+        ])
+    )
 })

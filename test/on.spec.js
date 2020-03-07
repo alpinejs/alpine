@@ -21,7 +21,9 @@ test('data modified in event listener updates affected attribute bindings', asyn
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('baz')
+    })
 })
 
 test('nested data modified in event listener updates affected attribute bindings', async () => {
@@ -39,9 +41,10 @@ test('nested data modified in event listener updates affected attribute bindings
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('baz')
+    })
 })
-
 
 test('.stop modifier', async () => {
     document.body.innerHTML = `
@@ -94,7 +97,9 @@ test('.window modifier', async () => {
 
     document.body.click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('baz')
+    })
 })
 
 test('unbind global event handler when element is removed', async () => {
@@ -134,7 +139,9 @@ test('.document modifier', async () => {
 
     document.body.click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('baz')
+    })
 })
 
 test('.once modifier', async () => {
@@ -152,7 +159,9 @@ test('.once modifier', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('1') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('1')
+    })
 
     document.querySelector('button').click()
 
@@ -176,11 +185,15 @@ test('.once modifier does not remove listener if false is returned', async () =>
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('1') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('1')
+    })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('2') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('2')
+    })
 
     await timeout(25)
 
@@ -202,19 +215,27 @@ test('keydown modifiers', async () => {
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(2) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(2)
+    })
 
     fireEvent.keyDown(document.querySelector('input'), { key: ' ' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(4) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(4)
+    })
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Spacebar' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(6) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(6)
+    })
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Escape' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(7) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(7)
+    })
 })
 
 test('keydown combo modifiers', async () => {
@@ -232,11 +253,15 @@ test('keydown combo modifiers', async () => {
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(0) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(0)
+    })
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter', metaKey: true })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(1)
+    })
 })
 
 test('keydown with specified key and stop modifier only stops for specified key', async () => {
@@ -256,7 +281,9 @@ test('keydown with specified key and stop modifier only stops for specified key'
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Escape' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(1)
+    })
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
 
@@ -269,12 +296,16 @@ test('click away', async () => {
     // make our own implementation using a specific class added to the class. Ugh.
     Object.defineProperties(window.HTMLElement.prototype, {
         offsetHeight: {
-          get: function() { return this.classList.contains('hidden') ? 0 : 1 }
+            get: function() {
+                return this.classList.contains('hidden') ? 0 : 1
+            }
         },
         offsetWidth: {
-          get: function() { return this.classList.contains('hidden') ? 0 : 1 }
+            get: function() {
+                return this.classList.contains('hidden') ? 0 : 1
+            }
         }
-    });
+    })
 
     document.body.innerHTML = `
         <div id="outer">
@@ -294,19 +325,27 @@ test('click away', async () => {
 
     document.querySelector('li').click()
 
-    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false) })
+    await wait(() => {
+        expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false)
+    })
 
     document.querySelector('ul').click()
 
-    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false) })
+    await wait(() => {
+        expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false)
+    })
 
     document.querySelector('#outer').click()
 
-    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(true) })
+    await wait(() => {
+        expect(document.querySelector('ul').classList.contains('hidden')).toEqual(true)
+    })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false) })
+    await wait(() => {
+        expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false)
+    })
 })
 
 test('supports short syntax', async () => {
@@ -324,9 +363,10 @@ test('supports short syntax', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('baz')
+    })
 })
-
 
 test('event with colon', async () => {
     document.body.innerHTML = `
@@ -341,11 +381,13 @@ test('event with colon', async () => {
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
-    var event = new CustomEvent('my:event');
+    var event = new CustomEvent('my:event')
 
-    document.dispatchEvent(event);
+    document.dispatchEvent(event)
 
-    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('baz')
+    })
 })
 
 test('prevent default action when an event returns false', async () => {

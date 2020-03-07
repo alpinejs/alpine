@@ -330,4 +330,4 @@ test('checkbox values are set correctly', async () => {
     expect(document.querySelector('input[name="trueCheckbox"]').value).toEqual('on')
     expect(document.querySelector('input[name="falseCheckbox"]').value).toEqual('on')
     expect(document.querySelector('input[name="stringCheckbox"]').value).toEqual('foo')
-});
+})

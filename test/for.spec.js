@@ -23,7 +23,9 @@ test('x-for', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(2) })
+    await wait(() => {
+        expect(document.querySelectorAll('span').length).toEqual(2)
+    })
 
     expect(document.querySelectorAll('span')[0].innerText).toEqual('foo')
     expect(document.querySelectorAll('span')[1].innerText).toEqual('bar')
@@ -46,7 +48,9 @@ test('removes all elements when array is empty and previously had one item', asy
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(0) })
+    await wait(() => {
+        expect(document.querySelectorAll('span').length).toEqual(0)
+    })
 })
 
 test('removes all elements when array is empty and previously had multiple items', async () => {
@@ -66,7 +70,9 @@ test('removes all elements when array is empty and previously had multiple items
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(0) })
+    await wait(() => {
+        expect(document.querySelectorAll('span').length).toEqual(0)
+    })
 })
 
 test('elements inside of loop are reactive', async () => {
@@ -168,7 +174,9 @@ test('adding key attribute moves dom nodes properly', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(3) })
+    await wait(() => {
+        expect(document.querySelectorAll('span').length).toEqual(3)
+    })
 
     expect(document.querySelectorAll('span')[0].getAttribute('order')).toEqual('second')
     expect(document.querySelectorAll('span')[1].getAttribute('order')).toEqual('first')
@@ -192,7 +200,9 @@ test('can key by index', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(3) })
+    await wait(() => {
+        expect(document.querySelectorAll('span').length).toEqual(3)
+    })
 })
 
 test('can use index inside of loop', async () => {
@@ -227,8 +237,8 @@ test('can use third iterator param (collection) inside of loop', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('h1').innerText).toEqual(["foo"])
-    expect(document.querySelector('h2').innerText).toEqual(["foo"])
+    expect(document.querySelector('h1').innerText).toEqual(['foo'])
+    expect(document.querySelector('h2').innerText).toEqual(['foo'])
 })
 
 test('can use x-if in conjunction with x-for', async () => {
@@ -278,13 +288,19 @@ test('listeners in loop get fresh iteration data even though they are only regis
 
     document.querySelector('span').click()
 
-    await wait(() => { expect(document.querySelector('h1').innerText).toEqual('foo') })
+    await wait(() => {
+        expect(document.querySelector('h1').innerText).toEqual('foo')
+    })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
 
     document.querySelector('span').click()
 
-    await wait(() => { expect(document.querySelector('h1').innerText).toEqual('bar') })
+    await wait(() => {
+        expect(document.querySelector('h1').innerText).toEqual('bar')
+    })
 })

@@ -121,15 +121,15 @@
 
     return new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
   }
+  const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/;
   function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name);
-    const xAttrRE = /x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)/;
     return xAttrRE.test(name);
   }
   function getXAttrs(el, type) {
     return Array.from(el.attributes).filter(isXAttr).map(attr => {
       const name = replaceAtAndColonWithStandardSyntax(attr.name);
-      const typeMatch = name.match(/x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)/);
+      const typeMatch = name.match(xAttrRE);
       const valueMatch = name.match(/:([a-zA-Z\-:]+)/);
       const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
       return {

@@ -13,6 +13,10 @@
             .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
             .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
         </style>
+
+        <!-- Script for testing IE11 support: -->
+        <!-- <script src="/dist/alpine_ie11.js" defer></script> -->
+
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
@@ -300,6 +304,27 @@
                                         hey
                                     </div>
                             </template>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Nested Transitions (with x-show)</td>
+                    <td>
+                        <div x-data="{ open: false }">
+                            <button x-on:click="open= ! open">
+                                Open Modal
+                            </button>
+
+                            <div x-show="open">
+                                I shouldn't leave until the transition finishes.
+                                <div x-show="open"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave="ease-in transition-slow"
+                                    x-transition:leave-end="opacity-0 scale-90">
+                                        I'm transitioning
+                                </div>
+                            </div>
                         </div>
                     </td>
                 </tr>

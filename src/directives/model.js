@@ -28,7 +28,8 @@ function generateModelAssignmentFunction(el, modifiers, expression) {
     }
 
     return (event, currentValue) => {
-        if (event instanceof CustomEvent) {
+        // Check for event.detail due to an issue where IE11 handles other events as a CustomEvent.
+        if (event instanceof CustomEvent && event.detail) {
             return event.detail
         } else if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle it's value inside the array.

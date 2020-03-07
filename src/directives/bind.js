@@ -27,6 +27,9 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             } else {
                 el.checked = !! value
             }
+            // If we are explicitly binding a string to the :value, set the string,
+            // If the value is a boolean, leave it alone, it will be set to "on"
+            // automatically.
             if (typeof value === 'string') {
                 el.value = value
             }

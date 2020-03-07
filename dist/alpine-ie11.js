@@ -4943,9 +4943,9 @@
 
     return new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
   }
+  var xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/;
   function isXAttr(attr) {
     var name = replaceAtAndColonWithStandardSyntax(attr.name);
-    var xAttrRE = /x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)/;
     return xAttrRE.test(name);
   }
   function getXAttrs(el, type) {
@@ -4957,7 +4957,7 @@
       _newArrowCheck(this, _this2);
 
       var name = replaceAtAndColonWithStandardSyntax(attr.name);
-      var typeMatch = name.match(/x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)/);
+      var typeMatch = name.match(xAttrRE);
       var valueMatch = name.match(/:([a-zA-Z\-:]+)/);
       var modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
       return {
@@ -5522,6 +5522,13 @@
           el.checked = valueFound;
         } else {
           el.checked = !!value;
+        } // If we are explicitly binding a string to the :value, set the string,
+        // If the value is a boolean, leave it alone, it will be set to "on"
+        // automatically.
+
+
+        if (typeof value === 'string') {
+          el.value = value;
         }
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);

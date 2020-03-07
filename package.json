@@ -11,7 +11,8 @@
         "build": "concurrently \"rollup -c\" \"npx rollup -c rollup-ie11.config.js\"",
         "test": "npx jest",
         "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
-        "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags"
+        "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags",
+        "format": "prettier ./src/**/*.js --write"
     },
     "author": "Caleb Porzio",
     "license": "MIT",
@@ -34,6 +35,7 @@
         "jest": "^24.8.0",
         "jsdom-simulant": "^1.1.2",
         "observable-membrane": "^0.26.1",
+        "prettier": "^1.19.1",
         "proxy-polyfill": "^0.3.0",
         "rollup": "^1.31.0",
         "rollup-plugin-babel": "^4.3.3",

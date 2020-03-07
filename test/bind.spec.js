@@ -315,3 +315,19 @@ test('binding supports short syntax', async () => {
 
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
 })
+
+test('checkbox values are set correctly', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ stringValue: 'foo', trueValue: true, falseValue: false }">
+            <input type="checkbox" name="stringCheckbox" :value="stringValue" />
+            <input type="checkbox" name="trueCheckbox" :value="trueValue" />
+            <input type="checkbox" name="falseCheckbox" :value="falseValue" />
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input[name="trueCheckbox"]').value).toEqual('on')
+    expect(document.querySelector('input[name="falseCheckbox"]').value).toEqual('on')
+    expect(document.querySelector('input[name="stringCheckbox"]').value).toEqual('foo')
+});

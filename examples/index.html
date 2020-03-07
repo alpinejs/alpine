@@ -20,26 +20,6 @@
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
-        <div x-data="{ dispatchOpen() { echo 'hey'; } }" @foo.window="makeOpen()">
-            <button @click="dispatchOpen">from "this"</button>
-            <button @click="$dispatch('foo')">from inline</button>
-            <div x-show="open">me</div>
-        </div>
-        <script>
-            function foo() {
-                return {
-                    open: false,
-                    dispatchOpen(e) {
-                        console.log(e)
-                        this.$dispatch()
-                    },
-                    makeOpen() {
-                        this.open = true
-                    }
-                }
-            }
-        </script>
-
         <table>
             <thead>
                 <tr>

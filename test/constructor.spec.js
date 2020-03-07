@@ -34,7 +34,7 @@ test('auto-detect new components at the top level', async () => {
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
 
-test('auto-detect newsted new components at the top level', async () => {
+test('auto-detect nested new components at the top level', async () => {
     var runObservers = []
 
     global.MutationObserver = class {
@@ -278,4 +278,20 @@ test('can clone an existing component to a new element', async () => {
     Alpine.clone(document.querySelector('h1').__x, document.querySelector('h2'))
 
     expect(document.querySelector('span').innerText).toEqual('bar')
+})
+
+test('x-attributes are matched exactly', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ showElement: false }">
+            <div id="el1" x-show="showElement" />
+            <div id="el2" xxx-show="showElement" />
+            <div id="el3" x-showabc="showElement" />
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.getElementById('el1').style.display).toEqual('none')
+    expect(document.getElementById('el2').style.display).not.toEqual('none')
+    await wait(() => { expect(document.getElementById('el3').style.display).not.toEqual('none') })
 })

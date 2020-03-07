@@ -1,4 +1,4 @@
-import { arrayUnique } from '../utils'
+import { arrayUnique , isBooleanAttr } from '../utils'
 
 export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
     var value = component.evaluateReturnExpression(el, expression, extraVars)
@@ -27,6 +27,12 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             } else {
                 el.checked = !! value
             }
+            // If we are explicitly binding a string to the :value, set the string,
+            // If the value is a boolean, leave it alone, it will be set to "on"
+            // automatically.
+            if (typeof value === 'string') {
+                el.value = value
+            }
         } else if (el.tagName === 'SELECT') {
             updateSelect(el, value)
         } else {
@@ -49,7 +55,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             const newClasses = value.split(' ')
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
-    } else if (['disabled', 'readonly', 'required', 'checked', 'hidden', 'selected', 'open'].includes(attrName)) {
+    } else if (isBooleanAttr(attrName)) {
         // Boolean attributes have to be explicitly added and removed, not just set.
         if (!! value) {
             el.setAttribute(attrName, '')

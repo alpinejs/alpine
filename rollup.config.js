@@ -1,6 +1,6 @@
 import babel from 'rollup-plugin-babel';
 import filesize from 'rollup-plugin-filesize';
-import resolve from "rollup-plugin-node-resolve"
+import resolve from 'rollup-plugin-node-resolve';
 import stripCode from 'rollup-plugin-strip-code';
 import replace from '@rollup/plugin-replace';
 import pkg from './package.json';
@@ -12,7 +12,6 @@ export default [
             name: 'Alpine',
             file: pkg.main,
             format: 'umd',
-            sourcemap: true,
         },
         plugins: [
             // 'observable-membrane' uses process.env. We don't have that...
@@ -34,7 +33,6 @@ export default [
             name: 'Alpine ES Module',
             file: pkg.module,
             format: 'es',
-            sourcemap: true,
         },
         plugins: [
             // 'observable-membrane' uses process.env. We don't have that...

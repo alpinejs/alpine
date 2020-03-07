@@ -184,9 +184,33 @@ test('boolean attributes set to false are removed from element', async () => {
             <input x-bind:readonly="isSet"></input>
             <input x-bind:hidden="isSet"></input>
             <details x-bind:open="isSet"></details>
+            <select x-bind:multiple="isSet"></select>
+            <option x-bind:selected="isSet"></option>
+            <textarea x-bind:autofocus="isSet"></textarea>
+            <dl x-bind:itemscope="isSet"></dl>
+            <form x-bind:novalidate="isSet"></form>
+            <iframe
+                x-bind:allowfullscreen="isSet"
+                x-bind:allowpaymentrequest="isSet"
+            ></iframe>
+            <button x-bind:formnovalidate="isSet"></button>
+            <audio
+                x-bind:autoplay="isSet"
+                x-bind:controls="isSet"
+                x-bind:loop="isSet"
+                x-bind:muted="isSet"
+            ></audio>
+            <video x-bind:playsinline="isSet"></video>
+            <track x-bind:default="isSet" />
+            <img x-bind:ismap="isSet" />
+            <ol x-bind:reversed="isSet"></ol>
+            <script
+                x-bind:async="isSet"
+                x-bind:defer="isSet"
+                x-bind:nomodule="isSet"
+            ></script>
         </div>
     `
-
     Alpine.start()
 
     expect(document.querySelectorAll('input')[0].disabled).toBeFalsy()
@@ -195,6 +219,25 @@ test('boolean attributes set to false are removed from element', async () => {
     expect(document.querySelectorAll('input')[3].readOnly).toBeFalsy()
     expect(document.querySelectorAll('input')[4].hidden).toBeFalsy()
     expect(document.querySelectorAll('details')[0].open).toBeFalsy()
+    expect(document.querySelectorAll('option')[0].selected).toBeFalsy()
+    expect(document.querySelectorAll('select')[0].multiple).toBeFalsy()
+    expect(document.querySelectorAll('textarea')[0].autofocus).toBeFalsy()
+    expect(document.querySelectorAll('dl')[0].attributes.itemscope).toBeFalsy()
+    expect(document.querySelectorAll('form')[0].attributes.novalidate).toBeFalsy()
+    expect(document.querySelectorAll('iframe')[0].attributes.allowfullscreen).toBeFalsy()
+    expect(document.querySelectorAll('iframe')[0].attributes.allowpaymentrequest).toBeFalsy()
+    expect(document.querySelectorAll('button')[0].attributes.formnovalidate).toBeFalsy()
+    expect(document.querySelectorAll('audio')[0].attributes.autoplay).toBeFalsy()
+    expect(document.querySelectorAll('audio')[0].attributes.controls).toBeFalsy()
+    expect(document.querySelectorAll('audio')[0].attributes.loop).toBeFalsy()
+    expect(document.querySelectorAll('audio')[0].attributes.muted).toBeFalsy()
+    expect(document.querySelectorAll('video')[0].attributes.playsinline).toBeFalsy()
+    expect(document.querySelectorAll('track')[0].attributes.default).toBeFalsy()
+    expect(document.querySelectorAll('img')[0].attributes.ismap).toBeFalsy()
+    expect(document.querySelectorAll('ol')[0].attributes.reversed).toBeFalsy()
+    expect(document.querySelectorAll('script')[0].attributes.async).toBeFalsy()
+    expect(document.querySelectorAll('script')[0].attributes.defer).toBeFalsy()
+    expect(document.querySelectorAll('script')[0].attributes.nomodule).toBeFalsy()
 })
 
 test('boolean attributes set to true are added to element', async () => {
@@ -205,6 +248,31 @@ test('boolean attributes set to true are added to element', async () => {
             <input x-bind:required="isSet"></input>
             <input x-bind:readonly="isSet"></input>
             <details x-bind:open="isSet"></details>
+            <select x-bind:multiple="isSet"></select>
+            <option x-bind:selected="isSet"></option>
+            <textarea x-bind:autofocus="isSet"></textarea>
+            <dl x-bind:itemscope="isSet"></dl>
+            <form x-bind:novalidate="isSet"></form>
+            <iframe
+                x-bind:allowfullscreen="isSet"
+                x-bind:allowpaymentrequest="isSet"
+            ></iframe>
+            <button x-bind:formnovalidate="isSet"></button>
+            <audio
+                x-bind:autoplay="isSet"
+                x-bind:controls="isSet"
+                x-bind:loop="isSet"
+                x-bind:muted="isSet"
+            ></audio>
+            <video x-bind:playsinline="isSet"></video>
+            <track x-bind:default="isSet" />
+            <img x-bind:ismap="isSet" />
+            <ol x-bind:reversed="isSet"></ol>
+            <script
+                x-bind:async="isSet"
+                x-bind:defer="isSet"
+                x-bind:nomodule="isSet"
+            ></script>
         </div>
     `
 
@@ -215,6 +283,25 @@ test('boolean attributes set to true are added to element', async () => {
     expect(document.querySelectorAll('input')[2].required).toBeTruthy()
     expect(document.querySelectorAll('input')[3].readOnly).toBeTruthy()
     expect(document.querySelectorAll('details')[0].open).toBeTruthy()
+    expect(document.querySelectorAll('option')[0].selected).toBeTruthy()
+    expect(document.querySelectorAll('select')[0].multiple).toBeTruthy()
+    expect(document.querySelectorAll('textarea')[0].autofocus).toBeTruthy()
+    expect(document.querySelectorAll('dl')[0].attributes.itemscope).toBeTruthy()
+    expect(document.querySelectorAll('form')[0].attributes.novalidate).toBeTruthy()
+    expect(document.querySelectorAll('iframe')[0].attributes.allowfullscreen).toBeTruthy()
+    expect(document.querySelectorAll('iframe')[0].attributes.allowpaymentrequest).toBeTruthy()
+    expect(document.querySelectorAll('button')[0].attributes.formnovalidate).toBeTruthy()
+    expect(document.querySelectorAll('audio')[0].attributes.autoplay).toBeTruthy()
+    expect(document.querySelectorAll('audio')[0].attributes.controls).toBeTruthy()
+    expect(document.querySelectorAll('audio')[0].attributes.loop).toBeTruthy()
+    expect(document.querySelectorAll('audio')[0].attributes.muted).toBeTruthy()
+    expect(document.querySelectorAll('video')[0].attributes.playsinline).toBeTruthy()
+    expect(document.querySelectorAll('track')[0].attributes.default).toBeTruthy()
+    expect(document.querySelectorAll('img')[0].attributes.ismap).toBeTruthy()
+    expect(document.querySelectorAll('ol')[0].attributes.reversed).toBeTruthy()
+    expect(document.querySelectorAll('script')[0].attributes.async).toBeTruthy()
+    expect(document.querySelectorAll('script')[0].attributes.defer).toBeTruthy()
+    expect(document.querySelectorAll('script')[0].attributes.nomodule).toBeTruthy()
 })
 
 test('binding supports short syntax', async () => {
@@ -228,3 +315,19 @@ test('binding supports short syntax', async () => {
 
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
 })
+
+test('checkbox values are set correctly', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ stringValue: 'foo', trueValue: true, falseValue: false }">
+            <input type="checkbox" name="stringCheckbox" :value="stringValue" />
+            <input type="checkbox" name="trueCheckbox" :value="trueValue" />
+            <input type="checkbox" name="falseCheckbox" :value="falseValue" />
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input[name="trueCheckbox"]').value).toEqual('on')
+    expect(document.querySelector('input[name="falseCheckbox"]').value).toEqual('on')
+    expect(document.querySelector('input[name="stringCheckbox"]').value).toEqual('foo')
+});

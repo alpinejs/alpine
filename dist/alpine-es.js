@@ -103,17 +103,27 @@ function saferEval(expression, dataContext, additionalHelperVariables = {}) {
   return new Function(['$data', ...Object.keys(additionalHelperVariables)], `var result; with($data) { result = ${expression} }; return result`)(dataContext, ...Object.values(additionalHelperVariables));
 }
 function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
+  // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+  // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+  if (Object.keys(dataContext).includes(expression)) {
+    let methodReference = new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { return ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
+
+    if (typeof methodReference === 'function') {
+      return methodReference.call(dataContext, additionalHelperVariables['$event']);
+    }
+  }
+
   return new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
 }
+const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/;
 function isXAttr(attr) {
   const name = replaceAtAndColonWithStandardSyntax(attr.name);
-  const xAttrRE = /x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)/;
   return xAttrRE.test(name);
 }
 function getXAttrs(el, type) {
   return Array.from(el.attributes).filter(isXAttr).map(attr => {
     const name = replaceAtAndColonWithStandardSyntax(attr.name);
-    const typeMatch = name.match(/x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)/);
+    const typeMatch = name.match(xAttrRE);
     const valueMatch = name.match(/:([a-zA-Z\-:]+)/);
     const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     return {
@@ -127,6 +137,12 @@ function getXAttrs(el, type) {
     if (!type) return true;
     return i.type === type;
   });
+}
+function isBooleanAttr(attrName) {
+  // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
+  // Array roughly ordered by estimated usage
+  const booleanAttributes = ['disabled', 'checked', 'required', 'readonly', 'hidden', 'open', 'selected', 'autofocus', 'itemscope', 'multiple', 'novalidate', 'allowfullscreen', 'allowpaymentrequest', 'formnovalidate', 'autoplay', 'controls', 'loop', 'muted', 'playsinline', 'default', 'ismap', 'reversed', 'async', 'defer', 'nomodule'];
+  return booleanAttributes.includes(attrName);
 }
 function replaceAtAndColonWithStandardSyntax(name) {
   if (name.startsWith('@')) {
@@ -533,6 +549,13 @@ function handleAttributeBindingDirective(component, el, attrName, expression, ex
         el.checked = valueFound;
       } else {
         el.checked = !!value;
+      } // If we are explicitly binding a string to the :value, set the string,
+      // If the value is a boolean, leave it alone, it will be set to "on"
+      // automatically.
+
+
+      if (typeof value === 'string') {
+        el.value = value;
       }
     } else if (el.tagName === 'SELECT') {
       updateSelect(el, value);
@@ -556,7 +579,7 @@ function handleAttributeBindingDirective(component, el, attrName, expression, ex
       const newClasses = value.split(' ');
       el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
     }
-  } else if (['disabled', 'readonly', 'required', 'checked', 'hidden', 'selected', 'open'].includes(attrName)) {
+  } else if (isBooleanAttr(attrName)) {
     // Boolean attributes have to be explicitly added and removed, not just set.
     if (!!value) {
       el.setAttribute(attrName, '');
@@ -1591,4 +1614,3 @@ if (!isTesting()) {
 }
 
 export default Alpine;
-//# sourceMappingURL=alpine-es.js.map

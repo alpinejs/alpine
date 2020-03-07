@@ -348,7 +348,6 @@ test('event with colon', async () => {
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
-
 test('prevent default action when an event returns false', async () => {
     window.confirm = jest.fn().mockImplementation(() => false)
 
@@ -371,4 +370,42 @@ test('prevent default action when an event returns false', async () => {
     document.querySelector('input').click()
 
     expect(document.querySelector('input').checked).toEqual(true)
+})
+
+test('allow method reference to be passed to listeners', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar', changeFoo() { this.foo = 'baz' } }">
+            <button x-on:click="changeFoo"></button>
+            <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual('bar')
+
+    document.querySelector('button').click()
+
+    await new Promise(resolve => setTimeout(resolve, 1))
+
+    expect(document.querySelector('span').innerText).toEqual('baz')
+})
+
+test('event instance is passed to method reference', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar', changeFoo(e) { this.foo = e.target.id } }">
+            <button x-on:click="changeFoo" id="baz"></button>
+            <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual('bar')
+
+    document.querySelector('button').click()
+
+    await new Promise(resolve => setTimeout(resolve, 1))
+
+    expect(document.querySelector('span').innerText).toEqual('baz')
 })

@@ -1,6 +1,6 @@
 import babel from 'rollup-plugin-babel';
 import filesize from 'rollup-plugin-filesize';
-import resolve from "rollup-plugin-node-resolve"
+import resolve from 'rollup-plugin-node-resolve';
 import stripCode from 'rollup-plugin-strip-code';
 import replace from '@rollup/plugin-replace';
 
@@ -10,7 +10,6 @@ export default {
         name: 'Alpine',
         file: 'dist/alpine.js',
         format: 'umd',
-        sourcemap: true,
     },
     plugins: [
         // 'observable-membrane' uses process.env. We don't have that...

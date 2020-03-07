@@ -63,7 +63,7 @@
 
   // Full polyfill for browsers with no classList support
   // Including IE < Edge missing SVGElement.classList
-  if (!("classList" in document.createElement("_")) 
+  if (!("classList" in document.createElement("_"))
   	|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
 
   (function (view) {
@@ -3076,7 +3076,7 @@
     // as the regeneratorRuntime namespace. Otherwise create a new empty
     // object. Either way, the resulting object will be used to initialize
     // the regeneratorRuntime variable at the top of this file.
-     module.exports 
+     module.exports
   ));
 
   try {

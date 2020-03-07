@@ -21,14 +21,13 @@ export function registerListener(component, el, event, modifiers, expression, ex
         // Listen for this event at the root level.
         document.addEventListener(event, handler)
     } else {
-        const listenerTarget = modifiers.includes('window')
-            ? window : (modifiers.includes('document') ? document : el)
+        const listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el
 
         const handler = e => {
             // Remove this global event handler if the element that declared it
             // has been removed. It's now stale.
             if (listenerTarget === window || listenerTarget === document) {
-                if (! document.body.contains(el)) {
+                if (!document.body.contains(el)) {
                     listenerTarget.removeEventListener(event, handler)
                     return
                 }
@@ -60,7 +59,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
 
 function runListenerHandler(component, expression, e, extraVars) {
     return component.evaluateCommandExpression(e.target, expression, () => {
-        return {...extraVars(), '$event': e}
+        return { ...extraVars(), $event: e }
     })
 }
 
@@ -70,7 +69,7 @@ function isKeyEvent(event) {
 
 function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
-        return ! ['window', 'document', 'prevent', 'stop'].includes(i)
+        return !['window', 'document', 'prevent', 'stop'].includes(i)
     })
 
     // If no modifier is specified, we'll call it a press.
@@ -83,7 +82,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     const systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super']
     const selectedSystemKeyModifiers = systemKeyModifiers.filter(modifier => keyModifiers.includes(modifier))
 
-    keyModifiers = keyModifiers.filter(i => ! selectedSystemKeyModifiers.includes(i))
+    keyModifiers = keyModifiers.filter(i => !selectedSystemKeyModifiers.includes(i))
 
     if (selectedSystemKeyModifiers.length > 0) {
         const activelyPressedKeyModifiers = selectedSystemKeyModifiers.filter(modifier => {

@@ -58,15 +58,26 @@ export function debounce(func, wait) {
 }
 
 export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
-    return (new Function(['$data', '$extras'], `var result; with($extras) { with($data) { result = ${expression} } }; return result`))(
-        dataContext, additionalHelperVariables
+    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var result; with($data) { result = ${expression} }; return result`))(
+        dataContext, ...Object.values(additionalHelperVariables)
     )
 }
 
 export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
-    if (! expression) expression = 'undefined'
-    return (new Function(['$data', '$extras'], `with ($extras) { var result; with($data) { result = ${expression} }; if (typeof result === 'function') { if (typeof $event !== 'undefined') { result($event); } else { result(); } } };`))(
-        dataContext, additionalHelperVariables
+    // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+    if (Object.keys(dataContext).includes(expression)) {
+        let methodReference = (new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { return ${expression} }`))(
+            dataContext, ...Object.values(additionalHelperVariables)
+        )
+
+        if (typeof methodReference === 'function') {
+            return methodReference.call(dataContext, additionalHelperVariables['$event'])
+        }
+    }
+
+    return (new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
+        dataContext, ...Object.values(additionalHelperVariables)
     )
 }
 

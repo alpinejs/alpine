@@ -63,7 +63,7 @@
 
   // Full polyfill for browsers with no classList support
   // Including IE < Edge missing SVGElement.classList
-  if (!("classList" in document.createElement("_"))
+  if (!("classList" in document.createElement("_")) 
   	|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
 
   (function (view) {
@@ -3076,7 +3076,7 @@
     // as the regeneratorRuntime namespace. Otherwise create a new empty
     // object. Either way, the resulting object will be used to initialize
     // the regeneratorRuntime variable at the top of this file.
-     module.exports
+     module.exports 
   ));
 
   try {
@@ -4930,6 +4930,17 @@
   }
   function saferEvalNoReturn(expression, dataContext) {
     var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+    // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+    if (Object.keys(dataContext).includes(expression)) {
+      var methodReference = new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { return ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
+
+      if (typeof methodReference === 'function') {
+        return methodReference.call(dataContext, additionalHelperVariables['$event']);
+      }
+    }
+
     return new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
   }
   function isXAttr(attr) {

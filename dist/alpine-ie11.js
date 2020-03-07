@@ -5784,7 +5784,7 @@
       _newArrowCheck(this, _this2);
 
       return _objectSpread2({}, extraVars(), {
-        '$event': e
+        $event: e
       });
     }.bind(this));
   }

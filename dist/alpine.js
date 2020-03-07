@@ -746,7 +746,7 @@
   function runListenerHandler(component, expression, e, extraVars) {
     return component.evaluateCommandExpression(e.target, expression, () => {
       return _objectSpread2({}, extraVars(), {
-        '$event': e
+        $event: e
       });
     });
   }

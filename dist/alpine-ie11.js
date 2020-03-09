@@ -5912,380 +5912,1454 @@
     }.bind(this);
   }
 
+  var nativeGetOwnPropertyNames = objectGetOwnPropertyNames.f;
+
+  var toString$1 = {}.toString;
+
+  var windowNames = typeof window == 'object' && window && Object.getOwnPropertyNames
+    ? Object.getOwnPropertyNames(window) : [];
+
+  var getWindowNames = function (it) {
+    try {
+      return nativeGetOwnPropertyNames(it);
+    } catch (error) {
+      return windowNames.slice();
+    }
+  };
+
+  // fallback for IE11 buggy Object.getOwnPropertyNames with iframe and window
+  var f$6 = function getOwnPropertyNames(it) {
+    return windowNames && toString$1.call(it) == '[object Window]'
+      ? getWindowNames(it)
+      : nativeGetOwnPropertyNames(toIndexedObject(it));
+  };
+
+  var objectGetOwnPropertyNamesExternal = {
+  	f: f$6
+  };
+
+  var f$7 = wellKnownSymbol;
+
+  var wellKnownSymbolWrapped = {
+  	f: f$7
+  };
+
+  var defineProperty$4 = objectDefineProperty.f;
+
+  var defineWellKnownSymbol = function (NAME) {
+    var Symbol = path.Symbol || (path.Symbol = {});
+    if (!has(Symbol, NAME)) defineProperty$4(Symbol, NAME, {
+      value: wellKnownSymbolWrapped.f(NAME)
+    });
+  };
+
+  var $forEach$1 = arrayIteration.forEach;
+
+  var HIDDEN = sharedKey('hidden');
+  var SYMBOL = 'Symbol';
+  var PROTOTYPE$1 = 'prototype';
+  var TO_PRIMITIVE = wellKnownSymbol('toPrimitive');
+  var setInternalState$2 = internalState.set;
+  var getInternalState$2 = internalState.getterFor(SYMBOL);
+  var ObjectPrototype$1 = Object[PROTOTYPE$1];
+  var $Symbol = global_1.Symbol;
+  var $stringify = getBuiltIn('JSON', 'stringify');
+  var nativeGetOwnPropertyDescriptor$1 = objectGetOwnPropertyDescriptor.f;
+  var nativeDefineProperty$1 = objectDefineProperty.f;
+  var nativeGetOwnPropertyNames$1 = objectGetOwnPropertyNamesExternal.f;
+  var nativePropertyIsEnumerable$1 = objectPropertyIsEnumerable.f;
+  var AllSymbols = shared('symbols');
+  var ObjectPrototypeSymbols = shared('op-symbols');
+  var StringToSymbolRegistry = shared('string-to-symbol-registry');
+  var SymbolToStringRegistry = shared('symbol-to-string-registry');
+  var WellKnownSymbolsStore$1 = shared('wks');
+  var QObject = global_1.QObject;
+  // Don't use setters in Qt Script, https://github.com/zloirock/core-js/issues/173
+  var USE_SETTER = !QObject || !QObject[PROTOTYPE$1] || !QObject[PROTOTYPE$1].findChild;
+
+  // fallback for old Android, https://code.google.com/p/v8/issues/detail?id=687
+  var setSymbolDescriptor = descriptors && fails(function () {
+    return objectCreate(nativeDefineProperty$1({}, 'a', {
+      get: function () { return nativeDefineProperty$1(this, 'a', { value: 7 }).a; }
+    })).a != 7;
+  }) ? function (O, P, Attributes) {
+    var ObjectPrototypeDescriptor = nativeGetOwnPropertyDescriptor$1(ObjectPrototype$1, P);
+    if (ObjectPrototypeDescriptor) delete ObjectPrototype$1[P];
+    nativeDefineProperty$1(O, P, Attributes);
+    if (ObjectPrototypeDescriptor && O !== ObjectPrototype$1) {
+      nativeDefineProperty$1(ObjectPrototype$1, P, ObjectPrototypeDescriptor);
+    }
+  } : nativeDefineProperty$1;
+
+  var wrap = function (tag, description) {
+    var symbol = AllSymbols[tag] = objectCreate($Symbol[PROTOTYPE$1]);
+    setInternalState$2(symbol, {
+      type: SYMBOL,
+      tag: tag,
+      description: description
+    });
+    if (!descriptors) symbol.description = description;
+    return symbol;
+  };
+
+  var isSymbol = useSymbolAsUid ? function (it) {
+    return typeof it == 'symbol';
+  } : function (it) {
+    return Object(it) instanceof $Symbol;
+  };
+
+  var $defineProperty = function defineProperty(O, P, Attributes) {
+    if (O === ObjectPrototype$1) $defineProperty(ObjectPrototypeSymbols, P, Attributes);
+    anObject(O);
+    var key = toPrimitive(P, true);
+    anObject(Attributes);
+    if (has(AllSymbols, key)) {
+      if (!Attributes.enumerable) {
+        if (!has(O, HIDDEN)) nativeDefineProperty$1(O, HIDDEN, createPropertyDescriptor(1, {}));
+        O[HIDDEN][key] = true;
+      } else {
+        if (has(O, HIDDEN) && O[HIDDEN][key]) O[HIDDEN][key] = false;
+        Attributes = objectCreate(Attributes, { enumerable: createPropertyDescriptor(0, false) });
+      } return setSymbolDescriptor(O, key, Attributes);
+    } return nativeDefineProperty$1(O, key, Attributes);
+  };
+
+  var $defineProperties = function defineProperties(O, Properties) {
+    anObject(O);
+    var properties = toIndexedObject(Properties);
+    var keys = objectKeys(properties).concat($getOwnPropertySymbols(properties));
+    $forEach$1(keys, function (key) {
+      if (!descriptors || $propertyIsEnumerable.call(properties, key)) $defineProperty(O, key, properties[key]);
+    });
+    return O;
+  };
+
+  var $create = function create(O, Properties) {
+    return Properties === undefined ? objectCreate(O) : $defineProperties(objectCreate(O), Properties);
+  };
+
+  var $propertyIsEnumerable = function propertyIsEnumerable(V) {
+    var P = toPrimitive(V, true);
+    var enumerable = nativePropertyIsEnumerable$1.call(this, P);
+    if (this === ObjectPrototype$1 && has(AllSymbols, P) && !has(ObjectPrototypeSymbols, P)) return false;
+    return enumerable || !has(this, P) || !has(AllSymbols, P) || has(this, HIDDEN) && this[HIDDEN][P] ? enumerable : true;
+  };
+
+  var $getOwnPropertyDescriptor = function getOwnPropertyDescriptor(O, P) {
+    var it = toIndexedObject(O);
+    var key = toPrimitive(P, true);
+    if (it === ObjectPrototype$1 && has(AllSymbols, key) && !has(ObjectPrototypeSymbols, key)) return;
+    var descriptor = nativeGetOwnPropertyDescriptor$1(it, key);
+    if (descriptor && has(AllSymbols, key) && !(has(it, HIDDEN) && it[HIDDEN][key])) {
+      descriptor.enumerable = true;
+    }
+    return descriptor;
+  };
+
+  var $getOwnPropertyNames = function getOwnPropertyNames(O) {
+    var names = nativeGetOwnPropertyNames$1(toIndexedObject(O));
+    var result = [];
+    $forEach$1(names, function (key) {
+      if (!has(AllSymbols, key) && !has(hiddenKeys, key)) result.push(key);
+    });
+    return result;
+  };
+
+  var $getOwnPropertySymbols = function getOwnPropertySymbols(O) {
+    var IS_OBJECT_PROTOTYPE = O === ObjectPrototype$1;
+    var names = nativeGetOwnPropertyNames$1(IS_OBJECT_PROTOTYPE ? ObjectPrototypeSymbols : toIndexedObject(O));
+    var result = [];
+    $forEach$1(names, function (key) {
+      if (has(AllSymbols, key) && (!IS_OBJECT_PROTOTYPE || has(ObjectPrototype$1, key))) {
+        result.push(AllSymbols[key]);
+      }
+    });
+    return result;
+  };
+
+  // `Symbol` constructor
+  // https://tc39.github.io/ecma262/#sec-symbol-constructor
+  if (!nativeSymbol) {
+    $Symbol = function Symbol() {
+      if (this instanceof $Symbol) throw TypeError('Symbol is not a constructor');
+      var description = !arguments.length || arguments[0] === undefined ? undefined : String(arguments[0]);
+      var tag = uid(description);
+      var setter = function (value) {
+        if (this === ObjectPrototype$1) setter.call(ObjectPrototypeSymbols, value);
+        if (has(this, HIDDEN) && has(this[HIDDEN], tag)) this[HIDDEN][tag] = false;
+        setSymbolDescriptor(this, tag, createPropertyDescriptor(1, value));
+      };
+      if (descriptors && USE_SETTER) setSymbolDescriptor(ObjectPrototype$1, tag, { configurable: true, set: setter });
+      return wrap(tag, description);
+    };
+
+    redefine($Symbol[PROTOTYPE$1], 'toString', function toString() {
+      return getInternalState$2(this).tag;
+    });
+
+    redefine($Symbol, 'withoutSetter', function (description) {
+      return wrap(uid(description), description);
+    });
+
+    objectPropertyIsEnumerable.f = $propertyIsEnumerable;
+    objectDefineProperty.f = $defineProperty;
+    objectGetOwnPropertyDescriptor.f = $getOwnPropertyDescriptor;
+    objectGetOwnPropertyNames.f = objectGetOwnPropertyNamesExternal.f = $getOwnPropertyNames;
+    objectGetOwnPropertySymbols.f = $getOwnPropertySymbols;
+
+    wellKnownSymbolWrapped.f = function (name) {
+      return wrap(wellKnownSymbol(name), name);
+    };
+
+    if (descriptors) {
+      // https://github.com/tc39/proposal-Symbol-description
+      nativeDefineProperty$1($Symbol[PROTOTYPE$1], 'description', {
+        configurable: true,
+        get: function description() {
+          return getInternalState$2(this).description;
+        }
+      });
+      {
+        redefine(ObjectPrototype$1, 'propertyIsEnumerable', $propertyIsEnumerable, { unsafe: true });
+      }
+    }
+  }
+
+  _export({ global: true, wrap: true, forced: !nativeSymbol, sham: !nativeSymbol }, {
+    Symbol: $Symbol
+  });
+
+  $forEach$1(objectKeys(WellKnownSymbolsStore$1), function (name) {
+    defineWellKnownSymbol(name);
+  });
+
+  _export({ target: SYMBOL, stat: true, forced: !nativeSymbol }, {
+    // `Symbol.for` method
+    // https://tc39.github.io/ecma262/#sec-symbol.for
+    'for': function (key) {
+      var string = String(key);
+      if (has(StringToSymbolRegistry, string)) return StringToSymbolRegistry[string];
+      var symbol = $Symbol(string);
+      StringToSymbolRegistry[string] = symbol;
+      SymbolToStringRegistry[symbol] = string;
+      return symbol;
+    },
+    // `Symbol.keyFor` method
+    // https://tc39.github.io/ecma262/#sec-symbol.keyfor
+    keyFor: function keyFor(sym) {
+      if (!isSymbol(sym)) throw TypeError(sym + ' is not a symbol');
+      if (has(SymbolToStringRegistry, sym)) return SymbolToStringRegistry[sym];
+    },
+    useSetter: function () { USE_SETTER = true; },
+    useSimple: function () { USE_SETTER = false; }
+  });
+
+  _export({ target: 'Object', stat: true, forced: !nativeSymbol, sham: !descriptors }, {
+    // `Object.create` method
+    // https://tc39.github.io/ecma262/#sec-object.create
+    create: $create,
+    // `Object.defineProperty` method
+    // https://tc39.github.io/ecma262/#sec-object.defineproperty
+    defineProperty: $defineProperty,
+    // `Object.defineProperties` method
+    // https://tc39.github.io/ecma262/#sec-object.defineproperties
+    defineProperties: $defineProperties,
+    // `Object.getOwnPropertyDescriptor` method
+    // https://tc39.github.io/ecma262/#sec-object.getownpropertydescriptors
+    getOwnPropertyDescriptor: $getOwnPropertyDescriptor
+  });
+
+  _export({ target: 'Object', stat: true, forced: !nativeSymbol }, {
+    // `Object.getOwnPropertyNames` method
+    // https://tc39.github.io/ecma262/#sec-object.getownpropertynames
+    getOwnPropertyNames: $getOwnPropertyNames,
+    // `Object.getOwnPropertySymbols` method
+    // https://tc39.github.io/ecma262/#sec-object.getownpropertysymbols
+    getOwnPropertySymbols: $getOwnPropertySymbols
+  });
+
+  // Chrome 38 and 39 `Object.getOwnPropertySymbols` fails on primitives
+  // https://bugs.chromium.org/p/v8/issues/detail?id=3443
+  _export({ target: 'Object', stat: true, forced: fails(function () { objectGetOwnPropertySymbols.f(1); }) }, {
+    getOwnPropertySymbols: function getOwnPropertySymbols(it) {
+      return objectGetOwnPropertySymbols.f(toObject(it));
+    }
+  });
+
+  // `JSON.stringify` method behavior with symbols
+  // https://tc39.github.io/ecma262/#sec-json.stringify
+  if ($stringify) {
+    var FORCED_JSON_STRINGIFY = !nativeSymbol || fails(function () {
+      var symbol = $Symbol();
+      // MS Edge converts symbol values to JSON as {}
+      return $stringify([symbol]) != '[null]'
+        // WebKit converts symbol values to JSON as null
+        || $stringify({ a: symbol }) != '{}'
+        // V8 throws on boxed symbols
+        || $stringify(Object(symbol)) != '{}';
+    });
+
+    _export({ target: 'JSON', stat: true, forced: FORCED_JSON_STRINGIFY }, {
+      // eslint-disable-next-line no-unused-vars
+      stringify: function stringify(it, replacer, space) {
+        var args = [it];
+        var index = 1;
+        var $replacer;
+        while (arguments.length > index) args.push(arguments[index++]);
+        $replacer = replacer;
+        if (!isObject(replacer) && it === undefined || isSymbol(it)) return; // IE8 returns string on undefined
+        if (!isArray(replacer)) replacer = function (key, value) {
+          if (typeof $replacer == 'function') value = $replacer.call(this, key, value);
+          if (!isSymbol(value)) return value;
+        };
+        args[1] = replacer;
+        return $stringify.apply(null, args);
+      }
+    });
+  }
+
+  // `Symbol.prototype[@@toPrimitive]` method
+  // https://tc39.github.io/ecma262/#sec-symbol.prototype-@@toprimitive
+  if (!$Symbol[PROTOTYPE$1][TO_PRIMITIVE]) {
+    createNonEnumerableProperty($Symbol[PROTOTYPE$1], TO_PRIMITIVE, $Symbol[PROTOTYPE$1].valueOf);
+  }
+  // `Symbol.prototype[@@toStringTag]` property
+  // https://tc39.github.io/ecma262/#sec-symbol.prototype-@@tostringtag
+  setToStringTag($Symbol, SYMBOL);
+
+  hiddenKeys[HIDDEN] = true;
+
+  var ARRAY_ITERATOR = 'Array Iterator';
+  var setInternalState$3 = internalState.set;
+  var getInternalState$3 = internalState.getterFor(ARRAY_ITERATOR);
+
+  // `Array.prototype.entries` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.entries
+  // `Array.prototype.keys` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.keys
+  // `Array.prototype.values` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.values
+  // `Array.prototype[@@iterator]` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@iterator
+  // `CreateArrayIterator` internal method
+  // https://tc39.github.io/ecma262/#sec-createarrayiterator
+  var es_array_iterator = defineIterator(Array, 'Array', function (iterated, kind) {
+    setInternalState$3(this, {
+      type: ARRAY_ITERATOR,
+      target: toIndexedObject(iterated), // target
+      index: 0,                          // next index
+      kind: kind                         // kind
+    });
+  // `%ArrayIteratorPrototype%.next` method
+  // https://tc39.github.io/ecma262/#sec-%arrayiteratorprototype%.next
+  }, function () {
+    var state = getInternalState$3(this);
+    var target = state.target;
+    var kind = state.kind;
+    var index = state.index++;
+    if (!target || index >= target.length) {
+      state.target = undefined;
+      return { value: undefined, done: true };
+    }
+    if (kind == 'keys') return { value: index, done: false };
+    if (kind == 'values') return { value: target[index], done: false };
+    return { value: [index, target[index]], done: false };
+  }, 'values');
+
+  // argumentsList[@@iterator] is %ArrayProto_values%
+  // https://tc39.github.io/ecma262/#sec-createunmappedargumentsobject
+  // https://tc39.github.io/ecma262/#sec-createmappedargumentsobject
+  iterators.Arguments = iterators.Array;
+
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables('keys');
+  addToUnscopables('values');
+  addToUnscopables('entries');
+
+  var nativeGetOwnPropertyDescriptor$2 = objectGetOwnPropertyDescriptor.f;
+
+
+  var FAILS_ON_PRIMITIVES$1 = fails(function () { nativeGetOwnPropertyDescriptor$2(1); });
+  var FORCED$2 = !descriptors || FAILS_ON_PRIMITIVES$1;
+
+  // `Object.getOwnPropertyDescriptor` method
+  // https://tc39.github.io/ecma262/#sec-object.getownpropertydescriptor
+  _export({ target: 'Object', stat: true, forced: FORCED$2, sham: !descriptors }, {
+    getOwnPropertyDescriptor: function getOwnPropertyDescriptor(it, key) {
+      return nativeGetOwnPropertyDescriptor$2(toIndexedObject(it), key);
+    }
+  });
+
+  var nativeGetOwnPropertyNames$2 = objectGetOwnPropertyNamesExternal.f;
+
+  var FAILS_ON_PRIMITIVES$2 = fails(function () { return !Object.getOwnPropertyNames(1); });
+
+  // `Object.getOwnPropertyNames` method
+  // https://tc39.github.io/ecma262/#sec-object.getownpropertynames
+  _export({ target: 'Object', stat: true, forced: FAILS_ON_PRIMITIVES$2 }, {
+    getOwnPropertyNames: nativeGetOwnPropertyNames$2
+  });
+
+  var FAILS_ON_PRIMITIVES$3 = fails(function () { objectGetPrototypeOf(1); });
+
+  // `Object.getPrototypeOf` method
+  // https://tc39.github.io/ecma262/#sec-object.getprototypeof
+  _export({ target: 'Object', stat: true, forced: FAILS_ON_PRIMITIVES$3, sham: !correctPrototypeGetter }, {
+    getPrototypeOf: function getPrototypeOf(it) {
+      return objectGetPrototypeOf(toObject(it));
+    }
+  });
+
+  var nativeIsExtensible = Object.isExtensible;
+  var FAILS_ON_PRIMITIVES$4 = fails(function () { nativeIsExtensible(1); });
+
+  // `Object.isExtensible` method
+  // https://tc39.github.io/ecma262/#sec-object.isextensible
+  _export({ target: 'Object', stat: true, forced: FAILS_ON_PRIMITIVES$4 }, {
+    isExtensible: function isExtensible(it) {
+      return isObject(it) ? nativeIsExtensible ? nativeIsExtensible(it) : true : false;
+    }
+  });
+
+  var freezing = !fails(function () {
+    return Object.isExtensible(Object.preventExtensions({}));
+  });
+
+  var internalMetadata = createCommonjsModule(function (module) {
+  var defineProperty = objectDefineProperty.f;
+
+
+
+  var METADATA = uid('meta');
+  var id = 0;
+
+  var isExtensible = Object.isExtensible || function () {
+    return true;
+  };
+
+  var setMetadata = function (it) {
+    defineProperty(it, METADATA, { value: {
+      objectID: 'O' + ++id, // object ID
+      weakData: {}          // weak collections IDs
+    } });
+  };
+
+  var fastKey = function (it, create) {
+    // return a primitive with prefix
+    if (!isObject(it)) return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
+    if (!has(it, METADATA)) {
+      // can't set metadata to uncaught frozen object
+      if (!isExtensible(it)) return 'F';
+      // not necessary to add metadata
+      if (!create) return 'E';
+      // add missing metadata
+      setMetadata(it);
+    // return object ID
+    } return it[METADATA].objectID;
+  };
+
+  var getWeakData = function (it, create) {
+    if (!has(it, METADATA)) {
+      // can't set metadata to uncaught frozen object
+      if (!isExtensible(it)) return true;
+      // not necessary to add metadata
+      if (!create) return false;
+      // add missing metadata
+      setMetadata(it);
+    // return the store of weak collections IDs
+    } return it[METADATA].weakData;
+  };
+
+  // add metadata on freeze-family methods calling
+  var onFreeze = function (it) {
+    if (freezing && meta.REQUIRED && isExtensible(it) && !has(it, METADATA)) setMetadata(it);
+    return it;
+  };
+
+  var meta = module.exports = {
+    REQUIRED: false,
+    fastKey: fastKey,
+    getWeakData: getWeakData,
+    onFreeze: onFreeze
+  };
+
+  hiddenKeys[METADATA] = true;
+  });
+  var internalMetadata_1 = internalMetadata.REQUIRED;
+  var internalMetadata_2 = internalMetadata.fastKey;
+  var internalMetadata_3 = internalMetadata.getWeakData;
+  var internalMetadata_4 = internalMetadata.onFreeze;
+
+  var onFreeze = internalMetadata.onFreeze;
+
+
+
+  var nativePreventExtensions = Object.preventExtensions;
+  var FAILS_ON_PRIMITIVES$5 = fails(function () { nativePreventExtensions(1); });
+
+  // `Object.preventExtensions` method
+  // https://tc39.github.io/ecma262/#sec-object.preventextensions
+  _export({ target: 'Object', stat: true, forced: FAILS_ON_PRIMITIVES$5, sham: !freezing }, {
+    preventExtensions: function preventExtensions(it) {
+      return nativePreventExtensions && isObject(it) ? nativePreventExtensions(onFreeze(it)) : it;
+    }
+  });
+
+  var TO_STRING = 'toString';
+  var RegExpPrototype = RegExp.prototype;
+  var nativeToString = RegExpPrototype[TO_STRING];
+
+  var NOT_GENERIC = fails(function () { return nativeToString.call({ source: 'a', flags: 'b' }) != '/a/b'; });
+  // FF44- RegExp#toString has a wrong name
+  var INCORRECT_NAME = nativeToString.name != TO_STRING;
+
+  // `RegExp.prototype.toString` method
+  // https://tc39.github.io/ecma262/#sec-regexp.prototype.tostring
+  if (NOT_GENERIC || INCORRECT_NAME) {
+    redefine(RegExp.prototype, TO_STRING, function toString() {
+      var R = anObject(this);
+      var p = String(R.source);
+      var rf = R.flags;
+      var f = String(rf === undefined && R instanceof RegExp && !('flags' in RegExpPrototype) ? regexpFlags.call(R) : rf);
+      return '/' + p + '/' + f;
+    }, { unsafe: true });
+  }
+
+  var collection = function (CONSTRUCTOR_NAME, wrapper, common) {
+    var IS_MAP = CONSTRUCTOR_NAME.indexOf('Map') !== -1;
+    var IS_WEAK = CONSTRUCTOR_NAME.indexOf('Weak') !== -1;
+    var ADDER = IS_MAP ? 'set' : 'add';
+    var NativeConstructor = global_1[CONSTRUCTOR_NAME];
+    var NativePrototype = NativeConstructor && NativeConstructor.prototype;
+    var Constructor = NativeConstructor;
+    var exported = {};
+
+    var fixMethod = function (KEY) {
+      var nativeMethod = NativePrototype[KEY];
+      redefine(NativePrototype, KEY,
+        KEY == 'add' ? function add(value) {
+          nativeMethod.call(this, value === 0 ? 0 : value);
+          return this;
+        } : KEY == 'delete' ? function (key) {
+          return IS_WEAK && !isObject(key) ? false : nativeMethod.call(this, key === 0 ? 0 : key);
+        } : KEY == 'get' ? function get(key) {
+          return IS_WEAK && !isObject(key) ? undefined : nativeMethod.call(this, key === 0 ? 0 : key);
+        } : KEY == 'has' ? function has(key) {
+          return IS_WEAK && !isObject(key) ? false : nativeMethod.call(this, key === 0 ? 0 : key);
+        } : function set(key, value) {
+          nativeMethod.call(this, key === 0 ? 0 : key, value);
+          return this;
+        }
+      );
+    };
+
+    // eslint-disable-next-line max-len
+    if (isForced_1(CONSTRUCTOR_NAME, typeof NativeConstructor != 'function' || !(IS_WEAK || NativePrototype.forEach && !fails(function () {
+      new NativeConstructor().entries().next();
+    })))) {
+      // create collection constructor
+      Constructor = common.getConstructor(wrapper, CONSTRUCTOR_NAME, IS_MAP, ADDER);
+      internalMetadata.REQUIRED = true;
+    } else if (isForced_1(CONSTRUCTOR_NAME, true)) {
+      var instance = new Constructor();
+      // early implementations not supports chaining
+      var HASNT_CHAINING = instance[ADDER](IS_WEAK ? {} : -0, 1) != instance;
+      // V8 ~ Chromium 40- weak-collections throws on primitives, but should return false
+      var THROWS_ON_PRIMITIVES = fails(function () { instance.has(1); });
+      // most early implementations doesn't supports iterables, most modern - not close it correctly
+      // eslint-disable-next-line no-new
+      var ACCEPT_ITERABLES = checkCorrectnessOfIteration(function (iterable) { new NativeConstructor(iterable); });
+      // for early implementations -0 and +0 not the same
+      var BUGGY_ZERO = !IS_WEAK && fails(function () {
+        // V8 ~ Chromium 42- fails only with 5+ elements
+        var $instance = new NativeConstructor();
+        var index = 5;
+        while (index--) $instance[ADDER](index, index);
+        return !$instance.has(-0);
+      });
+
+      if (!ACCEPT_ITERABLES) {
+        Constructor = wrapper(function (dummy, iterable) {
+          anInstance(dummy, Constructor, CONSTRUCTOR_NAME);
+          var that = inheritIfRequired(new NativeConstructor(), dummy, Constructor);
+          if (iterable != undefined) iterate_1(iterable, that[ADDER], that, IS_MAP);
+          return that;
+        });
+        Constructor.prototype = NativePrototype;
+        NativePrototype.constructor = Constructor;
+      }
+
+      if (THROWS_ON_PRIMITIVES || BUGGY_ZERO) {
+        fixMethod('delete');
+        fixMethod('has');
+        IS_MAP && fixMethod('get');
+      }
+
+      if (BUGGY_ZERO || HASNT_CHAINING) fixMethod(ADDER);
+
+      // weak collections should not contains .clear method
+      if (IS_WEAK && NativePrototype.clear) delete NativePrototype.clear;
+    }
+
+    exported[CONSTRUCTOR_NAME] = Constructor;
+    _export({ global: true, forced: Constructor != NativeConstructor }, exported);
+
+    setToStringTag(Constructor, CONSTRUCTOR_NAME);
+
+    if (!IS_WEAK) common.setStrong(Constructor, CONSTRUCTOR_NAME, IS_MAP);
+
+    return Constructor;
+  };
+
+  var getWeakData = internalMetadata.getWeakData;
+
+
+
+
+
+
+
+
+  var setInternalState$4 = internalState.set;
+  var internalStateGetterFor = internalState.getterFor;
+  var find = arrayIteration.find;
+  var findIndex = arrayIteration.findIndex;
+  var id$1 = 0;
+
+  // fallback for uncaught frozen keys
+  var uncaughtFrozenStore = function (store) {
+    return store.frozen || (store.frozen = new UncaughtFrozenStore());
+  };
+
+  var UncaughtFrozenStore = function () {
+    this.entries = [];
+  };
+
+  var findUncaughtFrozen = function (store, key) {
+    return find(store.entries, function (it) {
+      return it[0] === key;
+    });
+  };
+
+  UncaughtFrozenStore.prototype = {
+    get: function (key) {
+      var entry = findUncaughtFrozen(this, key);
+      if (entry) return entry[1];
+    },
+    has: function (key) {
+      return !!findUncaughtFrozen(this, key);
+    },
+    set: function (key, value) {
+      var entry = findUncaughtFrozen(this, key);
+      if (entry) entry[1] = value;
+      else this.entries.push([key, value]);
+    },
+    'delete': function (key) {
+      var index = findIndex(this.entries, function (it) {
+        return it[0] === key;
+      });
+      if (~index) this.entries.splice(index, 1);
+      return !!~index;
+    }
+  };
+
+  var collectionWeak = {
+    getConstructor: function (wrapper, CONSTRUCTOR_NAME, IS_MAP, ADDER) {
+      var C = wrapper(function (that, iterable) {
+        anInstance(that, C, CONSTRUCTOR_NAME);
+        setInternalState$4(that, {
+          type: CONSTRUCTOR_NAME,
+          id: id$1++,
+          frozen: undefined
+        });
+        if (iterable != undefined) iterate_1(iterable, that[ADDER], that, IS_MAP);
+      });
+
+      var getInternalState = internalStateGetterFor(CONSTRUCTOR_NAME);
+
+      var define = function (that, key, value) {
+        var state = getInternalState(that);
+        var data = getWeakData(anObject(key), true);
+        if (data === true) uncaughtFrozenStore(state).set(key, value);
+        else data[state.id] = value;
+        return that;
+      };
+
+      redefineAll(C.prototype, {
+        // 23.3.3.2 WeakMap.prototype.delete(key)
+        // 23.4.3.3 WeakSet.prototype.delete(value)
+        'delete': function (key) {
+          var state = getInternalState(this);
+          if (!isObject(key)) return false;
+          var data = getWeakData(key);
+          if (data === true) return uncaughtFrozenStore(state)['delete'](key);
+          return data && has(data, state.id) && delete data[state.id];
+        },
+        // 23.3.3.4 WeakMap.prototype.has(key)
+        // 23.4.3.4 WeakSet.prototype.has(value)
+        has: function has$1(key) {
+          var state = getInternalState(this);
+          if (!isObject(key)) return false;
+          var data = getWeakData(key);
+          if (data === true) return uncaughtFrozenStore(state).has(key);
+          return data && has(data, state.id);
+        }
+      });
+
+      redefineAll(C.prototype, IS_MAP ? {
+        // 23.3.3.3 WeakMap.prototype.get(key)
+        get: function get(key) {
+          var state = getInternalState(this);
+          if (isObject(key)) {
+            var data = getWeakData(key);
+            if (data === true) return uncaughtFrozenStore(state).get(key);
+            return data ? data[state.id] : undefined;
+          }
+        },
+        // 23.3.3.5 WeakMap.prototype.set(key, value)
+        set: function set(key, value) {
+          return define(this, key, value);
+        }
+      } : {
+        // 23.4.3.1 WeakSet.prototype.add(value)
+        add: function add(value) {
+          return define(this, value, true);
+        }
+      });
+
+      return C;
+    }
+  };
+
+  var es_weakMap = createCommonjsModule(function (module) {
+
+
+
+
+
+
+  var enforceIternalState = internalState.enforce;
+
+
+  var IS_IE11 = !global_1.ActiveXObject && 'ActiveXObject' in global_1;
+  var isExtensible = Object.isExtensible;
+  var InternalWeakMap;
+
+  var wrapper = function (init) {
+    return function WeakMap() {
+      return init(this, arguments.length ? arguments[0] : undefined);
+    };
+  };
+
+  // `WeakMap` constructor
+  // https://tc39.github.io/ecma262/#sec-weakmap-constructor
+  var $WeakMap = module.exports = collection('WeakMap', wrapper, collectionWeak);
+
+  // IE11 WeakMap frozen keys fix
+  // We can't use feature detection because it crash some old IE builds
+  // https://github.com/zloirock/core-js/issues/485
+  if (nativeWeakMap && IS_IE11) {
+    InternalWeakMap = collectionWeak.getConstructor(wrapper, 'WeakMap', true);
+    internalMetadata.REQUIRED = true;
+    var WeakMapPrototype = $WeakMap.prototype;
+    var nativeDelete = WeakMapPrototype['delete'];
+    var nativeHas = WeakMapPrototype.has;
+    var nativeGet = WeakMapPrototype.get;
+    var nativeSet = WeakMapPrototype.set;
+    redefineAll(WeakMapPrototype, {
+      'delete': function (key) {
+        if (isObject(key) && !isExtensible(key)) {
+          var state = enforceIternalState(this);
+          if (!state.frozen) state.frozen = new InternalWeakMap();
+          return nativeDelete.call(this, key) || state.frozen['delete'](key);
+        } return nativeDelete.call(this, key);
+      },
+      has: function has(key) {
+        if (isObject(key) && !isExtensible(key)) {
+          var state = enforceIternalState(this);
+          if (!state.frozen) state.frozen = new InternalWeakMap();
+          return nativeHas.call(this, key) || state.frozen.has(key);
+        } return nativeHas.call(this, key);
+      },
+      get: function get(key) {
+        if (isObject(key) && !isExtensible(key)) {
+          var state = enforceIternalState(this);
+          if (!state.frozen) state.frozen = new InternalWeakMap();
+          return nativeHas.call(this, key) ? nativeGet.call(this, key) : state.frozen.get(key);
+        } return nativeGet.call(this, key);
+      },
+      set: function set(key, value) {
+        if (isObject(key) && !isExtensible(key)) {
+          var state = enforceIternalState(this);
+          if (!state.frozen) state.frozen = new InternalWeakMap();
+          nativeHas.call(this, key) ? nativeSet.call(this, key, value) : state.frozen.set(key, value);
+        } else nativeSet.call(this, key, value);
+        return this;
+      }
+    });
+  }
+  });
+
+  var ITERATOR$5 = wellKnownSymbol('iterator');
+  var TO_STRING_TAG$3 = wellKnownSymbol('toStringTag');
+  var ArrayValues = es_array_iterator.values;
+
+  for (var COLLECTION_NAME$1 in domIterables) {
+    var Collection$1 = global_1[COLLECTION_NAME$1];
+    var CollectionPrototype$1 = Collection$1 && Collection$1.prototype;
+    if (CollectionPrototype$1) {
+      // some Chrome versions have non-configurable methods on DOMTokenList
+      if (CollectionPrototype$1[ITERATOR$5] !== ArrayValues) try {
+        createNonEnumerableProperty(CollectionPrototype$1, ITERATOR$5, ArrayValues);
+      } catch (error) {
+        CollectionPrototype$1[ITERATOR$5] = ArrayValues;
+      }
+      if (!CollectionPrototype$1[TO_STRING_TAG$3]) {
+        createNonEnumerableProperty(CollectionPrototype$1, TO_STRING_TAG$3, COLLECTION_NAME$1);
+      }
+      if (domIterables[COLLECTION_NAME$1]) for (var METHOD_NAME in es_array_iterator) {
+        // some Chrome versions have non-configurable methods on DOMTokenList
+        if (CollectionPrototype$1[METHOD_NAME] !== es_array_iterator[METHOD_NAME]) try {
+          createNonEnumerableProperty(CollectionPrototype$1, METHOD_NAME, es_array_iterator[METHOD_NAME]);
+        } catch (error) {
+          CollectionPrototype$1[METHOD_NAME] = es_array_iterator[METHOD_NAME];
+        }
+      }
+    }
+  }
+
+  var _this = undefined;
+
   /**
    * Copyright (C) 2017 salesforce.com, inc.
    */
-  const { isArray: isArray$1 } = Array;
-  const { getPrototypeOf, create: ObjectCreate, defineProperty: ObjectDefineProperty, defineProperties: ObjectDefineProperties, isExtensible, getOwnPropertyDescriptor: getOwnPropertyDescriptor$5, getOwnPropertyNames: getOwnPropertyNames$1, getOwnPropertySymbols, preventExtensions, hasOwnProperty: hasOwnProperty$1, } = Object;
-  const { push: ArrayPush, concat: ArrayConcat, map: ArrayMap, } = Array.prototype;
+  var isArray$1 = Array.isArray;
+  var _getPrototypeOf = Object.getPrototypeOf,
+      ObjectCreate = Object.create,
+      ObjectDefineProperty = Object.defineProperty,
+      _isExtensible = Object.isExtensible,
+      _getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor,
+      getOwnPropertyNames$1 = Object.getOwnPropertyNames,
+      getOwnPropertySymbols = Object.getOwnPropertySymbols,
+      _preventExtensions = Object.preventExtensions,
+      hasOwnProperty$1 = Object.hasOwnProperty;
+  var _Array$prototype = Array.prototype,
+      ArrayConcat = _Array$prototype.concat;
+
   function isUndefined(obj) {
-      return obj === undefined;
+    return obj === undefined;
   }
+
   function isFunction(obj) {
-      return typeof obj === 'function';
+    return typeof obj === 'function';
   }
+
   function isObject$1(obj) {
-      return typeof obj === 'object';
+    return _typeof(obj) === 'object';
   }
-  const proxyToValueMap = new WeakMap();
+
+  var proxyToValueMap = new WeakMap();
+
   function registerProxy(proxy, value) {
-      proxyToValueMap.set(proxy, value);
+    proxyToValueMap.set(proxy, value);
   }
-  const unwrap = (replicaOrAny) => proxyToValueMap.get(replicaOrAny) || replicaOrAny;
+
+  var unwrap = function unwrap(replicaOrAny) {
+    _newArrowCheck(this, _this);
+
+    return proxyToValueMap.get(replicaOrAny) || replicaOrAny;
+  }.bind(undefined);
 
   function wrapValue(membrane, value) {
-      return membrane.valueIsObservable(value) ? membrane.getProxy(value) : value;
+    return membrane.valueIsObservable(value) ? membrane.getProxy(value) : value;
   }
   /**
    * Unwrap property descriptors will set value on original descriptor
    * We only need to unwrap if value is specified
    * @param descriptor external descrpitor provided to define new property on original value
    */
+
+
   function unwrapDescriptor(descriptor) {
-      if (hasOwnProperty$1.call(descriptor, 'value')) {
-          descriptor.value = unwrap(descriptor.value);
-      }
-      return descriptor;
-  }
-  function lockShadowTarget(membrane, shadowTarget, originalTarget) {
-      const targetKeys = ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      targetKeys.forEach((key) => {
-          let descriptor = getOwnPropertyDescriptor$5(originalTarget, key);
-          // We do not need to wrap the descriptor if configurable
-          // Because we can deal with wrapping it when user goes through
-          // Get own property descriptor. There is also a chance that this descriptor
-          // could change sometime in the future, so we can defer wrapping
-          // until we need to
-          if (!descriptor.configurable) {
-              descriptor = wrapDescriptor(membrane, descriptor, wrapValue);
-          }
-          ObjectDefineProperty(shadowTarget, key, descriptor);
-      });
-      preventExtensions(shadowTarget);
-  }
-  class ReactiveProxyHandler {
-      constructor(membrane, value) {
-          this.originalTarget = value;
-          this.membrane = membrane;
-      }
-      get(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const value = originalTarget[key];
-          const { valueObserved } = membrane;
-          valueObserved(originalTarget, key);
-          return membrane.getProxy(value);
-      }
-      set(shadowTarget, key, value) {
-          const { originalTarget, membrane: { valueMutated } } = this;
-          const oldValue = originalTarget[key];
-          if (oldValue !== value) {
-              originalTarget[key] = value;
-              valueMutated(originalTarget, key);
-          }
-          else if (key === 'length' && isArray$1(originalTarget)) {
-              // fix for issue #236: push will add the new index, and by the time length
-              // is updated, the internal length is already equal to the new length value
-              // therefore, the oldValue is equal to the value. This is the forking logic
-              // to support this use case.
-              valueMutated(originalTarget, key);
-          }
-          return true;
-      }
-      deleteProperty(shadowTarget, key) {
-          const { originalTarget, membrane: { valueMutated } } = this;
-          delete originalTarget[key];
-          valueMutated(originalTarget, key);
-          return true;
-      }
-      apply(shadowTarget, thisArg, argArray) {
-          /* No op */
-      }
-      construct(target, argArray, newTarget) {
-          /* No op */
-      }
-      has(shadowTarget, key) {
-          const { originalTarget, membrane: { valueObserved } } = this;
-          valueObserved(originalTarget, key);
-          return key in originalTarget;
-      }
-      ownKeys(shadowTarget) {
-          const { originalTarget } = this;
-          return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      }
-      isExtensible(shadowTarget) {
-          const shadowIsExtensible = isExtensible(shadowTarget);
-          if (!shadowIsExtensible) {
-              return shadowIsExtensible;
-          }
-          const { originalTarget, membrane } = this;
-          const targetIsExtensible = isExtensible(originalTarget);
-          if (!targetIsExtensible) {
-              lockShadowTarget(membrane, shadowTarget, originalTarget);
-          }
-          return targetIsExtensible;
-      }
-      setPrototypeOf(shadowTarget, prototype) {
-      }
-      getPrototypeOf(shadowTarget) {
-          const { originalTarget } = this;
-          return getPrototypeOf(originalTarget);
-      }
-      getOwnPropertyDescriptor(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const { valueObserved } = this.membrane;
-          // keys looked up via hasOwnProperty need to be reactive
-          valueObserved(originalTarget, key);
-          let desc = getOwnPropertyDescriptor$5(originalTarget, key);
-          if (isUndefined(desc)) {
-              return desc;
-          }
-          const shadowDescriptor = getOwnPropertyDescriptor$5(shadowTarget, key);
-          if (!isUndefined(shadowDescriptor)) {
-              return shadowDescriptor;
-          }
-          // Note: by accessing the descriptor, the key is marked as observed
-          // but access to the value, setter or getter (if available) cannot observe
-          // mutations, just like regular methods, in which case we just do nothing.
-          desc = wrapDescriptor(membrane, desc, wrapValue);
-          if (!desc.configurable) {
-              // If descriptor from original target is not configurable,
-              // We must copy the wrapped descriptor over to the shadow target.
-              // Otherwise, proxy will throw an invariant error.
-              // This is our last chance to lock the value.
-              // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
-              ObjectDefineProperty(shadowTarget, key, desc);
-          }
-          return desc;
-      }
-      preventExtensions(shadowTarget) {
-          const { originalTarget, membrane } = this;
-          lockShadowTarget(membrane, shadowTarget, originalTarget);
-          preventExtensions(originalTarget);
-          return true;
-      }
-      defineProperty(shadowTarget, key, descriptor) {
-          const { originalTarget, membrane } = this;
-          const { valueMutated } = membrane;
-          const { configurable } = descriptor;
-          // We have to check for value in descriptor
-          // because Object.freeze(proxy) calls this method
-          // with only { configurable: false, writeable: false }
-          // Additionally, method will only be called with writeable:false
-          // if the descriptor has a value, as opposed to getter/setter
-          // So we can just check if writable is present and then see if
-          // value is present. This eliminates getter and setter descriptors
-          if (hasOwnProperty$1.call(descriptor, 'writable') && !hasOwnProperty$1.call(descriptor, 'value')) {
-              const originalDescriptor = getOwnPropertyDescriptor$5(originalTarget, key);
-              descriptor.value = originalDescriptor.value;
-          }
-          ObjectDefineProperty(originalTarget, key, unwrapDescriptor(descriptor));
-          if (configurable === false) {
-              ObjectDefineProperty(shadowTarget, key, wrapDescriptor(membrane, descriptor, wrapValue));
-          }
-          valueMutated(originalTarget, key);
-          return true;
-      }
+    if (hasOwnProperty$1.call(descriptor, 'value')) {
+      descriptor.value = unwrap(descriptor.value);
+    }
+
+    return descriptor;
   }
 
-  function wrapReadOnlyValue(membrane, value) {
-      return membrane.valueIsObservable(value) ? membrane.getReadOnlyProxy(value) : value;
+  function lockShadowTarget(membrane, shadowTarget, originalTarget) {
+    var _this2 = this;
+
+    var targetKeys = ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
+    targetKeys.forEach(function (key) {
+      _newArrowCheck(this, _this2);
+
+      var descriptor = _getOwnPropertyDescriptor(originalTarget, key); // We do not need to wrap the descriptor if configurable
+      // Because we can deal with wrapping it when user goes through
+      // Get own property descriptor. There is also a chance that this descriptor
+      // could change sometime in the future, so we can defer wrapping
+      // until we need to
+
+
+      if (!descriptor.configurable) {
+        descriptor = wrapDescriptor(membrane, descriptor, wrapValue);
+      }
+
+      ObjectDefineProperty(shadowTarget, key, descriptor);
+    }.bind(this));
+
+    _preventExtensions(shadowTarget);
   }
-  class ReadOnlyHandler {
-      constructor(membrane, value) {
-          this.originalTarget = value;
-          this.membrane = membrane;
+
+  var ReactiveProxyHandler =
+  /*#__PURE__*/
+  function () {
+    function ReactiveProxyHandler(membrane, value) {
+      _classCallCheck(this, ReactiveProxyHandler);
+
+      this.originalTarget = value;
+      this.membrane = membrane;
+    }
+
+    _createClass(ReactiveProxyHandler, [{
+      key: "get",
+      value: function get(shadowTarget, key) {
+        var originalTarget = this.originalTarget,
+            membrane = this.membrane;
+        var value = originalTarget[key];
+        var valueObserved = membrane.valueObserved;
+        valueObserved(originalTarget, key);
+        return membrane.getProxy(value);
       }
-      get(shadowTarget, key) {
-          const { membrane, originalTarget } = this;
-          const value = originalTarget[key];
-          const { valueObserved } = membrane;
-          valueObserved(originalTarget, key);
-          return membrane.getReadOnlyProxy(value);
+    }, {
+      key: "set",
+      value: function set(shadowTarget, key, value) {
+        var originalTarget = this.originalTarget,
+            valueMutated = this.membrane.valueMutated;
+        var oldValue = originalTarget[key];
+
+        if (oldValue !== value) {
+          originalTarget[key] = value;
+          valueMutated(originalTarget, key);
+        } else if (key === 'length' && isArray$1(originalTarget)) {
+          // fix for issue #236: push will add the new index, and by the time length
+          // is updated, the internal length is already equal to the new length value
+          // therefore, the oldValue is equal to the value. This is the forking logic
+          // to support this use case.
+          valueMutated(originalTarget, key);
+        }
+
+        return true;
       }
-      set(shadowTarget, key, value) {
-          return false;
+    }, {
+      key: "deleteProperty",
+      value: function deleteProperty(shadowTarget, key) {
+        var originalTarget = this.originalTarget,
+            valueMutated = this.membrane.valueMutated;
+        delete originalTarget[key];
+        valueMutated(originalTarget, key);
+        return true;
       }
-      deleteProperty(shadowTarget, key) {
-          return false;
+    }, {
+      key: "apply",
+      value: function apply(shadowTarget, thisArg, argArray) {
+        /* No op */
       }
-      apply(shadowTarget, thisArg, argArray) {
-          /* No op */
+    }, {
+      key: "construct",
+      value: function construct(target, argArray, newTarget) {
+        /* No op */
       }
-      construct(target, argArray, newTarget) {
-          /* No op */
+    }, {
+      key: "has",
+      value: function has(shadowTarget, key) {
+        var originalTarget = this.originalTarget,
+            valueObserved = this.membrane.valueObserved;
+        valueObserved(originalTarget, key);
+        return key in originalTarget;
       }
-      has(shadowTarget, key) {
-          const { originalTarget, membrane: { valueObserved } } = this;
-          valueObserved(originalTarget, key);
-          return key in originalTarget;
+    }, {
+      key: "ownKeys",
+      value: function ownKeys(shadowTarget) {
+        var originalTarget = this.originalTarget;
+        return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
       }
-      ownKeys(shadowTarget) {
-          const { originalTarget } = this;
-          return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
+    }, {
+      key: "isExtensible",
+      value: function isExtensible(shadowTarget) {
+        var shadowIsExtensible = _isExtensible(shadowTarget);
+
+        if (!shadowIsExtensible) {
+          return shadowIsExtensible;
+        }
+
+        var originalTarget = this.originalTarget,
+            membrane = this.membrane;
+
+        var targetIsExtensible = _isExtensible(originalTarget);
+
+        if (!targetIsExtensible) {
+          lockShadowTarget(membrane, shadowTarget, originalTarget);
+        }
+
+        return targetIsExtensible;
       }
-      setPrototypeOf(shadowTarget, prototype) {
+    }, {
+      key: "setPrototypeOf",
+      value: function setPrototypeOf(shadowTarget, prototype) {
       }
-      getOwnPropertyDescriptor(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const { valueObserved } = membrane;
-          // keys looked up via hasOwnProperty need to be reactive
-          valueObserved(originalTarget, key);
-          let desc = getOwnPropertyDescriptor$5(originalTarget, key);
-          if (isUndefined(desc)) {
-              return desc;
-          }
-          const shadowDescriptor = getOwnPropertyDescriptor$5(shadowTarget, key);
-          if (!isUndefined(shadowDescriptor)) {
-              return shadowDescriptor;
-          }
-          // Note: by accessing the descriptor, the key is marked as observed
-          // but access to the value or getter (if available) cannot be observed,
-          // just like regular methods, in which case we just do nothing.
-          desc = wrapDescriptor(membrane, desc, wrapReadOnlyValue);
-          if (hasOwnProperty$1.call(desc, 'set')) {
-              desc.set = undefined; // readOnly membrane does not allow setters
-          }
-          if (!desc.configurable) {
-              // If descriptor from original target is not configurable,
-              // We must copy the wrapped descriptor over to the shadow target.
-              // Otherwise, proxy will throw an invariant error.
-              // This is our last chance to lock the value.
-              // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
-              ObjectDefineProperty(shadowTarget, key, desc);
-          }
+    }, {
+      key: "getPrototypeOf",
+      value: function getPrototypeOf(shadowTarget) {
+        var originalTarget = this.originalTarget;
+        return _getPrototypeOf(originalTarget);
+      }
+    }, {
+      key: "getOwnPropertyDescriptor",
+      value: function getOwnPropertyDescriptor(shadowTarget, key) {
+        var originalTarget = this.originalTarget,
+            membrane = this.membrane;
+        var valueObserved = this.membrane.valueObserved; // keys looked up via hasOwnProperty need to be reactive
+
+        valueObserved(originalTarget, key);
+
+        var desc = _getOwnPropertyDescriptor(originalTarget, key);
+
+        if (isUndefined(desc)) {
           return desc;
+        }
+
+        var shadowDescriptor = _getOwnPropertyDescriptor(shadowTarget, key);
+
+        if (!isUndefined(shadowDescriptor)) {
+          return shadowDescriptor;
+        } // Note: by accessing the descriptor, the key is marked as observed
+        // but access to the value, setter or getter (if available) cannot observe
+        // mutations, just like regular methods, in which case we just do nothing.
+
+
+        desc = wrapDescriptor(membrane, desc, wrapValue);
+
+        if (!desc.configurable) {
+          // If descriptor from original target is not configurable,
+          // We must copy the wrapped descriptor over to the shadow target.
+          // Otherwise, proxy will throw an invariant error.
+          // This is our last chance to lock the value.
+          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
+          ObjectDefineProperty(shadowTarget, key, desc);
+        }
+
+        return desc;
       }
-      preventExtensions(shadowTarget) {
-          return false;
+    }, {
+      key: "preventExtensions",
+      value: function preventExtensions(shadowTarget) {
+        var originalTarget = this.originalTarget,
+            membrane = this.membrane;
+        lockShadowTarget(membrane, shadowTarget, originalTarget);
+
+        _preventExtensions(originalTarget);
+
+        return true;
       }
-      defineProperty(shadowTarget, key, descriptor) {
-          return false;
+    }, {
+      key: "defineProperty",
+      value: function defineProperty(shadowTarget, key, descriptor) {
+        var originalTarget = this.originalTarget,
+            membrane = this.membrane;
+        var valueMutated = membrane.valueMutated;
+        var configurable = descriptor.configurable; // We have to check for value in descriptor
+        // because Object.freeze(proxy) calls this method
+        // with only { configurable: false, writeable: false }
+        // Additionally, method will only be called with writeable:false
+        // if the descriptor has a value, as opposed to getter/setter
+        // So we can just check if writable is present and then see if
+        // value is present. This eliminates getter and setter descriptors
+
+        if (hasOwnProperty$1.call(descriptor, 'writable') && !hasOwnProperty$1.call(descriptor, 'value')) {
+          var originalDescriptor = _getOwnPropertyDescriptor(originalTarget, key);
+
+          descriptor.value = originalDescriptor.value;
+        }
+
+        ObjectDefineProperty(originalTarget, key, unwrapDescriptor(descriptor));
+
+        if (configurable === false) {
+          ObjectDefineProperty(shadowTarget, key, wrapDescriptor(membrane, descriptor, wrapValue));
+        }
+
+        valueMutated(originalTarget, key);
+        return true;
       }
+    }]);
+
+    return ReactiveProxyHandler;
+  }();
+
+  function wrapReadOnlyValue(membrane, value) {
+    return membrane.valueIsObservable(value) ? membrane.getReadOnlyProxy(value) : value;
   }
+
+  var ReadOnlyHandler =
+  /*#__PURE__*/
+  function () {
+    function ReadOnlyHandler(membrane, value) {
+      _classCallCheck(this, ReadOnlyHandler);
+
+      this.originalTarget = value;
+      this.membrane = membrane;
+    }
+
+    _createClass(ReadOnlyHandler, [{
+      key: "get",
+      value: function get(shadowTarget, key) {
+        var membrane = this.membrane,
+            originalTarget = this.originalTarget;
+        var value = originalTarget[key];
+        var valueObserved = membrane.valueObserved;
+        valueObserved(originalTarget, key);
+        return membrane.getReadOnlyProxy(value);
+      }
+    }, {
+      key: "set",
+      value: function set(shadowTarget, key, value) {
+
+        return false;
+      }
+    }, {
+      key: "deleteProperty",
+      value: function deleteProperty(shadowTarget, key) {
+
+        return false;
+      }
+    }, {
+      key: "apply",
+      value: function apply(shadowTarget, thisArg, argArray) {
+        /* No op */
+      }
+    }, {
+      key: "construct",
+      value: function construct(target, argArray, newTarget) {
+        /* No op */
+      }
+    }, {
+      key: "has",
+      value: function has(shadowTarget, key) {
+        var originalTarget = this.originalTarget,
+            valueObserved = this.membrane.valueObserved;
+        valueObserved(originalTarget, key);
+        return key in originalTarget;
+      }
+    }, {
+      key: "ownKeys",
+      value: function ownKeys(shadowTarget) {
+        var originalTarget = this.originalTarget;
+        return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
+      }
+    }, {
+      key: "setPrototypeOf",
+      value: function setPrototypeOf(shadowTarget, prototype) {
+      }
+    }, {
+      key: "getOwnPropertyDescriptor",
+      value: function getOwnPropertyDescriptor(shadowTarget, key) {
+        var originalTarget = this.originalTarget,
+            membrane = this.membrane;
+        var valueObserved = membrane.valueObserved; // keys looked up via hasOwnProperty need to be reactive
+
+        valueObserved(originalTarget, key);
+
+        var desc = _getOwnPropertyDescriptor(originalTarget, key);
+
+        if (isUndefined(desc)) {
+          return desc;
+        }
+
+        var shadowDescriptor = _getOwnPropertyDescriptor(shadowTarget, key);
+
+        if (!isUndefined(shadowDescriptor)) {
+          return shadowDescriptor;
+        } // Note: by accessing the descriptor, the key is marked as observed
+        // but access to the value or getter (if available) cannot be observed,
+        // just like regular methods, in which case we just do nothing.
+
+
+        desc = wrapDescriptor(membrane, desc, wrapReadOnlyValue);
+
+        if (hasOwnProperty$1.call(desc, 'set')) {
+          desc.set = undefined; // readOnly membrane does not allow setters
+        }
+
+        if (!desc.configurable) {
+          // If descriptor from original target is not configurable,
+          // We must copy the wrapped descriptor over to the shadow target.
+          // Otherwise, proxy will throw an invariant error.
+          // This is our last chance to lock the value.
+          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
+          ObjectDefineProperty(shadowTarget, key, desc);
+        }
+
+        return desc;
+      }
+    }, {
+      key: "preventExtensions",
+      value: function preventExtensions(shadowTarget) {
+
+        return false;
+      }
+    }, {
+      key: "defineProperty",
+      value: function defineProperty(shadowTarget, key, descriptor) {
+
+        return false;
+      }
+    }]);
+
+    return ReadOnlyHandler;
+  }();
+
+  function extract(objectOrArray) {
+    var _this3 = this;
+
+    if (isArray$1(objectOrArray)) {
+      return objectOrArray.map(function (item) {
+        _newArrowCheck(this, _this3);
+
+        var original = unwrap(item);
+
+        if (original !== item) {
+          return extract(original);
+        }
+
+        return item;
+      }.bind(this));
+    }
+
+    var obj = ObjectCreate(_getPrototypeOf(objectOrArray));
+    var names = getOwnPropertyNames$1(objectOrArray);
+    return ArrayConcat.call(names, getOwnPropertySymbols(objectOrArray)).reduce(function (seed, key) {
+      _newArrowCheck(this, _this3);
+
+      var item = objectOrArray[key];
+      var original = unwrap(item);
+
+      if (original !== item) {
+        seed[key] = extract(original);
+      } else {
+        seed[key] = item;
+      }
+
+      return seed;
+    }.bind(this), obj);
+  }
+
+  var formatter = {
+    header: function header(plainOrProxy) {
+      _newArrowCheck(this, _this);
+
+      var originalTarget = unwrap(plainOrProxy); // if originalTarget is falsy or not unwrappable, exit
+
+      if (!originalTarget || originalTarget === plainOrProxy) {
+        return null;
+      }
+
+      var obj = extract(plainOrProxy);
+      return ['object', {
+        object: obj
+      }];
+    }.bind(undefined),
+    hasBody: function hasBody() {
+      _newArrowCheck(this, _this);
+
+      return false;
+    }.bind(undefined),
+    body: function body() {
+      _newArrowCheck(this, _this);
+
+      return null;
+    }.bind(undefined)
+  }; // Inspired from paulmillr/es6-shim
+
   function createShadowTarget(value) {
-      let shadowTarget = undefined;
-      if (isArray$1(value)) {
-          shadowTarget = [];
-      }
-      else if (isObject$1(value)) {
-          shadowTarget = {};
-      }
-      return shadowTarget;
+    var shadowTarget = undefined;
+
+    if (isArray$1(value)) {
+      shadowTarget = [];
+    } else if (isObject$1(value)) {
+      shadowTarget = {};
+    }
+
+    return shadowTarget;
   }
-  const ObjectDotPrototype = Object.prototype;
+
+  var ObjectDotPrototype = Object.prototype;
+
   function defaultValueIsObservable(value) {
-      // intentionally checking for null
-      if (value === null) {
-          return false;
-      }
-      // treat all non-object types, including undefined, as non-observable values
-      if (typeof value !== 'object') {
-          return false;
-      }
-      if (isArray$1(value)) {
-          return true;
-      }
-      const proto = getPrototypeOf(value);
-      return (proto === ObjectDotPrototype || proto === null || getPrototypeOf(proto) === null);
+    // intentionally checking for null
+    if (value === null) {
+      return false;
+    } // treat all non-object types, including undefined, as non-observable values
+
+
+    if (_typeof(value) !== 'object') {
+      return false;
+    }
+
+    if (isArray$1(value)) {
+      return true;
+    }
+
+    var proto = _getPrototypeOf(value);
+
+    return proto === ObjectDotPrototype || proto === null || _getPrototypeOf(proto) === null;
   }
-  const defaultValueObserved = (obj, key) => {
-      /* do nothing */
-  };
-  const defaultValueMutated = (obj, key) => {
-      /* do nothing */
-  };
-  const defaultValueDistortion = (value) => value;
+
+  var defaultValueObserved = function defaultValueObserved(obj, key) {
+    /* do nothing */
+
+    _newArrowCheck(this, _this);
+  }.bind(undefined);
+
+  var defaultValueMutated = function defaultValueMutated(obj, key) {
+    /* do nothing */
+
+    _newArrowCheck(this, _this);
+  }.bind(undefined);
+
+  var defaultValueDistortion = function defaultValueDistortion(value) {
+    _newArrowCheck(this, _this);
+
+    return value;
+  }.bind(undefined);
+
   function wrapDescriptor(membrane, descriptor, getValue) {
-      const { set, get } = descriptor;
-      if (hasOwnProperty$1.call(descriptor, 'value')) {
-          descriptor.value = getValue(membrane, descriptor.value);
+    var set = descriptor.set,
+        get = descriptor.get;
+
+    if (hasOwnProperty$1.call(descriptor, 'value')) {
+      descriptor.value = getValue(membrane, descriptor.value);
+    } else {
+      if (!isUndefined(get)) {
+        descriptor.get = function () {
+          // invoking the original getter with the original target
+          return getValue(membrane, get.call(unwrap(this)));
+        };
       }
-      else {
-          if (!isUndefined(get)) {
-              descriptor.get = function () {
-                  // invoking the original getter with the original target
-                  return getValue(membrane, get.call(unwrap(this)));
-              };
-          }
-          if (!isUndefined(set)) {
-              descriptor.set = function (value) {
-                  // At this point we don't have a clear indication of whether
-                  // or not a valid mutation will occur, we don't have the key,
-                  // and we are not sure why and how they are invoking this setter.
-                  // Nevertheless we preserve the original semantics by invoking the
-                  // original setter with the original target and the unwrapped value
-                  set.call(unwrap(this), membrane.unwrapProxy(value));
-              };
-          }
+
+      if (!isUndefined(set)) {
+        descriptor.set = function (value) {
+          // At this point we don't have a clear indication of whether
+          // or not a valid mutation will occur, we don't have the key,
+          // and we are not sure why and how they are invoking this setter.
+          // Nevertheless we preserve the original semantics by invoking the
+          // original setter with the original target and the unwrapped value
+          set.call(unwrap(this), membrane.unwrapProxy(value));
+        };
       }
-      return descriptor;
+    }
+
+    return descriptor;
   }
-  class ReactiveMembrane {
-      constructor(options) {
-          this.valueDistortion = defaultValueDistortion;
-          this.valueMutated = defaultValueMutated;
-          this.valueObserved = defaultValueObserved;
-          this.valueIsObservable = defaultValueIsObservable;
-          this.objectGraph = new WeakMap();
-          if (!isUndefined(options)) {
-              const { valueDistortion, valueMutated, valueObserved, valueIsObservable } = options;
-              this.valueDistortion = isFunction(valueDistortion) ? valueDistortion : defaultValueDistortion;
-              this.valueMutated = isFunction(valueMutated) ? valueMutated : defaultValueMutated;
-              this.valueObserved = isFunction(valueObserved) ? valueObserved : defaultValueObserved;
-              this.valueIsObservable = isFunction(valueIsObservable) ? valueIsObservable : defaultValueIsObservable;
-          }
+
+  var ReactiveMembrane =
+  /*#__PURE__*/
+  function () {
+    function ReactiveMembrane(options) {
+      _classCallCheck(this, ReactiveMembrane);
+
+      this.valueDistortion = defaultValueDistortion;
+      this.valueMutated = defaultValueMutated;
+      this.valueObserved = defaultValueObserved;
+      this.valueIsObservable = defaultValueIsObservable;
+      this.objectGraph = new WeakMap();
+
+      if (!isUndefined(options)) {
+        var valueDistortion = options.valueDistortion,
+            valueMutated = options.valueMutated,
+            valueObserved = options.valueObserved,
+            valueIsObservable = options.valueIsObservable;
+        this.valueDistortion = isFunction(valueDistortion) ? valueDistortion : defaultValueDistortion;
+        this.valueMutated = isFunction(valueMutated) ? valueMutated : defaultValueMutated;
+        this.valueObserved = isFunction(valueObserved) ? valueObserved : defaultValueObserved;
+        this.valueIsObservable = isFunction(valueIsObservable) ? valueIsObservable : defaultValueIsObservable;
       }
-      getProxy(value) {
-          const unwrappedValue = unwrap(value);
-          const distorted = this.valueDistortion(unwrappedValue);
-          if (this.valueIsObservable(distorted)) {
-              const o = this.getReactiveState(unwrappedValue, distorted);
-              // when trying to extract the writable version of a readonly
-              // we return the readonly.
-              return o.readOnly === value ? value : o.reactive;
-          }
-          return distorted;
+    }
+
+    _createClass(ReactiveMembrane, [{
+      key: "getProxy",
+      value: function getProxy(value) {
+        var unwrappedValue = unwrap(value);
+        var distorted = this.valueDistortion(unwrappedValue);
+
+        if (this.valueIsObservable(distorted)) {
+          var o = this.getReactiveState(unwrappedValue, distorted); // when trying to extract the writable version of a readonly
+          // we return the readonly.
+
+          return o.readOnly === value ? value : o.reactive;
+        }
+
+        return distorted;
       }
-      getReadOnlyProxy(value) {
-          value = unwrap(value);
-          const distorted = this.valueDistortion(value);
-          if (this.valueIsObservable(distorted)) {
-              return this.getReactiveState(value, distorted).readOnly;
-          }
-          return distorted;
+    }, {
+      key: "getReadOnlyProxy",
+      value: function getReadOnlyProxy(value) {
+        value = unwrap(value);
+        var distorted = this.valueDistortion(value);
+
+        if (this.valueIsObservable(distorted)) {
+          return this.getReactiveState(value, distorted).readOnly;
+        }
+
+        return distorted;
       }
-      unwrapProxy(p) {
-          return unwrap(p);
+    }, {
+      key: "unwrapProxy",
+      value: function unwrapProxy(p) {
+        return unwrap(p);
       }
-      getReactiveState(value, distortedValue) {
-          const { objectGraph, } = this;
-          let reactiveState = objectGraph.get(distortedValue);
-          if (reactiveState) {
-              return reactiveState;
-          }
-          const membrane = this;
-          reactiveState = {
-              get reactive() {
-                  const reactiveHandler = new ReactiveProxyHandler(membrane, distortedValue);
-                  // caching the reactive proxy after the first time it is accessed
-                  const proxy = new Proxy(createShadowTarget(distortedValue), reactiveHandler);
-                  registerProxy(proxy, value);
-                  ObjectDefineProperty(this, 'reactive', { value: proxy });
-                  return proxy;
-              },
-              get readOnly() {
-                  const readOnlyHandler = new ReadOnlyHandler(membrane, distortedValue);
-                  // caching the readOnly proxy after the first time it is accessed
-                  const proxy = new Proxy(createShadowTarget(distortedValue), readOnlyHandler);
-                  registerProxy(proxy, value);
-                  ObjectDefineProperty(this, 'readOnly', { value: proxy });
-                  return proxy;
-              }
-          };
-          objectGraph.set(distortedValue, reactiveState);
+    }, {
+      key: "getReactiveState",
+      value: function getReactiveState(value, distortedValue) {
+        var objectGraph = this.objectGraph;
+        var reactiveState = objectGraph.get(distortedValue);
+
+        if (reactiveState) {
           return reactiveState;
+        }
+
+        var membrane = this;
+        reactiveState = {
+          get reactive() {
+            var reactiveHandler = new ReactiveProxyHandler(membrane, distortedValue); // caching the reactive proxy after the first time it is accessed
+
+            var proxy = new Proxy(createShadowTarget(distortedValue), reactiveHandler);
+            registerProxy(proxy, value);
+            ObjectDefineProperty(this, 'reactive', {
+              value: proxy
+            });
+            return proxy;
+          },
+
+          get readOnly() {
+            var readOnlyHandler = new ReadOnlyHandler(membrane, distortedValue); // caching the readOnly proxy after the first time it is accessed
+
+            var proxy = new Proxy(createShadowTarget(distortedValue), readOnlyHandler);
+            registerProxy(proxy, value);
+            ObjectDefineProperty(this, 'readOnly', {
+              value: proxy
+            });
+            return proxy;
+          }
+
+        };
+        objectGraph.set(distortedValue, reactiveState);
+        return reactiveState;
       }
-  }
+    }]);
+
+    return ReactiveMembrane;
+  }();
   /** version: 0.26.0 */
 
   var Component =

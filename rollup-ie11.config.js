@@ -21,7 +21,12 @@ export default {
         filesize(),
         babel({
             babelrc: false,
-            exclude: 'node_modules/**',
+            // observable-membrane doesn't ship with IE11
+            // compatible code...
+            include: [
+                'src/**',
+                'node_modules/observable-membrane/**',
+            ],
             presets: [
                 [
                     "@babel/preset-env",

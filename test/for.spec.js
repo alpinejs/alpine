@@ -288,3 +288,31 @@ test('listeners in loop get fresh iteration data even though they are only regis
 
     await wait(() => { expect(document.querySelector('h1').innerText).toEqual('bar') })
 })
+
+test('nested x-for', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: [ {tags: ['foo', 'bar']} ] }">
+            <button x-on:click="items = [ {tags: ['foo', 'bob']}, {tags: ['baz']} ]"></button>
+            <template x-for="item in items">
+                <template x-for="tag in item.tags">
+                    <span x-text="tag"></span>
+                </template>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(2) })
+
+    expect(document.querySelectorAll('span')[0].innerText).toEqual('foo')
+    expect(document.querySelectorAll('span')[1].innerText).toEqual('bar')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(3) })
+
+    expect(document.querySelectorAll('span')[0].innerText).toEqual('foo')
+    expect(document.querySelectorAll('span')[1].innerText).toEqual('bob')
+    expect(document.querySelectorAll('span')[2].innerText).toEqual('baz')
+})

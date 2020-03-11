@@ -259,7 +259,7 @@ export default class Component {
                     break;
 
                 case 'for':
-                    handleForDirective(this, el, expression, initialUpdate)
+                    handleForDirective(this, el, expression, initialUpdate, extraVars)
                     break;
 
                 case 'cloak':

@@ -1,9 +1,12 @@
 import { transitionIn, transitionOut, getXAttrs } from '../utils'
 
-export function handleForDirective(component, el, expression, initialUpdate) {
+export function handleForDirective(component, el, expression, initialUpdate, extraVars) {
     if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.')
 
     const { single, bunch, iterator1, iterator2 } = parseFor(expression)
+
+    // Get the depth level for the current iteration
+    const depth = extraVars() && extraVars()['$depth'] ? extraVars()['$depth'] + 1 : 1
 
     var items
     const ifAttr = getXAttrs(el, 'if')[0]
@@ -13,7 +16,7 @@ export function handleForDirective(component, el, expression, initialUpdate) {
         // empty, effectively hiding it.
         items = []
     } else {
-        items = component.evaluateReturnExpression(el, bunch)
+        items = component.evaluateReturnExpression(el, bunch, extraVars)
     }
 
     // As we walk the array, we'll also walk the DOM (updating/creating as we go).
@@ -22,6 +25,11 @@ export function handleForDirective(component, el, expression, initialUpdate) {
         const currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group)
         let currentEl = previousEl.nextElementSibling
 
+        // Skip nested "x-for" items
+        while (currentEl && currentEl.__x_for_key !== undefined && currentEl.__x_for['$depth'] !== depth) {
+            currentEl = currentEl.nextElementSibling
+        }
+
         // Let's check and see if the x-for has already generated an element last time it ran.
         if (currentEl && currentEl.__x_for_key !== undefined) {
             // If the the key's don't match.
@@ -29,8 +37,8 @@ export function handleForDirective(component, el, expression, initialUpdate) {
                 // We'll look ahead to see if we can find it further down.
                 var tmpCurrentEl = currentEl
                 while(tmpCurrentEl) {
-                    // If we found it later in the DOM.
-                    if (tmpCurrentEl.__x_for_key === currentKey) {
+                    // If we found it later in the DOM (we also check the depth is the same in case keys fro different array clashes).
+                    if (tmpCurrentEl.__x_for_key === currentKey && tmpCurrentEl.__x_for['$depth'] === depth) {
                         // Move it to where it's supposed to be in the DOM.
                         el.parentElement.insertBefore(tmpCurrentEl, currentEl)
                         // And set it as the current element as if we just created it.
@@ -49,6 +57,7 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             xForVars[single] = i
             if (iterator1) xForVars[iterator1] = index
             if (iterator2) xForVars[iterator2] = group
+            xForVars['$depth'] = depth
             currentEl.__x_for = xForVars
             component.updateElements(currentEl, () => {
                 return currentEl.__x_for
@@ -68,6 +77,11 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             // Set it as the current element.
             currentEl = previousEl.nextElementSibling
 
+            // Skip nested "x-for" items
+            while (currentEl && currentEl.__x_for_key !== undefined && currentEl.__x_for['$depth'] > depth) {
+                currentEl = currentEl.nextElementSibling
+            }
+
             // And transition it in if it's not the first page load.
             transitionIn(currentEl, () => {}, initialUpdate)
 
@@ -79,6 +93,7 @@ export function handleForDirective(component, el, expression, initialUpdate) {
             xForVars[single] = i
             if (iterator1) xForVars[iterator1] = index
             if (iterator2) xForVars[iterator2] = group
+            xForVars['$depth'] = depth
             currentEl.__x_for = xForVars
             component.initializeElements(currentEl, () => {
                 return currentEl.__x_for
@@ -93,6 +108,12 @@ export function handleForDirective(component, el, expression, initialUpdate) {
     // Now that we've added/updated/moved all the elements for the current state of the loop.
     // Anything left over, we can get rid of.
     var nextElementFromOldLoop = (previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined) ? previousEl.nextElementSibling : false
+
+    // Ignore all the nested for items fot the last valid elements
+    while(nextElementFromOldLoop && nextElementFromOldLoop.__x_for['$depth'] > depth) {
+        const nextSibling = nextElementFromOldLoop.nextElementSibling
+        nextElementFromOldLoop = (nextSibling && nextSibling.__x_for_key !== undefined) ? nextSibling : false
+    }
 
     while(nextElementFromOldLoop) {
         const nextElementFromOldLoopImmutable = nextElementFromOldLoop

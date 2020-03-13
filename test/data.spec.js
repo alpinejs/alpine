@@ -106,6 +106,25 @@ test('Proxies are not nested and duplicated when manipulating an array', async (
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
 
+test('array length mutation will be ignored while items mutations are reactive', async () => {
+    window.renderCount = 0
+
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo', 'bar', 'baz'], test() {return ++renderCount} }">
+            <span x-text="test()"></span>
+            <button x-on:click="items.push('qux')"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(renderCount).toEqual(1)
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(renderCount).toEqual(2) })
+})
+
 test('array.push is reactive', async () => {
     document.body.innerHTML = `
         <div x-data="{ items: ['foo'] }">
@@ -113,6 +132,7 @@ test('array.push is reactive', async () => {
             <button x-on:click="items.push('bar')"></button>
         </div>
     `
+
     Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('foo')
@@ -129,6 +149,7 @@ test('array.pop is reactive', async () => {
             <button x-on:click="items.pop()"></button>
         </div>
     `
+
     Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('foo,bar')
@@ -145,6 +166,7 @@ test('array.shift is reactive', async () => {
             <button x-on:click="items.shift()"></button>
         </div>
     `
+
     Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('foo,bar')
@@ -161,6 +183,7 @@ test('array.unshift is reactive', async () => {
             <button x-on:click="items.unshift('bar')"></button>
         </div>
     `
+
     Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('foo')

@@ -88,6 +88,9 @@ export default class Component {
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return
 
+                // Don't react if the mutated key is array length as it is a consequence of another mutated property like pushing to the array
+                if (Array.isArray(target) && key === 'length' ) return
+
                 debounce(() => {
                     self.updateElements(self.$el)
 

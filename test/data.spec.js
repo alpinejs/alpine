@@ -105,3 +105,67 @@ test('Proxies are not nested and duplicated when manipulating an array', async (
     document.querySelector('button').click()
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
+
+test('array.push is reactive', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo'] }">
+            <span x-text="items.toString()"></span>
+            <button x-on:click="items.push('bar')"></button>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual('foo')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo,bar') })
+})
+
+test('array.pop is reactive', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo', 'bar'] }">
+            <span x-text="items.toString()"></span>
+            <button x-on:click="items.pop()"></button>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual('foo,bar')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('foo') })
+})
+
+test('array.shift is reactive', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo', 'bar'] }">
+            <span x-text="items.toString()"></span>
+            <button x-on:click="items.shift()"></button>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual('foo,bar')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+})
+
+test('array.unshift is reactive', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo'] }">
+            <span x-text="items.toString()"></span>
+            <button x-on:click="items.unshift('bar')"></button>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual('foo')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar,foo') })
+})

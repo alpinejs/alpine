@@ -105,3 +105,22 @@ test('Proxies are not nested and duplicated when manipulating an array', async (
     document.querySelector('button').click()
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
+
+test('component does not refresh multiple times when data changes', async () => {
+    window.renderCount = 0
+
+    document.body.innerHTML = `
+        <div x-data="{ items: [], test() {return ++renderCount}  }">
+            <button @click="items.push('ok')"></span>
+            <span x-text="test()"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual(1)
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(2) })
+})

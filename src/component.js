@@ -99,7 +99,7 @@ export default class Component {
                     while (self.nextTickStack.length > 0) {
                         self.nextTickStack.shift()()
                     }
-                }, 0)()
+                }, 0, self)()
             },
         })
 

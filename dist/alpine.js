@@ -90,17 +90,19 @@
       node = node.nextElementSibling;
     }
   }
-  function debounce(func, wait, context = this) {
+  function debounce(func, wait) {
+    var timeout;
     return function () {
-      var args = arguments;
+      var context = this,
+          args = arguments;
 
       var later = function later() {
-        context.debounce_timeout = null;
+        timeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(context.debounce_timeout);
-      context.debounce_timeout = setTimeout(later, wait);
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext, additionalHelperVariables = {}) {
@@ -1291,7 +1293,7 @@
             while (self.nextTickStack.length > 0) {
               self.nextTickStack.shift()();
             }
-          }, 0, self)();
+          }, 0)();
         }
 
       });

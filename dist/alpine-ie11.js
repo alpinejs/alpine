@@ -4910,17 +4910,18 @@
     }
   }
   function debounce(func, wait) {
-    var context = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this;
+    var timeout;
     return function () {
-      var args = arguments;
+      var context = this,
+          args = arguments;
 
       var later = function later() {
-        context.debounce_timeout = null;
+        timeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(context.debounce_timeout);
-      context.debounce_timeout = setTimeout(later, wait);
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext) {
@@ -6391,7 +6392,7 @@
               while (self.nextTickStack.length > 0) {
                 self.nextTickStack.shift()();
               }
-            }.bind(this), 0, self)();
+            }.bind(this), 0)();
           }
         });
         return {

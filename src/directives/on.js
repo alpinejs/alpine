@@ -45,10 +45,10 @@ export function registerListener(component, el, event, modifiers, expression, ex
                 if (modifiers.some(m => systemKeyModifiers.includes(m))) {
                     // Convert modifiers to the right alias:
                     // `cmd -> meta`, `super -> meta`
-                    const aliasedModifiers = modifiers.map(modifier => aliasMetaCmdSuper(modifier))
+                    const aliasedModifiers = modifiers.map(modifier => aliasCmdSuperToMeta(modifier))
                     const selectedSystemKeyModifiers = systemKeyModifiers
-                        .filter(modifier => aliasedModifiers.includes(aliasMetaCmdSuper(modifier)))
-                    const isModifierOnEvent = modifier => e[`${aliasMetaCmdSuper(modifier)}Key`]
+                        .filter(modifier => aliasedModifiers.includes(aliasCmdSuperToMeta(modifier)))
+                    const isModifierOnEvent = modifier => e[`${aliasCmdSuperToMeta(modifier)}Key`]
 
                     const hasCorrectModifiers = modifiers.includes('exact')
                         ? selectedSystemKeyModifiers.every(isModifierOnEvent) &&
@@ -94,7 +94,7 @@ function getSystemKeyModifiers() {
     return ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super']
 }
 
-function aliasMetaCmdSuper(modifier) {
+function aliasCmdSuperToMeta(modifier) {
     return (modifier === 'cmd' || modifier === 'super') ? 'meta' : modifier
 }
 
@@ -112,7 +112,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
         // pressed
         if (modifiers.includes('exact')) {
             return getSystemKeyModifiers()
-                .some(modifier => e[`${aliasMetaCmdSuper(modifier)}Key`])
+                .some(modifier => e[`${aliasCmdSuperToMeta(modifier)}Key`])
         }
         // And we're not doing an `.exact` match we'll call it a press.
         return false
@@ -126,7 +126,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
 
     if (selectedSystemKeyModifiers.length > 0) {
         const activelyPressedKeyModifiers = selectedSystemKeyModifiers
-            .filter(modifier => e[`${aliasMetaCmdSuper(modifier)}Key`])
+            .filter(modifier => e[`${aliasCmdSuperToMeta(modifier)}Key`])
 
         let areAllSystemModifiersPressed = activelyPressedKeyModifiers.length === selectedSystemKeyModifiers.length
 
@@ -134,13 +134,13 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
             // in the ".exact" case, all pressed modifiers need to be selected modifiers
             // ie. no pressed modifier must be unselected
             const allPressedKeyModifiers = systemKeyModifiers
-                .filter(modifier => e[`${aliasMetaCmdSuper(modifier)}Key`])
+                .filter(modifier => e[`${aliasCmdSuperToMeta(modifier)}Key`])
             // we need system key modifiers pressed since we wouldn't be
             // in the branch otherwise
             areAllSystemModifiersPressed = allPressedKeyModifiers.length > 0 &&
                 allPressedKeyModifiers.every(modifier =>
                     selectedSystemKeyModifiers.some(
-                        (m) => aliasMetaCmdSuper(m) === aliasMetaCmdSuper(modifier)
+                        (m) => aliasCmdSuperToMeta(m) === aliasCmdSuperToMeta(modifier)
                     )
                 )
         }

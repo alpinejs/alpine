@@ -44,7 +44,7 @@ export function walk(el, callback) {
     }
 }
 
-export function debounce(func, wait, context = this) {
+export function debounce(func, wait, context) {
     return function () {
         var args = arguments
         var later = function () {

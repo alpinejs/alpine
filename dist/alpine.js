@@ -90,7 +90,7 @@
       node = node.nextElementSibling;
     }
   }
-  function debounce(func, wait, context = this) {
+  function debounce(func, wait, context) {
     return function () {
       var args = arguments;
 

@@ -187,6 +187,153 @@ test('.once modifier does not remove listener if false is returned', async () =>
     expect(document.querySelector('span').getAttribute('foo')).toEqual('2')
 })
 
+test('click.ctrl/shift/alt/meta/cmd/super single system key modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <button
+                x-on:click.ctrl="count++"
+                x-on:click.shift="count++"
+                x-on:click.alt="count++"
+                x-on:click.meta="count++"
+                x-on:click.cmd="count++"
+                x-on:click.super="count++"
+            ></button>
+
+            <span x-bind:foo="count"></span>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+
+    document.querySelector('button').click({})
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+    })
+
+    const triggerClickWithModifiers = (target, modifiers = []) => {
+        const clickEvent = new Event('click')
+        modifiers.forEach(modifier => {
+            clickEvent[modifier] = true
+        })
+        target.dispatchEvent(clickEvent)
+    }
+
+    triggerClickWithModifiers(document.querySelector('button'), ['ctrlKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['shiftKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['altKey'])
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('3')
+    })
+
+
+    triggerClickWithModifiers(document.querySelector('button'), ['metaKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['cmdKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['superKey'])
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('6')
+    })
+})
+
+test('click.ctrl/shift/alt/meta/cmd/super combo system key modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <button
+                x-on:click.cmd.shift="count++"
+            ></button>
+
+            <span x-bind:foo="count"></span>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+
+    document.querySelector('button').click({})
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+    })
+
+    const triggerClickWithModifiers = (target, modifiers = []) => {
+        const clickEvent = new Event('click')
+        modifiers.forEach(modifier => {
+            clickEvent[modifier] = true
+        })
+        target.dispatchEvent(clickEvent)
+    }
+
+    // wrong modifiers
+    triggerClickWithModifiers(document.querySelector('button'), ['altKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['ctrlKey'])
+    // incomplete modifiers
+    triggerClickWithModifiers(document.querySelector('button'), ['metaKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['shiftKey'])
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+    })
+
+    // exactly right
+    triggerClickWithModifiers(document.querySelector('button'), ['metaKey', 'shiftKey'])
+    // more than necessary
+    triggerClickWithModifiers(document.querySelector('button'), ['metaKey', 'shiftKey', 'altKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['metaKey', 'shiftKey', 'ctrlKey'])
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('3')
+    })
+})
+
+test('click.exact system key single/combo modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <button
+                x-on:click.ctrl.exact="count++"
+                x-on:click.ctrl.cmd.exact="count++"
+            ></button>
+
+            <span x-bind:foo="count"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+
+    const triggerClickWithModifiers = (target, modifiers = []) => {
+        const clickEvent = new Event('click')
+        modifiers.forEach(modifier => {
+            clickEvent[modifier] = true
+        })
+        target.dispatchEvent(clickEvent)
+    }
+
+    // wrong modifiers
+    triggerClickWithModifiers(document.querySelector('button'), ['shiftKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['altKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['altKey', 'shiftKey'])
+
+    // wrong combination
+    triggerClickWithModifiers(document.querySelector('button'), ['shiftKey', 'ctrlKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['altKey', 'metaKey', 'ctrlKey'])
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+    })
+
+    // correct combinations
+    triggerClickWithModifiers(document.querySelector('button'), ['ctrlKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['metaKey', 'ctrlKey'])
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('2')
+    })
+})
+
 test('keydown modifiers', async () => {
     document.body.innerHTML = `
         <div x-data="{ count: 0 }">

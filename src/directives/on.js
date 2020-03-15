@@ -38,6 +38,28 @@ export function registerListener(component, el, event, modifiers, expression, ex
                 if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
                     return
                 }
+            } else {
+                // If we're not a keydown event, we should check for
+                // any system key modifier
+                const systemKeyModifiers = getSystemKeyModifiers()
+                if (modifiers.some(m => systemKeyModifiers.includes(m))) {
+                    // Convert modifiers to the right alias:
+                    // `cmd -> meta`, `super -> meta`
+                    const aliasedModifiers = modifiers.map(modifier => aliasMetaCmdSuper(modifier))
+                    const selectedSystemKeyModifiers = systemKeyModifiers
+                        .filter(modifier => aliasedModifiers.includes(aliasMetaCmdSuper(modifier)))
+                    const isModifierOnEvent = modifier => e[`${aliasMetaCmdSuper(modifier)}Key`]
+
+                    const hasCorrectModifiers = modifiers.includes('exact')
+                        ? selectedSystemKeyModifiers.every(isModifierOnEvent) &&
+                            !systemKeyModifiers
+                                .filter(m => !selectedSystemKeyModifiers.includes(m))
+                                .some(isModifierOnEvent)
+                        : selectedSystemKeyModifiers.every(isModifierOnEvent)
+
+                    // Don't run the handler if we don't have the right
+                    if (!hasCorrectModifiers) return
+                }
             }
 
             if (modifiers.includes('prevent')) e.preventDefault()

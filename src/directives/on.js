@@ -68,35 +68,64 @@ function isKeyEvent(event) {
     return ['keydown', 'keyup'].includes(event)
 }
 
+function aliasMetaCmdSuper(modifier) {
+    return (modifier === 'cmd' || modifier === 'super') ? 'meta' : modifier
+}
+
 function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
-        return ! ['window', 'document', 'prevent', 'stop'].includes(i)
+        return ! ['window', 'document', 'prevent', 'stop', 'exact'].includes(i)
     })
+    const systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super']
 
     // If no modifier is specified, we'll call it a press.
     if (keyModifiers.length === 0) return false
 
-    // If one is passed, AND it matches the key pressed, we'll call it a press.
-    if (keyModifiers.length === 1 && keyModifiers[0] === keyToModifier(e.key)) return false
+    // If one is passed, AND it matches the key pressed
+    if (keyModifiers.length === 1 && keyModifiers[0] === keyToModifier(e.key)) {
+        // If it's an exact match, it's a press as long as no other modifiers are
+        // pressed
+        if (modifiers.includes('exact')) {
+            return systemKeyModifiers.some(modifier => e[`${aliasMetaCmdSuper(modifier)}Key`])
+        }
+        // And we're not doing an `.exact` match we'll call it a press.
+        return false
+    }
 
     // The user is listening for key combinations.
-    const systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super']
     const selectedSystemKeyModifiers = systemKeyModifiers.filter(modifier => keyModifiers.includes(modifier))
 
     keyModifiers = keyModifiers.filter(i => ! selectedSystemKeyModifiers.includes(i))
 
     if (selectedSystemKeyModifiers.length > 0) {
         const activelyPressedKeyModifiers = selectedSystemKeyModifiers.filter(modifier => {
-            // Alias "cmd" and "super" to "meta"
-            if (modifier === 'cmd' || modifier === 'super') modifier = 'meta'
-
-            return e[`${modifier}Key`]
+            return e[`${aliasMetaCmdSuper(modifier)}Key`]
         })
 
+        let areAllSystemModifiersPressed = activelyPressedKeyModifiers.length === selectedSystemKeyModifiers.length
+
+        if (modifiers.includes('exact')) {
+            // in the ".exact" case, all pressed modifiers need to be selected modifiers
+            // ie. no pressed modifier must be unselected
+            const allPressedKeyModifiers = systemKeyModifiers.filter(modifier => {
+                return e[`${aliasMetaCmdSuper(modifier)}Key`]
+            })
+            // we need system key modifiers pressed since we wouldn't be
+            // in the branch otherwise
+            areAllSystemModifiersPressed = allPressedKeyModifiers.length > 0 &&
+                allPressedKeyModifiers.every(modifier =>
+                    selectedSystemKeyModifiers.some(
+                        (m) => aliasMetaCmdSuper(m) === aliasMetaCmdSuper(modifier)
+                    )
+                )
+        }
+
         // If all the modifiers selected are pressed, ...
-        if (activelyPressedKeyModifiers.length === selectedSystemKeyModifiers.length) {
+        if (areAllSystemModifiersPressed) {
             // AND the remaining key is pressed as well. It's a press.
-            if (keyModifiers[0] === keyToModifier(e.key)) return false
+            if (keyModifiers[0] === keyToModifier(e.key)) {
+                return false
+            }
         }
     }
 

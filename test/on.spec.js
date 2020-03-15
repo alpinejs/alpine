@@ -288,7 +288,7 @@ test('click.ctrl/shift/alt/meta/cmd/super combo system key modifier', async () =
     })
 })
 
-test('click.exact system key single/combo modifier', async () => {
+test('click.{systemKey}.exact single/combo modifier', async () => {
     document.body.innerHTML = `
         <div x-data="{ count: 0 }">
             <button
@@ -331,6 +331,45 @@ test('click.exact system key single/combo modifier', async () => {
 
     await wait(() => {
         expect(document.querySelector('span').getAttribute('foo')).toEqual('2')
+    })
+})
+
+test('click.exact with no system key modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <button
+                x-on:click.exact="count++"
+            ></button>
+
+            <span x-bind:foo="count"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+
+    const triggerClickWithModifiers = (target, modifiers = []) => {
+        const clickEvent = new Event('click')
+        modifiers.forEach(modifier => {
+            clickEvent[modifier] = true
+        })
+        target.dispatchEvent(clickEvent)
+    }
+
+    // any single or combo modifiers
+    triggerClickWithModifiers(document.querySelector('button'), ['shiftKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['altKey'])
+    triggerClickWithModifiers(document.querySelector('button'), ['altKey', 'shiftKey'])
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+    })
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('1')
     })
 })
 

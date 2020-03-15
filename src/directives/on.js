@@ -42,13 +42,15 @@ export function registerListener(component, el, event, modifiers, expression, ex
                 // If we're not a keydown event, we should check for
                 // any system key modifier
                 const systemKeyModifiers = getSystemKeyModifiers()
+                const isModifierOnEvent = modifier => e[`${aliasCmdSuperToMeta(modifier)}Key`]
+
+                // If modifiers include system key modifiers
                 if (modifiers.some(m => systemKeyModifiers.includes(m))) {
                     // Convert modifiers to the right alias:
                     // `cmd -> meta`, `super -> meta`
                     const aliasedModifiers = modifiers.map(modifier => aliasCmdSuperToMeta(modifier))
                     const selectedSystemKeyModifiers = systemKeyModifiers
                         .filter(modifier => aliasedModifiers.includes(aliasCmdSuperToMeta(modifier)))
-                    const isModifierOnEvent = modifier => e[`${aliasCmdSuperToMeta(modifier)}Key`]
 
                     const hasCorrectModifiers = modifiers.includes('exact')
                         ? selectedSystemKeyModifiers.every(isModifierOnEvent) &&
@@ -58,8 +60,18 @@ export function registerListener(component, el, event, modifiers, expression, ex
                         : selectedSystemKeyModifiers.every(isModifierOnEvent)
 
                     // Don't run the handler if we don't have the right
+                    // system key modifiers
                     if (!hasCorrectModifiers) return
+                } else {
+                    // If modifiers don't include any system key modifiers
+                    // AND "exact" modifier is applied
+                    // AND the event includes system key presses
+                    // THEN don't run the handler
+                    if (modifiers.includes('exact') && systemKeyModifiers.some(isModifierOnEvent)) {
+                        return
+                    }
                 }
+
             }
 
             if (modifiers.includes('prevent')) e.preventDefault()

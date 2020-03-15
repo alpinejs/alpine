@@ -5715,6 +5715,36 @@
     }
   }
 
+  var $every = arrayIteration.every;
+
+
+
+  var STRICT_METHOD$4 = arrayMethodIsStrict('every');
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('every');
+
+  // `Array.prototype.every` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.every
+  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$4 || !USES_TO_LENGTH$8 }, {
+    every: function every(callbackfn /* , thisArg */) {
+      return $every(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  var $some = arrayIteration.some;
+
+
+
+  var STRICT_METHOD$5 = arrayMethodIsStrict('some');
+  var USES_TO_LENGTH$9 = arrayMethodUsesToLength('some');
+
+  // `Array.prototype.some` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.some
+  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$5 || !USES_TO_LENGTH$9 }, {
+    some: function some(callbackfn /* , thisArg */) {
+      return $some(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
   function registerListener(component, el, event, modifiers, expression) {
     var _this = this;
 
@@ -5743,6 +5773,8 @@
       var listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el;
 
       var _handler2 = function handler(e) {
+        var _this2 = this;
+
         _newArrowCheck(this, _this);
 
         // Remove this global event handler if the element that declared it
@@ -5757,6 +5789,52 @@
         if (isKeyEvent(event)) {
           if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
             return;
+          }
+        } else {
+          // If we're not a keydown event, we should check for
+          // any system key modifier
+          var systemKeyModifiers = getSystemKeyModifiers();
+
+          var isModifierOnEvent = function isModifierOnEvent(modifier) {
+            _newArrowCheck(this, _this2);
+
+            return e["".concat(aliasCmdSuperToMeta(modifier), "Key")];
+          }.bind(this); // If modifiers include system key modifiers
+
+
+          if (modifiers.some(function (m) {
+            _newArrowCheck(this, _this2);
+
+            return systemKeyModifiers.includes(m);
+          }.bind(this))) {
+            // Convert modifiers to the right alias:
+            // `cmd -> meta`, `super -> meta`
+            var aliasedModifiers = modifiers.map(function (modifier) {
+              _newArrowCheck(this, _this2);
+
+              return aliasCmdSuperToMeta(modifier);
+            }.bind(this));
+            var selectedSystemKeyModifiers = systemKeyModifiers.filter(function (modifier) {
+              _newArrowCheck(this, _this2);
+
+              return aliasedModifiers.includes(aliasCmdSuperToMeta(modifier));
+            }.bind(this));
+            var hasCorrectModifiers = modifiers.includes('exact') ? selectedSystemKeyModifiers.every(isModifierOnEvent) && !systemKeyModifiers.filter(function (m) {
+              _newArrowCheck(this, _this2);
+
+              return !selectedSystemKeyModifiers.includes(m);
+            }.bind(this)).some(isModifierOnEvent) : selectedSystemKeyModifiers.every(isModifierOnEvent); // Don't run the handler if we don't have the right
+            // system key modifiers
+
+            if (!hasCorrectModifiers) return;
+          } else {
+            // If modifiers don't include any system key modifiers
+            // AND "exact" modifier is applied
+            // AND the event includes system key presses
+            // THEN don't run the handler
+            if (modifiers.includes('exact') && systemKeyModifiers.some(isModifierOnEvent)) {
+              return;
+            }
           }
         }
 
@@ -5778,10 +5856,10 @@
   }
 
   function runListenerHandler(component, expression, e, extraVars) {
-    var _this2 = this;
+    var _this3 = this;
 
     return component.evaluateCommandExpression(e.target, expression, function () {
-      _newArrowCheck(this, _this2);
+      _newArrowCheck(this, _this3);
 
       return _objectSpread2({}, extraVars(), {
         '$event': e
@@ -5793,43 +5871,90 @@
     return ['keydown', 'keyup'].includes(event);
   }
 
+  function getSystemKeyModifiers() {
+    return ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super'];
+  }
+
+  function aliasCmdSuperToMeta(modifier) {
+    return modifier === 'cmd' || modifier === 'super' ? 'meta' : modifier;
+  }
+
   function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
-    var _this3 = this;
+    var _this4 = this;
 
     var keyModifiers = modifiers.filter(function (i) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
-      return !['window', 'document', 'prevent', 'stop'].includes(i);
+      return !['window', 'document', 'prevent', 'stop', 'exact'].includes(i);
     }.bind(this)); // If no modifier is specified, we'll call it a press.
 
-    if (keyModifiers.length === 0) return false; // If one is passed, AND it matches the key pressed, we'll call it a press.
+    if (keyModifiers.length === 0) return false; // If one is passed, AND it matches the key pressed
 
-    if (keyModifiers.length === 1 && keyModifiers[0] === keyToModifier(e.key)) return false; // The user is listening for key combinations.
+    if (keyModifiers.length === 1 && keyModifiers[0] === keyToModifier(e.key)) {
+      // If it's an exact match, it's a press as long as no other modifiers are
+      // pressed
+      if (modifiers.includes('exact')) {
+        return getSystemKeyModifiers().some(function (modifier) {
+          _newArrowCheck(this, _this4);
 
-    var systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super'];
+          return e["".concat(aliasCmdSuperToMeta(modifier), "Key")];
+        }.bind(this));
+      } // And we're not doing an `.exact` match we'll call it a press.
+
+
+      return false;
+    } // The user is listening for key combinations.
+
+
+    var systemKeyModifiers = getSystemKeyModifiers();
     var selectedSystemKeyModifiers = systemKeyModifiers.filter(function (modifier) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       return keyModifiers.includes(modifier);
     }.bind(this));
     keyModifiers = keyModifiers.filter(function (i) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       return !selectedSystemKeyModifiers.includes(i);
     }.bind(this));
 
     if (selectedSystemKeyModifiers.length > 0) {
       var activelyPressedKeyModifiers = selectedSystemKeyModifiers.filter(function (modifier) {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this4);
 
-        // Alias "cmd" and "super" to "meta"
-        if (modifier === 'cmd' || modifier === 'super') modifier = 'meta';
-        return e["".concat(modifier, "Key")];
-      }.bind(this)); // If all the modifiers selected are pressed, ...
+        return e["".concat(aliasCmdSuperToMeta(modifier), "Key")];
+      }.bind(this));
+      var areAllSystemModifiersPressed = activelyPressedKeyModifiers.length === selectedSystemKeyModifiers.length;
 
-      if (activelyPressedKeyModifiers.length === selectedSystemKeyModifiers.length) {
+      if (modifiers.includes('exact')) {
+        // in the ".exact" case, all pressed modifiers need to be selected modifiers
+        // ie. no pressed modifier must be unselected
+        var allPressedKeyModifiers = systemKeyModifiers.filter(function (modifier) {
+          _newArrowCheck(this, _this4);
+
+          return e["".concat(aliasCmdSuperToMeta(modifier), "Key")];
+        }.bind(this)); // we need system key modifiers pressed since we wouldn't be
+        // in the branch otherwise
+
+        areAllSystemModifiersPressed = allPressedKeyModifiers.length > 0 && allPressedKeyModifiers.every(function (modifier) {
+          var _this5 = this;
+
+          _newArrowCheck(this, _this4);
+
+          return selectedSystemKeyModifiers.some(function (m) {
+            _newArrowCheck(this, _this5);
+
+            return aliasCmdSuperToMeta(m) === aliasCmdSuperToMeta(modifier);
+          }.bind(this));
+        }.bind(this));
+      } // If all the modifiers selected are pressed, ...
+
+
+      if (areAllSystemModifiersPressed) {
         // AND the remaining key is pressed as well. It's a press.
-        if (keyModifiers[0] === keyToModifier(e.key)) return false;
+        if (keyModifiers[0] === keyToModifier(e.key)) {
+          return false;
+        }
       }
     } // We'll call it NOT a valid keypress.
 

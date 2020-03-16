@@ -6794,6 +6794,7 @@
     return Component;
   }();
 
+  var _this8 = undefined;
   var Alpine = {
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
@@ -6926,7 +6927,16 @@
 
   if (!isTesting()) {
     window.Alpine = Alpine;
-    window.Alpine.start();
+
+    if (window.deferLoadingAlpine) {
+      window.deferLoadingAlpine(function () {
+        _newArrowCheck(this, _this8);
+
+        window.Alpine.start();
+      }.bind(undefined));
+    } else {
+      window.Alpine.start();
+    }
   }
 
 })));

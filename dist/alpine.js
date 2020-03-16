@@ -1627,7 +1627,14 @@
 
   if (!isTesting()) {
     window.Alpine = Alpine;
-    window.Alpine.start();
+
+    if (window.deferLoadingAlpine) {
+      window.deferLoadingAlpine(() => {
+        window.Alpine.start();
+      });
+    } else {
+      window.Alpine.start();
+    }
   }
 
   return Alpine;

@@ -1629,7 +1629,7 @@
     window.Alpine = Alpine;
 
     if (window.deferLoadingAlpine) {
-      window.deferLoadingAlpine(() => {
+      window.deferLoadingAlpine(function () {
         window.Alpine.start();
       });
     } else {

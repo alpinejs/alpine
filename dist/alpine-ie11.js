@@ -6310,6 +6310,7 @@
       this.unobservedData.$el = null;
       this.unobservedData.$refs = null;
       this.unobservedData.$nextTick = null;
+      this.unobservedData.$watch = null;
       /* IE11-ONLY:END */
       // Construct a Proxy-based observable. This will be used to handle reactivity.
 
@@ -6329,6 +6330,15 @@
         _newArrowCheck(this, _this);
 
         this.nextTickStack.push(callback);
+      }.bind(this);
+
+      this.watchers = {};
+
+      this.unobservedData.$watch = function (property, callback) {
+        _newArrowCheck(this, _this);
+
+        if (!this.watchers[property]) this.watchers[property] = [];
+        this.watchers[property].push(callback);
       }.bind(this);
 
       this.showDirectiveStack = [];
@@ -6366,7 +6376,7 @@
         Object.keys(unwrappedData).forEach(function (key) {
           _newArrowCheck(this, _this2);
 
-          if (['$el', '$refs', '$nextTick'].includes(key)) return;
+          if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
           copy[key] = unwrappedData[key];
         }.bind(this));
         return copy;
@@ -6379,7 +6389,15 @@
           valueMutated: function valueMutated(target, key) {
             var _this3 = this;
 
-            // Don't react to data changes for cases like the `x-created` hook.
+            if (self.watchers[key]) {
+              self.watchers[key].forEach(function (callback) {
+                _newArrowCheck(this, _this3);
+
+                return callback(target[key]);
+              }.bind(this));
+            } // Don't react to data changes for cases like the `x-created` hook.
+
+
             if (self.pauseReactivity) return;
             debounce(function () {
               _newArrowCheck(this, _this3);

@@ -1243,6 +1243,13 @@
         this.nextTickStack.push(callback);
       };
 
+      this.watchers = {};
+
+      this.unobservedData.$watch = (property, callback) => {
+        if (!this.watchers[property]) this.watchers[property] = [];
+        this.watchers[property].push(callback);
+      };
+
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
       var initReturnedCallback; // If x-init is present AND we aren't cloning (skip x-init on clone)
@@ -1272,7 +1279,7 @@
       let unwrappedData = this.membrane.unwrapProxy(this.$data);
       let copy = {};
       Object.keys(unwrappedData).forEach(key => {
-        if (['$el', '$refs', '$nextTick'].includes(key)) return;
+        if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
         copy[key] = unwrappedData[key];
       });
       return copy;
@@ -1282,7 +1289,11 @@
       var self = this;
       let membrane = new ReactiveMembrane({
         valueMutated(target, key) {
-          // Don't react to data changes for cases like the `x-created` hook.
+          if (self.watchers[key]) {
+            self.watchers[key].forEach(callback => callback(target[key]));
+          } // Don't react to data changes for cases like the `x-created` hook.
+
+
           if (self.pauseReactivity) return;
           debounce(() => {
             self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.

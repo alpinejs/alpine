@@ -23,6 +23,7 @@ export default class Component {
             this.unobservedData.$el = null
             this.unobservedData.$refs = null
             this.unobservedData.$nextTick = null
+            this.unobservedData.$watch = null
         /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
@@ -38,6 +39,13 @@ export default class Component {
         this.nextTickStack = []
         this.unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)
+        }
+
+        this.watchers = {}
+        this.unobservedData.$watch = (property, callback) => {
+            if (! this.watchers[property]) this.watchers[property] = []
+
+            this.watchers[property].push(callback)
         }
 
         this.showDirectiveStack = []
@@ -72,7 +80,7 @@ export default class Component {
         let copy = {}
 
         Object.keys(unwrappedData).forEach(key => {
-            if (['$el', '$refs', '$nextTick'].includes(key)) return
+            if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return
 
             copy[key] = unwrappedData[key]
         })
@@ -85,6 +93,10 @@ export default class Component {
 
         let membrane = new ObservableMembrane({
             valueMutated(target, key) {
+                if (self.watchers[key]) {
+                    self.watchers[key].forEach(callback => callback(target[key]))
+                }
+
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return
 

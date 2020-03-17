@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="../dist/alpine.js"></script>
+</head>
+<body>
+    <div x-data="{ foo: 'bar' }" id="test-component">
+        <p>Open the console to see events being fired</p>
+        <span x-text="foo"></span>
+        <button @click="foo == 'bar' ? foo = 'baz' : foo = 'bar'">Change text</button>
+    </div>
+    <script>
+        let component = document.getElementById('test-component')
+
+        component.addEventListener('alpine:data-mutated', (e) => {
+            console.log(e)
+        })
+
+        component.addEventListener('alpine:updated', (e) => {
+            console.log(e)
+        })
+    </script>
+</body>
+</html>

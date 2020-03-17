@@ -1,4 +1,4 @@
-import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
+import { dispatch, walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleShowDirective } from './directives/show'
@@ -97,6 +97,17 @@ export default class Component {
                     self.watchers[key].forEach(callback => callback(target[key]))
                 }
 
+                const eventContext = {
+                    target: self.$el,
+                    data: {
+                        key: key,
+                        value: target[key]
+                    }
+                }
+
+                dispatch('alpine:data-mutated', eventContext)
+                dispatch(`alpine:data-${key}-mutated`, eventContext)
+
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return
 
@@ -180,6 +191,10 @@ export default class Component {
         while (this.nextTickStack.length > 0) {
             this.nextTickStack.shift()()
         }
+
+        dispatch('alpine:updated', {
+            target: rootEl,
+        })
     }
 
     executeAndClearRemainingShowDirectiveStack() {

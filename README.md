@@ -113,6 +113,16 @@ And 6 magic properties:
 | [`$nextTick`](#nexttick) |
 | [`$watch`](#watch) |
 
+And a selection of events:
+
+| Events
+| --- |
+| [`alpine:loaded`](#alpine-loaded) |
+| [`alpine:mutated`](#alpine-mutated) |
+| [`alpine:[key]-mutated`](#alpine-key-mutated) |
+| [`alpine:updated`](#alpine-updated) |
+| [`alpine:transition-start`](#alpine-transition-start) |
+| [`alpine:transition-end`](#alpine-transition-end) |
 
 ### Directives
 

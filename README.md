@@ -525,6 +525,20 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
+### Events
+
+---
+
+### `alpine:loaded`
+
+This event gets fired at the document level and receives no additional data. At this point, you can access the global `Alpine` object on the window.
+
+```js
+document.addEventListener('alpine:loaded', () => {
+    // do something spectacular...
+})
+```
+
 ## v3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity
 

@@ -83,7 +83,7 @@ const Alpine = {
         if (! newEl.__x) {
             newEl.__x = new Component(newEl, component.getUnobservedData())
         }
-    }
+    },
 }
 
 if (! isTesting()) {
@@ -93,9 +93,9 @@ if (! isTesting()) {
         window.deferLoadingAlpine(function () {
             window.Alpine.start()
         })
-   } else {
-        window.Alpine.start()
-   }
+    } else {
+         window.Alpine.start()
+    }
 }
 
 export default Alpine

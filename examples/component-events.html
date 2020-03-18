@@ -13,11 +13,15 @@
         let component = document.getElementById('test-component')
 
         component.addEventListener('alpine:data-mutated', (e) => {
-            console.log(e)
+            console.log('data has been mutated')
         })
 
         component.addEventListener('alpine:updated', (e) => {
-            console.log(e)
+            console.log('component has been updated')
+        })
+
+        document.addEventListener('alpine:loaded', (e) => {
+            console.log('alpine loaded')
         })
     </script>
 </body>

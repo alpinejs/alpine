@@ -539,6 +539,30 @@ document.addEventListener('alpine:loaded', () => {
 })
 ```
 
+### `alpine:mutated`
+
+This event gets fired when a piece of data has been mutated in your component. The event target is the component's parent element (the element with the `x-data` attribute). The event object contains a `data` property which provides the data key which was mutated and the new value.
+
+```js
+document.querySelector('#component', e => {
+    if (e.data.value === 'bar') {
+        // do something cool...
+    }
+})
+```
+
+### `alpine:[key]-mutated`
+
+This events allows you to listen for mutations on a particular data key. For example, if your `x-data` attribute contains a `foo` key, you could listen for the `alpine:foo-mutated` event. This event receives the same data as the regular `alpine:mutated` event.
+
+```js
+document.querySelector('#component', e => {
+    if (e.data.value === 'baz') {
+        // do something cooler...
+    }
+})
+```
+
 ## v3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity
 

@@ -117,12 +117,12 @@ And a selection of events:
 
 | Events
 | --- |
-| [`alpine:loaded`](#alpine-loaded) |
-| [`alpine:mutated`](#alpine-mutated) |
-| [`alpine:[key]-mutated`](#alpine-key-mutated) |
-| [`alpine:updated`](#alpine-updated) |
-| [`alpine:transition-start`](#alpine-transition-start) |
-| [`alpine:transition-end`](#alpine-transition-end) |
+| [`alpine:loaded`](#alpineloaded) |
+| [`alpine:mutated`](#alpinemutated) |
+| [`alpine:[key]-mutated`](#alpinekey-mutated) |
+| [`alpine:updated`](#alpineupdated) |
+| [`alpine:transition-start`](#alpinetransitionstart) |
+| [`alpine:transition-end`](#alpinetransitionend) |
 
 ### Directives
 

@@ -102,11 +102,6 @@ export default class Component {
 
                 debounce(() => {
                     self.updateElements(self.$el)
-
-                    // Walk through the $nextTick stack and clear it as we go.
-                    while (self.nextTickStack.length > 0) {
-                        self.nextTickStack.shift()()
-                    }
                 }, 0)()
             },
         })

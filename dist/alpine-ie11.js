@@ -6403,11 +6403,7 @@
             debounce(function () {
               _newArrowCheck(this, _this3);
 
-              self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
-
-              while (self.nextTickStack.length > 0) {
-                self.nextTickStack.shift()();
-              }
+              self.updateElements(self.$el);
             }.bind(this), 0)();
           }
         });

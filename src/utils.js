@@ -276,10 +276,6 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
     const transitionOpacity = noModifiers || modifiers.includes('opacity')
     const transitionScale = noModifiers || modifiers.includes('scale')
 
-    const eventContext = {
-        target: el,
-    }
-
     // These are the explicit stages of a transition (same stages for in and for out).
     // This way you can get a birds eye view of the hooks, and the differences
     // between them.
@@ -287,8 +283,6 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
         start() {
             if (transitionOpacity) el.style.opacity = styleValues.first.opacity
             if (transitionScale) el.style.transform = `scale(${styleValues.first.scale / 100})`
-
-            dispatch('alpine:transition-start', eventContext)
         },
         during() {
             if (transitionScale) el.style.transformOrigin = styleValues.origin
@@ -302,8 +296,6 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
         end() {
             if (transitionOpacity) el.style.opacity = styleValues.second.opacity
             if (transitionScale) el.style.transform = `scale(${styleValues.second.scale / 100})`
-
-            dispatch('alpine:transition-end', eventContext)
         },
         hide() {
             hook2()
@@ -340,6 +332,10 @@ export function transitionClassesOut(el, directives, hideCallback) {
 export function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
     const originalClasses = el.__x_original_classes || []
 
+    const eventContext = {
+        target: el,
+    }
+
     const stages = {
         start() {
             el.classList.add(...classesStart)
@@ -368,7 +364,14 @@ export function transitionClasses(el, classesDuring, classesStart, classesEnd, h
 }
 
 export function transition(el, stages) {
+    const eventContext = {
+        target: el,
+    }
+
     stages.start()
+
+    dispatch('alpine:transition-start', eventContext)
+
     stages.during()
 
     requestAnimationFrame(() => {
@@ -389,6 +392,8 @@ export function transition(el, stages) {
                 if (el.isConnected) {
                     stages.cleanup()
                 }
+
+                dispatch('alpine:transition-end', eventContext)
             }, duration);
         })
     });

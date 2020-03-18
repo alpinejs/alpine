@@ -371,7 +371,11 @@
     transition(el, stages);
   }
   function transition(el, stages) {
+    const eventContext = {
+      target: el
+    };
     stages.start();
+    dispatch('alpine:transition-start', eventContext);
     stages.during();
     requestAnimationFrame(() => {
       // Note: Safari's transitionDuration property will list out comma separated transition durations
@@ -387,6 +391,8 @@
           if (el.isConnected) {
             stages.cleanup();
           }
+
+          dispatch('alpine:transition-end', eventContext);
         }, duration);
       });
     });
@@ -1337,8 +1343,8 @@
               value: target[key]
             }
           };
-          dispatch('alpine:data-mutated', eventContext);
-          dispatch(`alpine:data-${key}-mutated`, eventContext); // Don't react to data changes for cases like the `x-created` hook.
+          dispatch('alpine:mutated', eventContext);
+          dispatch(`alpine:${key}-mutated`, eventContext); // Don't react to data changes for cases like the `x-created` hook.
 
           if (self.pauseReactivity) return;
           debounce(() => {

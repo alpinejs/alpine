@@ -4871,6 +4871,8 @@
     }
   });
 
+  var _this16 = undefined;
+
   // Thanks @stimulus:
   // https://github.com/stimulusjs/stimulus/blob/master/packages/%40stimulus/core/src/application.ts
   function domReady() {
@@ -5302,7 +5304,11 @@
   function transition(el, stages) {
     var _this12 = this;
 
+    var eventContext = {
+      target: el
+    };
     stages.start();
+    dispatch('alpine:transition-start', eventContext);
     stages.during();
     requestAnimationFrame(function () {
       var _this13 = this;
@@ -5328,10 +5334,56 @@
           if (el.isConnected) {
             stages.cleanup();
           }
+
+          dispatch('alpine:transition-end', eventContext);
         }.bind(this), duration);
       }.bind(this));
     }.bind(this));
+  } // I grabbed this from Turbolink's codebase.
+
+  function dispatch(eventName) {
+    var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+        target = _ref.target,
+        cancelable = _ref.cancelable,
+        data = _ref.data;
+
+    var event = document.createEvent("Events");
+    event.initEvent(eventName, true, cancelable == true);
+    event.data = data || {}; // Fix setting `defaultPrevented` when `preventDefault()` is called
+    // http://stackoverflow.com/questions/23349191/event-preventdefault-is-not-working-in-ie-11-for-custom-events
+
+    if (event.cancelable && !preventDefaultSupported) {
+      var preventDefault = event.preventDefault;
+
+      event.preventDefault = function () {
+        var _this15 = this;
+
+        if (!this.defaultPrevented) {
+          Object.defineProperty(this, "defaultPrevented", {
+            get: function get() {
+              _newArrowCheck(this, _this15);
+
+              return true;
+            }.bind(this)
+          });
+        }
+
+        preventDefault.call(this);
+      };
+    }
+
+    (target || document).dispatchEvent(event);
+    return event;
   }
+
+  var preventDefaultSupported = function () {
+    _newArrowCheck(this, _this16);
+
+    var event = document.createEvent("Events");
+    event.initEvent("test", true, true);
+    event.preventDefault();
+    return event.defaultPrevented;
+  }.bind(undefined)();
 
   function isNumeric(subject) {
     return !isNaN(subject);
@@ -6396,8 +6448,17 @@
 
                 return callback(target[key]);
               }.bind(this));
-            } // Don't react to data changes for cases like the `x-created` hook.
+            }
 
+            var eventContext = {
+              target: self.$el,
+              data: {
+                key: key,
+                value: target[key]
+              }
+            };
+            dispatch('alpine:mutated', eventContext);
+            dispatch("alpine:".concat(key, "-mutated"), eventContext); // Don't react to data changes for cases like the `x-created` hook.
 
             if (self.pauseReactivity) return;
             debounce(function () {
@@ -6502,6 +6563,10 @@
         while (this.nextTickStack.length > 0) {
           this.nextTickStack.shift()();
         }
+
+        dispatch('alpine:updated', {
+          target: rootEl
+        });
       }
     }, {
       key: "executeAndClearRemainingShowDirectiveStack",
@@ -6835,8 +6900,9 @@
 
                   this.initializeComponent(el);
                 }.bind(this));
+                dispatch('alpine:loaded');
 
-              case 6:
+              case 7:
               case "end":
                 return _context.stop();
             }

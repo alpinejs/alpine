@@ -39,6 +39,10 @@
         component.addEventListener('alpine:transition-end', (e) => {
             console.log('transition ended')
         })
+
+        document.addEventListener('alpine:loaded', () => {
+            console.log('loaded')
+        })
     </script>
 </body>
 </html>

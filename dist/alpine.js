@@ -1631,6 +1631,7 @@
       this.listenForNewUninitializedComponentsAtRunTime(el => {
         this.initializeComponent(el);
       });
+      dispatch('alpine:loaded');
     },
     discoverComponents: function discoverComponents(callback) {
       const rootEls = document.querySelectorAll('[x-data]');

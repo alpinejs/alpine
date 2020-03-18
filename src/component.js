@@ -105,8 +105,8 @@ export default class Component {
                     }
                 }
 
-                dispatch('alpine:data-mutated', eventContext)
-                dispatch(`alpine:data-${key}-mutated`, eventContext)
+                dispatch('alpine:mutated', eventContext)
+                dispatch(`alpine:${key}-mutated`, eventContext)
 
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return

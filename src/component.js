@@ -1,4 +1,4 @@
-import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, getTargetFromPropertiesPath } from './utils'
+import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleShowDirective } from './directives/show'
@@ -93,14 +93,32 @@ export default class Component {
 
         let membrane = new ObservableMembrane({
             valueMutated(target, key) {
-                Object.keys(self.watchers).forEach(watcherKey => {
-                    const watcherKeyPath = watcherKey.split('.')
-                    const watcherTarget = getTargetFromPropertiesPath(watcherKeyPath, self.membrane.unwrapProxy(self.$data), self)
+                if (self.watchers[key]) {
+                    // If there's a watcher for this specific key, run it.
+                    self.watchers[key].forEach(callback => callback(target[key]))
+                } else {
+                    // Let's walk through the watchers with "dot-notation" (foo.bar) and see
+                    // if this mutation fits any of them.
+                    Object.keys(self.watchers)
+                        .filter(i => i.includes('.'))
+                        .forEach(fullDotNotationKey => {
+                            let dotNotationParts = fullDotNotationKey.split('.')
 
-                    if (target === watcherTarget && key === watcherKeyPath[watcherKeyPath.length - 1]) {
-                        self.watchers[watcherKey].forEach(callback => callback(target[key]))
-                    }
-                })
+                            // If this dot-notation watcher's last "part" doesn't match the current
+                            // key, then skip it early for performance reasons.
+                            if (key !== dotNotationParts[dotNotationParts.length - 1]) return
+
+                            // Now, walk through the dot-notation "parts" recursively to find
+                            // a match, and call the watcher if one's found.
+                            dotNotationParts.reduce((comparisonData, part) => {
+                                if (Object.is(target, comparisonData)) {
+                                    // Run the watchers.
+                                    self.watchers[fullDotNotationKey].forEach(callback => callback(target[key]))
+                                }
+                                return comparisonData[part]
+                            }, self.getUnobservedData())
+                        })
+                }
 
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return

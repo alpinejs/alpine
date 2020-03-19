@@ -20,6 +20,11 @@
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
+        <div x-data="{foo: {bar: {baz: 'bob'}}}" x-init="$watch('foo.bar.baz', value => console.log(value))">
+            <span x-text="foo.bar.baz"></span>
+            <button @click="foo.bar.baz = 'lob'">change</button>
+        </div>
+
         <table>
             <thead>
                 <tr>

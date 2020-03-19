@@ -4917,12 +4917,12 @@
       var args = arguments;
 
       var later = function later() {
-        context.debounce_timeout = null;
+        context.debounceTimeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(context.debounce_timeout);
-      context.debounce_timeout = setTimeout(later, wait);
+      clearTimeout(context.debounceTimeout);
+      context.debounceTimeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext) {

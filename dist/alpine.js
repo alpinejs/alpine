@@ -832,16 +832,16 @@
         }
       } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
         return modifiers.includes('number') ? Array.from(event.target.selectedOptions).map(option => {
-          // If parseFloat() gives NaN return the original value
-          const number = option.value || option.text ? parseFloat(option.value || option.text) : null;
-          return isNaN(number) ? option.value || option.text : number;
+          const rawValue = option.value || option.text;
+          const number = rawValue ? parseFloat(rawValue) : null;
+          return isNaN(number) ? rawValue : number;
         }) : Array.from(event.target.selectedOptions).map(option => {
           return option.value || option.text;
         });
       } else {
-        // If parseFloat() gives NaN return the original value
-        const number = event.target.value ? parseFloat(event.target.value) : null;
-        return modifiers.includes('number') ? isNaN(number) ? event.target.value : number : modifiers.includes('trim') ? event.target.value.trim() : event.target.value;
+        const rawValue = event.target.value;
+        const number = rawValue ? parseFloat(rawValue) : null;
+        return modifiers.includes('number') ? isNaN(number) ? rawValue : number : modifiers.includes('trim') ? rawValue.trim() : rawValue;
       }
     };
   }

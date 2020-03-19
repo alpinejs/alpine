@@ -2347,6 +2347,10 @@
     }
   }
 
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
+  }
+
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -2359,12 +2363,50 @@
     }
   }
 
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
   function _iterableToArray(iter) {
     if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
   }
 
+  function _iterableToArrayLimit(arr, i) {
+    if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
+      return;
+    }
+
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"] != null) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
   function _nonIterableSpread() {
     throw new TypeError("Invalid attempt to spread non-iterable instance");
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance");
   }
 
   var runtime_1 = createCommonjsModule(function (module) {
@@ -3200,19 +3242,6 @@
     }
   });
 
-  // `SameValue` abstract operation
-  // https://tc39.github.io/ecma262/#sec-samevalue
-  var sameValue = Object.is || function is(x, y) {
-    // eslint-disable-next-line no-self-compare
-    return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
-  };
-
-  // `Object.is` method
-  // https://tc39.github.io/ecma262/#sec-object.is
-  _export({ target: 'Object', stat: true }, {
-    is: sameValue
-  });
-
   var FAILS_ON_PRIMITIVES = fails(function () { objectKeys(1); });
 
   // `Object.keys` method
@@ -4016,44 +4045,6 @@
     exec: regexpExec
   });
 
-  var MATCH = wellKnownSymbol('match');
-
-  // `IsRegExp` abstract operation
-  // https://tc39.github.io/ecma262/#sec-isregexp
-  var isRegexp = function (it) {
-    var isRegExp;
-    return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
-  };
-
-  var notARegexp = function (it) {
-    if (isRegexp(it)) {
-      throw TypeError("The method doesn't accept regular expressions");
-    } return it;
-  };
-
-  var MATCH$1 = wellKnownSymbol('match');
-
-  var correctIsRegexpLogic = function (METHOD_NAME) {
-    var regexp = /./;
-    try {
-      '/./'[METHOD_NAME](regexp);
-    } catch (e) {
-      try {
-        regexp[MATCH$1] = false;
-        return '/./'[METHOD_NAME](regexp);
-      } catch (f) { /* empty */ }
-    } return false;
-  };
-
-  // `String.prototype.includes` method
-  // https://tc39.github.io/ecma262/#sec-string.prototype.includes
-  _export({ target: 'String', proto: true, forced: !correctIsRegexpLogic('includes') }, {
-    includes: function includes(searchString /* , position = 0 */) {
-      return !!~String(requireObjectCoercible(this))
-        .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
   // TODO: Remove from `core-js@4` since it's moved to entry points
 
 
@@ -4242,6 +4233,15 @@
       }
     ];
   });
+
+  var MATCH = wellKnownSymbol('match');
+
+  // `IsRegExp` abstract operation
+  // https://tc39.github.io/ecma262/#sec-isregexp
+  var isRegexp = function (it) {
+    var isRegExp;
+    return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
+  };
 
   var arrayPush = [].push;
   var min$2 = Math.min;
@@ -4471,10 +4471,48 @@
     }
   });
 
-  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
-  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('slice');
+  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('slice', { ACCESSORS: true, 0: 0, 1: 2 });
 
+  var SPECIES$6 = wellKnownSymbol('species');
+  var nativeSlice = [].slice;
   var max$1 = Math.max;
+
+  // `Array.prototype.slice` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.slice
+  // fallback for not array-like ES3 strings and DOM objects
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
+    slice: function slice(start, end) {
+      var O = toIndexedObject(this);
+      var length = toLength(O.length);
+      var k = toAbsoluteIndex(start, length);
+      var fin = toAbsoluteIndex(end === undefined ? length : end, length);
+      // inline `ArraySpeciesCreate` for usage native `Array#slice` where it's possible
+      var Constructor, result, n;
+      if (isArray(O)) {
+        Constructor = O.constructor;
+        // cross-realm fallback
+        if (typeof Constructor == 'function' && (Constructor === Array || isArray(Constructor.prototype))) {
+          Constructor = undefined;
+        } else if (isObject(Constructor)) {
+          Constructor = Constructor[SPECIES$6];
+          if (Constructor === null) Constructor = undefined;
+        }
+        if (Constructor === Array || Constructor === undefined) {
+          return nativeSlice.call(O, k, fin);
+        }
+      }
+      result = new (Constructor === undefined ? Array : Constructor)(max$1(fin - k, 0));
+      for (n = 0; k < fin; k++, n++) if (k in O) createProperty(result, n, O[k]);
+      result.length = n;
+      return result;
+    }
+  });
+
+  var HAS_SPECIES_SUPPORT$3 = arrayMethodHasSpeciesSupport('splice');
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+
+  var max$2 = Math.max;
   var min$3 = Math.min;
   var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
   var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
@@ -4482,7 +4520,7 @@
   // `Array.prototype.splice` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.splice
   // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$3 || !USES_TO_LENGTH$8 }, {
     splice: function splice(start, deleteCount /* , ...items */) {
       var O = toObject(this);
       var len = toLength(O.length);
@@ -4496,7 +4534,7 @@
         actualDeleteCount = len - actualStart;
       } else {
         insertCount = argumentsLength - 2;
-        actualDeleteCount = min$3(max$1(toInteger(deleteCount), 0), len - actualStart);
+        actualDeleteCount = min$3(max$2(toInteger(deleteCount), 0), len - actualStart);
       }
       if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER$1) {
         throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
@@ -4706,7 +4744,36 @@
     }
   });
 
-  var max$2 = Math.max;
+  var notARegexp = function (it) {
+    if (isRegexp(it)) {
+      throw TypeError("The method doesn't accept regular expressions");
+    } return it;
+  };
+
+  var MATCH$1 = wellKnownSymbol('match');
+
+  var correctIsRegexpLogic = function (METHOD_NAME) {
+    var regexp = /./;
+    try {
+      '/./'[METHOD_NAME](regexp);
+    } catch (e) {
+      try {
+        regexp[MATCH$1] = false;
+        return '/./'[METHOD_NAME](regexp);
+      } catch (f) { /* empty */ }
+    } return false;
+  };
+
+  // `String.prototype.includes` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.includes
+  _export({ target: 'String', proto: true, forced: !correctIsRegexpLogic('includes') }, {
+    includes: function includes(searchString /* , position = 0 */) {
+      return !!~String(requireObjectCoercible(this))
+        .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  var max$3 = Math.max;
   var min$4 = Math.min;
   var floor$1 = Math.floor;
   var SUBSTITUTION_SYMBOLS = /\$([$&'`]|\d\d?|<[^>]*>)/g;
@@ -4772,7 +4839,7 @@
           result = results[i];
 
           var matched = String(result[0]);
-          var position = max$2(min$4(toInteger(result.index), S.length), 0);
+          var position = max$3(min$4(toInteger(result.index), S.length), 0);
           var captures = [];
           // NOTE: This is equivalent to
           //   captures = result.slice(1).map(maybeToString)
@@ -5342,6 +5409,27 @@
         }.bind(this), duration);
       }.bind(this));
     }.bind(this));
+  }
+  function getTargetFromPropertiesPath(path, parent, context) {
+    var child = parent[path[0]];
+
+    if (_typeof(child) === 'object' && path.length > 1) {
+      return getTargetFromPropertiesPath(path.slice(1), context.membrane.unwrapProxy(child), context);
+    }
+
+    var lastChildIsObject = _typeof(child) === 'object';
+    return [lastChildIsObject ? child : parent, path[0], lastChildIsObject];
+  }
+  function foundUnderObjectGraph(needle, object, context) {
+    if (needle === object) return true;
+
+    for (var key in object) {
+      if (object.hasOwnProperty(key) && _typeof(object[key]) === 'object' && !key.startsWith('$')) {
+        if (foundUnderObjectGraph(needle, context.membrane.unwrapProxy(object[key]), context)) return true;
+      }
+    }
+
+    return false;
   }
 
   function isNumeric(subject) {
@@ -6405,50 +6493,35 @@
           valueMutated: function valueMutated(target, key) {
             var _this3 = this;
 
-            if (self.watchers[key]) {
-              // If there's a watcher for this specific key, run it.
-              self.watchers[key].forEach(function (callback) {
-                _newArrowCheck(this, _this3);
+            //Iterate over all watchers
+            Object.keys(self.watchers).forEach(function (watcherKey) {
+              var _this4 = this;
 
-                return callback(target[key]);
-              }.bind(this));
-            } else {
-              // Let's walk through the watchers with "dot-notation" (foo.bar) and see
-              // if this mutation fits any of them.
-              Object.keys(self.watchers).filter(function (i) {
-                _newArrowCheck(this, _this3);
+              _newArrowCheck(this, _this3);
 
-                return i.includes('.');
-              }.bind(this)).forEach(function (fullDotNotationKey) {
-                var _this4 = this;
+              //Follow watcher keys path to find final affected (target, key) and check if watching a property of a deep structure
+              var _getTargetFromPropert = getTargetFromPropertiesPath(watcherKey.split('.'), self.membrane.unwrapProxy(self.$data), self),
+                  _getTargetFromPropert2 = _slicedToArray(_getTargetFromPropert, 3),
+                  watcherTarget = _getTargetFromPropert2[0],
+                  watcherProperty = _getTargetFromPropert2[1],
+                  watcherIsDeep = _getTargetFromPropert2[2];
 
-                _newArrowCheck(this, _this3);
-
-                var dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
-                // key, then skip it early for performance reasons.
-
-                if (key !== dotNotationParts[dotNotationParts.length - 1]) return; // Now, walk through the dot-notation "parts" recursively to find
-                // a match, and call the watcher if one's found.
-
-                dotNotationParts.reduce(function (comparisonData, part) {
-                  var _this5 = this;
-
+              if (target === watcherTarget && key === watcherProperty) {
+                //Callback property watcher, return property value
+                self.watchers[watcherKey].forEach(function (callback) {
                   _newArrowCheck(this, _this4);
 
-                  if (Object.is(target, comparisonData)) {
-                    // Run the watchers.
-                    self.watchers[fullDotNotationKey].forEach(function (callback) {
-                      _newArrowCheck(this, _this5);
+                  return callback(target[key]);
+                }.bind(this));
+              } else if (watcherIsDeep && foundUnderObjectGraph(target, self.membrane.unwrapProxy(watcherTarget), self)) {
+                //Callback structure watcher, return structure value
+                self.watchers[watcherKey].forEach(function (callback) {
+                  _newArrowCheck(this, _this4);
 
-                      return callback(target[key]);
-                    }.bind(this));
-                  }
-
-                  return comparisonData[part];
-                }.bind(this), self.getUnobservedData());
-              }.bind(this));
-            } // Don't react to data changes for cases like the `x-created` hook.
-
+                  return callback(self.membrane.unwrapProxy(watcherTarget));
+                }.bind(this));
+              }
+            }.bind(this)); // Don't react to data changes for cases like the `x-created` hook.
 
             if (self.pauseReactivity) return;
             debounce(function () {
@@ -6470,13 +6543,13 @@
     }, {
       key: "walkAndSkipNestedComponents",
       value: function walkAndSkipNestedComponents(el, callback) {
-        var _this6 = this;
+        var _this5 = this;
 
         var initializeComponentCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this5);
         }.bind(this);
         walk(el, function (el) {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this5);
 
           // We've hit a component.
           if (el.hasAttribute('x-data')) {
@@ -6495,19 +6568,19 @@
     }, {
       key: "initializeElements",
       value: function initializeElements(rootEl) {
-        var _this7 = this;
+        var _this6 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this6);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this6);
 
           // Don't touch spawns from for loop
           if (el.__x_for_key !== undefined) return false;
           this.initializeElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this6);
 
           el.__x = new Component(el);
         }.bind(this));
@@ -6532,19 +6605,19 @@
     }, {
       key: "updateElements",
       value: function updateElements(rootEl) {
-        var _this8 = this;
+        var _this7 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this8);
+          _newArrowCheck(this, _this7);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this8);
+          _newArrowCheck(this, _this7);
 
           // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
           if (el.__x_for_key !== undefined && !el.isSameNode(this.$el)) return false;
           this.updateElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this8);
+          _newArrowCheck(this, _this7);
 
           el.__x = new Component(el);
         }.bind(this));
@@ -6557,45 +6630,45 @@
     }, {
       key: "executeAndClearRemainingShowDirectiveStack",
       value: function executeAndClearRemainingShowDirectiveStack() {
-        var _this9 = this;
+        var _this8 = this;
 
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
         this.showDirectiveStack.reverse().map(function (thing) {
-          var _this10 = this;
+          var _this9 = this;
 
-          _newArrowCheck(this, _this9);
+          _newArrowCheck(this, _this8);
 
           return new Promise(function (resolve) {
-            var _this11 = this;
+            var _this10 = this;
 
-            _newArrowCheck(this, _this10);
+            _newArrowCheck(this, _this9);
 
             thing(function (finish) {
-              _newArrowCheck(this, _this11);
+              _newArrowCheck(this, _this10);
 
               resolve(finish);
             }.bind(this));
           }.bind(this));
         }.bind(this)).reduce(function (nestedPromise, promise) {
-          var _this12 = this;
+          var _this11 = this;
 
-          _newArrowCheck(this, _this9);
+          _newArrowCheck(this, _this8);
 
           return nestedPromise.then(function () {
-            var _this13 = this;
+            var _this12 = this;
 
-            _newArrowCheck(this, _this12);
+            _newArrowCheck(this, _this11);
 
             return promise.then(function (finish) {
-              _newArrowCheck(this, _this13);
+              _newArrowCheck(this, _this12);
 
               return finish();
             }.bind(this));
           }.bind(this));
         }.bind(this), Promise.resolve(function () {
-          _newArrowCheck(this, _this9);
+          _newArrowCheck(this, _this8);
         }.bind(this))); // We've processed the handler stack. let's clear it.
 
         this.showDirectiveStack = [];
@@ -6609,7 +6682,7 @@
     }, {
       key: "registerListeners",
       value: function registerListeners(el, extraVars) {
-        var _this14 = this;
+        var _this13 = this;
 
         getXAttrs(el).forEach(function (_ref) {
           var type = _ref.type,
@@ -6617,7 +6690,7 @@
               modifiers = _ref.modifiers,
               expression = _ref.expression;
 
-          _newArrowCheck(this, _this14);
+          _newArrowCheck(this, _this13);
 
           switch (type) {
             case 'on':
@@ -6633,20 +6706,20 @@
     }, {
       key: "resolveBoundAttributes",
       value: function resolveBoundAttributes(el) {
-        var _this15 = this;
+        var _this14 = this;
 
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
         var attrs = getXAttrs(el);
         attrs.forEach(function (_ref2) {
-          var _this16 = this;
+          var _this15 = this;
 
           var type = _ref2.type,
               value = _ref2.value,
               modifiers = _ref2.modifiers,
               expression = _ref2.expression;
 
-          _newArrowCheck(this, _this15);
+          _newArrowCheck(this, _this14);
 
           switch (type) {
             case 'model':
@@ -6682,7 +6755,7 @@
               // If this element also has x-for on it, don't process x-if.
               // We will let the "x-for" directive handle the "if"ing.
               if (attrs.filter(function (i) {
-                _newArrowCheck(this, _this16);
+                _newArrowCheck(this, _this15);
 
                 return i.type === 'for';
               }.bind(this)).length > 0) return;
@@ -6703,10 +6776,10 @@
     }, {
       key: "evaluateReturnExpression",
       value: function evaluateReturnExpression(el, expression) {
-        var _this17 = this;
+        var _this16 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this17);
+          _newArrowCheck(this, _this16);
         }.bind(this);
         return saferEval(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
@@ -6715,10 +6788,10 @@
     }, {
       key: "evaluateCommandExpression",
       value: function evaluateCommandExpression(el, expression) {
-        var _this18 = this;
+        var _this17 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this18);
+          _newArrowCheck(this, _this17);
         }.bind(this);
         return saferEvalNoReturn(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
@@ -6727,12 +6800,12 @@
     }, {
       key: "getDispatchFunction",
       value: function getDispatchFunction(el) {
-        var _this19 = this;
+        var _this18 = this;
 
         return function (event) {
           var detail = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-          _newArrowCheck(this, _this19);
+          _newArrowCheck(this, _this18);
 
           el.dispatchEvent(new CustomEvent(event, {
             detail: detail,
@@ -6743,7 +6816,7 @@
     }, {
       key: "listenForNewElementsToInitialize",
       value: function listenForNewElementsToInitialize() {
-        var _this20 = this;
+        var _this19 = this;
 
         var targetNode = this.$el;
         var observerOptions = {
@@ -6752,9 +6825,9 @@
           subtree: true
         };
         var observer = new MutationObserver(function (mutations) {
-          var _this21 = this;
+          var _this20 = this;
 
-          _newArrowCheck(this, _this20);
+          _newArrowCheck(this, _this19);
 
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
@@ -6763,14 +6836,14 @@
 
             if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
               (function () {
-                var _this22 = this;
+                var _this21 = this;
 
                 var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
                 Object.keys(rawData).forEach(function (key) {
-                  _newArrowCheck(this, _this22);
+                  _newArrowCheck(this, _this21);
 
-                  if (_this21.$data[key] !== rawData[key]) {
-                    _this21.$data[key] = rawData[key];
+                  if (_this20.$data[key] !== rawData[key]) {
+                    _this20.$data[key] = rawData[key];
                   }
                 }.bind(this));
               })();
@@ -6778,7 +6851,7 @@
 
             if (mutations[i].addedNodes.length > 0) {
               mutations[i].addedNodes.forEach(function (node) {
-                _newArrowCheck(this, _this21);
+                _newArrowCheck(this, _this20);
 
                 if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
@@ -6797,7 +6870,7 @@
     }, {
       key: "getRefsProxy",
       value: function getRefsProxy() {
-        var _this23 = this;
+        var _this22 = this;
 
         var self = this;
         var refObj = {};
@@ -6809,7 +6882,7 @@
         // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
 
         this.walkAndSkipNestedComponents(self.$el, function (el) {
-          _newArrowCheck(this, _this23);
+          _newArrowCheck(this, _this22);
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
@@ -6823,14 +6896,14 @@
 
         return new Proxy(refObj, {
           get: function get(object, property) {
-            var _this24 = this;
+            var _this23 = this;
 
             if (property === '$isAlpineProxy') return true;
             var ref; // We can't just query the DOM because it's hard to filter out refs in
             // nested components.
 
             self.walkAndSkipNestedComponents(self.$el, function (el) {
-              _newArrowCheck(this, _this24);
+              _newArrowCheck(this, _this23);
 
               if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                 ref = el;

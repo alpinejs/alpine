@@ -5903,14 +5903,18 @@
         return modifiers.includes('number') ? Array.from(event.target.selectedOptions).map(function (option) {
           _newArrowCheck(this, _this3);
 
-          return parseFloat(option.value || option.text);
+          // If parseFloat() gives NaN return the original value
+          var number = option.value || option.text ? parseFloat(option.value || option.text) : null;
+          return isNaN(number) ? option.value || option.text : number;
         }.bind(this)) : Array.from(event.target.selectedOptions).map(function (option) {
           _newArrowCheck(this, _this3);
 
           return option.value || option.text;
         }.bind(this));
       } else {
-        return modifiers.includes('number') ? parseFloat(event.target.value) : modifiers.includes('trim') ? event.target.value.trim() : event.target.value;
+        // If parseFloat() gives NaN return the original value
+        var number = event.target.value ? parseFloat(event.target.value) : null;
+        return modifiers.includes('number') ? isNaN(number) ? event.target.value : number : modifiers.includes('trim') ? event.target.value.trim() : event.target.value;
       }
     }.bind(this);
   }

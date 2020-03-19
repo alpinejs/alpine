@@ -385,6 +385,16 @@ export function transition(el, stages) {
     });
 }
 
+export function getTargetFromPropertiesPath(path, parent, context) {
+    var child = parent[path[0]]
+
+    if (typeof child === 'object' && path.length > 1) {
+        return getTargetFromPropertiesPath(path.slice(1), context.membrane.unwrapProxy(child), context)
+    }
+
+    return typeof child === 'object' ? child : parent
+}
+
 function isNumeric(subject){
     return ! isNaN(subject)
 }

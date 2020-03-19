@@ -389,6 +389,15 @@
       });
     });
   }
+  function getTargetFromPropertiesPath(path, parent, context) {
+    var child = parent[path[0]];
+
+    if (typeof child === 'object' && path.length > 1) {
+      return getTargetFromPropertiesPath(path.slice(1), context.membrane.unwrapProxy(child), context);
+    }
+
+    return typeof child === 'object' ? child : parent;
+  }
 
   function isNumeric(subject) {
     return !isNaN(subject);
@@ -1291,10 +1300,14 @@
       var self = this;
       let membrane = new ReactiveMembrane({
         valueMutated(target, key) {
-          if (self.watchers[key]) {
-            self.watchers[key].forEach(callback => callback(target[key]));
-          } // Don't react to data changes for cases like the `x-created` hook.
+          Object.keys(self.watchers).forEach(watcherKey => {
+            const watcherKeyPath = watcherKey.split('.');
+            const watcherTarget = getTargetFromPropertiesPath(watcherKeyPath, self.membrane.unwrapProxy(self.$data), self);
 
+            if (target === watcherTarget && key === watcherKeyPath[watcherKeyPath.length - 1]) {
+              self.watchers[watcherKey].forEach(callback => callback(target[key]));
+            }
+          }); // Don't react to data changes for cases like the `x-created` hook.
 
           if (self.pauseReactivity) return;
           debounce(() => {
@@ -1516,7 +1529,7 @@
 
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(node => {
-              if (node.nodeType !== 1) return;
+              if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
               if (node.matches('[x-data]')) {
                 node.__x = new Component(node);

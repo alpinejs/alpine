@@ -1,4 +1,4 @@
-import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
+import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, getTargetFromPropertiesPath } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleShowDirective } from './directives/show'
@@ -93,9 +93,14 @@ export default class Component {
 
         let membrane = new ObservableMembrane({
             valueMutated(target, key) {
-                if (self.watchers[key]) {
-                    self.watchers[key].forEach(callback => callback(target[key]))
-                }
+                Object.keys(self.watchers).forEach(watcherKey => {
+                    const watcherKeyPath = watcherKey.split('.')
+                    const watcherTarget = getTargetFromPropertiesPath(watcherKeyPath, self.membrane.unwrapProxy(self.$data), self)
+
+                    if (target === watcherTarget && key === watcherKeyPath[watcherKeyPath.length - 1]) {
+                        self.watchers[watcherKey].forEach(callback => callback(target[key]))
+                    }
+                })
 
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return

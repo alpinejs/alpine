@@ -389,27 +389,6 @@
       });
     });
   }
-  function getTargetFromPropertiesPath(path, parent, context) {
-    var child = parent[path[0]];
-
-    if (typeof child === 'object' && path.length > 1) {
-      return getTargetFromPropertiesPath(path.slice(1), context.membrane.unwrapProxy(child), context);
-    }
-
-    var lastChildIsObject = typeof child === 'object';
-    return [lastChildIsObject ? child : parent, path[0], lastChildIsObject];
-  }
-  function foundUnderObjectGraph(needle, object, context) {
-    if (needle === object) return true;
-
-    for (var key in object) {
-      if (object.hasOwnProperty(key) && typeof object[key] === 'object' && !key.startsWith('$')) {
-        if (foundUnderObjectGraph(needle, context.membrane.unwrapProxy(object[key]), context)) return true;
-      }
-    }
-
-    return false;
-  }
 
   function isNumeric(subject) {
     return !isNaN(subject);
@@ -1269,8 +1248,8 @@
       this.watchers = {};
 
       this.unobservedData.$watch = (property, callback) => {
-        if (!this.watchers[property]) this.watchers[property] = [];
-        this.watchers[property].push(callback);
+        if (!this.watchers[property]) this.watchers[property] = this.walkToConstructWatcher(property.split('.'), this.unobservedData);
+        this.watchers[property].callbacks.push(callback);
       };
 
       this.showDirectiveStack = [];
@@ -1312,17 +1291,13 @@
       var self = this;
       let membrane = new ReactiveMembrane({
         valueMutated(target, key) {
-          //Iterate over all watchers
-          Object.keys(self.watchers).forEach(watcherKey => {
-            //Follow watcher keys path to find final affected (target, key) and check if watching a property of a deep structure
-            const [watcherTarget, watcherProperty, watcherIsDeep] = getTargetFromPropertiesPath(watcherKey.split('.'), self.membrane.unwrapProxy(self.$data), self);
-
-            if (target === watcherTarget && key === watcherProperty) {
+          Object.values(self.watchers).forEach(watcher => {
+            if (target === watcher.target && key === watcher.key) {
               //Callback property watcher, return property value
-              self.watchers[watcherKey].forEach(callback => callback(target[key]));
-            } else if (watcherIsDeep && foundUnderObjectGraph(target, self.membrane.unwrapProxy(watcherTarget), self)) {
+              watcher.callbacks.forEach(callback => callback(target[key]));
+            } else if (watcher.isDeep && self.foundUnderObjectGraph(target, watcher.target, self)) {
               //Callback structure watcher, return structure value
-              self.watchers[watcherKey].forEach(callback => callback(self.membrane.unwrapProxy(watcherTarget)));
+              watcher.callbacks.forEach(callback => callback(watcher.target));
             }
           }); // Don't react to data changes for cases like the `x-created` hook.
 
@@ -1584,6 +1559,33 @@
         }
 
       });
+    }
+
+    walkToConstructWatcher(path, parent) {
+      var child = parent[path[0]];
+
+      if (typeof child === 'object' && path.length > 1) {
+        return this.walkToConstructWatcher(path.slice(1), child);
+      }
+
+      return {
+        target: typeof child === 'object' ? child : parent,
+        key: path[0],
+        isDeep: typeof child === 'object',
+        callbacks: []
+      };
+    }
+
+    foundUnderObjectGraph(needle, object, context) {
+      if (needle === object) return true;
+
+      for (var key in object) {
+        if (object.hasOwnProperty(key) && typeof object[key] === 'object' && !key.startsWith('$')) {
+          if (context.foundUnderObjectGraph(needle, object[key], context)) return true;
+        }
+      }
+
+      return false;
     }
 
   }

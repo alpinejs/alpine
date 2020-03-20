@@ -1,4 +1,4 @@
-import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, getTargetFromPropertiesPath, foundUnderObjectGraph } from './utils'
+import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleShowDirective } from './directives/show'
@@ -43,9 +43,9 @@ export default class Component {
 
         this.watchers = {}
         this.unobservedData.$watch = (property, callback) => {
-            if (! this.watchers[property]) this.watchers[property] = []
+            if (! this.watchers[property]) this.watchers[property] = this.walkToConstructWatcher(property.split('.'), this.unobservedData)
 
-            this.watchers[property].push(callback)
+            this.watchers[property].callbacks.push(callback)
         }
 
         this.showDirectiveStack = []
@@ -93,22 +93,14 @@ export default class Component {
 
         let membrane = new ObservableMembrane({
             valueMutated(target, key) {
-                //Iterate over all watchers
-                Object.keys(self.watchers)
-                    .forEach(watcherKey => {
-                        //Follow watcher keys path to find final affected (target, key) and check if watching a property of a deep structure
-                        const [
-                            watcherTarget,
-                            watcherProperty,
-                            watcherIsDeep
-                        ] = getTargetFromPropertiesPath(watcherKey.split('.'), self.membrane.unwrapProxy(self.$data), self)
-
-                        if (target === watcherTarget && key === watcherProperty) {
+                Object.values(self.watchers)
+                    .forEach(watcher => {
+                        if (target === watcher.target && key === watcher.key) {
                             //Callback property watcher, return property value
-                            self.watchers[watcherKey].forEach(callback => callback(target[key]))
-                        } else if (watcherIsDeep && foundUnderObjectGraph(target, self.membrane.unwrapProxy(watcherTarget), self)) {
+                            watcher.callbacks.forEach(callback => callback(target[key]))
+                        } else if (watcher.isDeep && self.foundUnderObjectGraph(target, watcher.target, self)) {
                             //Callback structure watcher, return structure value
-                            self.watchers[watcherKey].forEach(callback => callback(self.membrane.unwrapProxy(watcherTarget)))
+                            watcher.callbacks.forEach(callback => callback(watcher.target))
                         }
                     })
 
@@ -405,5 +397,32 @@ export default class Component {
                 return ref
             }
         })
+    }
+
+    walkToConstructWatcher(path, parent) {
+        var child = parent[path[0]]
+
+        if (typeof child === 'object' && path.length > 1) {
+            return this.walkToConstructWatcher(path.slice(1), child)
+        }
+
+        return {
+            target: typeof child === 'object' ? child : parent,
+            key: path[0],
+            isDeep: typeof child === 'object',
+            callbacks: []
+        }
+    }
+
+    foundUnderObjectGraph(needle, object, context) {
+        if (needle === object) return true
+
+        for (var key in object) {
+            if (object.hasOwnProperty(key) && typeof object[key] === 'object' && !key.startsWith('$')) {
+                if (context.foundUnderObjectGraph(needle, object[key], context)) return true
+            }
+        }
+
+        return false
     }
 }

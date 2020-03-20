@@ -385,30 +385,6 @@ export function transition(el, stages) {
     });
 }
 
-export function getTargetFromPropertiesPath(path, parent, context) {
-    var child = parent[path[0]]
-
-    if (typeof child === 'object' && path.length > 1) {
-        return getTargetFromPropertiesPath(path.slice(1), context.membrane.unwrapProxy(child), context)
-    }
-
-    var lastChildIsObject = (typeof child === 'object')
-
-    return [ lastChildIsObject ? child : parent, path[0], lastChildIsObject ]
-}
-
-export function foundUnderObjectGraph(needle, object, context) {
-    if (needle === object) return true
-
-    for (var key in object) {
-        if (object.hasOwnProperty(key) && typeof object[key] === 'object' && !key.startsWith('$')) {
-            if (foundUnderObjectGraph(needle, context.membrane.unwrapProxy(object[key]), context)) return true
-        }
-    }
-
-    return false
-}
-
 function isNumeric(subject){
     return ! isNaN(subject)
 }

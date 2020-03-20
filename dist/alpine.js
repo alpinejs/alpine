@@ -90,19 +90,17 @@
       node = node.nextElementSibling;
     }
   }
-  function debounce(func, wait) {
-    var timeout;
+  function debounce(func, wait, context) {
     return function () {
-      var context = this,
-          args = arguments;
+      var args = arguments;
 
       var later = function later() {
-        timeout = null;
+        context.debounceTimeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
+      clearTimeout(context.debounceTimeout);
+      context.debounceTimeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext, additionalHelperVariables = {}) {
@@ -832,12 +830,16 @@
         }
       } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
         return modifiers.includes('number') ? Array.from(event.target.selectedOptions).map(option => {
-          return parseFloat(option.value || option.text);
+          const rawValue = option.value || option.text;
+          const number = rawValue ? parseFloat(rawValue) : null;
+          return isNaN(number) ? rawValue : number;
         }) : Array.from(event.target.selectedOptions).map(option => {
           return option.value || option.text;
         });
       } else {
-        return modifiers.includes('number') ? parseFloat(event.target.value) : modifiers.includes('trim') ? event.target.value.trim() : event.target.value;
+        const rawValue = event.target.value;
+        const number = rawValue ? parseFloat(rawValue) : null;
+        return modifiers.includes('number') ? isNaN(number) ? rawValue : number : modifiers.includes('trim') ? rawValue.trim() : rawValue;
       }
     };
   }
@@ -1297,7 +1299,7 @@
           if (self.pauseReactivity) return;
           debounce(() => {
             self.updateElements(self.$el);
-          }, 0)();
+          }, 0, self)();
         }
 
       });
@@ -1510,7 +1512,7 @@
 
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(node => {
-              if (node.nodeType !== 1) return;
+              if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
               if (node.matches('[x-data]')) {
                 node.__x = new Component(node);

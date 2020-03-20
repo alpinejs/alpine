@@ -515,6 +515,22 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
+Use dot-delimited paths to watch properties of nested objects like `foo.bar.baz`. For example:
+
+```html
+<div x-data="{ foo: { bar: { baz: false } } }" x-init="$watch('foo.bar.baz', value => console.log(value))">
+    <button @click="foo.bar.baz = ! foo.bar.baz">Toggle Nested Baz</button>
+</div>
+```
+
+You can also detect nested value changes inside objects "deep watching", By passing `{ deep: true }` as the options argument. For example:
+
+```html
+<div x-data="{ items: { foo: 'bar', baz: [ 1, 2, 3 ] } }" x-init="$watch('items', value => console.log(value), { deep: true })">
+    <button @click="items.baz.push(4)">Push To Baz</button>
+</div>
+```
+
 ## v3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity
 

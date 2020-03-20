@@ -42,8 +42,10 @@ export default class Component {
         }
 
         this.watchers = {}
-        this.unobservedData.$watch = (property, callback) => {
-            if (! this.watchers[property]) this.watchers[property] = this.walkToConstructWatcher(property.split('.'), this.unobservedData)
+        this.unobservedData.$watch = (property, callback, options = {}) => {
+            if (! this.watchers[property]) {
+                this.watchers[property] = this.walkToConstructWatcher(property.split('.'), this.unobservedData, options)
+            }
 
             this.watchers[property].callbacks.push(callback)
         }
@@ -98,7 +100,7 @@ export default class Component {
                         if (target === watcher.target && key === watcher.key) {
                             //Callback property watcher, return property value
                             watcher.callbacks.forEach(callback => callback(target[key]))
-                        } else if (watcher.isDeep && self.foundUnderObjectGraph(target, watcher.target, self)) {
+                        } else if (watcher.deep && self.foundUnderObjectGraph(target, watcher.target, self)) {
                             //Callback structure watcher, return structure value
                             watcher.callbacks.forEach(callback => callback(watcher.target))
                         }
@@ -399,17 +401,19 @@ export default class Component {
         })
     }
 
-    walkToConstructWatcher(path, parent) {
+    walkToConstructWatcher(path, parent, options) {
         var child = parent[path[0]]
 
         if (typeof child === 'object' && path.length > 1) {
-            return this.walkToConstructWatcher(path.slice(1), child)
+            return this.walkToConstructWatcher(path.slice(1), child, options)
         }
 
+        var deep = (options.deep && typeof child === 'object')
+
         return {
-            target: typeof child === 'object' ? child : parent,
+            target: deep ? child : parent,
             key: path[0],
-            isDeep: typeof child === 'object',
+            deep: deep,
             callbacks: []
         }
     }

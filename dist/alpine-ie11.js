@@ -6376,9 +6376,14 @@
       this.watchers = {};
 
       this.unobservedData.$watch = function (property, callback) {
+        var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
         _newArrowCheck(this, _this);
 
-        if (!this.watchers[property]) this.watchers[property] = this.walkToConstructWatcher(property.split('.'), this.unobservedData);
+        if (!this.watchers[property]) {
+          this.watchers[property] = this.walkToConstructWatcher(property.split('.'), this.unobservedData, options);
+        }
+
         this.watchers[property].callbacks.push(callback);
       }.bind(this);
 
@@ -6442,7 +6447,7 @@
 
                   return callback(target[key]);
                 }.bind(this));
-              } else if (watcher.isDeep && self.foundUnderObjectGraph(target, watcher.target, self)) {
+              } else if (watcher.deep && self.foundUnderObjectGraph(target, watcher.target, self)) {
                 //Callback structure watcher, return structure value
                 watcher.callbacks.forEach(function (callback) {
                   _newArrowCheck(this, _this4);
@@ -6844,17 +6849,18 @@
       }
     }, {
       key: "walkToConstructWatcher",
-      value: function walkToConstructWatcher(path, parent) {
+      value: function walkToConstructWatcher(path, parent, options) {
         var child = parent[path[0]];
 
         if (_typeof(child) === 'object' && path.length > 1) {
-          return this.walkToConstructWatcher(path.slice(1), child);
+          return this.walkToConstructWatcher(path.slice(1), child, options);
         }
 
+        var deep = options.deep && _typeof(child) === 'object';
         return {
-          target: _typeof(child) === 'object' ? child : parent,
+          target: deep ? child : parent,
           key: path[0],
-          isDeep: _typeof(child) === 'object',
+          deep: deep,
           callbacks: []
         };
       }

@@ -76,9 +76,7 @@ test('$watch deep', async () => {
     window.bob = [ {foo: ''} ]
 
     document.body.innerHTML = `
-        <div x-data="{ foo: 'bar', baz: [ {foo: 'qux'} ] }" x-init="
-            $watch('baz', value => { window.bob = value });
-        ">
+        <div x-data="{ foo: 'bar', baz: [ {foo: 'qux'} ] }" x-init="$watch('baz', value => { window.bob = value }, { deep: true })">
             <button x-on:click="baz[0].foo = 'corge'"></button>
         </div>
     `

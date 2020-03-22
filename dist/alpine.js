@@ -90,19 +90,17 @@
       node = node.nextElementSibling;
     }
   }
-  function debounce(func, wait) {
-    var timeout;
+  function debounce(func, wait, context) {
     return function () {
-      var context = this,
-          args = arguments;
+      var args = arguments;
 
       var later = function later() {
-        timeout = null;
+        context.debounceTimeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
+      clearTimeout(context.debounceTimeout);
+      context.debounceTimeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext, additionalHelperVariables = {}) {
@@ -885,12 +883,16 @@
         }
       } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
         return modifiers.includes('number') ? Array.from(event.target.selectedOptions).map(option => {
-          return parseFloat(option.value || option.text);
+          const rawValue = option.value || option.text;
+          const number = rawValue ? parseFloat(rawValue) : null;
+          return isNaN(number) ? rawValue : number;
         }) : Array.from(event.target.selectedOptions).map(option => {
           return option.value || option.text;
         });
       } else {
-        return modifiers.includes('number') ? parseFloat(event.target.value) : modifiers.includes('trim') ? event.target.value.trim() : event.target.value;
+        const rawValue = event.target.value;
+        const number = rawValue ? parseFloat(rawValue) : null;
+        return modifiers.includes('number') ? isNaN(number) ? rawValue : number : modifiers.includes('trim') ? rawValue.trim() : rawValue;
       }
     };
   }
@@ -1296,6 +1298,13 @@
         this.nextTickStack.push(callback);
       };
 
+      this.watchers = {};
+
+      this.unobservedData.$watch = (property, callback) => {
+        if (!this.watchers[property]) this.watchers[property] = [];
+        this.watchers[property].push(callback);
+      };
+
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
       var initReturnedCallback; // If x-init is present AND we aren't cloning (skip x-init on clone)
@@ -1325,7 +1334,7 @@
       let unwrappedData = this.membrane.unwrapProxy(this.$data);
       let copy = {};
       Object.keys(unwrappedData).forEach(key => {
-        if (['$el', '$refs', '$nextTick'].includes(key)) return;
+        if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
         copy[key] = unwrappedData[key];
       });
       return copy;
@@ -1335,7 +1344,31 @@
       var self = this;
       let membrane = new ReactiveMembrane({
         valueMutated(target, key) {
-          // Don't react to data changes for cases like the `x-created` hook.
+          if (self.watchers[key]) {
+            // If there's a watcher for this specific key, run it.
+            self.watchers[key].forEach(callback => callback(target[key]));
+          } else {
+            // Let's walk through the watchers with "dot-notation" (foo.bar) and see
+            // if this mutation fits any of them.
+            Object.keys(self.watchers).filter(i => i.includes('.')).forEach(fullDotNotationKey => {
+              let dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
+              // key, then skip it early for performance reasons.
+
+              if (key !== dotNotationParts[dotNotationParts.length - 1]) return; // Now, walk through the dot-notation "parts" recursively to find
+              // a match, and call the watcher if one's found.
+
+              dotNotationParts.reduce((comparisonData, part) => {
+                if (Object.is(target, comparisonData)) {
+                  // Run the watchers.
+                  self.watchers[fullDotNotationKey].forEach(callback => callback(target[key]));
+                }
+
+                return comparisonData[part];
+              }, self.getUnobservedData());
+            });
+          } // Don't react to data changes for cases like the `x-created` hook.
+
+
           if (self.pauseReactivity) return;
           debounce(() => {
             self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
@@ -1343,7 +1376,7 @@
             while (self.nextTickStack.length > 0) {
               self.nextTickStack.shift()();
             }
-          }, 0)();
+          }, 0, self)();
         }
 
       });
@@ -1556,7 +1589,7 @@
 
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(node => {
-              if (node.nodeType !== 1) return;
+              if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
               if (node.matches('[x-data]')) {
                 node.__x = new Component(node);
@@ -1669,7 +1702,14 @@
 
   if (!isTesting()) {
     window.Alpine = Alpine;
-    window.Alpine.start();
+
+    if (window.deferLoadingAlpine) {
+      window.deferLoadingAlpine(function () {
+        window.Alpine.start();
+      });
+    } else {
+      window.Alpine.start();
+    }
   }
 
   return Alpine;

@@ -23,10 +23,10 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  (function(){function l(){function n(a){return a?"object"===typeof a||"function"===typeof a:!1}var p=null;var g=function(a,b){function f(){}if(!n(a)||!n(b))throw new TypeError("Cannot create proxy with a non-object as target or handler");p=function(){f=function(a){throw new TypeError("Cannot perform '"+a+"' on a proxy that has been revoked");};};var e=b;b={get:null,set:null,apply:null,construct:null};for(var k in e){if(!(k in b))throw new TypeError("Proxy polyfill does not support trap '"+k+"'");b[k]=e[k];}"function"===
-  typeof e&&(b.apply=e.apply.bind(e));var c=this,g=!1,q=!1;"function"===typeof a?(c=function(){var h=this&&this.constructor===c,d=Array.prototype.slice.call(arguments);f(h?"construct":"apply");return h&&b.construct?b.construct.call(this,a,d):!h&&b.apply?b.apply(a,this,d):h?(d.unshift(a),new (a.bind.apply(a,d))):a.apply(this,d)},g=!0):a instanceof Array&&(c=[],q=!0);var r=b.get?function(a){f("get");return b.get(this,a,c)}:function(a){f("get");return this[a]},v=b.set?function(a,d){f("set");b.set(this,
-  a,d,c);}:function(a,b){f("set");this[a]=b;},t={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((g||q)&&b in c)){var d={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:r.bind(a,b),set:v.bind(a,b)};Object.defineProperty(c,b,d);t[b]=!0;}});e=!0;Object.setPrototypeOf?Object.setPrototypeOf(c,Object.getPrototypeOf(a)):c.__proto__?c.__proto__=a.__proto__:e=!1;if(b.get||!e)for(var m in a)t[m]||Object.defineProperty(c,m,{get:r.bind(a,m)});Object.seal(a);Object.seal(c);return c};g.revocable=
-  function(a,b){return {proxy:new g(a,b),revoke:p}};return g}var u="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;u.Proxy||(u.Proxy=l(),u.Proxy.revocable=u.Proxy.revocable);})();
+  (function(){function k(){function p(a){return a?"object"===typeof a||"function"===typeof a:!1}var l=null;var n=function(a,c){function g(){}if(!p(a)||!p(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");l=function(){a=null;g=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){l=null;},0);var f=c;c={get:null,set:null,apply:null,construct:null};for(var h in f){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+
+  h+"'");c[h]=f[h];}"function"===typeof f&&(c.apply=f.apply.bind(f));var d=this,q=!1,r=!1;"function"===typeof a?(d=function(){var b=this&&this.constructor===d,e=Array.prototype.slice.call(arguments);g(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,e):!b&&c.apply?c.apply(a,this,e):b?(e.unshift(a),new (a.bind.apply(a,e))):a.apply(this,e)},q=!0):a instanceof Array&&(d=[],r=!0);var t=c.get?function(b){g("get");return c.get(this,b,d)}:function(b){g("get");return this[b]},w=c.set?function(b,
+  e){g("set");c.set(this,b,e,d);}:function(b,e){g("set");this[b]=e;},u={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((q||r)&&b in d)){var e={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:t.bind(a,b),set:w.bind(a,b)};Object.defineProperty(d,b,e);u[b]=!0;}});f=!0;Object.setPrototypeOf?Object.setPrototypeOf(d,Object.getPrototypeOf(a)):d.__proto__?d.__proto__=a.__proto__:f=!1;if(c.get||!f)for(var m in a)u[m]||Object.defineProperty(d,m,{get:t.bind(a,m)});Object.seal(a);Object.seal(d);
+  return d};n.revocable=function(a,c){return {proxy:new n(a,c),revoke:l}};return n}var v="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;v.Proxy||(v.Proxy=k(),v.Proxy.revocable=v.Proxy.revocable);})();
 
   !function(e){var t=e.Element.prototype;"function"!=typeof t.matches&&(t.matches=t.msMatchesSelector||t.mozMatchesSelector||t.webkitMatchesSelector||function(e){for(var t=(this.document||this.ownerDocument).querySelectorAll(e),o=0;t[o]&&t[o]!==this;)++o;return Boolean(t[o])}),"function"!=typeof t.closest&&(t.closest=function(e){for(var t=this;t&&1===t.nodeType;){if(t.matches(e))return t;t=t.parentNode;}return null});}(window);
 
@@ -2499,7 +2499,7 @@
       return { __await: arg };
     };
 
-    function AsyncIterator(generator) {
+    function AsyncIterator(generator, PromiseImpl) {
       function invoke(method, arg, resolve, reject) {
         var record = tryCatch(generator[method], generator, arg);
         if (record.type === "throw") {
@@ -2510,14 +2510,14 @@
           if (value &&
               typeof value === "object" &&
               hasOwn.call(value, "__await")) {
-            return Promise.resolve(value.__await).then(function(value) {
+            return PromiseImpl.resolve(value.__await).then(function(value) {
               invoke("next", value, resolve, reject);
             }, function(err) {
               invoke("throw", err, resolve, reject);
             });
           }
 
-          return Promise.resolve(value).then(function(unwrapped) {
+          return PromiseImpl.resolve(value).then(function(unwrapped) {
             // When a yielded Promise is resolved, its final value becomes
             // the .value of the Promise<{value,done}> result for the
             // current iteration.
@@ -2535,7 +2535,7 @@
 
       function enqueue(method, arg) {
         function callInvokeWithMethodAndArg() {
-          return new Promise(function(resolve, reject) {
+          return new PromiseImpl(function(resolve, reject) {
             invoke(method, arg, resolve, reject);
           });
         }
@@ -2575,9 +2575,12 @@
     // Note that simple async functions are implemented on top of
     // AsyncIterator objects; they just return a Promise for the value of
     // the final result produced by the iterator.
-    exports.async = function(innerFn, outerFn, self, tryLocsList) {
+    exports.async = function(innerFn, outerFn, self, tryLocsList, PromiseImpl) {
+      if (PromiseImpl === void 0) PromiseImpl = Promise;
+
       var iter = new AsyncIterator(
-        wrap(innerFn, outerFn, self, tryLocsList)
+        wrap(innerFn, outerFn, self, tryLocsList),
+        PromiseImpl
       );
 
       return exports.isGeneratorFunction(outerFn)
@@ -3195,6 +3198,19 @@
     reduce: function reduce(callbackfn /* , initialValue */) {
       return $reduce(this, callbackfn, arguments.length, arguments.length > 1 ? arguments[1] : undefined);
     }
+  });
+
+  // `SameValue` abstract operation
+  // https://tc39.github.io/ecma262/#sec-samevalue
+  var sameValue = Object.is || function is(x, y) {
+    // eslint-disable-next-line no-self-compare
+    return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
+  };
+
+  // `Object.is` method
+  // https://tc39.github.io/ecma262/#sec-object.is
+  _export({ target: 'Object', stat: true }, {
+    is: sameValue
   });
 
   var FAILS_ON_PRIMITIVES = fails(function () { objectKeys(1); });
@@ -4000,6 +4016,44 @@
     exec: regexpExec
   });
 
+  var MATCH = wellKnownSymbol('match');
+
+  // `IsRegExp` abstract operation
+  // https://tc39.github.io/ecma262/#sec-isregexp
+  var isRegexp = function (it) {
+    var isRegExp;
+    return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
+  };
+
+  var notARegexp = function (it) {
+    if (isRegexp(it)) {
+      throw TypeError("The method doesn't accept regular expressions");
+    } return it;
+  };
+
+  var MATCH$1 = wellKnownSymbol('match');
+
+  var correctIsRegexpLogic = function (METHOD_NAME) {
+    var regexp = /./;
+    try {
+      '/./'[METHOD_NAME](regexp);
+    } catch (e) {
+      try {
+        regexp[MATCH$1] = false;
+        return '/./'[METHOD_NAME](regexp);
+      } catch (f) { /* empty */ }
+    } return false;
+  };
+
+  // `String.prototype.includes` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.includes
+  _export({ target: 'String', proto: true, forced: !correctIsRegexpLogic('includes') }, {
+    includes: function includes(searchString /* , position = 0 */) {
+      return !!~String(requireObjectCoercible(this))
+        .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
   // TODO: Remove from `core-js@4` since it's moved to entry points
 
 
@@ -4188,15 +4242,6 @@
       }
     ];
   });
-
-  var MATCH = wellKnownSymbol('match');
-
-  // `IsRegExp` abstract operation
-  // https://tc39.github.io/ecma262/#sec-isregexp
-  var isRegexp = function (it) {
-    var isRegExp;
-    return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
-  };
 
   var arrayPush = [].push;
   var min$2 = Math.min;
@@ -4661,35 +4706,6 @@
     }
   });
 
-  var notARegexp = function (it) {
-    if (isRegexp(it)) {
-      throw TypeError("The method doesn't accept regular expressions");
-    } return it;
-  };
-
-  var MATCH$1 = wellKnownSymbol('match');
-
-  var correctIsRegexpLogic = function (METHOD_NAME) {
-    var regexp = /./;
-    try {
-      '/./'[METHOD_NAME](regexp);
-    } catch (e) {
-      try {
-        regexp[MATCH$1] = false;
-        return '/./'[METHOD_NAME](regexp);
-      } catch (f) { /* empty */ }
-    } return false;
-  };
-
-  // `String.prototype.includes` method
-  // https://tc39.github.io/ecma262/#sec-string.prototype.includes
-  _export({ target: 'String', proto: true, forced: !correctIsRegexpLogic('includes') }, {
-    includes: function includes(searchString /* , position = 0 */) {
-      return !!~String(requireObjectCoercible(this))
-        .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
   var max$2 = Math.max;
   var min$4 = Math.min;
   var floor$1 = Math.floor;
@@ -4909,19 +4925,17 @@
       node = node.nextElementSibling;
     }
   }
-  function debounce(func, wait) {
-    var timeout;
+  function debounce(func, wait, context) {
     return function () {
-      var context = this,
-          args = arguments;
+      var args = arguments;
 
       var later = function later() {
-        timeout = null;
+        context.debounceTimeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
+      clearTimeout(context.debounceTimeout);
+      context.debounceTimeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext) {
@@ -6025,14 +6039,18 @@
         return modifiers.includes('number') ? Array.from(event.target.selectedOptions).map(function (option) {
           _newArrowCheck(this, _this3);
 
-          return parseFloat(option.value || option.text);
+          var rawValue = option.value || option.text;
+          var number = rawValue ? parseFloat(rawValue) : null;
+          return isNaN(number) ? rawValue : number;
         }.bind(this)) : Array.from(event.target.selectedOptions).map(function (option) {
           _newArrowCheck(this, _this3);
 
           return option.value || option.text;
         }.bind(this));
       } else {
-        return modifiers.includes('number') ? parseFloat(event.target.value) : modifiers.includes('trim') ? event.target.value.trim() : event.target.value;
+        var rawValue = event.target.value;
+        var number = rawValue ? parseFloat(rawValue) : null;
+        return modifiers.includes('number') ? isNaN(number) ? rawValue : number : modifiers.includes('trim') ? rawValue.trim() : rawValue;
       }
     }.bind(this);
   }
@@ -6413,9 +6431,7 @@
   }
   /** version: 0.26.0 */
 
-  var Component =
-  /*#__PURE__*/
-  function () {
+  var Component = /*#__PURE__*/function () {
     function Component(el) {
       var _this = this;
 
@@ -6435,6 +6451,7 @@
       this.unobservedData.$el = null;
       this.unobservedData.$refs = null;
       this.unobservedData.$nextTick = null;
+      this.unobservedData.$watch = null;
       /* IE11-ONLY:END */
       // Construct a Proxy-based observable. This will be used to handle reactivity.
 
@@ -6454,6 +6471,15 @@
         _newArrowCheck(this, _this);
 
         this.nextTickStack.push(callback);
+      }.bind(this);
+
+      this.watchers = {};
+
+      this.unobservedData.$watch = function (property, callback) {
+        _newArrowCheck(this, _this);
+
+        if (!this.watchers[property]) this.watchers[property] = [];
+        this.watchers[property].push(callback);
       }.bind(this);
 
       this.showDirectiveStack = [];
@@ -6491,7 +6517,7 @@
         Object.keys(unwrappedData).forEach(function (key) {
           _newArrowCheck(this, _this2);
 
-          if (['$el', '$refs', '$nextTick'].includes(key)) return;
+          if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
           copy[key] = unwrappedData[key];
         }.bind(this));
         return copy;
@@ -6504,7 +6530,51 @@
           valueMutated: function valueMutated(target, key) {
             var _this3 = this;
 
-            // Don't react to data changes for cases like the `x-created` hook.
+            if (self.watchers[key]) {
+              // If there's a watcher for this specific key, run it.
+              self.watchers[key].forEach(function (callback) {
+                _newArrowCheck(this, _this3);
+
+                return callback(target[key]);
+              }.bind(this));
+            } else {
+              // Let's walk through the watchers with "dot-notation" (foo.bar) and see
+              // if this mutation fits any of them.
+              Object.keys(self.watchers).filter(function (i) {
+                _newArrowCheck(this, _this3);
+
+                return i.includes('.');
+              }.bind(this)).forEach(function (fullDotNotationKey) {
+                var _this4 = this;
+
+                _newArrowCheck(this, _this3);
+
+                var dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
+                // key, then skip it early for performance reasons.
+
+                if (key !== dotNotationParts[dotNotationParts.length - 1]) return; // Now, walk through the dot-notation "parts" recursively to find
+                // a match, and call the watcher if one's found.
+
+                dotNotationParts.reduce(function (comparisonData, part) {
+                  var _this5 = this;
+
+                  _newArrowCheck(this, _this4);
+
+                  if (Object.is(target, comparisonData)) {
+                    // Run the watchers.
+                    self.watchers[fullDotNotationKey].forEach(function (callback) {
+                      _newArrowCheck(this, _this5);
+
+                      return callback(target[key]);
+                    }.bind(this));
+                  }
+
+                  return comparisonData[part];
+                }.bind(this), self.getUnobservedData());
+              }.bind(this));
+            } // Don't react to data changes for cases like the `x-created` hook.
+
+
             if (self.pauseReactivity) return;
             debounce(function () {
               _newArrowCheck(this, _this3);
@@ -6514,7 +6584,7 @@
               while (self.nextTickStack.length > 0) {
                 self.nextTickStack.shift()();
               }
-            }.bind(this), 0)();
+            }.bind(this), 0, self)();
           }
         });
         return {
@@ -6525,13 +6595,13 @@
     }, {
       key: "walkAndSkipNestedComponents",
       value: function walkAndSkipNestedComponents(el, callback) {
-        var _this4 = this;
+        var _this6 = this;
 
         var initializeComponentCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this4);
+          _newArrowCheck(this, _this6);
         }.bind(this);
         walk(el, function (el) {
-          _newArrowCheck(this, _this4);
+          _newArrowCheck(this, _this6);
 
           // We've hit a component.
           if (el.hasAttribute('x-data')) {
@@ -6550,19 +6620,19 @@
     }, {
       key: "initializeElements",
       value: function initializeElements(rootEl) {
-        var _this5 = this;
+        var _this7 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this5);
+          _newArrowCheck(this, _this7);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this5);
+          _newArrowCheck(this, _this7);
 
           // Don't touch spawns from for loop
           if (el.__x_for_key !== undefined) return false;
           this.initializeElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this5);
+          _newArrowCheck(this, _this7);
 
           el.__x = new Component(el);
         }.bind(this));
@@ -6587,19 +6657,19 @@
     }, {
       key: "updateElements",
       value: function updateElements(rootEl) {
-        var _this6 = this;
+        var _this8 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this8);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this8);
 
           // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
           if (el.__x_for_key !== undefined && !el.isSameNode(this.$el)) return false;
           this.updateElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this8);
 
           el.__x = new Component(el);
         }.bind(this));
@@ -6612,45 +6682,45 @@
     }, {
       key: "executeAndClearRemainingShowDirectiveStack",
       value: function executeAndClearRemainingShowDirectiveStack() {
-        var _this7 = this;
+        var _this9 = this;
 
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
         this.showDirectiveStack.reverse().map(function (thing) {
-          var _this8 = this;
+          var _this10 = this;
 
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this9);
 
           return new Promise(function (resolve) {
-            var _this9 = this;
+            var _this11 = this;
 
-            _newArrowCheck(this, _this8);
+            _newArrowCheck(this, _this10);
 
             thing(function (finish) {
-              _newArrowCheck(this, _this9);
+              _newArrowCheck(this, _this11);
 
               resolve(finish);
             }.bind(this));
           }.bind(this));
         }.bind(this)).reduce(function (nestedPromise, promise) {
-          var _this10 = this;
+          var _this12 = this;
 
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this9);
 
           return nestedPromise.then(function () {
-            var _this11 = this;
+            var _this13 = this;
 
-            _newArrowCheck(this, _this10);
+            _newArrowCheck(this, _this12);
 
             return promise.then(function (finish) {
-              _newArrowCheck(this, _this11);
+              _newArrowCheck(this, _this13);
 
               return finish();
             }.bind(this));
           }.bind(this));
         }.bind(this), Promise.resolve(function () {
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this9);
         }.bind(this))); // We've processed the handler stack. let's clear it.
 
         this.showDirectiveStack = [];
@@ -6664,7 +6734,7 @@
     }, {
       key: "registerListeners",
       value: function registerListeners(el, extraVars) {
-        var _this12 = this;
+        var _this14 = this;
 
         getXAttrs(el).forEach(function (_ref) {
           var type = _ref.type,
@@ -6672,7 +6742,7 @@
               modifiers = _ref.modifiers,
               expression = _ref.expression;
 
-          _newArrowCheck(this, _this12);
+          _newArrowCheck(this, _this14);
 
           switch (type) {
             case 'on':
@@ -6688,20 +6758,20 @@
     }, {
       key: "resolveBoundAttributes",
       value: function resolveBoundAttributes(el) {
-        var _this13 = this;
+        var _this15 = this;
 
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
         var attrs = getXAttrs(el);
         attrs.forEach(function (_ref2) {
-          var _this14 = this;
+          var _this16 = this;
 
           var type = _ref2.type,
               value = _ref2.value,
               modifiers = _ref2.modifiers,
               expression = _ref2.expression;
 
-          _newArrowCheck(this, _this13);
+          _newArrowCheck(this, _this15);
 
           switch (type) {
             case 'model':
@@ -6737,7 +6807,7 @@
               // If this element also has x-for on it, don't process x-if.
               // We will let the "x-for" directive handle the "if"ing.
               if (attrs.filter(function (i) {
-                _newArrowCheck(this, _this14);
+                _newArrowCheck(this, _this16);
 
                 return i.type === 'for';
               }.bind(this)).length > 0) return;
@@ -6758,10 +6828,10 @@
     }, {
       key: "evaluateReturnExpression",
       value: function evaluateReturnExpression(el, expression) {
-        var _this15 = this;
+        var _this17 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this15);
+          _newArrowCheck(this, _this17);
         }.bind(this);
         return saferEval(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
@@ -6770,10 +6840,10 @@
     }, {
       key: "evaluateCommandExpression",
       value: function evaluateCommandExpression(el, expression) {
-        var _this16 = this;
+        var _this18 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this16);
+          _newArrowCheck(this, _this18);
         }.bind(this);
         return saferEvalNoReturn(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
@@ -6782,12 +6852,12 @@
     }, {
       key: "getDispatchFunction",
       value: function getDispatchFunction(el) {
-        var _this17 = this;
+        var _this19 = this;
 
         return function (event) {
           var detail = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-          _newArrowCheck(this, _this17);
+          _newArrowCheck(this, _this19);
 
           el.dispatchEvent(new CustomEvent(event, {
             detail: detail,
@@ -6798,7 +6868,7 @@
     }, {
       key: "listenForNewElementsToInitialize",
       value: function listenForNewElementsToInitialize() {
-        var _this18 = this;
+        var _this20 = this;
 
         var targetNode = this.$el;
         var observerOptions = {
@@ -6807,9 +6877,9 @@
           subtree: true
         };
         var observer = new MutationObserver(function (mutations) {
-          var _this19 = this;
+          var _this21 = this;
 
-          _newArrowCheck(this, _this18);
+          _newArrowCheck(this, _this20);
 
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
@@ -6818,14 +6888,14 @@
 
             if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
               (function () {
-                var _this20 = this;
+                var _this22 = this;
 
                 var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
                 Object.keys(rawData).forEach(function (key) {
-                  _newArrowCheck(this, _this20);
+                  _newArrowCheck(this, _this22);
 
-                  if (_this19.$data[key] !== rawData[key]) {
-                    _this19.$data[key] = rawData[key];
+                  if (_this21.$data[key] !== rawData[key]) {
+                    _this21.$data[key] = rawData[key];
                   }
                 }.bind(this));
               })();
@@ -6833,9 +6903,9 @@
 
             if (mutations[i].addedNodes.length > 0) {
               mutations[i].addedNodes.forEach(function (node) {
-                _newArrowCheck(this, _this19);
+                _newArrowCheck(this, _this21);
 
-                if (node.nodeType !== 1) return;
+                if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
                 if (node.matches('[x-data]')) {
                   node.__x = new Component(node);
@@ -6852,7 +6922,7 @@
     }, {
       key: "getRefsProxy",
       value: function getRefsProxy() {
-        var _this21 = this;
+        var _this23 = this;
 
         var self = this;
         var refObj = {};
@@ -6864,7 +6934,7 @@
         // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
 
         this.walkAndSkipNestedComponents(self.$el, function (el) {
-          _newArrowCheck(this, _this21);
+          _newArrowCheck(this, _this23);
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
@@ -6878,14 +6948,14 @@
 
         return new Proxy(refObj, {
           get: function get(object, property) {
-            var _this22 = this;
+            var _this24 = this;
 
             if (property === '$isAlpineProxy') return true;
             var ref; // We can't just query the DOM because it's hard to filter out refs in
             // nested components.
 
             self.walkAndSkipNestedComponents(self.$el, function (el) {
-              _newArrowCheck(this, _this22);
+              _newArrowCheck(this, _this24);
 
               if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                 ref = el;
@@ -6902,9 +6972,7 @@
 
   var Alpine = {
     start: function () {
-      var _start = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee() {
+      var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
 
         return regeneratorRuntime.wrap(function _callee$(_context) {
@@ -7034,7 +7102,14 @@
 
   if (!isTesting()) {
     window.Alpine = Alpine;
-    window.Alpine.start();
+
+    if (window.deferLoadingAlpine) {
+      window.deferLoadingAlpine(function () {
+        window.Alpine.start();
+      });
+    } else {
+      window.Alpine.start();
+    }
   }
 
 })));

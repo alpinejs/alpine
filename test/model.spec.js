@@ -61,6 +61,41 @@ test('x-model casts value to number if number modifier is present', async () => 
     await wait(() => { expect(document.querySelector('[x-data]').__x.$data.foo).toEqual(123) })
 })
 
+test('x-model with number modifier returns: null if empty, original value if casting fails, numeric value if casting passes', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 0, bar: '' }">
+            <input type="number" x-model.number="foo"></input>
+            <input x-model.number="bar"></input>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.input(document.querySelectorAll('input')[0], { target: { value: '' }})
+
+    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.foo).toEqual(null) })
+
+    fireEvent.input(document.querySelectorAll('input')[0], { target: { value: '-' }})
+
+    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.foo).toEqual(null) })
+
+    fireEvent.input(document.querySelectorAll('input')[0], { target: { value: '-123' }})
+
+    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.foo).toEqual(-123) })
+
+    fireEvent.input(document.querySelectorAll('input')[1], { target: { value: '' }})
+
+    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.bar).toEqual(null) })
+
+    fireEvent.input(document.querySelectorAll('input')[1], { target: { value: '-' }})
+
+    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.bar).toEqual('-') })
+
+    fireEvent.input(document.querySelectorAll('input')[1], { target: { value: '-123' }})
+
+    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.bar).toEqual(-123) })
+})
+
 test('x-model trims value if trim modifier is present', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: '' }">

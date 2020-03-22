@@ -23,6 +23,7 @@ export default class Component {
             this.unobservedData.$el = null
             this.unobservedData.$refs = null
             this.unobservedData.$nextTick = null
+            this.unobservedData.$watch = null
         /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
@@ -38,6 +39,13 @@ export default class Component {
         this.nextTickStack = []
         this.unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)
+        }
+
+        this.watchers = {}
+        this.unobservedData.$watch = (property, callback) => {
+            if (! this.watchers[property]) this.watchers[property] = []
+
+            this.watchers[property].push(callback)
         }
 
         this.showDirectiveStack = []
@@ -72,7 +80,7 @@ export default class Component {
         let copy = {}
 
         Object.keys(unwrappedData).forEach(key => {
-            if (['$el', '$refs', '$nextTick'].includes(key)) return
+            if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return
 
             copy[key] = unwrappedData[key]
         })
@@ -85,6 +93,33 @@ export default class Component {
 
         let membrane = new ObservableMembrane({
             valueMutated(target, key) {
+                if (self.watchers[key]) {
+                    // If there's a watcher for this specific key, run it.
+                    self.watchers[key].forEach(callback => callback(target[key]))
+                } else {
+                    // Let's walk through the watchers with "dot-notation" (foo.bar) and see
+                    // if this mutation fits any of them.
+                    Object.keys(self.watchers)
+                        .filter(i => i.includes('.'))
+                        .forEach(fullDotNotationKey => {
+                            let dotNotationParts = fullDotNotationKey.split('.')
+
+                            // If this dot-notation watcher's last "part" doesn't match the current
+                            // key, then skip it early for performance reasons.
+                            if (key !== dotNotationParts[dotNotationParts.length - 1]) return
+
+                            // Now, walk through the dot-notation "parts" recursively to find
+                            // a match, and call the watcher if one's found.
+                            dotNotationParts.reduce((comparisonData, part) => {
+                                if (Object.is(target, comparisonData)) {
+                                    // Run the watchers.
+                                    self.watchers[fullDotNotationKey].forEach(callback => callback(target[key]))
+                                }
+                                return comparisonData[part]
+                            }, self.getUnobservedData())
+                        })
+                }
+
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return
 
@@ -95,7 +130,7 @@ export default class Component {
                     while (self.nextTickStack.length > 0) {
                         self.nextTickStack.shift()()
                     }
-                }, 0)()
+                }, 0, self)()
             },
         })
 
@@ -322,7 +357,7 @@ export default class Component {
 
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
-                        if (node.nodeType !== 1) return
+                        if (node.nodeType !== 1 || node.__x_inserted_me) return
 
                         if (node.matches('[x-data]')) {
                             node.__x = new Component(node)

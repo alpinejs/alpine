@@ -1,5 +1,5 @@
 import Component from './component'
-import { domReady, isTesting } from './utils'
+import { domReady, isTesting, dispatch } from './utils'
 
 const Alpine = {
     start: async function () {
@@ -22,6 +22,8 @@ const Alpine = {
         this.listenForNewUninitializedComponentsAtRunTime(el => {
             this.initializeComponent(el)
         })
+
+        dispatch('alpine:loaded')
     },
 
     discoverComponents: function (callback) {

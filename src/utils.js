@@ -359,6 +359,10 @@ export function transitionClasses(el, classesDuring, classesStart, classesEnd, h
 }
 
 export function transition(el, stages) {
+    const eventContext = { target: el }
+
+    dispatch('alpine:transition-start', eventContext)
+
     stages.start()
     stages.during()
 
@@ -381,6 +385,8 @@ export function transition(el, stages) {
                     stages.cleanup()
                 }
             }, duration);
+
+            dispatch('alpine:transition-end', eventContext)
         })
     });
 }

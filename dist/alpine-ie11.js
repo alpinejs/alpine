@@ -5315,6 +5315,10 @@
   function transition(el, stages) {
     var _this12 = this;
 
+    var eventContext = {
+      target: el
+    };
+    dispatch('alpine:transition-start', eventContext);
     stages.start();
     stages.during();
     requestAnimationFrame(function () {
@@ -5342,6 +5346,7 @@
             stages.cleanup();
           }
         }.bind(this), duration);
+        dispatch('alpine:transition-end', eventContext);
       }.bind(this));
     }.bind(this));
   } // I grabbed this from Turbolink's codebase.

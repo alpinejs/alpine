@@ -394,9 +394,18 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 </template>
 ```
 
+> Note: the `:key` binding is optional, but HIGHLY recommended.
+
 `x-for` is available for cases when you want to create new DOM nodes for each item in an array. This should appear similar to `v-for` in Vue, with one exception of needing to exist on a `template` tag, and not a regular DOM element.
 
-> Note: the `:key` binding is optional, but HIGHLY recommended.
+If you want to access the current index of the iteration, use the following syntax:
+
+```html
+<template x-for="(item, index) in items" :key="index">
+    <!-- You can also reference "index" inside the iteration if you need. -->
+    <div x-text="index"></div>
+</template>
+```
 
 ---
 

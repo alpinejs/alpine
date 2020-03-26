@@ -91,6 +91,15 @@ export default class Component {
     wrapDataInObservable(data) {
         var self = this
 
+        let updateDom = debounce(function () {
+            self.updateElements(self.$el)
+
+            // Walk through the $nextTick stack and clear it as we go.
+            while (self.nextTickStack.length > 0) {
+                self.nextTickStack.shift()()
+            }
+        }, 0)
+
         let membrane = new ObservableMembrane({
             valueMutated(target, key) {
                 if (self.watchers[key]) {
@@ -123,14 +132,7 @@ export default class Component {
                 // Don't react to data changes for cases like the `x-created` hook.
                 if (self.pauseReactivity) return
 
-                debounce(() => {
-                    self.updateElements(self.$el)
-
-                    // Walk through the $nextTick stack and clear it as we go.
-                    while (self.nextTickStack.length > 0) {
-                        self.nextTickStack.shift()()
-                    }
-                }, 0, self)()
+                updateDom()
             },
         })
 

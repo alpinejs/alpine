@@ -90,17 +90,19 @@
       node = node.nextElementSibling;
     }
   }
-  function debounce(func, wait, context) {
+  function debounce(func, wait) {
+    var timeout;
     return function () {
-      var args = arguments;
+      var context = this,
+          args = arguments;
 
       var later = function later() {
-        context.debounceTimeout = null;
+        timeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(context.debounceTimeout);
-      context.debounceTimeout = setTimeout(later, wait);
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext, additionalHelperVariables = {}) {
@@ -389,7 +391,6 @@
       });
     });
   }
-
   function isNumeric(subject) {
     return !isNaN(subject);
   }
@@ -689,7 +690,7 @@
 
   function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
     if (modifiers.includes('away')) {
-      const handler = e => {
+      let handler = e => {
         // Don't do anything if the click came form the element or within it.
         if (el.contains(e.target)) return; // Don't do anything if this element isn't currently visible.
 
@@ -706,9 +707,9 @@
 
       document.addEventListener(event, handler);
     } else {
-      const listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el;
+      let listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el;
 
-      const handler = e => {
+      let handler = e => {
         // Remove this global event handler if the element that declared it
         // has been removed. It's now stale.
         if (listenerTarget === window || listenerTarget === document) {
@@ -737,6 +738,12 @@
         }
       };
 
+      if (modifiers.includes('debounce')) {
+        let nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
+        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
+        handler = debounce(handler, wait);
+      }
+
       listenerTarget.addEventListener(event, handler);
     }
   }
@@ -756,7 +763,13 @@
   function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
       return !['window', 'document', 'prevent', 'stop'].includes(i);
-    }); // If no modifier is specified, we'll call it a press.
+    });
+
+    if (keyModifiers.includes('debounce')) {
+      let debounceIndex = keyModifiers.indexOf('debounce');
+      keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
+    } // If no modifier is specified, we'll call it a press.
+
 
     if (keyModifiers.length === 0) return false; // If one is passed, AND it matches the key pressed, we'll call it a press.
 
@@ -1289,6 +1302,13 @@
 
     wrapDataInObservable(data) {
       var self = this;
+      let updateDom = debounce(function () {
+        self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
+
+        while (self.nextTickStack.length > 0) {
+          self.nextTickStack.shift()();
+        }
+      }, 0);
       let membrane = new ReactiveMembrane({
         valueMutated(target, key) {
           if (self.watchers[key]) {
@@ -1317,13 +1337,7 @@
 
 
           if (self.pauseReactivity) return;
-          debounce(() => {
-            self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
-
-            while (self.nextTickStack.length > 0) {
-              self.nextTickStack.shift()();
-            }
-          }, 0, self)();
+          updateDom();
         }
 
       });

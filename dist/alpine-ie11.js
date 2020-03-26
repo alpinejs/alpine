@@ -4925,17 +4925,19 @@
       node = node.nextElementSibling;
     }
   }
-  function debounce(func, wait, context) {
+  function debounce(func, wait) {
+    var timeout;
     return function () {
-      var args = arguments;
+      var context = this,
+          args = arguments;
 
       var later = function later() {
-        context.debounceTimeout = null;
+        timeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(context.debounceTimeout);
-      context.debounceTimeout = setTimeout(later, wait);
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext) {
@@ -5343,7 +5345,6 @@
       }.bind(this));
     }.bind(this));
   }
-
   function isNumeric(subject) {
     return !isNaN(subject);
   }
@@ -5787,6 +5788,12 @@
         }
       }.bind(this);
 
+      if (modifiers.includes('debounce')) {
+        var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
+        var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
+        _handler2 = debounce(_handler2, wait);
+      }
+
       listenerTarget.addEventListener(event, _handler2);
     }
   }
@@ -5814,7 +5821,13 @@
       _newArrowCheck(this, _this3);
 
       return !['window', 'document', 'prevent', 'stop'].includes(i);
-    }.bind(this)); // If no modifier is specified, we'll call it a press.
+    }.bind(this));
+
+    if (keyModifiers.includes('debounce')) {
+      var debounceIndex = keyModifiers.indexOf('debounce');
+      keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
+    } // If no modifier is specified, we'll call it a press.
+
 
     if (keyModifiers.length === 0) return false; // If one is passed, AND it matches the key pressed, we'll call it a press.
 
@@ -6401,6 +6414,13 @@
       key: "wrapDataInObservable",
       value: function wrapDataInObservable(data) {
         var self = this;
+        var updateDom = debounce(function () {
+          self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
+
+          while (self.nextTickStack.length > 0) {
+            self.nextTickStack.shift()();
+          }
+        }, 0);
         var membrane = new ReactiveMembrane({
           valueMutated: function valueMutated(target, key) {
             var _this3 = this;
@@ -6451,15 +6471,7 @@
 
 
             if (self.pauseReactivity) return;
-            debounce(function () {
-              _newArrowCheck(this, _this3);
-
-              self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
-
-              while (self.nextTickStack.length > 0) {
-                self.nextTickStack.shift()();
-              }
-            }.bind(this), 0, self)();
+            updateDom();
           }
         });
         return {

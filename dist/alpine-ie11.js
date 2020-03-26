@@ -5789,7 +5789,7 @@
       }.bind(this);
 
       if (modifiers.includes('debounce')) {
-        var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-next';
+        var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
         var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
         _handler2 = debounce(_handler2, wait);
       }
@@ -5825,7 +5825,7 @@
 
     if (keyModifiers.includes('debounce')) {
       var debounceIndex = keyModifiers.indexOf('debounce');
-      keyModifiers.splice(debounceIndex, isNumeric(keyModifiers[debounceIndex + 1].split('ms')[0]) ? 2 : 1);
+      keyModifiers.splice(debounceIndex, isNumeric(keyModifiers[debounceIndex + 1].split('ms')[0] || 'invalid-wait') ? 2 : 1);
     } // If no modifier is specified, we'll call it a press.
 
 

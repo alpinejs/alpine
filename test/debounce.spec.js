@@ -130,7 +130,7 @@ test('x-on with debounce modifier (with "ms" suffix)', async () => {
     expect(document.querySelector('span').innerText).toEqual(1)
 })
 
-test('keyup with key modifier and debounce with 10ms wait', async () => {
+test('keydown with key modifier and debounce with 10ms wait', async () => {
     document.body.innerHTML = `
         <div x-data="{foo: 0}">
           <input x-on:keydown.a.debounce.10ms="foo++" />
@@ -150,6 +150,26 @@ test('keyup with key modifier and debounce with 10ms wait', async () => {
     fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
 
     await timeout(20)
+
+    expect(document.querySelector('span').innerText).toEqual(1)
+})
+
+test('keydown with debounce modifier and no specified wait', async () => {
+    document.body.innerHTML = `
+        <div x-data="{foo: 0}">
+          <input x-on:keydown.a.debounce="foo++" />
+          <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
+    fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
+
+    await timeout(270)
 
     expect(document.querySelector('span').innerText).toEqual(1)
 })

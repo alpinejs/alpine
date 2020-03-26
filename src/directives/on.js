@@ -55,7 +55,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
         }
 
         if (modifiers.includes('debounce')) {
-            let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-next'
+            let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
             let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
             handler = debounce(handler, wait, this)
         }
@@ -81,7 +81,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
 
     if (keyModifiers.includes('debounce')) {
         let debounceIndex = keyModifiers.indexOf('debounce')
-        keyModifiers.splice(debounceIndex, isNumeric(keyModifiers[debounceIndex+1].split('ms')[0]) ? 2 : 1)
+        keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex+1] || 'invalid-wait').split('ms')[0]) ? 2 : 1)
     }
 
     // If no modifier is specified, we'll call it a press.

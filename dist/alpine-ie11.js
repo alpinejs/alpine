@@ -5825,7 +5825,7 @@
 
     if (keyModifiers.includes('debounce')) {
       var debounceIndex = keyModifiers.indexOf('debounce');
-      keyModifiers.splice(debounceIndex, isNumeric(keyModifiers[debounceIndex + 1].split('ms')[0] || 'invalid-wait') ? 2 : 1);
+      keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
     } // If no modifier is specified, we'll call it a press.
 
 

@@ -44,15 +44,16 @@ export function walk(el, callback) {
     }
 }
 
-export function debounce(func, wait, context) {
+export function debounce(func, wait) {
+    var timeout
     return function () {
-        var args = arguments
+        var context = this, args = arguments
         var later = function () {
-            context.debounceTimeout = null
+            timeout = null
             func.apply(context, args)
         }
-        clearTimeout(context.debounceTimeout)
-        context.debounceTimeout = setTimeout(later, wait)
+        clearTimeout(timeout)
+        timeout = setTimeout(later, wait)
     }
 }
 

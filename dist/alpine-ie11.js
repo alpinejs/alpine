@@ -2347,10 +2347,6 @@
     }
   }
 
-  function _readOnlyError(name) {
-    throw new Error("\"" + name + "\" is read-only");
-  }
-
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -4929,17 +4925,19 @@
       node = node.nextElementSibling;
     }
   }
-  function debounce(func, wait, context) {
+  function debounce(func, wait) {
+    var timeout;
     return function () {
-      var args = arguments;
+      var context = this,
+          args = arguments;
 
       var later = function later() {
-        context.debounceTimeout = null;
+        timeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(context.debounceTimeout);
-      context.debounceTimeout = setTimeout(later, wait);
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext) {
@@ -5793,7 +5791,7 @@
       if (modifiers.includes('debounce')) {
         var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-next';
         var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
-        _handler2 = (_readOnlyError("handler"), debounce(_handler2, wait));
+        _handler2 = debounce(_handler2, wait);
       }
 
       listenerTarget.addEventListener(event, _handler2);
@@ -6416,6 +6414,13 @@
       key: "wrapDataInObservable",
       value: function wrapDataInObservable(data) {
         var self = this;
+        var updateDom = debounce(function () {
+          self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
+
+          while (self.nextTickStack.length > 0) {
+            self.nextTickStack.shift()();
+          }
+        }, 0);
         var membrane = new ReactiveMembrane({
           valueMutated: function valueMutated(target, key) {
             var _this3 = this;
@@ -6466,15 +6471,7 @@
 
 
             if (self.pauseReactivity) return;
-            debounce(function () {
-              _newArrowCheck(this, _this3);
-
-              self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
-
-              while (self.nextTickStack.length > 0) {
-                self.nextTickStack.shift()();
-              }
-            }.bind(this), 0, self)();
+            updateDom();
           }
         });
         return {

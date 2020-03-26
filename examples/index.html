@@ -16,6 +16,10 @@
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
+        <div x-data="{ search: '' }">
+            <input type="text" x-model.debounce="search">
+            <span x-text="search"></span>
+        </div>
         <table>
             <thead>
                 <tr>

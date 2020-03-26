@@ -1,4 +1,4 @@
-import { kebabCase, debounce, hasTimeFormat } from '../utils'
+import { kebabCase, debounce, isNumeric } from '../utils'
 
 export function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
     if (modifiers.includes('away')) {
@@ -21,18 +21,10 @@ export function registerListener(component, el, event, modifiers, expression, ex
         // Listen for this event at the root level.
         document.addEventListener(event, handler)
     } else {
-        const listenerTarget = modifiers.includes('window')
+        let listenerTarget = modifiers.includes('window')
             ? window : (modifiers.includes('document') ? document : el)
 
-        const hasDebounceModifier = modifiers.includes('debounce')
-        let wait
-        if (hasTimeFormat(modifiers[modifiers.indexOf('debounce')+1])) {
-          wait = modifiers[modifiers.indexOf('debounce')+1]  
-        } else {
-            wait = '250ms'
-        }
-
-        const handler = e => {
+        let handler = e => {
             if (isKeyEvent(event)) {
                 if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
                     return
@@ -53,7 +45,13 @@ export function registerListener(component, el, event, modifiers, expression, ex
             }
         }
 
-        listenerTarget.addEventListener(event, hasDebounceModifier ? debounce(handler,wait) : handler)
+        if (modifiers.includes('debounce')) {
+            let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-next'
+            let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+            handler = debounce(handler, wait)
+        }
+
+        listenerTarget.addEventListener(event, handler)
     }
 }
 
@@ -72,16 +70,9 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
         return ! ['window', 'document', 'prevent', 'stop'].includes(i)
     })
 
-    // Need to remove debounce and wait modifiers if present
-    if ( keyModifiers.includes('debounce') ) {
-        const debounceModifierIndex = keyModifiers.indexOf('debounce')
-        let debounceIndexes = [debounceModifierIndex]
-        if ( hasTimeFormat(keyModifiers[debounceModifierIndex+1]) ) {
-            debounceIndexes.push(debounceModifierIndex+1)
-        }
-        keyModifiers = keyModifiers.filter( (modifier, index) => {
-            return !debounceIndexes.includes(index)
-        })
+    if (keyModifiers.includes('debounce')) {
+        let debounceIndex = keyModifiers.indexOf('debounce')
+        keyModifiers.splice(debounceIndex, isNumeric(keyModifiers[debounceIndex+1].split('ms')[0]) ? 2 : 1)
     }
 
     // If no modifier is specified, we'll call it a press.

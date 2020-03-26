@@ -10,11 +10,13 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 > Note: This tool's syntax is almost entirely borrowed from [Vue](https://vuejs.org/) (and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
 
+[**日本語ドキュメント**](./README.ja.md)
+
 ## Install
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.10.1/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
 ```
 
 That's it. It will initialize itself.
@@ -29,11 +31,9 @@ Include it in your script.
 import 'alpinejs'
 ```
 
-For IE11, polyfills will need to be provided. Please load the following scripts before the Alpine script above.
+**For IE11 support** Use the following script instead.
 ```html
-<script src="https://polyfill.io/v3/polyfill.min.js?features=MutationObserver%2CArray.from%2CArray.prototype.forEach%2CMap%2CSet%2CArray.prototype.includes%2CString.prototype.includes%2CPromise%2CNodeList.prototype.forEach%2CObject.values%2CReflect%2CReflect.set"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/proxy-polyfill@0.3.0/proxy.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.js" defer></script>
 ```
 
 ## Use
@@ -102,7 +102,7 @@ There are 13 directives available to you:
 | [`x-transition`](#x-transition) |
 | [`x-cloak`](#x-cloak) |
 
-And 5 magic properties:
+And 6 magic properties:
 
 | Magic Properties
 | --- |
@@ -111,6 +111,7 @@ And 5 magic properties:
 | [`$event`](#event) |
 | [`$dispatch`](#dispatch) |
 | [`$nextTick`](#nexttick) |
+| [`$watch`](#watch) |
 
 
 ### Directives
@@ -133,9 +134,9 @@ You can extract data (and behavior) into reusable functions:
 
 ```html
 <div x-data="dropdown()">
-    <button x-on:click="open()">Open</button>
+    <button x-on:click="open">Open</button>
 
-    <div x-show="isOpen()" x-on:click.away="close()">
+    <div x-show="isOpen()" x-on:click.away="close">
         // Dropdown
     </div>
 </div>
@@ -180,6 +181,36 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 `x-show` toggles the `display: none;` style on the element depending if the expression resolves to `true` or `false`.
 
+**x-show.transition**
+
+`x-show.transition` is a convenience API for making your `x-show`s more pleasant using CSS transitions.
+
+```html
+<div x-show.transition="open">
+    These contents will be transitioned in and out.
+</div>
+```
+
+| Directive | Description |
+| --- | --- |
+| `x-show.transition` | A simultanious fade and scale. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
+| `x-show.transition.in` | Ony transition in. |
+| `x-show.transition.out` | Ony transition out. |
+| `x-show.transition.opacity` | Only use the fade. |
+| `x-show.transition.scale` | Only use the scale. |
+| `x-show.transition.scale.75` | Customize the CSS scale transform `transform: scale(.75)`. |
+| `x-show.transition.duration.200ms` | Sets the "in" transition to 200ms. The out will be set to half that (100ms). |
+| `x-show.transition.origin.top.right` | Customize the CSS transform origin `transform-origin: top right`. |
+| `x-show.transition.in.duration.200ms.out.duration.50ms` | Different durations for "in" and "out". |
+
+> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although rediculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+
+> Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifer:
+```html
+<div x-show.immediate="open">
+    <div x-show.transition="open">
+</div>
+```
 ---
 
 ### `x-bind`
@@ -214,7 +245,7 @@ For example:
 
 This will add or remove the `disabled` attribute when `myVar` is true or false respectively.
 
-Most common boolean attributes are supported, like `readonly`, `required`, etc.
+Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open` etc.
 
 ---
 
@@ -309,6 +340,8 @@ Adding the `.once` modifier to an event listener will ensure that the listener w
 `x-ref` provides a convenient way to retrieve raw DOM elements out of your component. By setting an `x-ref` attribute on an element, you are making it available to all event handlers inside an object called `$refs`.
 
 This is a helpful alternative to setting ids and using `document.querySelector` all over the place.
+
+> Note: you can also bind dynamic values for x-ref: `<span :x-ref="item.id"></span>` if you need to.
 
 ---
 
@@ -469,6 +502,21 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 ```
 
 `$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made its reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+
+---
+
+### `$watch`
+**Example:**
+```html
+<div x-data="{ open: false }" x-init="$watch('open', value => console.log(value))">
+    <button @click="open = ! open">Toggle Open</button>
+</div>
+```
+
+You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
+
+## v3 Roadmap
+* Move from `x-ref` to `ref` for Vue parity
 
 ## License
 

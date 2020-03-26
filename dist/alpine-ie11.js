@@ -2347,6 +2347,10 @@
     }
   }
 
+  function _readOnlyError(name) {
+    throw new Error("\"" + name + "\" is read-only");
+  }
+
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -5343,7 +5347,6 @@
       }.bind(this));
     }.bind(this));
   }
-
   function isNumeric(subject) {
     return !isNaN(subject);
   }
@@ -5787,6 +5790,12 @@
         }
       }.bind(this);
 
+      if (modifiers.includes('debounce')) {
+        var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-next';
+        var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
+        _handler2 = (_readOnlyError("handler"), debounce(_handler2, wait));
+      }
+
       listenerTarget.addEventListener(event, _handler2);
     }
   }
@@ -5814,7 +5823,13 @@
       _newArrowCheck(this, _this3);
 
       return !['window', 'document', 'prevent', 'stop'].includes(i);
-    }.bind(this)); // If no modifier is specified, we'll call it a press.
+    }.bind(this));
+
+    if (keyModifiers.includes('debounce')) {
+      var debounceIndex = keyModifiers.indexOf('debounce');
+      keyModifiers.splice(debounceIndex, isNumeric(keyModifiers[debounceIndex + 1].split('ms')[0]) ? 2 : 1);
+    } // If no modifier is specified, we'll call it a press.
+
 
     if (keyModifiers.length === 0) return false; // If one is passed, AND it matches the key pressed, we'll call it a press.
 

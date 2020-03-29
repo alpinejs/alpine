@@ -1303,11 +1303,7 @@
     wrapDataInObservable(data) {
       var self = this;
       let updateDom = debounce(function () {
-        self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
-
-        while (self.nextTickStack.length > 0) {
-          self.nextTickStack.shift()();
-        }
+        self.updateElements(self.$el);
       }, 0);
       let membrane = new ReactiveMembrane({
         valueMutated(target, key) {

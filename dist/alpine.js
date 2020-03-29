@@ -1234,6 +1234,7 @@
   /** version: 0.26.0 */
 
   function wrap(data, mutationCallback) {
+
     let membrane = new ReactiveMembrane({
       valueMutated(target, key) {
         mutationCallback(target, key);

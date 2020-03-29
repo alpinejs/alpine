@@ -1233,6 +1233,28 @@
   }
   /** version: 0.26.0 */
 
+  function wrap(data, mutationCallback) {
+    let membrane = new ReactiveMembrane({
+      valueMutated(target, key) {
+        mutationCallback(target, key);
+      }
+
+    });
+    return {
+      data: membrane.getProxy(data),
+      membrane: membrane
+    };
+  }
+  function unwrap$1(membrane, observable) {
+    let unwrappedData = membrane.unwrapProxy(observable);
+    let copy = {};
+    Object.keys(unwrappedData).forEach(key => {
+      if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
+      copy[key] = unwrappedData[key];
+    });
+    return copy;
+  }
+
   class Component {
     constructor(el, seedDataForCloning = null) {
       this.$el = el;
@@ -1291,13 +1313,7 @@
     }
 
     getUnobservedData() {
-      let unwrappedData = this.membrane.unwrapProxy(this.$data);
-      let copy = {};
-      Object.keys(unwrappedData).forEach(key => {
-        if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
-        copy[key] = unwrappedData[key];
-      });
-      return copy;
+      return unwrap$1(this.membrane, this.$data);
     }
 
     wrapDataInObservable(data) {
@@ -1305,42 +1321,35 @@
       let updateDom = debounce(function () {
         self.updateElements(self.$el);
       }, 0);
-      let membrane = new ReactiveMembrane({
-        valueMutated(target, key) {
-          if (self.watchers[key]) {
-            // If there's a watcher for this specific key, run it.
-            self.watchers[key].forEach(callback => callback(target[key]));
-          } else {
-            // Let's walk through the watchers with "dot-notation" (foo.bar) and see
-            // if this mutation fits any of them.
-            Object.keys(self.watchers).filter(i => i.includes('.')).forEach(fullDotNotationKey => {
-              let dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
-              // key, then skip it early for performance reasons.
+      return wrap(data, (target, key) => {
+        if (self.watchers[key]) {
+          // If there's a watcher for this specific key, run it.
+          self.watchers[key].forEach(callback => callback(target[key]));
+        } else {
+          // Let's walk through the watchers with "dot-notation" (foo.bar) and see
+          // if this mutation fits any of them.
+          Object.keys(self.watchers).filter(i => i.includes('.')).forEach(fullDotNotationKey => {
+            let dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
+            // key, then skip it early for performance reasons.
 
-              if (key !== dotNotationParts[dotNotationParts.length - 1]) return; // Now, walk through the dot-notation "parts" recursively to find
-              // a match, and call the watcher if one's found.
+            if (key !== dotNotationParts[dotNotationParts.length - 1]) return; // Now, walk through the dot-notation "parts" recursively to find
+            // a match, and call the watcher if one's found.
 
-              dotNotationParts.reduce((comparisonData, part) => {
-                if (Object.is(target, comparisonData)) {
-                  // Run the watchers.
-                  self.watchers[fullDotNotationKey].forEach(callback => callback(target[key]));
-                }
+            dotNotationParts.reduce((comparisonData, part) => {
+              if (Object.is(target, comparisonData)) {
+                // Run the watchers.
+                self.watchers[fullDotNotationKey].forEach(callback => callback(target[key]));
+              }
 
-                return comparisonData[part];
-              }, self.getUnobservedData());
-            });
-          } // Don't react to data changes for cases like the `x-created` hook.
+              return comparisonData[part];
+            }, self.getUnobservedData());
+          });
+        } // Don't react to data changes for cases like the `x-created` hook.
 
 
-          if (self.pauseReactivity) return;
-          updateDom();
-        }
-
+        if (self.pauseReactivity) return;
+        updateDom();
       });
-      return {
-        data: membrane.getProxy(data),
-        membrane
-      };
     }
 
     walkAndSkipNestedComponents(el, callback, initializeComponentCallback = () => {}) {

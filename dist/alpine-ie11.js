@@ -1135,9 +1135,9 @@
 
   var inspectSource = sharedStore.inspectSource;
 
-  var WeakMap$1 = global_1.WeakMap;
+  var WeakMap = global_1.WeakMap;
 
-  var nativeWeakMap = typeof WeakMap$1 === 'function' && /native code/.test(inspectSource(WeakMap$1));
+  var nativeWeakMap = typeof WeakMap === 'function' && /native code/.test(inspectSource(WeakMap));
 
   var shared = createCommonjsModule(function (module) {
   (module.exports = function (key, value) {
@@ -1164,7 +1164,7 @@
 
   var hiddenKeys = {};
 
-  var WeakMap$2 = global_1.WeakMap;
+  var WeakMap$1 = global_1.WeakMap;
   var set, get, has$1;
 
   var enforce = function (it) {
@@ -1181,7 +1181,7 @@
   };
 
   if (nativeWeakMap) {
-    var store$1 = new WeakMap$2();
+    var store$1 = new WeakMap$1();
     var wmget = store$1.get;
     var wmhas = store$1.has;
     var wmset = store$1.set;
@@ -5943,381 +5943,104 @@
     }.bind(this);
   }
 
-  /**
-   * Copyright (C) 2017 salesforce.com, inc.
-   */
-  const { isArray: isArray$1 } = Array;
-  const { getPrototypeOf, create: ObjectCreate, defineProperty: ObjectDefineProperty, defineProperties: ObjectDefineProperties, isExtensible, getOwnPropertyDescriptor: getOwnPropertyDescriptor$5, getOwnPropertyNames: getOwnPropertyNames$1, getOwnPropertySymbols, preventExtensions, hasOwnProperty: hasOwnProperty$1, } = Object;
-  const { push: ArrayPush, concat: ArrayConcat, map: ArrayMap, } = Array.prototype;
-  function isUndefined(obj) {
-      return obj === undefined;
-  }
-  function isFunction(obj) {
-      return typeof obj === 'function';
-  }
-  function isObject$1(obj) {
-      return typeof obj === 'object';
-  }
-  const proxyToValueMap = new WeakMap();
-  function registerProxy(proxy, value) {
-      proxyToValueMap.set(proxy, value);
-  }
-  const unwrap = (replicaOrAny) => proxyToValueMap.get(replicaOrAny) || replicaOrAny;
-
-  function wrapValue(membrane, value) {
-      return membrane.valueIsObservable(value) ? membrane.getProxy(value) : value;
-  }
-  /**
-   * Unwrap property descriptors will set value on original descriptor
-   * We only need to unwrap if value is specified
-   * @param descriptor external descrpitor provided to define new property on original value
-   */
-  function unwrapDescriptor(descriptor) {
-      if (hasOwnProperty$1.call(descriptor, 'value')) {
-          descriptor.value = unwrap(descriptor.value);
+  // `Reflect.set` method
+  // https://tc39.github.io/ecma262/#sec-reflect.set
+  function set$2(target, propertyKey, V /* , receiver */) {
+    var receiver = arguments.length < 4 ? target : arguments[3];
+    var ownDescriptor = objectGetOwnPropertyDescriptor.f(anObject(target), propertyKey);
+    var existingDescriptor, prototype;
+    if (!ownDescriptor) {
+      if (isObject(prototype = objectGetPrototypeOf(target))) {
+        return set$2(prototype, propertyKey, V, receiver);
       }
-      return descriptor;
-  }
-  function lockShadowTarget(membrane, shadowTarget, originalTarget) {
-      const targetKeys = ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      targetKeys.forEach((key) => {
-          let descriptor = getOwnPropertyDescriptor$5(originalTarget, key);
-          // We do not need to wrap the descriptor if configurable
-          // Because we can deal with wrapping it when user goes through
-          // Get own property descriptor. There is also a chance that this descriptor
-          // could change sometime in the future, so we can defer wrapping
-          // until we need to
-          if (!descriptor.configurable) {
-              descriptor = wrapDescriptor(membrane, descriptor, wrapValue);
-          }
-          ObjectDefineProperty(shadowTarget, key, descriptor);
-      });
-      preventExtensions(shadowTarget);
-  }
-  class ReactiveProxyHandler {
-      constructor(membrane, value) {
-          this.originalTarget = value;
-          this.membrane = membrane;
-      }
-      get(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const value = originalTarget[key];
-          const { valueObserved } = membrane;
-          valueObserved(originalTarget, key);
-          return membrane.getProxy(value);
-      }
-      set(shadowTarget, key, value) {
-          const { originalTarget, membrane: { valueMutated } } = this;
-          const oldValue = originalTarget[key];
-          if (oldValue !== value) {
-              originalTarget[key] = value;
-              valueMutated(originalTarget, key);
-          }
-          else if (key === 'length' && isArray$1(originalTarget)) {
-              // fix for issue #236: push will add the new index, and by the time length
-              // is updated, the internal length is already equal to the new length value
-              // therefore, the oldValue is equal to the value. This is the forking logic
-              // to support this use case.
-              valueMutated(originalTarget, key);
-          }
-          return true;
-      }
-      deleteProperty(shadowTarget, key) {
-          const { originalTarget, membrane: { valueMutated } } = this;
-          delete originalTarget[key];
-          valueMutated(originalTarget, key);
-          return true;
-      }
-      apply(shadowTarget, thisArg, argArray) {
-          /* No op */
-      }
-      construct(target, argArray, newTarget) {
-          /* No op */
-      }
-      has(shadowTarget, key) {
-          const { originalTarget, membrane: { valueObserved } } = this;
-          valueObserved(originalTarget, key);
-          return key in originalTarget;
-      }
-      ownKeys(shadowTarget) {
-          const { originalTarget } = this;
-          return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      }
-      isExtensible(shadowTarget) {
-          const shadowIsExtensible = isExtensible(shadowTarget);
-          if (!shadowIsExtensible) {
-              return shadowIsExtensible;
-          }
-          const { originalTarget, membrane } = this;
-          const targetIsExtensible = isExtensible(originalTarget);
-          if (!targetIsExtensible) {
-              lockShadowTarget(membrane, shadowTarget, originalTarget);
-          }
-          return targetIsExtensible;
-      }
-      setPrototypeOf(shadowTarget, prototype) {
-      }
-      getPrototypeOf(shadowTarget) {
-          const { originalTarget } = this;
-          return getPrototypeOf(originalTarget);
-      }
-      getOwnPropertyDescriptor(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const { valueObserved } = this.membrane;
-          // keys looked up via hasOwnProperty need to be reactive
-          valueObserved(originalTarget, key);
-          let desc = getOwnPropertyDescriptor$5(originalTarget, key);
-          if (isUndefined(desc)) {
-              return desc;
-          }
-          const shadowDescriptor = getOwnPropertyDescriptor$5(shadowTarget, key);
-          if (!isUndefined(shadowDescriptor)) {
-              return shadowDescriptor;
-          }
-          // Note: by accessing the descriptor, the key is marked as observed
-          // but access to the value, setter or getter (if available) cannot observe
-          // mutations, just like regular methods, in which case we just do nothing.
-          desc = wrapDescriptor(membrane, desc, wrapValue);
-          if (!desc.configurable) {
-              // If descriptor from original target is not configurable,
-              // We must copy the wrapped descriptor over to the shadow target.
-              // Otherwise, proxy will throw an invariant error.
-              // This is our last chance to lock the value.
-              // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
-              ObjectDefineProperty(shadowTarget, key, desc);
-          }
-          return desc;
-      }
-      preventExtensions(shadowTarget) {
-          const { originalTarget, membrane } = this;
-          lockShadowTarget(membrane, shadowTarget, originalTarget);
-          preventExtensions(originalTarget);
-          return true;
-      }
-      defineProperty(shadowTarget, key, descriptor) {
-          const { originalTarget, membrane } = this;
-          const { valueMutated } = membrane;
-          const { configurable } = descriptor;
-          // We have to check for value in descriptor
-          // because Object.freeze(proxy) calls this method
-          // with only { configurable: false, writeable: false }
-          // Additionally, method will only be called with writeable:false
-          // if the descriptor has a value, as opposed to getter/setter
-          // So we can just check if writable is present and then see if
-          // value is present. This eliminates getter and setter descriptors
-          if (hasOwnProperty$1.call(descriptor, 'writable') && !hasOwnProperty$1.call(descriptor, 'value')) {
-              const originalDescriptor = getOwnPropertyDescriptor$5(originalTarget, key);
-              descriptor.value = originalDescriptor.value;
-          }
-          ObjectDefineProperty(originalTarget, key, unwrapDescriptor(descriptor));
-          if (configurable === false) {
-              ObjectDefineProperty(shadowTarget, key, wrapDescriptor(membrane, descriptor, wrapValue));
-          }
-          valueMutated(originalTarget, key);
-          return true;
-      }
+      ownDescriptor = createPropertyDescriptor(0);
+    }
+    if (has(ownDescriptor, 'value')) {
+      if (ownDescriptor.writable === false || !isObject(receiver)) return false;
+      if (existingDescriptor = objectGetOwnPropertyDescriptor.f(receiver, propertyKey)) {
+        if (existingDescriptor.get || existingDescriptor.set || existingDescriptor.writable === false) return false;
+        existingDescriptor.value = V;
+        objectDefineProperty.f(receiver, propertyKey, existingDescriptor);
+      } else objectDefineProperty.f(receiver, propertyKey, createPropertyDescriptor(0, V));
+      return true;
+    }
+    return ownDescriptor.set === undefined ? false : (ownDescriptor.set.call(receiver, V), true);
   }
 
-  function wrapReadOnlyValue(membrane, value) {
-      return membrane.valueIsObservable(value) ? membrane.getReadOnlyProxy(value) : value;
+  // MS Edge 17-18 Reflect.set allows setting the property to object
+  // with non-writable property on the prototype
+  var MS_EDGE_BUG = fails(function () {
+    var object = objectDefineProperty.f({}, 'a', { configurable: true });
+    // eslint-disable-next-line no-undef
+    return Reflect.set(objectGetPrototypeOf(object), 'a', 1, object) !== false;
+  });
+
+  _export({ target: 'Reflect', stat: true, forced: MS_EDGE_BUG }, {
+    set: set$2
+  });
+
+  function wrap(data, mutationCallback) {
+    /* IE11-ONLY:START */
+    return wrapForIe11(data, mutationCallback);
   }
-  class ReadOnlyHandler {
-      constructor(membrane, value) {
-          this.originalTarget = value;
-          this.membrane = membrane;
-      }
-      get(shadowTarget, key) {
-          const { membrane, originalTarget } = this;
-          const value = originalTarget[key];
-          const { valueObserved } = membrane;
-          valueObserved(originalTarget, key);
-          return membrane.getReadOnlyProxy(value);
-      }
-      set(shadowTarget, key, value) {
-          return false;
-      }
-      deleteProperty(shadowTarget, key) {
-          return false;
-      }
-      apply(shadowTarget, thisArg, argArray) {
-          /* No op */
-      }
-      construct(target, argArray, newTarget) {
-          /* No op */
-      }
-      has(shadowTarget, key) {
-          const { originalTarget, membrane: { valueObserved } } = this;
-          valueObserved(originalTarget, key);
-          return key in originalTarget;
-      }
-      ownKeys(shadowTarget) {
-          const { originalTarget } = this;
-          return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      }
-      setPrototypeOf(shadowTarget, prototype) {
-      }
-      getOwnPropertyDescriptor(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const { valueObserved } = membrane;
-          // keys looked up via hasOwnProperty need to be reactive
-          valueObserved(originalTarget, key);
-          let desc = getOwnPropertyDescriptor$5(originalTarget, key);
-          if (isUndefined(desc)) {
-              return desc;
-          }
-          const shadowDescriptor = getOwnPropertyDescriptor$5(shadowTarget, key);
-          if (!isUndefined(shadowDescriptor)) {
-              return shadowDescriptor;
-          }
-          // Note: by accessing the descriptor, the key is marked as observed
-          // but access to the value or getter (if available) cannot be observed,
-          // just like regular methods, in which case we just do nothing.
-          desc = wrapDescriptor(membrane, desc, wrapReadOnlyValue);
-          if (hasOwnProperty$1.call(desc, 'set')) {
-              desc.set = undefined; // readOnly membrane does not allow setters
-          }
-          if (!desc.configurable) {
-              // If descriptor from original target is not configurable,
-              // We must copy the wrapped descriptor over to the shadow target.
-              // Otherwise, proxy will throw an invariant error.
-              // This is our last chance to lock the value.
-              // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
-              ObjectDefineProperty(shadowTarget, key, desc);
-          }
-          return desc;
-      }
-      preventExtensions(shadowTarget) {
-          return false;
-      }
-      defineProperty(shadowTarget, key, descriptor) {
-          return false;
-      }
+  function unwrap(membrane, observable) {
+    var _this = this;
+
+    var unwrappedData = membrane.unwrapProxy(observable);
+    var copy = {};
+    Object.keys(unwrappedData).forEach(function (key) {
+      _newArrowCheck(this, _this);
+
+      if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
+      copy[key] = unwrappedData[key];
+    }.bind(this));
+    return copy;
   }
-  function createShadowTarget(value) {
-      let shadowTarget = undefined;
-      if (isArray$1(value)) {
-          shadowTarget = [];
+
+  function wrapForIe11(data, mutationCallback) {
+    var proxyHandler = {
+      set: function set(target, key, value) {
+        // Set the value converting it to a "Deep Proxy" when required
+        // Note that if a project is not a valid object, it won't be converted to a proxy
+        var setWasSuccessful = Reflect.set(target, key, deepProxy(value, proxyHandler));
+        mutationCallback(target, key);
+        return setWasSuccessful;
+      },
+      get: function get(target, key) {
+        // Provide a way to determine if this object is an Alpine proxy or not.
+        if (key === "$isAlpineProxy") return true; // Just return the flippin' value. Gawsh.
+
+        return target[key];
       }
-      else if (isObject$1(value)) {
-          shadowTarget = {};
+    };
+    return {
+      data: deepProxy(data, proxyHandler),
+      membrane: {
+        unwrapProxy: function unwrapProxy(proxy) {
+          return proxy;
+        }
       }
-      return shadowTarget;
+    };
   }
-  const ObjectDotPrototype = Object.prototype;
-  function defaultValueIsObservable(value) {
-      // intentionally checking for null
-      if (value === null) {
-          return false;
-      }
-      // treat all non-object types, including undefined, as non-observable values
-      if (typeof value !== 'object') {
-          return false;
-      }
-      if (isArray$1(value)) {
-          return true;
-      }
-      const proto = getPrototypeOf(value);
-      return (proto === ObjectDotPrototype || proto === null || getPrototypeOf(proto) === null);
+
+  function deepProxy(target, proxyHandler) {
+    // If target is null, return it.
+    if (target === null) return target; // If target is not an object, return it.
+
+    if (_typeof(target) !== 'object') return target; // If target is a DOM node (like in the case of this.$el), return it.
+
+    if (target instanceof Node) return target; // If target is already an Alpine proxy, return it.
+
+    if (target['$isAlpineProxy']) return target; // Otherwise proxy the properties recursively.
+    // This enables reactivity on setting nested data.
+    // Note that if a project is not a valid object, it won't be converted to a proxy
+
+    for (var property in target) {
+      target[property] = deepProxy(target[property], proxyHandler);
+    }
+
+    return new Proxy(target, proxyHandler);
   }
-  const defaultValueObserved = (obj, key) => {
-      /* do nothing */
-  };
-  const defaultValueMutated = (obj, key) => {
-      /* do nothing */
-  };
-  const defaultValueDistortion = (value) => value;
-  function wrapDescriptor(membrane, descriptor, getValue) {
-      const { set, get } = descriptor;
-      if (hasOwnProperty$1.call(descriptor, 'value')) {
-          descriptor.value = getValue(membrane, descriptor.value);
-      }
-      else {
-          if (!isUndefined(get)) {
-              descriptor.get = function () {
-                  // invoking the original getter with the original target
-                  return getValue(membrane, get.call(unwrap(this)));
-              };
-          }
-          if (!isUndefined(set)) {
-              descriptor.set = function (value) {
-                  // At this point we don't have a clear indication of whether
-                  // or not a valid mutation will occur, we don't have the key,
-                  // and we are not sure why and how they are invoking this setter.
-                  // Nevertheless we preserve the original semantics by invoking the
-                  // original setter with the original target and the unwrapped value
-                  set.call(unwrap(this), membrane.unwrapProxy(value));
-              };
-          }
-      }
-      return descriptor;
-  }
-  class ReactiveMembrane {
-      constructor(options) {
-          this.valueDistortion = defaultValueDistortion;
-          this.valueMutated = defaultValueMutated;
-          this.valueObserved = defaultValueObserved;
-          this.valueIsObservable = defaultValueIsObservable;
-          this.objectGraph = new WeakMap();
-          if (!isUndefined(options)) {
-              const { valueDistortion, valueMutated, valueObserved, valueIsObservable } = options;
-              this.valueDistortion = isFunction(valueDistortion) ? valueDistortion : defaultValueDistortion;
-              this.valueMutated = isFunction(valueMutated) ? valueMutated : defaultValueMutated;
-              this.valueObserved = isFunction(valueObserved) ? valueObserved : defaultValueObserved;
-              this.valueIsObservable = isFunction(valueIsObservable) ? valueIsObservable : defaultValueIsObservable;
-          }
-      }
-      getProxy(value) {
-          const unwrappedValue = unwrap(value);
-          const distorted = this.valueDistortion(unwrappedValue);
-          if (this.valueIsObservable(distorted)) {
-              const o = this.getReactiveState(unwrappedValue, distorted);
-              // when trying to extract the writable version of a readonly
-              // we return the readonly.
-              return o.readOnly === value ? value : o.reactive;
-          }
-          return distorted;
-      }
-      getReadOnlyProxy(value) {
-          value = unwrap(value);
-          const distorted = this.valueDistortion(value);
-          if (this.valueIsObservable(distorted)) {
-              return this.getReactiveState(value, distorted).readOnly;
-          }
-          return distorted;
-      }
-      unwrapProxy(p) {
-          return unwrap(p);
-      }
-      getReactiveState(value, distortedValue) {
-          const { objectGraph, } = this;
-          let reactiveState = objectGraph.get(distortedValue);
-          if (reactiveState) {
-              return reactiveState;
-          }
-          const membrane = this;
-          reactiveState = {
-              get reactive() {
-                  const reactiveHandler = new ReactiveProxyHandler(membrane, distortedValue);
-                  // caching the reactive proxy after the first time it is accessed
-                  const proxy = new Proxy(createShadowTarget(distortedValue), reactiveHandler);
-                  registerProxy(proxy, value);
-                  ObjectDefineProperty(this, 'reactive', { value: proxy });
-                  return proxy;
-              },
-              get readOnly() {
-                  const readOnlyHandler = new ReadOnlyHandler(membrane, distortedValue);
-                  // caching the readOnly proxy after the first time it is accessed
-                  const proxy = new Proxy(createShadowTarget(distortedValue), readOnlyHandler);
-                  registerProxy(proxy, value);
-                  ObjectDefineProperty(this, 'readOnly', { value: proxy });
-                  return proxy;
-              }
-          };
-          objectGraph.set(distortedValue, reactiveState);
-          return reactiveState;
-      }
-  }
-  /** version: 0.26.0 */
 
   var Component = /*#__PURE__*/function () {
     function Component(el) {
@@ -6398,82 +6121,70 @@
     _createClass(Component, [{
       key: "getUnobservedData",
       value: function getUnobservedData() {
-        var _this2 = this;
-
-        var unwrappedData = this.membrane.unwrapProxy(this.$data);
-        var copy = {};
-        Object.keys(unwrappedData).forEach(function (key) {
-          _newArrowCheck(this, _this2);
-
-          if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
-          copy[key] = unwrappedData[key];
-        }.bind(this));
-        return copy;
+        return unwrap(this.membrane, this.$data);
       }
     }, {
       key: "wrapDataInObservable",
       value: function wrapDataInObservable(data) {
+        var _this2 = this;
+
         var self = this;
         var updateDom = debounce(function () {
           self.updateElements(self.$el);
         }, 0);
-        var membrane = new ReactiveMembrane({
-          valueMutated: function valueMutated(target, key) {
-            var _this3 = this;
+        return wrap(data, function (target, key) {
+          var _this3 = this;
 
-            if (self.watchers[key]) {
-              // If there's a watcher for this specific key, run it.
-              self.watchers[key].forEach(function (callback) {
-                _newArrowCheck(this, _this3);
+          _newArrowCheck(this, _this2);
 
-                return callback(target[key]);
-              }.bind(this));
-            } else {
-              // Let's walk through the watchers with "dot-notation" (foo.bar) and see
-              // if this mutation fits any of them.
-              Object.keys(self.watchers).filter(function (i) {
-                _newArrowCheck(this, _this3);
+          if (self.watchers[key]) {
+            // If there's a watcher for this specific key, run it.
+            self.watchers[key].forEach(function (callback) {
+              _newArrowCheck(this, _this3);
 
-                return i.includes('.');
-              }.bind(this)).forEach(function (fullDotNotationKey) {
-                var _this4 = this;
+              return callback(target[key]);
+            }.bind(this));
+          } else {
+            // Let's walk through the watchers with "dot-notation" (foo.bar) and see
+            // if this mutation fits any of them.
+            Object.keys(self.watchers).filter(function (i) {
+              _newArrowCheck(this, _this3);
 
-                _newArrowCheck(this, _this3);
+              return i.includes('.');
+            }.bind(this)).forEach(function (fullDotNotationKey) {
+              var _this4 = this;
 
-                var dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
-                // key, then skip it early for performance reasons.
+              _newArrowCheck(this, _this3);
 
-                if (key !== dotNotationParts[dotNotationParts.length - 1]) return; // Now, walk through the dot-notation "parts" recursively to find
-                // a match, and call the watcher if one's found.
+              var dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
+              // key, then skip it early for performance reasons.
 
-                dotNotationParts.reduce(function (comparisonData, part) {
-                  var _this5 = this;
+              if (key !== dotNotationParts[dotNotationParts.length - 1]) return; // Now, walk through the dot-notation "parts" recursively to find
+              // a match, and call the watcher if one's found.
 
-                  _newArrowCheck(this, _this4);
+              dotNotationParts.reduce(function (comparisonData, part) {
+                var _this5 = this;
 
-                  if (Object.is(target, comparisonData)) {
-                    // Run the watchers.
-                    self.watchers[fullDotNotationKey].forEach(function (callback) {
-                      _newArrowCheck(this, _this5);
+                _newArrowCheck(this, _this4);
 
-                      return callback(target[key]);
-                    }.bind(this));
-                  }
+                if (Object.is(target, comparisonData)) {
+                  // Run the watchers.
+                  self.watchers[fullDotNotationKey].forEach(function (callback) {
+                    _newArrowCheck(this, _this5);
 
-                  return comparisonData[part];
-                }.bind(this), self.getUnobservedData());
-              }.bind(this));
-            } // Don't react to data changes for cases like the `x-created` hook.
+                    return callback(target[key]);
+                  }.bind(this));
+                }
+
+                return comparisonData[part];
+              }.bind(this), self.getUnobservedData());
+            }.bind(this));
+          } // Don't react to data changes for cases like the `x-created` hook.
 
 
-            if (self.pauseReactivity) return;
-            updateDom();
-          }
-        });
-        return {
-          data: membrane.getProxy(data),
-          membrane: membrane
-        };
+          if (self.pauseReactivity) return;
+          updateDom();
+        }.bind(this));
       }
     }, {
       key: "walkAndSkipNestedComponents",

@@ -1,6 +1,6 @@
 import { arrayUnique , isBooleanAttr } from '../utils'
 
-export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
+export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
     var value = component.evaluateReturnExpression(el, expression, extraVars)
 
     if (attrName === 'value') {
@@ -10,7 +10,14 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         }
 
         if (el.type === 'radio') {
-            el.checked = el.value == value
+            // Set radio value from x-bind:value, if no "value" attribute exists.
+            // If there are any initial state values, radio will have a correct
+            // "checked" value since x-bind:value is processed before x-model.
+            if (el.attributes.value === undefined && attrType === 'bind') {
+                el.value = value
+            } else if (attrType !== 'bind') {
+                el.checked = el.value == value
+            }
         } else if (el.type === 'checkbox') {
             if (Array.isArray(value)) {
                 // I'm purposely not using Array.includes here because it's

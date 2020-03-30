@@ -331,3 +331,23 @@ test('checkbox values are set correctly', async () => {
     expect(document.querySelector('input[name="falseCheckbox"]').value).toEqual('on')
     expect(document.querySelector('input[name="stringCheckbox"]').value).toEqual('foo')
 });
+
+test('radio values are set correctly', async () => {
+    document.body.innerHTML = `
+        <div x-data="{lists: [{id: 1}, {id: 8}], selectedListID: '8'}">
+            <template x-for="list in lists" :key="list.id">
+                <input x-model="selectedListID" type="radio" :value="list.id.toString()" :id="'list-' + list.id">
+            </template>
+            <input type="radio" id="list-test" value="test" x-model="selectedListID">
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('#list-1').value).toEqual('1')
+    expect(document.querySelector('#list-1').checked).toBeFalsy()
+    expect(document.querySelector('#list-8').value).toEqual('8')
+    expect(document.querySelector('#list-8').checked).toBeTruthy()
+    expect(document.querySelector('#list-test').value).toEqual('test')
+    expect(document.querySelector('#list-test').checked).toBeFalsy()
+});

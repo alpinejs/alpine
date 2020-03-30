@@ -3115,15 +3115,38 @@
     ArrayPrototype$1[UNSCOPABLES][key] = true;
   };
 
+  var $findIndex = arrayIteration.findIndex;
+
+
+
+  var FIND_INDEX = 'findIndex';
+  var SKIPS_HOLES = true;
+
+  var USES_TO_LENGTH$2 = arrayMethodUsesToLength(FIND_INDEX);
+
+  // Shouldn't skip holes
+  if (FIND_INDEX in []) Array(1)[FIND_INDEX](function () { SKIPS_HOLES = false; });
+
+  // `Array.prototype.findIndex` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.findindex
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES || !USES_TO_LENGTH$2 }, {
+    findIndex: function findIndex(callbackfn /* , that = undefined */) {
+      return $findIndex(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables(FIND_INDEX);
+
   var $includes = arrayIncludes.includes;
 
 
 
-  var USES_TO_LENGTH$2 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var USES_TO_LENGTH$3 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.includes` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.includes
-  _export({ target: 'Array', proto: true, forced: !USES_TO_LENGTH$2 }, {
+  _export({ target: 'Array', proto: true, forced: !USES_TO_LENGTH$3 }, {
     includes: function includes(el /* , fromIndex = 0 */) {
       return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3138,12 +3161,12 @@
 
   var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('map');
   // FF49- issue
-  var USES_TO_LENGTH$3 = arrayMethodUsesToLength('map');
+  var USES_TO_LENGTH$4 = arrayMethodUsesToLength('map');
 
   // `Array.prototype.map` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.map
   // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 || !USES_TO_LENGTH$3 }, {
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 || !USES_TO_LENGTH$4 }, {
     map: function map(callbackfn /* , thisArg */) {
       return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3190,13 +3213,73 @@
 
 
   var STRICT_METHOD$1 = arrayMethodIsStrict('reduce');
-  var USES_TO_LENGTH$4 = arrayMethodUsesToLength('reduce', { 1: 0 });
+  var USES_TO_LENGTH$5 = arrayMethodUsesToLength('reduce', { 1: 0 });
 
   // `Array.prototype.reduce` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.reduce
-  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$1 || !USES_TO_LENGTH$4 }, {
+  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$1 || !USES_TO_LENGTH$5 }, {
     reduce: function reduce(callbackfn /* , initialValue */) {
       return $reduce(this, callbackfn, arguments.length, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
+  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+
+  var max$1 = Math.max;
+  var min$2 = Math.min;
+  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
+
+  // `Array.prototype.splice` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.splice
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$6 }, {
+    splice: function splice(start, deleteCount /* , ...items */) {
+      var O = toObject(this);
+      var len = toLength(O.length);
+      var actualStart = toAbsoluteIndex(start, len);
+      var argumentsLength = arguments.length;
+      var insertCount, actualDeleteCount, A, k, from, to;
+      if (argumentsLength === 0) {
+        insertCount = actualDeleteCount = 0;
+      } else if (argumentsLength === 1) {
+        insertCount = 0;
+        actualDeleteCount = len - actualStart;
+      } else {
+        insertCount = argumentsLength - 2;
+        actualDeleteCount = min$2(max$1(toInteger(deleteCount), 0), len - actualStart);
+      }
+      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER) {
+        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
+      }
+      A = arraySpeciesCreate(O, actualDeleteCount);
+      for (k = 0; k < actualDeleteCount; k++) {
+        from = actualStart + k;
+        if (from in O) createProperty(A, k, O[from]);
+      }
+      A.length = actualDeleteCount;
+      if (insertCount < actualDeleteCount) {
+        for (k = actualStart; k < len - actualDeleteCount; k++) {
+          from = k + actualDeleteCount;
+          to = k + insertCount;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
+      } else if (insertCount > actualDeleteCount) {
+        for (k = len - actualDeleteCount; k > actualStart; k--) {
+          from = k + actualDeleteCount - 1;
+          to = k + insertCount - 1;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+      }
+      for (k = 0; k < insertCount; k++) {
+        O[k + actualStart] = arguments[k + 2];
+      }
+      O.length = len - actualDeleteCount + insertCount;
+      return A;
     }
   });
 
@@ -4244,7 +4327,7 @@
   });
 
   var arrayPush = [].push;
-  var min$2 = Math.min;
+  var min$3 = Math.min;
   var MAX_UINT32 = 0xFFFFFFFF;
 
   // babel-minify transpiles RegExp('x', 'y') -> /x/y and it causes SyntaxError
@@ -4347,7 +4430,7 @@
           var e;
           if (
             z === null ||
-            (e = min$2(toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p
+            (e = min$3(toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p
           ) {
             q = advanceStringIndex(S, q, unicodeMatching);
           } else {
@@ -4367,7 +4450,7 @@
   }, !SUPPORTS_Y);
 
   var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
-  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
   var MAXIMUM_ALLOWED_INDEX_EXCEEDED = 'Maximum allowed index exceeded';
 
   // We can't use this feature detection in V8 since it causes
@@ -4402,10 +4485,10 @@
         E = i === -1 ? O : arguments[i];
         if (isConcatSpreadable(E)) {
           len = toLength(E.length);
-          if (n + len > MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n + len > MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           for (k = 0; k < len; k++, n++) if (k in E) createProperty(A, n, E[k]);
         } else {
-          if (n >= MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n >= MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           createProperty(A, n++, E);
         }
       }
@@ -4419,16 +4502,16 @@
 
 
   var FIND = 'find';
-  var SKIPS_HOLES = true;
+  var SKIPS_HOLES$1 = true;
 
-  var USES_TO_LENGTH$5 = arrayMethodUsesToLength(FIND);
+  var USES_TO_LENGTH$7 = arrayMethodUsesToLength(FIND);
 
   // Shouldn't skip holes
-  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES = false; });
+  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
 
   // `Array.prototype.find` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES || !USES_TO_LENGTH$5 }, {
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$7 }, {
     find: function find(callbackfn /* , that = undefined */) {
       return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -4445,11 +4528,11 @@
 
   var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
   var STRICT_METHOD$2 = arrayMethodIsStrict('indexOf');
-  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.indexOf` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.indexof
-  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$6 }, {
+  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$8 }, {
     indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
       return NEGATIVE_ZERO
         // convert -0 to +0
@@ -4468,66 +4551,6 @@
   _export({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD$3 }, {
     join: function join(separator) {
       return nativeJoin.call(toIndexedObject(this), separator === undefined ? ',' : separator);
-    }
-  });
-
-  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
-  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
-
-  var max$1 = Math.max;
-  var min$3 = Math.min;
-  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
-  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
-
-  // `Array.prototype.splice` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.splice
-  // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
-    splice: function splice(start, deleteCount /* , ...items */) {
-      var O = toObject(this);
-      var len = toLength(O.length);
-      var actualStart = toAbsoluteIndex(start, len);
-      var argumentsLength = arguments.length;
-      var insertCount, actualDeleteCount, A, k, from, to;
-      if (argumentsLength === 0) {
-        insertCount = actualDeleteCount = 0;
-      } else if (argumentsLength === 1) {
-        insertCount = 0;
-        actualDeleteCount = len - actualStart;
-      } else {
-        insertCount = argumentsLength - 2;
-        actualDeleteCount = min$3(max$1(toInteger(deleteCount), 0), len - actualStart);
-      }
-      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER$1) {
-        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
-      }
-      A = arraySpeciesCreate(O, actualDeleteCount);
-      for (k = 0; k < actualDeleteCount; k++) {
-        from = actualStart + k;
-        if (from in O) createProperty(A, k, O[from]);
-      }
-      A.length = actualDeleteCount;
-      if (insertCount < actualDeleteCount) {
-        for (k = actualStart; k < len - actualDeleteCount; k++) {
-          from = k + actualDeleteCount;
-          to = k + insertCount;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
-      } else if (insertCount > actualDeleteCount) {
-        for (k = len - actualDeleteCount; k > actualStart; k--) {
-          from = k + actualDeleteCount - 1;
-          to = k + insertCount - 1;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-      }
-      for (k = 0; k < insertCount; k++) {
-        O[k + actualStart] = arguments[k + 2];
-      }
-      O.length = len - actualDeleteCount + insertCount;
-      return A;
     }
   });
 
@@ -5514,7 +5537,7 @@
     }.bind(this)) : index;
   }
 
-  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
+  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
     var _this = this;
 
     var value = component.evaluateReturnExpression(el, expression, extraVars);
@@ -5526,7 +5549,14 @@
       }
 
       if (el.type === 'radio') {
-        el.checked = el.value == value;
+        // Set radio value from x-bind:value, if no "value" attribute exists.
+        // If there are any initial state values, radio will have a correct
+        // "checked" value since x-bind:value is processed before x-model.
+        if (el.attributes.value === undefined && attrType === 'bind') {
+          el.value = value;
+        } else if (attrType !== 'bind') {
+          el.checked = el.value == value;
+        }
       } else if (el.type === 'checkbox') {
         if (Array.isArray(value)) {
           // I'm purposely not using Array.includes here because it's
@@ -6357,6 +6387,21 @@
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
         var attrs = getXAttrs(el);
+
+        if (el.type !== undefined && el.type === 'radio') {
+          // If there's an x-model on a radio input, move it to end of attribute list
+          // to ensure that x-bind:value (if present) is processed first.
+          var modelIdx = attrs.findIndex(function (attr) {
+            _newArrowCheck(this, _this15);
+
+            return attr.type === 'model';
+          }.bind(this));
+
+          if (modelIdx > -1) {
+            attrs.push(attrs.splice(modelIdx, 1)[0]);
+          }
+        }
+
         attrs.forEach(function (_ref2) {
           var _this16 = this;
 
@@ -6369,13 +6414,13 @@
 
           switch (type) {
             case 'model':
-              handleAttributeBindingDirective(this, el, 'value', expression, extraVars);
+              handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
               break;
 
             case 'bind':
               // The :key binding on an x-for is special, ignore it.
               if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
-              handleAttributeBindingDirective(this, el, value, expression, extraVars);
+              handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
               break;
 
             case 'text':

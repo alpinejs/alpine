@@ -1,7 +1,7 @@
 {
     "main": "dist/alpine.js",
     "name": "alpinejs",
-    "version": "2.2.1",
+    "version": "2.2.3",
     "repository": {
         "type": "git",
         "url": "git://github.com/alpinejs/alpine.git"
@@ -10,8 +10,7 @@
         "watch": "rollup -c -w",
         "build": "concurrently \"rollup -c\" \"npx rollup -c rollup-ie11.config.js\"",
         "test": "npx jest",
-        "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
-        "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags"
+        "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
     },
     "author": "Caleb Porzio",
     "license": "MIT",

@@ -1,8 +1,8 @@
-import { kebabCase } from '../utils'
+import { kebabCase, debounce, isNumeric } from '../utils'
 
 export function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
     if (modifiers.includes('away')) {
-        const handler = e => {
+        let handler = e => {
             // Don't do anything if the click came form the element or within it.
             if (el.contains(e.target)) return
 
@@ -21,10 +21,10 @@ export function registerListener(component, el, event, modifiers, expression, ex
         // Listen for this event at the root level.
         document.addEventListener(event, handler)
     } else {
-        const listenerTarget = modifiers.includes('window')
+        let listenerTarget = modifiers.includes('window')
             ? window : (modifiers.includes('document') ? document : el)
 
-        const handler = e => {
+        let handler = e => {
             // Remove this global event handler if the element that declared it
             // has been removed. It's now stale.
             if (listenerTarget === window || listenerTarget === document) {
@@ -88,6 +88,12 @@ export function registerListener(component, el, event, modifiers, expression, ex
             }
         }
 
+        if (modifiers.includes('debounce')) {
+            let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
+            let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+            handler = debounce(handler, wait, this)
+        }
+
         listenerTarget.addEventListener(event, handler)
     }
 }
@@ -114,6 +120,11 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
         return ! ['window', 'document', 'prevent', 'stop', 'exact'].includes(i)
     })
+
+    if (keyModifiers.includes('debounce')) {
+        let debounceIndex = keyModifiers.indexOf('debounce')
+        keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex+1] || 'invalid-wait').split('ms')[0]) ? 2 : 1)
+    }
 
     // If no modifier is specified, we'll call it a press.
     if (keyModifiers.length === 0) return false

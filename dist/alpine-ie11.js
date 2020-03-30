@@ -5349,7 +5349,7 @@
     return !isNaN(subject);
   }
 
-  function handleForDirective(component, el, expression, initialUpdate) {
+  function handleForDirective(component, el, expression, initialUpdate, extraVars) {
     var _this = this;
 
     if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
@@ -5369,7 +5369,7 @@
       // empty, effectively hiding it.
       items = [];
     } else {
-      items = component.evaluateReturnExpression(el, bunch);
+      items = component.evaluateReturnExpression(el, bunch, extraVars);
     } // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
 
@@ -6410,7 +6410,7 @@
               break;
 
             case 'for':
-              handleForDirective(this, el, expression, initialUpdate);
+              handleForDirective(this, el, expression, initialUpdate, extraVars);
               break;
 
             case 'cloak':

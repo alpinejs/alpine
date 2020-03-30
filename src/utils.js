@@ -386,6 +386,6 @@ export function transition(el, stages) {
     });
 }
 
-function isNumeric(subject){
+export function isNumeric(subject){
     return ! isNaN(subject)
 }

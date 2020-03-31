@@ -243,7 +243,7 @@ test('Alpine mutations don\'t trigger (like x-if and x-for) MutationObserver', a
         ] }
     ])
 
-    expect(evaluations).toEqual(1)
+    expect(evaluations).toEqual(2)
 })
 
 test('auto-detect x-data property changes at run-time', async () => {

@@ -5708,7 +5708,7 @@
     component.showDirectiveLastElement = el;
   }
 
-  function handleIfDirective(el, expressionResult, initialUpdate) {
+  function handleIfDirective(component, el, expressionResult, initialUpdate) {
     var _this = this;
 
     if (el.nodeName.toLowerCase() !== 'template') console.warn("Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if");
@@ -5721,6 +5721,7 @@
       transitionIn(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
       }.bind(this), initialUpdate);
+      component.initializeElements(el.nextElementSibling);
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
@@ -6406,7 +6407,7 @@
                 return i.type === 'for';
               }.bind(this)).length > 0) return;
               var output = this.evaluateReturnExpression(el, expression, extraVars);
-              handleIfDirective(el, output, initialUpdate);
+              handleIfDirective(this, el, output, initialUpdate);
               break;
 
             case 'for':

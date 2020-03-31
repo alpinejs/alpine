@@ -271,7 +271,7 @@ export default class Component {
 
                     var output = this.evaluateReturnExpression(el, expression, extraVars)
 
-                    handleIfDirective(el, output, initialUpdate)
+                    handleIfDirective(this, el, output, initialUpdate)
                     break;
 
                 case 'for':

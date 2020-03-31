@@ -24,3 +24,34 @@ test('x-if', async () => {
 
     await wait(() => { expect(document.querySelector('p')).toBeTruthy() })
 })
+
+test('elements inside x-if are still reactive', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ show: false, foo: 'bar' }">
+            <h1 x-on:click="show = ! show"></h1>
+
+            <template x-if="show">
+                <h2 @click="foo = 'baz'"></h2>
+            </template>
+
+            <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('h2')).toBeFalsy()
+    expect(document.querySelector('span').innerText).toEqual('bar')
+
+    document.querySelector('h1').click()
+
+    await wait(() => {
+        expect(document.querySelector('h2')).toBeTruthy()
+    })
+
+    document.querySelector('h2').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('baz')
+    })
+})

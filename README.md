@@ -567,6 +567,8 @@ You can "watch" a component property with the `$watch` magic method. In the abov
 
 ## v3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity
+* Add `Alpine.directive()`
+* Add `Alpine.component('foo', {...})` (With magic `__init()` method)
 
 ## License
 

@@ -55,3 +55,24 @@ test('elements inside x-if are still reactive', async () => {
         expect(document.querySelector('span').innerText).toEqual('baz')
     })
 })
+
+test('x-if works inside a loop', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foos: [{bar: 'baz'}, {bar: 'bop'}]}">
+            <template x-for="foo in foos">
+                <div>
+                    <template x-if="foo.bar === 'baz'">
+                        <div>
+                            <span x-text="foo.bar"></span>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span').length).toEqual(1)
+    expect(document.querySelector('span').innerText).toEqual('baz')
+})

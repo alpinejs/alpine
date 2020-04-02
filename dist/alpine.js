@@ -672,7 +672,7 @@
     component.showDirectiveLastElement = el;
   }
 
-  function handleIfDirective(component, el, expressionResult, initialUpdate) {
+  function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
     if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if`);
     const elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true;
 
@@ -681,7 +681,7 @@
       el.parentElement.insertBefore(clone, el.nextElementSibling);
       el.nextElementSibling.__x_inserted_me = true;
       transitionIn(el.nextElementSibling, () => {}, initialUpdate);
-      component.initializeElements(el.nextElementSibling);
+      component.initializeElements(el.nextElementSibling, extraVars);
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, () => {
         el.nextElementSibling.remove();
@@ -1498,7 +1498,7 @@
             // We will let the "x-for" directive handle the "if"ing.
             if (attrs.filter(i => i.type === 'for').length > 0) return;
             var output = this.evaluateReturnExpression(el, expression, extraVars);
-            handleIfDirective(this, el, output, initialUpdate);
+            handleIfDirective(this, el, output, initialUpdate, extraVars);
             break;
 
           case 'for':

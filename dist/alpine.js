@@ -1381,9 +1381,11 @@
       });
       this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
 
-      while (this.nextTickStack.length > 0) {
-        this.nextTickStack.shift()();
-      }
+      debounce(function () {
+        while (this.nextTickStack.length > 0) {
+          this.nextTickStack.shift()();
+        }
+      }, 0).bind(this)();
     }
 
     initializeElement(el, extraVars) {
@@ -1405,11 +1407,13 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-      while (this.nextTickStack.length > 0) {
-        this.nextTickStack.shift()();
-      }
+      this.executeAndClearRemainingShowDirectiveStack();
+      debounce(function () {
+        // Walk through the $nextTick stack and clear it as we go.
+        while (this.nextTickStack.length > 0) {
+          this.nextTickStack.shift()();
+        }
+      }, 0).bind(this)();
     }
 
     executeAndClearRemainingShowDirectiveStack() {

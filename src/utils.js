@@ -377,7 +377,3 @@ export function deepProxy(target, proxyHandler) {
 function isNumeric(subject){
     return ! isNaN(subject)
 }
-
-export default {
-    arrayUnique,
-}

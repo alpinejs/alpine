@@ -40,12 +40,20 @@ function generateModelAssignmentFunction(el, modifiers, expression) {
             }
         } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
             return modifiers.includes('number')
-                ? Array.from(event.target.selectedOptions).map(option => { return parseFloat(option.value || option.text) })
-                : Array.from(event.target.selectedOptions).map(option => { return option.value || option.text })
+                ? Array.from(event.target.selectedOptions).map(option => {
+                    const rawValue = option.value || option.text
+                    const number = rawValue ? parseFloat(rawValue) : null
+                    return isNaN(number) ? rawValue : number
+                })
+                : Array.from(event.target.selectedOptions).map(option => {
+                    return option.value || option.text
+                })
         } else {
+            const rawValue = event.target.value
+            const number = rawValue ? parseFloat(rawValue) : null
             return modifiers.includes('number')
-                ? parseFloat(event.target.value)
-                : (modifiers.includes('trim') ? event.target.value.trim() : event.target.value)
+                ? (isNaN(number) ? rawValue : number)
+                : (modifiers.includes('trim') ? rawValue.trim() : rawValue)
         }
     }
 }

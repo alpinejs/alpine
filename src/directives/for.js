@@ -1,6 +1,6 @@
 import { transitionIn, transitionOut, getXAttrs } from '../utils'
 
-export function handleForDirective(component, el, expression, initialUpdate) {
+export function handleForDirective(component, el, expression, initialUpdate, extraVars) {
     if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.')
 
     const { single, bunch, iterator1, iterator2 } = parseFor(expression)
@@ -13,7 +13,7 @@ export function handleForDirective(component, el, expression, initialUpdate) {
         // empty, effectively hiding it.
         items = []
     } else {
-        items = component.evaluateReturnExpression(el, bunch)
+        items = component.evaluateReturnExpression(el, bunch, extraVars)
     }
 
     // As we walk the array, we'll also walk the DOM (updating/creating as we go).
@@ -53,7 +53,7 @@ export function handleForDirective(component, el, expression, initialUpdate) {
                     return i
                 },
                 set(newValue) {
-                    group[index] = newValue
+                    items[index] = newValue
                 },
                 configurable: true
             })
@@ -91,7 +91,7 @@ export function handleForDirective(component, el, expression, initialUpdate) {
                     return i
                 },
                 set(newValue) {
-                    group[index] = newValue
+                    items[index] = newValue
                 },
                 configurable: true
             })

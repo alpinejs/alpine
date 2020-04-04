@@ -201,6 +201,51 @@ test('auto-initialize new elements added to a component', async () => {
     await wait(() => { expect(document.querySelector('#target span').innerText).toEqual(1) })
 })
 
+test('Alpine mutations don\'t trigger (like x-if and x-for) MutationObserver', async () => {
+    var runObservers = []
+    var evaluations = 0
+
+    global.MutationObserver = class {
+        constructor(callback) { runObservers.push(callback) }
+        observe() {}
+    }
+    window.bob = () => {
+        evaluations++
+        return 'lob'
+    }
+
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }" id="component">
+            <template x-if="foo === 'baz'">
+                <span x-text="bob()"></span>
+            </template>
+
+            <button @click="foo = 'baz'"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('button').click()
+
+    // Wait out the rendering tick.
+    await new Promise(resolve => setTimeout(resolve, 1))
+
+    // Run both queud mutations.
+    runObservers[0]([
+        { target: document.querySelector('#component'), addedNodes: [
+            document.querySelector('#component span'),
+        ] }
+    ])
+    runObservers[1]([
+        { target: document.querySelector('#component'), addedNodes: [
+            document.querySelector('#component span'),
+        ] }
+    ])
+
+    expect(evaluations).toEqual(2)
+})
+
 test('auto-detect x-data property changes at run-time', async () => {
     var runObservers = []
 

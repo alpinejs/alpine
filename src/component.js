@@ -5,7 +5,7 @@ import { handleShowDirective } from './directives/show'
 import { handleIfDirective } from './directives/if'
 import { registerModelListener } from './directives/model'
 import { registerListener } from './directives/on'
-import ObservableMembrane from 'observable-membrane'
+import { unwrap, wrap } from './observable'
 
 export default class Component {
     constructor(el, seedDataForCloning = null) {
@@ -23,6 +23,7 @@ export default class Component {
             this.unobservedData.$el = null
             this.unobservedData.$refs = null
             this.unobservedData.$nextTick = null
+            this.unobservedData.$watch = null
         /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
@@ -38,6 +39,13 @@ export default class Component {
         this.nextTickStack = []
         this.unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)
+        }
+
+        this.watchers = {}
+        this.unobservedData.$watch = (property, callback) => {
+            if (! this.watchers[property]) this.watchers[property] = []
+
+            this.watchers[property].push(callback)
         }
 
         this.showDirectiveStack = []
@@ -68,44 +76,52 @@ export default class Component {
     }
 
     getUnobservedData() {
-        let unwrappedData = this.membrane.unwrapProxy(this.$data)
-        let copy = {}
-
-        Object.keys(unwrappedData).forEach(key => {
-            if (['$el', '$refs', '$nextTick'].includes(key)) return
-
-            copy[key] = unwrappedData[key]
-        })
-
-        return copy
+        return unwrap(this.membrane, this.$data)
     }
 
     wrapDataInObservable(data) {
         var self = this
 
-        let membrane = new ObservableMembrane({
-            valueMutated(target, key) {
-                // Don't react to data changes for cases like the `x-created` hook.
-                if (self.pauseReactivity) return
+        let updateDom = debounce(function () {
+            self.updateElements(self.$el)
+        }, 0)
 
-                debounce(() => {
-                    self.updateElements(self.$el)
+        return wrap(data, (target, key) => {
+            if (self.watchers[key]) {
+                // If there's a watcher for this specific key, run it.
+                self.watchers[key].forEach(callback => callback(target[key]))
+            } else {
+                // Let's walk through the watchers with "dot-notation" (foo.bar) and see
+                // if this mutation fits any of them.
+                Object.keys(self.watchers)
+                    .filter(i => i.includes('.'))
+                    .forEach(fullDotNotationKey => {
+                        let dotNotationParts = fullDotNotationKey.split('.')
 
-                    // Walk through the $nextTick stack and clear it as we go.
-                    while (self.nextTickStack.length > 0) {
-                        self.nextTickStack.shift()()
-                    }
-                }, 0)()
-            },
+                        // If this dot-notation watcher's last "part" doesn't match the current
+                        // key, then skip it early for performance reasons.
+                        if (key !== dotNotationParts[dotNotationParts.length - 1]) return
+
+                        // Now, walk through the dot-notation "parts" recursively to find
+                        // a match, and call the watcher if one's found.
+                        dotNotationParts.reduce((comparisonData, part) => {
+                            if (Object.is(target, comparisonData)) {
+                                // Run the watchers.
+                                self.watchers[fullDotNotationKey].forEach(callback => callback(target[key]))
+                            }
+                            return comparisonData[part]
+                        }, self.getUnobservedData())
+                    })
+            }
+
+            // Don't react to data changes for cases like the `x-created` hook.
+            if (self.pauseReactivity) return
+
+            updateDom()
         })
-
-        return {
-            data: membrane.getProxy(data),
-            membrane,
-        }
     }
 
-    walkAndSkipNestedComponents(el, callback, initializeComponentCallback = () => {}) {
+    walkAndSkipNestedComponents(el, callback, initializeComponentCallback = () => ({})) {
         walk(el, el => {
             // We've hit a component.
             if (el.hasAttribute('x-data')) {
@@ -123,7 +139,7 @@ export default class Component {
         })
     }
 
-    initializeElements(rootEl, extraVars = () => {}) {
+    initializeElements(rootEl, extraVars = () => ({})) {
         this.walkAndSkipNestedComponents(rootEl, el => {
             // Don't touch spawns from for loop
             if (el.__x_for_key !== undefined) return false
@@ -152,7 +168,7 @@ export default class Component {
         this.resolveBoundAttributes(el, true, extraVars)
     }
 
-    updateElements(rootEl, extraVars = () => {}) {
+    updateElements(rootEl, extraVars = () => ({})) {
         this.walkAndSkipNestedComponents(rootEl, el => {
             // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
             if (el.__x_for_key !== undefined && ! el.isSameNode(this.$el)) return false
@@ -255,11 +271,11 @@ export default class Component {
 
                     var output = this.evaluateReturnExpression(el, expression, extraVars)
 
-                    handleIfDirective(el, output, initialUpdate)
+                    handleIfDirective(this, el, output, initialUpdate, extraVars)
                     break;
 
                 case 'for':
-                    handleForDirective(this, el, expression, initialUpdate)
+                    handleForDirective(this, el, expression, initialUpdate, extraVars)
                     break;
 
                 case 'cloak':
@@ -272,17 +288,15 @@ export default class Component {
         })
     }
 
-    evaluateReturnExpression(el, expression, extraVars = () => {}) {
+    evaluateReturnExpression(el, expression, extraVars = () => ({})) {
         let extraVarsData = extraVars()
-        if (typeof extraVarsData === 'undefined') extraVarsData = {}
         extraVarsData.$dispatch = this.getDispatchFunction(el)
 
         return saferEval(expression, this.$data, extraVarsData)
     }
 
-    evaluateCommandExpression(el, expression, extraVars = () => {}) {
+    evaluateCommandExpression(el, expression, extraVars = () => ({})) {
         let extraVarsData = extraVars()
-        if (typeof extraVarsData === 'undefined') extraVarsData = {}
         extraVarsData.$dispatch = this.getDispatchFunction(el)
 
         return saferEvalNoReturn(expression, this.$data, extraVarsData)
@@ -324,7 +338,7 @@ export default class Component {
 
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
-                        if (node.nodeType !== 1) return
+                        if (node.nodeType !== 1 || node.__x_inserted_me) return
 
                         if (node.matches('[x-data]')) {
                             node.__x = new Component(node)

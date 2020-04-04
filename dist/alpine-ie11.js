@@ -23,10 +23,10 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  (function(){function l(){function n(a){return a?"object"===typeof a||"function"===typeof a:!1}var p=null;var g=function(a,b){function f(){}if(!n(a)||!n(b))throw new TypeError("Cannot create proxy with a non-object as target or handler");p=function(){f=function(a){throw new TypeError("Cannot perform '"+a+"' on a proxy that has been revoked");};};var e=b;b={get:null,set:null,apply:null,construct:null};for(var k in e){if(!(k in b))throw new TypeError("Proxy polyfill does not support trap '"+k+"'");b[k]=e[k];}"function"===
-  typeof e&&(b.apply=e.apply.bind(e));var c=this,g=!1,q=!1;"function"===typeof a?(c=function(){var h=this&&this.constructor===c,d=Array.prototype.slice.call(arguments);f(h?"construct":"apply");return h&&b.construct?b.construct.call(this,a,d):!h&&b.apply?b.apply(a,this,d):h?(d.unshift(a),new (a.bind.apply(a,d))):a.apply(this,d)},g=!0):a instanceof Array&&(c=[],q=!0);var r=b.get?function(a){f("get");return b.get(this,a,c)}:function(a){f("get");return this[a]},v=b.set?function(a,d){f("set");b.set(this,
-  a,d,c);}:function(a,b){f("set");this[a]=b;},t={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((g||q)&&b in c)){var d={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:r.bind(a,b),set:v.bind(a,b)};Object.defineProperty(c,b,d);t[b]=!0;}});e=!0;Object.setPrototypeOf?Object.setPrototypeOf(c,Object.getPrototypeOf(a)):c.__proto__?c.__proto__=a.__proto__:e=!1;if(b.get||!e)for(var m in a)t[m]||Object.defineProperty(c,m,{get:r.bind(a,m)});Object.seal(a);Object.seal(c);return c};g.revocable=
-  function(a,b){return {proxy:new g(a,b),revoke:p}};return g}var u="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;u.Proxy||(u.Proxy=l(),u.Proxy.revocable=u.Proxy.revocable);})();
+  (function(){function k(){function p(a){return a?"object"===typeof a||"function"===typeof a:!1}var l=null;var n=function(a,c){function g(){}if(!p(a)||!p(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");l=function(){a=null;g=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){l=null;},0);var f=c;c={get:null,set:null,apply:null,construct:null};for(var h in f){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+
+  h+"'");c[h]=f[h];}"function"===typeof f&&(c.apply=f.apply.bind(f));var d=this,q=!1,r=!1;"function"===typeof a?(d=function(){var b=this&&this.constructor===d,e=Array.prototype.slice.call(arguments);g(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,e):!b&&c.apply?c.apply(a,this,e):b?(e.unshift(a),new (a.bind.apply(a,e))):a.apply(this,e)},q=!0):a instanceof Array&&(d=[],r=!0);var t=c.get?function(b){g("get");return c.get(this,b,d)}:function(b){g("get");return this[b]},w=c.set?function(b,
+  e){g("set");c.set(this,b,e,d);}:function(b,e){g("set");this[b]=e;},u={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((q||r)&&b in d)){var e={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:t.bind(a,b),set:w.bind(a,b)};Object.defineProperty(d,b,e);u[b]=!0;}});f=!0;Object.setPrototypeOf?Object.setPrototypeOf(d,Object.getPrototypeOf(a)):d.__proto__?d.__proto__=a.__proto__:f=!1;if(c.get||!f)for(var m in a)u[m]||Object.defineProperty(d,m,{get:t.bind(a,m)});Object.seal(a);Object.seal(d);
+  return d};n.revocable=function(a,c){return {proxy:new n(a,c),revoke:l}};return n}var v="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;v.Proxy||(v.Proxy=k(),v.Proxy.revocable=v.Proxy.revocable);})();
 
   !function(e){var t=e.Element.prototype;"function"!=typeof t.matches&&(t.matches=t.msMatchesSelector||t.mozMatchesSelector||t.webkitMatchesSelector||function(e){for(var t=(this.document||this.ownerDocument).querySelectorAll(e),o=0;t[o]&&t[o]!==this;)++o;return Boolean(t[o])}),"function"!=typeof t.closest&&(t.closest=function(e){for(var t=this;t&&1===t.nodeType;){if(t.matches(e))return t;t=t.parentNode;}return null});}(window);
 
@@ -1135,9 +1135,9 @@
 
   var inspectSource = sharedStore.inspectSource;
 
-  var WeakMap$1 = global_1.WeakMap;
+  var WeakMap = global_1.WeakMap;
 
-  var nativeWeakMap = typeof WeakMap$1 === 'function' && /native code/.test(inspectSource(WeakMap$1));
+  var nativeWeakMap = typeof WeakMap === 'function' && /native code/.test(inspectSource(WeakMap));
 
   var shared = createCommonjsModule(function (module) {
   (module.exports = function (key, value) {
@@ -1164,7 +1164,7 @@
 
   var hiddenKeys = {};
 
-  var WeakMap$2 = global_1.WeakMap;
+  var WeakMap$1 = global_1.WeakMap;
   var set, get, has$1;
 
   var enforce = function (it) {
@@ -1181,7 +1181,7 @@
   };
 
   if (nativeWeakMap) {
-    var store$1 = new WeakMap$2();
+    var store$1 = new WeakMap$1();
     var wmget = store$1.get;
     var wmhas = store$1.has;
     var wmset = store$1.set;
@@ -2465,7 +2465,7 @@
       return { __await: arg };
     };
 
-    function AsyncIterator(generator) {
+    function AsyncIterator(generator, PromiseImpl) {
       function invoke(method, arg, resolve, reject) {
         var record = tryCatch(generator[method], generator, arg);
         if (record.type === "throw") {
@@ -2476,14 +2476,14 @@
           if (value &&
               typeof value === "object" &&
               hasOwn.call(value, "__await")) {
-            return Promise.resolve(value.__await).then(function(value) {
+            return PromiseImpl.resolve(value.__await).then(function(value) {
               invoke("next", value, resolve, reject);
             }, function(err) {
               invoke("throw", err, resolve, reject);
             });
           }
 
-          return Promise.resolve(value).then(function(unwrapped) {
+          return PromiseImpl.resolve(value).then(function(unwrapped) {
             // When a yielded Promise is resolved, its final value becomes
             // the .value of the Promise<{value,done}> result for the
             // current iteration.
@@ -2501,7 +2501,7 @@
 
       function enqueue(method, arg) {
         function callInvokeWithMethodAndArg() {
-          return new Promise(function(resolve, reject) {
+          return new PromiseImpl(function(resolve, reject) {
             invoke(method, arg, resolve, reject);
           });
         }
@@ -2541,9 +2541,12 @@
     // Note that simple async functions are implemented on top of
     // AsyncIterator objects; they just return a Promise for the value of
     // the final result produced by the iterator.
-    exports.async = function(innerFn, outerFn, self, tryLocsList) {
+    exports.async = function(innerFn, outerFn, self, tryLocsList, PromiseImpl) {
+      if (PromiseImpl === void 0) PromiseImpl = Promise;
+
       var iter = new AsyncIterator(
-        wrap(innerFn, outerFn, self, tryLocsList)
+        wrap(innerFn, outerFn, self, tryLocsList),
+        PromiseImpl
       );
 
       return exports.isGeneratorFunction(outerFn)
@@ -3161,6 +3164,19 @@
     reduce: function reduce(callbackfn /* , initialValue */) {
       return $reduce(this, callbackfn, arguments.length, arguments.length > 1 ? arguments[1] : undefined);
     }
+  });
+
+  // `SameValue` abstract operation
+  // https://tc39.github.io/ecma262/#sec-samevalue
+  var sameValue = Object.is || function is(x, y) {
+    // eslint-disable-next-line no-self-compare
+    return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
+  };
+
+  // `Object.is` method
+  // https://tc39.github.io/ecma262/#sec-object.is
+  _export({ target: 'Object', stat: true }, {
+    is: sameValue
   });
 
   var FAILS_ON_PRIMITIVES = fails(function () { objectKeys(1); });
@@ -3966,6 +3982,44 @@
     exec: regexpExec
   });
 
+  var MATCH = wellKnownSymbol('match');
+
+  // `IsRegExp` abstract operation
+  // https://tc39.github.io/ecma262/#sec-isregexp
+  var isRegexp = function (it) {
+    var isRegExp;
+    return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
+  };
+
+  var notARegexp = function (it) {
+    if (isRegexp(it)) {
+      throw TypeError("The method doesn't accept regular expressions");
+    } return it;
+  };
+
+  var MATCH$1 = wellKnownSymbol('match');
+
+  var correctIsRegexpLogic = function (METHOD_NAME) {
+    var regexp = /./;
+    try {
+      '/./'[METHOD_NAME](regexp);
+    } catch (e) {
+      try {
+        regexp[MATCH$1] = false;
+        return '/./'[METHOD_NAME](regexp);
+      } catch (f) { /* empty */ }
+    } return false;
+  };
+
+  // `String.prototype.includes` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.includes
+  _export({ target: 'String', proto: true, forced: !correctIsRegexpLogic('includes') }, {
+    includes: function includes(searchString /* , position = 0 */) {
+      return !!~String(requireObjectCoercible(this))
+        .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
   // TODO: Remove from `core-js@4` since it's moved to entry points
 
 
@@ -4154,15 +4208,6 @@
       }
     ];
   });
-
-  var MATCH = wellKnownSymbol('match');
-
-  // `IsRegExp` abstract operation
-  // https://tc39.github.io/ecma262/#sec-isregexp
-  var isRegexp = function (it) {
-    var isRegExp;
-    return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
-  };
 
   var arrayPush = [].push;
   var min$2 = Math.min;
@@ -4587,6 +4632,7 @@
     redefine(global_1, NUMBER, NumberWrapper);
   }
 
+<<<<<<< HEAD
   var notARegexp = function (it) {
     if (isRegexp(it)) {
       throw TypeError("The method doesn't accept regular expressions");
@@ -4613,6 +4659,45 @@
     includes: function includes(searchString /* , position = 0 */) {
       return !!~String(requireObjectCoercible(this))
         .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
+=======
+  var propertyIsEnumerable = objectPropertyIsEnumerable.f;
+
+  // `Object.{ entries, values }` methods implementation
+  var createMethod$5 = function (TO_ENTRIES) {
+    return function (it) {
+      var O = toIndexedObject(it);
+      var keys = objectKeys(O);
+      var length = keys.length;
+      var i = 0;
+      var result = [];
+      var key;
+      while (length > i) {
+        key = keys[i++];
+        if (!descriptors || propertyIsEnumerable.call(O, key)) {
+          result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
+        }
+      }
+      return result;
+    };
+  };
+
+  var objectToArray = {
+    // `Object.entries` method
+    // https://tc39.github.io/ecma262/#sec-object.entries
+    entries: createMethod$5(true),
+    // `Object.values` method
+    // https://tc39.github.io/ecma262/#sec-object.values
+    values: createMethod$5(false)
+  };
+
+  var $values = objectToArray.values;
+
+  // `Object.values` method
+  // https://tc39.github.io/ecma262/#sec-object.values
+  _export({ target: 'Object', stat: true }, {
+    values: function values(O) {
+      return $values(O);
+>>>>>>> 85bb4a267e0eb3e2dcd18ad62308e426fb889a16
     }
   });
 
@@ -5255,12 +5340,11 @@
       }.bind(this));
     }.bind(this));
   }
-
   function isNumeric(subject) {
     return !isNaN(subject);
   }
 
-  function handleForDirective(component, el, expression, initialUpdate) {
+  function handleForDirective(component, el, expression, initialUpdate, extraVars) {
     var _this = this;
 
     if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
@@ -5280,7 +5364,7 @@
       // empty, effectively hiding it.
       items = [];
     } else {
-      items = component.evaluateReturnExpression(el, bunch);
+      items = component.evaluateReturnExpression(el, bunch, extraVars);
     } // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
 
@@ -5635,7 +5719,7 @@
     component.showDirectiveLastElement = el;
   }
 
-  function handleIfDirective(el, expressionResult, initialUpdate) {
+  function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
     var _this = this;
 
     if (el.nodeName.toLowerCase() !== 'template') console.warn("Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if");
@@ -5648,6 +5732,7 @@
       transitionIn(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
       }.bind(this), initialUpdate);
+      component.initializeElements(el.nextElementSibling, extraVars);
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
@@ -5715,6 +5800,12 @@
         }
       }.bind(this);
 
+      if (modifiers.includes('debounce')) {
+        var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
+        var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
+        _handler2 = debounce(_handler2, wait);
+      }
+
       listenerTarget.addEventListener(event, _handler2);
     }
   }
@@ -5743,7 +5834,13 @@
       _newArrowCheck(this, _this3);
 
       return !['window', 'document', 'prevent', 'stop'].includes(i);
-    }.bind(this)); // If no modifier is specified, we'll call it a press.
+    }.bind(this));
+
+    if (keyModifiers.includes('debounce')) {
+      var debounceIndex = keyModifiers.indexOf('debounce');
+      keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
+    } // If no modifier is specified, we'll call it a press.
+
 
     if (keyModifiers.length === 0) return false; // If one is passed, AND it matches the key pressed, we'll call it a press.
 
@@ -5844,397 +5941,122 @@
         return modifiers.includes('number') ? Array.from(event.target.selectedOptions).map(function (option) {
           _newArrowCheck(this, _this3);
 
-          return parseFloat(option.value || option.text);
+          var rawValue = option.value || option.text;
+          var number = rawValue ? parseFloat(rawValue) : null;
+          return isNaN(number) ? rawValue : number;
         }.bind(this)) : Array.from(event.target.selectedOptions).map(function (option) {
           _newArrowCheck(this, _this3);
 
           return option.value || option.text;
         }.bind(this));
       } else {
-        return modifiers.includes('number') ? parseFloat(event.target.value) : modifiers.includes('trim') ? event.target.value.trim() : event.target.value;
+        var rawValue = event.target.value;
+        var number = rawValue ? parseFloat(rawValue) : null;
+        return modifiers.includes('number') ? isNaN(number) ? rawValue : number : modifiers.includes('trim') ? rawValue.trim() : rawValue;
       }
     }.bind(this);
   }
 
-  /**
-   * Copyright (C) 2017 salesforce.com, inc.
-   */
-  const { isArray: isArray$1 } = Array;
-  const { getPrototypeOf, create: ObjectCreate, defineProperty: ObjectDefineProperty, defineProperties: ObjectDefineProperties, isExtensible, getOwnPropertyDescriptor: getOwnPropertyDescriptor$5, getOwnPropertyNames: getOwnPropertyNames$1, getOwnPropertySymbols, preventExtensions, hasOwnProperty: hasOwnProperty$1, } = Object;
-  const { push: ArrayPush, concat: ArrayConcat, map: ArrayMap, } = Array.prototype;
-  function isUndefined(obj) {
-      return obj === undefined;
-  }
-  function isFunction(obj) {
-      return typeof obj === 'function';
-  }
-  function isObject$1(obj) {
-      return typeof obj === 'object';
-  }
-  const proxyToValueMap = new WeakMap();
-  function registerProxy(proxy, value) {
-      proxyToValueMap.set(proxy, value);
-  }
-  const unwrap = (replicaOrAny) => proxyToValueMap.get(replicaOrAny) || replicaOrAny;
-
-  function wrapValue(membrane, value) {
-      return membrane.valueIsObservable(value) ? membrane.getProxy(value) : value;
-  }
-  /**
-   * Unwrap property descriptors will set value on original descriptor
-   * We only need to unwrap if value is specified
-   * @param descriptor external descrpitor provided to define new property on original value
-   */
-  function unwrapDescriptor(descriptor) {
-      if (hasOwnProperty$1.call(descriptor, 'value')) {
-          descriptor.value = unwrap(descriptor.value);
+  // `Reflect.set` method
+  // https://tc39.github.io/ecma262/#sec-reflect.set
+  function set$2(target, propertyKey, V /* , receiver */) {
+    var receiver = arguments.length < 4 ? target : arguments[3];
+    var ownDescriptor = objectGetOwnPropertyDescriptor.f(anObject(target), propertyKey);
+    var existingDescriptor, prototype;
+    if (!ownDescriptor) {
+      if (isObject(prototype = objectGetPrototypeOf(target))) {
+        return set$2(prototype, propertyKey, V, receiver);
       }
-      return descriptor;
-  }
-  function lockShadowTarget(membrane, shadowTarget, originalTarget) {
-      const targetKeys = ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      targetKeys.forEach((key) => {
-          let descriptor = getOwnPropertyDescriptor$5(originalTarget, key);
-          // We do not need to wrap the descriptor if configurable
-          // Because we can deal with wrapping it when user goes through
-          // Get own property descriptor. There is also a chance that this descriptor
-          // could change sometime in the future, so we can defer wrapping
-          // until we need to
-          if (!descriptor.configurable) {
-              descriptor = wrapDescriptor(membrane, descriptor, wrapValue);
-          }
-          ObjectDefineProperty(shadowTarget, key, descriptor);
-      });
-      preventExtensions(shadowTarget);
-  }
-  class ReactiveProxyHandler {
-      constructor(membrane, value) {
-          this.originalTarget = value;
-          this.membrane = membrane;
-      }
-      get(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const value = originalTarget[key];
-          const { valueObserved } = membrane;
-          valueObserved(originalTarget, key);
-          return membrane.getProxy(value);
-      }
-      set(shadowTarget, key, value) {
-          const { originalTarget, membrane: { valueMutated } } = this;
-          const oldValue = originalTarget[key];
-          if (oldValue !== value) {
-              originalTarget[key] = value;
-              valueMutated(originalTarget, key);
-          }
-          else if (key === 'length' && isArray$1(originalTarget)) {
-              // fix for issue #236: push will add the new index, and by the time length
-              // is updated, the internal length is already equal to the new length value
-              // therefore, the oldValue is equal to the value. This is the forking logic
-              // to support this use case.
-              valueMutated(originalTarget, key);
-          }
-          return true;
-      }
-      deleteProperty(shadowTarget, key) {
-          const { originalTarget, membrane: { valueMutated } } = this;
-          delete originalTarget[key];
-          valueMutated(originalTarget, key);
-          return true;
-      }
-      apply(shadowTarget, thisArg, argArray) {
-          /* No op */
-      }
-      construct(target, argArray, newTarget) {
-          /* No op */
-      }
-      has(shadowTarget, key) {
-          const { originalTarget, membrane: { valueObserved } } = this;
-          valueObserved(originalTarget, key);
-          return key in originalTarget;
-      }
-      ownKeys(shadowTarget) {
-          const { originalTarget } = this;
-          return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      }
-      isExtensible(shadowTarget) {
-          const shadowIsExtensible = isExtensible(shadowTarget);
-          if (!shadowIsExtensible) {
-              return shadowIsExtensible;
-          }
-          const { originalTarget, membrane } = this;
-          const targetIsExtensible = isExtensible(originalTarget);
-          if (!targetIsExtensible) {
-              lockShadowTarget(membrane, shadowTarget, originalTarget);
-          }
-          return targetIsExtensible;
-      }
-      setPrototypeOf(shadowTarget, prototype) {
-      }
-      getPrototypeOf(shadowTarget) {
-          const { originalTarget } = this;
-          return getPrototypeOf(originalTarget);
-      }
-      getOwnPropertyDescriptor(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const { valueObserved } = this.membrane;
-          // keys looked up via hasOwnProperty need to be reactive
-          valueObserved(originalTarget, key);
-          let desc = getOwnPropertyDescriptor$5(originalTarget, key);
-          if (isUndefined(desc)) {
-              return desc;
-          }
-          const shadowDescriptor = getOwnPropertyDescriptor$5(shadowTarget, key);
-          if (!isUndefined(shadowDescriptor)) {
-              return shadowDescriptor;
-          }
-          // Note: by accessing the descriptor, the key is marked as observed
-          // but access to the value, setter or getter (if available) cannot observe
-          // mutations, just like regular methods, in which case we just do nothing.
-          desc = wrapDescriptor(membrane, desc, wrapValue);
-          if (!desc.configurable) {
-              // If descriptor from original target is not configurable,
-              // We must copy the wrapped descriptor over to the shadow target.
-              // Otherwise, proxy will throw an invariant error.
-              // This is our last chance to lock the value.
-              // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
-              ObjectDefineProperty(shadowTarget, key, desc);
-          }
-          return desc;
-      }
-      preventExtensions(shadowTarget) {
-          const { originalTarget, membrane } = this;
-          lockShadowTarget(membrane, shadowTarget, originalTarget);
-          preventExtensions(originalTarget);
-          return true;
-      }
-      defineProperty(shadowTarget, key, descriptor) {
-          const { originalTarget, membrane } = this;
-          const { valueMutated } = membrane;
-          const { configurable } = descriptor;
-          // We have to check for value in descriptor
-          // because Object.freeze(proxy) calls this method
-          // with only { configurable: false, writeable: false }
-          // Additionally, method will only be called with writeable:false
-          // if the descriptor has a value, as opposed to getter/setter
-          // So we can just check if writable is present and then see if
-          // value is present. This eliminates getter and setter descriptors
-          if (hasOwnProperty$1.call(descriptor, 'writable') && !hasOwnProperty$1.call(descriptor, 'value')) {
-              const originalDescriptor = getOwnPropertyDescriptor$5(originalTarget, key);
-              descriptor.value = originalDescriptor.value;
-          }
-          ObjectDefineProperty(originalTarget, key, unwrapDescriptor(descriptor));
-          if (configurable === false) {
-              ObjectDefineProperty(shadowTarget, key, wrapDescriptor(membrane, descriptor, wrapValue));
-          }
-          valueMutated(originalTarget, key);
-          return true;
-      }
+      ownDescriptor = createPropertyDescriptor(0);
+    }
+    if (has(ownDescriptor, 'value')) {
+      if (ownDescriptor.writable === false || !isObject(receiver)) return false;
+      if (existingDescriptor = objectGetOwnPropertyDescriptor.f(receiver, propertyKey)) {
+        if (existingDescriptor.get || existingDescriptor.set || existingDescriptor.writable === false) return false;
+        existingDescriptor.value = V;
+        objectDefineProperty.f(receiver, propertyKey, existingDescriptor);
+      } else objectDefineProperty.f(receiver, propertyKey, createPropertyDescriptor(0, V));
+      return true;
+    }
+    return ownDescriptor.set === undefined ? false : (ownDescriptor.set.call(receiver, V), true);
   }
 
-  function wrapReadOnlyValue(membrane, value) {
-      return membrane.valueIsObservable(value) ? membrane.getReadOnlyProxy(value) : value;
-  }
-  class ReadOnlyHandler {
-      constructor(membrane, value) {
-          this.originalTarget = value;
-          this.membrane = membrane;
-      }
-      get(shadowTarget, key) {
-          const { membrane, originalTarget } = this;
-          const value = originalTarget[key];
-          const { valueObserved } = membrane;
-          valueObserved(originalTarget, key);
-          return membrane.getReadOnlyProxy(value);
-      }
-      set(shadowTarget, key, value) {
-          return false;
-      }
-      deleteProperty(shadowTarget, key) {
-          return false;
-      }
-      apply(shadowTarget, thisArg, argArray) {
-          /* No op */
-      }
-      construct(target, argArray, newTarget) {
-          /* No op */
-      }
-      has(shadowTarget, key) {
-          const { originalTarget, membrane: { valueObserved } } = this;
-          valueObserved(originalTarget, key);
-          return key in originalTarget;
-      }
-      ownKeys(shadowTarget) {
-          const { originalTarget } = this;
-          return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      }
-      setPrototypeOf(shadowTarget, prototype) {
-      }
-      getOwnPropertyDescriptor(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const { valueObserved } = membrane;
-          // keys looked up via hasOwnProperty need to be reactive
-          valueObserved(originalTarget, key);
-          let desc = getOwnPropertyDescriptor$5(originalTarget, key);
-          if (isUndefined(desc)) {
-              return desc;
-          }
-          const shadowDescriptor = getOwnPropertyDescriptor$5(shadowTarget, key);
-          if (!isUndefined(shadowDescriptor)) {
-              return shadowDescriptor;
-          }
-          // Note: by accessing the descriptor, the key is marked as observed
-          // but access to the value or getter (if available) cannot be observed,
-          // just like regular methods, in which case we just do nothing.
-          desc = wrapDescriptor(membrane, desc, wrapReadOnlyValue);
-          if (hasOwnProperty$1.call(desc, 'set')) {
-              desc.set = undefined; // readOnly membrane does not allow setters
-          }
-          if (!desc.configurable) {
-              // If descriptor from original target is not configurable,
-              // We must copy the wrapped descriptor over to the shadow target.
-              // Otherwise, proxy will throw an invariant error.
-              // This is our last chance to lock the value.
-              // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
-              ObjectDefineProperty(shadowTarget, key, desc);
-          }
-          return desc;
-      }
-      preventExtensions(shadowTarget) {
-          return false;
-      }
-      defineProperty(shadowTarget, key, descriptor) {
-          return false;
-      }
-  }
-  function createShadowTarget(value) {
-      let shadowTarget = undefined;
-      if (isArray$1(value)) {
-          shadowTarget = [];
-      }
-      else if (isObject$1(value)) {
-          shadowTarget = {};
-      }
-      return shadowTarget;
-  }
-  const ObjectDotPrototype = Object.prototype;
-  function defaultValueIsObservable(value) {
-      // intentionally checking for null
-      if (value === null) {
-          return false;
-      }
-      // treat all non-object types, including undefined, as non-observable values
-      if (typeof value !== 'object') {
-          return false;
-      }
-      if (isArray$1(value)) {
-          return true;
-      }
-      const proto = getPrototypeOf(value);
-      return (proto === ObjectDotPrototype || proto === null || getPrototypeOf(proto) === null);
-  }
-  const defaultValueObserved = (obj, key) => {
-      /* do nothing */
-  };
-  const defaultValueMutated = (obj, key) => {
-      /* do nothing */
-  };
-  const defaultValueDistortion = (value) => value;
-  function wrapDescriptor(membrane, descriptor, getValue) {
-      const { set, get } = descriptor;
-      if (hasOwnProperty$1.call(descriptor, 'value')) {
-          descriptor.value = getValue(membrane, descriptor.value);
-      }
-      else {
-          if (!isUndefined(get)) {
-              descriptor.get = function () {
-                  // invoking the original getter with the original target
-                  return getValue(membrane, get.call(unwrap(this)));
-              };
-          }
-          if (!isUndefined(set)) {
-              descriptor.set = function (value) {
-                  // At this point we don't have a clear indication of whether
-                  // or not a valid mutation will occur, we don't have the key,
-                  // and we are not sure why and how they are invoking this setter.
-                  // Nevertheless we preserve the original semantics by invoking the
-                  // original setter with the original target and the unwrapped value
-                  set.call(unwrap(this), membrane.unwrapProxy(value));
-              };
-          }
-      }
-      return descriptor;
-  }
-  class ReactiveMembrane {
-      constructor(options) {
-          this.valueDistortion = defaultValueDistortion;
-          this.valueMutated = defaultValueMutated;
-          this.valueObserved = defaultValueObserved;
-          this.valueIsObservable = defaultValueIsObservable;
-          this.objectGraph = new WeakMap();
-          if (!isUndefined(options)) {
-              const { valueDistortion, valueMutated, valueObserved, valueIsObservable } = options;
-              this.valueDistortion = isFunction(valueDistortion) ? valueDistortion : defaultValueDistortion;
-              this.valueMutated = isFunction(valueMutated) ? valueMutated : defaultValueMutated;
-              this.valueObserved = isFunction(valueObserved) ? valueObserved : defaultValueObserved;
-              this.valueIsObservable = isFunction(valueIsObservable) ? valueIsObservable : defaultValueIsObservable;
-          }
-      }
-      getProxy(value) {
-          const unwrappedValue = unwrap(value);
-          const distorted = this.valueDistortion(unwrappedValue);
-          if (this.valueIsObservable(distorted)) {
-              const o = this.getReactiveState(unwrappedValue, distorted);
-              // when trying to extract the writable version of a readonly
-              // we return the readonly.
-              return o.readOnly === value ? value : o.reactive;
-          }
-          return distorted;
-      }
-      getReadOnlyProxy(value) {
-          value = unwrap(value);
-          const distorted = this.valueDistortion(value);
-          if (this.valueIsObservable(distorted)) {
-              return this.getReactiveState(value, distorted).readOnly;
-          }
-          return distorted;
-      }
-      unwrapProxy(p) {
-          return unwrap(p);
-      }
-      getReactiveState(value, distortedValue) {
-          const { objectGraph, } = this;
-          let reactiveState = objectGraph.get(distortedValue);
-          if (reactiveState) {
-              return reactiveState;
-          }
-          const membrane = this;
-          reactiveState = {
-              get reactive() {
-                  const reactiveHandler = new ReactiveProxyHandler(membrane, distortedValue);
-                  // caching the reactive proxy after the first time it is accessed
-                  const proxy = new Proxy(createShadowTarget(distortedValue), reactiveHandler);
-                  registerProxy(proxy, value);
-                  ObjectDefineProperty(this, 'reactive', { value: proxy });
-                  return proxy;
-              },
-              get readOnly() {
-                  const readOnlyHandler = new ReadOnlyHandler(membrane, distortedValue);
-                  // caching the readOnly proxy after the first time it is accessed
-                  const proxy = new Proxy(createShadowTarget(distortedValue), readOnlyHandler);
-                  registerProxy(proxy, value);
-                  ObjectDefineProperty(this, 'readOnly', { value: proxy });
-                  return proxy;
-              }
-          };
-          objectGraph.set(distortedValue, reactiveState);
-          return reactiveState;
-      }
-  }
-  /** version: 0.26.0 */
+  // MS Edge 17-18 Reflect.set allows setting the property to object
+  // with non-writable property on the prototype
+  var MS_EDGE_BUG = fails(function () {
+    var object = objectDefineProperty.f({}, 'a', { configurable: true });
+    // eslint-disable-next-line no-undef
+    return Reflect.set(objectGetPrototypeOf(object), 'a', 1, object) !== false;
+  });
 
-  var Component =
-  /*#__PURE__*/
-  function () {
+  _export({ target: 'Reflect', stat: true, forced: MS_EDGE_BUG }, {
+    set: set$2
+  });
+
+  function wrap(data, mutationCallback) {
+    /* IE11-ONLY:START */
+    return wrapForIe11(data, mutationCallback);
+  }
+  function unwrap(membrane, observable) {
+    var _this = this;
+
+    var unwrappedData = membrane.unwrapProxy(observable);
+    var copy = {};
+    Object.keys(unwrappedData).forEach(function (key) {
+      _newArrowCheck(this, _this);
+
+      if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
+      copy[key] = unwrappedData[key];
+    }.bind(this));
+    return copy;
+  }
+
+  function wrapForIe11(data, mutationCallback) {
+    var proxyHandler = {
+      set: function set(target, key, value) {
+        // Set the value converting it to a "Deep Proxy" when required
+        // Note that if a project is not a valid object, it won't be converted to a proxy
+        var setWasSuccessful = Reflect.set(target, key, deepProxy(value, proxyHandler));
+        mutationCallback(target, key);
+        return setWasSuccessful;
+      },
+      get: function get(target, key) {
+        // Provide a way to determine if this object is an Alpine proxy or not.
+        if (key === "$isAlpineProxy") return true; // Just return the flippin' value. Gawsh.
+
+        return target[key];
+      }
+    };
+    return {
+      data: deepProxy(data, proxyHandler),
+      membrane: {
+        unwrapProxy: function unwrapProxy(proxy) {
+          return proxy;
+        }
+      }
+    };
+  }
+
+  function deepProxy(target, proxyHandler) {
+    // If target is null, return it.
+    if (target === null) return target; // If target is not an object, return it.
+
+    if (_typeof(target) !== 'object') return target; // If target is a DOM node (like in the case of this.$el), return it.
+
+    if (target instanceof Node) return target; // If target is already an Alpine proxy, return it.
+
+    if (target['$isAlpineProxy']) return target; // Otherwise proxy the properties recursively.
+    // This enables reactivity on setting nested data.
+    // Note that if a project is not a valid object, it won't be converted to a proxy
+
+    for (var property in target) {
+      target[property] = deepProxy(target[property], proxyHandler);
+    }
+
+    return new Proxy(target, proxyHandler);
+  }
+
+  var Component = /*#__PURE__*/function () {
     function Component(el) {
       var _this = this;
 
@@ -6254,6 +6076,7 @@
       this.unobservedData.$el = null;
       this.unobservedData.$refs = null;
       this.unobservedData.$nextTick = null;
+      this.unobservedData.$watch = null;
       /* IE11-ONLY:END */
       // Construct a Proxy-based observable. This will be used to handle reactivity.
 
@@ -6273,6 +6096,15 @@
         _newArrowCheck(this, _this);
 
         this.nextTickStack.push(callback);
+      }.bind(this);
+
+      this.watchers = {};
+
+      this.unobservedData.$watch = function (property, callback) {
+        _newArrowCheck(this, _this);
+
+        if (!this.watchers[property]) this.watchers[property] = [];
+        this.watchers[property].push(callback);
       }.bind(this);
 
       this.showDirectiveStack = [];
@@ -6303,54 +6135,81 @@
     _createClass(Component, [{
       key: "getUnobservedData",
       value: function getUnobservedData() {
-        var _this2 = this;
-
-        var unwrappedData = this.membrane.unwrapProxy(this.$data);
-        var copy = {};
-        Object.keys(unwrappedData).forEach(function (key) {
-          _newArrowCheck(this, _this2);
-
-          if (['$el', '$refs', '$nextTick'].includes(key)) return;
-          copy[key] = unwrappedData[key];
-        }.bind(this));
-        return copy;
+        return unwrap(this.membrane, this.$data);
       }
     }, {
       key: "wrapDataInObservable",
       value: function wrapDataInObservable(data) {
-        var self = this;
-        var membrane = new ReactiveMembrane({
-          valueMutated: function valueMutated(target, key) {
-            var _this3 = this;
+        var _this2 = this;
 
-            // Don't react to data changes for cases like the `x-created` hook.
-            if (self.pauseReactivity) return;
-            debounce(function () {
+        var self = this;
+        var updateDom = debounce(function () {
+          self.updateElements(self.$el);
+        }, 0);
+        return wrap(data, function (target, key) {
+          var _this3 = this;
+
+          _newArrowCheck(this, _this2);
+
+          if (self.watchers[key]) {
+            // If there's a watcher for this specific key, run it.
+            self.watchers[key].forEach(function (callback) {
               _newArrowCheck(this, _this3);
 
-              self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
+              return callback(target[key]);
+            }.bind(this));
+          } else {
+            // Let's walk through the watchers with "dot-notation" (foo.bar) and see
+            // if this mutation fits any of them.
+            Object.keys(self.watchers).filter(function (i) {
+              _newArrowCheck(this, _this3);
 
-              while (self.nextTickStack.length > 0) {
-                self.nextTickStack.shift()();
-              }
-            }.bind(this), 0)();
-          }
-        });
-        return {
-          data: membrane.getProxy(data),
-          membrane: membrane
-        };
+              return i.includes('.');
+            }.bind(this)).forEach(function (fullDotNotationKey) {
+              var _this4 = this;
+
+              _newArrowCheck(this, _this3);
+
+              var dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
+              // key, then skip it early for performance reasons.
+
+              if (key !== dotNotationParts[dotNotationParts.length - 1]) return; // Now, walk through the dot-notation "parts" recursively to find
+              // a match, and call the watcher if one's found.
+
+              dotNotationParts.reduce(function (comparisonData, part) {
+                var _this5 = this;
+
+                _newArrowCheck(this, _this4);
+
+                if (Object.is(target, comparisonData)) {
+                  // Run the watchers.
+                  self.watchers[fullDotNotationKey].forEach(function (callback) {
+                    _newArrowCheck(this, _this5);
+
+                    return callback(target[key]);
+                  }.bind(this));
+                }
+
+                return comparisonData[part];
+              }.bind(this), self.getUnobservedData());
+            }.bind(this));
+          } // Don't react to data changes for cases like the `x-created` hook.
+
+
+          if (self.pauseReactivity) return;
+          updateDom();
+        }.bind(this));
       }
     }, {
       key: "walkAndSkipNestedComponents",
       value: function walkAndSkipNestedComponents(el, callback) {
-        var _this4 = this;
+        var _this6 = this;
 
         var initializeComponentCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this4);
+          _newArrowCheck(this, _this6);
         }.bind(this);
         walk(el, function (el) {
-          _newArrowCheck(this, _this4);
+          _newArrowCheck(this, _this6);
 
           // We've hit a component.
           if (el.hasAttribute('x-data')) {
@@ -6369,19 +6228,19 @@
     }, {
       key: "initializeElements",
       value: function initializeElements(rootEl) {
-        var _this5 = this;
+        var _this7 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this5);
+          _newArrowCheck(this, _this7);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this5);
+          _newArrowCheck(this, _this7);
 
           // Don't touch spawns from for loop
           if (el.__x_for_key !== undefined) return false;
           this.initializeElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this5);
+          _newArrowCheck(this, _this7);
 
           el.__x = new Component(el);
         }.bind(this));
@@ -6406,19 +6265,19 @@
     }, {
       key: "updateElements",
       value: function updateElements(rootEl) {
-        var _this6 = this;
+        var _this8 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this8);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this8);
 
           // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
           if (el.__x_for_key !== undefined && !el.isSameNode(this.$el)) return false;
           this.updateElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this8);
 
           el.__x = new Component(el);
         }.bind(this));
@@ -6431,45 +6290,45 @@
     }, {
       key: "executeAndClearRemainingShowDirectiveStack",
       value: function executeAndClearRemainingShowDirectiveStack() {
-        var _this7 = this;
+        var _this9 = this;
 
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
         this.showDirectiveStack.reverse().map(function (thing) {
-          var _this8 = this;
+          var _this10 = this;
 
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this9);
 
           return new Promise(function (resolve) {
-            var _this9 = this;
+            var _this11 = this;
 
-            _newArrowCheck(this, _this8);
+            _newArrowCheck(this, _this10);
 
             thing(function (finish) {
-              _newArrowCheck(this, _this9);
+              _newArrowCheck(this, _this11);
 
               resolve(finish);
             }.bind(this));
           }.bind(this));
         }.bind(this)).reduce(function (nestedPromise, promise) {
-          var _this10 = this;
+          var _this12 = this;
 
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this9);
 
           return nestedPromise.then(function () {
-            var _this11 = this;
+            var _this13 = this;
 
-            _newArrowCheck(this, _this10);
+            _newArrowCheck(this, _this12);
 
             return promise.then(function (finish) {
-              _newArrowCheck(this, _this11);
+              _newArrowCheck(this, _this13);
 
               return finish();
             }.bind(this));
           }.bind(this));
         }.bind(this), Promise.resolve(function () {
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this9);
         }.bind(this))); // We've processed the handler stack. let's clear it.
 
         this.showDirectiveStack = [];
@@ -6483,7 +6342,7 @@
     }, {
       key: "registerListeners",
       value: function registerListeners(el, extraVars) {
-        var _this12 = this;
+        var _this14 = this;
 
         getXAttrs(el).forEach(function (_ref) {
           var type = _ref.type,
@@ -6491,7 +6350,7 @@
               modifiers = _ref.modifiers,
               expression = _ref.expression;
 
-          _newArrowCheck(this, _this12);
+          _newArrowCheck(this, _this14);
 
           switch (type) {
             case 'on':
@@ -6507,20 +6366,20 @@
     }, {
       key: "resolveBoundAttributes",
       value: function resolveBoundAttributes(el) {
-        var _this13 = this;
+        var _this15 = this;
 
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
         var attrs = getXAttrs(el);
         attrs.forEach(function (_ref2) {
-          var _this14 = this;
+          var _this16 = this;
 
           var type = _ref2.type,
               value = _ref2.value,
               modifiers = _ref2.modifiers,
               expression = _ref2.expression;
 
-          _newArrowCheck(this, _this13);
+          _newArrowCheck(this, _this15);
 
           switch (type) {
             case 'model':
@@ -6556,16 +6415,16 @@
               // If this element also has x-for on it, don't process x-if.
               // We will let the "x-for" directive handle the "if"ing.
               if (attrs.filter(function (i) {
-                _newArrowCheck(this, _this14);
+                _newArrowCheck(this, _this16);
 
                 return i.type === 'for';
               }.bind(this)).length > 0) return;
               var output = this.evaluateReturnExpression(el, expression, extraVars);
-              handleIfDirective(el, output, initialUpdate);
+              handleIfDirective(this, el, output, initialUpdate, extraVars);
               break;
 
             case 'for':
-              handleForDirective(this, el, expression, initialUpdate);
+              handleForDirective(this, el, expression, initialUpdate, extraVars);
               break;
 
             case 'cloak':
@@ -6577,10 +6436,10 @@
     }, {
       key: "evaluateReturnExpression",
       value: function evaluateReturnExpression(el, expression) {
-        var _this15 = this;
+        var _this17 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this15);
+          _newArrowCheck(this, _this17);
         }.bind(this);
         var extraVarsData = extraVars();
         if (typeof extraVarsData === 'undefined') extraVarsData = {};
@@ -6590,10 +6449,10 @@
     }, {
       key: "evaluateCommandExpression",
       value: function evaluateCommandExpression(el, expression) {
-        var _this16 = this;
+        var _this18 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this16);
+          _newArrowCheck(this, _this18);
         }.bind(this);
         var extraVarsData = extraVars();
         if (typeof extraVarsData === 'undefined') extraVarsData = {};
@@ -6603,12 +6462,12 @@
     }, {
       key: "getDispatchFunction",
       value: function getDispatchFunction(el) {
-        var _this17 = this;
+        var _this19 = this;
 
         return function (event) {
           var detail = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-          _newArrowCheck(this, _this17);
+          _newArrowCheck(this, _this19);
 
           el.dispatchEvent(new CustomEvent(event, {
             detail: detail,
@@ -6619,7 +6478,7 @@
     }, {
       key: "listenForNewElementsToInitialize",
       value: function listenForNewElementsToInitialize() {
-        var _this18 = this;
+        var _this20 = this;
 
         var targetNode = this.$el;
         var observerOptions = {
@@ -6628,9 +6487,9 @@
           subtree: true
         };
         var observer = new MutationObserver(function (mutations) {
-          var _this19 = this;
+          var _this21 = this;
 
-          _newArrowCheck(this, _this18);
+          _newArrowCheck(this, _this20);
 
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
@@ -6639,14 +6498,14 @@
 
             if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
               (function () {
-                var _this20 = this;
+                var _this22 = this;
 
                 var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
                 Object.keys(rawData).forEach(function (key) {
-                  _newArrowCheck(this, _this20);
+                  _newArrowCheck(this, _this22);
 
-                  if (_this19.$data[key] !== rawData[key]) {
-                    _this19.$data[key] = rawData[key];
+                  if (_this21.$data[key] !== rawData[key]) {
+                    _this21.$data[key] = rawData[key];
                   }
                 }.bind(this));
               })();
@@ -6654,9 +6513,9 @@
 
             if (mutations[i].addedNodes.length > 0) {
               mutations[i].addedNodes.forEach(function (node) {
-                _newArrowCheck(this, _this19);
+                _newArrowCheck(this, _this21);
 
-                if (node.nodeType !== 1) return;
+                if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
                 if (node.matches('[x-data]')) {
                   node.__x = new Component(node);
@@ -6673,7 +6532,7 @@
     }, {
       key: "getRefsProxy",
       value: function getRefsProxy() {
-        var _this21 = this;
+        var _this23 = this;
 
         var self = this;
         var refObj = {};
@@ -6685,7 +6544,7 @@
         // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
 
         this.walkAndSkipNestedComponents(self.$el, function (el) {
-          _newArrowCheck(this, _this21);
+          _newArrowCheck(this, _this23);
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
@@ -6699,14 +6558,14 @@
 
         return new Proxy(refObj, {
           get: function get(object, property) {
-            var _this22 = this;
+            var _this24 = this;
 
             if (property === '$isAlpineProxy') return true;
             var ref; // We can't just query the DOM because it's hard to filter out refs in
             // nested components.
 
             self.walkAndSkipNestedComponents(self.$el, function (el) {
-              _newArrowCheck(this, _this22);
+              _newArrowCheck(this, _this24);
 
               if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                 ref = el;
@@ -6723,9 +6582,7 @@
 
   var Alpine = {
     start: function () {
-      var _start = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee() {
+      var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
 
         return regeneratorRuntime.wrap(function _callee$(_context) {
@@ -6855,7 +6712,14 @@
 
   if (!isTesting()) {
     window.Alpine = Alpine;
-    window.Alpine.start();
+
+    if (window.deferLoadingAlpine) {
+      window.deferLoadingAlpine(function () {
+        window.Alpine.start();
+      });
+    } else {
+      window.Alpine.start();
+    }
   }
 
 })));

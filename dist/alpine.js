@@ -1276,6 +1276,7 @@
 
       this.unobservedData.$el = this.$el;
       this.unobservedData.$refs = this.getRefsProxy();
+      this.nextTickTimeout = null;
       this.nextTickStack = [];
 
       this.unobservedData.$nextTick = callback => {
@@ -1379,13 +1380,8 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-      debounce(function () {
-        while (this.nextTickStack.length > 0) {
-          this.nextTickStack.shift()();
-        }
-      }, 0).bind(this)();
+      this.executeAndClearRemainingShowDirectiveStack();
+      this.executeAndClearNextTickStack();
     }
 
     initializeElement(el, extraVars) {
@@ -1408,12 +1404,7 @@
         el.__x = new Component(el);
       });
       this.executeAndClearRemainingShowDirectiveStack();
-      debounce(function () {
-        // Walk through the $nextTick stack and clear it as we go.
-        while (this.nextTickStack.length > 0) {
-          this.nextTickStack.shift()();
-        }
-      }, 0).bind(this)();
+      this.executeAndClearNextTickStack();
     }
 
     executeAndClearRemainingShowDirectiveStack() {
@@ -1599,6 +1590,12 @@
         }
 
       });
+    }
+
+    executeAndClearNextTickStack() {
+      while (this.nextTickStack.length > 0) {
+        this.nextTickStack.shift()();
+      }
     }
 
   }

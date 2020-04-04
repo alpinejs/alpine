@@ -6076,6 +6076,7 @@
 
       this.unobservedData.$el = this.$el;
       this.unobservedData.$refs = this.getRefsProxy();
+      this.nextTickTimeout = null;
       this.nextTickStack = [];
 
       this.unobservedData.$nextTick = function (callback) {
@@ -6230,13 +6231,8 @@
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-        debounce(function () {
-          while (this.nextTickStack.length > 0) {
-            this.nextTickStack.shift()();
-          }
-        }, 0).bind(this)();
+        this.executeAndClearRemainingShowDirectiveStack();
+        this.executeAndClearNextTickStack();
       }
     }, {
       key: "initializeElement",
@@ -6270,12 +6266,7 @@
           el.__x = new Component(el);
         }.bind(this));
         this.executeAndClearRemainingShowDirectiveStack();
-        debounce(function () {
-          // Walk through the $nextTick stack and clear it as we go.
-          while (this.nextTickStack.length > 0) {
-            this.nextTickStack.shift()();
-          }
-        }, 0).bind(this)();
+        this.executeAndClearNextTickStack();
       }
     }, {
       key: "executeAndClearRemainingShowDirectiveStack",
@@ -6562,6 +6553,13 @@
             return ref;
           }
         });
+      }
+    }, {
+      key: "executeAndClearNextTickStack",
+      value: function executeAndClearNextTickStack() {
+        while (this.nextTickStack.length > 0) {
+          this.nextTickStack.shift()();
+        }
       }
     }]);
 

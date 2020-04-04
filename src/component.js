@@ -36,6 +36,7 @@ export default class Component {
         this.unobservedData.$el = this.$el
         this.unobservedData.$refs = this.getRefsProxy()
 
+        this.nextTickTimeout = null
         this.nextTickStack = []
         this.unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)
@@ -151,12 +152,7 @@ export default class Component {
 
         this.executeAndClearRemainingShowDirectiveStack()
 
-        // Walk through the $nextTick stack and clear it as we go.
-        debounce(function() {
-            while (this.nextTickStack.length > 0) {
-                this.nextTickStack.shift()()
-            }
-        }, 0).bind(this)()
+        this.executeAndClearNextTickStack()
     }
 
     initializeElement(el, extraVars) {
@@ -182,12 +178,7 @@ export default class Component {
 
         this.executeAndClearRemainingShowDirectiveStack()
 
-        debounce(function() {
-            // Walk through the $nextTick stack and clear it as we go.
-            while (this.nextTickStack.length > 0) {
-                this.nextTickStack.shift()()
-            }
-        }, 0).bind(this)()
+        this.executeAndClearNextTickStack()
     }
 
     executeAndClearRemainingShowDirectiveStack() {
@@ -398,5 +389,11 @@ export default class Component {
                 return ref
             }
         })
+    }
+
+    executeAndClearNextTickStack() {
+        while (this.nextTickStack.length > 0) {
+            this.nextTickStack.shift()()
+        }
     }
 }

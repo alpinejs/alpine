@@ -42,5 +42,5 @@ test('nextTick wait for x-for to finish rendering', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => expect(document.querySelector('p').innerText).toEqual(3))
+    await wait(() => { expect(document.querySelector('p').innerText).toEqual(3) })
 })

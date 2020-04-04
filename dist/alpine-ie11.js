@@ -23,10 +23,10 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  (function(){function k(){function p(a){return a?"object"===typeof a||"function"===typeof a:!1}var l=null;var n=function(a,c){function g(){}if(!p(a)||!p(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");l=function(){a=null;g=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){l=null;},0);var f=c;c={get:null,set:null,apply:null,construct:null};for(var h in f){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+
-  h+"'");c[h]=f[h];}"function"===typeof f&&(c.apply=f.apply.bind(f));var d=this,q=!1,r=!1;"function"===typeof a?(d=function(){var b=this&&this.constructor===d,e=Array.prototype.slice.call(arguments);g(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,e):!b&&c.apply?c.apply(a,this,e):b?(e.unshift(a),new (a.bind.apply(a,e))):a.apply(this,e)},q=!0):a instanceof Array&&(d=[],r=!0);var t=c.get?function(b){g("get");return c.get(this,b,d)}:function(b){g("get");return this[b]},w=c.set?function(b,
-  e){g("set");c.set(this,b,e,d);}:function(b,e){g("set");this[b]=e;},u={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((q||r)&&b in d)){var e={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:t.bind(a,b),set:w.bind(a,b)};Object.defineProperty(d,b,e);u[b]=!0;}});f=!0;Object.setPrototypeOf?Object.setPrototypeOf(d,Object.getPrototypeOf(a)):d.__proto__?d.__proto__=a.__proto__:f=!1;if(c.get||!f)for(var m in a)u[m]||Object.defineProperty(d,m,{get:t.bind(a,m)});Object.seal(a);Object.seal(d);
-  return d};n.revocable=function(a,c){return {proxy:new n(a,c),revoke:l}};return n}var v="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;v.Proxy||(v.Proxy=k(),v.Proxy.revocable=v.Proxy.revocable);})();
+  (function(){function l(){function n(a){return a?"object"===typeof a||"function"===typeof a:!1}var p=null;var g=function(a,b){function f(){}if(!n(a)||!n(b))throw new TypeError("Cannot create proxy with a non-object as target or handler");p=function(){f=function(a){throw new TypeError("Cannot perform '"+a+"' on a proxy that has been revoked");};};var e=b;b={get:null,set:null,apply:null,construct:null};for(var k in e){if(!(k in b))throw new TypeError("Proxy polyfill does not support trap '"+k+"'");b[k]=e[k];}"function"===
+  typeof e&&(b.apply=e.apply.bind(e));var c=this,g=!1,q=!1;"function"===typeof a?(c=function(){var h=this&&this.constructor===c,d=Array.prototype.slice.call(arguments);f(h?"construct":"apply");return h&&b.construct?b.construct.call(this,a,d):!h&&b.apply?b.apply(a,this,d):h?(d.unshift(a),new (a.bind.apply(a,d))):a.apply(this,d)},g=!0):a instanceof Array&&(c=[],q=!0);var r=b.get?function(a){f("get");return b.get(this,a,c)}:function(a){f("get");return this[a]},v=b.set?function(a,d){f("set");b.set(this,
+  a,d,c);}:function(a,b){f("set");this[a]=b;},t={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((g||q)&&b in c)){var d={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:r.bind(a,b),set:v.bind(a,b)};Object.defineProperty(c,b,d);t[b]=!0;}});e=!0;Object.setPrototypeOf?Object.setPrototypeOf(c,Object.getPrototypeOf(a)):c.__proto__?c.__proto__=a.__proto__:e=!1;if(b.get||!e)for(var m in a)t[m]||Object.defineProperty(c,m,{get:r.bind(a,m)});Object.seal(a);Object.seal(c);return c};g.revocable=
+  function(a,b){return {proxy:new g(a,b),revoke:p}};return g}var u="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;u.Proxy||(u.Proxy=l(),u.Proxy.revocable=u.Proxy.revocable);})();
 
   !function(e){var t=e.Element.prototype;"function"!=typeof t.matches&&(t.matches=t.msMatchesSelector||t.mozMatchesSelector||t.webkitMatchesSelector||function(e){for(var t=(this.document||this.ownerDocument).querySelectorAll(e),o=0;t[o]&&t[o]!==this;)++o;return Boolean(t[o])}),"function"!=typeof t.closest&&(t.closest=function(e){for(var t=this;t&&1===t.nodeType;){if(t.matches(e))return t;t=t.parentNode;}return null});}(window);
 
@@ -2465,7 +2465,7 @@
       return { __await: arg };
     };
 
-    function AsyncIterator(generator, PromiseImpl) {
+    function AsyncIterator(generator) {
       function invoke(method, arg, resolve, reject) {
         var record = tryCatch(generator[method], generator, arg);
         if (record.type === "throw") {
@@ -2476,14 +2476,14 @@
           if (value &&
               typeof value === "object" &&
               hasOwn.call(value, "__await")) {
-            return PromiseImpl.resolve(value.__await).then(function(value) {
+            return Promise.resolve(value.__await).then(function(value) {
               invoke("next", value, resolve, reject);
             }, function(err) {
               invoke("throw", err, resolve, reject);
             });
           }
 
-          return PromiseImpl.resolve(value).then(function(unwrapped) {
+          return Promise.resolve(value).then(function(unwrapped) {
             // When a yielded Promise is resolved, its final value becomes
             // the .value of the Promise<{value,done}> result for the
             // current iteration.
@@ -2501,7 +2501,7 @@
 
       function enqueue(method, arg) {
         function callInvokeWithMethodAndArg() {
-          return new PromiseImpl(function(resolve, reject) {
+          return new Promise(function(resolve, reject) {
             invoke(method, arg, resolve, reject);
           });
         }
@@ -2541,12 +2541,9 @@
     // Note that simple async functions are implemented on top of
     // AsyncIterator objects; they just return a Promise for the value of
     // the final result produced by the iterator.
-    exports.async = function(innerFn, outerFn, self, tryLocsList, PromiseImpl) {
-      if (PromiseImpl === void 0) PromiseImpl = Promise;
-
+    exports.async = function(innerFn, outerFn, self, tryLocsList) {
       var iter = new AsyncIterator(
-        wrap(innerFn, outerFn, self, tryLocsList),
-        PromiseImpl
+        wrap(innerFn, outerFn, self, tryLocsList)
       );
 
       return exports.isGeneratorFunction(outerFn)
@@ -4632,75 +4629,6 @@
     redefine(global_1, NUMBER, NumberWrapper);
   }
 
-<<<<<<< HEAD
-  var notARegexp = function (it) {
-    if (isRegexp(it)) {
-      throw TypeError("The method doesn't accept regular expressions");
-    } return it;
-  };
-
-  var MATCH$1 = wellKnownSymbol('match');
-
-  var correctIsRegexpLogic = function (METHOD_NAME) {
-    var regexp = /./;
-    try {
-      '/./'[METHOD_NAME](regexp);
-    } catch (e) {
-      try {
-        regexp[MATCH$1] = false;
-        return '/./'[METHOD_NAME](regexp);
-      } catch (f) { /* empty */ }
-    } return false;
-  };
-
-  // `String.prototype.includes` method
-  // https://tc39.github.io/ecma262/#sec-string.prototype.includes
-  _export({ target: 'String', proto: true, forced: !correctIsRegexpLogic('includes') }, {
-    includes: function includes(searchString /* , position = 0 */) {
-      return !!~String(requireObjectCoercible(this))
-        .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
-=======
-  var propertyIsEnumerable = objectPropertyIsEnumerable.f;
-
-  // `Object.{ entries, values }` methods implementation
-  var createMethod$5 = function (TO_ENTRIES) {
-    return function (it) {
-      var O = toIndexedObject(it);
-      var keys = objectKeys(O);
-      var length = keys.length;
-      var i = 0;
-      var result = [];
-      var key;
-      while (length > i) {
-        key = keys[i++];
-        if (!descriptors || propertyIsEnumerable.call(O, key)) {
-          result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
-        }
-      }
-      return result;
-    };
-  };
-
-  var objectToArray = {
-    // `Object.entries` method
-    // https://tc39.github.io/ecma262/#sec-object.entries
-    entries: createMethod$5(true),
-    // `Object.values` method
-    // https://tc39.github.io/ecma262/#sec-object.values
-    values: createMethod$5(false)
-  };
-
-  var $values = objectToArray.values;
-
-  // `Object.values` method
-  // https://tc39.github.io/ecma262/#sec-object.values
-  _export({ target: 'Object', stat: true }, {
-    values: function values(O) {
-      return $values(O);
->>>>>>> 85bb4a267e0eb3e2dcd18ad62308e426fb889a16
-    }
-  });
-
   var max$2 = Math.max;
   var min$4 = Math.min;
   var floor$1 = Math.floor;
@@ -5407,7 +5335,7 @@
             return i;
           },
           set: function set(newValue) {
-            group[index] = newValue;
+            items[index] = newValue;
           },
           configurable: true
         });
@@ -5443,7 +5371,7 @@
             return i;
           },
           set: function set(newValue) {
-            group[index] = newValue;
+            items[index] = newValue;
           },
           configurable: true
         });
@@ -6056,7 +5984,9 @@
     return new Proxy(target, proxyHandler);
   }
 
-  var Component = /*#__PURE__*/function () {
+  var Component =
+  /*#__PURE__*/
+  function () {
     function Component(el) {
       var _this = this;
 
@@ -6207,6 +6137,8 @@
 
         var initializeComponentCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
           _newArrowCheck(this, _this6);
+
+          return {};
         }.bind(this);
         walk(el, function (el) {
           _newArrowCheck(this, _this6);
@@ -6232,6 +6164,8 @@
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
           _newArrowCheck(this, _this7);
+
+          return {};
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
           _newArrowCheck(this, _this7);
@@ -6269,6 +6203,8 @@
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
           _newArrowCheck(this, _this8);
+
+          return {};
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
           _newArrowCheck(this, _this8);
@@ -6440,9 +6376,10 @@
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
           _newArrowCheck(this, _this17);
+
+          return {};
         }.bind(this);
         var extraVarsData = extraVars();
-        if (typeof extraVarsData === 'undefined') extraVarsData = {};
         extraVarsData.$dispatch = this.getDispatchFunction(el);
         return saferEval(expression, this.$data, extraVarsData);
       }
@@ -6453,9 +6390,10 @@
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
           _newArrowCheck(this, _this18);
+
+          return {};
         }.bind(this);
         var extraVarsData = extraVars();
-        if (typeof extraVarsData === 'undefined') extraVarsData = {};
         extraVarsData.$dispatch = this.getDispatchFunction(el);
         return saferEvalNoReturn(expression, this.$data, extraVarsData);
       }
@@ -6582,7 +6520,9 @@
 
   var Alpine = {
     start: function () {
-      var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+      var _start = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee() {
         var _this = this;
 
         return regeneratorRuntime.wrap(function _callee$(_context) {

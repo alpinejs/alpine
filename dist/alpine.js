@@ -1593,9 +1593,18 @@
     }
 
     executeAndClearNextTickStack() {
-      while (this.nextTickStack.length > 0) {
-        this.nextTickStack.shift()();
-      }
+      const self = this;
+
+      const later = function later() {
+        this.nextTickTimeout = null;
+
+        while (self.nextTickStack.length > 0) {
+          self.nextTickStack.shift()();
+        }
+      };
+
+      clearTimeout(this.nextTickTimeout);
+      this.nextTickTimeout = setTimeout(later, 10);
     }
 
   }

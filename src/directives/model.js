@@ -12,7 +12,6 @@ export function registerModelListener(component, el, modifiers, expression, extr
 
     registerListener(component, el, event, modifiers, listenerExpression, () => {
         let extraVarsData = extraVars()
-        if (typeof extraVarsData === 'undefined') extraVarsData = {}
         extraVarsData.rightSideOfExpression =  generateModelAssignmentFunction(el, modifiers, expression)
 
         return extraVarsData

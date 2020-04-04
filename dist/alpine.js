@@ -723,7 +723,6 @@
     function runListenerHandler(component, expression, e, extraVars) {
       return component.evaluateCommandExpression(e.target, expression, () => {
         let extraVarsData = extraVars();
-        if (typeof extraVarsData === 'undefined') extraVarsData = {};
         extraVarsData.$event = e;
         return extraVarsData;
       });
@@ -790,7 +789,6 @@
       const listenerExpression = `${expression} = rightSideOfExpression($event, ${expression})`;
       registerListener(component, el, event, modifiers, listenerExpression, () => {
         let extraVarsData = extraVars();
-        if (typeof extraVarsData === 'undefined') extraVarsData = {};
         extraVarsData.rightSideOfExpression = generateModelAssignmentFunction(el, modifiers, expression);
         return extraVarsData;
       });

@@ -31,6 +31,13 @@ export default class Component {
         this.$data = data
         this.membrane = membrane
 
+        // Allows to change state without reaction.
+        this.unobservedData.$withoutReaction = (callback) => {
+            this.pauseReactivity = true;
+            callback();
+            this.pauseReactivity = false;
+        }
+
         // After making user-supplied data methods reactive, we can now add
         // our magic properties to the original data for access.
         this.unobservedData.$el = this.$el

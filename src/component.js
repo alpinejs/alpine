@@ -38,9 +38,16 @@ export default class Component {
             this.pauseReactivity = false;
         }
 
-        // Apply the current state to just one element
+        // Apply the current state to just one element.
         this.unobservedData.$update = (element, extraVars = {}) => {
             this.updateElement(element, () => extraVars);
+        }
+
+        // Apply the current state to an element and all its children.
+        this.unobservedData.$updateRecursively = (element, extraVars = {}) => {
+            walk(element, (el) => {
+                this.updateElement(el, () => extraVars);
+            });
         }
 
         // After making user-supplied data methods reactive, we can now add

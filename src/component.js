@@ -318,6 +318,9 @@ export default class Component {
         return saferEvalNoReturn(expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
+            $wr: (callback) => this.unobservedData.$withoutReaction(callback),
+            $ur: (el, context) => this.unobservedData.$updateRecursively(el, context),
+            $u: (els, context = {}) => els.forEach((el) => this.unobservedData.$update(el, context)),
         })
     }
 

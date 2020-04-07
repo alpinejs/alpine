@@ -38,6 +38,11 @@ export default class Component {
             this.pauseReactivity = false;
         }
 
+        // Apply the current state to just one element
+        this.unobservedData.$update = (element, extraVars = {}) => {
+            this.updateElement(element, () => extraVars);
+        }
+
         // After making user-supplied data methods reactive, we can now add
         // our magic properties to the original data for access.
         this.unobservedData.$el = this.$el

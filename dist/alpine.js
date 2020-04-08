@@ -417,7 +417,8 @@
 
 
     var previousEl = el;
-    items.forEach((i, index, group) => {
+    Object.entries(items).forEach((entry, group) => {
+      let [index, i] = entry;
       const currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group);
       let currentEl = previousEl.nextElementSibling; // Let's check and see if the x-for has already generated an element last time it ran.
 

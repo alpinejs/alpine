@@ -18,7 +18,10 @@ export function handleForDirective(component, el, expression, initialUpdate, ext
 
     // As we walk the array, we'll also walk the DOM (updating/creating as we go).
     var previousEl = el
-    items.forEach((i, index, group) => {
+
+    Object.entries(items).forEach((entry, group) => {
+        let [index, i] = entry
+
         const currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group)
         let currentEl = previousEl.nextElementSibling
 
@@ -113,6 +116,7 @@ function parseFor (expression) {
     const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
 
     const inMatch = expression.match(forAliasRE)
+
     if (! inMatch) return
     const res = {}
     res.bunch = inMatch[2].trim()

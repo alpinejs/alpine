@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <script src="/dist/alpine.js" defer></script>
+    </head>
+    <body>
+        <div x-data="data()">
+            <template x-for="(value, key) in items">
+                <button x-text="value" :key="key"></button>
+            </template>
+        </div>
+        <script>
+            function data() {
+                return {
+                    items: {
+                        test: 'bar',
+                        boo: 'baz'
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>

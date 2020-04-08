@@ -323,7 +323,7 @@ test('nested x-for', async () => {
 test('can use object for x-for', async () => {
     document.body.innerHTML = `
         <div x-data="{ items: { foo: 'bar' } }">
-            <template x-for="(item, key) in items">
+            <template x-for="item in items">
                 <div>
                     <h1 x-text="item"></h1>
                 </div>
@@ -333,5 +333,5 @@ test('can use object for x-for', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('h1').innerText).toEqual(["bar"])
+    expect(document.querySelector('h1').innerText).toEqual("bar")
 })

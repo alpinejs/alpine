@@ -416,8 +416,25 @@
     } // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
 
-    var previousEl = el;
-    items.forEach((i, index, group) => {
+    var previousEl = el; // Using Object.entries() will convert items to a compatible array
+    // in the case that it's an object, returning an array of ['key', 'value']
+    // sets.
+
+    Object.entries(items).forEach((entry, group) => {
+      // Destructure the array to retrieve the correct
+      // index and value. If the original items variable
+      // was an array, then index will be it's original index.
+      let [index, i] = entry; // If the original items variable was an array, then we to assign the items
+      // to the group variable. This ensures that the (value, key, collection) syntax
+      // works correctly for arrays. For objects, you can do (value, key, index) which
+      // is inline with Vue's behaviour. We also want to make sure that the index for arrays
+      // is an integer instead of a numeric string.
+
+      if (items instanceof Array) {
+        group = items;
+        index = parseInt(index);
+      }
+
       const currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group);
       let currentEl = previousEl.nextElementSibling; // Let's check and see if the x-for has already generated an element last time it ran.
 

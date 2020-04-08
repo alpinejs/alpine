@@ -319,3 +319,19 @@ test('nested x-for', async () => {
     expect(document.querySelectorAll('h2')[1].innerText).toEqual('lob')
     expect(document.querySelectorAll('h2')[2].innerText).toEqual('law')
 })
+
+test('can use object for x-for', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: { foo: 'bar' } }">
+            <template x-for="(item, key) in items">
+                <div>
+                    <h1 x-text="item"></h1>
+                </div>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('h1').innerText).toEqual(["bar"])
+})

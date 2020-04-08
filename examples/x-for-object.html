@@ -4,8 +4,14 @@
     </head>
     <body>
         <div x-data="data()">
-            <template x-for="(value, key) in items">
-                <button x-text="value" :key="key"></button>
+            <template x-for="(value, key, index) in items">
+                <span x-text="value" :key="key" @click="console.log(index)"></span>
+            </template>
+            <template x-for="(value, index, collection) in array">
+                <div>
+                    <span x-text="collection[index]"></span>
+                    <span x-text="value" :key="index" @click="console.log(collection)"></span>
+                </div>
             </template>
         </div>
         <script>
@@ -14,7 +20,11 @@
                     items: {
                         test: 'bar',
                         boo: 'baz'
-                    }
+                    },
+                    array: [
+                        'cool',
+                        'stuff',
+                    ]
                 }
             }
         </script>

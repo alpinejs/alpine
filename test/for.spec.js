@@ -335,3 +335,35 @@ test('can use object for x-for', async () => {
 
     expect(document.querySelector('h1').innerText).toEqual("bar")
 })
+
+test('can use item key / name inside loop when looping over object', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: { foo: 'bar' } }">
+            <template x-for="(item, key) in items">
+                <div>
+                    <h1 x-text="key"></h1>
+                </div>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('h1').innerText).toEqual("foo")
+})
+
+test('can use index inside loop when looping over object', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: { foo: 'bar' } }">
+            <template x-for="(item, key, index) in items">
+                <div>
+                    <h1 x-text="index"></h1>
+                </div>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('h1').innerText).toEqual(0)
+})

@@ -319,3 +319,29 @@ test('nested x-for', async () => {
     expect(document.querySelectorAll('h2')[1].innerText).toEqual('lob')
     expect(document.querySelectorAll('h2')[2].innerText).toEqual('law')
 })
+
+test('nested x-for access outer loop variable', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foos: [ {name: 'foo', bars: ['bob', 'lob']}, {name: 'baz', bars: ['bab', 'lab']} ] }">
+            <template x-for="foo in foos">
+                <h1>
+                    <template x-for="bar in foo.bars">
+                        <div>
+                            <h2 x-text="foo.name+': '+bar"></h2>
+                        </div>
+                    </template>
+                </h1>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelectorAll('h1').length).toEqual(2) })
+    await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(4) })
+
+    expect(document.querySelectorAll('h2')[0].innerText).toEqual('foo: bob')
+    expect(document.querySelectorAll('h2')[1].innerText).toEqual('foo: lob')
+    expect(document.querySelectorAll('h2')[2].innerText).toEqual('baz: bab')
+    expect(document.querySelectorAll('h2')[3].innerText).toEqual('baz: lab')
+})

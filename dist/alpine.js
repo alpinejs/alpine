@@ -402,7 +402,7 @@
 
     let currentEl = templateEl;
     items.forEach((item, index) => {
-      let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items);
+      let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
       let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
       let nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
 
@@ -451,10 +451,9 @@
     return res;
   }
 
-  function getIterationScopeVariables(iteratorNames, item, index, items) {
-    let scopeVariables = {
-      [iteratorNames.item]: item
-    };
+  function getIterationScopeVariables(iteratorNames, item, index, items, scopeVariables) {
+    if (!scopeVariables) scopeVariables = {};
+    scopeVariables[iteratorNames.item] = item;
     if (iteratorNames.index) scopeVariables[iteratorNames.index] = index;
     if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items;
     return scopeVariables;

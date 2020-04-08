@@ -144,6 +144,9 @@ export default class Component {
             // Don't touch spawns from for loop
             if (el.__x_for_key !== undefined) return false
 
+            // Don't touch spawns from if directives
+            if (el.__x_inserted_me !== undefined) return false
+
             this.initializeElement(el, extraVars)
         }, el => {
             el.__x = new Component(el)

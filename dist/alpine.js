@@ -679,9 +679,9 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       const clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      el.nextElementSibling.__x_inserted_me = true;
       transitionIn(el.nextElementSibling, () => {}, initialUpdate);
       component.initializeElements(el.nextElementSibling, extraVars);
+      el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, () => {
         el.nextElementSibling.remove();
@@ -1374,7 +1374,9 @@
     initializeElements(rootEl, extraVars = () => {}) {
       this.walkAndSkipNestedComponents(rootEl, el => {
         // Don't touch spawns from for loop
-        if (el.__x_for_key !== undefined) return false;
+        if (el.__x_for_key !== undefined) return false; // Don't touch spawns from if directives
+
+        if (el.__x_inserted_me !== undefined) return false;
         this.initializeElement(el, extraVars);
       }, el => {
         el.__x = new Component(el);

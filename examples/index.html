@@ -17,14 +17,6 @@
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
-        <div x-data="{ items: ['foo', 'bar'], count: 1 }">
-            <button @click="count++">increment</button>
-
-            <template x-for="item in items" x-if="count < 2">
-                <span x-text="item"></span>
-            </template>
-        </div>
-
         <table>
             <thead>
                 <tr>

@@ -6579,6 +6579,13 @@
                   _newArrowCheck(this, _this);
 
                   this.initializeComponent(el);
+                }.bind(this)); // To avoid issue with the mutation observer going mad when turbolinks
+                // reload the page, we disconnect it
+
+                document.addEventListener("turbolinks:click", function () {
+                  _newArrowCheck(this, _this);
+
+                  this.observer.disconnect();
                 }.bind(this)); // It's easier and more performant to just support Turbolinks than listen
                 // to MutationObserver mutations at the document level.
 
@@ -6591,7 +6598,15 @@
                     _newArrowCheck(this, _this2);
 
                     this.initializeComponent(el);
-                  }.bind(this));
+                  }.bind(this)); // Once done, we reconnect the mutation observer
+
+                  var targetNode = document.querySelector('body');
+                  var observerOptions = {
+                    childList: true,
+                    attributes: true,
+                    subtree: true
+                  };
+                  this.observer.observe(targetNode, observerOptions);
                 }.bind(this));
                 this.listenForNewUninitializedComponentsAtRunTime(function (el) {
                   _newArrowCheck(this, _this);
@@ -6599,7 +6614,7 @@
                   this.initializeComponent(el);
                 }.bind(this));
 
-              case 6:
+              case 7:
               case "end":
                 return _context.stop();
             }
@@ -6647,7 +6662,7 @@
         attributes: true,
         subtree: true
       };
-      var observer = new MutationObserver(function (mutations) {
+      this.observer = new MutationObserver(function (mutations) {
         var _this6 = this;
 
         _newArrowCheck(this, _this5);
@@ -6673,7 +6688,7 @@
           }
         }
       }.bind(this));
-      observer.observe(targetNode, observerOptions);
+      this.observer.observe(targetNode, observerOptions);
     },
     initializeComponent: function initializeComponent(el) {
       if (!el.__x) {

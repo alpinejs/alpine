@@ -11,12 +11,27 @@ const Alpine = {
             this.initializeComponent(el)
         })
 
+        // To avoid issue with the mutation observer going mad when turbolinks
+        // reload the page, we disconnect it
+        document.addEventListener("turbolinks:click", () => {
+            this.observer.disconnect()
+        })
+
         // It's easier and more performant to just support Turbolinks than listen
         // to MutationObserver mutations at the document level.
         document.addEventListener("turbolinks:load", () => {
             this.discoverUninitializedComponents(el => {
                 this.initializeComponent(el)
             })
+
+            // Once done, we reconnect the mutation observer
+            const targetNode = document.querySelector('body');
+            const observerOptions = {
+                childList: true,
+                attributes: true,
+                subtree: true,
+            }
+            this.observer.observe(targetNode, observerOptions)
         })
 
         this.listenForNewUninitializedComponentsAtRunTime(el => {
@@ -51,7 +66,7 @@ const Alpine = {
             subtree: true,
         }
 
-        const observer = new MutationObserver((mutations) => {
+        this.observer = new MutationObserver((mutations) => {
             for (let i=0; i < mutations.length; i++){
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {
@@ -70,7 +85,7 @@ const Alpine = {
               }
         })
 
-        observer.observe(targetNode, observerOptions)
+        this.observer.observe(targetNode, observerOptions)
     },
 
     initializeComponent: function (el) {

@@ -42,8 +42,10 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             el.value = value
 
             //Set the origin cursor position after updating the value
-            el.selectionStart = cursorPosition
-            el.selectionEnd = cursorPosition
+            if (el === document.activeElement) {
+                el.selectionStart = cursorPosition
+                el.selectionEnd = cursorPosition
+            }
         }
     } else if (attrName === 'class') {
         if (Array.isArray(value)) {

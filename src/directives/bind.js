@@ -36,7 +36,14 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         } else if (el.tagName === 'SELECT') {
             updateSelect(el, value)
         } else {
+            //Get the origin cursor position before updating the value
+            const cursorPosition = el.selectionStart
+
             el.value = value
+
+            //Set the origin cursor position after updating the value
+            el.selectionStart = cursorPosition
+            el.selectionEnd = cursorPosition
         }
     } else if (attrName === 'class') {
         if (Array.isArray(value)) {

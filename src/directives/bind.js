@@ -36,16 +36,10 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         } else if (el.tagName === 'SELECT') {
             updateSelect(el, value)
         } else {
-            //Get the origin cursor position before updating the value
-            const cursorPosition = el.selectionStart
-
+            // Cursor position should be restored back to origin due to a safari bug
+            const cursorPosition = el.selectionStart 
             el.value = value
-
-            //Set the origin cursor position after updating the value
-            if (el === document.activeElement) {
-                el.selectionStart = cursorPosition
-                el.selectionEnd = cursorPosition
-            }
+            el === document.activeElement ? el.setSelectionRange(cursorPosition, cursorPosition) : null
         }
     } else if (attrName === 'class') {
         if (Array.isArray(value)) {

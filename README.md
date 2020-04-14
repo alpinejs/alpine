@@ -292,7 +292,7 @@ Adding `.stop` to an event listener will call `stopPropagation` on the triggered
 **`.self` modifier**
 **Example:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
 
-Adding `.self` to an event listener will ensure that the handler only runs when the event target is the element where the event listener was register. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
+Adding `.self` to an event listener will only trigger the handler if the `$event.target` is the element itself. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
 
 **`.window` modifier**
 **Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`

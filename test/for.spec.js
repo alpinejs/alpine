@@ -319,3 +319,34 @@ test('nested x-for', async () => {
     expect(document.querySelectorAll('h2')[1].innerText).toEqual('lob')
     expect(document.querySelectorAll('h2')[2].innerText).toEqual('law')
 })
+
+test('x-for updates the right elements when new item are inserted at the beginning of the list', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: [{name: 'one', key: '1'}, {name: 'twp', key: '2'}] }">
+            <button x-on:click="items = [{name: 'zero', key: '0'}, {name: 'one', key: '1'}, {name: 'twp', key: '2'}]"></button>
+
+            <template x-for="item in items" :key="item.key">
+                <span x-text="item.name"></span>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span').length).toEqual(2)
+    const itemA = document.querySelectorAll('span')[0]
+    itemA.setAttribute('order', 'first')
+    const itemB = document.querySelectorAll('span')[1]
+    itemB.setAttribute('order', 'second')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(3) })
+
+    expect(document.querySelectorAll('span')[0].getAttribute('order')).toEqual(null)
+    expect(document.querySelectorAll('span')[0].innerText).toEqual('zero')
+    expect(document.querySelectorAll('span')[1].getAttribute('order')).toEqual('first')
+    expect(document.querySelectorAll('span')[1].innerText).toEqual('one')
+    expect(document.querySelectorAll('span')[2].getAttribute('order')).toEqual('second')
+    expect(document.querySelectorAll('span')[2].innerText).toEqual('two')
+})

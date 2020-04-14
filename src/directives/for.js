@@ -26,6 +26,11 @@ export function handleForDirective(component, templateEl, expression, initialUpd
         } else {
             nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey)
 
+            // If I haven't found a matching key, just insert the element at the current position
+            if (!nextEl) {
+                nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
+            }
+
             // Temporarily remove the key indicator to allow the normal "updateElements" to work
             delete nextEl.__x_for_key
 
@@ -121,6 +126,8 @@ function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
 
         tmpNextEl = (tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined) ? tmpNextEl.nextElementSibling : false
     }
+
+    return false
 }
 
 function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {

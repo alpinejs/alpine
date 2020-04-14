@@ -323,7 +323,7 @@ test('nested x-for', async () => {
 test('x-for updates the right elements when new item are inserted at the beginning of the list', async () => {
     document.body.innerHTML = `
         <div x-data="{ items: [{name: 'one', key: '1'}, {name: 'twp', key: '2'}] }">
-            <button x-on:click="items = [{name: 'zero', key: '0'}, {name: 'one', key: '1'}, {name: 'twp', key: '2'}]"></button>
+            <button x-on:click="items = [{name: 'zero', key: '0'}, {name: 'one', key: '1'}, {name: 'two', key: '2'}]"></button>
 
             <template x-for="item in items" :key="item.key">
                 <span x-text="item.name"></span>
@@ -343,10 +343,12 @@ test('x-for updates the right elements when new item are inserted at the beginni
 
     await wait(() => { expect(document.querySelectorAll('span').length).toEqual(3) })
 
-    expect(document.querySelectorAll('span')[0].getAttribute('order')).toEqual(null)
     expect(document.querySelectorAll('span')[0].innerText).toEqual('zero')
-    expect(document.querySelectorAll('span')[1].getAttribute('order')).toEqual('first')
     expect(document.querySelectorAll('span')[1].innerText).toEqual('one')
-    expect(document.querySelectorAll('span')[2].getAttribute('order')).toEqual('second')
     expect(document.querySelectorAll('span')[2].innerText).toEqual('two')
+
+    // Make sure states are preserved
+    expect(document.querySelectorAll('span')[0].getAttribute('order')).toEqual(null)
+    expect(document.querySelectorAll('span')[1].getAttribute('order')).toEqual('first')
+    expect(document.querySelectorAll('span')[2].getAttribute('order')).toEqual('second')
 })

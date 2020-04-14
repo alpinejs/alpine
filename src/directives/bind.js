@@ -46,7 +46,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         } else if (typeof value === 'object') {
             const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
 
-            keysSortedByBoolean.forEach(classNames => {
+            keysSortedByBooleanValue.forEach(classNames => {
                 if (value[classNames]) {
                     classNames.split(' ').forEach(className => el.classList.add(className))
                 } else {

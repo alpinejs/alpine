@@ -5767,7 +5767,9 @@
         }
 
         if (modifiers.includes('prevent')) e.preventDefault();
-        if (modifiers.includes('stop')) e.stopPropagation();
+        if (modifiers.includes('stop')) e.stopPropagation(); // If the .self modifier isn't present, or if it is present and
+        // the target element matches the element we are registering the
+        // event on, run the handler
 
         if (!modifiers.includes('self') || e.target === el) {
           var returnValue = runListenerHandler(component, expression, e, extraVars);

@@ -63,6 +63,26 @@ test('.stop modifier', async () => {
     })
 })
 
+test('.self modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <button x-on:click.self="foo = 'baz'">
+                <span></span>
+            </button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('div').__x.$data.foo).toEqual('bar')
+
+    document.querySelector('span').click()
+
+    await wait(() => {
+        expect(document.querySelector('div').__x.$data.foo).toEqual('bar')
+    })
+})
+
 test('.prevent modifier', async () => {
     document.body.innerHTML = `
         <div x-data="{}">

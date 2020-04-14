@@ -289,6 +289,11 @@ Adding `.prevent` to an event listener will call `preventDefault` on the trigger
 
 Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
 
+**`.self` modifier**
+**Example:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
+
+Adding `.self` to an event listener will ensure that the handler only runs when the event target is the element where the event listener was register. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
+
 **`.window` modifier**
 **Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 

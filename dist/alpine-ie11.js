@@ -5768,13 +5768,16 @@
 
         if (modifiers.includes('prevent')) e.preventDefault();
         if (modifiers.includes('stop')) e.stopPropagation();
-        var returnValue = runListenerHandler(component, expression, e, extraVars);
 
-        if (returnValue === false) {
-          e.preventDefault();
-        } else {
-          if (modifiers.includes('once')) {
-            listenerTarget.removeEventListener(event, _handler2);
+        if (!modifiers.includes('self') || e.target === el) {
+          var returnValue = runListenerHandler(component, expression, e, extraVars);
+
+          if (returnValue === false) {
+            e.preventDefault();
+          } else {
+            if (modifiers.includes('once')) {
+              listenerTarget.removeEventListener(event, _handler2);
+            }
           }
         }
       }.bind(this);

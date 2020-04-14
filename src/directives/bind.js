@@ -39,11 +39,14 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             el.value = value
         }
     } else if (attrName === 'class') {
+        let originalClasses = el.__x_original_classes || []
+
         if (Array.isArray(value)) {
-            const originalClasses = el.__x_original_classes || []
             el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
         } else if (typeof value === 'object') {
-            Object.keys(value).forEach(classNames => {
+            const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
+
+            keysSortedByBoolean.forEach(classNames => {
                 if (value[classNames]) {
                     classNames.split(' ').forEach(className => el.classList.add(className))
                 } else {
@@ -51,7 +54,6 @@ export function handleAttributeBindingDirective(component, el, attrName, express
                 }
             })
         } else {
-            const originalClasses = el.__x_original_classes || []
             const newClasses = value.split(' ')
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }

@@ -3,6 +3,7 @@ import filesize from 'rollup-plugin-filesize';
 import resolve from 'rollup-plugin-node-resolve';
 import stripCode from 'rollup-plugin-strip-code';
 import replace from '@rollup/plugin-replace';
+import { terser } from "rollup-plugin-terser";
 
 export default {
     input: 'src/index.js',
@@ -22,6 +23,7 @@ export default {
         stripCode({
             start_comment: 'IE11-ONLY:START',
             end_comment: 'IE11-ONLY:END'
-        })
-    ]
+        }),
+        terser(),
+    ],
 }

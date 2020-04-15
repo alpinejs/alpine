@@ -4,6 +4,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import multi from '@rollup/plugin-multi-entry';
 import replace from '@rollup/plugin-replace';
+import { terser } from "rollup-plugin-terser";
 
 export default {
     input: ['src/polyfills.js', 'src/index.js'],
@@ -40,6 +41,7 @@ export default {
                     }
                 ]
             ]
-        })
+        }),
+        terser(),
     ]
 }

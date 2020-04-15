@@ -5547,17 +5547,18 @@
         el.value = value;
       }
     } else if (attrName === 'class') {
-      var originalClasses = el.__x_original_classes || [];
-
       if (Array.isArray(value)) {
+        var originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
       } else if (_typeof(value) === 'object') {
-        var keysSortedByBoolean = Object.keys(value).sort(function (a, b) {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        var keysSortedByBooleanValue = Object.keys(value).sort(function (a, b) {
           _newArrowCheck(this, _this);
 
           return value[a] - value[b];
         }.bind(this));
-        keysSortedByBoolean.forEach(function (classNames) {
+        keysSortedByBooleanValue.forEach(function (classNames) {
           var _this2 = this;
 
           _newArrowCheck(this, _this);
@@ -5577,8 +5578,10 @@
           }
         }.bind(this));
       } else {
+        var _originalClasses = el.__x_original_classes || [];
+
         var newClasses = value.split(' ');
-        el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
+        el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
     } else if (isBooleanAttr(attrName)) {
       // Boolean attributes have to be explicitly added and removed, not just set.

@@ -250,7 +250,7 @@ export default class Component {
                 case 'text':
                     var output = this.evaluateReturnExpression(el, expression, extraVars);
 
-                   handleTextDirective(el, output, expression)
+                    handleTextDirective(el, output, expression)
                     break;
 
                 case 'html':

@@ -593,6 +593,15 @@
     });
   }
 
+  function handleTextDirective(el, output, expression) {
+    // If nested model key is undefined, set the default value to empty string.
+    if (output === undefined && expression.match(/\./).length) {
+      output = '';
+    }
+
+    el.innerText = output;
+  }
+
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
     const hide = () => {
       el.style.display = 'none';
@@ -1465,13 +1474,8 @@
             break;
 
           case 'text':
-            var output = this.evaluateReturnExpression(el, expression, extraVars); // If nested model key is undefined, set the default value to empty string.
-
-            if (output === undefined && expression.match(/\./).length) {
-              output = '';
-            }
-
-            el.innerText = output;
+            var output = this.evaluateReturnExpression(el, expression, extraVars);
+            handleTextDirective(el, output, expression);
             break;
 
           case 'html':

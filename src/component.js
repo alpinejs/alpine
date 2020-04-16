@@ -55,7 +55,7 @@ export default class Component {
         // If x-init is present AND we aren't cloning (skip x-init on clone)
         if (initExpression && ! seedDataForCloning) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
-            // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
+            // We haven't even initialized the elements with their Alpine bindings. I mean come on.
             this.pauseReactivity = true
             initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression)
             this.pauseReactivity = false

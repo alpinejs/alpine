@@ -55,7 +55,7 @@ export default class Component {
         // If x-init is present AND we aren't cloning (skip x-init on clone)
         if (initExpression && ! seedDataForCloning) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
-            // We haven't even initialized the elements with their Alpine bindings. I mean come on.
+            // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
             this.pauseReactivity = true
             initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression)
             this.pauseReactivity = false
@@ -69,7 +69,7 @@ export default class Component {
         this.listenForNewElementsToInitialize()
 
         if (typeof initReturnedCallback === 'function') {
-            // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+            // Run the callback returned from the "x-init" hook to allow the user to do stuff after
             // Alpine's got it's grubby little paws all over everything.
             initReturnedCallback.call(this.$data)
         }
@@ -363,12 +363,12 @@ export default class Component {
         var refObj = {}
 
         /* IE11-ONLY:START */
-            // Add any properties up-front that might be necessary for the Proxy polyfill.
+            // Add any property up-front that might be necessary for the Proxy polyfill.
             refObj.$isRefsProxy = false;
             refObj.$isAlpineProxy = false;
 
             // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
-            // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
+            // we just loop through the element, look for any x-ref and create a tmp property on a fake object.
             this.walkAndSkipNestedComponents(self.$el, el => {
                 if (el.hasAttribute('x-ref')) {
                     refObj[el.getAttribute('x-ref')] = true

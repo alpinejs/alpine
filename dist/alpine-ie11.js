@@ -23,10 +23,10 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  (function(){function l(){function n(a){return a?"object"===typeof a||"function"===typeof a:!1}var p=null;var g=function(a,b){function f(){}if(!n(a)||!n(b))throw new TypeError("Cannot create proxy with a non-object as target or handler");p=function(){f=function(a){throw new TypeError("Cannot perform '"+a+"' on a proxy that has been revoked");};};var e=b;b={get:null,set:null,apply:null,construct:null};for(var k in e){if(!(k in b))throw new TypeError("Proxy polyfill does not support trap '"+k+"'");b[k]=e[k];}"function"===
-  typeof e&&(b.apply=e.apply.bind(e));var c=this,g=!1,q=!1;"function"===typeof a?(c=function(){var h=this&&this.constructor===c,d=Array.prototype.slice.call(arguments);f(h?"construct":"apply");return h&&b.construct?b.construct.call(this,a,d):!h&&b.apply?b.apply(a,this,d):h?(d.unshift(a),new (a.bind.apply(a,d))):a.apply(this,d)},g=!0):a instanceof Array&&(c=[],q=!0);var r=b.get?function(a){f("get");return b.get(this,a,c)}:function(a){f("get");return this[a]},v=b.set?function(a,d){f("set");b.set(this,
-  a,d,c);}:function(a,b){f("set");this[a]=b;},t={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((g||q)&&b in c)){var d={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:r.bind(a,b),set:v.bind(a,b)};Object.defineProperty(c,b,d);t[b]=!0;}});e=!0;Object.setPrototypeOf?Object.setPrototypeOf(c,Object.getPrototypeOf(a)):c.__proto__?c.__proto__=a.__proto__:e=!1;if(b.get||!e)for(var m in a)t[m]||Object.defineProperty(c,m,{get:r.bind(a,m)});Object.seal(a);Object.seal(c);return c};g.revocable=
-  function(a,b){return {proxy:new g(a,b),revoke:p}};return g}var u="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;u.Proxy||(u.Proxy=l(),u.Proxy.revocable=u.Proxy.revocable);})();
+  (function(){function k(){function p(a){return a?"object"===typeof a||"function"===typeof a:!1}var l=null;var n=function(a,c){function g(){}if(!p(a)||!p(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");l=function(){a=null;g=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){l=null;},0);var f=c;c={get:null,set:null,apply:null,construct:null};for(var h in f){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+
+  h+"'");c[h]=f[h];}"function"===typeof f&&(c.apply=f.apply.bind(f));var d=this,q=!1,r=!1;"function"===typeof a?(d=function(){var b=this&&this.constructor===d,e=Array.prototype.slice.call(arguments);g(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,e):!b&&c.apply?c.apply(a,this,e):b?(e.unshift(a),new (a.bind.apply(a,e))):a.apply(this,e)},q=!0):a instanceof Array&&(d=[],r=!0);var t=c.get?function(b){g("get");return c.get(this,b,d)}:function(b){g("get");return this[b]},w=c.set?function(b,
+  e){g("set");c.set(this,b,e,d);}:function(b,e){g("set");this[b]=e;},u={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((q||r)&&b in d)){var e={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:t.bind(a,b),set:w.bind(a,b)};Object.defineProperty(d,b,e);u[b]=!0;}});f=!0;Object.setPrototypeOf?Object.setPrototypeOf(d,Object.getPrototypeOf(a)):d.__proto__?d.__proto__=a.__proto__:f=!1;if(c.get||!f)for(var m in a)u[m]||Object.defineProperty(d,m,{get:t.bind(a,m)});Object.seal(a);Object.seal(d);
+  return d};n.revocable=function(a,c){return {proxy:new n(a,c),revoke:l}};return n}var v="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;v.Proxy||(v.Proxy=k(),v.Proxy.revocable=v.Proxy.revocable);})();
 
   !function(e){var t=e.Element.prototype;"function"!=typeof t.matches&&(t.matches=t.msMatchesSelector||t.mozMatchesSelector||t.webkitMatchesSelector||function(e){for(var t=(this.document||this.ownerDocument).querySelectorAll(e),o=0;t[o]&&t[o]!==this;)++o;return Boolean(t[o])}),"function"!=typeof t.closest&&(t.closest=function(e){for(var t=this;t&&1===t.nodeType;){if(t.matches(e))return t;t=t.parentNode;}return null});}(window);
 
@@ -2499,7 +2499,7 @@
       return { __await: arg };
     };
 
-    function AsyncIterator(generator) {
+    function AsyncIterator(generator, PromiseImpl) {
       function invoke(method, arg, resolve, reject) {
         var record = tryCatch(generator[method], generator, arg);
         if (record.type === "throw") {
@@ -2510,14 +2510,14 @@
           if (value &&
               typeof value === "object" &&
               hasOwn.call(value, "__await")) {
-            return Promise.resolve(value.__await).then(function(value) {
+            return PromiseImpl.resolve(value.__await).then(function(value) {
               invoke("next", value, resolve, reject);
             }, function(err) {
               invoke("throw", err, resolve, reject);
             });
           }
 
-          return Promise.resolve(value).then(function(unwrapped) {
+          return PromiseImpl.resolve(value).then(function(unwrapped) {
             // When a yielded Promise is resolved, its final value becomes
             // the .value of the Promise<{value,done}> result for the
             // current iteration.
@@ -2535,7 +2535,7 @@
 
       function enqueue(method, arg) {
         function callInvokeWithMethodAndArg() {
-          return new Promise(function(resolve, reject) {
+          return new PromiseImpl(function(resolve, reject) {
             invoke(method, arg, resolve, reject);
           });
         }
@@ -2575,9 +2575,12 @@
     // Note that simple async functions are implemented on top of
     // AsyncIterator objects; they just return a Promise for the value of
     // the final result produced by the iterator.
-    exports.async = function(innerFn, outerFn, self, tryLocsList) {
+    exports.async = function(innerFn, outerFn, self, tryLocsList, PromiseImpl) {
+      if (PromiseImpl === void 0) PromiseImpl = Promise;
+
       var iter = new AsyncIterator(
-        wrap(innerFn, outerFn, self, tryLocsList)
+        wrap(innerFn, outerFn, self, tryLocsList),
+        PromiseImpl
       );
 
       return exports.isGeneratorFunction(outerFn)
@@ -5346,115 +5349,150 @@
     return !isNaN(subject);
   }
 
-  function handleForDirective(component, el, expression, initialUpdate, extraVars) {
+  function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     var _this = this;
 
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
+    warnIfNotTemplateTag(templateEl);
+    var iteratorNames = parseForExpression(expression);
+    var items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
-    var _parseFor = parseFor(expression),
-        single = _parseFor.single,
-        bunch = _parseFor.bunch,
-        iterator1 = _parseFor.iterator1,
-        iterator2 = _parseFor.iterator2;
-
-    var items;
-    var ifAttr = getXAttrs(el, 'if')[0];
-
-    if (ifAttr && !component.evaluateReturnExpression(el, ifAttr.expression)) {
-      // If there is an "x-if" attribute in conjunction with an x-for,
-      // AND x-if resolves to false, just pretend the x-for is
-      // empty, effectively hiding it.
-      items = [];
-    } else {
-      items = component.evaluateReturnExpression(el, bunch, extraVars);
-    } // As we walk the array, we'll also walk the DOM (updating/creating as we go).
-
-
-    var previousEl = el;
-    items.forEach(function (i, index, group) {
+    var currentEl = templateEl;
+    items.forEach(function (item, index) {
       var _this2 = this;
 
       _newArrowCheck(this, _this);
 
-      var currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group);
-      var currentEl = previousEl.nextElementSibling; // Let's check and see if the x-for has already generated an element last time it ran.
+      var iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items);
+      var currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
+      var nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
 
-      if (currentEl && currentEl.__x_for_key !== undefined) {
-        // If the the key's don't match.
-        if (currentEl.__x_for_key !== currentKey) {
-          // We'll look ahead to see if we can find it further down.
-          var tmpCurrentEl = currentEl;
+      if (!nextEl || nextEl.__x_for_key === undefined) {
+        nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-          while (tmpCurrentEl) {
-            // If we found it later in the DOM.
-            if (tmpCurrentEl.__x_for_key === currentKey) {
-              // Move it to where it's supposed to be in the DOM.
-              el.parentElement.insertBefore(tmpCurrentEl, currentEl); // And set it as the current element as if we just created it.
-
-              currentEl = tmpCurrentEl;
-              break;
-            }
-
-            tmpCurrentEl = tmpCurrentEl.nextElementSibling && tmpCurrentEl.nextElementSibling.__x_for_key !== undefined ? tmpCurrentEl.nextElementSibling : false;
-          }
-        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
-
-
-        delete currentEl.__x_for_key;
-        var xForVars = {};
-        xForVars[single] = i;
-        if (iterator1) xForVars[iterator1] = index;
-        if (iterator2) xForVars[iterator2] = group;
-        currentEl.__x_for = xForVars;
-        component.updateElements(currentEl, function () {
+        transitionIn(nextEl, function () {
+          _newArrowCheck(this, _this2);
+        }.bind(this), initialUpdate);
+        nextEl.__x_for = iterationScopeVariables;
+        component.initializeElements(nextEl, function () {
           _newArrowCheck(this, _this2);
 
-          return currentEl.__x_for;
+          return nextEl.__x_for;
         }.bind(this));
       } else {
-        // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
-        // extra items in the array that need to be added as new elements.
-        // Let's create a clone from the template.
-        var clone = document.importNode(el.content, true);
-        if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.'); // Insert it where we are in the DOM.
+        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // Temporarily remove the key indicator to allow the normal "updateElements" to work
 
-        el.parentElement.insertBefore(clone, currentEl); // Set it as the current element.
-
-        currentEl = previousEl.nextElementSibling; // And transition it in if it's not the first page load.
-
-        transitionIn(currentEl, function () {
-          _newArrowCheck(this, _this2);
-        }.bind(this), initialUpdate); // Now, let's walk the new DOM node and initialize everything,
-        // including new nested components.
-        // Note we are resolving the "extraData" alias stuff from the dom element value so that it's
-        // always up to date for listener handlers that don't get re-registered.
-
-        var _xForVars = {};
-        _xForVars[single] = i;
-        if (iterator1) _xForVars[iterator1] = index;
-        if (iterator2) _xForVars[iterator2] = group;
-        currentEl.__x_for = _xForVars;
-        component.initializeElements(currentEl, function () {
+        delete nextEl.__x_for_key;
+        nextEl.__x_for = iterationScopeVariables;
+        component.updateElements(nextEl, function () {
           _newArrowCheck(this, _this2);
 
-          return currentEl.__x_for;
+          return nextEl.__x_for;
         }.bind(this));
       }
 
+      currentEl = nextEl;
       currentEl.__x_for_key = currentKey;
-      previousEl = currentEl;
-    }.bind(this)); // Now that we've added/updated/moved all the elements for the current state of the loop.
-    // Anything left over, we can get rid of.
+    }.bind(this));
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl);
+  } // This was taken from VueJS 2.* core. Thanks Vue!
 
-    var nextElementFromOldLoop = previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined ? previousEl.nextElementSibling : false;
+  function parseForExpression(expression) {
+    var forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
+    var stripParensRE = /^\(|\)$/g;
+    var forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
+    var inMatch = expression.match(forAliasRE);
+    if (!inMatch) return;
+    var res = {};
+    res.items = inMatch[2].trim();
+    var item = inMatch[1].trim().replace(stripParensRE, '');
+    var iteratorMatch = item.match(forIteratorRE);
+
+    if (iteratorMatch) {
+      res.item = item.replace(forIteratorRE, '').trim();
+      res.index = iteratorMatch[1].trim();
+
+      if (iteratorMatch[2]) {
+        res.collection = iteratorMatch[2].trim();
+      }
+    } else {
+      res.item = item;
+    }
+
+    return res;
+  }
+
+  function getIterationScopeVariables(iteratorNames, item, index, items) {
+    var scopeVariables = _defineProperty({}, iteratorNames.item, item);
+
+    if (iteratorNames.index) scopeVariables[iteratorNames.index] = index;
+    if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items;
+    return scopeVariables;
+  }
+
+  function generateKeyForIteration(component, el, index, iterationScopeVariables) {
+    var _this3 = this;
+
+    var bindKeyAttribute = getXAttrs(el, 'bind').filter(function (attr) {
+      _newArrowCheck(this, _this3);
+
+      return attr.value === 'key';
+    }.bind(this))[0]; // If the dev hasn't specified a key, just return the index of the iteration.
+
+    if (!bindKeyAttribute) return index;
+    return component.evaluateReturnExpression(el, bindKeyAttribute.expression, function () {
+      _newArrowCheck(this, _this3);
+
+      return iterationScopeVariables;
+    }.bind(this));
+  }
+
+  function warnIfNotTemplateTag(el) {
+    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
+  }
+
+  function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
+    var ifAttribute = getXAttrs(el, 'if')[0];
+
+    if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
+      return [];
+    }
+
+    return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);
+  }
+
+  function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
+    var clone = document.importNode(templateEl.content, true);
+    if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.');
+    currentEl.parentElement.insertBefore(clone, currentEl.nextElementSibling);
+    return currentEl.nextElementSibling;
+  }
+
+  function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
+    // If the the key's DO match, no need to look ahead.
+    if (nextEl.__x_for_key === currentKey) return nextEl; // If the don't, we'll look ahead for a match.
+    // If we find it, we'll move it to the current position in the loop.
+
+    var tmpNextEl = nextEl;
+
+    while (tmpNextEl) {
+      if (tmpNextEl.__x_for_key === currentKey) {
+        return tmpNextEl.parentElement.insertBefore(tmpNextEl, nextEl);
+      }
+
+      tmpNextEl = tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined ? tmpNextEl.nextElementSibling : false;
+    }
+  }
+
+  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+    var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     var _loop = function _loop() {
-      var _this3 = this;
+      var _this4 = this;
 
       var nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       var nextSibling = nextElementFromOldLoop.nextElementSibling;
       transitionOut(nextElementFromOldLoop, function () {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this4);
 
         nextElementFromOldLoopImmutable.remove();
       }.bind(this));
@@ -5464,51 +5502,6 @@
     while (nextElementFromOldLoop) {
       _loop();
     }
-  } // This was taken from VueJS 2.* core. Thanks Vue!
-
-  function parseFor(expression) {
-    var forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
-    var stripParensRE = /^\(|\)$/g;
-    var forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
-    var inMatch = expression.match(forAliasRE);
-    if (!inMatch) return;
-    var res = {};
-    res.bunch = inMatch[2].trim();
-    var single = inMatch[1].trim().replace(stripParensRE, '');
-    var iteratorMatch = single.match(forIteratorRE);
-
-    if (iteratorMatch) {
-      res.single = single.replace(forIteratorRE, '').trim();
-      res.iterator1 = iteratorMatch[1].trim();
-
-      if (iteratorMatch[2]) {
-        res.iterator2 = iteratorMatch[2].trim();
-      }
-    } else {
-      res.single = single;
-    }
-
-    return res;
-  }
-
-  function getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group) {
-    var _this4 = this;
-
-    var keyAttr = getXAttrs(el, 'bind').filter(function (attr) {
-      _newArrowCheck(this, _this4);
-
-      return attr.value === 'key';
-    }.bind(this))[0];
-
-    var keyAliases = _defineProperty({}, single, i);
-
-    if (iterator1) keyAliases[iterator1] = index;
-    if (iterator2) keyAliases[iterator2] = group;
-    return keyAttr ? component.evaluateReturnExpression(el, keyAttr.expression, function () {
-      _newArrowCheck(this, _this4);
-
-      return keyAliases;
-    }.bind(this)) : index;
   }
 
   function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
@@ -6040,9 +6033,7 @@
     return new Proxy(target, proxyHandler);
   }
 
-  var Component =
-  /*#__PURE__*/
-  function () {
+  var Component = /*#__PURE__*/function () {
     function Component(el) {
       var _this = this;
 
@@ -6568,9 +6559,7 @@
 
   var Alpine = {
     start: function () {
-      var _start = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee() {
+      var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
 
         return regeneratorRuntime.wrap(function _callee$(_context) {

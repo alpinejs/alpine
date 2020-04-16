@@ -65,8 +65,8 @@ function parseForExpression(expression) {
     return res
 }
 
-function getIterationScopeVariables(iteratorNames, item, index, items, scopeVariables) {
-    if (! scopeVariables) scopeVariables = {}
+function getIterationScopeVariables(iteratorNames, item, index, items, extraVars) {
+    let scopeVariables = extraVars ? {...extraVars} : {}
     scopeVariables[iteratorNames.item] = item
     if (iteratorNames.index) scopeVariables[iteratorNames.index] = index
     if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items

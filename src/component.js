@@ -2,6 +2,7 @@ import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleTextDirective } from './directives/text'
+import { handleHtmlDirective } from './directives/html'
 import { handleShowDirective } from './directives/show'
 import { handleIfDirective } from './directives/if'
 import { registerModelListener } from './directives/model'
@@ -254,7 +255,7 @@ export default class Component {
                     break;
 
                 case 'html':
-                    el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars)
+                    handleHtmlDirective(this, el, expression, extraVars)
                     break;
 
                 case 'show':

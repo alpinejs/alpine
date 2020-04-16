@@ -602,6 +602,10 @@
     el.innerText = output;
   }
 
+  function handleHtmlDirective(component, el, expression, extraVars) {
+    el.innerHTML = component.evaluateReturnExpression(el, expression, extraVars);
+  }
+
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
     const hide = () => {
       el.style.display = 'none';
@@ -1479,7 +1483,7 @@
             break;
 
           case 'html':
-            el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars);
+            handleHtmlDirective(this, el, expression, extraVars);
             break;
 
           case 'show':

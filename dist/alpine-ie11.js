@@ -5612,6 +5612,10 @@
     el.innerText = output;
   }
 
+  function handleHtmlDirective(component, el, expression, extraVars) {
+    el.innerHTML = component.evaluateReturnExpression(el, expression, extraVars);
+  }
+
   function handleShowDirective(component, el, value, modifiers) {
     var _this = this;
 
@@ -6386,7 +6390,7 @@
               break;
 
             case 'html':
-              el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars);
+              handleHtmlDirective(this, el, expression, extraVars);
               break;
 
             case 'show':

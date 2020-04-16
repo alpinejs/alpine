@@ -451,8 +451,9 @@
     return res;
   }
 
-  function getIterationScopeVariables(iteratorNames, item, index, items, scopeVariables) {
-    if (!scopeVariables) scopeVariables = {};
+  function getIterationScopeVariables(iteratorNames, item, index, items, extraVars) {
+    // We must create a new object, so each iteration has a new scope
+    let scopeVariables = extraVars ? _objectSpread2({}, extraVars) : {};
     scopeVariables[iteratorNames.item] = item;
     if (iteratorNames.index) scopeVariables[iteratorNames.index] = index;
     if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items;

@@ -5362,7 +5362,7 @@
 
       _newArrowCheck(this, _this);
 
-      var iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items);
+      var iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
       var currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
       var nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
 
@@ -5421,9 +5421,10 @@
     return res;
   }
 
-  function getIterationScopeVariables(iteratorNames, item, index, items) {
-    var scopeVariables = _defineProperty({}, iteratorNames.item, item);
-
+  function getIterationScopeVariables(iteratorNames, item, index, items, extraVars) {
+    // We must create a new object, so each iteration has a new scope
+    var scopeVariables = extraVars ? _objectSpread2({}, extraVars) : {};
+    scopeVariables[iteratorNames.item] = item;
     if (iteratorNames.index) scopeVariables[iteratorNames.index] = index;
     if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items;
     return scopeVariables;

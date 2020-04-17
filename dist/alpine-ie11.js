@@ -5760,7 +5760,7 @@
           }
         }
 
-        if (isKeyEvent(event)) {
+        if (isKeyEvent(e)) {
           if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
             return;
           }
@@ -5802,7 +5802,7 @@
   }
 
   function isKeyEvent(event) {
-    return ['keydown', 'keyup'].includes(event);
+    return event instanceof KeyboardEvent && ['keydown', 'keyup'].includes(event.type);
   }
 
   function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {

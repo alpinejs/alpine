@@ -26,6 +26,11 @@ export function handleForDirective(component, templateEl, expression, initialUpd
         } else {
             nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey)
 
+            // If we haven't found a matching key, just insert the element at the current position
+            if (! nextEl) {
+                nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
+            }
+
             // Temporarily remove the key indicator to allow the normal "updateElements" to work
             delete nextEl.__x_for_key
 
@@ -110,7 +115,7 @@ function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
     // If the the key's DO match, no need to look ahead.
     if (nextEl.__x_for_key === currentKey) return nextEl
 
-    // If the don't, we'll look ahead for a match.
+    // If they don't, we'll look ahead for a match.
     // If we find it, we'll move it to the current position in the loop.
     let tmpNextEl = nextEl
 

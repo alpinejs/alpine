@@ -38,7 +38,6 @@ export default class Component {
         this.unobservedData.$el = this.$el
         this.unobservedData.$refs = this.getRefsProxy()
 
-        this.nextTickTimeout = null
         this.nextTickStack = []
         this.unobservedData.$nextTick = (callback) => {
             this.nextTickStack.push(callback)
@@ -157,13 +156,7 @@ export default class Component {
 
         this.executeAndClearRemainingShowDirectiveStack()
 
-        // Skip spawns from alpine directives
-        if (rootEl === this.$el) {
-            // Walk through the $nextTick stack and clear it as we go.
-            while (this.nextTickStack.length > 0) {
-                this.nextTickStack.shift()()
-            }
-        }
+        this.executeAndClearNextTickStack(rootEl)
     }
 
     initializeElement(el, extraVars) {
@@ -189,8 +182,12 @@ export default class Component {
 
         this.executeAndClearRemainingShowDirectiveStack()
 
+        this.executeAndClearNextTickStack(rootEl)
+    }
+
+    executeAndClearNextTickStack(el) {
         // Skip spawns from alpine directives
-        if (rootEl === this.$el) {
+        if (el === this.$el) {
             // Walk through the $nextTick stack and clear it as we go.
             while (this.nextTickStack.length > 0) {
                 this.nextTickStack.shift()()

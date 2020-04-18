@@ -18,7 +18,7 @@ export function handleForDirective(component, templateEl, expression, initialUpd
         if (! nextEl || nextEl.__x_for_key === undefined) {
             nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
 
-            // And transition it in if  it's not the first page load.
+            // And transition it in if it's not the first page load.
             transitionIn(nextEl, () => {}, initialUpdate)
 
             nextEl.__x_for = iterationScopeVariables

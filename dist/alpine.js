@@ -405,7 +405,7 @@
         nextEl.__x_for = iterationScopeVariables;
         component.initializeElements(nextEl, () => nextEl.__x_for);
       } else {
-        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // If I haven't found a matching key, just insert the element at the current position
+        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // If we haven't found a matching key, just insert the element at the current position
 
         if (!nextEl) {
           nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl);
@@ -487,7 +487,7 @@
 
   function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
     // If the the key's DO match, no need to look ahead.
-    if (nextEl.__x_for_key === currentKey) return nextEl; // If the don't, we'll look ahead for a match.
+    if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.
     // If we find it, we'll move it to the current position in the loop.
 
     let tmpNextEl = nextEl;
@@ -499,8 +499,6 @@
 
       tmpNextEl = tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined ? tmpNextEl.nextElementSibling : false;
     }
-
-    return false;
   }
 
   function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {

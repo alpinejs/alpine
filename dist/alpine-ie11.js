@@ -4289,43 +4289,6 @@
     return regexpExec.call(R, S);
   };
 
-  // @@match logic
-  fixRegexpWellKnownSymbolLogic('match', 1, function (MATCH, nativeMatch, maybeCallNative) {
-    return [
-      // `String.prototype.match` method
-      // https://tc39.github.io/ecma262/#sec-string.prototype.match
-      function match(regexp) {
-        var O = requireObjectCoercible(this);
-        var matcher = regexp == undefined ? undefined : regexp[MATCH];
-        return matcher !== undefined ? matcher.call(regexp, O) : new RegExp(regexp)[MATCH](String(O));
-      },
-      // `RegExp.prototype[@@match]` method
-      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@match
-      function (regexp) {
-        var res = maybeCallNative(nativeMatch, regexp, this);
-        if (res.done) return res.value;
-
-        var rx = anObject(regexp);
-        var S = String(this);
-
-        if (!rx.global) return regexpExecAbstract(rx, S);
-
-        var fullUnicode = rx.unicode;
-        rx.lastIndex = 0;
-        var A = [];
-        var n = 0;
-        var result;
-        while ((result = regexpExecAbstract(rx, S)) !== null) {
-          var matchStr = String(result[0]);
-          A[n] = matchStr;
-          if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
-          n++;
-        }
-        return n === 0 ? null : A;
-      }
-    ];
-  });
-
   var arrayPush = [].push;
   var min$3 = Math.min;
   var MAX_UINT32 = 0xFFFFFFFF;
@@ -4727,6 +4690,43 @@
     values: function values(O) {
       return $values(O);
     }
+  });
+
+  // @@match logic
+  fixRegexpWellKnownSymbolLogic('match', 1, function (MATCH, nativeMatch, maybeCallNative) {
+    return [
+      // `String.prototype.match` method
+      // https://tc39.github.io/ecma262/#sec-string.prototype.match
+      function match(regexp) {
+        var O = requireObjectCoercible(this);
+        var matcher = regexp == undefined ? undefined : regexp[MATCH];
+        return matcher !== undefined ? matcher.call(regexp, O) : new RegExp(regexp)[MATCH](String(O));
+      },
+      // `RegExp.prototype[@@match]` method
+      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@match
+      function (regexp) {
+        var res = maybeCallNative(nativeMatch, regexp, this);
+        if (res.done) return res.value;
+
+        var rx = anObject(regexp);
+        var S = String(this);
+
+        if (!rx.global) return regexpExecAbstract(rx, S);
+
+        var fullUnicode = rx.unicode;
+        rx.lastIndex = 0;
+        var A = [];
+        var n = 0;
+        var result;
+        while ((result = regexpExecAbstract(rx, S)) !== null) {
+          var matchStr = String(result[0]);
+          A[n] = matchStr;
+          if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
+          n++;
+        }
+        return n === 0 ? null : A;
+      }
+    ];
   });
 
   var max$2 = Math.max;
@@ -5372,115 +5372,150 @@
     return !isNaN(subject);
   }
 
-  function handleForDirective(component, el, expression, initialUpdate) {
+  function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     var _this = this;
 
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
+    warnIfNotTemplateTag(templateEl);
+    var iteratorNames = parseForExpression(expression);
+    var items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
-    var _parseFor = parseFor(expression),
-        single = _parseFor.single,
-        bunch = _parseFor.bunch,
-        iterator1 = _parseFor.iterator1,
-        iterator2 = _parseFor.iterator2;
-
-    var items;
-    var ifAttr = getXAttrs(el, 'if')[0];
-
-    if (ifAttr && !component.evaluateReturnExpression(el, ifAttr.expression)) {
-      // If there is an "x-if" attribute in conjunction with an x-for,
-      // AND x-if resolves to false, just pretend the x-for is
-      // empty, effectively hiding it.
-      items = [];
-    } else {
-      items = component.evaluateReturnExpression(el, bunch);
-    } // As we walk the array, we'll also walk the DOM (updating/creating as we go).
-
-
-    var previousEl = el;
-    items.forEach(function (i, index, group) {
+    var currentEl = templateEl;
+    items.forEach(function (item, index) {
       var _this2 = this;
 
       _newArrowCheck(this, _this);
 
-      var currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group);
-      var currentEl = previousEl.nextElementSibling; // Let's check and see if the x-for has already generated an element last time it ran.
+      var iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items);
+      var currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
+      var nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
 
-      if (currentEl && currentEl.__x_for_key !== undefined) {
-        // If the the key's don't match.
-        if (currentEl.__x_for_key !== currentKey) {
-          // We'll look ahead to see if we can find it further down.
-          var tmpCurrentEl = currentEl;
+      if (!nextEl || nextEl.__x_for_key === undefined) {
+        nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-          while (tmpCurrentEl) {
-            // If we found it later in the DOM.
-            if (tmpCurrentEl.__x_for_key === currentKey) {
-              // Move it to where it's supposed to be in the DOM.
-              el.parentElement.insertBefore(tmpCurrentEl, currentEl); // And set it as the current element as if we just created it.
-
-              currentEl = tmpCurrentEl;
-              break;
-            }
-
-            tmpCurrentEl = tmpCurrentEl.nextElementSibling && tmpCurrentEl.nextElementSibling.__x_for_key !== undefined ? tmpCurrentEl.nextElementSibling : false;
-          }
-        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
-
-
-        delete currentEl.__x_for_key;
-        var xForVars = {};
-        xForVars[single] = i;
-        if (iterator1) xForVars[iterator1] = index;
-        if (iterator2) xForVars[iterator2] = group;
-        currentEl.__x_for = xForVars;
-        component.updateElements(currentEl, function () {
+        transitionIn(nextEl, function () {
+          _newArrowCheck(this, _this2);
+        }.bind(this), initialUpdate);
+        nextEl.__x_for = iterationScopeVariables;
+        component.initializeElements(nextEl, function () {
           _newArrowCheck(this, _this2);
 
-          return currentEl.__x_for;
+          return nextEl.__x_for;
         }.bind(this));
       } else {
-        // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
-        // extra items in the array that need to be added as new elements.
-        // Let's create a clone from the template.
-        var clone = document.importNode(el.content, true);
-        if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.'); // Insert it where we are in the DOM.
+        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // Temporarily remove the key indicator to allow the normal "updateElements" to work
 
-        el.parentElement.insertBefore(clone, currentEl); // Set it as the current element.
-
-        currentEl = previousEl.nextElementSibling; // And transition it in if it's not the first page load.
-
-        transitionIn(currentEl, function () {
-          _newArrowCheck(this, _this2);
-        }.bind(this), initialUpdate); // Now, let's walk the new DOM node and initialize everything,
-        // including new nested components.
-        // Note we are resolving the "extraData" alias stuff from the dom element value so that it's
-        // always up to date for listener handlers that don't get re-registered.
-
-        var _xForVars = {};
-        _xForVars[single] = i;
-        if (iterator1) _xForVars[iterator1] = index;
-        if (iterator2) _xForVars[iterator2] = group;
-        currentEl.__x_for = _xForVars;
-        component.initializeElements(currentEl, function () {
+        delete nextEl.__x_for_key;
+        nextEl.__x_for = iterationScopeVariables;
+        component.updateElements(nextEl, function () {
           _newArrowCheck(this, _this2);
 
-          return currentEl.__x_for;
+          return nextEl.__x_for;
         }.bind(this));
       }
 
+      currentEl = nextEl;
       currentEl.__x_for_key = currentKey;
-      previousEl = currentEl;
-    }.bind(this)); // Now that we've added/updated/moved all the elements for the current state of the loop.
-    // Anything left over, we can get rid of.
+    }.bind(this));
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl);
+  } // This was taken from VueJS 2.* core. Thanks Vue!
 
-    var nextElementFromOldLoop = previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined ? previousEl.nextElementSibling : false;
+  function parseForExpression(expression) {
+    var forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
+    var stripParensRE = /^\(|\)$/g;
+    var forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
+    var inMatch = expression.match(forAliasRE);
+    if (!inMatch) return;
+    var res = {};
+    res.items = inMatch[2].trim();
+    var item = inMatch[1].trim().replace(stripParensRE, '');
+    var iteratorMatch = item.match(forIteratorRE);
+
+    if (iteratorMatch) {
+      res.item = item.replace(forIteratorRE, '').trim();
+      res.index = iteratorMatch[1].trim();
+
+      if (iteratorMatch[2]) {
+        res.collection = iteratorMatch[2].trim();
+      }
+    } else {
+      res.item = item;
+    }
+
+    return res;
+  }
+
+  function getIterationScopeVariables(iteratorNames, item, index, items) {
+    var scopeVariables = _defineProperty({}, iteratorNames.item, item);
+
+    if (iteratorNames.index) scopeVariables[iteratorNames.index] = index;
+    if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items;
+    return scopeVariables;
+  }
+
+  function generateKeyForIteration(component, el, index, iterationScopeVariables) {
+    var _this3 = this;
+
+    var bindKeyAttribute = getXAttrs(el, 'bind').filter(function (attr) {
+      _newArrowCheck(this, _this3);
+
+      return attr.value === 'key';
+    }.bind(this))[0]; // If the dev hasn't specified a key, just return the index of the iteration.
+
+    if (!bindKeyAttribute) return index;
+    return component.evaluateReturnExpression(el, bindKeyAttribute.expression, function () {
+      _newArrowCheck(this, _this3);
+
+      return iterationScopeVariables;
+    }.bind(this));
+  }
+
+  function warnIfNotTemplateTag(el) {
+    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
+  }
+
+  function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
+    var ifAttribute = getXAttrs(el, 'if')[0];
+
+    if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
+      return [];
+    }
+
+    return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);
+  }
+
+  function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
+    var clone = document.importNode(templateEl.content, true);
+    if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.');
+    currentEl.parentElement.insertBefore(clone, currentEl.nextElementSibling);
+    return currentEl.nextElementSibling;
+  }
+
+  function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
+    // If the the key's DO match, no need to look ahead.
+    if (nextEl.__x_for_key === currentKey) return nextEl; // If the don't, we'll look ahead for a match.
+    // If we find it, we'll move it to the current position in the loop.
+
+    var tmpNextEl = nextEl;
+
+    while (tmpNextEl) {
+      if (tmpNextEl.__x_for_key === currentKey) {
+        return tmpNextEl.parentElement.insertBefore(tmpNextEl, nextEl);
+      }
+
+      tmpNextEl = tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined ? tmpNextEl.nextElementSibling : false;
+    }
+  }
+
+  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+    var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     var _loop = function _loop() {
-      var _this3 = this;
+      var _this4 = this;
 
       var nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       var nextSibling = nextElementFromOldLoop.nextElementSibling;
       transitionOut(nextElementFromOldLoop, function () {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this4);
 
         nextElementFromOldLoopImmutable.remove();
       }.bind(this));
@@ -5490,51 +5525,6 @@
     while (nextElementFromOldLoop) {
       _loop();
     }
-  } // This was taken from VueJS 2.* core. Thanks Vue!
-
-  function parseFor(expression) {
-    var forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
-    var stripParensRE = /^\(|\)$/g;
-    var forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
-    var inMatch = expression.match(forAliasRE);
-    if (!inMatch) return;
-    var res = {};
-    res.bunch = inMatch[2].trim();
-    var single = inMatch[1].trim().replace(stripParensRE, '');
-    var iteratorMatch = single.match(forIteratorRE);
-
-    if (iteratorMatch) {
-      res.single = single.replace(forIteratorRE, '').trim();
-      res.iterator1 = iteratorMatch[1].trim();
-
-      if (iteratorMatch[2]) {
-        res.iterator2 = iteratorMatch[2].trim();
-      }
-    } else {
-      res.single = single;
-    }
-
-    return res;
-  }
-
-  function getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group) {
-    var _this4 = this;
-
-    var keyAttr = getXAttrs(el, 'bind').filter(function (attr) {
-      _newArrowCheck(this, _this4);
-
-      return attr.value === 'key';
-    }.bind(this))[0];
-
-    var keyAliases = _defineProperty({}, single, i);
-
-    if (iterator1) keyAliases[iterator1] = index;
-    if (iterator2) keyAliases[iterator2] = group;
-    return keyAttr ? component.evaluateReturnExpression(el, keyAttr.expression, function () {
-      _newArrowCheck(this, _this4);
-
-      return keyAliases;
-    }.bind(this)) : index;
   }
 
   function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
@@ -5591,7 +5581,14 @@
         var originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
       } else if (_typeof(value) === 'object') {
-        Object.keys(value).forEach(function (classNames) {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        var keysSortedByBooleanValue = Object.keys(value).sort(function (a, b) {
+          _newArrowCheck(this, _this);
+
+          return value[a] - value[b];
+        }.bind(this));
+        keysSortedByBooleanValue.forEach(function (classNames) {
           var _this2 = this;
 
           _newArrowCheck(this, _this);
@@ -5641,6 +5638,19 @@
 
       option.selected = arrayWrappedValue.includes(option.value || option.text);
     }.bind(this));
+  }
+
+  function handleTextDirective(el, output, expression) {
+    // If nested model key is undefined, set the default value to empty string.
+    if (output === undefined && expression.match(/\./).length) {
+      output = '';
+    }
+
+    el.innerText = output;
+  }
+
+  function handleHtmlDirective(component, el, expression, extraVars) {
+    el.innerHTML = component.evaluateReturnExpression(el, expression, extraVars);
   }
 
   function handleShowDirective(component, el, value, modifiers) {
@@ -5738,7 +5748,7 @@
     component.showDirectiveLastElement = el;
   }
 
-  function handleIfDirective(el, expressionResult, initialUpdate) {
+  function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
     var _this = this;
 
     if (el.nodeName.toLowerCase() !== 'template') console.warn("Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if");
@@ -5747,10 +5757,11 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       var clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      el.nextElementSibling.__x_inserted_me = true;
       transitionIn(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
       }.bind(this), initialUpdate);
+      component.initializeElements(el.nextElementSibling, extraVars);
+      el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
@@ -6142,7 +6153,7 @@
       this.listenForNewElementsToInitialize();
 
       if (typeof initReturnedCallback === 'function') {
-        // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+        // Run the callback returned from the "x-init" hook to allow the user to do stuff after
         // Alpine's got it's grubby little paws all over everything.
         initReturnedCallback.call(this.$data);
       }
@@ -6253,7 +6264,9 @@
           _newArrowCheck(this, _this7);
 
           // Don't touch spawns from for loop
-          if (el.__x_for_key !== undefined) return false;
+          if (el.__x_for_key !== undefined) return false; // Don't touch spawns from if directives
+
+          if (el.__x_inserted_me !== undefined) return false;
           this.initializeElement(el, extraVars);
         }.bind(this), function (el) {
           _newArrowCheck(this, _this7);
@@ -6424,17 +6437,12 @@
               break;
 
             case 'text':
-              var output = this.evaluateReturnExpression(el, expression, extraVars); // If nested model key is undefined, set the default value to empty string.
-
-              if (output === undefined && expression.match(/\./).length) {
-                output = '';
-              }
-
-              el.innerText = output;
+              var output = this.evaluateReturnExpression(el, expression, extraVars);
+              handleTextDirective(el, output, expression);
               break;
 
             case 'html':
-              el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars);
+              handleHtmlDirective(this, el, expression, extraVars);
               break;
 
             case 'show':
@@ -6451,11 +6459,11 @@
                 return i.type === 'for';
               }.bind(this)).length > 0) return;
               var output = this.evaluateReturnExpression(el, expression, extraVars);
-              handleIfDirective(el, output, initialUpdate);
+              handleIfDirective(this, el, output, initialUpdate, extraVars);
               break;
 
             case 'for':
-              handleForDirective(this, el, expression, initialUpdate);
+              handleForDirective(this, el, expression, initialUpdate, extraVars);
               break;
 
             case 'cloak':

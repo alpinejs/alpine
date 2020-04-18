@@ -395,138 +395,126 @@
     return !isNaN(subject);
   }
 
-  function handleForDirective(component, el, expression, initialUpdate) {
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
-    const {
-      single,
-      bunch,
-      iterator1,
-      iterator2
-    } = parseFor(expression);
-    var items;
-    const ifAttr = getXAttrs(el, 'if')[0];
+  function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
+    warnIfNotTemplateTag(templateEl);
+    let iteratorNames = parseForExpression(expression);
+    let items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
-    if (ifAttr && !component.evaluateReturnExpression(el, ifAttr.expression)) {
-      // If there is an "x-if" attribute in conjunction with an x-for,
-      // AND x-if resolves to false, just pretend the x-for is
-      // empty, effectively hiding it.
-      items = [];
-    } else {
-      items = component.evaluateReturnExpression(el, bunch);
-    } // As we walk the array, we'll also walk the DOM (updating/creating as we go).
+    let currentEl = templateEl;
+    items.forEach((item, index) => {
+      let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items);
+      let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
+      let nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
 
+      if (!nextEl || nextEl.__x_for_key === undefined) {
+        nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-    var previousEl = el;
-    items.forEach((i, index, group) => {
-      const currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group);
-      let currentEl = previousEl.nextElementSibling; // Let's check and see if the x-for has already generated an element last time it ran.
-
-      if (currentEl && currentEl.__x_for_key !== undefined) {
-        // If the the key's don't match.
-        if (currentEl.__x_for_key !== currentKey) {
-          // We'll look ahead to see if we can find it further down.
-          var tmpCurrentEl = currentEl;
-
-          while (tmpCurrentEl) {
-            // If we found it later in the DOM.
-            if (tmpCurrentEl.__x_for_key === currentKey) {
-              // Move it to where it's supposed to be in the DOM.
-              el.parentElement.insertBefore(tmpCurrentEl, currentEl); // And set it as the current element as if we just created it.
-
-              currentEl = tmpCurrentEl;
-              break;
-            }
-
-            tmpCurrentEl = tmpCurrentEl.nextElementSibling && tmpCurrentEl.nextElementSibling.__x_for_key !== undefined ? tmpCurrentEl.nextElementSibling : false;
-          }
-        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
-
-
-        delete currentEl.__x_for_key;
-        let xForVars = {};
-        xForVars[single] = i;
-        if (iterator1) xForVars[iterator1] = index;
-        if (iterator2) xForVars[iterator2] = group;
-        currentEl.__x_for = xForVars;
-        component.updateElements(currentEl, () => {
-          return currentEl.__x_for;
-        });
+        transitionIn(nextEl, () => {}, initialUpdate);
+        nextEl.__x_for = iterationScopeVariables;
+        component.initializeElements(nextEl, () => nextEl.__x_for);
       } else {
-        // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
-        // extra items in the array that need to be added as new elements.
-        // Let's create a clone from the template.
-        const clone = document.importNode(el.content, true);
-        if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.'); // Insert it where we are in the DOM.
+        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // Temporarily remove the key indicator to allow the normal "updateElements" to work
 
-        el.parentElement.insertBefore(clone, currentEl); // Set it as the current element.
-
-        currentEl = previousEl.nextElementSibling; // And transition it in if it's not the first page load.
-
-        transitionIn(currentEl, () => {}, initialUpdate); // Now, let's walk the new DOM node and initialize everything,
-        // including new nested components.
-        // Note we are resolving the "extraData" alias stuff from the dom element value so that it's
-        // always up to date for listener handlers that don't get re-registered.
-
-        let xForVars = {};
-        xForVars[single] = i;
-        if (iterator1) xForVars[iterator1] = index;
-        if (iterator2) xForVars[iterator2] = group;
-        currentEl.__x_for = xForVars;
-        component.initializeElements(currentEl, () => {
-          return currentEl.__x_for;
-        });
+        delete nextEl.__x_for_key;
+        nextEl.__x_for = iterationScopeVariables;
+        component.updateElements(nextEl, () => nextEl.__x_for);
       }
 
+      currentEl = nextEl;
       currentEl.__x_for_key = currentKey;
-      previousEl = currentEl;
-    }); // Now that we've added/updated/moved all the elements for the current state of the loop.
-    // Anything left over, we can get rid of.
-
-    var nextElementFromOldLoop = previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined ? previousEl.nextElementSibling : false;
-
-    while (nextElementFromOldLoop) {
-      const nextElementFromOldLoopImmutable = nextElementFromOldLoop;
-      const nextSibling = nextElementFromOldLoop.nextElementSibling;
-      transitionOut(nextElementFromOldLoop, () => {
-        nextElementFromOldLoopImmutable.remove();
-      });
-      nextElementFromOldLoop = nextSibling && nextSibling.__x_for_key !== undefined ? nextSibling : false;
-    }
+    });
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl);
   } // This was taken from VueJS 2.* core. Thanks Vue!
 
-  function parseFor(expression) {
-    const forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
-    const stripParensRE = /^\(|\)$/g;
-    const forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
-    const inMatch = expression.match(forAliasRE);
+  function parseForExpression(expression) {
+    let forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
+    let stripParensRE = /^\(|\)$/g;
+    let forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
+    let inMatch = expression.match(forAliasRE);
     if (!inMatch) return;
-    const res = {};
-    res.bunch = inMatch[2].trim();
-    const single = inMatch[1].trim().replace(stripParensRE, '');
-    const iteratorMatch = single.match(forIteratorRE);
+    let res = {};
+    res.items = inMatch[2].trim();
+    let item = inMatch[1].trim().replace(stripParensRE, '');
+    let iteratorMatch = item.match(forIteratorRE);
 
     if (iteratorMatch) {
-      res.single = single.replace(forIteratorRE, '').trim();
-      res.iterator1 = iteratorMatch[1].trim();
+      res.item = item.replace(forIteratorRE, '').trim();
+      res.index = iteratorMatch[1].trim();
 
       if (iteratorMatch[2]) {
-        res.iterator2 = iteratorMatch[2].trim();
+        res.collection = iteratorMatch[2].trim();
       }
     } else {
-      res.single = single;
+      res.item = item;
     }
 
     return res;
   }
 
-  function getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group) {
-    const keyAttr = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0];
-    let keyAliases = {
-      [single]: i
+  function getIterationScopeVariables(iteratorNames, item, index, items) {
+    let scopeVariables = {
+      [iteratorNames.item]: item
     };
-    if (iterator1) keyAliases[iterator1] = index;
-    if (iterator2) keyAliases[iterator2] = group;
-    return keyAttr ? component.evaluateReturnExpression(el, keyAttr.expression, () => keyAliases) : index;
+    if (iteratorNames.index) scopeVariables[iteratorNames.index] = index;
+    if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items;
+    return scopeVariables;
+  }
+
+  function generateKeyForIteration(component, el, index, iterationScopeVariables) {
+    let bindKeyAttribute = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0]; // If the dev hasn't specified a key, just return the index of the iteration.
+
+    if (!bindKeyAttribute) return index;
+    return component.evaluateReturnExpression(el, bindKeyAttribute.expression, () => iterationScopeVariables);
+  }
+
+  function warnIfNotTemplateTag(el) {
+    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
+  }
+
+  function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
+    let ifAttribute = getXAttrs(el, 'if')[0];
+
+    if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
+      return [];
+    }
+
+    return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);
+  }
+
+  function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
+    let clone = document.importNode(templateEl.content, true);
+    if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.');
+    currentEl.parentElement.insertBefore(clone, currentEl.nextElementSibling);
+    return currentEl.nextElementSibling;
+  }
+
+  function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
+    // If the the key's DO match, no need to look ahead.
+    if (nextEl.__x_for_key === currentKey) return nextEl; // If the don't, we'll look ahead for a match.
+    // If we find it, we'll move it to the current position in the loop.
+
+    let tmpNextEl = nextEl;
+
+    while (tmpNextEl) {
+      if (tmpNextEl.__x_for_key === currentKey) {
+        return tmpNextEl.parentElement.insertBefore(tmpNextEl, nextEl);
+      }
+
+      tmpNextEl = tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined ? tmpNextEl.nextElementSibling : false;
+    }
+  }
+
+  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+    var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
+
+    while (nextElementFromOldLoop) {
+      let nextElementFromOldLoopImmutable = nextElementFromOldLoop;
+      let nextSibling = nextElementFromOldLoop.nextElementSibling;
+      transitionOut(nextElementFromOldLoop, () => {
+        nextElementFromOldLoopImmutable.remove();
+      });
+      nextElementFromOldLoop = nextSibling && nextSibling.__x_for_key !== undefined ? nextSibling : false;
+    }
   }
 
   function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
@@ -579,7 +567,10 @@
         const originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
       } else if (typeof value === 'object') {
-        Object.keys(value).forEach(classNames => {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
+        keysSortedByBooleanValue.forEach(classNames => {
           if (value[classNames]) {
             classNames.split(' ').forEach(className => el.classList.add(className));
           } else {
@@ -610,6 +601,19 @@
     Array.from(el.options).forEach(option => {
       option.selected = arrayWrappedValue.includes(option.value || option.text);
     });
+  }
+
+  function handleTextDirective(el, output, expression) {
+    // If nested model key is undefined, set the default value to empty string.
+    if (output === undefined && expression.match(/\./).length) {
+      output = '';
+    }
+
+    el.innerText = output;
+  }
+
+  function handleHtmlDirective(component, el, expression, extraVars) {
+    el.innerHTML = component.evaluateReturnExpression(el, expression, extraVars);
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
@@ -679,15 +683,16 @@
     component.showDirectiveLastElement = el;
   }
 
-  function handleIfDirective(el, expressionResult, initialUpdate) {
+  function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
     if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if`);
     const elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true;
 
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       const clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      el.nextElementSibling.__x_inserted_me = true;
       transitionIn(el.nextElementSibling, () => {}, initialUpdate);
+      component.initializeElements(el.nextElementSibling, extraVars);
+      el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, () => {
         el.nextElementSibling.remove();
@@ -1314,7 +1319,7 @@
       this.listenForNewElementsToInitialize();
 
       if (typeof initReturnedCallback === 'function') {
-        // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+        // Run the callback returned from the "x-init" hook to allow the user to do stuff after
         // Alpine's got it's grubby little paws all over everything.
         initReturnedCallback.call(this.$data);
       }
@@ -1380,7 +1385,9 @@
     initializeElements(rootEl, extraVars = () => {}) {
       this.walkAndSkipNestedComponents(rootEl, el => {
         // Don't touch spawns from for loop
-        if (el.__x_for_key !== undefined) return false;
+        if (el.__x_for_key !== undefined) return false; // Don't touch spawns from if directives
+
+        if (el.__x_inserted_me !== undefined) return false;
         this.initializeElement(el, extraVars);
       }, el => {
         el.__x = new Component(el);
@@ -1492,17 +1499,12 @@
             break;
 
           case 'text':
-            var output = this.evaluateReturnExpression(el, expression, extraVars); // If nested model key is undefined, set the default value to empty string.
-
-            if (output === undefined && expression.match(/\./).length) {
-              output = '';
-            }
-
-            el.innerText = output;
+            var output = this.evaluateReturnExpression(el, expression, extraVars);
+            handleTextDirective(el, output, expression);
             break;
 
           case 'html':
-            el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars);
+            handleHtmlDirective(this, el, expression, extraVars);
             break;
 
           case 'show':
@@ -1515,11 +1517,11 @@
             // We will let the "x-for" directive handle the "if"ing.
             if (attrs.filter(i => i.type === 'for').length > 0) return;
             var output = this.evaluateReturnExpression(el, expression, extraVars);
-            handleIfDirective(el, output, initialUpdate);
+            handleIfDirective(this, el, output, initialUpdate, extraVars);
             break;
 
           case 'for':
-            handleForDirective(this, el, expression, initialUpdate);
+            handleForDirective(this, el, expression, initialUpdate, extraVars);
             break;
 
           case 'cloak':

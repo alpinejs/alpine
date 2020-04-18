@@ -1,6 +1,7 @@
 # Alpine.js
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
+![npm version](https://img.shields.io/npm/v/alpinejs)
 
 Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
 
@@ -31,10 +32,13 @@ Include it in your script.
 import 'alpinejs'
 ```
 
-**For IE11 support** Use the following script instead.
+**For IE11 support** Use the following scripts instead.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
+<script nomodule src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>
 ```
+
+The pattern above is the [module/nomodule pattern](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) that will result in the modern bundle automatically loaded on modern browsers, and the IE11 bundle loaded automatically on IE11 and other legacy browsers.
 
 ## Use
 
@@ -153,6 +157,9 @@ You can extract data (and behavior) into reusable functions:
 </script>
 ```
 
+> **For bundler users**, note that Alpine.js accesses functions that are in the global scope (`window`), you'll need to explicitly assign your functions to `window` in order to use them with `x-data` for example `window.dropdown = function () {}` (this is because with Webpack, Rollup, Parcel etc. `function`'s you define will default to the module's scope not `window`).
+
+
 You can also mix-in multiple data objects using object destructuring:
 
 ```html
@@ -170,7 +177,7 @@ You can also mix-in multiple data objects using object destructuring:
 
 If you wish to run code AFTER Alpine has made its initial updates to the DOM (something like a `mounted()` hook in VueJS), you can return a callback from `x-init`, and it will be run after:
 
-`x-init="return () => { // we have access to the post-dom-initialization state here // }"`
+`x-init="() => { // we have access to the post-dom-initialization state here // }"`
 
 ---
 
@@ -194,8 +201,8 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 | Directive | Description |
 | --- | --- |
 | `x-show.transition` | A simultanious fade and scale. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
-| `x-show.transition.in` | Ony transition in. |
-| `x-show.transition.out` | Ony transition out. |
+| `x-show.transition.in` | Only transition in. |
+| `x-show.transition.out` | Only transition out. |
 | `x-show.transition.opacity` | Only use the fade. |
 | `x-show.transition.scale` | Only use the scale. |
 | `x-show.transition.scale.75` | Customize the CSS scale transform `transform: scale(.75)`. |
@@ -407,6 +414,21 @@ If you want to access the current index of the iteration, use the following synt
 </template>
 ```
 
+> Note: `x-for` must have a single element root inside of the `<template></template>` tag.
+
+#### Nesting `x-for`s
+You can nest `x-for` loops, but you MUST wrap each loop in an element. For example:
+
+```html
+<template x-for="item in items">
+    <div>
+        <template x-for="subItem in item.subItems">
+            <div x-text="subItem"></div>
+        </template>
+    </div>
+</template>
+```
+
 ---
 
 ### `x-transition`
@@ -435,6 +457,8 @@ If you want to access the current index of the iteration, use the following synt
     >...</div>
 </template>
 ```
+
+> The example above uses classes from [Tailwind CSS](https://tailwindcss.com)
 
 Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
 
@@ -553,7 +577,13 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
 ## v3 Roadmap
-* Move from `x-ref` to `ref` for Vue parity
+* Move from `x-ref` to `ref` for Vue parity?
+* Add `Alpine.directive()`
+* Add `Alpine.component('foo', {...})` (With magic `__init()` method)
+* Dispatch Alpine events for "loaded", "transition-start", etc... (Original PR: #299) ?
+* Remove "object" (and array) syntax from `x-bind:class="{ 'foo': true }"` (PR to add support for object syntax for the `style` attribute: #236)
+* Improve `x-for` mutation reactivity (#165)
+* Add "deep watching" support in V3 (#294)
 
 ## License
 

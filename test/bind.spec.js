@@ -159,7 +159,7 @@ test('class attribute bindings are added by array syntax', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').classList.contains('foo')).toBeTruthy
+    expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
 
 test('class attribute bindings are synced by string syntax', async () => {
@@ -171,8 +171,8 @@ test('class attribute bindings are synced by string syntax', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').classList.contains('bar')).toBeTruthy
-    expect(document.querySelector('span').classList.contains('baz')).toBeTruthy
+    expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
+    expect(document.querySelector('span').classList.contains('baz')).toBeTruthy()
 })
 
 test('boolean attributes set to false are removed from element', async () => {
@@ -332,6 +332,7 @@ test('checkbox values are set correctly', async () => {
     expect(document.querySelector('input[name="stringCheckbox"]').value).toEqual('foo')
 });
 
+<<<<<<< HEAD
 test('radio values are set correctly', async () => {
     document.body.innerHTML = `
         <div x-data="{lists: [{id: 1}, {id: 8}], selectedListID: '8'}">
@@ -351,3 +352,27 @@ test('radio values are set correctly', async () => {
     expect(document.querySelector('#list-test').value).toEqual('test')
     expect(document.querySelector('#list-test').checked).toBeFalsy()
 });
+
+test('classes are removed before being added', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ isOpen: true }">
+            <span :class="{ 'text-red block': isOpen, 'text-red hidden': !isOpen }">
+                Span
+            </span>
+            <button @click="isOpen = !isOpen"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('block')).toBeTruthy()
+    expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy()
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').classList.contains('block')).toBeFalsy()
+        expect(document.querySelector('span').classList.contains('hidden')).toBeTruthy()
+        expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy
+    })
+})

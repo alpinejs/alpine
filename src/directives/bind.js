@@ -43,14 +43,23 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         } else if (el.tagName === 'SELECT') {
             updateSelect(el, value)
         } else {
+            // Cursor position should be restored back to origin due to a safari bug
+            const cursorPosition = el.selectionStart 
             el.value = value
+            if(el === document.activeElement) { 
+                el.setSelectionRange(cursorPosition, cursorPosition)
+            }
         }
     } else if (attrName === 'class') {
         if (Array.isArray(value)) {
             const originalClasses = el.__x_original_classes || []
             el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
         } else if (typeof value === 'object') {
-            Object.keys(value).forEach(classNames => {
+            // Sorting the keys / class names by their boolean value will ensure that
+            // anything that evaluates to `false` and needs to remove classes is run first.
+            const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
+
+            keysSortedByBooleanValue.forEach(classNames => {
                 if (value[classNames]) {
                     classNames.split(' ').forEach(className => el.classList.add(className))
                 } else {

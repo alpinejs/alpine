@@ -1,6 +1,8 @@
 import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
+import { handleTextDirective } from './directives/text'
+import { handleHtmlDirective } from './directives/html'
 import { handleShowDirective } from './directives/show'
 import { handleIfDirective } from './directives/if'
 import { registerModelListener } from './directives/model'
@@ -249,16 +251,11 @@ export default class Component {
                 case 'text':
                     var output = this.evaluateReturnExpression(el, expression, extraVars);
 
-                    // If nested model key is undefined, set the default value to empty string.
-                    if (output === undefined && expression.match(/\./).length) {
-                        output = ''
-                    }
-
-                    el.innerText = output
+                    handleTextDirective(el, output, expression)
                     break;
 
                 case 'html':
-                    el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars)
+                    handleHtmlDirective(this, el, expression, extraVars)
                     break;
 
                 case 'show':

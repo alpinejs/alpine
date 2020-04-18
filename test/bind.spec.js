@@ -332,7 +332,6 @@ test('checkbox values are set correctly', async () => {
     expect(document.querySelector('input[name="stringCheckbox"]').value).toEqual('foo')
 });
 
-<<<<<<< HEAD
 test('radio values are set correctly', async () => {
     document.body.innerHTML = `
         <div x-data="{lists: [{id: 1}, {id: 8}], selectedListID: '8'}">

@@ -322,7 +322,7 @@ test('nested x-for', async () => {
 
 test('x-for updates the right elements when new item are inserted at the beginning of the list', async () => {
     document.body.innerHTML = `
-        <div x-data="{ items: [{name: 'one', key: '1'}, {name: 'twp', key: '2'}] }">
+        <div x-data="{ items: [{name: 'one', key: '1'}, {name: 'two', key: '2'}] }">
             <button x-on:click="items = [{name: 'zero', key: '0'}, {name: 'one', key: '1'}, {name: 'two', key: '2'}]"></button>
 
             <template x-for="item in items" :key="item.key">

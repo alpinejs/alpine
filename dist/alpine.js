@@ -65,15 +65,7 @@
     });
   }
   function arrayUnique(array) {
-    var a = array.concat();
-
-    for (var i = 0; i < a.length; ++i) {
-      for (var j = i + 1; j < a.length; ++j) {
-        if (a[i] === a[j]) a.splice(j--, 1);
-      }
-    }
-
-    return a;
+    return Array.from(new Set(array));
   }
   function isTesting() {
     return navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
@@ -524,7 +516,7 @@
     }
   }
 
-  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
+  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
     var value = component.evaluateReturnExpression(el, expression, extraVars);
 
     if (attrName === 'value') {
@@ -534,7 +526,14 @@
       }
 
       if (el.type === 'radio') {
-        el.checked = el.value == value;
+        // Set radio value from x-bind:value, if no "value" attribute exists.
+        // If there are any initial state values, radio will have a correct
+        // "checked" value since x-bind:value is processed before x-model.
+        if (el.attributes.value === undefined && attrType === 'bind') {
+          el.value = value;
+        } else if (attrType !== 'bind') {
+          el.checked = el.value == value;
+        }
       } else if (el.type === 'checkbox') {
         if (Array.isArray(value)) {
           // I'm purposely not using Array.includes here because it's
@@ -560,14 +559,23 @@
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {
+        // Cursor position should be restored back to origin due to a safari bug
+        const cursorPosition = el.selectionStart;
         el.value = value;
+
+        if (el === document.activeElement) {
+          el.setSelectionRange(cursorPosition, cursorPosition);
+        }
       }
     } else if (attrName === 'class') {
       if (Array.isArray(value)) {
         const originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
       } else if (typeof value === 'object') {
-        Object.keys(value).forEach(classNames => {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
+        keysSortedByBooleanValue.forEach(classNames => {
           if (value[classNames]) {
             classNames.split(' ').forEach(className => el.classList.add(className));
           } else {
@@ -598,6 +606,19 @@
     Array.from(el.options).forEach(option => {
       option.selected = arrayWrappedValue.includes(option.value || option.text);
     });
+  }
+
+  function handleTextDirective(el, output, expression) {
+    // If nested model key is undefined, set the default value to empty string.
+    if (output === undefined && expression.match(/\./).length) {
+      output = '';
+    }
+
+    el.innerText = output;
+  }
+
+  function handleHtmlDirective(component, el, expression, extraVars) {
+    el.innerHTML = component.evaluateReturnExpression(el, expression, extraVars);
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
@@ -1303,7 +1324,7 @@
       this.listenForNewElementsToInitialize();
 
       if (typeof initReturnedCallback === 'function') {
-        // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+        // Run the callback returned from the "x-init" hook to allow the user to do stuff after
         // Alpine's got it's grubby little paws all over everything.
         initReturnedCallback.call(this.$data);
       }
@@ -1454,6 +1475,17 @@
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
       let attrs = getXAttrs(el);
+
+      if (el.type !== undefined && el.type === 'radio') {
+        // If there's an x-model on a radio input, move it to end of attribute list
+        // to ensure that x-bind:value (if present) is processed first.
+        const modelIdx = attrs.findIndex(attr => attr.type === 'model');
+
+        if (modelIdx > -1) {
+          attrs.push(attrs.splice(modelIdx, 1)[0]);
+        }
+      }
+
       attrs.forEach(({
         type,
         value,
@@ -1462,27 +1494,22 @@
       }) => {
         switch (type) {
           case 'model':
-            handleAttributeBindingDirective(this, el, 'value', expression, extraVars);
+            handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
             break;
 
           case 'bind':
             // The :key binding on an x-for is special, ignore it.
             if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
-            handleAttributeBindingDirective(this, el, value, expression, extraVars);
+            handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
             break;
 
           case 'text':
-            var output = this.evaluateReturnExpression(el, expression, extraVars); // If nested model key is undefined, set the default value to empty string.
-
-            if (output === undefined && expression.match(/\./).length) {
-              output = '';
-            }
-
-            el.innerText = output;
+            var output = this.evaluateReturnExpression(el, expression, extraVars);
+            handleTextDirective(el, output, expression);
             break;
 
           case 'html':
-            el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars);
+            handleHtmlDirective(this, el, expression, extraVars);
             break;
 
           case 'show':

@@ -5551,7 +5551,14 @@
         var originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
       } else if (_typeof(value) === 'object') {
-        Object.keys(value).forEach(function (classNames) {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        var keysSortedByBooleanValue = Object.keys(value).sort(function (a, b) {
+          _newArrowCheck(this, _this);
+
+          return value[a] - value[b];
+        }.bind(this));
+        keysSortedByBooleanValue.forEach(function (classNames) {
           var _this2 = this;
 
           _newArrowCheck(this, _this);

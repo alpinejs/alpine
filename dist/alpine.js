@@ -560,7 +560,10 @@
         const originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
       } else if (typeof value === 'object') {
-        Object.keys(value).forEach(classNames => {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
+        keysSortedByBooleanValue.forEach(classNames => {
           if (value[classNames]) {
             classNames.split(' ').forEach(className => el.classList.add(className));
           } else {

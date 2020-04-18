@@ -331,3 +331,27 @@ test('checkbox values are set correctly', async () => {
     expect(document.querySelector('input[name="falseCheckbox"]').value).toEqual('on')
     expect(document.querySelector('input[name="stringCheckbox"]').value).toEqual('foo')
 });
+
+test('classes are removed before being added', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ isOpen: true }">
+            <span :class="{ 'text-red block': isOpen, 'text-red hidden': !isOpen }">
+                Span
+            </span>
+            <button @click="isOpen = !isOpen"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('block')).toBeTruthy()
+    expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy()
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').classList.contains('block')).toBeFalsy()
+        expect(document.querySelector('span').classList.contains('hidden')).toBeTruthy()
+        expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy
+    })
+})

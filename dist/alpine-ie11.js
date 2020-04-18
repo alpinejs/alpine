@@ -6543,7 +6543,6 @@
 
       this.unobservedData.$el = this.$el;
       this.unobservedData.$refs = this.getRefsProxy();
-      this.nextTickTimeout = null;
       this.nextTickStack = [];
 
       this.unobservedData.$nextTick = function (callback) {
@@ -6700,14 +6699,8 @@
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack(); // Skip spawns from alpine directives
-
-        if (rootEl === this.$el) {
-          // Walk through the $nextTick stack and clear it as we go.
-          while (this.nextTickStack.length > 0) {
-            this.nextTickStack.shift()();
-          }
-        }
+        this.executeAndClearRemainingShowDirectiveStack();
+        this.executeAndClearNextTickStack(rootEl);
       }
     }, {
       key: "initializeElement",
@@ -6740,9 +6733,14 @@
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack(); // Skip spawns from alpine directives
-
-        if (rootEl === this.$el) {
+        this.executeAndClearRemainingShowDirectiveStack();
+        this.executeAndClearNextTickStack(rootEl);
+      }
+    }, {
+      key: "executeAndClearNextTickStack",
+      value: function executeAndClearNextTickStack(el) {
+        // Skip spawns from alpine directives
+        if (el === this.$el) {
           // Walk through the $nextTick stack and clear it as we go.
           while (this.nextTickStack.length > 0) {
             this.nextTickStack.shift()();

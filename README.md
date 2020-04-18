@@ -449,7 +449,7 @@ You can nest `x-for` loops, but you MUST wrap each loop in an element. For examp
 </template>
 ```
 
-Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
+Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. The example above uses classes from [tailwindcss](https://tailwindcss.com). These directives work both with `x-show` AND `x-if`. 
 
 These behave exactly like VueJs's transition directives, except they have different, more sensible names:
 

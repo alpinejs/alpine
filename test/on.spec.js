@@ -82,6 +82,12 @@ test('.self modifier', async () => {
     await wait(() => {
         expect(document.querySelector('span').innerText).toEqual('bar')
     })
+
+    document.querySelector('div').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('baz')
+    })
 })
 
 test('.prevent modifier', async () => {

@@ -6123,7 +6123,7 @@
       this.listenForNewElementsToInitialize();
 
       if (typeof initReturnedCallback === 'function') {
-        // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+        // Run the callback returned from the "x-init" hook to allow the user to do stuff after
         // Alpine's got it's grubby little paws all over everything.
         initReturnedCallback.call(this.$data);
       }

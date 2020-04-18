@@ -1396,8 +1396,14 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack();
-      this.executeAndClearNextTickStack();
+      this.executeAndClearRemainingShowDirectiveStack(); // Skip spawns from alpine directives
+
+      if (rootEl === this.$el) {
+        // Walk through the $nextTick stack and clear it as we go.
+        while (this.nextTickStack.length > 0) {
+          this.nextTickStack.shift()();
+        }
+      }
     }
 
     initializeElement(el, extraVars) {
@@ -1419,8 +1425,14 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack();
-      this.executeAndClearNextTickStack();
+      this.executeAndClearRemainingShowDirectiveStack(); // Skip spawns from alpine directives
+
+      if (rootEl === this.$el) {
+        // Walk through the $nextTick stack and clear it as we go.
+        while (this.nextTickStack.length > 0) {
+          this.nextTickStack.shift()();
+        }
+      }
     }
 
     executeAndClearRemainingShowDirectiveStack() {
@@ -1612,21 +1624,6 @@
         }
 
       });
-    }
-
-    executeAndClearNextTickStack() {
-      const self = this;
-
-      const later = function later() {
-        this.nextTickTimeout = null;
-
-        while (self.nextTickStack.length > 0) {
-          self.nextTickStack.shift()();
-        }
-      };
-
-      clearTimeout(this.nextTickTimeout);
-      this.nextTickTimeout = setTimeout(later, 10);
     }
 
   }

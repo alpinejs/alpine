@@ -65,15 +65,7 @@
     });
   }
   function arrayUnique(array) {
-    var a = array.concat();
-
-    for (var i = 0; i < a.length; ++i) {
-      for (var j = i + 1; j < a.length; ++j) {
-        if (a[i] === a[j]) a.splice(j--, 1);
-      }
-    }
-
-    return a;
+    return Array.from(new Set(array));
   }
   function isTesting() {
     return navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
@@ -560,7 +552,13 @@
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {
+        // Cursor position should be restored back to origin due to a safari bug
+        const cursorPosition = el.selectionStart;
         el.value = value;
+
+        if (el === document.activeElement) {
+          el.setSelectionRange(cursorPosition, cursorPosition);
+        }
       }
     } else if (attrName === 'class') {
       if (Array.isArray(value)) {

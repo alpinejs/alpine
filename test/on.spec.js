@@ -424,8 +424,6 @@ test('autocomplete event does not trigger keydown with modifier callback', async
 
     const autocompleteEvent = new Event('keydown')
 
-    console.log(autocompleteEvent)
-
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual(0) })

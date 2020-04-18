@@ -66,7 +66,7 @@ test('.stop modifier', async () => {
 test('.self modifier', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">
-            <div x-on:click.self="foo = 'baz'">
+            <div x-on:click.self="foo = 'baz'" id="selfTarget">
                 <button></button>
             </div>
             <span x-text="foo"></span>
@@ -83,7 +83,7 @@ test('.self modifier', async () => {
         expect(document.querySelector('span').innerText).toEqual('bar')
     })
 
-    document.querySelector('div').click()
+    document.querySelector('#selfTarget').click()
 
     await wait(() => {
         expect(document.querySelector('span').innerText).toEqual('baz')

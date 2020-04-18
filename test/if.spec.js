@@ -76,3 +76,24 @@ test('x-if works inside a loop', async () => {
     expect(document.querySelectorAll('span').length).toEqual(1)
     expect(document.querySelector('span').innerText).toEqual('baz')
 })
+
+test('event listeners are attached once', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <span x-text="count"></span>
+            <template x-if="true">
+                <button @click="count += 1">Click me</button>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual(1)
+    })
+})

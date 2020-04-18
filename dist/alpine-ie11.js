@@ -3112,15 +3112,38 @@
     ArrayPrototype$1[UNSCOPABLES][key] = true;
   };
 
+  var $findIndex = arrayIteration.findIndex;
+
+
+
+  var FIND_INDEX = 'findIndex';
+  var SKIPS_HOLES = true;
+
+  var USES_TO_LENGTH$2 = arrayMethodUsesToLength(FIND_INDEX);
+
+  // Shouldn't skip holes
+  if (FIND_INDEX in []) Array(1)[FIND_INDEX](function () { SKIPS_HOLES = false; });
+
+  // `Array.prototype.findIndex` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.findindex
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES || !USES_TO_LENGTH$2 }, {
+    findIndex: function findIndex(callbackfn /* , that = undefined */) {
+      return $findIndex(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables(FIND_INDEX);
+
   var $includes = arrayIncludes.includes;
 
 
 
-  var USES_TO_LENGTH$2 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var USES_TO_LENGTH$3 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.includes` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.includes
-  _export({ target: 'Array', proto: true, forced: !USES_TO_LENGTH$2 }, {
+  _export({ target: 'Array', proto: true, forced: !USES_TO_LENGTH$3 }, {
     includes: function includes(el /* , fromIndex = 0 */) {
       return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3135,12 +3158,12 @@
 
   var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('map');
   // FF49- issue
-  var USES_TO_LENGTH$3 = arrayMethodUsesToLength('map');
+  var USES_TO_LENGTH$4 = arrayMethodUsesToLength('map');
 
   // `Array.prototype.map` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.map
   // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 || !USES_TO_LENGTH$3 }, {
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 || !USES_TO_LENGTH$4 }, {
     map: function map(callbackfn /* , thisArg */) {
       return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3187,13 +3210,73 @@
 
 
   var STRICT_METHOD$1 = arrayMethodIsStrict('reduce');
-  var USES_TO_LENGTH$4 = arrayMethodUsesToLength('reduce', { 1: 0 });
+  var USES_TO_LENGTH$5 = arrayMethodUsesToLength('reduce', { 1: 0 });
 
   // `Array.prototype.reduce` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.reduce
-  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$1 || !USES_TO_LENGTH$4 }, {
+  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$1 || !USES_TO_LENGTH$5 }, {
     reduce: function reduce(callbackfn /* , initialValue */) {
       return $reduce(this, callbackfn, arguments.length, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
+  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+
+  var max$1 = Math.max;
+  var min$2 = Math.min;
+  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
+
+  // `Array.prototype.splice` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.splice
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$6 }, {
+    splice: function splice(start, deleteCount /* , ...items */) {
+      var O = toObject(this);
+      var len = toLength(O.length);
+      var actualStart = toAbsoluteIndex(start, len);
+      var argumentsLength = arguments.length;
+      var insertCount, actualDeleteCount, A, k, from, to;
+      if (argumentsLength === 0) {
+        insertCount = actualDeleteCount = 0;
+      } else if (argumentsLength === 1) {
+        insertCount = 0;
+        actualDeleteCount = len - actualStart;
+      } else {
+        insertCount = argumentsLength - 2;
+        actualDeleteCount = min$2(max$1(toInteger(deleteCount), 0), len - actualStart);
+      }
+      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER) {
+        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
+      }
+      A = arraySpeciesCreate(O, actualDeleteCount);
+      for (k = 0; k < actualDeleteCount; k++) {
+        from = actualStart + k;
+        if (from in O) createProperty(A, k, O[from]);
+      }
+      A.length = actualDeleteCount;
+      if (insertCount < actualDeleteCount) {
+        for (k = actualStart; k < len - actualDeleteCount; k++) {
+          from = k + actualDeleteCount;
+          to = k + insertCount;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
+      } else if (insertCount > actualDeleteCount) {
+        for (k = len - actualDeleteCount; k > actualStart; k--) {
+          from = k + actualDeleteCount - 1;
+          to = k + insertCount - 1;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+      }
+      for (k = 0; k < insertCount; k++) {
+        O[k + actualStart] = arguments[k + 2];
+      }
+      O.length = len - actualDeleteCount + insertCount;
+      return A;
     }
   });
 
@@ -4203,45 +4286,8 @@
     return regexpExec.call(R, S);
   };
 
-  // @@match logic
-  fixRegexpWellKnownSymbolLogic('match', 1, function (MATCH, nativeMatch, maybeCallNative) {
-    return [
-      // `String.prototype.match` method
-      // https://tc39.github.io/ecma262/#sec-string.prototype.match
-      function match(regexp) {
-        var O = requireObjectCoercible(this);
-        var matcher = regexp == undefined ? undefined : regexp[MATCH];
-        return matcher !== undefined ? matcher.call(regexp, O) : new RegExp(regexp)[MATCH](String(O));
-      },
-      // `RegExp.prototype[@@match]` method
-      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@match
-      function (regexp) {
-        var res = maybeCallNative(nativeMatch, regexp, this);
-        if (res.done) return res.value;
-
-        var rx = anObject(regexp);
-        var S = String(this);
-
-        if (!rx.global) return regexpExecAbstract(rx, S);
-
-        var fullUnicode = rx.unicode;
-        rx.lastIndex = 0;
-        var A = [];
-        var n = 0;
-        var result;
-        while ((result = regexpExecAbstract(rx, S)) !== null) {
-          var matchStr = String(result[0]);
-          A[n] = matchStr;
-          if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
-          n++;
-        }
-        return n === 0 ? null : A;
-      }
-    ];
-  });
-
   var arrayPush = [].push;
-  var min$2 = Math.min;
+  var min$3 = Math.min;
   var MAX_UINT32 = 0xFFFFFFFF;
 
   // babel-minify transpiles RegExp('x', 'y') -> /x/y and it causes SyntaxError
@@ -4344,7 +4390,7 @@
           var e;
           if (
             z === null ||
-            (e = min$2(toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p
+            (e = min$3(toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p
           ) {
             q = advanceStringIndex(S, q, unicodeMatching);
           } else {
@@ -4364,7 +4410,7 @@
   }, !SUPPORTS_Y);
 
   var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
-  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
   var MAXIMUM_ALLOWED_INDEX_EXCEEDED = 'Maximum allowed index exceeded';
 
   // We can't use this feature detection in V8 since it causes
@@ -4399,10 +4445,10 @@
         E = i === -1 ? O : arguments[i];
         if (isConcatSpreadable(E)) {
           len = toLength(E.length);
-          if (n + len > MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n + len > MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           for (k = 0; k < len; k++, n++) if (k in E) createProperty(A, n, E[k]);
         } else {
-          if (n >= MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n >= MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           createProperty(A, n++, E);
         }
       }
@@ -4416,16 +4462,16 @@
 
 
   var FIND = 'find';
-  var SKIPS_HOLES = true;
+  var SKIPS_HOLES$1 = true;
 
-  var USES_TO_LENGTH$5 = arrayMethodUsesToLength(FIND);
+  var USES_TO_LENGTH$7 = arrayMethodUsesToLength(FIND);
 
   // Shouldn't skip holes
-  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES = false; });
+  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
 
   // `Array.prototype.find` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES || !USES_TO_LENGTH$5 }, {
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$7 }, {
     find: function find(callbackfn /* , that = undefined */) {
       return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -4442,11 +4488,11 @@
 
   var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
   var STRICT_METHOD$2 = arrayMethodIsStrict('indexOf');
-  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.indexOf` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.indexof
-  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$6 }, {
+  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$8 }, {
     indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
       return NEGATIVE_ZERO
         // convert -0 to +0
@@ -4454,6 +4500,53 @@
         : $indexOf(this, searchElement, arguments.length > 1 ? arguments[1] : undefined);
     }
   });
+
+  var ARRAY_ITERATOR = 'Array Iterator';
+  var setInternalState$2 = internalState.set;
+  var getInternalState$2 = internalState.getterFor(ARRAY_ITERATOR);
+
+  // `Array.prototype.entries` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.entries
+  // `Array.prototype.keys` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.keys
+  // `Array.prototype.values` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.values
+  // `Array.prototype[@@iterator]` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@iterator
+  // `CreateArrayIterator` internal method
+  // https://tc39.github.io/ecma262/#sec-createarrayiterator
+  var es_array_iterator = defineIterator(Array, 'Array', function (iterated, kind) {
+    setInternalState$2(this, {
+      type: ARRAY_ITERATOR,
+      target: toIndexedObject(iterated), // target
+      index: 0,                          // next index
+      kind: kind                         // kind
+    });
+  // `%ArrayIteratorPrototype%.next` method
+  // https://tc39.github.io/ecma262/#sec-%arrayiteratorprototype%.next
+  }, function () {
+    var state = getInternalState$2(this);
+    var target = state.target;
+    var kind = state.kind;
+    var index = state.index++;
+    if (!target || index >= target.length) {
+      state.target = undefined;
+      return { value: undefined, done: true };
+    }
+    if (kind == 'keys') return { value: index, done: false };
+    if (kind == 'values') return { value: target[index], done: false };
+    return { value: [index, target[index]], done: false };
+  }, 'values');
+
+  // argumentsList[@@iterator] is %ArrayProto_values%
+  // https://tc39.github.io/ecma262/#sec-createunmappedargumentsobject
+  // https://tc39.github.io/ecma262/#sec-createmappedargumentsobject
+  iterators.Arguments = iterators.Array;
+
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables('keys');
+  addToUnscopables('values');
+  addToUnscopables('entries');
 
   var nativeJoin = [].join;
 
@@ -4465,66 +4558,6 @@
   _export({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD$3 }, {
     join: function join(separator) {
       return nativeJoin.call(toIndexedObject(this), separator === undefined ? ',' : separator);
-    }
-  });
-
-  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
-  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
-
-  var max$1 = Math.max;
-  var min$3 = Math.min;
-  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
-  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
-
-  // `Array.prototype.splice` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.splice
-  // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
-    splice: function splice(start, deleteCount /* , ...items */) {
-      var O = toObject(this);
-      var len = toLength(O.length);
-      var actualStart = toAbsoluteIndex(start, len);
-      var argumentsLength = arguments.length;
-      var insertCount, actualDeleteCount, A, k, from, to;
-      if (argumentsLength === 0) {
-        insertCount = actualDeleteCount = 0;
-      } else if (argumentsLength === 1) {
-        insertCount = 0;
-        actualDeleteCount = len - actualStart;
-      } else {
-        insertCount = argumentsLength - 2;
-        actualDeleteCount = min$3(max$1(toInteger(deleteCount), 0), len - actualStart);
-      }
-      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER$1) {
-        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
-      }
-      A = arraySpeciesCreate(O, actualDeleteCount);
-      for (k = 0; k < actualDeleteCount; k++) {
-        from = actualStart + k;
-        if (from in O) createProperty(A, k, O[from]);
-      }
-      A.length = actualDeleteCount;
-      if (insertCount < actualDeleteCount) {
-        for (k = actualStart; k < len - actualDeleteCount; k++) {
-          from = k + actualDeleteCount;
-          to = k + insertCount;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
-      } else if (insertCount > actualDeleteCount) {
-        for (k = len - actualDeleteCount; k > actualStart; k--) {
-          from = k + actualDeleteCount - 1;
-          to = k + insertCount - 1;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-      }
-      for (k = 0; k < insertCount; k++) {
-        O[k + actualStart] = arguments[k + 2];
-      }
-      O.length = len - actualDeleteCount + insertCount;
-      return A;
     }
   });
 
@@ -4701,6 +4734,390 @@
     values: function values(O) {
       return $values(O);
     }
+  });
+
+  var freezing = !fails(function () {
+    return Object.isExtensible(Object.preventExtensions({}));
+  });
+
+  var internalMetadata = createCommonjsModule(function (module) {
+  var defineProperty = objectDefineProperty.f;
+
+
+
+  var METADATA = uid('meta');
+  var id = 0;
+
+  var isExtensible = Object.isExtensible || function () {
+    return true;
+  };
+
+  var setMetadata = function (it) {
+    defineProperty(it, METADATA, { value: {
+      objectID: 'O' + ++id, // object ID
+      weakData: {}          // weak collections IDs
+    } });
+  };
+
+  var fastKey = function (it, create) {
+    // return a primitive with prefix
+    if (!isObject(it)) return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
+    if (!has(it, METADATA)) {
+      // can't set metadata to uncaught frozen object
+      if (!isExtensible(it)) return 'F';
+      // not necessary to add metadata
+      if (!create) return 'E';
+      // add missing metadata
+      setMetadata(it);
+    // return object ID
+    } return it[METADATA].objectID;
+  };
+
+  var getWeakData = function (it, create) {
+    if (!has(it, METADATA)) {
+      // can't set metadata to uncaught frozen object
+      if (!isExtensible(it)) return true;
+      // not necessary to add metadata
+      if (!create) return false;
+      // add missing metadata
+      setMetadata(it);
+    // return the store of weak collections IDs
+    } return it[METADATA].weakData;
+  };
+
+  // add metadata on freeze-family methods calling
+  var onFreeze = function (it) {
+    if (freezing && meta.REQUIRED && isExtensible(it) && !has(it, METADATA)) setMetadata(it);
+    return it;
+  };
+
+  var meta = module.exports = {
+    REQUIRED: false,
+    fastKey: fastKey,
+    getWeakData: getWeakData,
+    onFreeze: onFreeze
+  };
+
+  hiddenKeys[METADATA] = true;
+  });
+  var internalMetadata_1 = internalMetadata.REQUIRED;
+  var internalMetadata_2 = internalMetadata.fastKey;
+  var internalMetadata_3 = internalMetadata.getWeakData;
+  var internalMetadata_4 = internalMetadata.onFreeze;
+
+  var collection = function (CONSTRUCTOR_NAME, wrapper, common) {
+    var IS_MAP = CONSTRUCTOR_NAME.indexOf('Map') !== -1;
+    var IS_WEAK = CONSTRUCTOR_NAME.indexOf('Weak') !== -1;
+    var ADDER = IS_MAP ? 'set' : 'add';
+    var NativeConstructor = global_1[CONSTRUCTOR_NAME];
+    var NativePrototype = NativeConstructor && NativeConstructor.prototype;
+    var Constructor = NativeConstructor;
+    var exported = {};
+
+    var fixMethod = function (KEY) {
+      var nativeMethod = NativePrototype[KEY];
+      redefine(NativePrototype, KEY,
+        KEY == 'add' ? function add(value) {
+          nativeMethod.call(this, value === 0 ? 0 : value);
+          return this;
+        } : KEY == 'delete' ? function (key) {
+          return IS_WEAK && !isObject(key) ? false : nativeMethod.call(this, key === 0 ? 0 : key);
+        } : KEY == 'get' ? function get(key) {
+          return IS_WEAK && !isObject(key) ? undefined : nativeMethod.call(this, key === 0 ? 0 : key);
+        } : KEY == 'has' ? function has(key) {
+          return IS_WEAK && !isObject(key) ? false : nativeMethod.call(this, key === 0 ? 0 : key);
+        } : function set(key, value) {
+          nativeMethod.call(this, key === 0 ? 0 : key, value);
+          return this;
+        }
+      );
+    };
+
+    // eslint-disable-next-line max-len
+    if (isForced_1(CONSTRUCTOR_NAME, typeof NativeConstructor != 'function' || !(IS_WEAK || NativePrototype.forEach && !fails(function () {
+      new NativeConstructor().entries().next();
+    })))) {
+      // create collection constructor
+      Constructor = common.getConstructor(wrapper, CONSTRUCTOR_NAME, IS_MAP, ADDER);
+      internalMetadata.REQUIRED = true;
+    } else if (isForced_1(CONSTRUCTOR_NAME, true)) {
+      var instance = new Constructor();
+      // early implementations not supports chaining
+      var HASNT_CHAINING = instance[ADDER](IS_WEAK ? {} : -0, 1) != instance;
+      // V8 ~ Chromium 40- weak-collections throws on primitives, but should return false
+      var THROWS_ON_PRIMITIVES = fails(function () { instance.has(1); });
+      // most early implementations doesn't supports iterables, most modern - not close it correctly
+      // eslint-disable-next-line no-new
+      var ACCEPT_ITERABLES = checkCorrectnessOfIteration(function (iterable) { new NativeConstructor(iterable); });
+      // for early implementations -0 and +0 not the same
+      var BUGGY_ZERO = !IS_WEAK && fails(function () {
+        // V8 ~ Chromium 42- fails only with 5+ elements
+        var $instance = new NativeConstructor();
+        var index = 5;
+        while (index--) $instance[ADDER](index, index);
+        return !$instance.has(-0);
+      });
+
+      if (!ACCEPT_ITERABLES) {
+        Constructor = wrapper(function (dummy, iterable) {
+          anInstance(dummy, Constructor, CONSTRUCTOR_NAME);
+          var that = inheritIfRequired(new NativeConstructor(), dummy, Constructor);
+          if (iterable != undefined) iterate_1(iterable, that[ADDER], that, IS_MAP);
+          return that;
+        });
+        Constructor.prototype = NativePrototype;
+        NativePrototype.constructor = Constructor;
+      }
+
+      if (THROWS_ON_PRIMITIVES || BUGGY_ZERO) {
+        fixMethod('delete');
+        fixMethod('has');
+        IS_MAP && fixMethod('get');
+      }
+
+      if (BUGGY_ZERO || HASNT_CHAINING) fixMethod(ADDER);
+
+      // weak collections should not contains .clear method
+      if (IS_WEAK && NativePrototype.clear) delete NativePrototype.clear;
+    }
+
+    exported[CONSTRUCTOR_NAME] = Constructor;
+    _export({ global: true, forced: Constructor != NativeConstructor }, exported);
+
+    setToStringTag(Constructor, CONSTRUCTOR_NAME);
+
+    if (!IS_WEAK) common.setStrong(Constructor, CONSTRUCTOR_NAME, IS_MAP);
+
+    return Constructor;
+  };
+
+  var defineProperty$4 = objectDefineProperty.f;
+
+
+
+
+
+
+
+
+  var fastKey = internalMetadata.fastKey;
+
+
+  var setInternalState$3 = internalState.set;
+  var internalStateGetterFor = internalState.getterFor;
+
+  var collectionStrong = {
+    getConstructor: function (wrapper, CONSTRUCTOR_NAME, IS_MAP, ADDER) {
+      var C = wrapper(function (that, iterable) {
+        anInstance(that, C, CONSTRUCTOR_NAME);
+        setInternalState$3(that, {
+          type: CONSTRUCTOR_NAME,
+          index: objectCreate(null),
+          first: undefined,
+          last: undefined,
+          size: 0
+        });
+        if (!descriptors) that.size = 0;
+        if (iterable != undefined) iterate_1(iterable, that[ADDER], that, IS_MAP);
+      });
+
+      var getInternalState = internalStateGetterFor(CONSTRUCTOR_NAME);
+
+      var define = function (that, key, value) {
+        var state = getInternalState(that);
+        var entry = getEntry(that, key);
+        var previous, index;
+        // change existing entry
+        if (entry) {
+          entry.value = value;
+        // create new entry
+        } else {
+          state.last = entry = {
+            index: index = fastKey(key, true),
+            key: key,
+            value: value,
+            previous: previous = state.last,
+            next: undefined,
+            removed: false
+          };
+          if (!state.first) state.first = entry;
+          if (previous) previous.next = entry;
+          if (descriptors) state.size++;
+          else that.size++;
+          // add to index
+          if (index !== 'F') state.index[index] = entry;
+        } return that;
+      };
+
+      var getEntry = function (that, key) {
+        var state = getInternalState(that);
+        // fast case
+        var index = fastKey(key);
+        var entry;
+        if (index !== 'F') return state.index[index];
+        // frozen object case
+        for (entry = state.first; entry; entry = entry.next) {
+          if (entry.key == key) return entry;
+        }
+      };
+
+      redefineAll(C.prototype, {
+        // 23.1.3.1 Map.prototype.clear()
+        // 23.2.3.2 Set.prototype.clear()
+        clear: function clear() {
+          var that = this;
+          var state = getInternalState(that);
+          var data = state.index;
+          var entry = state.first;
+          while (entry) {
+            entry.removed = true;
+            if (entry.previous) entry.previous = entry.previous.next = undefined;
+            delete data[entry.index];
+            entry = entry.next;
+          }
+          state.first = state.last = undefined;
+          if (descriptors) state.size = 0;
+          else that.size = 0;
+        },
+        // 23.1.3.3 Map.prototype.delete(key)
+        // 23.2.3.4 Set.prototype.delete(value)
+        'delete': function (key) {
+          var that = this;
+          var state = getInternalState(that);
+          var entry = getEntry(that, key);
+          if (entry) {
+            var next = entry.next;
+            var prev = entry.previous;
+            delete state.index[entry.index];
+            entry.removed = true;
+            if (prev) prev.next = next;
+            if (next) next.previous = prev;
+            if (state.first == entry) state.first = next;
+            if (state.last == entry) state.last = prev;
+            if (descriptors) state.size--;
+            else that.size--;
+          } return !!entry;
+        },
+        // 23.2.3.6 Set.prototype.forEach(callbackfn, thisArg = undefined)
+        // 23.1.3.5 Map.prototype.forEach(callbackfn, thisArg = undefined)
+        forEach: function forEach(callbackfn /* , that = undefined */) {
+          var state = getInternalState(this);
+          var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+          var entry;
+          while (entry = entry ? entry.next : state.first) {
+            boundFunction(entry.value, entry.key, this);
+            // revert to the last existing entry
+            while (entry && entry.removed) entry = entry.previous;
+          }
+        },
+        // 23.1.3.7 Map.prototype.has(key)
+        // 23.2.3.7 Set.prototype.has(value)
+        has: function has(key) {
+          return !!getEntry(this, key);
+        }
+      });
+
+      redefineAll(C.prototype, IS_MAP ? {
+        // 23.1.3.6 Map.prototype.get(key)
+        get: function get(key) {
+          var entry = getEntry(this, key);
+          return entry && entry.value;
+        },
+        // 23.1.3.9 Map.prototype.set(key, value)
+        set: function set(key, value) {
+          return define(this, key === 0 ? 0 : key, value);
+        }
+      } : {
+        // 23.2.3.1 Set.prototype.add(value)
+        add: function add(value) {
+          return define(this, value = value === 0 ? 0 : value, value);
+        }
+      });
+      if (descriptors) defineProperty$4(C.prototype, 'size', {
+        get: function () {
+          return getInternalState(this).size;
+        }
+      });
+      return C;
+    },
+    setStrong: function (C, CONSTRUCTOR_NAME, IS_MAP) {
+      var ITERATOR_NAME = CONSTRUCTOR_NAME + ' Iterator';
+      var getInternalCollectionState = internalStateGetterFor(CONSTRUCTOR_NAME);
+      var getInternalIteratorState = internalStateGetterFor(ITERATOR_NAME);
+      // add .keys, .values, .entries, [@@iterator]
+      // 23.1.3.4, 23.1.3.8, 23.1.3.11, 23.1.3.12, 23.2.3.5, 23.2.3.8, 23.2.3.10, 23.2.3.11
+      defineIterator(C, CONSTRUCTOR_NAME, function (iterated, kind) {
+        setInternalState$3(this, {
+          type: ITERATOR_NAME,
+          target: iterated,
+          state: getInternalCollectionState(iterated),
+          kind: kind,
+          last: undefined
+        });
+      }, function () {
+        var state = getInternalIteratorState(this);
+        var kind = state.kind;
+        var entry = state.last;
+        // revert to the last existing entry
+        while (entry && entry.removed) entry = entry.previous;
+        // get next entry
+        if (!state.target || !(state.last = entry = entry ? entry.next : state.state.first)) {
+          // or finish the iteration
+          state.target = undefined;
+          return { value: undefined, done: true };
+        }
+        // return step by kind
+        if (kind == 'keys') return { value: entry.key, done: false };
+        if (kind == 'values') return { value: entry.value, done: false };
+        return { value: [entry.key, entry.value], done: false };
+      }, IS_MAP ? 'entries' : 'values', !IS_MAP, true);
+
+      // add [@@species], 23.1.2.2, 23.2.2.2
+      setSpecies(CONSTRUCTOR_NAME);
+    }
+  };
+
+  // `Set` constructor
+  // https://tc39.github.io/ecma262/#sec-set-objects
+  var es_set = collection('Set', function (init) {
+    return function Set() { return init(this, arguments.length ? arguments[0] : undefined); };
+  }, collectionStrong);
+
+  // @@match logic
+  fixRegexpWellKnownSymbolLogic('match', 1, function (MATCH, nativeMatch, maybeCallNative) {
+    return [
+      // `String.prototype.match` method
+      // https://tc39.github.io/ecma262/#sec-string.prototype.match
+      function match(regexp) {
+        var O = requireObjectCoercible(this);
+        var matcher = regexp == undefined ? undefined : regexp[MATCH];
+        return matcher !== undefined ? matcher.call(regexp, O) : new RegExp(regexp)[MATCH](String(O));
+      },
+      // `RegExp.prototype[@@match]` method
+      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@match
+      function (regexp) {
+        var res = maybeCallNative(nativeMatch, regexp, this);
+        if (res.done) return res.value;
+
+        var rx = anObject(regexp);
+        var S = String(this);
+
+        if (!rx.global) return regexpExecAbstract(rx, S);
+
+        var fullUnicode = rx.unicode;
+        rx.lastIndex = 0;
+        var A = [];
+        var n = 0;
+        var result;
+        while ((result = regexpExecAbstract(rx, S)) !== null) {
+          var matchStr = String(result[0]);
+          A[n] = matchStr;
+          if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
+          n++;
+        }
+        return n === 0 ? null : A;
+      }
+    ];
   });
 
   var max$2 = Math.max;
@@ -4881,6 +5298,34 @@
     }
   });
 
+  var ITERATOR$5 = wellKnownSymbol('iterator');
+  var TO_STRING_TAG$3 = wellKnownSymbol('toStringTag');
+  var ArrayValues = es_array_iterator.values;
+
+  for (var COLLECTION_NAME$1 in domIterables) {
+    var Collection$1 = global_1[COLLECTION_NAME$1];
+    var CollectionPrototype$1 = Collection$1 && Collection$1.prototype;
+    if (CollectionPrototype$1) {
+      // some Chrome versions have non-configurable methods on DOMTokenList
+      if (CollectionPrototype$1[ITERATOR$5] !== ArrayValues) try {
+        createNonEnumerableProperty(CollectionPrototype$1, ITERATOR$5, ArrayValues);
+      } catch (error) {
+        CollectionPrototype$1[ITERATOR$5] = ArrayValues;
+      }
+      if (!CollectionPrototype$1[TO_STRING_TAG$3]) {
+        createNonEnumerableProperty(CollectionPrototype$1, TO_STRING_TAG$3, COLLECTION_NAME$1);
+      }
+      if (domIterables[COLLECTION_NAME$1]) for (var METHOD_NAME in es_array_iterator) {
+        // some Chrome versions have non-configurable methods on DOMTokenList
+        if (CollectionPrototype$1[METHOD_NAME] !== es_array_iterator[METHOD_NAME]) try {
+          createNonEnumerableProperty(CollectionPrototype$1, METHOD_NAME, es_array_iterator[METHOD_NAME]);
+        } catch (error) {
+          CollectionPrototype$1[METHOD_NAME] = es_array_iterator[METHOD_NAME];
+        }
+      }
+    }
+  }
+
   // Thanks @stimulus:
   // https://github.com/stimulusjs/stimulus/blob/master/packages/%40stimulus/core/src/application.ts
   function domReady() {
@@ -4897,15 +5342,7 @@
     }.bind(this));
   }
   function arrayUnique(array) {
-    var a = array.concat();
-
-    for (var i = 0; i < a.length; ++i) {
-      for (var j = i + 1; j < a.length; ++j) {
-        if (a[i] === a[j]) a.splice(j--, 1);
-      }
-    }
-
-    return a;
+    return Array.from(new Set(array));
   }
   function isTesting() {
     return navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
@@ -5346,115 +5783,156 @@
     return !isNaN(subject);
   }
 
-  function handleForDirective(component, el, expression, initialUpdate, extraVars) {
+  function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     var _this = this;
 
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
+    warnIfNotTemplateTag(templateEl);
+    var iteratorNames = parseForExpression(expression);
+    var items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
-    var _parseFor = parseFor(expression),
-        single = _parseFor.single,
-        bunch = _parseFor.bunch,
-        iterator1 = _parseFor.iterator1,
-        iterator2 = _parseFor.iterator2;
-
-    var items;
-    var ifAttr = getXAttrs(el, 'if')[0];
-
-    if (ifAttr && !component.evaluateReturnExpression(el, ifAttr.expression)) {
-      // If there is an "x-if" attribute in conjunction with an x-for,
-      // AND x-if resolves to false, just pretend the x-for is
-      // empty, effectively hiding it.
-      items = [];
-    } else {
-      items = component.evaluateReturnExpression(el, bunch, extraVars);
-    } // As we walk the array, we'll also walk the DOM (updating/creating as we go).
-
-
-    var previousEl = el;
-    items.forEach(function (i, index, group) {
+    var currentEl = templateEl;
+    items.forEach(function (item, index) {
       var _this2 = this;
 
       _newArrowCheck(this, _this);
 
-      var currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group);
-      var currentEl = previousEl.nextElementSibling; // Let's check and see if the x-for has already generated an element last time it ran.
+      var iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
+      var currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
+      var nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
 
-      if (currentEl && currentEl.__x_for_key !== undefined) {
-        // If the the key's don't match.
-        if (currentEl.__x_for_key !== currentKey) {
-          // We'll look ahead to see if we can find it further down.
-          var tmpCurrentEl = currentEl;
+      if (!nextEl || nextEl.__x_for_key === undefined) {
+        nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-          while (tmpCurrentEl) {
-            // If we found it later in the DOM.
-            if (tmpCurrentEl.__x_for_key === currentKey) {
-              // Move it to where it's supposed to be in the DOM.
-              el.parentElement.insertBefore(tmpCurrentEl, currentEl); // And set it as the current element as if we just created it.
+        transitionIn(nextEl, function () {
+          _newArrowCheck(this, _this2);
+        }.bind(this), initialUpdate);
+        nextEl.__x_for = iterationScopeVariables;
+        component.initializeElements(nextEl, function () {
+          _newArrowCheck(this, _this2);
 
-              currentEl = tmpCurrentEl;
-              break;
-            }
+          return nextEl.__x_for;
+        }.bind(this));
+      } else {
+        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // If we haven't found a matching key, just insert the element at the current position
 
-            tmpCurrentEl = tmpCurrentEl.nextElementSibling && tmpCurrentEl.nextElementSibling.__x_for_key !== undefined ? tmpCurrentEl.nextElementSibling : false;
-          }
+        if (!nextEl) {
+          nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl);
         } // Temporarily remove the key indicator to allow the normal "updateElements" to work
 
 
-        delete currentEl.__x_for_key;
-        var xForVars = {};
-        xForVars[single] = i;
-        if (iterator1) xForVars[iterator1] = index;
-        if (iterator2) xForVars[iterator2] = group;
-        currentEl.__x_for = xForVars;
-        component.updateElements(currentEl, function () {
+        delete nextEl.__x_for_key;
+        nextEl.__x_for = iterationScopeVariables;
+        component.updateElements(nextEl, function () {
           _newArrowCheck(this, _this2);
 
-          return currentEl.__x_for;
-        }.bind(this));
-      } else {
-        // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
-        // extra items in the array that need to be added as new elements.
-        // Let's create a clone from the template.
-        var clone = document.importNode(el.content, true);
-        if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.'); // Insert it where we are in the DOM.
-
-        el.parentElement.insertBefore(clone, currentEl); // Set it as the current element.
-
-        currentEl = previousEl.nextElementSibling; // And transition it in if it's not the first page load.
-
-        transitionIn(currentEl, function () {
-          _newArrowCheck(this, _this2);
-        }.bind(this), initialUpdate); // Now, let's walk the new DOM node and initialize everything,
-        // including new nested components.
-        // Note we are resolving the "extraData" alias stuff from the dom element value so that it's
-        // always up to date for listener handlers that don't get re-registered.
-
-        var _xForVars = {};
-        _xForVars[single] = i;
-        if (iterator1) _xForVars[iterator1] = index;
-        if (iterator2) _xForVars[iterator2] = group;
-        currentEl.__x_for = _xForVars;
-        component.initializeElements(currentEl, function () {
-          _newArrowCheck(this, _this2);
-
-          return currentEl.__x_for;
+          return nextEl.__x_for;
         }.bind(this));
       }
 
+      currentEl = nextEl;
       currentEl.__x_for_key = currentKey;
-      previousEl = currentEl;
-    }.bind(this)); // Now that we've added/updated/moved all the elements for the current state of the loop.
-    // Anything left over, we can get rid of.
+    }.bind(this));
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl);
+  } // This was taken from VueJS 2.* core. Thanks Vue!
 
-    var nextElementFromOldLoop = previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined ? previousEl.nextElementSibling : false;
+  function parseForExpression(expression) {
+    var forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
+    var stripParensRE = /^\(|\)$/g;
+    var forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
+    var inMatch = expression.match(forAliasRE);
+    if (!inMatch) return;
+    var res = {};
+    res.items = inMatch[2].trim();
+    var item = inMatch[1].trim().replace(stripParensRE, '');
+    var iteratorMatch = item.match(forIteratorRE);
+
+    if (iteratorMatch) {
+      res.item = item.replace(forIteratorRE, '').trim();
+      res.index = iteratorMatch[1].trim();
+
+      if (iteratorMatch[2]) {
+        res.collection = iteratorMatch[2].trim();
+      }
+    } else {
+      res.item = item;
+    }
+
+    return res;
+  }
+
+  function getIterationScopeVariables(iteratorNames, item, index, items, extraVars) {
+    // We must create a new object, so each iteration has a new scope
+    var scopeVariables = extraVars ? _objectSpread2({}, extraVars) : {};
+    scopeVariables[iteratorNames.item] = item;
+    if (iteratorNames.index) scopeVariables[iteratorNames.index] = index;
+    if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items;
+    return scopeVariables;
+  }
+
+  function generateKeyForIteration(component, el, index, iterationScopeVariables) {
+    var _this3 = this;
+
+    var bindKeyAttribute = getXAttrs(el, 'bind').filter(function (attr) {
+      _newArrowCheck(this, _this3);
+
+      return attr.value === 'key';
+    }.bind(this))[0]; // If the dev hasn't specified a key, just return the index of the iteration.
+
+    if (!bindKeyAttribute) return index;
+    return component.evaluateReturnExpression(el, bindKeyAttribute.expression, function () {
+      _newArrowCheck(this, _this3);
+
+      return iterationScopeVariables;
+    }.bind(this));
+  }
+
+  function warnIfNotTemplateTag(el) {
+    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
+  }
+
+  function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
+    var ifAttribute = getXAttrs(el, 'if')[0];
+
+    if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
+      return [];
+    }
+
+    return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);
+  }
+
+  function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
+    var clone = document.importNode(templateEl.content, true);
+    if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.');
+    currentEl.parentElement.insertBefore(clone, currentEl.nextElementSibling);
+    return currentEl.nextElementSibling;
+  }
+
+  function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
+    // If the the key's DO match, no need to look ahead.
+    if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.
+    // If we find it, we'll move it to the current position in the loop.
+
+    var tmpNextEl = nextEl;
+
+    while (tmpNextEl) {
+      if (tmpNextEl.__x_for_key === currentKey) {
+        return tmpNextEl.parentElement.insertBefore(tmpNextEl, nextEl);
+      }
+
+      tmpNextEl = tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined ? tmpNextEl.nextElementSibling : false;
+    }
+  }
+
+  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+    var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     var _loop = function _loop() {
-      var _this3 = this;
+      var _this4 = this;
 
       var nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       var nextSibling = nextElementFromOldLoop.nextElementSibling;
       transitionOut(nextElementFromOldLoop, function () {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this4);
 
         nextElementFromOldLoopImmutable.remove();
       }.bind(this));
@@ -5464,54 +5942,9 @@
     while (nextElementFromOldLoop) {
       _loop();
     }
-  } // This was taken from VueJS 2.* core. Thanks Vue!
-
-  function parseFor(expression) {
-    var forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
-    var stripParensRE = /^\(|\)$/g;
-    var forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
-    var inMatch = expression.match(forAliasRE);
-    if (!inMatch) return;
-    var res = {};
-    res.bunch = inMatch[2].trim();
-    var single = inMatch[1].trim().replace(stripParensRE, '');
-    var iteratorMatch = single.match(forIteratorRE);
-
-    if (iteratorMatch) {
-      res.single = single.replace(forIteratorRE, '').trim();
-      res.iterator1 = iteratorMatch[1].trim();
-
-      if (iteratorMatch[2]) {
-        res.iterator2 = iteratorMatch[2].trim();
-      }
-    } else {
-      res.single = single;
-    }
-
-    return res;
   }
 
-  function getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group) {
-    var _this4 = this;
-
-    var keyAttr = getXAttrs(el, 'bind').filter(function (attr) {
-      _newArrowCheck(this, _this4);
-
-      return attr.value === 'key';
-    }.bind(this))[0];
-
-    var keyAliases = _defineProperty({}, single, i);
-
-    if (iterator1) keyAliases[iterator1] = index;
-    if (iterator2) keyAliases[iterator2] = group;
-    return keyAttr ? component.evaluateReturnExpression(el, keyAttr.expression, function () {
-      _newArrowCheck(this, _this4);
-
-      return keyAliases;
-    }.bind(this)) : index;
-  }
-
-  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
+  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
     var _this = this;
 
     var value = component.evaluateReturnExpression(el, expression, extraVars);
@@ -5523,7 +5956,14 @@
       }
 
       if (el.type === 'radio') {
-        el.checked = el.value == value;
+        // Set radio value from x-bind:value, if no "value" attribute exists.
+        // If there are any initial state values, radio will have a correct
+        // "checked" value since x-bind:value is processed before x-model.
+        if (el.attributes.value === undefined && attrType === 'bind') {
+          el.value = value;
+        } else if (attrType !== 'bind') {
+          el.checked = el.value == value;
+        }
       } else if (el.type === 'checkbox') {
         if (Array.isArray(value)) {
           // I'm purposely not using Array.includes here because it's
@@ -5551,14 +5991,27 @@
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {
+        // Cursor position should be restored back to origin due to a safari bug
+        var cursorPosition = el.selectionStart;
         el.value = value;
+
+        if (el === document.activeElement) {
+          el.setSelectionRange(cursorPosition, cursorPosition);
+        }
       }
     } else if (attrName === 'class') {
       if (Array.isArray(value)) {
         var originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
       } else if (_typeof(value) === 'object') {
-        Object.keys(value).forEach(function (classNames) {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        var keysSortedByBooleanValue = Object.keys(value).sort(function (a, b) {
+          _newArrowCheck(this, _this);
+
+          return value[a] - value[b];
+        }.bind(this));
+        keysSortedByBooleanValue.forEach(function (classNames) {
           var _this2 = this;
 
           _newArrowCheck(this, _this);
@@ -5608,6 +6061,19 @@
 
       option.selected = arrayWrappedValue.includes(option.value || option.text);
     }.bind(this));
+  }
+
+  function handleTextDirective(el, output, expression) {
+    // If nested model key is undefined, set the default value to empty string.
+    if (output === undefined && expression.match(/\./).length) {
+      output = '';
+    }
+
+    el.innerText = output;
+  }
+
+  function handleHtmlDirective(component, el, expression, extraVars) {
+    el.innerHTML = component.evaluateReturnExpression(el, expression, extraVars);
   }
 
   function handleShowDirective(component, el, value, modifiers) {
@@ -5714,11 +6180,11 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       var clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      el.nextElementSibling.__x_inserted_me = true;
       transitionIn(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
       }.bind(this), initialUpdate);
       component.initializeElements(el.nextElementSibling, extraVars);
+      el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
@@ -6113,7 +6579,7 @@
       this.listenForNewElementsToInitialize();
 
       if (typeof initReturnedCallback === 'function') {
-        // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+        // Run the callback returned from the "x-init" hook to allow the user to do stuff after
         // Alpine's got it's grubby little paws all over everything.
         initReturnedCallback.call(this.$data);
       }
@@ -6224,7 +6690,9 @@
           _newArrowCheck(this, _this7);
 
           // Don't touch spawns from for loop
-          if (el.__x_for_key !== undefined) return false;
+          if (el.__x_for_key !== undefined) return false; // Don't touch spawns from if directives
+
+          if (el.__x_inserted_me !== undefined) return false;
           this.initializeElement(el, extraVars);
         }.bind(this), function (el) {
           _newArrowCheck(this, _this7);
@@ -6352,6 +6820,21 @@
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
         var attrs = getXAttrs(el);
+
+        if (el.type !== undefined && el.type === 'radio') {
+          // If there's an x-model on a radio input, move it to end of attribute list
+          // to ensure that x-bind:value (if present) is processed first.
+          var modelIdx = attrs.findIndex(function (attr) {
+            _newArrowCheck(this, _this15);
+
+            return attr.type === 'model';
+          }.bind(this));
+
+          if (modelIdx > -1) {
+            attrs.push(attrs.splice(modelIdx, 1)[0]);
+          }
+        }
+
         attrs.forEach(function (_ref2) {
           var _this16 = this;
 
@@ -6364,27 +6847,22 @@
 
           switch (type) {
             case 'model':
-              handleAttributeBindingDirective(this, el, 'value', expression, extraVars);
+              handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
               break;
 
             case 'bind':
               // The :key binding on an x-for is special, ignore it.
               if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
-              handleAttributeBindingDirective(this, el, value, expression, extraVars);
+              handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
               break;
 
             case 'text':
-              var output = this.evaluateReturnExpression(el, expression, extraVars); // If nested model key is undefined, set the default value to empty string.
-
-              if (output === undefined && expression.match(/\./).length) {
-                output = '';
-              }
-
-              el.innerText = output;
+              var output = this.evaluateReturnExpression(el, expression, extraVars);
+              handleTextDirective(el, output, expression);
               break;
 
             case 'html':
-              el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars);
+              handleHtmlDirective(this, el, expression, extraVars);
               break;
 
             case 'show':

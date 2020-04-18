@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs'
-import { wait, fireEvent } from '@testing-library/dom'
+import { wait, fireEvent, createEvent } from '@testing-library/dom'
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 global.MutationObserver = class {
@@ -407,4 +407,34 @@ test('event instance is passed to method reference', async () => {
     await new Promise(resolve => setTimeout(resolve, 1))
 
     expect(document.querySelector('span').innerText).toEqual('baz')
+})
+
+test('autocomplete event does not trigger keydown with modifier callback', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <input type="text" x-on:keydown.?="count++">
+
+            <span x-text="count"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    const autocompleteEvent = new Event('keydown')
+
+    console.log(autocompleteEvent)
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(0) })
+
+    fireEvent.keyDown(document.querySelector('input'), { key: '?' })
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+
+    fireEvent(document.querySelector('input'), autocompleteEvent)
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
 })

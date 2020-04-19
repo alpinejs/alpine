@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs'
-import { wait, fireEvent, createEvent } from '@testing-library/dom'
+import { wait, fireEvent } from '@testing-library/dom'
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 global.MutationObserver = class {

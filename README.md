@@ -580,6 +580,15 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
+## Security
+If you find a security vulnerability, please send an email to [calebporzio@gmail.com]().
+
+Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP). 
+
+If you use Alpine in a website dealing with sensitive data and requiring [CSP](https://csp.withgoogle.com/docs/strict-csp.html), you need to include `unsafe-eval` in your policy. A robust policy correctly configured will help protecting your users when using personal or financial data.
+
+Since a policy applies to all scripts in your page, it's important that other external libraries included in the website are carefully reviewed to ensure that they are trustworthy and they won't introduce any Cross Site Scripting vulnerability either using the `eval()` function or manipulating the DOM to inject malicious code in your page.
+
 ## v3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity?
 * Add `Alpine.directive()`

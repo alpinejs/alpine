@@ -365,6 +365,10 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 
 `x-html` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerHTML` of an element.
 
+> :warning: **Only use on trusted content and never on user-provided content.** :warning: 
+> 
+> Dynamically rendering HTML from third parties can easily lead to [XSS](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) vulnerabilities.
+
 ---
 
 ### `x-ref`

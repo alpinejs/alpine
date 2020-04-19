@@ -5355,7 +5355,7 @@
   }
   function walk(el, callback) {
     // Detect ignore element and return if we hit one
-    if (el.parentElement.closest('[x-ignore]')) return;
+    if (el.parentElement.closest('[x-ignore]:not([x-ignore=false])')) return;
     if (callback(el) === false) return;
     var node = el.firstElementChild;
 
@@ -7109,7 +7109,7 @@
         _newArrowCheck(this, _this3);
 
         // Detect ignore element and return if we hit one
-        if (rootEl.parentElement.closest('[x-ignore]')) return;
+        if (rootEl.parentElement.closest('[x-ignore]:not([x-ignore=false])')) return;
         callback(rootEl);
       }.bind(this));
     },

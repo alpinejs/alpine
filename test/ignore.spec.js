@@ -7,7 +7,7 @@ global.MutationObserver = class {
 
 test('x-ignore ignores initialization of any new components within the node', async () => {
     document.body.innerHTML = `
-    <div x-ignore>
+    <div x-ignore="true">
         <div x-data="{foo:'foo'}">
             <span x-text="foo"></span>
         </div>

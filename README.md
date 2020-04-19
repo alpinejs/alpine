@@ -479,7 +479,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 ### `x-ignore`
 **Example:**
 ```html
-<div x-ignore>
+<div x-ignore="true">
     <div x-data="{foo:'UNTRUSTED CONTENT'}">
         <span x-text="foo">"foo" never gets bind by alpine</span>
     </div>

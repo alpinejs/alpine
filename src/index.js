@@ -29,7 +29,7 @@ const Alpine = {
 
         rootEls.forEach(rootEl => {
             // Detect ignore element and return if we hit one
-            if (rootEl.parentElement.closest('[x-ignore]')) return
+            if (rootEl.parentElement.closest('[x-ignore]:not([x-ignore=false])')) return
 
             callback(rootEl)
         })

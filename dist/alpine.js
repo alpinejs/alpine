@@ -75,7 +75,7 @@
   }
   function walk(el, callback) {
     // Detect ignore element and return if we hit one
-    if (el.parentElement.closest('[x-ignore]')) return;
+    if (el.parentElement.closest('[x-ignore]:not([x-ignore=false])')) return;
     if (callback(el) === false) return;
     let node = el.firstElementChild;
 
@@ -1647,7 +1647,7 @@
       const rootEls = document.querySelectorAll('[x-data]');
       rootEls.forEach(rootEl => {
         // Detect ignore element and return if we hit one
-        if (rootEl.parentElement.closest('[x-ignore]')) return;
+        if (rootEl.parentElement.closest('[x-ignore]:not([x-ignore=false])')) return;
         callback(rootEl);
       });
     },

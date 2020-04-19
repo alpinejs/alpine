@@ -88,7 +88,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     if (keyModifiers.length === 0) return false
 
     // If one is passed, AND it matches the key pressed, we'll call it a press.
-    if (keyModifiers.length === 1 && e.key && keyModifiers[0] === keyToModifier(e.key)) return false
+    if (keyModifiers.length === 1 && keyModifiers[0] === keyToModifier(e.key)) return false
 
     // The user is listening for key combinations.
     const systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super']
@@ -123,6 +123,6 @@ function keyToModifier(key) {
         case 'Spacebar':
             return 'space'
         default:
-            return kebabCase(key)
+            return key && kebabCase(key)
     }
 }

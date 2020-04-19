@@ -104,6 +104,7 @@ There are 13 directives available to you:
 | [`x-if`](#x-if) | Remove an element completely from the DOM. Needs to be used on a `<template>` tag. |
 | [`x-for`](#x-for) | Create new DOM nodes for each item in an array. Needs to be used on a `<template>` tag. |
 | [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition |
+| [`x-ignore`](#x-ignore) | Ignores components within the the element. |
 | [`x-cloak`](#x-cloak) | This attribute is removed when Alpine initializes. Useful for hiding pre-initialized DOM. |
 
 And 6 magic properties:
@@ -472,6 +473,19 @@ These behave exactly like VueJs's transition directives, except they have differ
 | `:leave` | Applied during the entire leaving phase. |
 | `:leave-start` | Added immediately when a leaving transition is triggered, removed after one frame. |
 | `:leave-end` | Added one frame after a leaving transition is triggered (at the same time `leave-start` is removed), removed when the transition/animation finishes.
+
+---
+
+### `x-ignore`
+**Example:**
+```html
+<div x-ignore>
+    <div x-data="{foo:'UNTRUSTED CONTENT'}">
+        <span x-text="foo">"foo" never gets bind by alpine</span>
+    </div>
+</div>
+```
+`x-ignore` can be used to stop DOM walking and ignoring any components within the element.
 
 ---
 

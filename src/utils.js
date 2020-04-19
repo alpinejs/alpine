@@ -25,6 +25,9 @@ export function kebabCase(subject) {
 }
 
 export function walk(el, callback) {
+    // Detect ignore element and return if we hit one
+    if (el.parentElement.closest('[x-ignore]')) return
+
     if (callback(el) === false) return
 
     let node = el.firstElementChild

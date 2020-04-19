@@ -74,6 +74,8 @@
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
   }
   function walk(el, callback) {
+    // Detect ignore element and return if we hit one
+    if (el.parentElement.closest('[x-ignore]')) return;
     if (callback(el) === false) return;
     let node = el.firstElementChild;
 
@@ -1644,6 +1646,8 @@
     discoverComponents: function discoverComponents(callback) {
       const rootEls = document.querySelectorAll('[x-data]');
       rootEls.forEach(rootEl => {
+        // Detect ignore element and return if we hit one
+        if (rootEl.parentElement.closest('[x-ignore]')) return;
         callback(rootEl);
       });
     },

@@ -28,6 +28,9 @@ const Alpine = {
         const rootEls = document.querySelectorAll('[x-data]');
 
         rootEls.forEach(rootEl => {
+            // Detect ignore element and return if we hit one
+            if (rootEl.parentElement.closest('[x-ignore]')) return
+
             callback(rootEl)
         })
     },

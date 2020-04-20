@@ -1395,11 +1395,8 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-      while (this.nextTickStack.length > 0) {
-        this.nextTickStack.shift()();
-      }
+      this.executeAndClearRemainingShowDirectiveStack();
+      this.executeAndClearNextTickStack(rootEl);
     }
 
     initializeElement(el, extraVars) {
@@ -1421,10 +1418,17 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
+      this.executeAndClearRemainingShowDirectiveStack();
+      this.executeAndClearNextTickStack(rootEl);
+    }
 
-      while (this.nextTickStack.length > 0) {
-        this.nextTickStack.shift()();
+    executeAndClearNextTickStack(el) {
+      // Skip spawns from alpine directives
+      if (el === this.$el) {
+        // Walk through the $nextTick stack and clear it as we go.
+        while (this.nextTickStack.length > 0) {
+          this.nextTickStack.shift()();
+        }
       }
     }
 

@@ -6699,11 +6699,8 @@
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-        while (this.nextTickStack.length > 0) {
-          this.nextTickStack.shift()();
-        }
+        this.executeAndClearRemainingShowDirectiveStack();
+        this.executeAndClearNextTickStack(rootEl);
       }
     }, {
       key: "initializeElement",
@@ -6736,10 +6733,18 @@
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-        while (this.nextTickStack.length > 0) {
-          this.nextTickStack.shift()();
+        this.executeAndClearRemainingShowDirectiveStack();
+        this.executeAndClearNextTickStack(rootEl);
+      }
+    }, {
+      key: "executeAndClearNextTickStack",
+      value: function executeAndClearNextTickStack(el) {
+        // Skip spawns from alpine directives
+        if (el === this.$el) {
+          // Walk through the $nextTick stack and clear it as we go.
+          while (this.nextTickStack.length > 0) {
+            this.nextTickStack.shift()();
+          }
         }
       }
     }, {

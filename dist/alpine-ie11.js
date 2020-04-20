@@ -6341,7 +6341,7 @@
         return 'space';
 
       default:
-        return kebabCase(key);
+        return key && kebabCase(key);
     }
   }
 

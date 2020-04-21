@@ -581,7 +581,11 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
-## v3 Roadmap
+## Sponsors
+
+<img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">
+
+## V3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity?
 * Add `Alpine.directive()`
 * Add `Alpine.component('foo', {...})` (With magic `__init()` method)

@@ -386,12 +386,13 @@ test('cursor position is preserved on selectable text input', async () => {
     Alpine.start()
 
     document.querySelector('input').focus()
-    document.querySelector('input').setSelectionRange(0, 3, 'backward')
 
     expect(document.querySelector('input').value).toEqual('bar')
     expect(document.querySelector('input').selectionStart).toEqual(0)
-    expect(document.querySelector('input').selectionEnd).toEqual(3)
-    expect(document.querySelector('input').selectionDirection).toEqual('backward')
+    expect(document.querySelector('input').selectionEnd).toEqual(0)
+    expect(document.querySelector('input').selectionDirection).toEqual('none')
+
+    document.querySelector('input').setSelectionRange(0, 3, 'backward')
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('baz')

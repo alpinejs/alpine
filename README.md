@@ -118,6 +118,13 @@ And 6 magic properties:
 | [`$watch`](#watch) | Will fire a provided callback when a component property you "watched" gets changed. |
 
 
+## Sponsors
+
+<img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">
+
+**Want your logo here? [DM on Twitter](https://twitter.com/calebporzio)**
+
+
 ### Directives
 
 ---
@@ -580,10 +587,6 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 ```
 
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
-
-## Sponsors
-
-<img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">
 
 ## V3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity?

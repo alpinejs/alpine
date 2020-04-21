@@ -372,6 +372,33 @@ test('classes are removed before being added', async () => {
     await wait(() => {
         expect(document.querySelector('span').classList.contains('block')).toBeFalsy()
         expect(document.querySelector('span').classList.contains('hidden')).toBeTruthy()
-        expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy
+        expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy()
+    })
+});
+
+test('cursor position is preserved on selectable text input', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <input type="text" 
+                   x-model="foo"
+                   x-ref="textInput" 
+                   @select="foo = 'baz'"
+            >
+        </div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('input').setSelectionRange(0, 3, 'backward')
+    expect(document.querySelector('input').value).toEqual('bar')
+    expect(document.querySelector('input').selectionStart).toEqual(0)
+    expect(document.querySelector('input').selectionEnd).toEqual(3)
+    expect(document.querySelector('input').selectionDirection).toEqual('backward')
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('baz')
+        expect(document.querySelector('input').selectionStart).toEqual(0)
+        expect(document.querySelector('input').selectionEnd).toEqual(3)
+        expect(document.querySelector('input').selectionDirection).toEqual('backward')
     })
 })

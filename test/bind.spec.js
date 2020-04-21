@@ -379,17 +379,14 @@ test('classes are removed before being added', async () => {
 test('cursor position is preserved on selectable text input', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">
-            <input type="text" 
-                   x-model="foo"
-                   x-ref="textInput" 
-                   @select="foo = 'baz'"
-            >
+            <input type="text" x-model="foo" @select="foo = 'baz'">
         </div>
     `
 
     Alpine.start()
 
     document.querySelector('input').setSelectionRange(0, 3, 'backward')
+
     expect(document.querySelector('input').value).toEqual('bar')
     expect(document.querySelector('input').selectionStart).toEqual(0)
     expect(document.querySelector('input').selectionEnd).toEqual(3)

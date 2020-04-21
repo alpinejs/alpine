@@ -741,14 +741,19 @@
         }
 
         if (modifiers.includes('prevent')) e.preventDefault();
-        if (modifiers.includes('stop')) e.stopPropagation();
-        const returnValue = runListenerHandler(component, expression, e, extraVars);
+        if (modifiers.includes('stop')) e.stopPropagation(); // If the .self modifier isn't present, or if it is present and
+        // the target element matches the element we are registering the
+        // event on, run the handler
 
-        if (returnValue === false) {
-          e.preventDefault();
-        } else {
-          if (modifiers.includes('once')) {
-            listenerTarget.removeEventListener(event, handler);
+        if (!modifiers.includes('self') || e.target === el) {
+          const returnValue = runListenerHandler(component, expression, e, extraVars);
+
+          if (returnValue === false) {
+            e.preventDefault();
+          } else {
+            if (modifiers.includes('once')) {
+              listenerTarget.removeEventListener(event, handler);
+            }
           }
         }
       };

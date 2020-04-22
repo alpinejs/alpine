@@ -404,6 +404,7 @@ test('cursor position is preserved on selectable text input', async () => {
 
 // input elements that are not 'text', 'search', 'url', 'password' types
 // will throw an exception when calling their setSelectionRange() method
+// see issues #401 #404 #404
 test('setSelectionRange is not called for inapplicable input types', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">

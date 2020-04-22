@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs'
-import { wait } from '@testing-library/dom'
+import { fireEvent, wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
     observe() {}
@@ -399,5 +399,23 @@ test('cursor position is preserved on selectable text input', async () => {
         expect(document.querySelector('input').selectionStart).toEqual(0)
         expect(document.querySelector('input').selectionEnd).toEqual(3)
         expect(document.querySelector('input').selectionDirection).toEqual('backward')
+    })
+})
+
+// input elements that are not 'text', 'search', 'url', 'password' types
+// will throw an exception when calling their setSelectionRange() method
+test('setSelectionRange is not called for inapplicable input types', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <input type="hidden" x-model="foo">
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'baz' } })
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('baz')
     })
 })

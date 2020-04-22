@@ -481,11 +481,11 @@ These behave exactly like VueJs's transition directives, except they have differ
 ```html
 <div x-ignore="true">
     <div x-data="{foo:'bar'}">
-        <span x-text="foo">"foo" never gets bind by alpine</span>
+        <span x-text="foo">"foo" will not set to 'bar' by Alpine</span>
     </div>
 </div>
 ```
-`x-ignore` can be used to stop DOM walking and ignoring any components within the element.
+`x-ignore` can be used to mark an element's children as "to be ignored" by Alpine. This means that Alpine will not walk the DOM tree any further and will not initialise any components within the `x-ignore`-ed element.
 
 ---
 

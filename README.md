@@ -481,7 +481,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 ```html
 <div x-ignore="true">
     <div x-data="{foo:'bar'}">
-        <span x-text="foo">"foo" will not set to 'bar' by Alpine</span>
+        <span x-text="foo">foo won't be set to 'bar' by Alpine</span>
     </div>
 </div>
 ```

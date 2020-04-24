@@ -20,5 +20,27 @@ test('$nextTick', async () => {
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bob') })
+    await wait(() => expect(document.querySelector('span').innerText).toEqual('bob'))
+})
+
+test('nextTick wait for x-for to finish rendering', async () => {
+    document.body.innerHTML = `
+        <div x-data="{list: ['one', 'two'], check: 2}">
+            <template x-for="item in list">
+                <span x-text="item"></span>
+            </template>
+
+            <p x-text="check"></p>
+
+            <button x-on:click="list = ['one', 'two', 'three']; $nextTick(() => {check = document.querySelectorAll('span').length})"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('p').innerText).toEqual(2)
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('p').innerText).toEqual(3) })
 })

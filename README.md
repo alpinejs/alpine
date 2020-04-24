@@ -118,6 +118,13 @@ And 6 magic properties:
 | [`$watch`](#watch) | Will fire a provided callback when a component property you "watched" gets changed. |
 
 
+## Sponsors
+
+<img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">
+
+**Want your logo here? [DM on Twitter](https://twitter.com/calebporzio)**
+
+
 ### Directives
 
 ---
@@ -296,6 +303,11 @@ Adding `.prevent` to an event listener will call `preventDefault` on the trigger
 
 Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
 
+**`.self` modifier**
+**Example:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
+
+Adding `.self` to an event listener will only trigger the handler if the `$event.target` is the element itself. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
+
 **`.window` modifier**
 **Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
@@ -365,8 +377,8 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 
 `x-html` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerHTML` of an element.
 
-> :warning: **Only use on trusted content and never on user-provided content.** :warning: 
-> 
+> :warning: **Only use on trusted content and never on user-provided content.** :warning:
+>
 > Dynamically rendering HTML from third parties can easily lead to [XSS](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) vulnerabilities.
 
 ---
@@ -581,22 +593,22 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
 ## Security
-If you find a security vulnerability, please send an email to [calebporzio@gmail.com]().
+If you find a security vulnerability, please send an email to [calebporzio@gmail.com]()
 
-Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP). 
+Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP).
 
 If you use Alpine in a website dealing with sensitive data and requiring [CSP](https://csp.withgoogle.com/docs/strict-csp.html), you need to include `unsafe-eval` in your policy. A robust policy correctly configured will help protecting your users when using personal or financial data.
 
 Since a policy applies to all scripts in your page, it's important that other external libraries included in the website are carefully reviewed to ensure that they are trustworthy and they won't introduce any Cross Site Scripting vulnerability either using the `eval()` function or manipulating the DOM to inject malicious code in your page.
 
-## v3 Roadmap
+## V3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity?
 * Add `Alpine.directive()`
 * Add `Alpine.component('foo', {...})` (With magic `__init()` method)
-* Dispatch Alpine events for "loaded", "transition-start", etc... (Original PR: #299) ?
-* Remove "object" (and array) syntax from `x-bind:class="{ 'foo': true }"` (PR to add support for object syntax for the `style` attribute: #236)
-* Improve `x-for` mutation reactivity (#165)
-* Add "deep watching" support in V3 (#294)
+* Dispatch Alpine events for "loaded", "transition-start", etc... ([#299](https://github.com/alpinejs/alpine/pull/299)) ?
+* Remove "object" (and array) syntax from `x-bind:class="{ 'foo': true }"` ([#236](https://github.com/alpinejs/alpine/pull/236) to add support for object syntax for the `style` attribute)
+* Improve `x-for` mutation reactivity ([#165](https://github.com/alpinejs/alpine/pull/165))
+* Add "deep watching" support in V3 ([#294](https://github.com/alpinejs/alpine/pull/294))
 
 ## License
 

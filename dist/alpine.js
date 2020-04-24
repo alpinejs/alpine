@@ -741,14 +741,19 @@
         }
 
         if (modifiers.includes('prevent')) e.preventDefault();
-        if (modifiers.includes('stop')) e.stopPropagation();
-        const returnValue = runListenerHandler(component, expression, e, extraVars);
+        if (modifiers.includes('stop')) e.stopPropagation(); // If the .self modifier isn't present, or if it is present and
+        // the target element matches the element we are registering the
+        // event on, run the handler
 
-        if (returnValue === false) {
-          e.preventDefault();
-        } else {
-          if (modifiers.includes('once')) {
-            listenerTarget.removeEventListener(event, handler);
+        if (!modifiers.includes('self') || e.target === el) {
+          const returnValue = runListenerHandler(component, expression, e, extraVars);
+
+          if (returnValue === false) {
+            e.preventDefault();
+          } else {
+            if (modifiers.includes('once')) {
+              listenerTarget.removeEventListener(event, handler);
+            }
           }
         }
       };
@@ -821,7 +826,7 @@
         return 'space';
 
       default:
-        return kebabCase(key);
+        return key && kebabCase(key);
     }
   }
 
@@ -1395,11 +1400,8 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-      while (this.nextTickStack.length > 0) {
-        this.nextTickStack.shift()();
-      }
+      this.executeAndClearRemainingShowDirectiveStack();
+      this.executeAndClearNextTickStack(rootEl);
     }
 
     initializeElement(el, extraVars) {
@@ -1421,10 +1423,17 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
+      this.executeAndClearRemainingShowDirectiveStack();
+      this.executeAndClearNextTickStack(rootEl);
+    }
 
-      while (this.nextTickStack.length > 0) {
-        this.nextTickStack.shift()();
+    executeAndClearNextTickStack(el) {
+      // Skip spawns from alpine directives
+      if (el === this.$el) {
+        // Walk through the $nextTick stack and clear it as we go.
+        while (this.nextTickStack.length > 0) {
+          this.nextTickStack.shift()();
+        }
       }
     }
 

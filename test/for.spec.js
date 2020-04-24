@@ -448,3 +448,62 @@ test('nested x-for event listeners', async () => {
         expect(document._alerts[2]).toEqual('foo: bob = 2')
     })
 })
+
+
+test('listener are bound correctyl on update', async () => {
+    global.data = function() {
+        return {
+            page: 0,
+            received: 0,
+            items: [
+                {'num': 1},
+                {'num': 2},
+                {'num': 3},
+                {'num': 4},
+                {'num': 5}
+            ],
+            click: function(num) {
+                this.received = num
+            }
+        }
+    }
+
+    document.body.innerHTML = `
+        <div x-data="data()">
+            <button @click="page+=page<1?1:0">Next page</button>
+
+            <span x-text="received"></span>
+
+            <ul>
+              <template x-for="item in items.slice(page*3, (page+1)*3 )" :key="item.num">
+                <li @click="click(item.num)" x-text="item.num"></li>
+              </template>
+            </ul>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelectorAll('li').length).toEqual(3) })
+    expect(document.querySelectorAll('li')[0].innerText).toEqual(1)
+    expect(document.querySelectorAll('li')[1].innerText).toEqual(2)
+    expect(document.querySelectorAll('li')[2].innerText).toEqual(3)
+
+    document.querySelectorAll('li')[0].click()
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    document.querySelectorAll('li')[1].click()
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(2) })
+    document.querySelectorAll('li')[2].click()
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(3) })
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelectorAll('li').length).toEqual(2) })
+    expect(document.querySelectorAll('li')[0].innerText).toEqual(4)
+    expect(document.querySelectorAll('li')[1].innerText).toEqual(5)
+
+    document.querySelectorAll('li')[0].click()
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(4) })
+    document.querySelectorAll('li')[1].click()
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(5) })
+})

@@ -481,7 +481,7 @@
   }
 
   function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
-    // We don't know if nextEl is avtually an element so we check that it's not a falsy value first
+    // We don't know if nextEl is actually an element so we check that it's not a falsy value first
     if (!nextEl) return false; // If the the key's DO match, no need to look ahead.
 
     if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.

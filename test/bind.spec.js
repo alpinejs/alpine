@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs'
-import { wait } from '@testing-library/dom'
+import { fireEvent, wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
     observe() {}
@@ -372,6 +372,51 @@ test('classes are removed before being added', async () => {
     await wait(() => {
         expect(document.querySelector('span').classList.contains('block')).toBeFalsy()
         expect(document.querySelector('span').classList.contains('hidden')).toBeTruthy()
-        expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy
+        expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy()
+    })
+});
+
+test('cursor position is preserved on selectable text input', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <input type="text" x-model="foo" @select="foo = 'baz'">
+        </div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('input').focus()
+
+    expect(document.querySelector('input').value).toEqual('bar')
+    expect(document.querySelector('input').selectionStart).toEqual(0)
+    expect(document.querySelector('input').selectionEnd).toEqual(0)
+    expect(document.querySelector('input').selectionDirection).toEqual('none')
+
+    document.querySelector('input').setSelectionRange(0, 3, 'backward')
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('baz')
+        expect(document.querySelector('input').selectionStart).toEqual(0)
+        expect(document.querySelector('input').selectionEnd).toEqual(3)
+        expect(document.querySelector('input').selectionDirection).toEqual('backward')
+    })
+})
+
+// input elements that are not 'text', 'search', 'url', 'password' types
+// will throw an exception when calling their setSelectionRange() method
+// see issues #401 #404 #405
+test('setSelectionRange is not called for inapplicable input types', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <input type="hidden" x-model="foo">
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'baz' } })
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('baz')
     })
 })

@@ -12,10 +12,11 @@ export function handleForDirective(component, templateEl, expression, initialUpd
     items.forEach((item, index) => {
         let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars())
         let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables)
-        let nextEl = currentEl.nextElementSibling
+        // Look ahead for the right element to update
+        let nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey)
 
-        // If there's no previously x-for processed element ahead, add one.
-        if (! nextEl || nextEl.__x_for_key === undefined) {
+        // If we haven't found a matching key, just insert the element at the current position
+        if (! nextEl) {
             nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
 
             // And transition it in if it's not the first page load.
@@ -23,14 +24,8 @@ export function handleForDirective(component, templateEl, expression, initialUpd
 
             nextEl.__x_for = iterationScopeVariables
             component.initializeElements(nextEl, () => nextEl.__x_for)
+        // otherwise update the element we found
         } else {
-            nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey)
-
-            // If we haven't found a matching key, just insert the element at the current position
-            if (! nextEl) {
-                nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
-            }
-
             // Temporarily remove the key indicator to allow the normal "updateElements" to work
             delete nextEl.__x_for_key
 
@@ -114,6 +109,9 @@ function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
 }
 
 function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
+    // We don't know if nextEl is avtually an element so we check that it's not a falsy value first
+    if(!nextEl) return false
+
     // If the the key's DO match, no need to look ahead.
     if (nextEl.__x_for_key === currentKey) return nextEl
 
@@ -128,6 +126,8 @@ function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
 
         tmpNextEl = (tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined) ? tmpNextEl.nextElementSibling : false
     }
+
+    return false
 }
 
 function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {

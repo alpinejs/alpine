@@ -5800,10 +5800,11 @@
       _newArrowCheck(this, _this);
 
       var iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
-      var currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
-      var nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
+      var currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables); // Look ahead for the right element to update
 
-      if (!nextEl || nextEl.__x_for_key === undefined) {
+      var nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey); // If we haven't found a matching key, just insert the element at the current position
+
+      if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
         transitionIn(nextEl, function () {
@@ -5814,15 +5815,9 @@
           _newArrowCheck(this, _this2);
 
           return nextEl.__x_for;
-        }.bind(this));
+        }.bind(this)); // otherwise update the element we found
       } else {
-        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // If we haven't found a matching key, just insert the element at the current position
-
-        if (!nextEl) {
-          nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl);
-        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
-
-
+        // Temporarily remove the key indicator to allow the normal "updateElements" to work
         delete nextEl.__x_for_key;
         nextEl.__x_for = iterationScopeVariables;
         component.updateElements(nextEl, function () {
@@ -5911,7 +5906,9 @@
   }
 
   function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
-    // If the the key's DO match, no need to look ahead.
+    // We don't know if nextEl is avtually an element so we check that it's not a falsy value first
+    if (!nextEl) return false; // If the the key's DO match, no need to look ahead.
+
     if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.
     // If we find it, we'll move it to the current position in the loop.
 
@@ -5924,6 +5921,8 @@
 
       tmpNextEl = tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined ? tmpNextEl.nextElementSibling : false;
     }
+
+    return false;
   }
 
   function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {

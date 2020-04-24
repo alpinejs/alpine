@@ -2,6 +2,7 @@ import Component from './component'
 import { domReady, isTesting } from './utils'
 
 const Alpine = {
+    version: process.env.PKG_VERSION,
     start: async function () {
         if (! isTesting()) {
             await domReady()

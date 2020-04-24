@@ -156,10 +156,7 @@ export default class Component {
 
         this.executeAndClearRemainingShowDirectiveStack()
 
-        // Walk through the $nextTick stack and clear it as we go.
-        while (this.nextTickStack.length > 0) {
-            this.nextTickStack.shift()()
-        }
+        this.executeAndClearNextTickStack(rootEl)
     }
 
     initializeElement(el, extraVars) {
@@ -185,9 +182,16 @@ export default class Component {
 
         this.executeAndClearRemainingShowDirectiveStack()
 
-        // Walk through the $nextTick stack and clear it as we go.
-        while (this.nextTickStack.length > 0) {
-            this.nextTickStack.shift()()
+        this.executeAndClearNextTickStack(rootEl)
+    }
+
+    executeAndClearNextTickStack(el) {
+        // Skip spawns from alpine directives
+        if (el === this.$el) {
+            // Walk through the $nextTick stack and clear it as we go.
+            while (this.nextTickStack.length > 0) {
+                this.nextTickStack.shift()()
+            }
         }
     }
 

@@ -5997,11 +5997,13 @@
         updateSelect(el, value);
       } else {
         // Cursor position should be restored back to origin due to a safari bug
-        var cursorPosition = el.selectionStart;
+        var selectionStart = el.selectionStart;
+        var selectionEnd = el.selectionEnd;
+        var selectionDirection = el.selectionDirection;
         el.value = value;
 
-        if (el === document.activeElement) {
-          el.setSelectionRange(cursorPosition, cursorPosition);
+        if (el === document.activeElement && selectionStart !== null) {
+          el.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
         }
       }
     } else if (attrName === 'class') {
@@ -6245,14 +6247,19 @@
         }
 
         if (modifiers.includes('prevent')) e.preventDefault();
-        if (modifiers.includes('stop')) e.stopPropagation();
-        var returnValue = runListenerHandler(component, expression, e, extraVars);
+        if (modifiers.includes('stop')) e.stopPropagation(); // If the .self modifier isn't present, or if it is present and
+        // the target element matches the element we are registering the
+        // event on, run the handler
 
-        if (returnValue === false) {
-          e.preventDefault();
-        } else {
-          if (modifiers.includes('once')) {
-            listenerTarget.removeEventListener(event, _handler2);
+        if (!modifiers.includes('self') || e.target === el) {
+          var returnValue = runListenerHandler(component, expression, e, extraVars);
+
+          if (returnValue === false) {
+            e.preventDefault();
+          } else {
+            if (modifiers.includes('once')) {
+              listenerTarget.removeEventListener(event, _handler2);
+            }
           }
         }
       }.bind(this);
@@ -6343,7 +6350,7 @@
         return 'space';
 
       default:
-        return kebabCase(key);
+        return key && kebabCase(key);
     }
   }
 
@@ -6701,11 +6708,8 @@
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-        while (this.nextTickStack.length > 0) {
-          this.nextTickStack.shift()();
-        }
+        this.executeAndClearRemainingShowDirectiveStack();
+        this.executeAndClearNextTickStack(rootEl);
       }
     }, {
       key: "initializeElement",
@@ -6738,10 +6742,18 @@
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-        while (this.nextTickStack.length > 0) {
-          this.nextTickStack.shift()();
+        this.executeAndClearRemainingShowDirectiveStack();
+        this.executeAndClearNextTickStack(rootEl);
+      }
+    }, {
+      key: "executeAndClearNextTickStack",
+      value: function executeAndClearNextTickStack(el) {
+        // Skip spawns from alpine directives
+        if (el === this.$el) {
+          // Walk through the $nextTick stack and clear it as we go.
+          while (this.nextTickStack.length > 0) {
+            this.nextTickStack.shift()();
+          }
         }
       }
     }, {
@@ -7046,6 +7058,7 @@
   }();
 
   var Alpine = {
+    version: "2.3.0",
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;

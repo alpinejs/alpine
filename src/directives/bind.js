@@ -44,10 +44,14 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             updateSelect(el, value)
         } else {
             // Cursor position should be restored back to origin due to a safari bug
-            const cursorPosition = el.selectionStart 
+            const selectionStart = el.selectionStart
+            const selectionEnd = el.selectionEnd
+            const selectionDirection = el.selectionDirection
+
             el.value = value
-            if(el === document.activeElement) { 
-                el.setSelectionRange(cursorPosition, cursorPosition)
+
+            if (el === document.activeElement && selectionStart !== null) {
+                el.setSelectionRange(selectionStart, selectionEnd, selectionDirection)
             }
         }
     } else if (attrName === 'class') {

@@ -10,7 +10,7 @@ export function handleForDirective(component, templateEl, expression, initialUpd
     // As we walk the array, we'll also walk the DOM (updating/creating as we go).
     let currentEl = templateEl
     items.forEach((item, index) => {
-        let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items)
+        let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars())
         let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables)
         let nextEl = currentEl.nextElementSibling
 
@@ -25,6 +25,11 @@ export function handleForDirective(component, templateEl, expression, initialUpd
             component.initializeElements(nextEl, () => nextEl.__x_for)
         } else {
             nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey)
+
+            // If we haven't found a matching key, just insert the element at the current position
+            if (! nextEl) {
+                nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
+            }
 
             // Temporarily remove the key indicator to allow the normal "updateElements" to work
             delete nextEl.__x_for_key
@@ -65,8 +70,10 @@ function parseForExpression(expression) {
     return res
 }
 
-function getIterationScopeVariables(iteratorNames, item, index, items) {
-    let scopeVariables = { [iteratorNames.item]: item }
+function getIterationScopeVariables(iteratorNames, item, index, items, extraVars) {
+    // We must create a new object, so each iteration has a new scope
+    let scopeVariables = extraVars ? {...extraVars} : {}
+    scopeVariables[iteratorNames.item] = item
     if (iteratorNames.index) scopeVariables[iteratorNames.index] = index
     if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items
 
@@ -110,7 +117,7 @@ function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
     // If the the key's DO match, no need to look ahead.
     if (nextEl.__x_for_key === currentKey) return nextEl
 
-    // If the don't, we'll look ahead for a match.
+    // If they don't, we'll look ahead for a match.
     // If we find it, we'll move it to the current position in the loop.
     let tmpNextEl = nextEl
 

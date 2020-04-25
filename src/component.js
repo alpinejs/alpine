@@ -1,6 +1,8 @@
 import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
+import { handleTextDirective } from './directives/text'
+import { handleHtmlDirective } from './directives/html'
 import { handleShowDirective } from './directives/show'
 import { handleIfDirective } from './directives/if'
 import { registerModelListener } from './directives/model'
@@ -69,7 +71,7 @@ export default class Component {
         this.listenForNewElementsToInitialize()
 
         if (typeof initReturnedCallback === 'function') {
-            // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+            // Run the callback returned from the "x-init" hook to allow the user to do stuff after
             // Alpine's got it's grubby little paws all over everything.
             initReturnedCallback.call(this.$data)
         }
@@ -154,10 +156,7 @@ export default class Component {
 
         this.executeAndClearRemainingShowDirectiveStack()
 
-        // Walk through the $nextTick stack and clear it as we go.
-        while (this.nextTickStack.length > 0) {
-            this.nextTickStack.shift()()
-        }
+        this.executeAndClearNextTickStack(rootEl)
     }
 
     initializeElement(el, extraVars) {
@@ -183,9 +182,16 @@ export default class Component {
 
         this.executeAndClearRemainingShowDirectiveStack()
 
-        // Walk through the $nextTick stack and clear it as we go.
-        while (this.nextTickStack.length > 0) {
-            this.nextTickStack.shift()()
+        this.executeAndClearNextTickStack(rootEl)
+    }
+
+    executeAndClearNextTickStack(el) {
+        // Skip spawns from alpine directives
+        if (el === this.$el) {
+            // Walk through the $nextTick stack and clear it as we go.
+            while (this.nextTickStack.length > 0) {
+                this.nextTickStack.shift()()
+            }
         }
     }
 
@@ -232,33 +238,36 @@ export default class Component {
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
         let attrs = getXAttrs(el)
+        if (el.type !== undefined && el.type === 'radio') {
+            // If there's an x-model on a radio input, move it to end of attribute list
+            // to ensure that x-bind:value (if present) is processed first.
+            const modelIdx = attrs.findIndex((attr) => attr.type === 'model')
+            if (modelIdx > -1) {
+                attrs.push(attrs.splice(modelIdx, 1)[0])
+            }
+        }
 
         attrs.forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':
-                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars)
+                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type)
                     break;
 
                 case 'bind':
                     // The :key binding on an x-for is special, ignore it.
                     if (el.tagName.toLowerCase() === 'template' && value === 'key') return
 
-                    handleAttributeBindingDirective(this, el, value, expression, extraVars)
+                    handleAttributeBindingDirective(this, el, value, expression, extraVars, type)
                     break;
 
                 case 'text':
                     var output = this.evaluateReturnExpression(el, expression, extraVars);
 
-                    // If nested model key is undefined, set the default value to empty string.
-                    if (output === undefined && expression.match(/\./).length) {
-                        output = ''
-                    }
-
-                    el.innerText = output
+                    handleTextDirective(el, output, expression)
                     break;
 
                 case 'html':
-                    el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars)
+                    handleHtmlDirective(this, el, expression, extraVars)
                     break;
 
                 case 'show':

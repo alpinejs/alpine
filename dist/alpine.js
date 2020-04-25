@@ -65,15 +65,7 @@
     });
   }
   function arrayUnique(array) {
-    var a = array.concat();
-
-    for (var i = 0; i < a.length; ++i) {
-      for (var j = i + 1; j < a.length; ++j) {
-        if (a[i] === a[j]) a.splice(j--, 1);
-      }
-    }
-
-    return a;
+    return Array.from(new Set(array));
   }
   function isTesting() {
     return navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
@@ -402,7 +394,7 @@
 
     let currentEl = templateEl;
     items.forEach((item, index) => {
-      let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items);
+      let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
       let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
       let nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
 
@@ -413,7 +405,12 @@
         nextEl.__x_for = iterationScopeVariables;
         component.initializeElements(nextEl, () => nextEl.__x_for);
       } else {
-        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // Temporarily remove the key indicator to allow the normal "updateElements" to work
+        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // If we haven't found a matching key, just insert the element at the current position
+
+        if (!nextEl) {
+          nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl);
+        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
+
 
         delete nextEl.__x_for_key;
         nextEl.__x_for = iterationScopeVariables;
@@ -451,10 +448,10 @@
     return res;
   }
 
-  function getIterationScopeVariables(iteratorNames, item, index, items) {
-    let scopeVariables = {
-      [iteratorNames.item]: item
-    };
+  function getIterationScopeVariables(iteratorNames, item, index, items, extraVars) {
+    // We must create a new object, so each iteration has a new scope
+    let scopeVariables = extraVars ? _objectSpread2({}, extraVars) : {};
+    scopeVariables[iteratorNames.item] = item;
     if (iteratorNames.index) scopeVariables[iteratorNames.index] = index;
     if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items;
     return scopeVariables;
@@ -490,7 +487,7 @@
 
   function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
     // If the the key's DO match, no need to look ahead.
-    if (nextEl.__x_for_key === currentKey) return nextEl; // If the don't, we'll look ahead for a match.
+    if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.
     // If we find it, we'll move it to the current position in the loop.
 
     let tmpNextEl = nextEl;
@@ -517,7 +514,7 @@
     }
   }
 
-  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
+  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
     var value = component.evaluateReturnExpression(el, expression, extraVars);
 
     if (attrName === 'value') {
@@ -527,7 +524,14 @@
       }
 
       if (el.type === 'radio') {
-        el.checked = el.value == value;
+        // Set radio value from x-bind:value, if no "value" attribute exists.
+        // If there are any initial state values, radio will have a correct
+        // "checked" value since x-bind:value is processed before x-model.
+        if (el.attributes.value === undefined && attrType === 'bind') {
+          el.value = value;
+        } else if (attrType !== 'bind') {
+          el.checked = el.value == value;
+        }
       } else if (el.type === 'checkbox') {
         if (Array.isArray(value)) {
           // I'm purposely not using Array.includes here because it's
@@ -553,14 +557,25 @@
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {
+        // Cursor position should be restored back to origin due to a safari bug
+        const selectionStart = el.selectionStart;
+        const selectionEnd = el.selectionEnd;
+        const selectionDirection = el.selectionDirection;
         el.value = value;
+
+        if (el === document.activeElement && selectionStart !== null) {
+          el.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+        }
       }
     } else if (attrName === 'class') {
       if (Array.isArray(value)) {
         const originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
       } else if (typeof value === 'object') {
-        Object.keys(value).forEach(classNames => {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
+        keysSortedByBooleanValue.forEach(classNames => {
           if (value[classNames]) {
             classNames.split(' ').forEach(className => el.classList.add(className));
           } else {
@@ -591,6 +606,19 @@
     Array.from(el.options).forEach(option => {
       option.selected = arrayWrappedValue.includes(option.value || option.text);
     });
+  }
+
+  function handleTextDirective(el, output, expression) {
+    // If nested model key is undefined, set the default value to empty string.
+    if (output === undefined && expression.match(/\./).length) {
+      output = '';
+    }
+
+    el.innerText = output;
+  }
+
+  function handleHtmlDirective(component, el, expression, extraVars) {
+    el.innerHTML = component.evaluateReturnExpression(el, expression, extraVars);
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
@@ -715,14 +743,19 @@
         }
 
         if (modifiers.includes('prevent')) e.preventDefault();
-        if (modifiers.includes('stop')) e.stopPropagation();
-        const returnValue = runListenerHandler(component, expression, e, extraVars);
+        if (modifiers.includes('stop')) e.stopPropagation(); // If the .self modifier isn't present, or if it is present and
+        // the target element matches the element we are registering the
+        // event on, run the handler
 
-        if (returnValue === false) {
-          e.preventDefault();
-        } else {
-          if (modifiers.includes('once')) {
-            listenerTarget.removeEventListener(event, handler);
+        if (!modifiers.includes('self') || e.target === el) {
+          const returnValue = runListenerHandler(component, expression, e, extraVars);
+
+          if (returnValue === false) {
+            e.preventDefault();
+          } else {
+            if (modifiers.includes('once')) {
+              listenerTarget.removeEventListener(event, handler);
+            }
           }
         }
       };
@@ -795,7 +828,7 @@
         return 'space';
 
       default:
-        return kebabCase(key);
+        return key && kebabCase(key);
     }
   }
 
@@ -1296,7 +1329,7 @@
       this.listenForNewElementsToInitialize();
 
       if (typeof initReturnedCallback === 'function') {
-        // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+        // Run the callback returned from the "x-init" hook to allow the user to do stuff after
         // Alpine's got it's grubby little paws all over everything.
         initReturnedCallback.call(this.$data);
       }
@@ -1369,11 +1402,8 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-      while (this.nextTickStack.length > 0) {
-        this.nextTickStack.shift()();
-      }
+      this.executeAndClearRemainingShowDirectiveStack();
+      this.executeAndClearNextTickStack(rootEl);
     }
 
     initializeElement(el, extraVars) {
@@ -1395,10 +1425,17 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
+      this.executeAndClearRemainingShowDirectiveStack();
+      this.executeAndClearNextTickStack(rootEl);
+    }
 
-      while (this.nextTickStack.length > 0) {
-        this.nextTickStack.shift()();
+    executeAndClearNextTickStack(el) {
+      // Skip spawns from alpine directives
+      if (el === this.$el) {
+        // Walk through the $nextTick stack and clear it as we go.
+        while (this.nextTickStack.length > 0) {
+          this.nextTickStack.shift()();
+        }
       }
     }
 
@@ -1447,6 +1484,17 @@
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
       let attrs = getXAttrs(el);
+
+      if (el.type !== undefined && el.type === 'radio') {
+        // If there's an x-model on a radio input, move it to end of attribute list
+        // to ensure that x-bind:value (if present) is processed first.
+        const modelIdx = attrs.findIndex(attr => attr.type === 'model');
+
+        if (modelIdx > -1) {
+          attrs.push(attrs.splice(modelIdx, 1)[0]);
+        }
+      }
+
       attrs.forEach(({
         type,
         value,
@@ -1455,27 +1503,22 @@
       }) => {
         switch (type) {
           case 'model':
-            handleAttributeBindingDirective(this, el, 'value', expression, extraVars);
+            handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
             break;
 
           case 'bind':
             // The :key binding on an x-for is special, ignore it.
             if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
-            handleAttributeBindingDirective(this, el, value, expression, extraVars);
+            handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
             break;
 
           case 'text':
-            var output = this.evaluateReturnExpression(el, expression, extraVars); // If nested model key is undefined, set the default value to empty string.
-
-            if (output === undefined && expression.match(/\./).length) {
-              output = '';
-            }
-
-            el.innerText = output;
+            var output = this.evaluateReturnExpression(el, expression, extraVars);
+            handleTextDirective(el, output, expression);
             break;
 
           case 'html':
-            el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars);
+            handleHtmlDirective(this, el, expression, extraVars);
             break;
 
           case 'show':
@@ -1590,6 +1633,7 @@
   }
 
   const Alpine = {
+    version: "2.3.1",
     start: async function start() {
       if (!isTesting()) {
         await domReady();

@@ -1,6 +1,7 @@
 # Alpine.js
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
+![npm version](https://img.shields.io/npm/v/alpinejs)
 
 Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
 
@@ -31,10 +32,13 @@ Include it in your script.
 import 'alpinejs'
 ```
 
-**For IE11 support** Use the following script instead.
+**For IE11 support** Use the following scripts instead.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
+<script nomodule src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>
 ```
+
+The pattern above is the [module/nomodule pattern](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) that will result in the modern bundle automatically loaded on modern browsers, and the IE11 bundle loaded automatically on IE11 and other legacy browsers.
 
 ## Use
 
@@ -114,6 +118,13 @@ And 6 magic properties:
 | [`$watch`](#watch) | Will fire a provided callback when a component property you "watched" gets changed. |
 
 
+## Sponsors
+
+<img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">
+
+**Want your logo here? [DM on Twitter](https://twitter.com/calebporzio)**
+
+
 ### Directives
 
 ---
@@ -152,6 +163,9 @@ You can extract data (and behavior) into reusable functions:
     }
 </script>
 ```
+
+> **For bundler users**, note that Alpine.js accesses functions that are in the global scope (`window`), you'll need to explicitly assign your functions to `window` in order to use them with `x-data` for example `window.dropdown = function () {}` (this is because with Webpack, Rollup, Parcel etc. `function`'s you define will default to the module's scope not `window`).
+
 
 You can also mix-in multiple data objects using object destructuring:
 
@@ -194,8 +208,8 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 | Directive | Description |
 | --- | --- |
 | `x-show.transition` | A simultanious fade and scale. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
-| `x-show.transition.in` | Ony transition in. |
-| `x-show.transition.out` | Ony transition out. |
+| `x-show.transition.in` | Only transition in. |
+| `x-show.transition.out` | Only transition out. |
 | `x-show.transition.opacity` | Only use the fade. |
 | `x-show.transition.scale` | Only use the scale. |
 | `x-show.transition.scale.75` | Customize the CSS scale transform `transform: scale(.75)`. |
@@ -289,6 +303,11 @@ Adding `.prevent` to an event listener will call `preventDefault` on the trigger
 
 Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
 
+**`.self` modifier**
+**Example:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
+
+Adding `.self` to an event listener will only trigger the handler if the `$event.target` is the element itself. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
+
 **`.window` modifier**
 **Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
@@ -358,6 +377,10 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 
 `x-html` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerHTML` of an element.
 
+> :warning: **Only use on trusted content and never on user-provided content.** :warning:
+>
+> Dynamically rendering HTML from third parties can easily lead to [XSS](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) vulnerabilities.
+
 ---
 
 ### `x-ref`
@@ -407,6 +430,8 @@ If you want to access the current index of the iteration, use the following synt
 </template>
 ```
 
+> Note: `x-for` must have a single element root inside of the `<template></template>` tag.
+
 #### Nesting `x-for`s
 You can nest `x-for` loops, but you MUST wrap each loop in an element. For example:
 
@@ -448,6 +473,8 @@ You can nest `x-for` loops, but you MUST wrap each loop in an element. For examp
     >...</div>
 </template>
 ```
+
+> The example above uses classes from [Tailwind CSS](https://tailwindcss.com)
 
 Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
 
@@ -565,10 +592,23 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
-## v3 Roadmap
-* Move from `x-ref` to `ref` for Vue parity
+## Security
+If you find a security vulnerability, please send an email to [calebporzio@gmail.com]()
+
+Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP).
+
+If you use Alpine in a website dealing with sensitive data and requiring [CSP](https://csp.withgoogle.com/docs/strict-csp.html), you need to include `unsafe-eval` in your policy. A robust policy correctly configured will help protecting your users when using personal or financial data.
+
+Since a policy applies to all scripts in your page, it's important that other external libraries included in the website are carefully reviewed to ensure that they are trustworthy and they won't introduce any Cross Site Scripting vulnerability either using the `eval()` function or manipulating the DOM to inject malicious code in your page.
+
+## V3 Roadmap
+* Move from `x-ref` to `ref` for Vue parity?
 * Add `Alpine.directive()`
 * Add `Alpine.component('foo', {...})` (With magic `__init()` method)
+* Dispatch Alpine events for "loaded", "transition-start", etc... ([#299](https://github.com/alpinejs/alpine/pull/299)) ?
+* Remove "object" (and array) syntax from `x-bind:class="{ 'foo': true }"` ([#236](https://github.com/alpinejs/alpine/pull/236) to add support for object syntax for the `style` attribute)
+* Improve `x-for` mutation reactivity ([#165](https://github.com/alpinejs/alpine/pull/165))
+* Add "deep watching" support in V3 ([#294](https://github.com/alpinejs/alpine/pull/294))
 
 ## License
 

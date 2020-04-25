@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs'
-import { wait } from '@testing-library/dom'
+import { fireEvent, wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
     observe() {}
@@ -331,3 +331,92 @@ test('checkbox values are set correctly', async () => {
     expect(document.querySelector('input[name="falseCheckbox"]').value).toEqual('on')
     expect(document.querySelector('input[name="stringCheckbox"]').value).toEqual('foo')
 });
+
+test('radio values are set correctly', async () => {
+    document.body.innerHTML = `
+        <div x-data="{lists: [{id: 1}, {id: 8}], selectedListID: '8'}">
+            <template x-for="list in lists" :key="list.id">
+                <input x-model="selectedListID" type="radio" :value="list.id.toString()" :id="'list-' + list.id">
+            </template>
+            <input type="radio" id="list-test" value="test" x-model="selectedListID">
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('#list-1').value).toEqual('1')
+    expect(document.querySelector('#list-1').checked).toBeFalsy()
+    expect(document.querySelector('#list-8').value).toEqual('8')
+    expect(document.querySelector('#list-8').checked).toBeTruthy()
+    expect(document.querySelector('#list-test').value).toEqual('test')
+    expect(document.querySelector('#list-test').checked).toBeFalsy()
+});
+
+test('classes are removed before being added', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ isOpen: true }">
+            <span :class="{ 'text-red block': isOpen, 'text-red hidden': !isOpen }">
+                Span
+            </span>
+            <button @click="isOpen = !isOpen"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('block')).toBeTruthy()
+    expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy()
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').classList.contains('block')).toBeFalsy()
+        expect(document.querySelector('span').classList.contains('hidden')).toBeTruthy()
+        expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy()
+    })
+});
+
+test('cursor position is preserved on selectable text input', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <input type="text" x-model="foo" @select="foo = 'baz'">
+        </div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('input').focus()
+
+    expect(document.querySelector('input').value).toEqual('bar')
+    expect(document.querySelector('input').selectionStart).toEqual(0)
+    expect(document.querySelector('input').selectionEnd).toEqual(0)
+    expect(document.querySelector('input').selectionDirection).toEqual('none')
+
+    document.querySelector('input').setSelectionRange(0, 3, 'backward')
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('baz')
+        expect(document.querySelector('input').selectionStart).toEqual(0)
+        expect(document.querySelector('input').selectionEnd).toEqual(3)
+        expect(document.querySelector('input').selectionDirection).toEqual('backward')
+    })
+})
+
+// input elements that are not 'text', 'search', 'url', 'password' types
+// will throw an exception when calling their setSelectionRange() method
+// see issues #401 #404 #405
+test('setSelectionRange is not called for inapplicable input types', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <input type="hidden" x-model="foo">
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'baz' } })
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('baz')
+    })
+})

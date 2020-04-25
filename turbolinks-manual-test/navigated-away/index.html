@@ -5,11 +5,20 @@
     </head>
     <body>
         <h1>Second Page</h1>
+        <a href="javascript:history.back()">Back</a>
 
+        <h2>This component should be preserved and working correctly</h2>
         <div x-data="{ foo: 'bar' }" id="foo" data-turbolinks-permanent>
             <input x-model="foo"></input>
 
             <button x-on:click="foo = 'baz'"></button>
+        </div>
+
+        <h2>This component should be preserved and working correctly (including no errors in console)</h2>
+        <div x-data="{ foo: ['bar', 'baz'] }" id="bar" data-turbolinks-permanent>
+            <template x-for="item in foo">
+                <span x-text="item"></span>
+            </template>
         </div>
     </body>
 </html>

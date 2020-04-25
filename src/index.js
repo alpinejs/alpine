@@ -12,32 +12,9 @@ const Alpine = {
             this.initializeComponent(el)
         })
 
-        // To avoid issue with the mutation observer going mad when turbolinks
-        // reload the page, we disconnect it
-        document.addEventListener("turbolinks:click", () => {
-            this.observer.disconnect()
-        })
+        this.listenForNewUninitializedComponentsAtRunTime()
 
-        // It's easier and more performant to just support Turbolinks than listen
-        // to MutationObserver mutations at the document level.
-        document.addEventListener("turbolinks:load", () => {
-            this.discoverUninitializedComponents(el => {
-                this.initializeComponent(el)
-            })
-
-            // Once done, we reconnect the mutation observer
-            const targetNode = document.querySelector('body');
-            const observerOptions = {
-                childList: true,
-                attributes: true,
-                subtree: true,
-            }
-            this.observer.observe(targetNode, observerOptions)
-        })
-
-        this.listenForNewUninitializedComponentsAtRunTime(el => {
-            this.initializeComponent(el)
-        })
+        this.initTurbolinksListeners()
     },
 
     discoverComponents: function (callback) {
@@ -58,15 +35,7 @@ const Alpine = {
             })
     },
 
-    listenForNewUninitializedComponentsAtRunTime: function (callback) {
-        const targetNode = document.querySelector('body');
-
-        const observerOptions = {
-            childList: true,
-            attributes: true,
-            subtree: true,
-        }
-
+    listenForNewUninitializedComponentsAtRunTime: function() {
         this.observer = new MutationObserver((mutations) => {
             for (let i=0; i < mutations.length; i++){
                 if (mutations[i].addedNodes.length > 0) {
@@ -83,10 +52,10 @@ const Alpine = {
                         }, node.parentElement)
                     })
                 }
-              }
+            }
         })
 
-        this.observer.observe(targetNode, observerOptions)
+        this.observer.observe(document.body, {childList: true, attributes: true, subtree: true})
     },
 
     initializeComponent: function (el) {
@@ -99,6 +68,45 @@ const Alpine = {
         if (! newEl.__x) {
             newEl.__x = new Component(newEl, component.getUnobservedData())
         }
+    },
+
+    initTurbolinksListeners() {
+        // To avoid issue with the mutation observer going mad when turbolinks
+        // reloads a page, we disconnect it. It will be reconnected by the turbolinks:load event
+        document.addEventListener("turbolinks:click", () => {
+            this.observer.disconnect()
+        })
+
+        // It's easier and more performant to just support Turbolinks than listen
+        // to MutationObserver mutations at the document level.
+        document.addEventListener("turbolinks:load", () => {
+            Alpine.discoverUninitializedComponents(el => {
+                this.initializeComponent(el)
+            })
+
+            this.observer.observe(document.body, {childList: true, attributes: true, subtree: true})
+        })
+
+        // We don't want tutbolinks to cache elements created by Alpine directives
+        // so we clean up the stage before letting turbolinks do its duty
+        document.addEventListener("turbolinks:before-cache", () => {
+            const xFors = document.querySelectorAll('template[x-for]')
+            xFors.forEach((el) => {
+                let nextEl = el.nextElementSibling
+                while (nextEl && nextEl.__x_for_key) {
+                    const currEl = nextEl
+                    nextEl = nextEl.nextElementSibling
+                    currEl.remove()
+                }
+            })
+            const xIfs = document.querySelectorAll('template[x-if]')
+            xIfs.forEach((el) => {
+                let nextEl = el.nextElementSibling
+                if (nextEl && nextEl.__x_inserted_me) {
+                    nextEl.remove()
+                }
+            })
+        })
     }
 }
 

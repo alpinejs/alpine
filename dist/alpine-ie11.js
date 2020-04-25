@@ -7078,42 +7078,11 @@
                   _newArrowCheck(this, _this);
 
                   this.initializeComponent(el);
-                }.bind(this)); // To avoid issue with the mutation observer going mad when turbolinks
-                // reload the page, we disconnect it
-
-                document.addEventListener("turbolinks:click", function () {
-                  _newArrowCheck(this, _this);
-
-                  this.observer.disconnect();
-                }.bind(this)); // It's easier and more performant to just support Turbolinks than listen
-                // to MutationObserver mutations at the document level.
-
-                document.addEventListener("turbolinks:load", function () {
-                  var _this2 = this;
-
-                  _newArrowCheck(this, _this);
-
-                  this.discoverUninitializedComponents(function (el) {
-                    _newArrowCheck(this, _this2);
-
-                    this.initializeComponent(el);
-                  }.bind(this)); // Once done, we reconnect the mutation observer
-
-                  var targetNode = document.querySelector('body');
-                  var observerOptions = {
-                    childList: true,
-                    attributes: true,
-                    subtree: true
-                  };
-                  this.observer.observe(targetNode, observerOptions);
                 }.bind(this));
-                this.listenForNewUninitializedComponentsAtRunTime(function (el) {
-                  _newArrowCheck(this, _this);
+                this.listenForNewUninitializedComponentsAtRunTime();
+                this.initTurbolinksListeners();
 
-                  this.initializeComponent(el);
-                }.bind(this));
-
-              case 7:
+              case 6:
               case "end":
                 return _context.stop();
             }
@@ -7128,50 +7097,44 @@
       return start;
     }(),
     discoverComponents: function discoverComponents(callback) {
-      var _this3 = this;
+      var _this2 = this;
 
       var rootEls = document.querySelectorAll('[x-data]');
       rootEls.forEach(function (rootEl) {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this2);
 
         callback(rootEl);
       }.bind(this));
     },
     discoverUninitializedComponents: function discoverUninitializedComponents(callback) {
-      var _this4 = this;
+      var _this3 = this;
 
       var el = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var rootEls = (el || document).querySelectorAll('[x-data]');
       Array.from(rootEls).filter(function (el) {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this3);
 
         return el.__x === undefined;
       }.bind(this)).forEach(function (rootEl) {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this3);
 
         callback(rootEl);
       }.bind(this));
     },
-    listenForNewUninitializedComponentsAtRunTime: function listenForNewUninitializedComponentsAtRunTime(callback) {
-      var _this5 = this;
+    listenForNewUninitializedComponentsAtRunTime: function listenForNewUninitializedComponentsAtRunTime() {
+      var _this4 = this;
 
-      var targetNode = document.querySelector('body');
-      var observerOptions = {
-        childList: true,
-        attributes: true,
-        subtree: true
-      };
       this.observer = new MutationObserver(function (mutations) {
-        var _this6 = this;
+        var _this5 = this;
 
-        _newArrowCheck(this, _this5);
+        _newArrowCheck(this, _this4);
 
         for (var i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(function (node) {
-              var _this7 = this;
+              var _this6 = this;
 
-              _newArrowCheck(this, _this6);
+              _newArrowCheck(this, _this5);
 
               // Discard non-element nodes (like line-breaks)
               if (node.nodeType !== 1) return; // Discard any changes happening within an existing component.
@@ -7179,7 +7142,7 @@
 
               if (node.parentElement && node.parentElement.closest('[x-data]')) return;
               this.discoverUninitializedComponents(function (el) {
-                _newArrowCheck(this, _this7);
+                _newArrowCheck(this, _this6);
 
                 this.initializeComponent(el);
               }.bind(this), node.parentElement);
@@ -7187,7 +7150,11 @@
           }
         }
       }.bind(this));
-      this.observer.observe(targetNode, observerOptions);
+      this.observer.observe(document.body, {
+        childList: true,
+        attributes: true,
+        subtree: true
+      });
     },
     initializeComponent: function initializeComponent(el) {
       if (!el.__x) {
@@ -7198,6 +7165,65 @@
       if (!newEl.__x) {
         newEl.__x = new Component(newEl, component.getUnobservedData());
       }
+    },
+    initTurbolinksListeners: function initTurbolinksListeners() {
+      var _this7 = this;
+
+      // To avoid issue with the mutation observer going mad when turbolinks
+      // reloads a page, we disconnect it. It will be reconnected by the turbolinks:load event
+      document.addEventListener("turbolinks:click", function () {
+        _newArrowCheck(this, _this7);
+
+        this.observer.disconnect();
+      }.bind(this)); // It's easier and more performant to just support Turbolinks than listen
+      // to MutationObserver mutations at the document level.
+
+      document.addEventListener("turbolinks:load", function () {
+        var _this8 = this;
+
+        _newArrowCheck(this, _this7);
+
+        Alpine.discoverUninitializedComponents(function (el) {
+          _newArrowCheck(this, _this8);
+
+          this.initializeComponent(el);
+        }.bind(this));
+        this.observer.observe(document.body, {
+          childList: true,
+          attributes: true,
+          subtree: true
+        });
+      }.bind(this)); // We don't want tutbolinks to cache elements created by Alpine directives
+      // so we clean up the stage before letting turbolinks do its duty
+
+      document.addEventListener("turbolinks:before-cache", function () {
+        var _this9 = this;
+
+        _newArrowCheck(this, _this7);
+
+        var xFors = document.querySelectorAll('template[x-for]');
+        xFors.forEach(function (el) {
+          _newArrowCheck(this, _this9);
+
+          var nextEl = el.nextElementSibling;
+
+          while (nextEl && nextEl.__x_for_key) {
+            var currEl = nextEl;
+            nextEl = nextEl.nextElementSibling;
+            currEl.remove();
+          }
+        }.bind(this));
+        var xIfs = document.querySelectorAll('template[x-if]');
+        xIfs.forEach(function (el) {
+          _newArrowCheck(this, _this9);
+
+          var nextEl = el.nextElementSibling;
+
+          if (nextEl && nextEl.__x_inserted_me) {
+            nextEl.remove();
+          }
+        }.bind(this));
+      }.bind(this));
     }
   };
 

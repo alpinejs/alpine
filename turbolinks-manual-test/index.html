@@ -7,7 +7,7 @@
         <h1>First Page</h1>
         <a href="/turbolinks-manual-test/navigated-away">Second Page</a>
 
-        <h2>This component should be preserved and working in the Second page</h2>
+        <h2>This component should be preserved and be working in the Second page</h2>
         <div x-data="{ foo: 'bar' }" id="foo" data-turbolinks-permanent>
             <input x-model="foo"></input>
 
@@ -28,7 +28,7 @@
             </template>
         </div>
 
-        <h2>This component should be preserved and not logging any errors when navigating to the Second page</h2>
+        <h2>This component should be preserved and not be logging any errors when navigating to the Second page</h2>
         <div x-data="{ foo: ['bar', 'baz'] }" id="bar" data-turbolinks-permanent>
             <template x-for="item in foo">
                 <span x-text="item"></span>

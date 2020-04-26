@@ -5994,14 +5994,8 @@
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {
-        // Cursor position should be restored back to origin due to a safari bug
-        var selectionStart = el.selectionStart;
-        var selectionEnd = el.selectionEnd;
-        var selectionDirection = el.selectionDirection;
-        el.value = value;
-
-        if (el === document.activeElement && selectionStart !== null) {
-          el.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+        if (el.value !== value) {
+          el.value = value;
         }
       }
     } else if (attrName === 'class') {

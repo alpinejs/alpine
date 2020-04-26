@@ -43,15 +43,8 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         } else if (el.tagName === 'SELECT') {
             updateSelect(el, value)
         } else {
-            // Cursor position should be restored back to origin due to a safari bug
-            const selectionStart = el.selectionStart
-            const selectionEnd = el.selectionEnd
-            const selectionDirection = el.selectionDirection
-
-            el.value = value
-
-            if (el === document.activeElement && selectionStart !== null) {
-                el.setSelectionRange(selectionStart, selectionEnd, selectionDirection)
+            if(el.value !== value) {
+                el.value = value
             }
         }
     } else if (attrName === 'class') {

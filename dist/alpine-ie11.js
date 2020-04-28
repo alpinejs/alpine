@@ -6068,8 +6068,14 @@
     }.bind(this));
   }
 
-  function handleTextDirective(el, output, expression) {
-    // If nested model key is undefined, set the default value to empty string.
+  function handleTextDirective(el, output, modifiers, expression) {
+    var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+
+    if (modifiers.includes('once') && !initialUpdate) {
+      return;
+    } // If nested model key is undefined, set the default value to empty string.
+
+
     if (output === undefined && expression.match(/\./).length) {
       output = '';
     }
@@ -6077,7 +6083,13 @@
     el.innerText = output;
   }
 
-  function handleHtmlDirective(component, el, expression, extraVars) {
+  function handleHtmlDirective(component, el, modifiers, expression, extraVars) {
+    var initialUpdate = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
+
+    if (modifiers.includes('once') && !initialUpdate) {
+      return;
+    }
+
     el.innerHTML = component.evaluateReturnExpression(el, expression, extraVars);
   }
 
@@ -6876,11 +6888,11 @@
 
             case 'text':
               var output = this.evaluateReturnExpression(el, expression, extraVars);
-              handleTextDirective(el, output, expression);
+              handleTextDirective(el, output, modifiers, expression, initialUpdate);
               break;
 
             case 'html':
-              handleHtmlDirective(this, el, expression, extraVars);
+              handleHtmlDirective(this, el, modifiers, expression, extraVars, initialUpdate);
               break;
 
             case 'show':

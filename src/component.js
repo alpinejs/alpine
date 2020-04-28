@@ -263,11 +263,11 @@ export default class Component {
                 case 'text':
                     var output = this.evaluateReturnExpression(el, expression, extraVars);
 
-                    handleTextDirective(el, output, expression)
+                    handleTextDirective(el, output, modifiers, expression, initialUpdate)
                     break;
 
                 case 'html':
-                    handleHtmlDirective(this, el, expression, extraVars)
+                    handleHtmlDirective(this, el, modifiers, expression, extraVars, initialUpdate)
                     break;
 
                 case 'show':

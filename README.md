@@ -368,6 +368,11 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 
 `x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.
 
+**`.once` modifier**
+**Example:** `<button x-text.once="foo"></button>`
+
+Adding the `.once` modifier to the `x-text` will ensure that the element content will only be set once at the initialization of component. This is useful when you need to show the data in its initial state.
+
 ---
 
 ### `x-html`
@@ -380,6 +385,11 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 > :warning: **Only use on trusted content and never on user-provided content.** :warning:
 >
 > Dynamically rendering HTML from third parties can easily lead to [XSS](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) vulnerabilities.
+
+**`.once` modifier**
+**Example:** `<button x-text.once="foo"></button>`
+
+Adding the `.once` modifier to the `x-html` will ensure that the element content will only be set once at the initialization of component. This is useful when you need to show the data in its initial state.
 
 ---
 

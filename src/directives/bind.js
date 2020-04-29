@@ -65,14 +65,14 @@ export function handleAttributeBindingDirective(component, el, attrName, express
 
             keysSortedByBooleanValue.forEach(classNames => {
                 if (value[classNames]) {
-                    classNames.split(' ').forEach(className => el.classList.add(className))
+                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.add(className))
                 } else {
-                    classNames.split(' ').forEach(className => el.classList.remove(className))
+                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.remove(className))
                 }
             })
         } else {
             const originalClasses = el.__x_original_classes || []
-            const newClasses = value.split(' ')
+            const newClasses = value.split(' ').filter(Boolean)
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
     } else if (isBooleanAttr(attrName)) {

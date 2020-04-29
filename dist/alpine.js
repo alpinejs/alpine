@@ -577,14 +577,14 @@
         const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
         keysSortedByBooleanValue.forEach(classNames => {
           if (value[classNames]) {
-            classNames.split(' ').forEach(className => el.classList.add(className));
+            classNames.split(' ').filter(Boolean).forEach(className => el.classList.add(className));
           } else {
-            classNames.split(' ').forEach(className => el.classList.remove(className));
+            classNames.split(' ').filter(Boolean).forEach(className => el.classList.remove(className));
           }
         });
       } else {
         const originalClasses = el.__x_original_classes || [];
-        const newClasses = value.split(' ');
+        const newClasses = value.split(' ').filter(Boolean);
         el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
       }
     } else if (isBooleanAttr(attrName)) {
@@ -772,7 +772,7 @@
 
   function runListenerHandler(component, expression, e, extraVars) {
     return component.evaluateCommandExpression(e.target, expression, () => {
-      return _objectSpread2({}, extraVars(), {
+      return _objectSpread2(_objectSpread2({}, extraVars()), {}, {
         '$event': e
       });
     });
@@ -838,7 +838,7 @@
     var event = el.tagName.toLowerCase() === 'select' || ['checkbox', 'radio'].includes(el.type) || modifiers.includes('lazy') ? 'change' : 'input';
     const listenerExpression = `${expression} = rightSideOfExpression($event, ${expression})`;
     registerListener(component, el, event, modifiers, listenerExpression, () => {
-      return _objectSpread2({}, extraVars(), {
+      return _objectSpread2(_objectSpread2({}, extraVars()), {}, {
         rightSideOfExpression: generateModelAssignmentFunction(el, modifiers, expression)
       });
     });
@@ -1546,13 +1546,13 @@
     }
 
     evaluateReturnExpression(el, expression, extraVars = () => {}) {
-      return saferEval(expression, this.$data, _objectSpread2({}, extraVars(), {
+      return saferEval(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
         $dispatch: this.getDispatchFunction(el)
       }));
     }
 
     evaluateCommandExpression(el, expression, extraVars = () => {}) {
-      return saferEvalNoReturn(expression, this.$data, _objectSpread2({}, extraVars(), {
+      return saferEvalNoReturn(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
         $dispatch: this.getDispatchFunction(el)
       }));
     }

@@ -1143,7 +1143,7 @@
   (module.exports = function (key, value) {
     return sharedStore[key] || (sharedStore[key] = value !== undefined ? value : {});
   })('versions', []).push({
-    version: '3.6.5',
+    version: '3.6.4',
     mode:  'global',
     copyright: '© 2020 Denis Pushkarev (zloirock.ru)'
   });
@@ -2348,36 +2348,23 @@
   }
 
   function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
 
   function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+      return arr2;
+    }
   }
 
   function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
-  }
-
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-  }
-
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-
-    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
-    return arr2;
+    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
   }
 
   function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    throw new TypeError("Invalid attempt to spread non-iterable instance");
   }
 
   var runtime_1 = createCommonjsModule(function (module) {
@@ -3479,13 +3466,7 @@
       defer = functionBindContext(port.postMessage, port, 1);
     // Browsers with postMessage, skip WebWorkers
     // IE8 has postMessage, but it's sync & typeof its postMessage is 'object'
-    } else if (
-      global_1.addEventListener &&
-      typeof postMessage == 'function' &&
-      !global_1.importScripts &&
-      !fails(post) &&
-      location.protocol !== 'file:'
-    ) {
+    } else if (global_1.addEventListener && typeof postMessage == 'function' && !global_1.importScripts && !fails(post)) {
       defer = post;
       global_1.addEventListener('message', listener, false);
     // IE8-
@@ -6297,7 +6278,7 @@
     return component.evaluateCommandExpression(e.target, expression, function () {
       _newArrowCheck(this, _this2);
 
-      return _objectSpread2(_objectSpread2({}, extraVars()), {}, {
+      return _objectSpread2({}, extraVars(), {
         '$event': e
       });
     }.bind(this));
@@ -6381,7 +6362,7 @@
     registerListener(component, el, event, modifiers, listenerExpression, function () {
       _newArrowCheck(this, _this);
 
-      return _objectSpread2(_objectSpread2({}, extraVars()), {}, {
+      return _objectSpread2({}, extraVars(), {
         rightSideOfExpression: generateModelAssignmentFunction(el, modifiers, expression)
       });
     }.bind(this));
@@ -6831,12 +6812,12 @@
         var _this14 = this;
 
         getXAttrs(el).forEach(function (_ref) {
-          _newArrowCheck(this, _this14);
-
           var type = _ref.type,
               value = _ref.value,
               modifiers = _ref.modifiers,
               expression = _ref.expression;
+
+          _newArrowCheck(this, _this14);
 
           switch (type) {
             case 'on':
@@ -6875,12 +6856,12 @@
         attrs.forEach(function (_ref2) {
           var _this16 = this;
 
-          _newArrowCheck(this, _this15);
-
           var type = _ref2.type,
               value = _ref2.value,
               modifiers = _ref2.modifiers,
               expression = _ref2.expression;
+
+          _newArrowCheck(this, _this15);
 
           switch (type) {
             case 'model':
@@ -6937,7 +6918,7 @@
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
           _newArrowCheck(this, _this17);
         }.bind(this);
-        return saferEval(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
+        return saferEval(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
         }));
       }
@@ -6949,25 +6930,30 @@
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
           _newArrowCheck(this, _this18);
         }.bind(this);
-        return saferEvalNoReturn(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
+        return saferEvalNoReturn(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
         }));
       }
     }, {
       key: "getDispatchFunction",
       value: function getDispatchFunction(el) {
+        var _this19 = this;
+
         return function (event) {
           var detail = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+          _newArrowCheck(this, _this19);
+
           el.dispatchEvent(new CustomEvent(event, {
             detail: detail,
             bubbles: true
           }));
-        };
+        }.bind(this);
       }
     }, {
       key: "listenForNewElementsToInitialize",
       value: function listenForNewElementsToInitialize() {
-        var _this19 = this;
+        var _this20 = this;
 
         var targetNode = this.$el;
         var observerOptions = {
@@ -6976,9 +6962,9 @@
           subtree: true
         };
         var observer = new MutationObserver(function (mutations) {
-          var _this20 = this;
+          var _this21 = this;
 
-          _newArrowCheck(this, _this19);
+          _newArrowCheck(this, _this20);
 
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
@@ -6987,14 +6973,14 @@
 
             if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
               (function () {
-                var _this21 = this;
+                var _this22 = this;
 
                 var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
                 Object.keys(rawData).forEach(function (key) {
-                  _newArrowCheck(this, _this21);
+                  _newArrowCheck(this, _this22);
 
-                  if (_this20.$data[key] !== rawData[key]) {
-                    _this20.$data[key] = rawData[key];
+                  if (_this21.$data[key] !== rawData[key]) {
+                    _this21.$data[key] = rawData[key];
                   }
                 }.bind(this));
               })();
@@ -7002,7 +6988,7 @@
 
             if (mutations[i].addedNodes.length > 0) {
               mutations[i].addedNodes.forEach(function (node) {
-                _newArrowCheck(this, _this20);
+                _newArrowCheck(this, _this21);
 
                 if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
@@ -7021,7 +7007,7 @@
     }, {
       key: "getRefsProxy",
       value: function getRefsProxy() {
-        var _this22 = this;
+        var _this23 = this;
 
         var self = this;
         var refObj = {};
@@ -7033,7 +7019,7 @@
         // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
 
         this.walkAndSkipNestedComponents(self.$el, function (el) {
-          _newArrowCheck(this, _this22);
+          _newArrowCheck(this, _this23);
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
@@ -7047,14 +7033,14 @@
 
         return new Proxy(refObj, {
           get: function get(object, property) {
-            var _this23 = this;
+            var _this24 = this;
 
             if (property === '$isAlpineProxy') return true;
             var ref; // We can't just query the DOM because it's hard to filter out refs in
             // nested components.
 
             self.walkAndSkipNestedComponents(self.$el, function (el) {
-              _newArrowCheck(this, _this23);
+              _newArrowCheck(this, _this24);
 
               if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                 ref = el;

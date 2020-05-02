@@ -450,7 +450,7 @@ test('nested x-for event listeners', async () => {
 })
 
 
-test('listener are bound correctyl on update', async () => {
+test('listeners are bound correctly on update', async () => {
     global.data = function() {
         return {
             page: 0,

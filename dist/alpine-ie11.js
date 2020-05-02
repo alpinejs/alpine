@@ -6992,7 +6992,7 @@
 
                 if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
-                if (node.matches('[x-data]')) {
+                if (node.matches('[x-data]') && !node.__x) {
                   node.__x = new Component(node);
                   return;
                 }
@@ -7175,8 +7175,9 @@
       observer.observe(targetNode, observerOptions);
     },
     initializeComponent: function initializeComponent(el) {
-      //if (! el.__x) {
-      el.__x = new Component(el); //}
+      if (!el.__x) {
+        el.__x = new Component(el);
+      }
     },
     clone: function clone(component, newEl) {
       if (!newEl.__x) {

@@ -7175,8 +7175,18 @@
       observer.observe(targetNode, observerOptions);
     },
     initializeComponent: function initializeComponent(el) {
+      var _this8 = this;
+
       if (!el.__x) {
-        el.__x = new Component(el);
+        try {
+          el.__x = new Component(el);
+        } catch (err) {
+          window.setTimeout(function () {
+            _newArrowCheck(this, _this8);
+
+            throw err;
+          }.bind(this), 0);
+        }
       }
     },
     clone: function clone(component, newEl) {

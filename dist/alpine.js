@@ -1692,7 +1692,13 @@
     },
     initializeComponent: function initializeComponent(el) {
       if (!el.__x) {
-        el.__x = new Component(el);
+        try {
+          el.__x = new Component(el);
+        } catch (err) {
+          window.setTimeout(() => {
+            throw err;
+          }, 0);
+        }
       }
     },
     clone: function clone(component, newEl) {

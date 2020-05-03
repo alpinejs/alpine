@@ -87,13 +87,13 @@ const Alpine = {
             this.observer.observe(document.body, {childList: true, attributes: true, subtree: true})
         })
 
-        // We don't want tutbolinks to cache elements created by Alpine directives
-        // so we clean up the stage before letting turbolinks do its duty
+        // We don't want turbolinks to cache elements created by Alpine directives
+        // so we clean up the stage before letting turbolinks does its duty
         document.addEventListener("turbolinks:before-cache", () => {
             const xFors = document.querySelectorAll('template[x-for]')
             xFors.forEach((el) => {
                 let nextEl = el.nextElementSibling
-                while (nextEl && nextEl.__x_for_key) {
+                while (nextEl && typeof nextEl.__x_for_key !== 'undefined') {
                     const currEl = nextEl
                     nextEl = nextEl.nextElementSibling
                     currEl.remove()
@@ -102,7 +102,7 @@ const Alpine = {
             const xIfs = document.querySelectorAll('template[x-if]')
             xIfs.forEach((el) => {
                 let nextEl = el.nextElementSibling
-                if (nextEl && nextEl.__x_inserted_me) {
+                if (nextEl && typeof nextEl.__x_inserted_me !== 'undefined') {
                     nextEl.remove()
                 }
             })

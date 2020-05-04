@@ -1579,7 +1579,7 @@
         for (let i = 0; i < mutations.length; i++) {
           // Filter out mutations triggered from child components.
           const closestParentComponent = mutations[i].target.closest('[x-data]');
-          if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) return;
+          if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
 
           if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
             const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});

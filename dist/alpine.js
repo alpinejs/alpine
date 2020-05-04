@@ -556,7 +556,7 @@
         }
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
-      } else {
+      } else if (el.type === 'text') {
         // Cursor position should be restored back to origin due to a safari bug
         const selectionStart = el.selectionStart;
         const selectionEnd = el.selectionEnd;
@@ -566,6 +566,8 @@
         if (el === document.activeElement && selectionStart !== null) {
           el.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
         }
+      } else {
+        el.value = value;
       }
     } else if (attrName === 'class') {
       if (Array.isArray(value)) {

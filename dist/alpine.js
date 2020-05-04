@@ -1629,17 +1629,9 @@
 
       this.discoverComponents(el => {
         this.initializeComponent(el);
-      }); // It's easier and more performant to just support Turbolinks than listen
-      // to MutationObserver mutations at the document level.
-
-      document.addEventListener("turbolinks:load", () => {
-        this.discoverUninitializedComponents(el => {
-          this.initializeComponent(el);
-        });
       });
-      this.listenForNewUninitializedComponentsAtRunTime(el => {
-        this.initializeComponent(el);
-      });
+      this.listenForNewUninitializedComponentsAtRunTime();
+      this.initTurbolinksListeners();
     },
     discoverComponents: function discoverComponents(callback) {
       const rootEls = document.querySelectorAll('[x-data]');
@@ -1653,14 +1645,13 @@
         callback(rootEl);
       });
     },
-    listenForNewUninitializedComponentsAtRunTime: function listenForNewUninitializedComponentsAtRunTime(callback) {
-      const targetNode = document.querySelector('body');
+    listenForNewUninitializedComponentsAtRunTime: function listenForNewUninitializedComponentsAtRunTime() {
       const observerOptions = {
         childList: true,
         attributes: true,
         subtree: true
       };
-      const observer = new MutationObserver(mutations => {
+      this.observer = new MutationObserver(mutations => {
         for (let i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(node => {
@@ -1676,7 +1667,7 @@
           }
         }
       });
-      observer.observe(targetNode, observerOptions);
+      this.observer.observe(document.body, observerOptions);
     },
     initializeComponent: function initializeComponent(el) {
       if (!el.__x) {
@@ -1687,7 +1678,60 @@
       if (!newEl.__x) {
         newEl.__x = new Component(newEl, component.getUnobservedData());
       }
+    },
+
+    initTurbolinksListeners() {
+      // It's easier and more performant to just support Turbolinks than listen
+      // to MutationObserver mutations at the document level.
+      document.addEventListener('turbolinks:load', () => {
+        Alpine.discoverUninitializedComponents(el => {
+          this.initializeComponent(el);
+        });
+        this.observer.observe(document.body, {
+          childList: true,
+          attributes: true,
+          subtree: true
+        });
+      }); // Disconnect the the mutation observer to avoid data races, and then
+      // clean up the elements created by Alpine directives before Turbolinks
+      // stores it to cache, unless it's marked as permanent.
+      // The mutiation observer will be reconnected by the turbolinks:load event.
+
+      document.addEventListener('turbolinks:before-cache', () => {
+        this.observer.disconnect();
+        walk(document.body, el => {
+          if (el.hasAttribute('data-turbolinks-permanent')) {
+            return false;
+          }
+
+          if (el.hasAttribute('x-for')) {
+            let nextEl = el.nextElementSibling;
+
+            while (nextEl) {
+              const currEl = nextEl;
+              nextEl = nextEl.nextElementSibling;
+
+              if (typeof currEl.__x_for_key !== 'undefined') {
+                currEl.remove();
+              }
+            }
+
+            return true;
+          }
+
+          if (el.hasAttribute('x-if')) {
+            const ifEl = el.nextElementSibling;
+
+            if (ifEl && typeof ifEl.__x_inserted_me !== 'undefined') {
+              ifEl.remove();
+            }
+          }
+
+          return true;
+        });
+      });
     }
+
   };
 
   if (!isTesting()) {

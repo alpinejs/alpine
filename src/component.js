@@ -5,6 +5,7 @@ import { handleTextDirective } from './directives/text'
 import { handleHtmlDirective } from './directives/html'
 import { handleShowDirective } from './directives/show'
 import { handleIfDirective } from './directives/if'
+import { handleWingDirective } from './directives/wing'
 import { registerModelListener } from './directives/model'
 import { registerListener } from './directives/on'
 import { unwrap, wrap } from './observable'
@@ -292,6 +293,10 @@ export default class Component {
 
                 case 'cloak':
                     el.removeAttribute('x-cloak')
+                    break;
+
+                case 'wing':
+                    handleWingDirective(this, el)
                     break;
 
                 default:

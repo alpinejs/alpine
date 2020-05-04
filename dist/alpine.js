@@ -113,7 +113,7 @@
 
     return new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
   }
-  const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/;
+  const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|wing)\b/;
   function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
@@ -705,6 +705,29 @@
         el.nextElementSibling.remove();
       }, initialUpdate);
     }
+  }
+
+  function handleWingDirective(component, el) {
+    // Source: ASCII Art Starwars - T-65B X-wing Space Superiority Starfighter
+    // https://textart.io/art/_jOJdyj1DR77sIUdJZHWCweF/starwars-t-65b-x-wing-space-superiority-starfighter\
+    el.innerHTML = `
+ ‏‎          ·                            ·                      ·
+  ·                  ·             -)------+====+       ·
+                           -)----====    ,'   ,'   ·                 ·‏‎ ‎‏‎ ‎
+              ·                  \`.  \`.,;___,'                ·
+                                   \`, |____l_\\
+                     _,....------c==]""______ |
+    ·      ·        "-:_____________  |____l_|]              ·     ·
+                                  ,'"",'.   \`.
+         ·                 -)-----====   \`.   \`.              LS
+                     ·            -)-------+====+       ·            ·‏‎ ‎‏‎ ‎
+             ·                               ·
+
+  // MAY THE FORTH BE WITH YOU \\\\
+
+`;
+    el.style.backgroundColor = '#000';
+    el.style.color = '#ffe81f';
   }
 
   function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
@@ -1542,6 +1565,10 @@
 
           case 'cloak':
             el.removeAttribute('x-cloak');
+            break;
+
+          case 'wing':
+            handleWingDirective(this, el);
             break;
         }
       });

@@ -5396,7 +5396,7 @@
 
     return new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
   }
-  var xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/;
+  var xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|wing)\b/;
   function isXAttr(attr) {
     var name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
@@ -6201,6 +6201,14 @@
     }
   }
 
+  function handleWingDirective(component, el) {
+    // Source: ASCII Art Starwars - T-65B X-wing Space Superiority Starfighter
+    // https://textart.io/art/_jOJdyj1DR77sIUdJZHWCweF/starwars-t-65b-x-wing-space-superiority-starfighter\
+    el.innerHTML = "\n \u200F\u200E          \xB7                            \xB7                      \xB7\n  \xB7                  \xB7             -)------+====+       \xB7\n                           -)----====    ,'   ,'   \xB7                 \xB7\u200F\u200E \u200E\u200F\u200E \u200E\n              \xB7                  `.  `.,;___,'                \xB7\n                                   `, |____l_\\\n                     _,....------c==]\"\"______ |\n    \xB7      \xB7        \"-:_____________  |____l_|]              \xB7     \xB7\n                                  ,'\"\",'.   `.\n         \xB7                 -)-----====   `.   `.              LS\n                     \xB7            -)-------+====+       \xB7            \xB7\u200F\u200E \u200E\u200F\u200E \u200E\n             \xB7                               \xB7\n\n  // MAY THE FORTH BE WITH YOU \\\\\n\n";
+    el.style.backgroundColor = '#000';
+    el.style.color = '#ffe81f';
+  }
+
   function registerListener(component, el, event, modifiers, expression) {
     var _this = this;
 
@@ -6908,6 +6916,10 @@
 
             case 'cloak':
               el.removeAttribute('x-cloak');
+              break;
+
+            case 'wing':
+              handleWingDirective(this, el);
               break;
           }
         }.bind(this));

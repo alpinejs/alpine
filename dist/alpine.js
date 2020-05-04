@@ -723,7 +723,7 @@
                      ·            -)-------+====+       ·            ·‏‎ ‎‏‎ ‎
              ·                               ·
 
-  // MAY THE FORTH BE WITH YOU \\\\
+  // MAY THE FOURTH BE WITH YOU \\\\
 
 `;
     el.style.backgroundColor = '#000';

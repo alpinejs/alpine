@@ -175,6 +175,26 @@ test('class attribute bindings are synced by string syntax', async () => {
     expect(document.querySelector('span').classList.contains('baz')).toBeTruthy()
 })
 
+test('checkbox is unchecked by default', async () => {
+    document.body.innerHTML = `
+        <div x-data="{foo: {bar: 'baz'}}">
+            <input type="checkbox" x-bind:value="''"></input>
+            <input type="checkbox" x-bind:value="'test'"></input>
+            <input type="checkbox" x-bind:value="foo.bar"></input>
+            <input type="checkbox" x-bind:value="0"></input>
+            <input type="checkbox" x-bind:value="10"></input>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('input')[0].checked).toBeFalsy()
+    expect(document.querySelectorAll('input')[1].checked).toBeFalsy()
+    expect(document.querySelectorAll('input')[2].checked).toBeFalsy()
+    expect(document.querySelectorAll('input')[3].checked).toBeFalsy()
+    expect(document.querySelectorAll('input')[3].checked).toBeFalsy()
+})
+
 test('boolean attributes set to false are removed from element', async () => {
     document.body.innerHTML = `
         <div x-data="{ isSet: false }">

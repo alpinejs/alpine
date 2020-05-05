@@ -5968,11 +5968,12 @@
           el.checked = el.value == value;
         }
       } else if (el.type === 'checkbox') {
-        if (Array.isArray(value)) {
+        if (typeof value === 'string') {
+          el.value = value;
+        } else if (Array.isArray(value)) {
           // I'm purposely not using Array.includes here because it's
           // strict, and because of Numeric/String mis-casting, I
           // want the "includes" to be "fuzzy".
-          var valueFound = false;
           value.forEach(function (val) {
             _newArrowCheck(this, _this);
 
@@ -5987,10 +5988,6 @@
         // If the value is a boolean, leave it alone, it will be set to "on"
         // automatically.
 
-
-        if (typeof value === 'string') {
-          el.value = value;
-        }
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else if (el.type === 'text') {

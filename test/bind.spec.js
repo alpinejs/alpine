@@ -333,7 +333,7 @@ test('checkbox is unchecked by default', async () => {
     expect(document.querySelectorAll('input')[1].checked).toBeFalsy()
     expect(document.querySelectorAll('input')[2].checked).toBeFalsy()
     expect(document.querySelectorAll('input')[3].checked).toBeFalsy()
-    expect(document.querySelectorAll('input')[3].checked).toBeFalsy()
+    expect(document.querySelectorAll('input')[4].checked).toBeFalsy()
 })
 
 test('radio is unchecked by default', async () => {
@@ -353,7 +353,7 @@ test('radio is unchecked by default', async () => {
     expect(document.querySelectorAll('input')[1].checked).toBeFalsy()
     expect(document.querySelectorAll('input')[2].checked).toBeFalsy()
     expect(document.querySelectorAll('input')[3].checked).toBeFalsy()
-    expect(document.querySelectorAll('input')[3].checked).toBeFalsy()
+    expect(document.querySelectorAll('input')[4].checked).toBeFalsy()
 })
 
 test('checkbox values are set correctly', async () => {

@@ -391,3 +391,27 @@ test('value bindings to hidden inputs', async () => {
         expect(document.querySelector('input').value).toEqual('baz')
     })
 })
+
+test('extra whitespace in class binding object syntax is ignored', async () => {
+    document.body.innerHTML = `
+        <div x-data>
+            <span x-bind:class="{ '  foo  bar  ': true }"></span>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
+    expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
+})
+
+test('extra whitespace in class binding string syntax is ignored', async () => {
+    document.body.innerHTML = `
+        <div x-data>
+            <span x-bind:class="'  foo  bar  '"></span>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
+    expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
+})

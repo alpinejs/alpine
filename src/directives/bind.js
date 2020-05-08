@@ -43,9 +43,9 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         } else if (el.tagName === 'SELECT') {
             updateSelect(el, value)
         } else {
-            if(el.value !== value) {
-                el.value = value
-            }
+            if (el.value === value) return
+
+            el.value = value
         }
     } else if (attrName === 'class') {
         if (Array.isArray(value)) {
@@ -58,14 +58,14 @@ export function handleAttributeBindingDirective(component, el, attrName, express
 
             keysSortedByBooleanValue.forEach(classNames => {
                 if (value[classNames]) {
-                    classNames.split(' ').forEach(className => el.classList.add(className))
+                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.add(className))
                 } else {
-                    classNames.split(' ').forEach(className => el.classList.remove(className))
+                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.remove(className))
                 }
             })
         } else {
             const originalClasses = el.__x_original_classes || []
-            const newClasses = value.split(' ')
+            const newClasses = value.split(' ').filter(Boolean)
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
     } else if (isBooleanAttr(attrName)) {

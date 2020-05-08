@@ -12,10 +12,9 @@ export function handleForDirective(component, templateEl, expression, initialUpd
     items.forEach((item, index) => {
         let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars())
         let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables)
-        // Look ahead for the right element to update
         let nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey)
 
-        // If we haven't found a matching key, just insert the element at the current position
+        // If we haven't found a matching key, insert the element at the current position.
         if (! nextEl) {
             nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
 
@@ -24,9 +23,9 @@ export function handleForDirective(component, templateEl, expression, initialUpd
 
             nextEl.__x_for = iterationScopeVariables
             component.initializeElements(nextEl, () => nextEl.__x_for)
-        // otherwise update the element we found
+        // Otherwise update the element we found.
         } else {
-            // Temporarily remove the key indicator to allow the normal "updateElements" to work
+            // Temporarily remove the key indicator to allow the normal "updateElements" to work.
             delete nextEl.__x_for_key
 
             nextEl.__x_for = iterationScopeVariables
@@ -109,8 +108,7 @@ function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
 }
 
 function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
-    // We don't know if nextEl is actually an element so we check that it's not a falsy value first
-    if(!nextEl) return false
+    if (! nextEl) return
 
     // If the the key's DO match, no need to look ahead.
     if (nextEl.__x_for_key === currentKey) return nextEl
@@ -126,8 +124,6 @@ function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
 
         tmpNextEl = (tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined) ? tmpNextEl.nextElementSibling : false
     }
-
-    return false
 }
 
 function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {

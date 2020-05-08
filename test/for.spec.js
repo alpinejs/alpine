@@ -449,61 +449,31 @@ test('nested x-for event listeners', async () => {
     })
 })
 
-
-test('listeners are bound correctly on update', async () => {
-    global.data = function() {
-        return {
-            page: 0,
-            received: 0,
-            items: [
-                {'num': 1},
-                {'num': 2},
-                {'num': 3},
-                {'num': 4},
-                {'num': 5}
-            ],
-            click: function(num) {
-                this.received = num
-            }
-        }
+test('make sure new elements with different keys added to the beginning of a loop are initialized instead of just updated', async () => {
+    let clickCount = 0
+    window.registerClick = () => {
+        clickCount++
     }
 
     document.body.innerHTML = `
-        <div x-data="data()">
-            <button @click="page+=page<1?1:0">Next page</button>
+        <div x-data="{ items: ['foo'] }">
+            <button @click="items = ['bar']">Change</button>
 
-            <span x-text="received"></span>
-
-            <ul>
-              <template x-for="item in items.slice(page*3, (page+1)*3 )" :key="item.num">
-                <li @click="click(item.num)" x-text="item.num"></li>
-              </template>
-            </ul>
+            <template x-for="item in items" :key="item">
+                <h1 @click="registerClick()"></h1>
+            </template>
         </div>
     `
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelectorAll('li').length).toEqual(3) })
-    expect(document.querySelectorAll('li')[0].innerText).toEqual(1)
-    expect(document.querySelectorAll('li')[1].innerText).toEqual(2)
-    expect(document.querySelectorAll('li')[2].innerText).toEqual(3)
+    document.querySelector('h1').click()
 
-    document.querySelectorAll('li')[0].click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
-    document.querySelectorAll('li')[1].click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(2) })
-    document.querySelectorAll('li')[2].click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(3) })
+    expect(clickCount).toEqual(1)
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelectorAll('li').length).toEqual(2) })
-    expect(document.querySelectorAll('li')[0].innerText).toEqual(4)
-    expect(document.querySelectorAll('li')[1].innerText).toEqual(5)
+    document.querySelector('h1').click()
 
-    document.querySelectorAll('li')[0].click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(4) })
-    document.querySelectorAll('li')[1].click()
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(5) })
+    expect(clickCount).toEqual(2)
 })

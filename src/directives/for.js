@@ -12,10 +12,10 @@ export function handleForDirective(component, templateEl, expression, initialUpd
     items.forEach((item, index) => {
         let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars())
         let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables)
-        let nextEl = currentEl.nextElementSibling
+        let nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey)
 
-        // If there's no previously x-for processed element ahead, add one.
-        if (! nextEl || nextEl.__x_for_key === undefined) {
+        // If we haven't found a matching key, insert the element at the current position.
+        if (! nextEl) {
             nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
 
             // And transition it in if it's not the first page load.
@@ -23,15 +23,9 @@ export function handleForDirective(component, templateEl, expression, initialUpd
 
             nextEl.__x_for = iterationScopeVariables
             component.initializeElements(nextEl, () => nextEl.__x_for)
+        // Otherwise update the element we found.
         } else {
-            nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey)
-
-            // If we haven't found a matching key, just insert the element at the current position
-            if (! nextEl) {
-                nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
-            }
-
-            // Temporarily remove the key indicator to allow the normal "updateElements" to work
+            // Temporarily remove the key indicator to allow the normal "updateElements" to work.
             delete nextEl.__x_for_key
 
             nextEl.__x_for = iterationScopeVariables
@@ -114,6 +108,8 @@ function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
 }
 
 function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
+    if (! nextEl) return
+
     // If the the key's DO match, no need to look ahead.
     if (nextEl.__x_for_key === currentKey) return nextEl
 

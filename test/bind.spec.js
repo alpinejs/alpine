@@ -421,13 +421,26 @@ test('setSelectionRange is not called for inapplicable input types', async () =>
     })
 })
 
-test('unnecessary whitespaces in class list are ignored', async () => {
+test('extra whitespace in class binding object syntax is ignored', async () => {
     document.body.innerHTML = `
-    <div x-data="{ foo: 'bar' }">
-        <span x-bind:class="{'   foo:class ': foo === 'bar' }"></span>
-    </div>
+        <div x-data>
+            <span x-bind:class="{ '  foo  bar  ': true }"></span>
+        </div>
     `
     Alpine.start()
 
-    expect(document.querySelector('span').classList.contains('foo:class')).toBeTruthy()
+    expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
+    expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
+})
+
+test('extra whitespace in class binding string syntax is ignored', async () => {
+    document.body.innerHTML = `
+        <div x-data>
+            <span x-bind:class="'  foo  bar  '"></span>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
+    expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
 })

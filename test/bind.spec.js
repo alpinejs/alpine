@@ -420,3 +420,14 @@ test('setSelectionRange is not called for inapplicable input types', async () =>
         expect(document.querySelector('input').value).toEqual('baz')
     })
 })
+
+test('unnecessary whitespaces in class list are ignored', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ foo: 'bar' }">
+        <span x-bind:class="{'   foo:class ': foo === 'bar' }"></span>
+    </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelector('span').classList.contains('foo:class')).toBeTruthy()
+})

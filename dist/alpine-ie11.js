@@ -6019,13 +6019,13 @@
           _newArrowCheck(this, _this);
 
           if (value[classNames]) {
-            classNames.split(' ').forEach(function (className) {
+            classNames.split(' ').filter(Boolean).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.add(className);
             }.bind(this));
           } else {
-            classNames.split(' ').forEach(function (className) {
+            classNames.split(' ').filter(Boolean).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.remove(className);
@@ -6035,7 +6035,7 @@
       } else {
         var _originalClasses = el.__x_original_classes || [];
 
-        var newClasses = value.split(' ');
+        var newClasses = value.split(' ').filter(Boolean);
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
     } else if (isBooleanAttr(attrName)) {

@@ -1,5 +1,5 @@
 import Alpine from 'alpinejs'
-import { fireEvent, wait } from '@testing-library/dom'
+import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
     observe() {}
@@ -375,22 +375,6 @@ test('classes are removed before being added', async () => {
         expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy()
     })
 });
-
-test('value bindings to hidden inputs', async () => {
-    document.body.innerHTML = `
-        <div x-data="{ foo: 'bar' }">
-            <input type="hidden" x-model="foo">
-        </div>
-    `
-
-    Alpine.start()
-
-    fireEvent.input(document.querySelector('input'), { target: { value: 'baz' } })
-
-    await wait(() => {
-        expect(document.querySelector('input').value).toEqual('baz')
-    })
-})
 
 test('extra whitespace in class binding object syntax is ignored', async () => {
     document.body.innerHTML = `

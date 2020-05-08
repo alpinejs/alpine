@@ -5801,9 +5801,9 @@
 
       var iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
       var currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
-      var nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
+      var nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey); // If we haven't found a matching key, insert the element at the current position.
 
-      if (!nextEl || nextEl.__x_for_key === undefined) {
+      if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
         transitionIn(nextEl, function () {
@@ -5814,15 +5814,9 @@
           _newArrowCheck(this, _this2);
 
           return nextEl.__x_for;
-        }.bind(this));
+        }.bind(this)); // Otherwise update the element we found.
       } else {
-        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // If we haven't found a matching key, just insert the element at the current position
-
-        if (!nextEl) {
-          nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl);
-        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
-
-
+        // Temporarily remove the key indicator to allow the normal "updateElements" to work.
         delete nextEl.__x_for_key;
         nextEl.__x_for = iterationScopeVariables;
         component.updateElements(nextEl, function () {
@@ -5911,7 +5905,8 @@
   }
 
   function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
-    // If the the key's DO match, no need to look ahead.
+    if (!nextEl) return; // If the the key's DO match, no need to look ahead.
+
     if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.
     // If we find it, we'll move it to the current position in the loop.
 
@@ -5994,9 +5989,8 @@
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {
-        if (el.value !== value) {
-          el.value = value;
-        }
+        if (el.value === value) return;
+        el.value = value;
       }
     } else if (attrName === 'class') {
       if (Array.isArray(value)) {
@@ -6016,13 +6010,13 @@
           _newArrowCheck(this, _this);
 
           if (value[classNames]) {
-            classNames.split(' ').forEach(function (className) {
+            classNames.split(' ').filter(Boolean).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.add(className);
             }.bind(this));
           } else {
-            classNames.split(' ').forEach(function (className) {
+            classNames.split(' ').filter(Boolean).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.remove(className);
@@ -6032,7 +6026,7 @@
       } else {
         var _originalClasses = el.__x_original_classes || [];
 
-        var newClasses = value.split(' ');
+        var newClasses = value.split(' ').filter(Boolean);
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
     } else if (isBooleanAttr(attrName)) {
@@ -6963,7 +6957,7 @@
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
             var closestParentComponent = mutations[i].target.closest('[x-data]');
-            if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) return;
+            if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
 
             if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
               (function () {
@@ -7050,7 +7044,7 @@
   }();
 
   var Alpine = {
-    version: "2.3.1",
+    version: "2.3.3",
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;

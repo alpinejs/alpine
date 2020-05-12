@@ -99,4 +99,4 @@ if (! isTesting()) {
    }
 }
 
-export default Alpine
+export default Alpine {

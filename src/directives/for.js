@@ -99,8 +99,8 @@ function getAnchorElForItems(component, templateEl, extraVars) {
         // all items will be inserted after it.
         // in the future, you could easily configure placeholders to insert into a specific
         // place inside the container, e.g. 
-        // <select id='myId'><option id='myId' value=''>Select</value></select> 
-        // <template x-target="'#myId" x-target-after="#myId" x-for="...">...</template>
+        // <select id='myId'><option id='myId2' value=''>Select</value></select> 
+        // <template x-target="'#myId'" x-target-after="'#myId2'" x-for="...">...</template>
         if (!containerEl.firstChild) {
             containerEl.appendChild(document.createComment('items'))
         }

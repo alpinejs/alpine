@@ -17,7 +17,7 @@ export default class Component {
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
         const initExpression = this.$el.getAttribute('x-init')
 
-        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {})
+        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, { $el: this.$el })
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.

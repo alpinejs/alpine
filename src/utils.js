@@ -73,7 +73,7 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
     )
 }
 
-const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/
+const xAttrRE = /^x-(on|bind|target|data|text|html|model|if|for|show|cloak|transition|ref)\b/
 
 export function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name)

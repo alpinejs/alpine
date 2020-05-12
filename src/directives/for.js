@@ -8,7 +8,7 @@ export function handleForDirective(component, templateEl, expression, initialUpd
     let items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars)
 
     // As we walk the array, we'll also walk the DOM (updating/creating as we go).
-    let currentEl = templateEl
+    let currentEl = getAnchorElForItems(component, templateEl, extraVars) 
     items.forEach((item, index) => {
         let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars())
         let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables)
@@ -81,6 +81,33 @@ function generateKeyForIteration(component, el, index, iterationScopeVariables) 
     if (! bindKeyAttribute) return index
 
     return component.evaluateReturnExpression(el, bindKeyAttribute.expression, () => iterationScopeVariables)
+}
+
+function getAnchorElForItems(component, templateEl, extraVars) {
+    const targetAttrs =  getXAttrs(templateEl, 'target')
+    const targetAttribute = targetAttrs ? targetAttrs [0] : null
+
+    if (!targetAttribute) return templateEl
+
+    const containerElId = component.evaluateReturnExpression(templateEl, targetAttribute.expression, extraVars)
+    
+    const containerEl = containerElId ? component.$el.querySelector(containerElId) : null;
+    if (containerEl) {
+        // note: if the container has a line break (<ul>
+        //</ul>), then first child is the linebreak text node.
+        // if it's empty (<ul></ul>), then a comment child is inserted -
+        // all items will be inserted after it.
+        // in the future, you could easily configure placeholders to insert into a specific
+        // place inside the container, e.g. 
+        // <select id='myId'><option id='myId' value=''>Select</value></select> 
+        // <template x-target="'#myId" x-target-after="#myId" x-for="...">...</template>
+        if (!containerEl.firstChild) {
+            containerEl.appendChild(document.createComment('items'))
+        }
+        return containerEl.firstChild;
+    } else {
+        return templateEl; // use templateEl, existing/default behavior
+    }
 }
 
 function warnIfNotTemplateTag(el) {

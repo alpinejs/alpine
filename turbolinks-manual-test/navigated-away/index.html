@@ -1,24 +1,88 @@
 <html>
-    <head>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.js" integrity="sha256-iM4Yzi/zLj/IshPWMC1IluRxTtRjMqjPGd97TZ9yYpU=" crossorigin="anonymous"></script>
-        <script src="/dist/alpine.js" defer></script>
-    </head>
-    <body>
-        <h1>Second Page</h1>
-        <a href="javascript:history.back()">Back</a>
 
-        <h2>This component should be preserved and working correctly</h2>
-        <div x-data="{ foo: 'bar' }" id="foo" data-turbolinks-permanent>
-            <input x-model="foo"></input>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.2.0/turbolinks.js"
+        integrity="sha256-iM4Yzi/zLj/IshPWMC1IluRxTtRjMqjPGd97TZ9yYpU=" crossorigin="anonymous"></script>
+    <script src="/dist/alpine.js" defer></script>
+</head>
 
-            <button x-on:click="foo = 'baz'"></button>
+<body>
+    <h1>Second Page</h1>
+    <a href="javascript:history.back()">Back</a>
+    <a href="/turbolinks-manual-test/">First Page</a>
+
+    <script>
+        function componentAdder() {
+            return {
+                counter: 0,
+                add: function (base) {
+                    var div = document.createElement("div");
+                    this.counter++;
+                    var name = `${base} ${this.counter}`
+
+                    div.innerHTML = `<div x-data="{ open: true }">
+                                <template x-if="open">
+                                    <span>${name}</span>
+                                </template>
+                                </div>`;
+                    this.$el.appendChild(div);
+
+                },
+            }
+        }
+    </script>
+    <h2>8.4 The components added when pushing the button should be preserved when navigating away and back</h2>
+    <div x-data="componentAdder()" id="t8_4" data-turbolinks-permanent>
+        <button @click="add('First')"
+            style="width: 50px; height:30px; background-color: lightgrey; margin-bottom: 20px;">Add
+            1</button>
+
+        <div x-data="componentAdder()" id="t8_4_2">
+            <button @click="add('Second')"
+                style="width: 50px; height:30px; background-color: lightblue; margin-bottom: 20px;">Add 2</button>
         </div>
+    </div>
 
-        <h2>This component should be preserved and working correctly (including no errors in console)</h2>
-        <div x-data="{ foo: ['bar', 'baz'] }" id="bar" data-turbolinks-permanent>
-            <template x-for="item in foo">
-                <span x-text="item"></span>
+
+    <h2>1.1 This component should be preserved and be working in the Second page</h2>
+    <div x-data="{ foo: 'bar' }" id="t1_1" data-turbolinks-permanent>
+        <input x-model="foo"></input>
+
+        <button x-on:click="foo = 'baz'"></button>
+    </div>
+
+    <h2>4.2 This component should be preserved and not be logging any errors when navigating to the Second page</h2>
+    <div x-data="{ foo: ['bar', 'baz'] }" id="t4_2" data-turbolinks-permanent>
+        <template x-for="item42 in foo">
+            <span x-text="item42"></span>
+        </template>
+    </div>
+
+    <h2>6.3 This item should be preserved when navigating away and back</h2>
+    <div x-data="{ foo: 'bar' }" id="t6_3" data-turbolinks-permanent>
+        <div x-data="{ open: true }">
+            <template x-if="open">
+                <span>Item</span>
             </template>
         </div>
-    </body>
+    </div>
+
+    <h2>0.1 This component should be preserved and working correctly (including no errors in console)</h2>
+    <div x-data="{ foo: ['bar', 'baz'] }" id="t0_1" data-turbolinks-permanent>
+        <template x-for="item in foo">
+            <span x-text="item"></span>
+        </template>
+    </div>
+
+    <h2>0.2 This component should be working correctly (including no errors in console)</h2>
+    <div x-data="{ foo: ['bar', 'baz'] }">
+        <template x-for="item in foo">
+            <span x-text="item"></span>
+        </template>
+    </div>
+
+
+
+</body>
+
 </html>

@@ -261,6 +261,15 @@ This will add or remove the `disabled` attribute when `myVar` is true or false r
 
 Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open` etc.
 
+**`x-bind` attribute removal rule for `null`/`undefined`/`false` values**
+
+For attributes that aren't standard boolean attributes (per the HTML spec, see previous section). It's still possible to mark the attribute for _removal_ when it gets passed `null`, `undefined` or `false`. This is in contrast to the regular behaviour where the attribute is set to the string representation of the value it's bound to (even other falsy values `''`, `0`, `NaN` etc).
+
+For example:
+`<a x-bind:href="enabled ? link : null"></a>`
+
+This will completely remove the `href` attribute when `enabled` is false but set it to the value of `link` when enabled is true.
+
 ---
 
 ### `x-on`

@@ -175,6 +175,28 @@ test('class attribute bindings are synced by string syntax', async () => {
     expect(document.querySelector('span').classList.contains('baz')).toBeTruthy()
 })
 
+test('non-boolean attributes set to null/undefined/false are removed from the element', async () => {
+    document.body.innerHTML = `
+        <div x-data="{}">
+            <a href="#hello" x-bind:href="null"></a>
+            <a href="#hello" x-bind:href="false"></a>
+            <a href="#hello" x-bind:href="undefined"></a>
+            <!-- custom attribute see https://github.com/alpinejs/alpine/issues/280 -->
+            <span visible="true" x-bind:visible="null"></span>
+            <span visible="true" x-bind:visible="false"></span>
+            <span visible="true" x-bind:visible="undefined"></span>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelectorAll('a')[0].getAttribute('href')).toBeNull()
+    expect(document.querySelectorAll('a')[1].getAttribute('href')).toBeNull()
+    expect(document.querySelectorAll('a')[2].getAttribute('href')).toBeNull()
+    expect(document.querySelectorAll('span')[0].getAttribute('visible')).toBeNull()
+    expect(document.querySelectorAll('span')[1].getAttribute('visible')).toBeNull()
+    expect(document.querySelectorAll('span')[2].getAttribute('visible')).toBeNull()
+})
+
 test('boolean attributes set to false are removed from element', async () => {
     document.body.innerHTML = `
         <div x-data="{ isSet: false }">

@@ -7045,6 +7045,7 @@
 
   var Alpine = {
     version: "2.3.3",
+    pauseObserver: false,
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
@@ -7117,10 +7118,12 @@
         attributes: true,
         subtree: true
       };
-      this.observer = new MutationObserver(function (mutations) {
+      var observer = new MutationObserver(function (mutations) {
         var _this5 = this;
 
         _newArrowCheck(this, _this4);
+
+        if (this.pauseObserver) return;
 
         for (var i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {
@@ -7143,7 +7146,7 @@
           }
         }
       }.bind(this));
-      this.observer.observe(document.body, observerOptions);
+      observer.observe(document.body, observerOptions);
     },
     initializeComponent: function initializeComponent(el) {
       if (!el.__x) {
@@ -7170,49 +7173,58 @@
 
           this.initializeComponent(el);
         }.bind(this));
-        this.observer.observe(document.body, {
-          childList: true,
-          attributes: true,
-          subtree: true
-        });
-      }.bind(this)); // Disconnect the the mutation observer to avoid data races, and then
-      // clean up the elements created by Alpine directives before Turbolinks
-      // stores it to cache, unless it's marked as permanent.
-      // The mutiation observer will be reconnected by the turbolinks:load event.
+        this.pauseObserver = true;
+      }.bind(this)); // Before swapping the body, clean up any element with x-turbolinks-cached
+      // which not have any Alpine attributes.
+      // Note, at this point all html fragments marked as data-turbolinks-permanent
+      // are already copied over from the previous page so they retain their listener
+      // and custom properties and we don't want to reset them.
 
-      document.addEventListener('turbolinks:before-cache', function () {
+      document.addEventListener('turbolinks:before-render', function (event) {
         var _this9 = this;
 
         _newArrowCheck(this, _this7);
 
-        this.observer.disconnect();
-        walk(document.body, function (el) {
+        event.data.newBody.querySelectorAll('[x-generated]').forEach(function (el) {
           _newArrowCheck(this, _this9);
 
-          if (el.hasAttribute('data-turbolinks-permanent')) {
-            return false;
+          el.removeAttribute('x-generated');
+
+          if (typeof el.__x_for_key === 'undefined' && typeof el.__x_inserted_me === 'undefined') {
+            el.remove();
           }
+        }.bind(this));
+      }.bind(this)); // Paus the the mutation observer to avoid data races, it will be resumed by the turbolinks:load event.
+      // We mark as `x-generated`` all the elements that are crated by an Alpine templating directives.
+      // The reason is that turbolinks caches pages using cloneNode which removes listeners and custom properties
+      // So we need to propagate this infomation using a HTML attribute. I know, not ideal but I could not think
+      // of a better option.
+      // Note, we can't remove any Alpine generated element as yet because if they live inside an element
+      // marked as data-turbolinks-permanent they need to be copied into the next page.
+      // The coping process happens somewhere between before-cache and before-render.
+
+      document.addEventListener('turbolinks:before-cache', function () {
+        var _this10 = this;
+
+        _newArrowCheck(this, _this7);
+
+        this.pauseObserver = true;
+        walk(document.body, function (el) {
+          _newArrowCheck(this, _this10);
 
           if (el.hasAttribute('x-for')) {
             var nextEl = el.nextElementSibling;
 
-            while (nextEl) {
+            while (nextEl && nextEl.__x_for_key !== 'undefined') {
               var currEl = nextEl;
               nextEl = nextEl.nextElementSibling;
-
-              if (typeof currEl.__x_for_key !== 'undefined') {
-                currEl.remove();
-              }
+              currEl.setAttribute('x-generated', true);
             }
-
-            return true;
-          }
-
-          if (el.hasAttribute('x-if')) {
+          } else if (el.hasAttribute('x-if')) {
             var ifEl = el.nextElementSibling;
 
             if (ifEl && typeof ifEl.__x_inserted_me !== 'undefined') {
-              ifEl.remove();
+              ifEl.setAttribute('x-generated', true);
             }
           }
 

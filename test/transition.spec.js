@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs'
 import { wait } from '@testing-library/dom'
+const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 global.MutationObserver = class {
     observe() {}
@@ -143,6 +144,68 @@ test('transition out', async () => {
             resolve();
         }, 10)
     )
+})
+
+test('if only transition leave directives are present, don\'t transition in at all', async () => {
+    var frameStack = []
+
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frameStack.push(callback)
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: false }">
+            <button x-on:click="show = ! show"></button>
+
+            <span x-show="show"
+                x-transition:leave="leave"
+                x-transition:leave-start="leave-start"
+                x-transition:leave-end="leave-end"
+            ></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
+
+    document.querySelector('button').click()
+
+    await timeout(10)
+
+    expect(frameStack.length).toEqual(0)
+    expect(document.querySelector('span').getAttribute('style')).toEqual(null)
+})
+
+test('if only transition enter directives are present, don\'t transition out at all', async () => {
+    var frameStack = []
+
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frameStack.push(callback)
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: true }">
+            <button x-on:click="show = ! show"></button>
+
+            <span x-show="show"
+                x-transition:enter="enter"
+                x-transition:enter-start="enter-start"
+                x-transition:enter-end="enter-end"
+            ></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual(null) })
+
+    document.querySelector('button').click()
+
+    await timeout(10)
+
+    expect(frameStack.length).toEqual(0)
+    expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
 })
 
 test('original class attribute classes are preserved after transition finishes', async () => {

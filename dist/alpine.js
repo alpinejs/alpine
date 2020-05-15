@@ -1619,7 +1619,7 @@
   }
 
   const Alpine = {
-    version: "2.3.4",
+    version: "2.3.5",
     start: async function start() {
       if (!isTesting()) {
         await domReady();

@@ -5467,7 +5467,11 @@
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(function (attr) {
+      _newArrowCheck(this, _this4);
+
+      return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
+    }.bind(this)).length > 0) {
       transitionClassesIn(el, attrs, show);
     } else {
       // If neither, just show that damn thing.
@@ -5492,7 +5496,11 @@
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(function (attr) {
+      _newArrowCheck(this, _this5);
+
+      return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
+    }.bind(this)).length > 0) {
       transitionClassesOut(el, attrs, hide);
     } else {
       hide();

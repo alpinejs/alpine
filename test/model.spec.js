@@ -131,7 +131,7 @@ test('x-model binds checkbox value', async () => {
         <div x-data="{ foo: true }">
             <input type="checkbox" x-model="foo"></input>
 
-            <span x-bind:bar="foo"></span>
+            <span x-bind:bar="JSON.stringify(foo)"></span>
         </div>
     `
 

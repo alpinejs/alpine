@@ -69,10 +69,10 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
     } else if (isBooleanAttr(attrName)) {
-        if (!!value) {
+        // Boolean attributes have to be explicitly added and removed, not just set.
+        if (!! value) {
             el.setAttribute(attrName, '')
         } else {
-            // If a Boolean attribute has a falsy value, remove the attribute
             el.removeAttribute(attrName)
         }
     } else {

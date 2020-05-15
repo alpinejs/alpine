@@ -175,72 +175,40 @@ test('class attribute bindings are synced by string syntax', async () => {
     expect(document.querySelector('span').classList.contains('baz')).toBeTruthy()
 })
 
-test('boolean attributes set to false are removed from element', async () => {
+test('non-boolean attributes set to null/undefined/false are removed from the element', async () => {
     document.body.innerHTML = `
-        <div x-data="{ isSet: false }">
-            <input x-bind:disabled="isSet"></input>
-            <input x-bind:checked="isSet"></input>
-            <input x-bind:required="isSet"></input>
-            <input x-bind:readonly="isSet"></input>
-            <input x-bind:hidden="isSet"></input>
-            <details x-bind:open="isSet"></details>
-            <select x-bind:multiple="isSet"></select>
-            <option x-bind:selected="isSet"></option>
-            <textarea x-bind:autofocus="isSet"></textarea>
-            <dl x-bind:itemscope="isSet"></dl>
-            <form x-bind:novalidate="isSet"></form>
-            <iframe
-                x-bind:allowfullscreen="isSet"
-                x-bind:allowpaymentrequest="isSet"
-            ></iframe>
-            <button x-bind:formnovalidate="isSet"></button>
-            <audio
-                x-bind:autoplay="isSet"
-                x-bind:controls="isSet"
-                x-bind:loop="isSet"
-                x-bind:muted="isSet"
-            ></audio>
-            <video x-bind:playsinline="isSet"></video>
-            <track x-bind:default="isSet" />
-            <img x-bind:ismap="isSet" />
-            <ol x-bind:reversed="isSet"></ol>
-            <script
-                x-bind:async="isSet"
-                x-bind:defer="isSet"
-                x-bind:nomodule="isSet"
-            ></script>
+        <div x-data="{}">
+            <a href="#hello" x-bind:href="null"></a>
+            <a href="#hello" x-bind:href="false"></a>
+            <a href="#hello" x-bind:href="undefined"></a>
+            <!-- custom attribute see https://github.com/alpinejs/alpine/issues/280 -->
+            <span visible="true" x-bind:visible="null"></span>
+            <span visible="true" x-bind:visible="false"></span>
+            <span visible="true" x-bind:visible="undefined"></span>
         </div>
     `
     Alpine.start()
 
-    expect(document.querySelectorAll('input')[0].disabled).toBeFalsy()
-    expect(document.querySelectorAll('input')[1].checked).toBeFalsy()
-    expect(document.querySelectorAll('input')[2].required).toBeFalsy()
-    expect(document.querySelectorAll('input')[3].readOnly).toBeFalsy()
-    expect(document.querySelectorAll('input')[4].hidden).toBeFalsy()
-    expect(document.querySelectorAll('details')[0].open).toBeFalsy()
-    expect(document.querySelectorAll('option')[0].selected).toBeFalsy()
-    expect(document.querySelectorAll('select')[0].multiple).toBeFalsy()
-    expect(document.querySelectorAll('textarea')[0].autofocus).toBeFalsy()
-    expect(document.querySelectorAll('dl')[0].attributes.itemscope).toBeFalsy()
-    expect(document.querySelectorAll('form')[0].attributes.novalidate).toBeFalsy()
-    expect(document.querySelectorAll('iframe')[0].attributes.allowfullscreen).toBeFalsy()
-    expect(document.querySelectorAll('iframe')[0].attributes.allowpaymentrequest).toBeFalsy()
-    expect(document.querySelectorAll('button')[0].attributes.formnovalidate).toBeFalsy()
-    expect(document.querySelectorAll('audio')[0].attributes.autoplay).toBeFalsy()
-    expect(document.querySelectorAll('audio')[0].attributes.controls).toBeFalsy()
-    expect(document.querySelectorAll('audio')[0].attributes.loop).toBeFalsy()
-    expect(document.querySelectorAll('audio')[0].attributes.muted).toBeFalsy()
-    expect(document.querySelectorAll('video')[0].attributes.playsinline).toBeFalsy()
-    expect(document.querySelectorAll('track')[0].attributes.default).toBeFalsy()
-    expect(document.querySelectorAll('img')[0].attributes.ismap).toBeFalsy()
-    expect(document.querySelectorAll('ol')[0].attributes.reversed).toBeFalsy()
-    expect(document.querySelectorAll('script')[0].attributes.async).toBeFalsy()
-    expect(document.querySelectorAll('script')[0].attributes.defer).toBeFalsy()
-    expect(document.querySelectorAll('script')[0].attributes.nomodule).toBeFalsy()
+    expect(document.querySelectorAll('a')[0].getAttribute('href')).toBeNull()
+    expect(document.querySelectorAll('a')[1].getAttribute('href')).toBeNull()
+    expect(document.querySelectorAll('a')[2].getAttribute('href')).toBeNull()
+    expect(document.querySelectorAll('span')[0].getAttribute('visible')).toBeNull()
+    expect(document.querySelectorAll('span')[1].getAttribute('visible')).toBeNull()
+    expect(document.querySelectorAll('span')[2].getAttribute('visible')).toBeNull()
 })
 
-test('boolean attributes set to true are added to element', async () => {
+test('non-boolean empty string attributes are not removed', async () => {
+    document.body.innerHTML = `
+        <div x-data="{}">
+            <a href="#hello" x-bind:href="''"></a>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelectorAll('a')[0].getAttribute('href')).toEqual('')
+})
+
+test('truthy boolean attribute values are set to their attribute name', async () => {
     document.body.innerHTML = `
         <div x-data="{ isSet: true }">
             <input x-bind:disabled="isSet"></input>
@@ -302,6 +270,82 @@ test('boolean attributes set to true are added to element', async () => {
     expect(document.querySelectorAll('script')[0].attributes.async).toBeTruthy()
     expect(document.querySelectorAll('script')[0].attributes.defer).toBeTruthy()
     expect(document.querySelectorAll('script')[0].attributes.nomodule).toBeTruthy()
+})
+
+test('null, undefined, or false boolean attribute values are removed', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ isSet: false }">
+            <input x-bind:disabled="isSet"></input>
+            <input x-bind:checked="isSet"></input>
+            <input x-bind:required="isSet"></input>
+            <input x-bind:readonly="isSet"></input>
+            <input x-bind:hidden="isSet"></input>
+            <details x-bind:open="isSet"></details>
+            <select x-bind:multiple="isSet"></select>
+            <option x-bind:selected="isSet"></option>
+            <textarea x-bind:autofocus="isSet"></textarea>
+            <dl x-bind:itemscope="isSet"></dl>
+            <form x-bind:novalidate="isSet"></form>
+            <iframe
+                x-bind:allowfullscreen="isSet"
+                x-bind:allowpaymentrequest="isSet"
+            ></iframe>
+            <button x-bind:formnovalidate="isSet"></button>
+            <audio
+                x-bind:autoplay="isSet"
+                x-bind:controls="isSet"
+                x-bind:loop="isSet"
+                x-bind:muted="isSet"
+            ></audio>
+            <video x-bind:playsinline="isSet"></video>
+            <track x-bind:default="isSet" />
+            <img x-bind:ismap="isSet" />
+            <ol x-bind:reversed="isSet"></ol>
+            <script
+                x-bind:async="isSet"
+                x-bind:defer="isSet"
+                x-bind:nomodule="isSet"
+            ></script>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelectorAll('input')[0].getAttribute('disabled')).toBeNull()
+    expect(document.querySelectorAll('input')[1].getAttribute('checked')).toBeNull()
+    expect(document.querySelectorAll('input')[2].getAttribute('required')).toBeNull()
+    expect(document.querySelectorAll('input')[3].getAttribute('readOnly')).toBeNull()
+    expect(document.querySelectorAll('input')[4].getAttribute('hidden')).toBeNull()
+    expect(document.querySelectorAll('details')[0].getAttribute('open')).toBeNull()
+    expect(document.querySelectorAll('option')[0].getAttribute('selected')).toBeNull()
+    expect(document.querySelectorAll('select')[0].getAttribute('multiple')).toBeNull()
+    expect(document.querySelectorAll('textarea')[0].getAttribute('autofocus')).toBeNull()
+    expect(document.querySelectorAll('dl')[0].getAttribute('itemscope')).toBeNull()
+    expect(document.querySelectorAll('form')[0].getAttribute('novalidate')).toBeNull()
+    expect(document.querySelectorAll('iframe')[0].getAttribute('allowfullscreen')).toBeNull()
+    expect(document.querySelectorAll('iframe')[0].getAttribute('allowpaymentrequest')).toBeNull()
+    expect(document.querySelectorAll('button')[0].getAttribute('formnovalidate')).toBeNull()
+    expect(document.querySelectorAll('audio')[0].getAttribute('autoplay')).toBeNull()
+    expect(document.querySelectorAll('audio')[0].getAttribute('controls')).toBeNull()
+    expect(document.querySelectorAll('audio')[0].getAttribute('loop')).toBeNull()
+    expect(document.querySelectorAll('audio')[0].getAttribute('muted')).toBeNull()
+    expect(document.querySelectorAll('video')[0].getAttribute('playsinline')).toBeNull()
+    expect(document.querySelectorAll('track')[0].getAttribute('default')).toBeNull()
+    expect(document.querySelectorAll('img')[0].getAttribute('ismap')).toBeNull()
+    expect(document.querySelectorAll('ol')[0].getAttribute('reversed')).toBeNull()
+    expect(document.querySelectorAll('script')[0].getAttribute('async')).toBeNull()
+    expect(document.querySelectorAll('script')[0].getAttribute('defer')).toBeNull()
+    expect(document.querySelectorAll('script')[0].getAttribute('nomodule')).toBeNull()
+})
+
+test('boolean empty string attributes are not removed', async () => {
+    document.body.innerHTML = `
+        <div x-data="{}">
+            <input x-bind:disabled="''">
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelectorAll('input')[0].disabled).toEqual(true)
 })
 
 test('binding supports short syntax', async () => {

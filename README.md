@@ -252,14 +252,23 @@ In this example, the "hidden" class will only be applied when the value of the `
 
 **`x-bind` for boolean attributes**
 
-`x-bind` supports boolean attributes in the same way that value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.
+`x-bind` supports boolean attributes in the same way as value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.
 
 For example:
-`<button x-bind:disabled="myVar">Click me</button>`
+```html
+<!-- Given: -->
+<button x-bind:disabled="myVar">Click me</button>
+
+<!-- When myVar == true: -->
+<button disabled="disabled">Click me</button>
+
+<!-- When myVar == false: -->
+<button>Click me</button>
+```
 
 This will add or remove the `disabled` attribute when `myVar` is true or false respectively.
 
-Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open` etc.
+Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open`, etc.
 
 ---
 

@@ -536,3 +536,85 @@ async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleA
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
 }
+
+test('x-transition supports css animation', async () => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        setTimeout(callback, 0)
+    });
+
+    // (hardcoding 10ms animation time for later assertions)
+    jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
+        return {
+            transitionDuration: '0s',
+            animationDuration: '.1s'
+        }
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: false }">
+            <button x-on:click="show = ! show"></button>
+
+            <span
+                x-show="show"
+                x-transition:enter="animation-enter"
+                x-transition:leave="animation-leave"
+            ></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
+
+    document.querySelector('button').click()
+
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 0)
+    )
+
+    expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
+
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 99)
+    )
+
+    expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
+
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 10)
+    )
+
+    expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(false)
+
+    document.querySelector('button').click()
+
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 0)
+    )
+
+    expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
+
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 99)
+    )
+
+    expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
+
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 10)
+    )
+
+    expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(false)
+})

@@ -566,55 +566,57 @@ test('x-transition supports css animation', async () => {
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
 
+    // Testing animation enter
     document.querySelector('button').click()
 
+    // Wait for the first requestAnimationFrame
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 0)
     )
-
     expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
 
+    // The class should still be there since the animationDuration property is 100ms
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 99)
     )
-
     expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
 
+    // The class shouldn't be there anymore
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 10)
     )
-
     expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(false)
 
+    // Testing animation enter
     document.querySelector('button').click()
 
+    // Wait for the first requestAnimationFrame
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 0)
     )
-
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
 
+    // The class should still be there since the animationDuration property is 100ms
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 99)
     )
-
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
 
+    // The class shouldn't be there anymore
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 10)
     )
-
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(false)
 })

@@ -576,7 +576,7 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 
 > Note: The $dispatch property is only available in the DOM.
 
-If you need to access $dispatch inside of a Javascript function you can pass it in directly:
+If you need to access $dispatch inside of a JavaScript function you can pass it in directly:
 
 `<button x-on:click="myFunction($dispatch)"></button>`
 

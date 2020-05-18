@@ -2,6 +2,7 @@
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
 ![npm version](https://img.shields.io/npm/v/alpinejs)
+[![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg?sanitize=true)](https://alpinejs.codewithhugo.com/chat/)
 
 Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
 

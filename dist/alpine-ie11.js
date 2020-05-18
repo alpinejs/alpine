@@ -1135,9 +1135,9 @@
 
   var inspectSource = sharedStore.inspectSource;
 
-  var WeakMap$1 = global_1.WeakMap;
+  var WeakMap = global_1.WeakMap;
 
-  var nativeWeakMap = typeof WeakMap$1 === 'function' && /native code/.test(inspectSource(WeakMap$1));
+  var nativeWeakMap = typeof WeakMap === 'function' && /native code/.test(inspectSource(WeakMap));
 
   var shared = createCommonjsModule(function (module) {
   (module.exports = function (key, value) {
@@ -1164,7 +1164,7 @@
 
   var hiddenKeys = {};
 
-  var WeakMap$2 = global_1.WeakMap;
+  var WeakMap$1 = global_1.WeakMap;
   var set, get, has$1;
 
   var enforce = function (it) {
@@ -1181,7 +1181,7 @@
   };
 
   if (nativeWeakMap) {
-    var store$1 = new WeakMap$2();
+    var store$1 = new WeakMap$1();
     var wmget = store$1.get;
     var wmhas = store$1.has;
     var wmset = store$1.set;
@@ -3115,15 +3115,38 @@
     ArrayPrototype$1[UNSCOPABLES][key] = true;
   };
 
+  var $findIndex = arrayIteration.findIndex;
+
+
+
+  var FIND_INDEX = 'findIndex';
+  var SKIPS_HOLES = true;
+
+  var USES_TO_LENGTH$2 = arrayMethodUsesToLength(FIND_INDEX);
+
+  // Shouldn't skip holes
+  if (FIND_INDEX in []) Array(1)[FIND_INDEX](function () { SKIPS_HOLES = false; });
+
+  // `Array.prototype.findIndex` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.findindex
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES || !USES_TO_LENGTH$2 }, {
+    findIndex: function findIndex(callbackfn /* , that = undefined */) {
+      return $findIndex(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables(FIND_INDEX);
+
   var $includes = arrayIncludes.includes;
 
 
 
-  var USES_TO_LENGTH$2 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var USES_TO_LENGTH$3 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.includes` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.includes
-  _export({ target: 'Array', proto: true, forced: !USES_TO_LENGTH$2 }, {
+  _export({ target: 'Array', proto: true, forced: !USES_TO_LENGTH$3 }, {
     includes: function includes(el /* , fromIndex = 0 */) {
       return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3138,12 +3161,12 @@
 
   var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('map');
   // FF49- issue
-  var USES_TO_LENGTH$3 = arrayMethodUsesToLength('map');
+  var USES_TO_LENGTH$4 = arrayMethodUsesToLength('map');
 
   // `Array.prototype.map` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.map
   // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 || !USES_TO_LENGTH$3 }, {
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 || !USES_TO_LENGTH$4 }, {
     map: function map(callbackfn /* , thisArg */) {
       return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3190,14 +3213,87 @@
 
 
   var STRICT_METHOD$1 = arrayMethodIsStrict('reduce');
-  var USES_TO_LENGTH$4 = arrayMethodUsesToLength('reduce', { 1: 0 });
+  var USES_TO_LENGTH$5 = arrayMethodUsesToLength('reduce', { 1: 0 });
 
   // `Array.prototype.reduce` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.reduce
-  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$1 || !USES_TO_LENGTH$4 }, {
+  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$1 || !USES_TO_LENGTH$5 }, {
     reduce: function reduce(callbackfn /* , initialValue */) {
       return $reduce(this, callbackfn, arguments.length, arguments.length > 1 ? arguments[1] : undefined);
     }
+  });
+
+  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
+  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+
+  var max$1 = Math.max;
+  var min$2 = Math.min;
+  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
+
+  // `Array.prototype.splice` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.splice
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$6 }, {
+    splice: function splice(start, deleteCount /* , ...items */) {
+      var O = toObject(this);
+      var len = toLength(O.length);
+      var actualStart = toAbsoluteIndex(start, len);
+      var argumentsLength = arguments.length;
+      var insertCount, actualDeleteCount, A, k, from, to;
+      if (argumentsLength === 0) {
+        insertCount = actualDeleteCount = 0;
+      } else if (argumentsLength === 1) {
+        insertCount = 0;
+        actualDeleteCount = len - actualStart;
+      } else {
+        insertCount = argumentsLength - 2;
+        actualDeleteCount = min$2(max$1(toInteger(deleteCount), 0), len - actualStart);
+      }
+      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER) {
+        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
+      }
+      A = arraySpeciesCreate(O, actualDeleteCount);
+      for (k = 0; k < actualDeleteCount; k++) {
+        from = actualStart + k;
+        if (from in O) createProperty(A, k, O[from]);
+      }
+      A.length = actualDeleteCount;
+      if (insertCount < actualDeleteCount) {
+        for (k = actualStart; k < len - actualDeleteCount; k++) {
+          from = k + actualDeleteCount;
+          to = k + insertCount;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
+      } else if (insertCount > actualDeleteCount) {
+        for (k = len - actualDeleteCount; k > actualStart; k--) {
+          from = k + actualDeleteCount - 1;
+          to = k + insertCount - 1;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+      }
+      for (k = 0; k < insertCount; k++) {
+        O[k + actualStart] = arguments[k + 2];
+      }
+      O.length = len - actualDeleteCount + insertCount;
+      return A;
+    }
+  });
+
+  // `SameValue` abstract operation
+  // https://tc39.github.io/ecma262/#sec-samevalue
+  var sameValue = Object.is || function is(x, y) {
+    // eslint-disable-next-line no-self-compare
+    return x === y ? x !== 0 || 1 / x === 1 / y : x != x && y != y;
+  };
+
+  // `Object.is` method
+  // https://tc39.github.io/ecma262/#sec-object.is
+  _export({ target: 'Object', stat: true }, {
+    is: sameValue
   });
 
   var FAILS_ON_PRIMITIVES = fails(function () { objectKeys(1); });
@@ -4003,6 +4099,44 @@
     exec: regexpExec
   });
 
+  var MATCH = wellKnownSymbol('match');
+
+  // `IsRegExp` abstract operation
+  // https://tc39.github.io/ecma262/#sec-isregexp
+  var isRegexp = function (it) {
+    var isRegExp;
+    return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
+  };
+
+  var notARegexp = function (it) {
+    if (isRegexp(it)) {
+      throw TypeError("The method doesn't accept regular expressions");
+    } return it;
+  };
+
+  var MATCH$1 = wellKnownSymbol('match');
+
+  var correctIsRegexpLogic = function (METHOD_NAME) {
+    var regexp = /./;
+    try {
+      '/./'[METHOD_NAME](regexp);
+    } catch (e) {
+      try {
+        regexp[MATCH$1] = false;
+        return '/./'[METHOD_NAME](regexp);
+      } catch (f) { /* empty */ }
+    } return false;
+  };
+
+  // `String.prototype.includes` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.includes
+  _export({ target: 'String', proto: true, forced: !correctIsRegexpLogic('includes') }, {
+    includes: function includes(searchString /* , position = 0 */) {
+      return !!~String(requireObjectCoercible(this))
+        .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
   // TODO: Remove from `core-js@4` since it's moved to entry points
 
 
@@ -4155,54 +4289,8 @@
     return regexpExec.call(R, S);
   };
 
-  // @@match logic
-  fixRegexpWellKnownSymbolLogic('match', 1, function (MATCH, nativeMatch, maybeCallNative) {
-    return [
-      // `String.prototype.match` method
-      // https://tc39.github.io/ecma262/#sec-string.prototype.match
-      function match(regexp) {
-        var O = requireObjectCoercible(this);
-        var matcher = regexp == undefined ? undefined : regexp[MATCH];
-        return matcher !== undefined ? matcher.call(regexp, O) : new RegExp(regexp)[MATCH](String(O));
-      },
-      // `RegExp.prototype[@@match]` method
-      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@match
-      function (regexp) {
-        var res = maybeCallNative(nativeMatch, regexp, this);
-        if (res.done) return res.value;
-
-        var rx = anObject(regexp);
-        var S = String(this);
-
-        if (!rx.global) return regexpExecAbstract(rx, S);
-
-        var fullUnicode = rx.unicode;
-        rx.lastIndex = 0;
-        var A = [];
-        var n = 0;
-        var result;
-        while ((result = regexpExecAbstract(rx, S)) !== null) {
-          var matchStr = String(result[0]);
-          A[n] = matchStr;
-          if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
-          n++;
-        }
-        return n === 0 ? null : A;
-      }
-    ];
-  });
-
-  var MATCH = wellKnownSymbol('match');
-
-  // `IsRegExp` abstract operation
-  // https://tc39.github.io/ecma262/#sec-isregexp
-  var isRegexp = function (it) {
-    var isRegExp;
-    return isObject(it) && ((isRegExp = it[MATCH]) !== undefined ? !!isRegExp : classofRaw(it) == 'RegExp');
-  };
-
   var arrayPush = [].push;
-  var min$2 = Math.min;
+  var min$3 = Math.min;
   var MAX_UINT32 = 0xFFFFFFFF;
 
   // babel-minify transpiles RegExp('x', 'y') -> /x/y and it causes SyntaxError
@@ -4305,7 +4393,7 @@
           var e;
           if (
             z === null ||
-            (e = min$2(toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p
+            (e = min$3(toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p
           ) {
             q = advanceStringIndex(S, q, unicodeMatching);
           } else {
@@ -4325,7 +4413,7 @@
   }, !SUPPORTS_Y);
 
   var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
-  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
+  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
   var MAXIMUM_ALLOWED_INDEX_EXCEEDED = 'Maximum allowed index exceeded';
 
   // We can't use this feature detection in V8 since it causes
@@ -4360,10 +4448,10 @@
         E = i === -1 ? O : arguments[i];
         if (isConcatSpreadable(E)) {
           len = toLength(E.length);
-          if (n + len > MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n + len > MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           for (k = 0; k < len; k++, n++) if (k in E) createProperty(A, n, E[k]);
         } else {
-          if (n >= MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n >= MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           createProperty(A, n++, E);
         }
       }
@@ -4377,16 +4465,16 @@
 
 
   var FIND = 'find';
-  var SKIPS_HOLES = true;
+  var SKIPS_HOLES$1 = true;
 
-  var USES_TO_LENGTH$5 = arrayMethodUsesToLength(FIND);
+  var USES_TO_LENGTH$7 = arrayMethodUsesToLength(FIND);
 
   // Shouldn't skip holes
-  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES = false; });
+  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
 
   // `Array.prototype.find` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES || !USES_TO_LENGTH$5 }, {
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$7 }, {
     find: function find(callbackfn /* , that = undefined */) {
       return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -4403,11 +4491,11 @@
 
   var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
   var STRICT_METHOD$2 = arrayMethodIsStrict('indexOf');
-  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.indexOf` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.indexof
-  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$6 }, {
+  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$8 }, {
     indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
       return NEGATIVE_ZERO
         // convert -0 to +0
@@ -4415,6 +4503,53 @@
         : $indexOf(this, searchElement, arguments.length > 1 ? arguments[1] : undefined);
     }
   });
+
+  var ARRAY_ITERATOR = 'Array Iterator';
+  var setInternalState$2 = internalState.set;
+  var getInternalState$2 = internalState.getterFor(ARRAY_ITERATOR);
+
+  // `Array.prototype.entries` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.entries
+  // `Array.prototype.keys` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.keys
+  // `Array.prototype.values` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.values
+  // `Array.prototype[@@iterator]` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@iterator
+  // `CreateArrayIterator` internal method
+  // https://tc39.github.io/ecma262/#sec-createarrayiterator
+  var es_array_iterator = defineIterator(Array, 'Array', function (iterated, kind) {
+    setInternalState$2(this, {
+      type: ARRAY_ITERATOR,
+      target: toIndexedObject(iterated), // target
+      index: 0,                          // next index
+      kind: kind                         // kind
+    });
+  // `%ArrayIteratorPrototype%.next` method
+  // https://tc39.github.io/ecma262/#sec-%arrayiteratorprototype%.next
+  }, function () {
+    var state = getInternalState$2(this);
+    var target = state.target;
+    var kind = state.kind;
+    var index = state.index++;
+    if (!target || index >= target.length) {
+      state.target = undefined;
+      return { value: undefined, done: true };
+    }
+    if (kind == 'keys') return { value: index, done: false };
+    if (kind == 'values') return { value: target[index], done: false };
+    return { value: [index, target[index]], done: false };
+  }, 'values');
+
+  // argumentsList[@@iterator] is %ArrayProto_values%
+  // https://tc39.github.io/ecma262/#sec-createunmappedargumentsobject
+  // https://tc39.github.io/ecma262/#sec-createmappedargumentsobject
+  iterators.Arguments = iterators.Array;
+
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables('keys');
+  addToUnscopables('values');
+  addToUnscopables('entries');
 
   var nativeJoin = [].join;
 
@@ -4426,66 +4561,6 @@
   _export({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD$3 }, {
     join: function join(separator) {
       return nativeJoin.call(toIndexedObject(this), separator === undefined ? ',' : separator);
-    }
-  });
-
-  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
-  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
-
-  var max$1 = Math.max;
-  var min$3 = Math.min;
-  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
-  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
-
-  // `Array.prototype.splice` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.splice
-  // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
-    splice: function splice(start, deleteCount /* , ...items */) {
-      var O = toObject(this);
-      var len = toLength(O.length);
-      var actualStart = toAbsoluteIndex(start, len);
-      var argumentsLength = arguments.length;
-      var insertCount, actualDeleteCount, A, k, from, to;
-      if (argumentsLength === 0) {
-        insertCount = actualDeleteCount = 0;
-      } else if (argumentsLength === 1) {
-        insertCount = 0;
-        actualDeleteCount = len - actualStart;
-      } else {
-        insertCount = argumentsLength - 2;
-        actualDeleteCount = min$3(max$1(toInteger(deleteCount), 0), len - actualStart);
-      }
-      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER$1) {
-        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
-      }
-      A = arraySpeciesCreate(O, actualDeleteCount);
-      for (k = 0; k < actualDeleteCount; k++) {
-        from = actualStart + k;
-        if (from in O) createProperty(A, k, O[from]);
-      }
-      A.length = actualDeleteCount;
-      if (insertCount < actualDeleteCount) {
-        for (k = actualStart; k < len - actualDeleteCount; k++) {
-          from = k + actualDeleteCount;
-          to = k + insertCount;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
-      } else if (insertCount > actualDeleteCount) {
-        for (k = len - actualDeleteCount; k > actualStart; k--) {
-          from = k + actualDeleteCount - 1;
-          to = k + insertCount - 1;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-      }
-      for (k = 0; k < insertCount; k++) {
-        O[k + actualStart] = arguments[k + 2];
-      }
-      O.length = len - actualDeleteCount + insertCount;
-      return A;
     }
   });
 
@@ -4664,33 +4739,388 @@
     }
   });
 
-  var notARegexp = function (it) {
-    if (isRegexp(it)) {
-      throw TypeError("The method doesn't accept regular expressions");
-    } return it;
+  var freezing = !fails(function () {
+    return Object.isExtensible(Object.preventExtensions({}));
+  });
+
+  var internalMetadata = createCommonjsModule(function (module) {
+  var defineProperty = objectDefineProperty.f;
+
+
+
+  var METADATA = uid('meta');
+  var id = 0;
+
+  var isExtensible = Object.isExtensible || function () {
+    return true;
   };
 
-  var MATCH$1 = wellKnownSymbol('match');
-
-  var correctIsRegexpLogic = function (METHOD_NAME) {
-    var regexp = /./;
-    try {
-      '/./'[METHOD_NAME](regexp);
-    } catch (e) {
-      try {
-        regexp[MATCH$1] = false;
-        return '/./'[METHOD_NAME](regexp);
-      } catch (f) { /* empty */ }
-    } return false;
+  var setMetadata = function (it) {
+    defineProperty(it, METADATA, { value: {
+      objectID: 'O' + ++id, // object ID
+      weakData: {}          // weak collections IDs
+    } });
   };
 
-  // `String.prototype.includes` method
-  // https://tc39.github.io/ecma262/#sec-string.prototype.includes
-  _export({ target: 'String', proto: true, forced: !correctIsRegexpLogic('includes') }, {
-    includes: function includes(searchString /* , position = 0 */) {
-      return !!~String(requireObjectCoercible(this))
-        .indexOf(notARegexp(searchString), arguments.length > 1 ? arguments[1] : undefined);
+  var fastKey = function (it, create) {
+    // return a primitive with prefix
+    if (!isObject(it)) return typeof it == 'symbol' ? it : (typeof it == 'string' ? 'S' : 'P') + it;
+    if (!has(it, METADATA)) {
+      // can't set metadata to uncaught frozen object
+      if (!isExtensible(it)) return 'F';
+      // not necessary to add metadata
+      if (!create) return 'E';
+      // add missing metadata
+      setMetadata(it);
+    // return object ID
+    } return it[METADATA].objectID;
+  };
+
+  var getWeakData = function (it, create) {
+    if (!has(it, METADATA)) {
+      // can't set metadata to uncaught frozen object
+      if (!isExtensible(it)) return true;
+      // not necessary to add metadata
+      if (!create) return false;
+      // add missing metadata
+      setMetadata(it);
+    // return the store of weak collections IDs
+    } return it[METADATA].weakData;
+  };
+
+  // add metadata on freeze-family methods calling
+  var onFreeze = function (it) {
+    if (freezing && meta.REQUIRED && isExtensible(it) && !has(it, METADATA)) setMetadata(it);
+    return it;
+  };
+
+  var meta = module.exports = {
+    REQUIRED: false,
+    fastKey: fastKey,
+    getWeakData: getWeakData,
+    onFreeze: onFreeze
+  };
+
+  hiddenKeys[METADATA] = true;
+  });
+  var internalMetadata_1 = internalMetadata.REQUIRED;
+  var internalMetadata_2 = internalMetadata.fastKey;
+  var internalMetadata_3 = internalMetadata.getWeakData;
+  var internalMetadata_4 = internalMetadata.onFreeze;
+
+  var collection = function (CONSTRUCTOR_NAME, wrapper, common) {
+    var IS_MAP = CONSTRUCTOR_NAME.indexOf('Map') !== -1;
+    var IS_WEAK = CONSTRUCTOR_NAME.indexOf('Weak') !== -1;
+    var ADDER = IS_MAP ? 'set' : 'add';
+    var NativeConstructor = global_1[CONSTRUCTOR_NAME];
+    var NativePrototype = NativeConstructor && NativeConstructor.prototype;
+    var Constructor = NativeConstructor;
+    var exported = {};
+
+    var fixMethod = function (KEY) {
+      var nativeMethod = NativePrototype[KEY];
+      redefine(NativePrototype, KEY,
+        KEY == 'add' ? function add(value) {
+          nativeMethod.call(this, value === 0 ? 0 : value);
+          return this;
+        } : KEY == 'delete' ? function (key) {
+          return IS_WEAK && !isObject(key) ? false : nativeMethod.call(this, key === 0 ? 0 : key);
+        } : KEY == 'get' ? function get(key) {
+          return IS_WEAK && !isObject(key) ? undefined : nativeMethod.call(this, key === 0 ? 0 : key);
+        } : KEY == 'has' ? function has(key) {
+          return IS_WEAK && !isObject(key) ? false : nativeMethod.call(this, key === 0 ? 0 : key);
+        } : function set(key, value) {
+          nativeMethod.call(this, key === 0 ? 0 : key, value);
+          return this;
+        }
+      );
+    };
+
+    // eslint-disable-next-line max-len
+    if (isForced_1(CONSTRUCTOR_NAME, typeof NativeConstructor != 'function' || !(IS_WEAK || NativePrototype.forEach && !fails(function () {
+      new NativeConstructor().entries().next();
+    })))) {
+      // create collection constructor
+      Constructor = common.getConstructor(wrapper, CONSTRUCTOR_NAME, IS_MAP, ADDER);
+      internalMetadata.REQUIRED = true;
+    } else if (isForced_1(CONSTRUCTOR_NAME, true)) {
+      var instance = new Constructor();
+      // early implementations not supports chaining
+      var HASNT_CHAINING = instance[ADDER](IS_WEAK ? {} : -0, 1) != instance;
+      // V8 ~ Chromium 40- weak-collections throws on primitives, but should return false
+      var THROWS_ON_PRIMITIVES = fails(function () { instance.has(1); });
+      // most early implementations doesn't supports iterables, most modern - not close it correctly
+      // eslint-disable-next-line no-new
+      var ACCEPT_ITERABLES = checkCorrectnessOfIteration(function (iterable) { new NativeConstructor(iterable); });
+      // for early implementations -0 and +0 not the same
+      var BUGGY_ZERO = !IS_WEAK && fails(function () {
+        // V8 ~ Chromium 42- fails only with 5+ elements
+        var $instance = new NativeConstructor();
+        var index = 5;
+        while (index--) $instance[ADDER](index, index);
+        return !$instance.has(-0);
+      });
+
+      if (!ACCEPT_ITERABLES) {
+        Constructor = wrapper(function (dummy, iterable) {
+          anInstance(dummy, Constructor, CONSTRUCTOR_NAME);
+          var that = inheritIfRequired(new NativeConstructor(), dummy, Constructor);
+          if (iterable != undefined) iterate_1(iterable, that[ADDER], that, IS_MAP);
+          return that;
+        });
+        Constructor.prototype = NativePrototype;
+        NativePrototype.constructor = Constructor;
+      }
+
+      if (THROWS_ON_PRIMITIVES || BUGGY_ZERO) {
+        fixMethod('delete');
+        fixMethod('has');
+        IS_MAP && fixMethod('get');
+      }
+
+      if (BUGGY_ZERO || HASNT_CHAINING) fixMethod(ADDER);
+
+      // weak collections should not contains .clear method
+      if (IS_WEAK && NativePrototype.clear) delete NativePrototype.clear;
     }
+
+    exported[CONSTRUCTOR_NAME] = Constructor;
+    _export({ global: true, forced: Constructor != NativeConstructor }, exported);
+
+    setToStringTag(Constructor, CONSTRUCTOR_NAME);
+
+    if (!IS_WEAK) common.setStrong(Constructor, CONSTRUCTOR_NAME, IS_MAP);
+
+    return Constructor;
+  };
+
+  var defineProperty$4 = objectDefineProperty.f;
+
+
+
+
+
+
+
+
+  var fastKey = internalMetadata.fastKey;
+
+
+  var setInternalState$3 = internalState.set;
+  var internalStateGetterFor = internalState.getterFor;
+
+  var collectionStrong = {
+    getConstructor: function (wrapper, CONSTRUCTOR_NAME, IS_MAP, ADDER) {
+      var C = wrapper(function (that, iterable) {
+        anInstance(that, C, CONSTRUCTOR_NAME);
+        setInternalState$3(that, {
+          type: CONSTRUCTOR_NAME,
+          index: objectCreate(null),
+          first: undefined,
+          last: undefined,
+          size: 0
+        });
+        if (!descriptors) that.size = 0;
+        if (iterable != undefined) iterate_1(iterable, that[ADDER], that, IS_MAP);
+      });
+
+      var getInternalState = internalStateGetterFor(CONSTRUCTOR_NAME);
+
+      var define = function (that, key, value) {
+        var state = getInternalState(that);
+        var entry = getEntry(that, key);
+        var previous, index;
+        // change existing entry
+        if (entry) {
+          entry.value = value;
+        // create new entry
+        } else {
+          state.last = entry = {
+            index: index = fastKey(key, true),
+            key: key,
+            value: value,
+            previous: previous = state.last,
+            next: undefined,
+            removed: false
+          };
+          if (!state.first) state.first = entry;
+          if (previous) previous.next = entry;
+          if (descriptors) state.size++;
+          else that.size++;
+          // add to index
+          if (index !== 'F') state.index[index] = entry;
+        } return that;
+      };
+
+      var getEntry = function (that, key) {
+        var state = getInternalState(that);
+        // fast case
+        var index = fastKey(key);
+        var entry;
+        if (index !== 'F') return state.index[index];
+        // frozen object case
+        for (entry = state.first; entry; entry = entry.next) {
+          if (entry.key == key) return entry;
+        }
+      };
+
+      redefineAll(C.prototype, {
+        // 23.1.3.1 Map.prototype.clear()
+        // 23.2.3.2 Set.prototype.clear()
+        clear: function clear() {
+          var that = this;
+          var state = getInternalState(that);
+          var data = state.index;
+          var entry = state.first;
+          while (entry) {
+            entry.removed = true;
+            if (entry.previous) entry.previous = entry.previous.next = undefined;
+            delete data[entry.index];
+            entry = entry.next;
+          }
+          state.first = state.last = undefined;
+          if (descriptors) state.size = 0;
+          else that.size = 0;
+        },
+        // 23.1.3.3 Map.prototype.delete(key)
+        // 23.2.3.4 Set.prototype.delete(value)
+        'delete': function (key) {
+          var that = this;
+          var state = getInternalState(that);
+          var entry = getEntry(that, key);
+          if (entry) {
+            var next = entry.next;
+            var prev = entry.previous;
+            delete state.index[entry.index];
+            entry.removed = true;
+            if (prev) prev.next = next;
+            if (next) next.previous = prev;
+            if (state.first == entry) state.first = next;
+            if (state.last == entry) state.last = prev;
+            if (descriptors) state.size--;
+            else that.size--;
+          } return !!entry;
+        },
+        // 23.2.3.6 Set.prototype.forEach(callbackfn, thisArg = undefined)
+        // 23.1.3.5 Map.prototype.forEach(callbackfn, thisArg = undefined)
+        forEach: function forEach(callbackfn /* , that = undefined */) {
+          var state = getInternalState(this);
+          var boundFunction = functionBindContext(callbackfn, arguments.length > 1 ? arguments[1] : undefined, 3);
+          var entry;
+          while (entry = entry ? entry.next : state.first) {
+            boundFunction(entry.value, entry.key, this);
+            // revert to the last existing entry
+            while (entry && entry.removed) entry = entry.previous;
+          }
+        },
+        // 23.1.3.7 Map.prototype.has(key)
+        // 23.2.3.7 Set.prototype.has(value)
+        has: function has(key) {
+          return !!getEntry(this, key);
+        }
+      });
+
+      redefineAll(C.prototype, IS_MAP ? {
+        // 23.1.3.6 Map.prototype.get(key)
+        get: function get(key) {
+          var entry = getEntry(this, key);
+          return entry && entry.value;
+        },
+        // 23.1.3.9 Map.prototype.set(key, value)
+        set: function set(key, value) {
+          return define(this, key === 0 ? 0 : key, value);
+        }
+      } : {
+        // 23.2.3.1 Set.prototype.add(value)
+        add: function add(value) {
+          return define(this, value = value === 0 ? 0 : value, value);
+        }
+      });
+      if (descriptors) defineProperty$4(C.prototype, 'size', {
+        get: function () {
+          return getInternalState(this).size;
+        }
+      });
+      return C;
+    },
+    setStrong: function (C, CONSTRUCTOR_NAME, IS_MAP) {
+      var ITERATOR_NAME = CONSTRUCTOR_NAME + ' Iterator';
+      var getInternalCollectionState = internalStateGetterFor(CONSTRUCTOR_NAME);
+      var getInternalIteratorState = internalStateGetterFor(ITERATOR_NAME);
+      // add .keys, .values, .entries, [@@iterator]
+      // 23.1.3.4, 23.1.3.8, 23.1.3.11, 23.1.3.12, 23.2.3.5, 23.2.3.8, 23.2.3.10, 23.2.3.11
+      defineIterator(C, CONSTRUCTOR_NAME, function (iterated, kind) {
+        setInternalState$3(this, {
+          type: ITERATOR_NAME,
+          target: iterated,
+          state: getInternalCollectionState(iterated),
+          kind: kind,
+          last: undefined
+        });
+      }, function () {
+        var state = getInternalIteratorState(this);
+        var kind = state.kind;
+        var entry = state.last;
+        // revert to the last existing entry
+        while (entry && entry.removed) entry = entry.previous;
+        // get next entry
+        if (!state.target || !(state.last = entry = entry ? entry.next : state.state.first)) {
+          // or finish the iteration
+          state.target = undefined;
+          return { value: undefined, done: true };
+        }
+        // return step by kind
+        if (kind == 'keys') return { value: entry.key, done: false };
+        if (kind == 'values') return { value: entry.value, done: false };
+        return { value: [entry.key, entry.value], done: false };
+      }, IS_MAP ? 'entries' : 'values', !IS_MAP, true);
+
+      // add [@@species], 23.1.2.2, 23.2.2.2
+      setSpecies(CONSTRUCTOR_NAME);
+    }
+  };
+
+  // `Set` constructor
+  // https://tc39.github.io/ecma262/#sec-set-objects
+  var es_set = collection('Set', function (init) {
+    return function Set() { return init(this, arguments.length ? arguments[0] : undefined); };
+  }, collectionStrong);
+
+  // @@match logic
+  fixRegexpWellKnownSymbolLogic('match', 1, function (MATCH, nativeMatch, maybeCallNative) {
+    return [
+      // `String.prototype.match` method
+      // https://tc39.github.io/ecma262/#sec-string.prototype.match
+      function match(regexp) {
+        var O = requireObjectCoercible(this);
+        var matcher = regexp == undefined ? undefined : regexp[MATCH];
+        return matcher !== undefined ? matcher.call(regexp, O) : new RegExp(regexp)[MATCH](String(O));
+      },
+      // `RegExp.prototype[@@match]` method
+      // https://tc39.github.io/ecma262/#sec-regexp.prototype-@@match
+      function (regexp) {
+        var res = maybeCallNative(nativeMatch, regexp, this);
+        if (res.done) return res.value;
+
+        var rx = anObject(regexp);
+        var S = String(this);
+
+        if (!rx.global) return regexpExecAbstract(rx, S);
+
+        var fullUnicode = rx.unicode;
+        rx.lastIndex = 0;
+        var A = [];
+        var n = 0;
+        var result;
+        while ((result = regexpExecAbstract(rx, S)) !== null) {
+          var matchStr = String(result[0]);
+          A[n] = matchStr;
+          if (matchStr === '') rx.lastIndex = advanceStringIndex(S, toLength(rx.lastIndex), fullUnicode);
+          n++;
+        }
+        return n === 0 ? null : A;
+      }
+    ];
   });
 
   var max$2 = Math.max;
@@ -4871,6 +5301,34 @@
     }
   });
 
+  var ITERATOR$5 = wellKnownSymbol('iterator');
+  var TO_STRING_TAG$3 = wellKnownSymbol('toStringTag');
+  var ArrayValues = es_array_iterator.values;
+
+  for (var COLLECTION_NAME$1 in domIterables) {
+    var Collection$1 = global_1[COLLECTION_NAME$1];
+    var CollectionPrototype$1 = Collection$1 && Collection$1.prototype;
+    if (CollectionPrototype$1) {
+      // some Chrome versions have non-configurable methods on DOMTokenList
+      if (CollectionPrototype$1[ITERATOR$5] !== ArrayValues) try {
+        createNonEnumerableProperty(CollectionPrototype$1, ITERATOR$5, ArrayValues);
+      } catch (error) {
+        CollectionPrototype$1[ITERATOR$5] = ArrayValues;
+      }
+      if (!CollectionPrototype$1[TO_STRING_TAG$3]) {
+        createNonEnumerableProperty(CollectionPrototype$1, TO_STRING_TAG$3, COLLECTION_NAME$1);
+      }
+      if (domIterables[COLLECTION_NAME$1]) for (var METHOD_NAME in es_array_iterator) {
+        // some Chrome versions have non-configurable methods on DOMTokenList
+        if (CollectionPrototype$1[METHOD_NAME] !== es_array_iterator[METHOD_NAME]) try {
+          createNonEnumerableProperty(CollectionPrototype$1, METHOD_NAME, es_array_iterator[METHOD_NAME]);
+        } catch (error) {
+          CollectionPrototype$1[METHOD_NAME] = es_array_iterator[METHOD_NAME];
+        }
+      }
+    }
+  }
+
   // Thanks @stimulus:
   // https://github.com/stimulusjs/stimulus/blob/master/packages/%40stimulus/core/src/application.ts
   function domReady() {
@@ -4887,15 +5345,7 @@
     }.bind(this));
   }
   function arrayUnique(array) {
-    var a = array.concat();
-
-    for (var i = 0; i < a.length; ++i) {
-      for (var j = i + 1; j < a.length; ++j) {
-        if (a[i] === a[j]) a.splice(j--, 1);
-      }
-    }
-
-    return a;
+    return Array.from(new Set(array));
   }
   function isTesting() {
     return navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
@@ -4912,17 +5362,19 @@
       node = node.nextElementSibling;
     }
   }
-  function debounce(func, wait, context) {
+  function debounce(func, wait) {
+    var timeout;
     return function () {
-      var args = arguments;
+      var context = this,
+          args = arguments;
 
       var later = function later() {
-        context.debounceTimeout = null;
+        timeout = null;
         func.apply(context, args);
       };
 
-      clearTimeout(context.debounceTimeout);
-      context.debounceTimeout = setTimeout(later, wait);
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
     };
   }
   function saferEval(expression, dataContext) {
@@ -5015,7 +5467,11 @@
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(function (attr) {
+      _newArrowCheck(this, _this4);
+
+      return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
+    }.bind(this)).length > 0) {
       transitionClassesIn(el, attrs, show);
     } else {
       // If neither, just show that damn thing.
@@ -5040,7 +5496,11 @@
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(function (attr) {
+      _newArrowCheck(this, _this5);
+
+      return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
+    }.bind(this)).length > 0) {
       transitionClassesOut(el, attrs, hide);
     } else {
       hide();
@@ -5330,120 +5790,155 @@
       }.bind(this));
     }.bind(this));
   }
-
   function isNumeric(subject) {
     return !isNaN(subject);
   }
 
-  function handleForDirective(component, el, expression, initialUpdate) {
+  function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     var _this = this;
 
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
+    warnIfNotTemplateTag(templateEl);
+    var iteratorNames = parseForExpression(expression);
+    var items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
-    var _parseFor = parseFor(expression),
-        single = _parseFor.single,
-        bunch = _parseFor.bunch,
-        iterator1 = _parseFor.iterator1,
-        iterator2 = _parseFor.iterator2;
-
-    var items;
-    var ifAttr = getXAttrs(el, 'if')[0];
-
-    if (ifAttr && !component.evaluateReturnExpression(el, ifAttr.expression)) {
-      // If there is an "x-if" attribute in conjunction with an x-for,
-      // AND x-if resolves to false, just pretend the x-for is
-      // empty, effectively hiding it.
-      items = [];
-    } else {
-      items = component.evaluateReturnExpression(el, bunch);
-    } // As we walk the array, we'll also walk the DOM (updating/creating as we go).
-
-
-    var previousEl = el;
-    items.forEach(function (i, index, group) {
+    var currentEl = templateEl;
+    items.forEach(function (item, index) {
       var _this2 = this;
 
       _newArrowCheck(this, _this);
 
-      var currentKey = getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group);
-      var currentEl = previousEl.nextElementSibling; // Let's check and see if the x-for has already generated an element last time it ran.
+      var iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
+      var currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
+      var nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey); // If we haven't found a matching key, insert the element at the current position.
 
-      if (currentEl && currentEl.__x_for_key !== undefined) {
-        // If the the key's don't match.
-        if (currentEl.__x_for_key !== currentKey) {
-          // We'll look ahead to see if we can find it further down.
-          var tmpCurrentEl = currentEl;
+      if (!nextEl) {
+        nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-          while (tmpCurrentEl) {
-            // If we found it later in the DOM.
-            if (tmpCurrentEl.__x_for_key === currentKey) {
-              // Move it to where it's supposed to be in the DOM.
-              el.parentElement.insertBefore(tmpCurrentEl, currentEl); // And set it as the current element as if we just created it.
-
-              currentEl = tmpCurrentEl;
-              break;
-            }
-
-            tmpCurrentEl = tmpCurrentEl.nextElementSibling && tmpCurrentEl.nextElementSibling.__x_for_key !== undefined ? tmpCurrentEl.nextElementSibling : false;
-          }
-        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
-
-
-        delete currentEl.__x_for_key;
-        var xForVars = {};
-        xForVars[single] = i;
-        if (iterator1) xForVars[iterator1] = index;
-        if (iterator2) xForVars[iterator2] = group;
-        currentEl.__x_for = xForVars;
-        component.updateElements(currentEl, function () {
+        transitionIn(nextEl, function () {
+          _newArrowCheck(this, _this2);
+        }.bind(this), initialUpdate);
+        nextEl.__x_for = iterationScopeVariables;
+        component.initializeElements(nextEl, function () {
           _newArrowCheck(this, _this2);
 
-          return currentEl.__x_for;
-        }.bind(this));
+          return nextEl.__x_for;
+        }.bind(this)); // Otherwise update the element we found.
       } else {
-        // There are no more .__x_for_key elements, meaning the page is first loading, OR, there are
-        // extra items in the array that need to be added as new elements.
-        // Let's create a clone from the template.
-        var clone = document.importNode(el.content, true);
-        if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.'); // Insert it where we are in the DOM.
-
-        el.parentElement.insertBefore(clone, currentEl); // Set it as the current element.
-
-        currentEl = previousEl.nextElementSibling; // And transition it in if it's not the first page load.
-
-        transitionIn(currentEl, function () {
-          _newArrowCheck(this, _this2);
-        }.bind(this), initialUpdate); // Now, let's walk the new DOM node and initialize everything,
-        // including new nested components.
-        // Note we are resolving the "extraData" alias stuff from the dom element value so that it's
-        // always up to date for listener handlers that don't get re-registered.
-
-        var _xForVars = {};
-        _xForVars[single] = i;
-        if (iterator1) _xForVars[iterator1] = index;
-        if (iterator2) _xForVars[iterator2] = group;
-        currentEl.__x_for = _xForVars;
-        component.initializeElements(currentEl, function () {
+        // Temporarily remove the key indicator to allow the normal "updateElements" to work.
+        delete nextEl.__x_for_key;
+        nextEl.__x_for = iterationScopeVariables;
+        component.updateElements(nextEl, function () {
           _newArrowCheck(this, _this2);
 
-          return currentEl.__x_for;
+          return nextEl.__x_for;
         }.bind(this));
       }
 
+      currentEl = nextEl;
       currentEl.__x_for_key = currentKey;
-      previousEl = currentEl;
-    }.bind(this)); // Now that we've added/updated/moved all the elements for the current state of the loop.
-    // Anything left over, we can get rid of.
+    }.bind(this));
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl);
+  } // This was taken from VueJS 2.* core. Thanks Vue!
 
-    var nextElementFromOldLoop = previousEl.nextElementSibling && previousEl.nextElementSibling.__x_for_key !== undefined ? previousEl.nextElementSibling : false;
+  function parseForExpression(expression) {
+    var forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
+    var stripParensRE = /^\(|\)$/g;
+    var forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
+    var inMatch = expression.match(forAliasRE);
+    if (!inMatch) return;
+    var res = {};
+    res.items = inMatch[2].trim();
+    var item = inMatch[1].trim().replace(stripParensRE, '');
+    var iteratorMatch = item.match(forIteratorRE);
+
+    if (iteratorMatch) {
+      res.item = item.replace(forIteratorRE, '').trim();
+      res.index = iteratorMatch[1].trim();
+
+      if (iteratorMatch[2]) {
+        res.collection = iteratorMatch[2].trim();
+      }
+    } else {
+      res.item = item;
+    }
+
+    return res;
+  }
+
+  function getIterationScopeVariables(iteratorNames, item, index, items, extraVars) {
+    // We must create a new object, so each iteration has a new scope
+    var scopeVariables = extraVars ? _objectSpread2({}, extraVars) : {};
+    scopeVariables[iteratorNames.item] = item;
+    if (iteratorNames.index) scopeVariables[iteratorNames.index] = index;
+    if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items;
+    return scopeVariables;
+  }
+
+  function generateKeyForIteration(component, el, index, iterationScopeVariables) {
+    var _this3 = this;
+
+    var bindKeyAttribute = getXAttrs(el, 'bind').filter(function (attr) {
+      _newArrowCheck(this, _this3);
+
+      return attr.value === 'key';
+    }.bind(this))[0]; // If the dev hasn't specified a key, just return the index of the iteration.
+
+    if (!bindKeyAttribute) return index;
+    return component.evaluateReturnExpression(el, bindKeyAttribute.expression, function () {
+      _newArrowCheck(this, _this3);
+
+      return iterationScopeVariables;
+    }.bind(this));
+  }
+
+  function warnIfNotTemplateTag(el) {
+    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
+  }
+
+  function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
+    var ifAttribute = getXAttrs(el, 'if')[0];
+
+    if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
+      return [];
+    }
+
+    return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);
+  }
+
+  function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
+    var clone = document.importNode(templateEl.content, true);
+    if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.');
+    currentEl.parentElement.insertBefore(clone, currentEl.nextElementSibling);
+    return currentEl.nextElementSibling;
+  }
+
+  function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
+    if (!nextEl) return; // If the the key's DO match, no need to look ahead.
+
+    if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.
+    // If we find it, we'll move it to the current position in the loop.
+
+    var tmpNextEl = nextEl;
+
+    while (tmpNextEl) {
+      if (tmpNextEl.__x_for_key === currentKey) {
+        return tmpNextEl.parentElement.insertBefore(tmpNextEl, nextEl);
+      }
+
+      tmpNextEl = tmpNextEl.nextElementSibling && tmpNextEl.nextElementSibling.__x_for_key !== undefined ? tmpNextEl.nextElementSibling : false;
+    }
+  }
+
+  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+    var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     var _loop = function _loop() {
-      var _this3 = this;
+      var _this4 = this;
 
       var nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       var nextSibling = nextElementFromOldLoop.nextElementSibling;
       transitionOut(nextElementFromOldLoop, function () {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this4);
 
         nextElementFromOldLoopImmutable.remove();
       }.bind(this));
@@ -5453,54 +5948,9 @@
     while (nextElementFromOldLoop) {
       _loop();
     }
-  } // This was taken from VueJS 2.* core. Thanks Vue!
-
-  function parseFor(expression) {
-    var forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/;
-    var stripParensRE = /^\(|\)$/g;
-    var forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/;
-    var inMatch = expression.match(forAliasRE);
-    if (!inMatch) return;
-    var res = {};
-    res.bunch = inMatch[2].trim();
-    var single = inMatch[1].trim().replace(stripParensRE, '');
-    var iteratorMatch = single.match(forIteratorRE);
-
-    if (iteratorMatch) {
-      res.single = single.replace(forIteratorRE, '').trim();
-      res.iterator1 = iteratorMatch[1].trim();
-
-      if (iteratorMatch[2]) {
-        res.iterator2 = iteratorMatch[2].trim();
-      }
-    } else {
-      res.single = single;
-    }
-
-    return res;
   }
 
-  function getThisIterationsKeyFromTemplateTag(component, el, single, iterator1, iterator2, i, index, group) {
-    var _this4 = this;
-
-    var keyAttr = getXAttrs(el, 'bind').filter(function (attr) {
-      _newArrowCheck(this, _this4);
-
-      return attr.value === 'key';
-    }.bind(this))[0];
-
-    var keyAliases = _defineProperty({}, single, i);
-
-    if (iterator1) keyAliases[iterator1] = index;
-    if (iterator2) keyAliases[iterator2] = group;
-    return keyAttr ? component.evaluateReturnExpression(el, keyAttr.expression, function () {
-      _newArrowCheck(this, _this4);
-
-      return keyAliases;
-    }.bind(this)) : index;
-  }
-
-  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
+  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
     var _this = this;
 
     var value = component.evaluateReturnExpression(el, expression, extraVars);
@@ -5512,7 +5962,14 @@
       }
 
       if (el.type === 'radio') {
-        el.checked = el.value == value;
+        // Set radio value from x-bind:value, if no "value" attribute exists.
+        // If there are any initial state values, radio will have a correct
+        // "checked" value since x-bind:value is processed before x-model.
+        if (el.attributes.value === undefined && attrType === 'bind') {
+          el.value = value;
+        } else if (attrType !== 'bind') {
+          el.checked = el.value == value;
+        }
       } else if (el.type === 'checkbox') {
         if (Array.isArray(value)) {
           // I'm purposely not using Array.includes here because it's
@@ -5540,6 +5997,7 @@
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {
+        if (el.value === value) return;
         el.value = value;
       }
     } else if (attrName === 'class') {
@@ -5547,19 +6005,26 @@
         var originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
       } else if (_typeof(value) === 'object') {
-        Object.keys(value).forEach(function (classNames) {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        var keysSortedByBooleanValue = Object.keys(value).sort(function (a, b) {
+          _newArrowCheck(this, _this);
+
+          return value[a] - value[b];
+        }.bind(this));
+        keysSortedByBooleanValue.forEach(function (classNames) {
           var _this2 = this;
 
           _newArrowCheck(this, _this);
 
           if (value[classNames]) {
-            classNames.split(' ').forEach(function (className) {
+            classNames.split(' ').filter(Boolean).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.add(className);
             }.bind(this));
           } else {
-            classNames.split(' ').forEach(function (className) {
+            classNames.split(' ').filter(Boolean).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.remove(className);
@@ -5569,18 +6034,16 @@
       } else {
         var _originalClasses = el.__x_original_classes || [];
 
-        var newClasses = value.split(' ');
+        var newClasses = value.split(' ').filter(Boolean);
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
-    } else if (isBooleanAttr(attrName)) {
-      // Boolean attributes have to be explicitly added and removed, not just set.
-      if (!!value) {
-        el.setAttribute(attrName, '');
-      } else {
-        el.removeAttribute(attrName);
-      }
     } else {
-      el.setAttribute(attrName, value);
+      // If an attribute's bound value is null, undefined or false, remove the attribute
+      if ([null, undefined, false].includes(value)) {
+        el.removeAttribute(attrName);
+      } else {
+        isBooleanAttr(attrName) ? el.setAttribute(attrName, attrName) : el.setAttribute(attrName, value);
+      }
     }
   }
 
@@ -5597,6 +6060,19 @@
 
       option.selected = arrayWrappedValue.includes(option.value || option.text);
     }.bind(this));
+  }
+
+  function handleTextDirective(el, output, expression) {
+    // If nested model key is undefined, set the default value to empty string.
+    if (output === undefined && expression.match(/\./).length) {
+      output = '';
+    }
+
+    el.innerText = output;
+  }
+
+  function handleHtmlDirective(component, el, expression, extraVars) {
+    el.innerHTML = component.evaluateReturnExpression(el, expression, extraVars);
   }
 
   function handleShowDirective(component, el, value, modifiers) {
@@ -5694,7 +6170,7 @@
     component.showDirectiveLastElement = el;
   }
 
-  function handleIfDirective(el, expressionResult, initialUpdate) {
+  function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
     var _this = this;
 
     if (el.nodeName.toLowerCase() !== 'template') console.warn("Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if");
@@ -5703,10 +6179,11 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       var clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      el.nextElementSibling.__x_inserted_me = true;
       transitionIn(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
       }.bind(this), initialUpdate);
+      component.initializeElements(el.nextElementSibling, extraVars);
+      el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
@@ -5762,17 +6239,28 @@
         }
 
         if (modifiers.includes('prevent')) e.preventDefault();
-        if (modifiers.includes('stop')) e.stopPropagation();
-        var returnValue = runListenerHandler(component, expression, e, extraVars);
+        if (modifiers.includes('stop')) e.stopPropagation(); // If the .self modifier isn't present, or if it is present and
+        // the target element matches the element we are registering the
+        // event on, run the handler
 
-        if (returnValue === false) {
-          e.preventDefault();
-        } else {
-          if (modifiers.includes('once')) {
-            listenerTarget.removeEventListener(event, _handler2);
+        if (!modifiers.includes('self') || e.target === el) {
+          var returnValue = runListenerHandler(component, expression, e, extraVars);
+
+          if (returnValue === false) {
+            e.preventDefault();
+          } else {
+            if (modifiers.includes('once')) {
+              listenerTarget.removeEventListener(event, _handler2);
+            }
           }
         }
       }.bind(this);
+
+      if (modifiers.includes('debounce')) {
+        var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
+        var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
+        _handler2 = debounce(_handler2, wait);
+      }
 
       listenerTarget.addEventListener(event, _handler2);
     }
@@ -5801,7 +6289,13 @@
       _newArrowCheck(this, _this3);
 
       return !['window', 'document', 'prevent', 'stop'].includes(i);
-    }.bind(this)); // If no modifier is specified, we'll call it a press.
+    }.bind(this));
+
+    if (keyModifiers.includes('debounce')) {
+      var debounceIndex = keyModifiers.indexOf('debounce');
+      keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
+    } // If no modifier is specified, we'll call it a press.
+
 
     if (keyModifiers.length === 0) return false; // If one is passed, AND it matches the key pressed, we'll call it a press.
 
@@ -5848,7 +6342,7 @@
         return 'space';
 
       default:
-        return kebabCase(key);
+        return key && kebabCase(key);
     }
   }
 
@@ -5917,381 +6411,104 @@
     }.bind(this);
   }
 
-  /**
-   * Copyright (C) 2017 salesforce.com, inc.
-   */
-  const { isArray: isArray$1 } = Array;
-  const { getPrototypeOf, create: ObjectCreate, defineProperty: ObjectDefineProperty, defineProperties: ObjectDefineProperties, isExtensible, getOwnPropertyDescriptor: getOwnPropertyDescriptor$5, getOwnPropertyNames: getOwnPropertyNames$1, getOwnPropertySymbols, preventExtensions, hasOwnProperty: hasOwnProperty$1, } = Object;
-  const { push: ArrayPush, concat: ArrayConcat, map: ArrayMap, } = Array.prototype;
-  function isUndefined(obj) {
-      return obj === undefined;
-  }
-  function isFunction(obj) {
-      return typeof obj === 'function';
-  }
-  function isObject$1(obj) {
-      return typeof obj === 'object';
-  }
-  const proxyToValueMap = new WeakMap();
-  function registerProxy(proxy, value) {
-      proxyToValueMap.set(proxy, value);
-  }
-  const unwrap = (replicaOrAny) => proxyToValueMap.get(replicaOrAny) || replicaOrAny;
-
-  function wrapValue(membrane, value) {
-      return membrane.valueIsObservable(value) ? membrane.getProxy(value) : value;
-  }
-  /**
-   * Unwrap property descriptors will set value on original descriptor
-   * We only need to unwrap if value is specified
-   * @param descriptor external descrpitor provided to define new property on original value
-   */
-  function unwrapDescriptor(descriptor) {
-      if (hasOwnProperty$1.call(descriptor, 'value')) {
-          descriptor.value = unwrap(descriptor.value);
+  // `Reflect.set` method
+  // https://tc39.github.io/ecma262/#sec-reflect.set
+  function set$2(target, propertyKey, V /* , receiver */) {
+    var receiver = arguments.length < 4 ? target : arguments[3];
+    var ownDescriptor = objectGetOwnPropertyDescriptor.f(anObject(target), propertyKey);
+    var existingDescriptor, prototype;
+    if (!ownDescriptor) {
+      if (isObject(prototype = objectGetPrototypeOf(target))) {
+        return set$2(prototype, propertyKey, V, receiver);
       }
-      return descriptor;
-  }
-  function lockShadowTarget(membrane, shadowTarget, originalTarget) {
-      const targetKeys = ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      targetKeys.forEach((key) => {
-          let descriptor = getOwnPropertyDescriptor$5(originalTarget, key);
-          // We do not need to wrap the descriptor if configurable
-          // Because we can deal with wrapping it when user goes through
-          // Get own property descriptor. There is also a chance that this descriptor
-          // could change sometime in the future, so we can defer wrapping
-          // until we need to
-          if (!descriptor.configurable) {
-              descriptor = wrapDescriptor(membrane, descriptor, wrapValue);
-          }
-          ObjectDefineProperty(shadowTarget, key, descriptor);
-      });
-      preventExtensions(shadowTarget);
-  }
-  class ReactiveProxyHandler {
-      constructor(membrane, value) {
-          this.originalTarget = value;
-          this.membrane = membrane;
-      }
-      get(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const value = originalTarget[key];
-          const { valueObserved } = membrane;
-          valueObserved(originalTarget, key);
-          return membrane.getProxy(value);
-      }
-      set(shadowTarget, key, value) {
-          const { originalTarget, membrane: { valueMutated } } = this;
-          const oldValue = originalTarget[key];
-          if (oldValue !== value) {
-              originalTarget[key] = value;
-              valueMutated(originalTarget, key);
-          }
-          else if (key === 'length' && isArray$1(originalTarget)) {
-              // fix for issue #236: push will add the new index, and by the time length
-              // is updated, the internal length is already equal to the new length value
-              // therefore, the oldValue is equal to the value. This is the forking logic
-              // to support this use case.
-              valueMutated(originalTarget, key);
-          }
-          return true;
-      }
-      deleteProperty(shadowTarget, key) {
-          const { originalTarget, membrane: { valueMutated } } = this;
-          delete originalTarget[key];
-          valueMutated(originalTarget, key);
-          return true;
-      }
-      apply(shadowTarget, thisArg, argArray) {
-          /* No op */
-      }
-      construct(target, argArray, newTarget) {
-          /* No op */
-      }
-      has(shadowTarget, key) {
-          const { originalTarget, membrane: { valueObserved } } = this;
-          valueObserved(originalTarget, key);
-          return key in originalTarget;
-      }
-      ownKeys(shadowTarget) {
-          const { originalTarget } = this;
-          return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      }
-      isExtensible(shadowTarget) {
-          const shadowIsExtensible = isExtensible(shadowTarget);
-          if (!shadowIsExtensible) {
-              return shadowIsExtensible;
-          }
-          const { originalTarget, membrane } = this;
-          const targetIsExtensible = isExtensible(originalTarget);
-          if (!targetIsExtensible) {
-              lockShadowTarget(membrane, shadowTarget, originalTarget);
-          }
-          return targetIsExtensible;
-      }
-      setPrototypeOf(shadowTarget, prototype) {
-      }
-      getPrototypeOf(shadowTarget) {
-          const { originalTarget } = this;
-          return getPrototypeOf(originalTarget);
-      }
-      getOwnPropertyDescriptor(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const { valueObserved } = this.membrane;
-          // keys looked up via hasOwnProperty need to be reactive
-          valueObserved(originalTarget, key);
-          let desc = getOwnPropertyDescriptor$5(originalTarget, key);
-          if (isUndefined(desc)) {
-              return desc;
-          }
-          const shadowDescriptor = getOwnPropertyDescriptor$5(shadowTarget, key);
-          if (!isUndefined(shadowDescriptor)) {
-              return shadowDescriptor;
-          }
-          // Note: by accessing the descriptor, the key is marked as observed
-          // but access to the value, setter or getter (if available) cannot observe
-          // mutations, just like regular methods, in which case we just do nothing.
-          desc = wrapDescriptor(membrane, desc, wrapValue);
-          if (!desc.configurable) {
-              // If descriptor from original target is not configurable,
-              // We must copy the wrapped descriptor over to the shadow target.
-              // Otherwise, proxy will throw an invariant error.
-              // This is our last chance to lock the value.
-              // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
-              ObjectDefineProperty(shadowTarget, key, desc);
-          }
-          return desc;
-      }
-      preventExtensions(shadowTarget) {
-          const { originalTarget, membrane } = this;
-          lockShadowTarget(membrane, shadowTarget, originalTarget);
-          preventExtensions(originalTarget);
-          return true;
-      }
-      defineProperty(shadowTarget, key, descriptor) {
-          const { originalTarget, membrane } = this;
-          const { valueMutated } = membrane;
-          const { configurable } = descriptor;
-          // We have to check for value in descriptor
-          // because Object.freeze(proxy) calls this method
-          // with only { configurable: false, writeable: false }
-          // Additionally, method will only be called with writeable:false
-          // if the descriptor has a value, as opposed to getter/setter
-          // So we can just check if writable is present and then see if
-          // value is present. This eliminates getter and setter descriptors
-          if (hasOwnProperty$1.call(descriptor, 'writable') && !hasOwnProperty$1.call(descriptor, 'value')) {
-              const originalDescriptor = getOwnPropertyDescriptor$5(originalTarget, key);
-              descriptor.value = originalDescriptor.value;
-          }
-          ObjectDefineProperty(originalTarget, key, unwrapDescriptor(descriptor));
-          if (configurable === false) {
-              ObjectDefineProperty(shadowTarget, key, wrapDescriptor(membrane, descriptor, wrapValue));
-          }
-          valueMutated(originalTarget, key);
-          return true;
-      }
+      ownDescriptor = createPropertyDescriptor(0);
+    }
+    if (has(ownDescriptor, 'value')) {
+      if (ownDescriptor.writable === false || !isObject(receiver)) return false;
+      if (existingDescriptor = objectGetOwnPropertyDescriptor.f(receiver, propertyKey)) {
+        if (existingDescriptor.get || existingDescriptor.set || existingDescriptor.writable === false) return false;
+        existingDescriptor.value = V;
+        objectDefineProperty.f(receiver, propertyKey, existingDescriptor);
+      } else objectDefineProperty.f(receiver, propertyKey, createPropertyDescriptor(0, V));
+      return true;
+    }
+    return ownDescriptor.set === undefined ? false : (ownDescriptor.set.call(receiver, V), true);
   }
 
-  function wrapReadOnlyValue(membrane, value) {
-      return membrane.valueIsObservable(value) ? membrane.getReadOnlyProxy(value) : value;
+  // MS Edge 17-18 Reflect.set allows setting the property to object
+  // with non-writable property on the prototype
+  var MS_EDGE_BUG = fails(function () {
+    var object = objectDefineProperty.f({}, 'a', { configurable: true });
+    // eslint-disable-next-line no-undef
+    return Reflect.set(objectGetPrototypeOf(object), 'a', 1, object) !== false;
+  });
+
+  _export({ target: 'Reflect', stat: true, forced: MS_EDGE_BUG }, {
+    set: set$2
+  });
+
+  function wrap(data, mutationCallback) {
+    /* IE11-ONLY:START */
+    return wrapForIe11(data, mutationCallback);
   }
-  class ReadOnlyHandler {
-      constructor(membrane, value) {
-          this.originalTarget = value;
-          this.membrane = membrane;
-      }
-      get(shadowTarget, key) {
-          const { membrane, originalTarget } = this;
-          const value = originalTarget[key];
-          const { valueObserved } = membrane;
-          valueObserved(originalTarget, key);
-          return membrane.getReadOnlyProxy(value);
-      }
-      set(shadowTarget, key, value) {
-          return false;
-      }
-      deleteProperty(shadowTarget, key) {
-          return false;
-      }
-      apply(shadowTarget, thisArg, argArray) {
-          /* No op */
-      }
-      construct(target, argArray, newTarget) {
-          /* No op */
-      }
-      has(shadowTarget, key) {
-          const { originalTarget, membrane: { valueObserved } } = this;
-          valueObserved(originalTarget, key);
-          return key in originalTarget;
-      }
-      ownKeys(shadowTarget) {
-          const { originalTarget } = this;
-          return ArrayConcat.call(getOwnPropertyNames$1(originalTarget), getOwnPropertySymbols(originalTarget));
-      }
-      setPrototypeOf(shadowTarget, prototype) {
-      }
-      getOwnPropertyDescriptor(shadowTarget, key) {
-          const { originalTarget, membrane } = this;
-          const { valueObserved } = membrane;
-          // keys looked up via hasOwnProperty need to be reactive
-          valueObserved(originalTarget, key);
-          let desc = getOwnPropertyDescriptor$5(originalTarget, key);
-          if (isUndefined(desc)) {
-              return desc;
-          }
-          const shadowDescriptor = getOwnPropertyDescriptor$5(shadowTarget, key);
-          if (!isUndefined(shadowDescriptor)) {
-              return shadowDescriptor;
-          }
-          // Note: by accessing the descriptor, the key is marked as observed
-          // but access to the value or getter (if available) cannot be observed,
-          // just like regular methods, in which case we just do nothing.
-          desc = wrapDescriptor(membrane, desc, wrapReadOnlyValue);
-          if (hasOwnProperty$1.call(desc, 'set')) {
-              desc.set = undefined; // readOnly membrane does not allow setters
-          }
-          if (!desc.configurable) {
-              // If descriptor from original target is not configurable,
-              // We must copy the wrapped descriptor over to the shadow target.
-              // Otherwise, proxy will throw an invariant error.
-              // This is our last chance to lock the value.
-              // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy/handler/getOwnPropertyDescriptor#Invariants
-              ObjectDefineProperty(shadowTarget, key, desc);
-          }
-          return desc;
-      }
-      preventExtensions(shadowTarget) {
-          return false;
-      }
-      defineProperty(shadowTarget, key, descriptor) {
-          return false;
-      }
+  function unwrap(membrane, observable) {
+    var _this = this;
+
+    var unwrappedData = membrane.unwrapProxy(observable);
+    var copy = {};
+    Object.keys(unwrappedData).forEach(function (key) {
+      _newArrowCheck(this, _this);
+
+      if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
+      copy[key] = unwrappedData[key];
+    }.bind(this));
+    return copy;
   }
-  function createShadowTarget(value) {
-      let shadowTarget = undefined;
-      if (isArray$1(value)) {
-          shadowTarget = [];
+
+  function wrapForIe11(data, mutationCallback) {
+    var proxyHandler = {
+      set: function set(target, key, value) {
+        // Set the value converting it to a "Deep Proxy" when required
+        // Note that if a project is not a valid object, it won't be converted to a proxy
+        var setWasSuccessful = Reflect.set(target, key, deepProxy(value, proxyHandler));
+        mutationCallback(target, key);
+        return setWasSuccessful;
+      },
+      get: function get(target, key) {
+        // Provide a way to determine if this object is an Alpine proxy or not.
+        if (key === "$isAlpineProxy") return true; // Just return the flippin' value. Gawsh.
+
+        return target[key];
       }
-      else if (isObject$1(value)) {
-          shadowTarget = {};
+    };
+    return {
+      data: deepProxy(data, proxyHandler),
+      membrane: {
+        unwrapProxy: function unwrapProxy(proxy) {
+          return proxy;
+        }
       }
-      return shadowTarget;
+    };
   }
-  const ObjectDotPrototype = Object.prototype;
-  function defaultValueIsObservable(value) {
-      // intentionally checking for null
-      if (value === null) {
-          return false;
-      }
-      // treat all non-object types, including undefined, as non-observable values
-      if (typeof value !== 'object') {
-          return false;
-      }
-      if (isArray$1(value)) {
-          return true;
-      }
-      const proto = getPrototypeOf(value);
-      return (proto === ObjectDotPrototype || proto === null || getPrototypeOf(proto) === null);
+
+  function deepProxy(target, proxyHandler) {
+    // If target is null, return it.
+    if (target === null) return target; // If target is not an object, return it.
+
+    if (_typeof(target) !== 'object') return target; // If target is a DOM node (like in the case of this.$el), return it.
+
+    if (target instanceof Node) return target; // If target is already an Alpine proxy, return it.
+
+    if (target['$isAlpineProxy']) return target; // Otherwise proxy the properties recursively.
+    // This enables reactivity on setting nested data.
+    // Note that if a project is not a valid object, it won't be converted to a proxy
+
+    for (var property in target) {
+      target[property] = deepProxy(target[property], proxyHandler);
+    }
+
+    return new Proxy(target, proxyHandler);
   }
-  const defaultValueObserved = (obj, key) => {
-      /* do nothing */
-  };
-  const defaultValueMutated = (obj, key) => {
-      /* do nothing */
-  };
-  const defaultValueDistortion = (value) => value;
-  function wrapDescriptor(membrane, descriptor, getValue) {
-      const { set, get } = descriptor;
-      if (hasOwnProperty$1.call(descriptor, 'value')) {
-          descriptor.value = getValue(membrane, descriptor.value);
-      }
-      else {
-          if (!isUndefined(get)) {
-              descriptor.get = function () {
-                  // invoking the original getter with the original target
-                  return getValue(membrane, get.call(unwrap(this)));
-              };
-          }
-          if (!isUndefined(set)) {
-              descriptor.set = function (value) {
-                  // At this point we don't have a clear indication of whether
-                  // or not a valid mutation will occur, we don't have the key,
-                  // and we are not sure why and how they are invoking this setter.
-                  // Nevertheless we preserve the original semantics by invoking the
-                  // original setter with the original target and the unwrapped value
-                  set.call(unwrap(this), membrane.unwrapProxy(value));
-              };
-          }
-      }
-      return descriptor;
-  }
-  class ReactiveMembrane {
-      constructor(options) {
-          this.valueDistortion = defaultValueDistortion;
-          this.valueMutated = defaultValueMutated;
-          this.valueObserved = defaultValueObserved;
-          this.valueIsObservable = defaultValueIsObservable;
-          this.objectGraph = new WeakMap();
-          if (!isUndefined(options)) {
-              const { valueDistortion, valueMutated, valueObserved, valueIsObservable } = options;
-              this.valueDistortion = isFunction(valueDistortion) ? valueDistortion : defaultValueDistortion;
-              this.valueMutated = isFunction(valueMutated) ? valueMutated : defaultValueMutated;
-              this.valueObserved = isFunction(valueObserved) ? valueObserved : defaultValueObserved;
-              this.valueIsObservable = isFunction(valueIsObservable) ? valueIsObservable : defaultValueIsObservable;
-          }
-      }
-      getProxy(value) {
-          const unwrappedValue = unwrap(value);
-          const distorted = this.valueDistortion(unwrappedValue);
-          if (this.valueIsObservable(distorted)) {
-              const o = this.getReactiveState(unwrappedValue, distorted);
-              // when trying to extract the writable version of a readonly
-              // we return the readonly.
-              return o.readOnly === value ? value : o.reactive;
-          }
-          return distorted;
-      }
-      getReadOnlyProxy(value) {
-          value = unwrap(value);
-          const distorted = this.valueDistortion(value);
-          if (this.valueIsObservable(distorted)) {
-              return this.getReactiveState(value, distorted).readOnly;
-          }
-          return distorted;
-      }
-      unwrapProxy(p) {
-          return unwrap(p);
-      }
-      getReactiveState(value, distortedValue) {
-          const { objectGraph, } = this;
-          let reactiveState = objectGraph.get(distortedValue);
-          if (reactiveState) {
-              return reactiveState;
-          }
-          const membrane = this;
-          reactiveState = {
-              get reactive() {
-                  const reactiveHandler = new ReactiveProxyHandler(membrane, distortedValue);
-                  // caching the reactive proxy after the first time it is accessed
-                  const proxy = new Proxy(createShadowTarget(distortedValue), reactiveHandler);
-                  registerProxy(proxy, value);
-                  ObjectDefineProperty(this, 'reactive', { value: proxy });
-                  return proxy;
-              },
-              get readOnly() {
-                  const readOnlyHandler = new ReadOnlyHandler(membrane, distortedValue);
-                  // caching the readOnly proxy after the first time it is accessed
-                  const proxy = new Proxy(createShadowTarget(distortedValue), readOnlyHandler);
-                  registerProxy(proxy, value);
-                  ObjectDefineProperty(this, 'readOnly', { value: proxy });
-                  return proxy;
-              }
-          };
-          objectGraph.set(distortedValue, reactiveState);
-          return reactiveState;
-      }
-  }
-  /** version: 0.26.0 */
 
   var Component = /*#__PURE__*/function () {
     function Component(el) {
@@ -6363,7 +6580,7 @@
       this.listenForNewElementsToInitialize();
 
       if (typeof initReturnedCallback === 'function') {
-        // Run the callback returned form the "x-init" hook to allow the user to do stuff after
+        // Run the callback returned from the "x-init" hook to allow the user to do stuff after
         // Alpine's got it's grubby little paws all over everything.
         initReturnedCallback.call(this.$data);
       }
@@ -6372,62 +6589,81 @@
     _createClass(Component, [{
       key: "getUnobservedData",
       value: function getUnobservedData() {
-        var _this2 = this;
-
-        var unwrappedData = this.membrane.unwrapProxy(this.$data);
-        var copy = {};
-        Object.keys(unwrappedData).forEach(function (key) {
-          _newArrowCheck(this, _this2);
-
-          if (['$el', '$refs', '$nextTick', '$watch'].includes(key)) return;
-          copy[key] = unwrappedData[key];
-        }.bind(this));
-        return copy;
+        return unwrap(this.membrane, this.$data);
       }
     }, {
       key: "wrapDataInObservable",
       value: function wrapDataInObservable(data) {
+        var _this2 = this;
+
         var self = this;
-        var membrane = new ReactiveMembrane({
-          valueMutated: function valueMutated(target, key) {
-            var _this3 = this;
+        var updateDom = debounce(function () {
+          self.updateElements(self.$el);
+        }, 0);
+        return wrap(data, function (target, key) {
+          var _this3 = this;
 
-            if (self.watchers[key]) {
-              self.watchers[key].forEach(function (callback) {
-                _newArrowCheck(this, _this3);
+          _newArrowCheck(this, _this2);
 
-                return callback(target[key]);
-              }.bind(this));
-            } // Don't react to data changes for cases like the `x-created` hook.
-
-
-            if (self.pauseReactivity) return;
-            debounce(function () {
+          if (self.watchers[key]) {
+            // If there's a watcher for this specific key, run it.
+            self.watchers[key].forEach(function (callback) {
               _newArrowCheck(this, _this3);
 
-              self.updateElements(self.$el); // Walk through the $nextTick stack and clear it as we go.
+              return callback(target[key]);
+            }.bind(this));
+          } else {
+            // Let's walk through the watchers with "dot-notation" (foo.bar) and see
+            // if this mutation fits any of them.
+            Object.keys(self.watchers).filter(function (i) {
+              _newArrowCheck(this, _this3);
 
-              while (self.nextTickStack.length > 0) {
-                self.nextTickStack.shift()();
-              }
-            }.bind(this), 0, self)();
-          }
-        });
-        return {
-          data: membrane.getProxy(data),
-          membrane: membrane
-        };
+              return i.includes('.');
+            }.bind(this)).forEach(function (fullDotNotationKey) {
+              var _this4 = this;
+
+              _newArrowCheck(this, _this3);
+
+              var dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
+              // key, then skip it early for performance reasons.
+
+              if (key !== dotNotationParts[dotNotationParts.length - 1]) return; // Now, walk through the dot-notation "parts" recursively to find
+              // a match, and call the watcher if one's found.
+
+              dotNotationParts.reduce(function (comparisonData, part) {
+                var _this5 = this;
+
+                _newArrowCheck(this, _this4);
+
+                if (Object.is(target, comparisonData)) {
+                  // Run the watchers.
+                  self.watchers[fullDotNotationKey].forEach(function (callback) {
+                    _newArrowCheck(this, _this5);
+
+                    return callback(target[key]);
+                  }.bind(this));
+                }
+
+                return comparisonData[part];
+              }.bind(this), self.getUnobservedData());
+            }.bind(this));
+          } // Don't react to data changes for cases like the `x-created` hook.
+
+
+          if (self.pauseReactivity) return;
+          updateDom();
+        }.bind(this));
       }
     }, {
       key: "walkAndSkipNestedComponents",
       value: function walkAndSkipNestedComponents(el, callback) {
-        var _this4 = this;
+        var _this6 = this;
 
         var initializeComponentCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this4);
+          _newArrowCheck(this, _this6);
         }.bind(this);
         walk(el, function (el) {
-          _newArrowCheck(this, _this4);
+          _newArrowCheck(this, _this6);
 
           // We've hit a component.
           if (el.hasAttribute('x-data')) {
@@ -6446,27 +6682,26 @@
     }, {
       key: "initializeElements",
       value: function initializeElements(rootEl) {
-        var _this5 = this;
+        var _this7 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this5);
+          _newArrowCheck(this, _this7);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this5);
+          _newArrowCheck(this, _this7);
 
           // Don't touch spawns from for loop
-          if (el.__x_for_key !== undefined) return false;
+          if (el.__x_for_key !== undefined) return false; // Don't touch spawns from if directives
+
+          if (el.__x_inserted_me !== undefined) return false;
           this.initializeElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this5);
+          _newArrowCheck(this, _this7);
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-        while (this.nextTickStack.length > 0) {
-          this.nextTickStack.shift()();
-        }
+        this.executeAndClearRemainingShowDirectiveStack();
+        this.executeAndClearNextTickStack(rootEl);
       }
     }, {
       key: "initializeElement",
@@ -6483,70 +6718,78 @@
     }, {
       key: "updateElements",
       value: function updateElements(rootEl) {
-        var _this6 = this;
+        var _this8 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this8);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this8);
 
           // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
           if (el.__x_for_key !== undefined && !el.isSameNode(this.$el)) return false;
           this.updateElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this8);
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack(); // Walk through the $nextTick stack and clear it as we go.
-
-        while (this.nextTickStack.length > 0) {
-          this.nextTickStack.shift()();
+        this.executeAndClearRemainingShowDirectiveStack();
+        this.executeAndClearNextTickStack(rootEl);
+      }
+    }, {
+      key: "executeAndClearNextTickStack",
+      value: function executeAndClearNextTickStack(el) {
+        // Skip spawns from alpine directives
+        if (el === this.$el) {
+          // Walk through the $nextTick stack and clear it as we go.
+          while (this.nextTickStack.length > 0) {
+            this.nextTickStack.shift()();
+          }
         }
       }
     }, {
       key: "executeAndClearRemainingShowDirectiveStack",
       value: function executeAndClearRemainingShowDirectiveStack() {
-        var _this7 = this;
+        var _this9 = this;
 
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
         this.showDirectiveStack.reverse().map(function (thing) {
-          var _this8 = this;
+          var _this10 = this;
 
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this9);
 
           return new Promise(function (resolve) {
-            var _this9 = this;
+            var _this11 = this;
 
-            _newArrowCheck(this, _this8);
+            _newArrowCheck(this, _this10);
 
             thing(function (finish) {
-              _newArrowCheck(this, _this9);
+              _newArrowCheck(this, _this11);
 
               resolve(finish);
             }.bind(this));
           }.bind(this));
         }.bind(this)).reduce(function (nestedPromise, promise) {
-          var _this10 = this;
+          var _this12 = this;
 
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this9);
 
           return nestedPromise.then(function () {
-            var _this11 = this;
+            var _this13 = this;
 
-            _newArrowCheck(this, _this10);
+            _newArrowCheck(this, _this12);
 
             return promise.then(function (finish) {
-              _newArrowCheck(this, _this11);
+              _newArrowCheck(this, _this13);
 
               return finish();
             }.bind(this));
           }.bind(this));
         }.bind(this), Promise.resolve(function () {
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this9);
         }.bind(this))); // We've processed the handler stack. let's clear it.
 
         this.showDirectiveStack = [];
@@ -6560,7 +6803,7 @@
     }, {
       key: "registerListeners",
       value: function registerListeners(el, extraVars) {
-        var _this12 = this;
+        var _this14 = this;
 
         getXAttrs(el).forEach(function (_ref) {
           var type = _ref.type,
@@ -6568,7 +6811,7 @@
               modifiers = _ref.modifiers,
               expression = _ref.expression;
 
-          _newArrowCheck(this, _this12);
+          _newArrowCheck(this, _this14);
 
           switch (type) {
             case 'on':
@@ -6584,44 +6827,54 @@
     }, {
       key: "resolveBoundAttributes",
       value: function resolveBoundAttributes(el) {
-        var _this13 = this;
+        var _this15 = this;
 
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
         var attrs = getXAttrs(el);
+
+        if (el.type !== undefined && el.type === 'radio') {
+          // If there's an x-model on a radio input, move it to end of attribute list
+          // to ensure that x-bind:value (if present) is processed first.
+          var modelIdx = attrs.findIndex(function (attr) {
+            _newArrowCheck(this, _this15);
+
+            return attr.type === 'model';
+          }.bind(this));
+
+          if (modelIdx > -1) {
+            attrs.push(attrs.splice(modelIdx, 1)[0]);
+          }
+        }
+
         attrs.forEach(function (_ref2) {
-          var _this14 = this;
+          var _this16 = this;
 
           var type = _ref2.type,
               value = _ref2.value,
               modifiers = _ref2.modifiers,
               expression = _ref2.expression;
 
-          _newArrowCheck(this, _this13);
+          _newArrowCheck(this, _this15);
 
           switch (type) {
             case 'model':
-              handleAttributeBindingDirective(this, el, 'value', expression, extraVars);
+              handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
               break;
 
             case 'bind':
               // The :key binding on an x-for is special, ignore it.
               if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
-              handleAttributeBindingDirective(this, el, value, expression, extraVars);
+              handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
               break;
 
             case 'text':
-              var output = this.evaluateReturnExpression(el, expression, extraVars); // If nested model key is undefined, set the default value to empty string.
-
-              if (output === undefined && expression.match(/\./).length) {
-                output = '';
-              }
-
-              el.innerText = output;
+              var output = this.evaluateReturnExpression(el, expression, extraVars);
+              handleTextDirective(el, output, expression);
               break;
 
             case 'html':
-              el.innerHTML = this.evaluateReturnExpression(el, expression, extraVars);
+              handleHtmlDirective(this, el, expression, extraVars);
               break;
 
             case 'show':
@@ -6633,16 +6886,16 @@
               // If this element also has x-for on it, don't process x-if.
               // We will let the "x-for" directive handle the "if"ing.
               if (attrs.filter(function (i) {
-                _newArrowCheck(this, _this14);
+                _newArrowCheck(this, _this16);
 
                 return i.type === 'for';
               }.bind(this)).length > 0) return;
               var output = this.evaluateReturnExpression(el, expression, extraVars);
-              handleIfDirective(el, output, initialUpdate);
+              handleIfDirective(this, el, output, initialUpdate, extraVars);
               break;
 
             case 'for':
-              handleForDirective(this, el, expression, initialUpdate);
+              handleForDirective(this, el, expression, initialUpdate, extraVars);
               break;
 
             case 'cloak':
@@ -6654,10 +6907,10 @@
     }, {
       key: "evaluateReturnExpression",
       value: function evaluateReturnExpression(el, expression) {
-        var _this15 = this;
+        var _this17 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this15);
+          _newArrowCheck(this, _this17);
         }.bind(this);
         return saferEval(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
@@ -6666,10 +6919,10 @@
     }, {
       key: "evaluateCommandExpression",
       value: function evaluateCommandExpression(el, expression) {
-        var _this16 = this;
+        var _this18 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this16);
+          _newArrowCheck(this, _this18);
         }.bind(this);
         return saferEvalNoReturn(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
@@ -6678,12 +6931,12 @@
     }, {
       key: "getDispatchFunction",
       value: function getDispatchFunction(el) {
-        var _this17 = this;
+        var _this19 = this;
 
         return function (event) {
           var detail = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-          _newArrowCheck(this, _this17);
+          _newArrowCheck(this, _this19);
 
           el.dispatchEvent(new CustomEvent(event, {
             detail: detail,
@@ -6694,7 +6947,7 @@
     }, {
       key: "listenForNewElementsToInitialize",
       value: function listenForNewElementsToInitialize() {
-        var _this18 = this;
+        var _this20 = this;
 
         var targetNode = this.$el;
         var observerOptions = {
@@ -6703,25 +6956,25 @@
           subtree: true
         };
         var observer = new MutationObserver(function (mutations) {
-          var _this19 = this;
+          var _this21 = this;
 
-          _newArrowCheck(this, _this18);
+          _newArrowCheck(this, _this20);
 
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
             var closestParentComponent = mutations[i].target.closest('[x-data]');
-            if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) return;
+            if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
 
             if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
               (function () {
-                var _this20 = this;
+                var _this22 = this;
 
                 var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
                 Object.keys(rawData).forEach(function (key) {
-                  _newArrowCheck(this, _this20);
+                  _newArrowCheck(this, _this22);
 
-                  if (_this19.$data[key] !== rawData[key]) {
-                    _this19.$data[key] = rawData[key];
+                  if (_this21.$data[key] !== rawData[key]) {
+                    _this21.$data[key] = rawData[key];
                   }
                 }.bind(this));
               })();
@@ -6729,9 +6982,9 @@
 
             if (mutations[i].addedNodes.length > 0) {
               mutations[i].addedNodes.forEach(function (node) {
-                _newArrowCheck(this, _this19);
+                _newArrowCheck(this, _this21);
 
-                if (node.nodeType !== 1) return;
+                if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
                 if (node.matches('[x-data]')) {
                   node.__x = new Component(node);
@@ -6748,7 +7001,7 @@
     }, {
       key: "getRefsProxy",
       value: function getRefsProxy() {
-        var _this21 = this;
+        var _this23 = this;
 
         var self = this;
         var refObj = {};
@@ -6760,7 +7013,7 @@
         // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
 
         this.walkAndSkipNestedComponents(self.$el, function (el) {
-          _newArrowCheck(this, _this21);
+          _newArrowCheck(this, _this23);
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
@@ -6774,14 +7027,14 @@
 
         return new Proxy(refObj, {
           get: function get(object, property) {
-            var _this22 = this;
+            var _this24 = this;
 
             if (property === '$isAlpineProxy') return true;
             var ref; // We can't just query the DOM because it's hard to filter out refs in
             // nested components.
 
             self.walkAndSkipNestedComponents(self.$el, function (el) {
-              _newArrowCheck(this, _this22);
+              _newArrowCheck(this, _this24);
 
               if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                 ref = el;
@@ -6797,6 +7050,7 @@
   }();
 
   var Alpine = {
+    version: "2.3.5",
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;

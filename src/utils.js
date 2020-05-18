@@ -12,15 +12,7 @@ export function domReady() {
 }
 
 export function arrayUnique(array) {
-    var a = array.concat();
-    for(var i=0; i<a.length; ++i) {
-        for(var j=i+1; j<a.length; ++j) {
-            if(a[i] === a[j])
-                a.splice(j--, 1);
-        }
-    }
-
-    return a;
+    return Array.from(new Set(array))
 }
 
 export function isTesting() {
@@ -44,15 +36,16 @@ export function walk(el, callback) {
     }
 }
 
-export function debounce(func, wait, context) {
+export function debounce(func, wait) {
+    var timeout
     return function () {
-        var args = arguments
+        var context = this, args = arguments
         var later = function () {
-            context.debounceTimeout = null
+            timeout = null
             func.apply(context, args)
         }
-        clearTimeout(context.debounceTimeout)
-        context.debounceTimeout = setTimeout(later, wait)
+        clearTimeout(timeout)
+        timeout = setTimeout(later, wait)
     }
 }
 
@@ -158,7 +151,7 @@ export function transitionIn(el, show, forceSkip = false) {
 
         transitionHelperIn(el, modifiers, show)
     // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value)).length > 0) {
         transitionClassesIn(el, attrs, show)
     } else {
     // If neither, just show that damn thing.
@@ -183,7 +176,7 @@ export function transitionOut(el, hide, forceSkip = false) {
             ? modifiers.filter((i, index) => index > modifiers.indexOf('out')) : modifiers
 
         transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide)
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value)).length > 0) {
         transitionClassesOut(el, attrs, hide)
     } else {
         hide()
@@ -385,6 +378,6 @@ export function transition(el, stages) {
     });
 }
 
-function isNumeric(subject){
+export function isNumeric(subject){
     return ! isNaN(subject)
 }

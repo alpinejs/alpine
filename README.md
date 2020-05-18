@@ -1,6 +1,8 @@
 # Alpine.js
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
+![npm version](https://img.shields.io/npm/v/alpinejs)
+[![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg?sanitize=true)](https://alpinejs.codewithhugo.com/chat/)
 
 Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
 
@@ -16,10 +18,16 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 **From CDN:** Add the following script to the end of your `<head>` section.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 ```
 
 That's it. It will initialize itself.
+
+For production environments, it's recommended to pin a specific version number in the link to avoid unexpected breakage from newer versions. 
+For example, to use version `2.3.5`:
+```html
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
+```
 
 **From NPM:** Install the package from NPM.
 ```js
@@ -31,10 +39,13 @@ Include it in your script.
 import 'alpinejs'
 ```
 
-**For IE11 support** Use the following script instead.
+**For IE11 support** Use the following scripts instead.
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.js" defer></script>
+<script type="module" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
+<script nomodule src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>
 ```
+
+The pattern above is the [module/nomodule pattern](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) that will result in the modern bundle automatically loaded on modern browsers, and the IE11 bundle loaded automatically on IE11 and other legacy browsers.
 
 ## Use
 
@@ -86,32 +97,39 @@ You can even use it for non-trivial things:
 
 There are 13 directives available to you:
 
-| Directive
-| --- |
-| [`x-data`](#x-data) |
-| [`x-init`](#x-init) |
-| [`x-show`](#x-show) |
-| [`x-bind`](#x-bind) |
-| [`x-on`](#x-on) |
-| [`x-model`](#x-model) |
-| [`x-text`](#x-text) |
-| [`x-html`](#x-html) |
-| [`x-ref`](#x-ref) |
-| [`x-if`](#x-if) |
-| [`x-for`](#x-for) |
-| [`x-transition`](#x-transition) |
-| [`x-cloak`](#x-cloak) |
+| Directive | Description |
+| --- | --- |
+| [`x-data`](#x-data) | Declares a new component scope. |
+| [`x-init`](#x-init) | Runs an expression when a component is initialized. |
+| [`x-show`](#x-show) | Toggles `display: none;` on the element depending on expression (true or false). |
+| [`x-bind`](#x-bind) | Sets the value of an attribute to the result of a JS expression |
+| [`x-on`](#x-on) | Attaches an event listener to the element. Executes JS expression when emitted. |
+| [`x-model`](#x-model) | Adds "two-way data binding" to an element. Keeps input element in sync with component data. |
+| [`x-text`](#x-text) | Works similarly to `x-bind`, but will update the `innerText` of an element. |
+| [`x-html`](#x-html) | Works similarly to `x-bind`, but will update the `innerHTML` of an element. |
+| [`x-ref`](#x-ref) | Convenient way to retrieve raw DOM elements out of your component. |
+| [`x-if`](#x-if) | Remove an element completely from the DOM. Needs to be used on a `<template>` tag. |
+| [`x-for`](#x-for) | Create new DOM nodes for each item in an array. Needs to be used on a `<template>` tag. |
+| [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition |
+| [`x-cloak`](#x-cloak) | This attribute is removed when Alpine initializes. Useful for hiding pre-initialized DOM. |
 
 And 6 magic properties:
 
-| Magic Properties
-| --- |
-| [`$el`](#el) |
-| [`$refs`](#refs) |
-| [`$event`](#event) |
-| [`$dispatch`](#dispatch) |
-| [`$nextTick`](#nexttick) |
-| [`$watch`](#watch) |
+| Magic Properties | Description |
+| --- | --- |
+| [`$el`](#el) |  Retrieve the root component DOM node. |
+| [`$refs`](#refs) | Retrieve DOM elements marked with `x-ref` inside the component. |
+| [`$event`](#event) | Retrieve the native browser "Event" object within an event listener.  |
+| [`$dispatch`](#dispatch) | Create a `CustomEvent` and dispatch it using `.dispatchEvent()` internally. |
+| [`$nextTick`](#nexttick) | Execute a given expression AFTER Alpine has made its reactive DOM updates. |
+| [`$watch`](#watch) | Will fire a provided callback when a component property you "watched" gets changed. |
+
+
+## Sponsors
+
+<img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">
+
+**Want your logo here? [DM on Twitter](https://twitter.com/calebporzio)**
 
 
 ### Directives
@@ -153,6 +171,9 @@ You can extract data (and behavior) into reusable functions:
 </script>
 ```
 
+> **For bundler users**, note that Alpine.js accesses functions that are in the global scope (`window`), you'll need to explicitly assign your functions to `window` in order to use them with `x-data` for example `window.dropdown = function () {}` (this is because with Webpack, Rollup, Parcel etc. `function`'s you define will default to the module's scope not `window`).
+
+
 You can also mix-in multiple data objects using object destructuring:
 
 ```html
@@ -170,7 +191,7 @@ You can also mix-in multiple data objects using object destructuring:
 
 If you wish to run code AFTER Alpine has made its initial updates to the DOM (something like a `mounted()` hook in VueJS), you can return a callback from `x-init`, and it will be run after:
 
-`x-init="return () => { // we have access to the post-dom-initialization state here // }"`
+`x-init="() => { // we have access to the post-dom-initialization state here // }"`
 
 ---
 
@@ -194,8 +215,8 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 | Directive | Description |
 | --- | --- |
 | `x-show.transition` | A simultanious fade and scale. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
-| `x-show.transition.in` | Ony transition in. |
-| `x-show.transition.out` | Ony transition out. |
+| `x-show.transition.in` | Only transition in. |
+| `x-show.transition.out` | Only transition out. |
 | `x-show.transition.opacity` | Only use the fade. |
 | `x-show.transition.scale` | Only use the scale. |
 | `x-show.transition.scale.75` | Customize the CSS scale transform `transform: scale(.75)`. |
@@ -203,7 +224,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 | `x-show.transition.origin.top.right` | Customize the CSS transform origin `transform-origin: top right`. |
 | `x-show.transition.in.duration.200ms.out.duration.50ms` | Different durations for "in" and "out". |
 
-> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although rediculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although ridiculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
 
 > Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifer:
 ```html
@@ -229,7 +250,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 `x-bind` behaves a little differently when binding to the `class` attribute.
 
-For classes, you pass in an object who's keys are class names, and values are boolean expressions to determine if those class names are applied or not.
+For classes, you pass in an object whose keys are class names, and values are boolean expressions to determine if those class names are applied or not.
 
 For example:
 `<div x-bind:class="{ 'hidden': foo }"></div>`
@@ -238,14 +259,23 @@ In this example, the "hidden" class will only be applied when the value of the `
 
 **`x-bind` for boolean attributes**
 
-`x-bind` supports boolean attributes in the same way that value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.
+`x-bind` supports boolean attributes in the same way as value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.
 
 For example:
-`<button x-bind:disabled="myVar">Click me</button>`
+```html
+<!-- Given: -->
+<button x-bind:disabled="myVar">Click me</button>
+
+<!-- When myVar == true: -->
+<button disabled="disabled">Click me</button>
+
+<!-- When myVar == false: -->
+<button>Click me</button>
+```
 
 This will add or remove the `disabled` attribute when `myVar` is true or false respectively.
 
-Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open` etc.
+Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open`, etc.
 
 ---
 
@@ -289,6 +319,11 @@ Adding `.prevent` to an event listener will call `preventDefault` on the trigger
 
 Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
 
+**`.self` modifier**
+**Example:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
+
+Adding `.self` to an event listener will only trigger the handler if the `$event.target` is the element itself. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
+
 **`.window` modifier**
 **Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
@@ -301,6 +336,20 @@ Adding `.window` to an event listener will install the listener on the global wi
 
 Adding the `.once` modifier to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
 
+**`.debounce` modifier**
+**Example:** `<input x-on:input.debounce="fetchSomething()">`
+
+The `debounce` modifier allows you to "debounce" an event handler. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
+
+The default debounce "wait" time is 250 milliseconds.
+
+If you wish to customize this, you can specifiy a custom wait time like so:
+
+```
+<input x-on:input.debounce.750="fetchSomething()">
+<input x-on:input.debounce.750ms="fetchSomething()">
+```
+
 ---
 
 ### `x-model`
@@ -311,6 +360,20 @@ Adding the `.once` modifier to an event listener will ensure that the listener w
 `x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
 
 > Note: `x-model` is smart enough to detect changes on text inputs, checkboxes, radio buttons, textareas, selects, and multiple selects. It should behave [how Vue would](https://vuejs.org/v2/guide/forms.html) in those scenarios.
+
+**`.debounce` modifier**
+**Example:** `<input x-model.debounce="search">`
+
+The `debounce` modifier allows you to add a "debounce" to a value update. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
+
+The default debounce "wait" time is 250 milliseconds.
+
+If you wish to customize this, you can specifiy a custom wait time like so:
+
+```
+<input x-model.debounce.750="search">
+<input x-model.debounce.750ms="search">
+```
 
 ---
 
@@ -329,6 +392,10 @@ Adding the `.once` modifier to an event listener will ensure that the listener w
 **Structure:** `<span x-html="[expression]"`
 
 `x-html` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerHTML` of an element.
+
+> :warning: **Only use on trusted content and never on user-provided content.** :warning:
+>
+> Dynamically rendering HTML from third parties can easily lead to [XSS](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) vulnerabilities.
 
 ---
 
@@ -366,9 +433,33 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 </template>
 ```
 
+> Note: the `:key` binding is optional, but HIGHLY recommended.
+
 `x-for` is available for cases when you want to create new DOM nodes for each item in an array. This should appear similar to `v-for` in Vue, with one exception of needing to exist on a `template` tag, and not a regular DOM element.
 
-> Note: the `:key` binding is optional, but HIGHLY recommended.
+If you want to access the current index of the iteration, use the following syntax:
+
+```html
+<template x-for="(item, index) in items" :key="index">
+    <!-- You can also reference "index" inside the iteration if you need. -->
+    <div x-text="index"></div>
+</template>
+```
+
+> Note: `x-for` must have a single element root inside of the `<template></template>` tag.
+
+#### Nesting `x-for`s
+You can nest `x-for` loops, but you MUST wrap each loop in an element. For example:
+
+```html
+<template x-for="item in items">
+    <div>
+        <template x-for="subItem in item.subItems">
+            <div x-text="subItem"></div>
+        </template>
+    </div>
+</template>
+```
 
 ---
 
@@ -398,6 +489,8 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
     >...</div>
 </template>
 ```
+
+> The example above uses classes from [Tailwind CSS](https://tailwindcss.com)
 
 Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
 
@@ -515,8 +608,25 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
 
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
-## v3 Roadmap
-* Move from `x-ref` to `ref` for Vue parity
+## Security
+If you find a security vulnerability, please send an email to [calebporzio@gmail.com]()
+
+Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP).
+
+If you use Alpine in a website dealing with sensitive data and requiring [CSP](https://csp.withgoogle.com/docs/strict-csp.html), you need to include `unsafe-eval` in your policy. A robust policy correctly configured will help protecting your users when using personal or financial data.
+
+Since a policy applies to all scripts in your page, it's important that other external libraries included in the website are carefully reviewed to ensure that they are trustworthy and they won't introduce any Cross Site Scripting vulnerability either using the `eval()` function or manipulating the DOM to inject malicious code in your page.
+
+## V3 Roadmap
+* Move from `x-ref` to `ref` for Vue parity?
+* Add `Alpine.directive()`
+* Add `Alpine.component('foo', {...})` (With magic `__init()` method)
+* Dispatch Alpine events for "loaded", "transition-start", etc... ([#299](https://github.com/alpinejs/alpine/pull/299)) ?
+* Remove "object" (and array) syntax from `x-bind:class="{ 'foo': true }"` ([#236](https://github.com/alpinejs/alpine/pull/236) to add support for object syntax for the `style` attribute)
+* Improve `x-for` mutation reactivity ([#165](https://github.com/alpinejs/alpine/pull/165))
+* Add "deep watching" support in V3 ([#294](https://github.com/alpinejs/alpine/pull/294))
+* Add `$el` shortcut
+* Change `@click.away` to `@click.outside`?
 
 ## License
 

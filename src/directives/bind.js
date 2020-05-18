@@ -1,6 +1,6 @@
 import { arrayUnique , isBooleanAttr } from '../utils'
 
-export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars) {
+export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
     var value = component.evaluateReturnExpression(el, expression, extraVars)
 
     if (attrName === 'value') {
@@ -10,7 +10,14 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         }
 
         if (el.type === 'radio') {
-            el.checked = el.value == value
+            // Set radio value from x-bind:value, if no "value" attribute exists.
+            // If there are any initial state values, radio will have a correct
+            // "checked" value since x-bind:value is processed before x-model.
+            if (el.attributes.value === undefined && attrType === 'bind') {
+                el.value = value
+            } else if (attrType !== 'bind') {
+                el.checked = el.value == value
+            }
         } else if (el.type === 'checkbox') {
             if (Array.isArray(value)) {
                 // I'm purposely not using Array.includes here because it's
@@ -36,6 +43,8 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         } else if (el.tagName === 'SELECT') {
             updateSelect(el, value)
         } else {
+            if (el.value === value) return
+
             el.value = value
         }
     } else if (attrName === 'class') {
@@ -43,27 +52,29 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             const originalClasses = el.__x_original_classes || []
             el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
         } else if (typeof value === 'object') {
-            Object.keys(value).forEach(classNames => {
+            // Sorting the keys / class names by their boolean value will ensure that
+            // anything that evaluates to `false` and needs to remove classes is run first.
+            const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
+
+            keysSortedByBooleanValue.forEach(classNames => {
                 if (value[classNames]) {
-                    classNames.split(' ').forEach(className => el.classList.add(className))
+                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.add(className))
                 } else {
-                    classNames.split(' ').forEach(className => el.classList.remove(className))
+                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.remove(className))
                 }
             })
         } else {
             const originalClasses = el.__x_original_classes || []
-            const newClasses = value.split(' ')
+            const newClasses = value.split(' ').filter(Boolean)
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
-    } else if (isBooleanAttr(attrName)) {
-        // Boolean attributes have to be explicitly added and removed, not just set.
-        if (!! value) {
-            el.setAttribute(attrName, '')
-        } else {
-            el.removeAttribute(attrName)
-        }
     } else {
-        el.setAttribute(attrName, value)
+        // If an attribute's bound value is null, undefined or false, remove the attribute
+        if ([null, undefined, false].includes(value)) {
+            el.removeAttribute(attrName)
+        } else {
+            isBooleanAttr(attrName) ? el.setAttribute(attrName, attrName) : el.setAttribute(attrName, value)
+        }
     }
 }
 

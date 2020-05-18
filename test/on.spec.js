@@ -63,6 +63,33 @@ test('.stop modifier', async () => {
     })
 })
 
+test('.self modifier', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <div x-on:click.self="foo = 'baz'" id="selfTarget">
+                <button></button>
+            </div>
+            <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual('bar')
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
+
+    document.querySelector('#selfTarget').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('baz')
+    })
+})
+
 test('.prevent modifier', async () => {
     document.body.innerHTML = `
         <div x-data="{}">
@@ -313,7 +340,6 @@ test('supports short syntax', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">
             <button @click="foo = 'baz'"></button>
-
             <span x-bind:foo="foo"></span>
         </div>
     `
@@ -408,4 +434,32 @@ test('event instance is passed to method reference', async () => {
     await new Promise(resolve => setTimeout(resolve, 1))
 
     expect(document.querySelector('span').innerText).toEqual('baz')
+})
+
+test('autocomplete event does not trigger keydown with modifier callback', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }">
+            <input type="text" x-on:keydown.?="count++">
+
+            <span x-text="count"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    const autocompleteEvent = new Event('keydown')
+
+    fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(0) })
+
+    fireEvent.keyDown(document.querySelector('input'), { key: '?' })
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+
+    fireEvent(document.querySelector('input'), autocompleteEvent)
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
 })

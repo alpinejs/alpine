@@ -1267,9 +1267,19 @@
   class Component {
     constructor(el, seedDataForCloning = null) {
       this.$el = el;
-      const dataAttr = this.$el.getAttribute('x-data');
+      let dataAttr = this.$el.getAttribute('x-data');
+
+      if (!dataAttr && this.$el.dataset.xData) {
+        dataAttr = this.$el.dataset.xData;
+      }
+
       const dataExpression = dataAttr === '' ? '{}' : dataAttr;
-      const initExpression = this.$el.getAttribute('x-init');
+      let initExpression = this.$el.getAttribute('x-init');
+
+      if (!initExpression && this.$el.dataset.xInit) {
+        initExpression = this.$el.dataset.xInit;
+      }
+
       this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {});
       // Construct a Proxy-based observable. This will be used to handle reactivity.
 
@@ -1364,7 +1374,7 @@
     walkAndSkipNestedComponents(el, callback, initializeComponentCallback = () => {}) {
       walk(el, el => {
         // We've hit a component.
-        if (el.hasAttribute('x-data')) {
+        if (el.hasAttribute('x-data') || el.dataset.xData) {
           // If it's not the current one.
           if (!el.isSameNode(this.$el)) {
             // Initialize it if it's not.
@@ -1562,11 +1572,12 @@
       const observer = new MutationObserver(mutations => {
         for (let i = 0; i < mutations.length; i++) {
           // Filter out mutations triggered from child components.
-          const closestParentComponent = mutations[i].target.closest('[x-data]');
+          const closestParentComponent = mutations[i].target.closest('[x-data], [data-x-data]');
           if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
 
-          if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-            const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
+          if (mutations[i].type === 'attributes' && (mutations[i].attributeName === 'x-data' || mutations[i].attributeName === 'data-x-data')) {
+            const dataExpression = mutations[i].attributeName === 'x-data' ? mutations[i].target.getAttribute('x-data') : mutations[i].target.dataset.xData;
+            const rawData = saferEval(dataExpression, {});
             Object.keys(rawData).forEach(key => {
               if (this.$data[key] !== rawData[key]) {
                 this.$data[key] = rawData[key];
@@ -1578,7 +1589,7 @@
             mutations[i].addedNodes.forEach(node => {
               if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
-              if (node.matches('[x-data]')) {
+              if (node.matches('[x-data], [data-x-data]')) {
                 node.__x = new Component(node);
                 return;
               }
@@ -1640,13 +1651,13 @@
       });
     },
     discoverComponents: function discoverComponents(callback) {
-      const rootEls = document.querySelectorAll('[x-data]');
+      const rootEls = document.querySelectorAll('[x-data], [data-x-data]');
       rootEls.forEach(rootEl => {
         callback(rootEl);
       });
     },
     discoverUninitializedComponents: function discoverUninitializedComponents(callback, el = null) {
-      const rootEls = (el || document).querySelectorAll('[x-data]');
+      const rootEls = (el || document).querySelectorAll('[x-data], [data-x-data]');
       Array.from(rootEls).filter(el => el.__x === undefined).forEach(rootEl => {
         callback(rootEl);
       });
@@ -1666,7 +1677,7 @@
               if (node.nodeType !== 1) return; // Discard any changes happening within an existing component.
               // They will take care of themselves.
 
-              if (node.parentElement && node.parentElement.closest('[x-data]')) return;
+              if (node.parentElement && node.parentElement.closest('[x-data], [data-x-data]')) return;
               this.discoverUninitializedComponents(el => {
                 this.initializeComponent(el);
               }, node.parentElement);

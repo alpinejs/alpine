@@ -13,9 +13,19 @@ export default class Component {
     constructor(el, seedDataForCloning = null) {
         this.$el = el
 
-        const dataAttr = this.$el.getAttribute('x-data')
+        let dataAttr = this.$el.getAttribute('x-data')
+
+        if (! dataAttr && this.$el.dataset.xData) {
+            dataAttr = this.$el.dataset.xData
+        }
+
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
-        const initExpression = this.$el.getAttribute('x-init')
+
+        let initExpression = this.$el.getAttribute('x-init')
+
+        if (! initExpression && this.$el.dataset.xInit) {
+            initExpression = this.$el.dataset.xInit
+        }
 
         this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {})
 
@@ -126,7 +136,7 @@ export default class Component {
     walkAndSkipNestedComponents(el, callback, initializeComponentCallback = () => {}) {
         walk(el, el => {
             // We've hit a component.
-            if (el.hasAttribute('x-data')) {
+            if (el.hasAttribute('x-data') || el.dataset.xData) {
                 // If it's not the current one.
                 if (! el.isSameNode(this.$el)) {
                     // Initialize it if it's not.
@@ -335,12 +345,13 @@ export default class Component {
         const observer = new MutationObserver((mutations) => {
             for (let i=0; i < mutations.length; i++) {
                 // Filter out mutations triggered from child components.
-                const closestParentComponent = mutations[i].target.closest('[x-data]')
+                const closestParentComponent = mutations[i].target.closest('[x-data], [data-x-data]')
 
                 if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue
 
-                if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-                    const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})
+                if (mutations[i].type === 'attributes' && (mutations[i].attributeName === 'x-data' || mutations[i].attributeName === 'data-x-data')) {
+                    const dataExpression = mutations[i].attributeName === 'x-data' ? mutations[i].target.getAttribute('x-data') : mutations[i].target.dataset.xData
+                    const rawData = saferEval(dataExpression, {})
 
                     Object.keys(rawData).forEach(key => {
                         if (this.$data[key] !== rawData[key]) {
@@ -353,7 +364,7 @@ export default class Component {
                     mutations[i].addedNodes.forEach(node => {
                         if (node.nodeType !== 1 || node.__x_inserted_me) return
 
-                        if (node.matches('[x-data]')) {
+                        if (node.matches('[x-data], [data-x-data]')) {
                             node.__x = new Component(node)
                             return
                         }

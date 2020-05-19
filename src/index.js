@@ -26,7 +26,7 @@ const Alpine = {
     },
 
     discoverComponents: function (callback) {
-        const rootEls = document.querySelectorAll('[x-data]');
+        const rootEls = document.querySelectorAll('[x-data], [data-x-data]');
 
         rootEls.forEach(rootEl => {
             callback(rootEl)
@@ -34,7 +34,7 @@ const Alpine = {
     },
 
     discoverUninitializedComponents: function (callback, el = null) {
-        const rootEls = (el || document).querySelectorAll('[x-data]');
+        const rootEls = (el || document).querySelectorAll('[x-data], [data-x-data]');
 
         Array.from(rootEls)
             .filter(el => el.__x === undefined)
@@ -61,7 +61,7 @@ const Alpine = {
 
                         // Discard any changes happening within an existing component.
                         // They will take care of themselves.
-                        if (node.parentElement && node.parentElement.closest('[x-data]')) return
+                        if (node.parentElement && node.parentElement.closest('[x-data], [data-x-data]')) return
 
                         this.discoverUninitializedComponents((el) => {
                             this.initializeComponent(el)

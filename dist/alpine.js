@@ -113,7 +113,7 @@
 
     return new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
   }
-  const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/;
+  const xAttrRE = /^(data-x|x)-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/;
   function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
@@ -125,7 +125,7 @@
       const valueMatch = name.match(/:([a-zA-Z\-:]+)/);
       const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
       return {
-        type: typeMatch ? typeMatch[1] : null,
+        type: typeMatch ? typeMatch[2] : null,
         value: valueMatch ? valueMatch[1] : null,
         modifiers: modifiers.map(i => i.replace('.', '')),
         expression: attr.value

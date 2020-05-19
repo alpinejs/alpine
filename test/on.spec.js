@@ -24,6 +24,24 @@ test('data modified in event listener updates affected attribute bindings', asyn
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
+test('data modified in data-x event listener updates affected attribute bindings', async () => {
+    document.body.innerHTML = `
+        <div data-x-data="{ foo: 'bar' }">
+            <button data-x-on:click="foo = 'baz'"></button>
+
+            <span data-x-bind:foo="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
+})
+
 test('nested data modified in event listener updates affected attribute bindings', async () => {
     document.body.innerHTML = `
         <div x-data="{ nested: { foo: 'bar' } }">

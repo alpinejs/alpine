@@ -7029,9 +7029,7 @@
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
-          }
-
-          if (el.hasAttribute('data-x-ref') && !refObj[el.getAttribute('data-x-ref')]) {
+          } else if (el.hasAttribute('data-x-ref')) {
             refObj[el.getAttribute('data-x-ref')] = true;
           }
         }.bind(this));

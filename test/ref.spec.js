@@ -23,6 +23,24 @@ test('can reference elements from event listeners', async () => {
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('lob') })
 })
 
+test('can reference data-x-ref elements from event listeners', async () => {
+    document.body.innerHTML = `
+        <div data-x-data="{}">
+            <span data-x-ref="bob"></span>
+
+            <button data-x-on:click="$refs['bob'].innerText = 'lob'"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual(undefined)
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('lob') })
+})
+
 test('can reference elements from data object methods', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo() { this.$refs.bob.innerText = 'lob' } }">

@@ -415,6 +415,8 @@ export default class Component {
                 self.walkAndSkipNestedComponents(self.$el, el => {
                     if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                         ref = el
+                    } else if (el.hasAttribute('data-x-ref') && el.getAttribute('data-x-ref') === property) {
+                        ref = el
                     }
                 })
 

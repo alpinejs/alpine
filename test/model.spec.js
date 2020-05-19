@@ -17,6 +17,18 @@ test('x-model has value binding when initialized', async () => {
     expect(document.querySelector('input').value).toEqual('bar')
 })
 
+test('data-x-model has value binding when initialized', async () => {
+    document.body.innerHTML = `
+        <div data-x-data="{ foo: 'bar' }">
+            <input data-x-model="foo"></input>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('bar')
+})
+
 test('x-model updates value when updated via input event', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">

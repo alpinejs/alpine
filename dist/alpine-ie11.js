@@ -6741,9 +6741,12 @@
           _newArrowCheck(this, _this8);
 
           el.__x = new Component(el);
-        }.bind(this));
+        }.bind(this)); // In presence of x-show directives walk through the $nextTick from inside the directive handler
+        // otherwise proceed with $nextTick
 
-        if (!this.executeAndClearRemainingShowDirectiveStack()) {
+        if (this.showDirectiveStack.length > 0) {
+          this.executeAndClearRemainingShowDirectiveStack();
+        } else {
           this.executeAndClearNextTickStack(rootEl);
         }
       }
@@ -6763,10 +6766,9 @@
       value: function executeAndClearRemainingShowDirectiveStack() {
         var _this9 = this;
 
-        if (this.showDirectiveStack.length === 0) return false; // The goal here is to start all the x-show transitions
+        // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
-
         this.showDirectiveStack.reverse().map(function (thing) {
           var _this10 = this;
 
@@ -6805,7 +6807,6 @@
 
         this.showDirectiveStack = [];
         this.showDirectiveLastElement = undefined;
-        return true;
       }
     }, {
       key: "updateElement",

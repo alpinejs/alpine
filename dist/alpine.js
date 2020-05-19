@@ -631,7 +631,7 @@
     }
 
     const tick = () => {
-      component.executeAndClearNextTickStack(component.$el);
+      setTimeout(() => component.executeAndClearNextTickStack(component.$el));
     };
 
     const handle = resolve => {

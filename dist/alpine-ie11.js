@@ -6107,25 +6107,31 @@
     }
 
     var tick = function tick() {
+      var _this2 = this;
+
       _newArrowCheck(this, _this);
 
-      component.executeAndClearNextTickStack(component.$el);
+      setTimeout(function () {
+        _newArrowCheck(this, _this2);
+
+        return component.executeAndClearNextTickStack(component.$el);
+      }.bind(this));
     }.bind(this);
 
     var handle = function handle(resolve) {
-      var _this2 = this;
+      var _this3 = this;
 
       _newArrowCheck(this, _this);
 
       if (!value) {
         if (el.style.display !== 'none') {
           transitionOut(el, function () {
-            var _this3 = this;
+            var _this4 = this;
 
-            _newArrowCheck(this, _this2);
+            _newArrowCheck(this, _this3);
 
             resolve(function () {
-              _newArrowCheck(this, _this3);
+              _newArrowCheck(this, _this4);
 
               hide();
               tick();
@@ -6133,13 +6139,13 @@
           }.bind(this));
         } else {
           resolve(function () {
-            _newArrowCheck(this, _this2);
+            _newArrowCheck(this, _this3);
           }.bind(this));
         }
       } else {
         if (el.style.display !== '') {
           transitionIn(el, function () {
-            _newArrowCheck(this, _this2);
+            _newArrowCheck(this, _this3);
 
             show();
             tick();
@@ -6148,7 +6154,7 @@
 
 
         resolve(function () {
-          _newArrowCheck(this, _this2);
+          _newArrowCheck(this, _this3);
         }.bind(this));
       }
     }.bind(this); // The working of x-show is a bit complex because we need to

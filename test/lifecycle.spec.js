@@ -22,6 +22,23 @@ test('x-init', async () => {
     expect(spanValue).toEqual('baz')
 })
 
+test('data-x-init', async () => {
+    var spanValue
+    window.setSpanValue = (el) => {
+        spanValue = el.innerHTML
+    }
+
+    document.body.innerHTML = `
+        <div data-x-data="{ foo: 'bar' }" data-x-init="window.setSpanValue($refs.foo)">
+            <span data-x-text="foo" data-x-ref="foo">baz</span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(spanValue).toEqual('baz')
+})
+
 test('x-init from data function with callback return for "x-mounted" functionality', async () => {
     var valueA
     var valueB

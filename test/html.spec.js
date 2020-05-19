@@ -17,6 +17,18 @@ test('x-html on init', async () => {
     await wait(() => { expect(document.querySelector('span').innerHTML).toEqual('<h1>bar</h1>') })
 })
 
+test('data-x-html on init', async () => {
+    document.body.innerHTML = `
+        <div data-x-data="{ foo: '<h1>bar</h1>' }">
+            <span data-x-html="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelector('span').innerHTML).toEqual('<h1>bar</h1>') })
+})
+
 test('x-html on triggered update', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: '' }">

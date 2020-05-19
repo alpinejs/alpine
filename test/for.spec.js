@@ -29,6 +29,30 @@ test('x-for', async () => {
     expect(document.querySelectorAll('span')[1].innerText).toEqual('bar')
 })
 
+test('data-x-for', async () => {
+    document.body.innerHTML = `
+        <div data-x-data="{ items: ['foo'] }">
+            <button data-x-on:click="items = ['foo', 'bar']"></button>
+
+            <template data-x-for="item in items">
+                <span data-x-text="item"></span>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span').length).toEqual(1)
+    expect(document.querySelectorAll('span')[0].innerText).toEqual('foo')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(2) })
+
+    expect(document.querySelectorAll('span')[0].innerText).toEqual('foo')
+    expect(document.querySelectorAll('span')[1].innerText).toEqual('bar')
+})
+
 test('removes all elements when array is empty and previously had one item', async () => {
     document.body.innerHTML = `
         <div x-data="{ items: ['foo'] }">

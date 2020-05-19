@@ -35,6 +35,39 @@ test('auto-detect new components at the top level', async () => {
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
 
+test('auto-detect new data-x components at the top level', async () => {
+    var runObservers = []
+
+    global.MutationObserver = class {
+        constructor(callback) { runObservers.push(callback) }
+        observe() {}
+    }
+
+    document.body.innerHTML = `
+        <section></section>
+    `
+
+    Alpine.start()
+
+    document.querySelector('section').innerHTML = `
+        <div data-x-data="{ foo: '' }">
+            <input data-x-model="foo">
+            <span data-x-text="foo"></span>
+        </div>
+    `
+    runObservers[0]([
+        {
+            target: document.querySelector('section'),
+            type: 'childList',
+            addedNodes: [ document.querySelector('div') ],
+        }
+    ])
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+})
+
 test('auto-detect nested new components at the top level', async () => {
     var runObservers = []
 

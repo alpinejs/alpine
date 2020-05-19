@@ -15,16 +15,16 @@ export default class Component {
 
         let dataAttr = this.$el.getAttribute('x-data')
 
-        if (! dataAttr && this.$el.dataset.xData) {
-            dataAttr = this.$el.dataset.xData
+        if (! dataAttr && this.$el.getAttribute('data-x-data')) {
+            dataAttr = this.$el.getAttribute('data-x-data')
         }
 
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
 
         let initExpression = this.$el.getAttribute('x-init')
 
-        if (! initExpression && this.$el.dataset.xInit) {
-            initExpression = this.$el.dataset.xInit
+        if (! initExpression && this.$el.getAttribute('data-x-init')) {
+            initExpression = this.$el.getAttribute('data-x-init')
         }
 
         this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {})
@@ -302,6 +302,7 @@ export default class Component {
 
                 case 'cloak':
                     el.removeAttribute('x-cloak')
+                    el.removeAttribute('data-x-cloak')
                     break;
 
                 default:
@@ -393,6 +394,8 @@ export default class Component {
             this.walkAndSkipNestedComponents(self.$el, el => {
                 if (el.hasAttribute('x-ref')) {
                     refObj[el.getAttribute('x-ref')] = true
+                } else if (el.hasAttribute('data-x-ref')) {
+                    refObj[el.getAttribute('data-x-ref')] = true
                 }
             })
         /* IE11-ONLY:END */

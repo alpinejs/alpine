@@ -37,6 +37,37 @@ test('x-on with debounce modifier', async () => {
     expect(document.querySelector('span').innerText).toEqual(1)
 })
 
+test('data-x-on with debounce modifier', async () => {
+    document.body.innerHTML = `
+        <div data-x-data="{foo: 0}">
+          <input data-x-on:input.debounce="foo++" />
+          <span data-x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
+
+    await timeout(10)
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    await timeout(10)
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    await timeout(249)
+
+    expect(document.querySelector('span').innerText).toEqual(0)
+
+    await timeout(20)
+
+    expect(document.querySelector('span').innerText).toEqual(1)
+})
+
 test('x-on with debounce modifier and specified wait', async () => {
     document.body.innerHTML = `
         <div x-data="{foo: 0}">

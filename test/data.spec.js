@@ -19,6 +19,20 @@ test('data manipulated on component object is reactive', async () => {
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('baz') })
 })
 
+test('data-x data manipulated on component object is reactive', async () => {
+    document.body.innerHTML = `
+        <div data-x-data="{ foo: 'bar' }">
+            <span data-x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('div').__x.$data.foo = 'baz'
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('baz') })
+})
+
 test('x-data attribute value is optional', async () => {
     document.body.innerHTML = `
         <div x-data>

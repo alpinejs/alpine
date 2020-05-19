@@ -18,3 +18,17 @@ test('x-cloak is removed', async () => {
 
     await wait(() => { expect(document.querySelector('span').getAttribute('x-cloak')).toBeNull() })
 })
+
+test('data-x-cloak is removed', async () => {
+    document.body.innerHTML = `
+        <div data-x-data="{ hidden: true }">
+            <span data-x-cloak></span>
+        </div>
+    `
+
+    expect(document.querySelector('span').getAttribute('data-x-cloak')).not.toBeNull()
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('data-x-cloak')).toBeNull() })
+})

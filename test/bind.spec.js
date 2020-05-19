@@ -17,6 +17,18 @@ test('attribute bindings are set on initialize', async () => {
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 })
 
+test('data attribute bindings are set on initialize', async () => {
+    document.body.innerHTML = `
+        <div data-x-data="{ foo: 'bar' }">
+            <span data-x-bind:foo="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
+})
+
 test('class attribute bindings are merged by string syntax', async () => {
     document.body.innerHTML = `
         <div x-data="{ isOn: false }">

@@ -6520,8 +6520,18 @@
 
       this.$el = el;
       var dataAttr = this.$el.getAttribute('x-data');
+
+      if (!dataAttr && this.$el.getAttribute('data-x-data')) {
+        dataAttr = this.$el.getAttribute('data-x-data');
+      }
+
       var dataExpression = dataAttr === '' ? '{}' : dataAttr;
       var initExpression = this.$el.getAttribute('x-init');
+
+      if (!initExpression && this.$el.getAttribute('data-x-init')) {
+        initExpression = this.$el.getAttribute('data-x-init');
+      }
+
       this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {});
       /* IE11-ONLY:START */
       // For IE11, add our magic properties to the original data for access.
@@ -6666,7 +6676,7 @@
           _newArrowCheck(this, _this6);
 
           // We've hit a component.
-          if (el.hasAttribute('x-data')) {
+          if (el.hasAttribute('x-data') || el.dataset.xData) {
             // If it's not the current one.
             if (!el.isSameNode(this.$el)) {
               // Initialize it if it's not.
@@ -6900,6 +6910,7 @@
 
             case 'cloak':
               el.removeAttribute('x-cloak');
+              el.removeAttribute('data-x-cloak');
               break;
           }
         }.bind(this));
@@ -6962,14 +6973,15 @@
 
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
-            var closestParentComponent = mutations[i].target.closest('[x-data]');
+            var closestParentComponent = mutations[i].target.closest('[x-data], [data-x-data]');
             if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
 
-            if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
+            if (mutations[i].type === 'attributes' && (mutations[i].attributeName === 'x-data' || mutations[i].attributeName === 'data-x-data')) {
               (function () {
                 var _this22 = this;
 
-                var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
+                var dataExpression = mutations[i].attributeName === 'x-data' ? mutations[i].target.getAttribute('x-data') : mutations[i].target.dataset.xData;
+                var rawData = saferEval(dataExpression, {});
                 Object.keys(rawData).forEach(function (key) {
                   _newArrowCheck(this, _this22);
 
@@ -6986,7 +6998,7 @@
 
                 if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
-                if (node.matches('[x-data]')) {
+                if (node.matches('[x-data], [data-x-data]')) {
                   node.__x = new Component(node);
                   return;
                 }
@@ -7017,6 +7029,10 @@
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
+          }
+
+          if (el.hasAttribute('data-x-ref') && !refObj[el.getAttribute('data-x-ref')]) {
+            refObj[el.getAttribute('data-x-ref')] = true;
           }
         }.bind(this));
         /* IE11-ONLY:END */
@@ -7109,7 +7125,7 @@
     discoverComponents: function discoverComponents(callback) {
       var _this3 = this;
 
-      var rootEls = document.querySelectorAll('[x-data]');
+      var rootEls = document.querySelectorAll('[x-data], [data-x-data]');
       rootEls.forEach(function (rootEl) {
         _newArrowCheck(this, _this3);
 
@@ -7120,7 +7136,7 @@
       var _this4 = this;
 
       var el = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var rootEls = (el || document).querySelectorAll('[x-data]');
+      var rootEls = (el || document).querySelectorAll('[x-data], [data-x-data]');
       Array.from(rootEls).filter(function (el) {
         _newArrowCheck(this, _this4);
 
@@ -7156,7 +7172,7 @@
               if (node.nodeType !== 1) return; // Discard any changes happening within an existing component.
               // They will take care of themselves.
 
-              if (node.parentElement && node.parentElement.closest('[x-data]')) return;
+              if (node.parentElement && node.parentElement.closest('[x-data], [data-x-data]')) return;
               this.discoverUninitializedComponents(function (el) {
                 _newArrowCheck(this, _this7);
 

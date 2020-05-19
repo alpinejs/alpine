@@ -630,12 +630,17 @@
       return;
     }
 
+    const tick = () => {
+      component.executeAndClearNextTickStack(component.$el);
+    };
+
     const handle = resolve => {
       if (!value) {
         if (el.style.display !== 'none') {
           transitionOut(el, () => {
             resolve(() => {
               hide();
+              tick();
             });
           });
         } else {
@@ -645,6 +650,7 @@
         if (el.style.display !== '') {
           transitionIn(el, () => {
             show();
+            tick();
           });
         } // Resolve immediately, only hold up parent `x-show`s for hidin.
 
@@ -1411,8 +1417,10 @@
       }, el => {
         el.__x = new Component(el);
       });
-      this.executeAndClearRemainingShowDirectiveStack();
-      this.executeAndClearNextTickStack(rootEl);
+
+      if (!this.executeAndClearRemainingShowDirectiveStack()) {
+        this.executeAndClearNextTickStack(rootEl);
+      }
     }
 
     executeAndClearNextTickStack(el) {
@@ -1426,9 +1434,10 @@
     }
 
     executeAndClearRemainingShowDirectiveStack() {
-      // The goal here is to start all the x-show transitions
+      if (this.showDirectiveStack.length === 0) return false; // The goal here is to start all the x-show transitions
       // and build a nested promise chain so that elements
       // only hide when the children are finished hiding.
+
       this.showDirectiveStack.reverse().map(thing => {
         return new Promise(resolve => {
           thing(finish => {
@@ -1443,6 +1452,7 @@
 
       this.showDirectiveStack = [];
       this.showDirectiveLastElement = undefined;
+      return true;
     }
 
     updateElement(el, extraVars) {

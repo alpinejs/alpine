@@ -180,9 +180,9 @@ export default class Component {
             el.__x = new Component(el)
         })
 
-        this.executeAndClearRemainingShowDirectiveStack()
-
-        this.executeAndClearNextTickStack(rootEl)
+        if (! this.executeAndClearRemainingShowDirectiveStack()) {
+            this.executeAndClearNextTickStack(rootEl)
+        }
     }
 
     executeAndClearNextTickStack(el) {
@@ -196,6 +196,7 @@ export default class Component {
     }
 
     executeAndClearRemainingShowDirectiveStack() {
+        if (this.showDirectiveStack.length === 0) return false
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
@@ -214,6 +215,7 @@ export default class Component {
         // We've processed the handler stack. let's clear it.
         this.showDirectiveStack = []
         this.showDirectiveLastElement = undefined
+        return true
     }
 
     updateElement(el, extraVars) {

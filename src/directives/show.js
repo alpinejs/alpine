@@ -22,12 +22,17 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
         return
     }
 
+    const tick = () => {
+        component.executeAndClearNextTickStack(component.$el)
+    }
+
     const handle = (resolve) => {
         if (! value) {
             if ( el.style.display !== 'none' ) {
                 transitionOut(el, () => {
                     resolve(() => {
                         hide()
+                        tick()
                     })
                 })
             } else {
@@ -37,6 +42,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
             if ( el.style.display !== '' ) {
                 transitionIn(el, () => {
                     show()
+                    tick()
                 })
             }
 

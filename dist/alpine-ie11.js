@@ -6106,6 +6106,12 @@
       return;
     }
 
+    var tick = function tick() {
+      _newArrowCheck(this, _this);
+
+      component.executeAndClearNextTickStack(component.$el);
+    }.bind(this);
+
     var handle = function handle(resolve) {
       var _this2 = this;
 
@@ -6122,6 +6128,7 @@
               _newArrowCheck(this, _this3);
 
               hide();
+              tick();
             }.bind(this));
           }.bind(this));
         } else {
@@ -6135,6 +6142,7 @@
             _newArrowCheck(this, _this2);
 
             show();
+            tick();
           }.bind(this));
         } // Resolve immediately, only hold up parent `x-show`s for hidin.
 
@@ -6734,8 +6742,10 @@
 
           el.__x = new Component(el);
         }.bind(this));
-        this.executeAndClearRemainingShowDirectiveStack();
-        this.executeAndClearNextTickStack(rootEl);
+
+        if (!this.executeAndClearRemainingShowDirectiveStack()) {
+          this.executeAndClearNextTickStack(rootEl);
+        }
       }
     }, {
       key: "executeAndClearNextTickStack",
@@ -6753,9 +6763,10 @@
       value: function executeAndClearRemainingShowDirectiveStack() {
         var _this9 = this;
 
-        // The goal here is to start all the x-show transitions
+        if (this.showDirectiveStack.length === 0) return false; // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
+
         this.showDirectiveStack.reverse().map(function (thing) {
           var _this10 = this;
 
@@ -6794,6 +6805,7 @@
 
         this.showDirectiveStack = [];
         this.showDirectiveLastElement = undefined;
+        return true;
       }
     }, {
       key: "updateElement",

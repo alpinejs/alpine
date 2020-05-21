@@ -303,6 +303,43 @@
                 </tr>
 
                 <tr>
+                    <td>Transitions then nextTick</td>
+                    <td>
+                        <div x-data="{ open: false }">
+                            <button x-on:click="open= ! open; if (open) $nextTick(()=>{$refs.input.focus()});">
+                                Open Modal then Focus Input
+                            </button>
+
+                            <div x-show="open"
+                                x-transition:enter="transition-medium"
+                                x-transition:leave="transition-medium">
+                                <div x-show="open"
+                                    x-transition:enter="transition-medium"
+                                    x-transition:enter-start="opacity-0"
+                                    x-transition:leave-end="opacity-0"
+                                    x-transition:leave="transition-medium"></div>
+                                <div x-show="open"
+                                    x-transition:enter-start="opacity-0 scale-90"
+                                    x-transition:enter="ease-out transition-medium"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave="ease-in transition-faster"
+                                    x-transition:leave-end="opacity-0 scale-90">
+                                    <div>
+                                        <input x-ref="input">
+                                    </div>
+                                    <div>
+                                        <button x-on:click="open= false" type="button">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Transitions (with x-if)</td>
                     <td>
                         <div x-data="{ open: false }">

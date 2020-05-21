@@ -12,6 +12,27 @@
             .scale-100 { transform: scale(1); }
             .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
             .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+
+            /** Thanks Animate.css */
+            .animation {animation-duration: 1000ms; --animate-duration: 1000ms; }
+            @keyframes jackInTheBox {
+                from { opacity: 0; transform: scale(0.1) rotate(30deg); transform-origin: center bottom; }
+                50% { transform: rotate(-10deg); }
+                70% { transform: rotate(3deg); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes hinge {
+                0% {animation-timing-function: ease-in-out;}
+                20%, 60% { transform: rotate3d(0, 0, 1, 80deg); animation-timing-function: ease-in-out; }
+                40%, 80% { transform: rotate3d(0, 0, 1, 60deg); animation-timing-function: ease-in-out; opacity: 1; }
+                to { transform: translate3d(0, 700px, 0); opacity: 0; }
+            }
+            .jackInTheBox {animation-name: jackInTheBox;}
+            .hinge {
+                animation-duration: calc(var(--animate-duration) * 2);
+                animation-name: hinge;
+                transform-origin: top left;
+            }
         </style>
 
         <script src="/dist/alpine.js" defer></script>
@@ -288,6 +309,31 @@
                                     x-transition:leave-start="opacity-100 scale-100"
                                     x-transition:leave="ease-in transition-faster"
                                     x-transition:leave-end="opacity-0 scale-90">
+                                    <div>
+                                        hey
+                                    </div>
+                                    <div>
+                                        <button x-on:click="open= false" type="button">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>CSS animations</td>
+                    <td>
+                        <div x-data="{ open: false }">
+                            <button x-on:click="open= ! open">
+                                Open Modal
+                            </button>
+
+                            <div x-show="open"
+                                x-transition:enter="animation jackInTheBox"
+                                x-transition:leave="animation hinge">
                                     <div>
                                         hey
                                     </div>

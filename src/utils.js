@@ -50,7 +50,7 @@ export function debounce(func, wait) {
 }
 
 export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
-    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var result; with($data) { result = ${expression} }; return result`))(
+    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`))(
         dataContext, ...Object.values(additionalHelperVariables)
     )
 }

@@ -44,3 +44,46 @@ test('nextTick wait for x-for to finish rendering', async () => {
 
     await wait(() => { expect(document.querySelector('p').innerText).toEqual(3) })
 })
+
+test('nextTick wait for x-show directives and transitions to start', async () => {
+    document.body.innerHTML = `
+        <div x-data="{show: false, foo: 'bar'}">
+            <div x-show="show"
+            x-transition:enter="enter"
+            x-transition:enter-start="enter-start"
+            x-transition:enter-end="enter-end">
+
+                <div x-show="show"
+                x-transition:enter="enter"
+                x-transition:enter-start="enter-start"
+                x-transition:enter-end="enter-end"></div>
+
+                <div id="modal" x-show="show"
+                x-transition:enter="enter"
+                x-transition:enter-start="enter-start"
+                x-transition:enter-end="enter-end"></div>
+
+            </div>
+
+            <button x-on:click="show = true; $nextTick(() => {foo = document.querySelector('#modal').getAttribute('style')});"></button>
+
+            <span x-text="foo"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => {
+        expect(document.querySelector('#modal').getAttribute('style')).toEqual('display: none;')
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('#modal').getAttribute('style')).toEqual(null)
+        // NextTick should run after we show the element so the style property should be null
+        // We stash the style property in a variable so we can test it without worrying about timing issues
+        expect(document.querySelector('span').innerText).toEqual(null)
+    })
+})

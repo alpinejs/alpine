@@ -23,14 +23,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
                 // I'm purposely not using Array.includes here because it's
                 // strict, and because of Numeric/String mis-casting, I
                 // want the "includes" to be "fuzzy".
-                let valueFound = false
-                value.forEach(val => {
-                    if (val == el.value) {
-                        valueFound = true
-                    }
-                })
-
-                el.checked = valueFound
+                el.checked = value.some(val => val == el.value)
             } else {
                 el.checked = !! value
             }

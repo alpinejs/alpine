@@ -131,7 +131,7 @@ And 6 magic properties:
 
 **Want your logo here? [DM on Twitter](https://twitter.com/calebporzio)**
 
-## VIP Contributers
+## VIP Contributors
 
 <table>
   <tr>

@@ -443,3 +443,37 @@ test('extra whitespace in class binding string syntax is ignored', async () => {
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
 })
+
+test('can bind an object of directives', async () => {
+    window.modal = () => {
+        return {
+            show: false,
+            trigger: {
+                '@click'() { this.show = ! this.show }
+            },
+            dialogue: {
+                'x-show'() { return this.show }
+            },
+        }
+    }
+
+    document.body.innerHTML = `
+        <div x-data="window.modal()">
+            <button x-bind="trigger">Toggle</button>
+
+            <span x-bind="dialogue">Modal Body</span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual(null) })
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
+})

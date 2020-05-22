@@ -38,7 +38,40 @@
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
-        <table>
+
+        <div x-data="{ show: false }">
+            <button @click="show = ! show">Toggle</button>
+
+            <div x-show="show">
+                Modal Body
+            </div>
+        </div>
+
+        <hr>
+
+        <div x-data="modal()">
+            <button x-bind="trigger">Toggle</button>
+
+            <div x-bind="dialogue">
+                Modal Body
+            </div>
+        </div>
+
+        <script>
+            function modal() {
+               return {
+                   show: false,
+                   trigger: {
+                       'click': () => { this.show = ! this.show }
+                   },
+                   dialogue: {
+                       'x-show': () => { return this.show }
+                   },
+               }
+            }
+        </script>
+
+        <!-- <table>
             <thead>
                 <tr>
                     <th>Feature</th>
@@ -435,6 +468,6 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
+        </table> -->
     </body>
 </html>

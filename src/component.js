@@ -162,7 +162,7 @@ export default class Component {
     initializeElement(el, extraVars) {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
-        if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
+        if (el.hasAttribute('class') && getXAttrs(el, undefined, this).length > 0) {
             el.__x_original_classes = el.getAttribute('class').split(' ')
         }
 
@@ -221,7 +221,7 @@ export default class Component {
     }
 
     registerListeners(el, extraVars) {
-        getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
+        getXAttrs(el, undefined, this).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'on':
                     registerListener(this, el, value, modifiers, expression, extraVars)
@@ -237,7 +237,7 @@ export default class Component {
     }
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
-        let attrs = getXAttrs(el)
+        let attrs = getXAttrs(el, undefined, this)
         if (el.type !== undefined && el.type === 'radio') {
             // If there's an x-model on a radio input, move it to end of attribute list
             // to ensure that x-bind:value (if present) is processed first.

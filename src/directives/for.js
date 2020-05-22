@@ -19,7 +19,7 @@ export function handleForDirective(component, templateEl, expression, initialUpd
             nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
 
             // And transition it in if it's not the first page load.
-            transitionIn(nextEl, () => {}, initialUpdate)
+            transitionIn(nextEl, () => {}, component, initialUpdate)
 
             nextEl.__x_for = iterationScopeVariables
             component.initializeElements(nextEl, () => nextEl.__x_for)
@@ -75,7 +75,7 @@ function getIterationScopeVariables(iteratorNames, item, index, items, extraVars
 }
 
 function generateKeyForIteration(component, el, index, iterationScopeVariables) {
-    let bindKeyAttribute = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0]
+    let bindKeyAttribute = getXAttrs(el, 'bind', component).filter(attr => attr.value === 'key')[0]
 
     // If the dev hasn't specified a key, just return the index of the iteration.
     if (! bindKeyAttribute) return index
@@ -88,7 +88,7 @@ function warnIfNotTemplateTag(el) {
 }
 
 function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
-    let ifAttribute = getXAttrs(el, 'if')[0]
+    let ifAttribute = getXAttrs(el, 'if', component)[0]
 
     if (ifAttribute && ! component.evaluateReturnExpression(el, ifAttribute.expression)) {
         return []
@@ -134,7 +134,7 @@ function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
         let nextSibling = nextElementFromOldLoop.nextElementSibling
         transitionOut(nextElementFromOldLoop, () => {
             nextElementFromOldLoopImmutable.remove()
-        })
+        }, component)
         nextElementFromOldLoop = (nextSibling && nextSibling.__x_for_key !== undefined) ? nextSibling : false
     }
 }

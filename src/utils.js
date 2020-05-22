@@ -50,12 +50,20 @@ export function debounce(func, wait) {
 }
 
 export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
+    if (typeof expression === 'function') {
+        return expression.call(dataContext)
+    }
+
     return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`))(
         dataContext, ...Object.values(additionalHelperVariables)
     )
 }
 
 export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
+    if (typeof expression === 'function') {
+        expression.call(dataContext)
+    }
+
     // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
     // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
     if (Object.keys(dataContext).includes(expression)) {
@@ -80,21 +88,17 @@ export function isXAttr(attr) {
     return xAttrRE.test(name)
 }
 
-export function getXAttrs(el, type) {
+export function getXAttrs(el, type, component) {
     return Array.from(el.attributes)
         .filter(isXAttr)
-        .map(attr => {
-            const name = replaceAtAndColonWithStandardSyntax(attr.name)
+        .map(parseHtmlAttribute)
+        .flatMap(i => {
+            if (i.type === 'bind' && i.value === null) {
+                let directiveBindings = saferEval(i.expression, component.$data)
 
-            const typeMatch = name.match(xAttrRE)
-            const valueMatch = name.match(/:([a-zA-Z\-:]+)/)
-            const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
-
-            return {
-                type: typeMatch ? typeMatch[1] : null,
-                value: valueMatch ? valueMatch[1] : null,
-                modifiers: modifiers.map(i => i.replace('.', '')),
-                expression: attr.value,
+                return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({ name, value }))
+            } else {
+                return i
             }
         })
         .filter(i => {
@@ -103,6 +107,21 @@ export function getXAttrs(el, type) {
 
             return i.type === type
         })
+}
+
+function parseHtmlAttribute({ name, value }) {
+    const normalizedName = replaceAtAndColonWithStandardSyntax(name)
+
+    const typeMatch = normalizedName.match(xAttrRE)
+    const valueMatch = normalizedName.match(/:([a-zA-Z\-:]+)/)
+    const modifiers = normalizedName.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
+
+    return {
+        type: typeMatch ? typeMatch[1] : null,
+        value: valueMatch ? valueMatch[1] : null,
+        modifiers: modifiers.map(i => i.replace('.', '')),
+        expression: value,
+    }
 }
 
 export function isBooleanAttr(attrName) {
@@ -129,12 +148,12 @@ export function replaceAtAndColonWithStandardSyntax(name) {
     return name
 }
 
-export function transitionIn(el, show, forceSkip = false) {
+export function transitionIn(el, show, component, forceSkip = false) {
     // We don't want to transition on the initial page load.
     if (forceSkip) return show()
 
-    const attrs = getXAttrs(el, 'transition')
-    const showAttr = getXAttrs(el, 'show')[0]
+    const attrs = getXAttrs(el, 'transition', component)
+    const showAttr = getXAttrs(el, 'show', component)[0]
 
     // If this is triggered by a x-show.transition.
     if (showAttr && showAttr.modifiers.includes('transition')) {
@@ -159,11 +178,11 @@ export function transitionIn(el, show, forceSkip = false) {
     }
 }
 
-export function transitionOut(el, hide, forceSkip = false) {
+export function transitionOut(el, hide, component, forceSkip = false) {
     if (forceSkip) return hide()
 
-    const attrs = getXAttrs(el, 'transition')
-    const showAttr = getXAttrs(el, 'show')[0]
+    const attrs = getXAttrs(el, 'transition', component)
+    const showAttr = getXAttrs(el, 'show', component)[0]
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
         let modifiers = showAttr.modifiers

@@ -98,11 +98,19 @@
     };
   }
   function saferEval(expression, dataContext, additionalHelperVariables = {}) {
+    if (typeof expression === 'function') {
+      return expression.call(dataContext);
+    }
+
     return new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`)(dataContext, ...Object.values(additionalHelperVariables));
   }
   function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
-    // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+    if (typeof expression === 'function') {
+      expression.call(dataContext);
+    } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
     // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+
+
     if (Object.keys(dataContext).includes(expression)) {
       let methodReference = new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { return ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
 
@@ -118,24 +126,40 @@
     const name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
   }
-  function getXAttrs(el, type) {
-    return Array.from(el.attributes).filter(isXAttr).map(attr => {
-      const name = replaceAtAndColonWithStandardSyntax(attr.name);
-      const typeMatch = name.match(xAttrRE);
-      const valueMatch = name.match(/:([a-zA-Z\-:]+)/);
-      const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
-      return {
-        type: typeMatch ? typeMatch[1] : null,
-        value: valueMatch ? valueMatch[1] : null,
-        modifiers: modifiers.map(i => i.replace('.', '')),
-        expression: attr.value
-      };
+  function getXAttrs(el, type, component) {
+    return Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute).flatMap(i => {
+      if (i.type === 'bind' && i.value === null) {
+        let directiveBindings = saferEval(i.expression, component.$data);
+        return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({
+          name,
+          value
+        }));
+      } else {
+        return i;
+      }
     }).filter(i => {
       // If no type is passed in for filtering, bypass filter
       if (!type) return true;
       return i.type === type;
     });
   }
+
+  function parseHtmlAttribute({
+    name,
+    value
+  }) {
+    const normalizedName = replaceAtAndColonWithStandardSyntax(name);
+    const typeMatch = normalizedName.match(xAttrRE);
+    const valueMatch = normalizedName.match(/:([a-zA-Z\-:]+)/);
+    const modifiers = normalizedName.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
+    return {
+      type: typeMatch ? typeMatch[1] : null,
+      value: valueMatch ? valueMatch[1] : null,
+      modifiers: modifiers.map(i => i.replace('.', '')),
+      expression: value
+    };
+  }
+
   function isBooleanAttr(attrName) {
     // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
     // Array roughly ordered by estimated usage
@@ -151,11 +175,11 @@
 
     return name;
   }
-  function transitionIn(el, show, forceSkip = false) {
+  function transitionIn(el, show, component, forceSkip = false) {
     // We don't want to transition on the initial page load.
     if (forceSkip) return show();
-    const attrs = getXAttrs(el, 'transition');
-    const showAttr = getXAttrs(el, 'show')[0]; // If this is triggered by a x-show.transition.
+    const attrs = getXAttrs(el, 'transition', component);
+    const showAttr = getXAttrs(el, 'show', component)[0]; // If this is triggered by a x-show.transition.
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers; // If x-show.transition.out, we'll skip the "in" transition.
@@ -172,10 +196,10 @@
       show();
     }
   }
-  function transitionOut(el, hide, forceSkip = false) {
+  function transitionOut(el, hide, component, forceSkip = false) {
     if (forceSkip) return hide();
-    const attrs = getXAttrs(el, 'transition');
-    const showAttr = getXAttrs(el, 'show')[0];
+    const attrs = getXAttrs(el, 'transition', component);
+    const showAttr = getXAttrs(el, 'show', component)[0];
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers;
@@ -406,7 +430,7 @@
       if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-        transitionIn(nextEl, () => {}, initialUpdate);
+        transitionIn(nextEl, () => {}, component, initialUpdate);
         nextEl.__x_for = iterationScopeVariables;
         component.initializeElements(nextEl, () => nextEl.__x_for); // Otherwise update the element we found.
       } else {
@@ -457,7 +481,7 @@
   }
 
   function generateKeyForIteration(component, el, index, iterationScopeVariables) {
-    let bindKeyAttribute = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0]; // If the dev hasn't specified a key, just return the index of the iteration.
+    let bindKeyAttribute = getXAttrs(el, 'bind', component).filter(attr => attr.value === 'key')[0]; // If the dev hasn't specified a key, just return the index of the iteration.
 
     if (!bindKeyAttribute) return index;
     return component.evaluateReturnExpression(el, bindKeyAttribute.expression, () => iterationScopeVariables);
@@ -468,7 +492,7 @@
   }
 
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
-    let ifAttribute = getXAttrs(el, 'if')[0];
+    let ifAttribute = getXAttrs(el, 'if', component)[0];
 
     if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
       return [];
@@ -509,7 +533,7 @@
       let nextSibling = nextElementFromOldLoop.nextElementSibling;
       transitionOut(nextElementFromOldLoop, () => {
         nextElementFromOldLoopImmutable.remove();
-      });
+      }, component);
       nextElementFromOldLoop = nextSibling && nextSibling.__x_for_key !== undefined ? nextSibling : false;
     }
   }
@@ -537,13 +561,7 @@
           // I'm purposely not using Array.includes here because it's
           // strict, and because of Numeric/String mis-casting, I
           // want the "includes" to be "fuzzy".
-          let valueFound = false;
-          value.forEach(val => {
-            if (val == el.value) {
-              valueFound = true;
-            }
-          });
-          el.checked = valueFound;
+          el.checked = value.some(val => val == el.value);
         } else {
           el.checked = !!value;
         } // If we are explicitly binding a string to the :value, set the string,
@@ -642,7 +660,7 @@
             resolve(() => {
               hide();
             });
-          });
+          }, component);
         } else {
           resolve(() => {});
         }
@@ -650,7 +668,7 @@
         if (el.style.display !== '') {
           transitionIn(el, () => {
             show();
-          });
+          }, component);
         } // Resolve immediately, only hold up parent `x-show`s for hidin.
 
 
@@ -686,13 +704,13 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       const clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      transitionIn(el.nextElementSibling, () => {}, initialUpdate);
+      transitionIn(el.nextElementSibling, () => {}, component, initialUpdate);
       component.initializeElements(el.nextElementSibling, extraVars);
       el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, () => {
         el.nextElementSibling.remove();
-      }, initialUpdate);
+      }, component, initialUpdate);
     }
   }
 
@@ -1400,7 +1418,7 @@
     initializeElement(el, extraVars) {
       // To support class attribute merging, we have to know what the element's
       // original class attribute looked like for reference.
-      if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
+      if (el.hasAttribute('class') && getXAttrs(el, undefined, this).length > 0) {
         el.__x_original_classes = el.getAttribute('class').split(' ');
       }
 
@@ -1455,7 +1473,7 @@
     }
 
     registerListeners(el, extraVars) {
-      getXAttrs(el).forEach(({
+      getXAttrs(el, undefined, this).forEach(({
         type,
         value,
         modifiers,
@@ -1474,7 +1492,7 @@
     }
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
-      let attrs = getXAttrs(el);
+      let attrs = getXAttrs(el, undefined, this);
 
       if (el.type !== undefined && el.type === 'radio') {
         // If there's an x-model on a radio input, move it to end of attribute list

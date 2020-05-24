@@ -98,7 +98,7 @@
     };
   }
   function saferEval(expression, dataContext, additionalHelperVariables = {}) {
-    return new Function(['$data', ...Object.keys(additionalHelperVariables)], `var result; with($data) { result = ${expression} }; return result`)(dataContext, ...Object.values(additionalHelperVariables));
+    return new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`)(dataContext, ...Object.values(additionalHelperVariables));
   }
   function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
     // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
@@ -165,7 +165,7 @@
 
       modifiers = settingBothSidesOfTransition ? modifiers.filter((i, index) => index < modifiers.indexOf('out')) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value)).length > 0) {
       transitionClassesIn(el, attrs, show);
     } else {
       // If neither, just show that damn thing.
@@ -183,7 +183,7 @@
       const settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out');
       modifiers = settingBothSidesOfTransition ? modifiers.filter((i, index) => index > modifiers.indexOf('out')) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value)).length > 0) {
       transitionClassesOut(el, attrs, hide);
     } else {
       hide();
@@ -369,6 +369,11 @@
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
       let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000;
+
+      if (duration === 0) {
+        duration = Number(getComputedStyle(el).animationDuration.replace('s', '')) * 1000;
+      }
+
       stages.show();
       requestAnimationFrame(() => {
         stages.end();
@@ -396,22 +401,16 @@
     items.forEach((item, index) => {
       let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
       let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
-      let nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
+      let nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey); // If we haven't found a matching key, insert the element at the current position.
 
-      if (!nextEl || nextEl.__x_for_key === undefined) {
+      if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
         transitionIn(nextEl, () => {}, initialUpdate);
         nextEl.__x_for = iterationScopeVariables;
-        component.initializeElements(nextEl, () => nextEl.__x_for);
+        component.initializeElements(nextEl, () => nextEl.__x_for); // Otherwise update the element we found.
       } else {
-        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // If we haven't found a matching key, just insert the element at the current position
-
-        if (!nextEl) {
-          nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl);
-        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
-
-
+        // Temporarily remove the key indicator to allow the normal "updateElements" to work.
         delete nextEl.__x_for_key;
         nextEl.__x_for = iterationScopeVariables;
         component.updateElements(nextEl, () => nextEl.__x_for);
@@ -486,7 +485,8 @@
   }
 
   function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
-    // If the the key's DO match, no need to look ahead.
+    if (!nextEl) return; // If the the key's DO match, no need to look ahead.
+
     if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.
     // If we find it, we'll move it to the current position in the loop.
 
@@ -556,17 +556,8 @@
         }
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
-      } else if (el.type === 'text') {
-        // Cursor position should be restored back to origin due to a safari bug
-        const selectionStart = el.selectionStart;
-        const selectionEnd = el.selectionEnd;
-        const selectionDirection = el.selectionDirection;
-        el.value = value;
-
-        if (el === document.activeElement && selectionStart !== null) {
-          el.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
-        }
       } else {
+        if (el.value === value) return;
         el.value = value;
       }
     } else if (attrName === 'class') {
@@ -579,25 +570,23 @@
         const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
         keysSortedByBooleanValue.forEach(classNames => {
           if (value[classNames]) {
-            classNames.split(' ').forEach(className => el.classList.add(className));
+            classNames.split(' ').filter(Boolean).forEach(className => el.classList.add(className));
           } else {
-            classNames.split(' ').forEach(className => el.classList.remove(className));
+            classNames.split(' ').filter(Boolean).forEach(className => el.classList.remove(className));
           }
         });
       } else {
         const originalClasses = el.__x_original_classes || [];
-        const newClasses = value.split(' ');
+        const newClasses = value.split(' ').filter(Boolean);
         el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
       }
-    } else if (isBooleanAttr(attrName)) {
-      // Boolean attributes have to be explicitly added and removed, not just set.
-      if (!!value) {
-        el.setAttribute(attrName, '');
-      } else {
-        el.removeAttribute(attrName);
-      }
     } else {
-      el.setAttribute(attrName, value);
+      // If an attribute's bound value is null, undefined or false, remove the attribute
+      if ([null, undefined, false].includes(value)) {
+        el.removeAttribute(attrName);
+      } else {
+        isBooleanAttr(attrName) ? el.setAttribute(attrName, attrName) : el.setAttribute(attrName, value);
+      }
     }
   }
 
@@ -1594,7 +1583,7 @@
             mutations[i].addedNodes.forEach(node => {
               if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
-              if (node.matches('[x-data]')) {
+              if (node.matches('[x-data]') && !node.__x) {
                 node.__x = new Component(node);
                 return;
               }
@@ -1635,7 +1624,7 @@
   }
 
   const Alpine = {
-    version: "2.3.3",
+    version: "2.3.5",
     start: async function start() {
       if (!isTesting()) {
         await domReady();

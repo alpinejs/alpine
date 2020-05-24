@@ -5379,7 +5379,7 @@
   }
   function saferEval(expression, dataContext) {
     var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "var result; with($data) { result = ".concat(expression, " }; return result")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
+    return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "var __alpine_result; with($data) { __alpine_result = ".concat(expression, " }; return __alpine_result")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
   }
   function saferEvalNoReturn(expression, dataContext) {
     var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -5467,7 +5467,11 @@
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(function (attr) {
+      _newArrowCheck(this, _this4);
+
+      return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
+    }.bind(this)).length > 0) {
       transitionClassesIn(el, attrs, show);
     } else {
       // If neither, just show that damn thing.
@@ -5492,7 +5496,11 @@
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(function (attr) {
+      _newArrowCheck(this, _this5);
+
+      return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
+    }.bind(this)).length > 0) {
       transitionClassesOut(el, attrs, hide);
     } else {
       hide();
@@ -5762,6 +5770,11 @@
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
       var duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000;
+
+      if (duration === 0) {
+        duration = Number(getComputedStyle(el).animationDuration.replace('s', '')) * 1000;
+      }
+
       stages.show();
       requestAnimationFrame(function () {
         var _this14 = this;
@@ -5801,9 +5814,9 @@
 
       var iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
       var currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
-      var nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
+      var nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey); // If we haven't found a matching key, insert the element at the current position.
 
-      if (!nextEl || nextEl.__x_for_key === undefined) {
+      if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
         transitionIn(nextEl, function () {
@@ -5814,15 +5827,9 @@
           _newArrowCheck(this, _this2);
 
           return nextEl.__x_for;
-        }.bind(this));
+        }.bind(this)); // Otherwise update the element we found.
       } else {
-        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // If we haven't found a matching key, just insert the element at the current position
-
-        if (!nextEl) {
-          nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl);
-        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
-
-
+        // Temporarily remove the key indicator to allow the normal "updateElements" to work.
         delete nextEl.__x_for_key;
         nextEl.__x_for = iterationScopeVariables;
         component.updateElements(nextEl, function () {
@@ -5911,7 +5918,8 @@
   }
 
   function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
-    // If the the key's DO match, no need to look ahead.
+    if (!nextEl) return; // If the the key's DO match, no need to look ahead.
+
     if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.
     // If we find it, we'll move it to the current position in the loop.
 
@@ -5990,17 +5998,8 @@
 
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
-      } else if (el.type === 'text') {
-        // Cursor position should be restored back to origin due to a safari bug
-        var selectionStart = el.selectionStart;
-        var selectionEnd = el.selectionEnd;
-        var selectionDirection = el.selectionDirection;
-        el.value = value;
-
-        if (el === document.activeElement && selectionStart !== null) {
-          el.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
-        }
       } else {
+        if (el.value === value) return;
         el.value = value;
       }
     } else if (attrName === 'class') {
@@ -6021,13 +6020,13 @@
           _newArrowCheck(this, _this);
 
           if (value[classNames]) {
-            classNames.split(' ').forEach(function (className) {
+            classNames.split(' ').filter(Boolean).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.add(className);
             }.bind(this));
           } else {
-            classNames.split(' ').forEach(function (className) {
+            classNames.split(' ').filter(Boolean).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.remove(className);
@@ -6037,18 +6036,16 @@
       } else {
         var _originalClasses = el.__x_original_classes || [];
 
-        var newClasses = value.split(' ');
+        var newClasses = value.split(' ').filter(Boolean);
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
-    } else if (isBooleanAttr(attrName)) {
-      // Boolean attributes have to be explicitly added and removed, not just set.
-      if (!!value) {
-        el.setAttribute(attrName, '');
-      } else {
-        el.removeAttribute(attrName);
-      }
     } else {
-      el.setAttribute(attrName, value);
+      // If an attribute's bound value is null, undefined or false, remove the attribute
+      if ([null, undefined, false].includes(value)) {
+        el.removeAttribute(attrName);
+      } else {
+        isBooleanAttr(attrName) ? el.setAttribute(attrName, attrName) : el.setAttribute(attrName, value);
+      }
     }
   }
 
@@ -6991,7 +6988,7 @@
 
                 if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
-                if (node.matches('[x-data]')) {
+                if (node.matches('[x-data]') && !node.__x) {
                   node.__x = new Component(node);
                   return;
                 }
@@ -7055,7 +7052,7 @@
   }();
 
   var Alpine = {
-    version: "2.3.3",
+    version: "2.3.5",
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;

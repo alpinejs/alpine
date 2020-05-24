@@ -448,3 +448,32 @@ test('nested x-for event listeners', async () => {
         expect(document._alerts[2]).toEqual('foo: bob = 2')
     })
 })
+
+test('make sure new elements with different keys added to the beginning of a loop are initialized instead of just updated', async () => {
+    let clickCount = 0
+    window.registerClick = () => {
+        clickCount++
+    }
+
+    document.body.innerHTML = `
+        <div x-data="{ items: ['foo'] }">
+            <button @click="items = ['bar']">Change</button>
+
+            <template x-for="item in items" :key="item">
+                <h1 @click="registerClick()"></h1>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('h1').click()
+
+    expect(clickCount).toEqual(1)
+
+    document.querySelector('button').click()
+
+    document.querySelector('h1').click()
+
+    expect(clickCount).toEqual(2)
+})

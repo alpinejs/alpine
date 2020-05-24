@@ -50,7 +50,7 @@ export function debounce(func, wait) {
 }
 
 export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
-    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var result; with($data) { result = ${expression} }; return result`))(
+    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`))(
         dataContext, ...Object.values(additionalHelperVariables)
     )
 }
@@ -151,7 +151,7 @@ export function transitionIn(el, show, forceSkip = false) {
 
         transitionHelperIn(el, modifiers, show)
     // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value)).length > 0) {
         transitionClassesIn(el, attrs, show)
     } else {
     // If neither, just show that damn thing.
@@ -176,7 +176,7 @@ export function transitionOut(el, hide, forceSkip = false) {
             ? modifiers.filter((i, index) => index > modifiers.indexOf('out')) : modifiers
 
         transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide)
-    } else if (attrs.length > 0) {
+    } else if (attrs.filter(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value)).length > 0) {
         transitionClassesOut(el, attrs, hide)
     } else {
         hide()
@@ -359,6 +359,10 @@ export function transition(el, stages) {
         // Note: Safari's transitionDuration property will list out comma separated transition durations
         // for every single transition property. Let's grab the first one and call it a day.
         let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000
+
+        if (duration === 0) {
+            duration = Number(getComputedStyle(el).animationDuration.replace('s', '')) * 1000
+        }
 
         stages.show()
 

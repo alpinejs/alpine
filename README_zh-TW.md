@@ -202,7 +202,7 @@ import 'alpinejs'
 ---
 
 ### `x-show`
-**翻譯:** `<div x-show="open"></div>`
+**範例:** `<div x-show="open"></div>`
 
 **結構:** `<div x-show="[expression]"></div>`
 

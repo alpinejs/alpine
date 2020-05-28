@@ -1,6 +1,8 @@
 # Alpine.js
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
+![npm version](https://img.shields.io/npm/v/alpinejs)
+![npm total download](https://img.shields.io/npm/dt/alpinejs)
 
 Alpine.js は、Vue や React などの大きなフレームワークのリアクティブで宣言的な性質をはるかに低いコストで提供します。
 

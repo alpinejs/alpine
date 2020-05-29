@@ -449,10 +449,10 @@ test('can bind an object of directives', async () => {
         return {
             show: false,
             trigger: {
-                '@click'() { this.show = ! this.show }
+                '@click': function () { this.show = ! this.show }
             },
             dialogue: {
-                'x-show'() { return this.show }
+                ['x-show']() { return this.show }
             },
         }
     }

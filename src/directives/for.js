@@ -36,7 +36,7 @@ export function handleForDirective(component, templateEl, expression, initialUpd
         currentEl.__x_for_key = currentKey
     })
 
-    removeAnyLeftOverElementsFromPreviousUpdate(currentEl)
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component)
 }
 
 // This was taken from VueJS 2.* core. Thanks Vue!
@@ -126,7 +126,7 @@ function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
     }
 }
 
-function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+function removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component) {
     var nextElementFromOldLoop = (currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined) ? currentEl.nextElementSibling : false
 
     while (nextElementFromOldLoop) {

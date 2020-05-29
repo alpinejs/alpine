@@ -29,7 +29,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
                     resolve(() => {
                         hide()
                     })
-                })
+                }, component)
             } else {
                 resolve(() => {})
             }
@@ -37,7 +37,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
             if ( el.style.display !== '' ) {
                 transitionIn(el, () => {
                     show()
-                })
+                }, component)
             }
 
             // Resolve immediately, only hold up parent `x-show`s for hidin.

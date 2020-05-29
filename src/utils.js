@@ -88,7 +88,7 @@ export function isXAttr(attr) {
     return xAttrRE.test(name)
 }
 
-export function getXAttrs(el, type, component) {
+export function getXAttrs(el, component, type) {
     return Array.from(el.attributes)
         .filter(isXAttr)
         .map(parseHtmlAttribute)
@@ -152,8 +152,8 @@ export function transitionIn(el, show, component, forceSkip = false) {
     // We don't want to transition on the initial page load.
     if (forceSkip) return show()
 
-    const attrs = getXAttrs(el, 'transition', component)
-    const showAttr = getXAttrs(el, 'show', component)[0]
+    const attrs = getXAttrs(el, component, 'transition')
+    const showAttr = getXAttrs(el, component, 'show')[0]
 
     // If this is triggered by a x-show.transition.
     if (showAttr && showAttr.modifiers.includes('transition')) {
@@ -181,8 +181,8 @@ export function transitionIn(el, show, component, forceSkip = false) {
 export function transitionOut(el, hide, component, forceSkip = false) {
     if (forceSkip) return hide()
 
-    const attrs = getXAttrs(el, 'transition', component)
-    const showAttr = getXAttrs(el, 'show', component)[0]
+    const attrs = getXAttrs(el, component, 'transition')
+    const showAttr = getXAttrs(el, component, 'show')[0]
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
         let modifiers = showAttr.modifiers

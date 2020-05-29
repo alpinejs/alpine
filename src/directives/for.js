@@ -77,7 +77,7 @@ function getIterationScopeVariables(iteratorNames, item, index, items, extraVars
 }
 
 function generateKeyForIteration(component, el, index, iterationScopeVariables) {
-    let bindKeyAttribute = getXAttrs(el, 'bind', component).filter(attr => attr.value === 'key')[0]
+    let bindKeyAttribute = getXAttrs(el, component, 'bind').filter(attr => attr.value === 'key')[0]
 
     // If the dev hasn't specified a key, just return the index of the iteration.
     if (! bindKeyAttribute) return index
@@ -90,7 +90,7 @@ function warnIfNotTemplateTag(el) {
 }
 
 function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
-    let ifAttribute = getXAttrs(el, 'if', component)[0]
+    let ifAttribute = getXAttrs(el, component, 'if')[0]
 
     if (ifAttribute && ! component.evaluateReturnExpression(el, ifAttribute.expression)) {
         return []

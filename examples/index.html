@@ -50,22 +50,15 @@
         <hr>
 
         <div x-data="modal()">
-            <button x-bind="trigger">Toggle</button>
-
-            <div x-bind="dialogue">
-                Modal Body
-            </div>
+            <span x-bind="bound"></span>
         </div>
 
         <script>
             function modal() {
                return {
-                   show: false,
-                   trigger: {
-                       'click': () => { this.show = ! this.show }
-                   },
-                   dialogue: {
-                       'x-show': () => { return this.show }
+                   foo: { bar: 'hey' },
+                   bound: {
+                       ['x-text']() { return this.foo.bar }
                    },
                }
             }
@@ -82,8 +75,8 @@
                 <tr>
                     <td>Simple x-if</td>
                     <td>
-                        <div x-data="{ show: false }">
-                            <template x-if="show">
+                        <div
+                            <template x-if="sho x-data="{ show: false }">w">
                                 <span>hey</span>
                             </template>
 

@@ -126,7 +126,7 @@
     const name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
   }
-  function getXAttrs(el, type, component) {
+  function getXAttrs(el, component, type) {
     return Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute).flatMap(i => {
       if (i.type === 'bind' && i.value === null) {
         let directiveBindings = saferEval(i.expression, component.$data);
@@ -178,8 +178,8 @@
   function transitionIn(el, show, component, forceSkip = false) {
     // We don't want to transition on the initial page load.
     if (forceSkip) return show();
-    const attrs = getXAttrs(el, 'transition', component);
-    const showAttr = getXAttrs(el, 'show', component)[0]; // If this is triggered by a x-show.transition.
+    const attrs = getXAttrs(el, component, 'transition');
+    const showAttr = getXAttrs(el, component, 'show')[0]; // If this is triggered by a x-show.transition.
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers; // If x-show.transition.out, we'll skip the "in" transition.
@@ -198,8 +198,8 @@
   }
   function transitionOut(el, hide, component, forceSkip = false) {
     if (forceSkip) return hide();
-    const attrs = getXAttrs(el, 'transition', component);
-    const showAttr = getXAttrs(el, 'show', component)[0];
+    const attrs = getXAttrs(el, component, 'transition');
+    const showAttr = getXAttrs(el, component, 'show')[0];
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers;
@@ -485,7 +485,7 @@
   }
 
   function generateKeyForIteration(component, el, index, iterationScopeVariables) {
-    let bindKeyAttribute = getXAttrs(el, 'bind', component).filter(attr => attr.value === 'key')[0]; // If the dev hasn't specified a key, just return the index of the iteration.
+    let bindKeyAttribute = getXAttrs(el, component, 'bind').filter(attr => attr.value === 'key')[0]; // If the dev hasn't specified a key, just return the index of the iteration.
 
     if (!bindKeyAttribute) return index;
     return component.evaluateReturnExpression(el, bindKeyAttribute.expression, () => iterationScopeVariables);
@@ -496,7 +496,7 @@
   }
 
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
-    let ifAttribute = getXAttrs(el, 'if', component)[0];
+    let ifAttribute = getXAttrs(el, component, 'if')[0];
 
     if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
       return [];
@@ -1422,7 +1422,7 @@
     initializeElement(el, extraVars) {
       // To support class attribute merging, we have to know what the element's
       // original class attribute looked like for reference.
-      if (el.hasAttribute('class') && getXAttrs(el, undefined, this).length > 0) {
+      if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
         el.__x_original_classes = el.getAttribute('class').split(' ');
       }
 
@@ -1477,7 +1477,7 @@
     }
 
     registerListeners(el, extraVars) {
-      getXAttrs(el, undefined, this).forEach(({
+      getXAttrs(el, this).forEach(({
         type,
         value,
         modifiers,
@@ -1496,7 +1496,7 @@
     }
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
-      let attrs = getXAttrs(el, undefined, this);
+      let attrs = getXAttrs(el, this);
 
       if (el.type !== undefined && el.type === 'radio') {
         // If there's an x-model on a radio input, move it to end of attribute list

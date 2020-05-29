@@ -38,33 +38,7 @@
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
-
-        <div x-data="{ show: false }">
-            <button @click="show = ! show">Toggle</button>
-
-            <div x-show="show">
-                Modal Body
-            </div>
-        </div>
-
-        <hr>
-
-        <div x-data="modal()">
-            <span x-bind="bound"></span>
-        </div>
-
-        <script>
-            function modal() {
-               return {
-                   foo: { bar: 'hey' },
-                   bound: {
-                       ['x-text']() { return this.foo.bar }
-                   },
-               }
-            }
-        </script>
-
-        <!-- <table>
+        <table>
             <thead>
                 <tr>
                     <th>Feature</th>
@@ -75,8 +49,8 @@
                 <tr>
                     <td>Simple x-if</td>
                     <td>
-                        <div
-                            <template x-if="sho x-data="{ show: false }">w">
+                        <div x-data="{ show: false }">
+                            <template x-if="show">
                                 <span>hey</span>
                             </template>
 
@@ -453,6 +427,27 @@
                 </tr>
 
                 <tr>
+                    <td>x-bind spread</td>
+                    <td>
+                        <div x-data="modal()">
+                            I should be "hey": <span x-bind="bound"></span>
+                        </div>
+
+                        <script>
+                            function modal() {
+                               return {
+                                   foo: { bar: 'hey' },
+                                   bound: {
+                                       ['x-text']() { return this.foo.bar }
+                                   },
+                               }
+                            }
+                        </script>
+
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Cloak</td>
                     <td>
                         <div x-data="{}" x-cloak>
@@ -461,6 +456,6 @@
                     </td>
                 </tr>
             </tbody>
-        </table> -->
+        </table>
     </body>
 </html>

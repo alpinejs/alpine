@@ -106,7 +106,7 @@
   }
   function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
     if (typeof expression === 'function') {
-      expression.call(dataContext);
+      return expression.call(dataContext);
     } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
     // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
 
@@ -190,7 +190,7 @@
       modifiers = settingBothSidesOfTransition ? modifiers.filter((i, index) => index < modifiers.indexOf('out')) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
     } else if (attrs.filter(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value)).length > 0) {
-      transitionClassesIn(el, attrs, show);
+      transitionClassesIn(el, component, attrs, show);
     } else {
       // If neither, just show that damn thing.
       show();
@@ -208,7 +208,7 @@
       modifiers = settingBothSidesOfTransition ? modifiers.filter((i, index) => index > modifiers.indexOf('out')) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
     } else if (attrs.filter(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value)).length > 0) {
-      transitionClassesOut(el, attrs, hide);
+      transitionClassesOut(el, component, attrs, hide);
     } else {
       hide();
     }
@@ -329,19 +329,23 @@
     };
     transition(el, stages);
   }
-  function transitionClassesIn(el, directives, showCallback) {
-    const enter = (directives.find(i => i.value === 'enter') || {
+  function transitionClassesIn(el, component, directives, showCallback) {
+    let ensureStringExpression = expression => {
+      return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
+    };
+
+    const enter = ensureStringExpression((directives.find(i => i.value === 'enter') || {
       expression: ''
-    }).expression.split(' ').filter(i => i !== '');
-    const enterStart = (directives.find(i => i.value === 'enter-start') || {
+    }).expression).split(' ').filter(i => i !== '');
+    const enterStart = ensureStringExpression((directives.find(i => i.value === 'enter-start') || {
       expression: ''
-    }).expression.split(' ').filter(i => i !== '');
-    const enterEnd = (directives.find(i => i.value === 'enter-end') || {
+    }).expression).split(' ').filter(i => i !== '');
+    const enterEnd = ensureStringExpression((directives.find(i => i.value === 'enter-end') || {
       expression: ''
-    }).expression.split(' ').filter(i => i !== '');
+    }).expression).split(' ').filter(i => i !== '');
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {});
   }
-  function transitionClassesOut(el, directives, hideCallback) {
+  function transitionClassesOut(el, component, directives, hideCallback) {
     const leave = (directives.find(i => i.value === 'leave') || {
       expression: ''
     }).expression.split(' ').filter(i => i !== '');
@@ -418,7 +422,7 @@
 
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     warnIfNotTemplateTag(templateEl);
-    let iteratorNames = parseForExpression(expression);
+    let iteratorNames = typeof expression === 'function' ? parseForExpression(component.evaluateReturnExpression(templateEl, expression)) : parseForExpression(expression);
     let items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
     let currentEl = templateEl;
@@ -443,7 +447,7 @@
       currentEl = nextEl;
       currentEl.__x_for_key = currentKey;
     });
-    removeAnyLeftOverElementsFromPreviousUpdate(currentEl);
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component);
   } // This was taken from VueJS 2.* core. Thanks Vue!
 
   function parseForExpression(expression) {
@@ -525,7 +529,7 @@
     }
   }
 
-  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component) {
     var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     while (nextElementFromOldLoop) {

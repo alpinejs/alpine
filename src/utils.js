@@ -61,7 +61,7 @@ export function saferEval(expression, dataContext, additionalHelperVariables = {
 
 export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
     if (typeof expression === 'function') {
-        expression.call(dataContext)
+        return expression.call(dataContext)
     }
 
     // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
@@ -171,7 +171,7 @@ export function transitionIn(el, show, component, forceSkip = false) {
         transitionHelperIn(el, modifiers, show)
     // Otherwise, we can assume x-transition:enter.
     } else if (attrs.filter(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value)).length > 0) {
-        transitionClassesIn(el, attrs, show)
+        transitionClassesIn(el, component, attrs, show)
     } else {
     // If neither, just show that damn thing.
         show()
@@ -196,7 +196,7 @@ export function transitionOut(el, hide, component, forceSkip = false) {
 
         transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide)
     } else if (attrs.filter(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value)).length > 0) {
-        transitionClassesOut(el, attrs, hide)
+        transitionClassesOut(el, component, attrs, hide)
     } else {
         hide()
     }
@@ -324,15 +324,24 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
     transition(el, stages)
 }
 
-export function transitionClassesIn(el, directives, showCallback) {
-    const enter = (directives.find(i => i.value === 'enter') || { expression: '' }).expression.split(' ').filter(i => i !== '')
-    const enterStart = (directives.find(i => i.value === 'enter-start') || { expression: '' }).expression.split(' ').filter(i => i !== '')
-    const enterEnd = (directives.find(i => i.value === 'enter-end') || { expression: '' }).expression.split(' ').filter(i => i !== '')
+export function transitionClassesIn(el, component, directives, showCallback) {
+    let ensureStringExpression = (expression) => {
+        return typeof expression === 'function'
+            ? component.evaluateReturnExpression(el, expression)
+            : expression
+    }
+
+    const enter = ensureStringExpression((directives.find(i => i.value === 'enter') || { expression: '' }).expression)
+        .split(' ').filter(i => i !== '')
+    const enterStart = ensureStringExpression((directives.find(i => i.value === 'enter-start') || { expression: '' }).expression)
+        .split(' ').filter(i => i !== '')
+    const enterEnd = ensureStringExpression((directives.find(i => i.value === 'enter-end') || { expression: '' }).expression)
+        .split(' ').filter(i => i !== '')
 
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {})
 }
 
-export function transitionClassesOut(el, directives, hideCallback) {
+export function transitionClassesOut(el, component, directives, hideCallback) {
     const leave = (directives.find(i => i.value === 'leave') || { expression: '' }).expression.split(' ').filter(i => i !== '')
     const leaveStart = (directives.find(i => i.value === 'leave-start') || { expression: '' }).expression.split(' ').filter(i => i !== '')
     const leaveEnd = (directives.find(i => i.value === 'leave-end') || { expression: '' }).expression.split(' ').filter(i => i !== '')

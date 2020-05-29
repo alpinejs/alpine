@@ -1,9 +1,11 @@
-import { transitionIn, transitionOut, getXAttrs } from '../utils'
+import { transitionIn, transitionOut, getXAttrs, saferEval } from '../utils'
 
 export function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     warnIfNotTemplateTag(templateEl)
 
-    let iteratorNames = parseForExpression(expression)
+    let iteratorNames = typeof expression === 'function'
+        ? parseForExpression(component.evaluateReturnExpression(templateEl, expression))
+        : parseForExpression(expression)
 
     let items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars)
 

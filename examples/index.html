@@ -202,6 +202,21 @@
                 </tr>
 
                 <tr>
+                    <td>Async Component</td>
+                    <td>
+                        <div x-data="import('/async-dropdown.js').then(component => component.default())">
+                            <button x-on:click="open= true">Open Async Dropdown</button>
+                            <ul
+                                x-bind:class="{ 'hidden': ! open }"
+                                x-on:click.away="open= false"
+                                x-cloak>
+                                Async Dropdown Body
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Append DOM</td>
                     <td>
                         <div id="goHere">Click me.</div>

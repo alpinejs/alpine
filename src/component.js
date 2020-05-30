@@ -16,65 +16,67 @@ export default class Component {
         const dataAttr = this.$el.getAttribute('x-data')
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
         const initExpression = this.$el.getAttribute('x-init')
+        const evaluatedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {})
+        Promise.resolve(evaluatedData).then((resolvedData) => {
+            this.unobservedData = resolvedData
 
-        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {})
+            /* IE11-ONLY:START */
+                // For IE11, add our magic properties to the original data for access.
+                // The Proxy polyfill does not allow properties to be added after creation.
+                this.unobservedData.$el = null
+                this.unobservedData.$refs = null
+                this.unobservedData.$nextTick = null
+                this.unobservedData.$watch = null
+            /* IE11-ONLY:END */
 
-        /* IE11-ONLY:START */
-            // For IE11, add our magic properties to the original data for access.
-            // The Proxy polyfill does not allow properties to be added after creation.
-            this.unobservedData.$el = null
-            this.unobservedData.$refs = null
-            this.unobservedData.$nextTick = null
-            this.unobservedData.$watch = null
-        /* IE11-ONLY:END */
+            // Construct a Proxy-based observable. This will be used to handle reactivity.
+            let { membrane, data } = this.wrapDataInObservable(this.unobservedData)
+            this.$data = data
+            this.membrane = membrane
 
-        // Construct a Proxy-based observable. This will be used to handle reactivity.
-        let { membrane, data } = this.wrapDataInObservable(this.unobservedData)
-        this.$data = data
-        this.membrane = membrane
+            // After making user-supplied data methods reactive, we can now add
+            // our magic properties to the original data for access.
+            this.unobservedData.$el = this.$el
+            this.unobservedData.$refs = this.getRefsProxy()
 
-        // After making user-supplied data methods reactive, we can now add
-        // our magic properties to the original data for access.
-        this.unobservedData.$el = this.$el
-        this.unobservedData.$refs = this.getRefsProxy()
+            this.nextTickStack = []
+            this.unobservedData.$nextTick = (callback) => {
+                this.nextTickStack.push(callback)
+            }
 
-        this.nextTickStack = []
-        this.unobservedData.$nextTick = (callback) => {
-            this.nextTickStack.push(callback)
-        }
+            this.watchers = {}
+            this.unobservedData.$watch = (property, callback) => {
+                if (! this.watchers[property]) this.watchers[property] = []
 
-        this.watchers = {}
-        this.unobservedData.$watch = (property, callback) => {
-            if (! this.watchers[property]) this.watchers[property] = []
+                this.watchers[property].push(callback)
+            }
 
-            this.watchers[property].push(callback)
-        }
+            this.showDirectiveStack = []
+            this.showDirectiveLastElement
 
-        this.showDirectiveStack = []
-        this.showDirectiveLastElement
+            var initReturnedCallback
+            // If x-init is present AND we aren't cloning (skip x-init on clone)
+            if (initExpression && ! seedDataForCloning) {
+                // We want to allow data manipulation, but not trigger DOM updates just yet.
+                // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
+                this.pauseReactivity = true
+                initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression)
+                this.pauseReactivity = false
+            }
 
-        var initReturnedCallback
-        // If x-init is present AND we aren't cloning (skip x-init on clone)
-        if (initExpression && ! seedDataForCloning) {
-            // We want to allow data manipulation, but not trigger DOM updates just yet.
-            // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
-            this.pauseReactivity = true
-            initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression)
-            this.pauseReactivity = false
-        }
+            // Register all our listeners and set all our attribute bindings.
+            this.initializeElements(this.$el)
 
-        // Register all our listeners and set all our attribute bindings.
-        this.initializeElements(this.$el)
+            // Use mutation observer to detect new elements being added within this component at run-time.
+            // Alpine's just so darn flexible amirite?
+            this.listenForNewElementsToInitialize()
 
-        // Use mutation observer to detect new elements being added within this component at run-time.
-        // Alpine's just so darn flexible amirite?
-        this.listenForNewElementsToInitialize()
-
-        if (typeof initReturnedCallback === 'function') {
-            // Run the callback returned from the "x-init" hook to allow the user to do stuff after
-            // Alpine's got it's grubby little paws all over everything.
-            initReturnedCallback.call(this.$data)
-        }
+            if (typeof initReturnedCallback === 'function') {
+                // Run the callback returned from the "x-init" hook to allow the user to do stuff after
+                // Alpine's got it's grubby little paws all over everything.
+                initReturnedCallback.call(this.$data)
+            }
+        })
     }
 
     getUnobservedData() {

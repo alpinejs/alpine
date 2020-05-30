@@ -16,7 +16,7 @@ test('x-for', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(1)
     expect(document.querySelectorAll('span')[0].innerText).toEqual('foo')
@@ -40,7 +40,7 @@ test('removes all elements when array is empty and previously had one item', asy
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(1)
 
@@ -60,7 +60,7 @@ test('removes all elements when array is empty and previously had multiple items
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(3)
 
@@ -83,7 +83,7 @@ test('elements inside of loop are reactive', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(1)
     expect(document.querySelector('h1').innerText).toEqual('first')
@@ -109,12 +109,14 @@ test('components inside of loop are reactive', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('div.child').length).toEqual(1)
-    expect(document.querySelector('span').innerText).toEqual('bar')
 
-    document.querySelector('button').click()
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+        document.querySelector('button').click()
+    })
 
     await wait(() => {
         expect(document.querySelector('span').innerText).toEqual('bob')
@@ -135,10 +137,13 @@ test('components inside a plain element of loop are reactive', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('ul').length).toEqual(1)
-    expect(document.querySelector('span').innerText).toEqual('bar')
+
+    await wait(() => {
+        expect(document.querySelector('span').innerText).toEqual('bar')
+    })
 
     document.querySelector('button').click()
 
@@ -158,7 +163,7 @@ test('adding key attribute moves dom nodes properly', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(2)
     const itemA = document.querySelectorAll('span')[0]
@@ -186,7 +191,7 @@ test('can key by index', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(2)
 
@@ -207,7 +212,7 @@ test('can use index inside of loop', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('h1').innerText).toEqual(0)
     expect(document.querySelector('h2').innerText).toEqual(0)
@@ -225,7 +230,7 @@ test('can use third iterator param (collection) inside of loop', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('h1').innerText).toEqual(["foo"])
     expect(document.querySelector('h2').innerText).toEqual(["foo"])
@@ -242,7 +247,7 @@ test('can use x-if in conjunction with x-for', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(0)
 
@@ -272,7 +277,7 @@ test('listeners in loop get fresh iteration data even though they are only regis
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(1)
 
@@ -303,7 +308,7 @@ test('nested x-for', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelectorAll('h1').length).toEqual(1) })
     await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(2) })
@@ -331,7 +336,7 @@ test('x-for updates the right elements when new item are inserted at the beginni
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(2)
     const itemA = document.querySelectorAll('span')[0]
@@ -366,7 +371,7 @@ test('nested x-for access outer loop variable', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelectorAll('h1').length).toEqual(2) })
     await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(4) })
@@ -397,7 +402,7 @@ test('nested x-for event listeners', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelectorAll('h1').length).toEqual(2) })
     await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(4) })
@@ -465,7 +470,7 @@ test('make sure new elements with different keys added to the beginning of a loo
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.querySelector('h1').click()
 

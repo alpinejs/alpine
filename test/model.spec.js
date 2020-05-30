@@ -12,7 +12,7 @@ test('x-model has value binding when initialized', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('bar')
 })
@@ -24,7 +24,7 @@ test('x-model updates value when updated via input event', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'baz' }})
 
@@ -40,7 +40,7 @@ test('x-model reflects data changed elsewhere', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.querySelector('button').click()
 
@@ -54,7 +54,7 @@ test('x-model casts value to number if number modifier is present', async () => 
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: '123' }})
 
@@ -69,7 +69,7 @@ test('x-model with number modifier returns: null if empty, original value if cas
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelectorAll('input')[0], { target: { value: '' }})
 
@@ -105,7 +105,7 @@ test('x-model trims value if trim modifier is present', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar   ' }})
 
@@ -119,7 +119,7 @@ test('x-model updates value when updated via changed event when lazy modifier is
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.change(document.querySelector('input'), { target: { value: 'baz' }})
 
@@ -135,7 +135,7 @@ test('x-model binds checkbox value', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('input').checked).toEqual(true)
     expect(document.querySelector('span').getAttribute('bar')).toEqual("true")
@@ -155,7 +155,7 @@ test('x-model binds checkbox value to array', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('input')[0].checked).toEqual(true)
     expect(document.querySelectorAll('input')[1].checked).toEqual(false)
@@ -180,7 +180,7 @@ test('x-model binds radio value', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('input')[0].checked).toEqual(true)
     expect(document.querySelectorAll('input')[1].checked).toEqual(false)
@@ -208,7 +208,7 @@ test('x-model binds select dropdown', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('option')[0].selected).toEqual(false)
     expect(document.querySelectorAll('option')[1].selected).toEqual(true)
@@ -238,7 +238,7 @@ test('x-model binds multiple select dropdown', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('option')[0].selected).toEqual(false)
     expect(document.querySelectorAll('option')[1].selected).toEqual(true)
@@ -264,7 +264,7 @@ test('x-model binds nested keys', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('foo')
     expect(document.querySelector('span').innerText).toEqual('foo')
@@ -285,7 +285,7 @@ test('x-model undefined nested model key defaults to empty string', async () => 
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('')
     expect(document.querySelector('span').innerText).toEqual('')
@@ -307,7 +307,7 @@ test('x-model can listen for custom input event dispatches', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 

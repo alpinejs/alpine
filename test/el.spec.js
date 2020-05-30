@@ -12,7 +12,7 @@ test('$el', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('div').innerHTML).not.toEqual('foo')
 
@@ -33,7 +33,7 @@ test('$el doesnt return a proxy', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.querySelector('button').click()
 

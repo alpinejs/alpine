@@ -14,7 +14,7 @@ test('$dispatch', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 

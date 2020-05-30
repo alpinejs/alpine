@@ -12,7 +12,7 @@ test('data manipulated on component object is reactive', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.querySelector('div').__x.$data.foo = 'baz'
 
@@ -26,7 +26,7 @@ test('x-data attribute value is optional', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('foo')
 })
@@ -43,7 +43,7 @@ test('x-data can use attributes from a reusable function', async () => {
             }
         }
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 })
@@ -55,7 +55,7 @@ test('functions in x-data are reactive', async () => {
             <button x-on:click="foo = 'baz'"></button>
         </div>
     `
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 
@@ -73,7 +73,7 @@ test('Proxies are not nested and duplicated when manipulating an array', async (
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     // Before this fix: https://github.com/alpinejs/alpine/pull/141
     // This test would create exponentially slower performance and eventually stall out.
@@ -116,7 +116,7 @@ test('component refresh one time per update whatever the number of mutations in 
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(refreshCount).toEqual(1)
 

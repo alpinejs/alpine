@@ -17,7 +17,7 @@ test('can nest components', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 
@@ -39,7 +39,7 @@ test('can access parent properties after nested components', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 })

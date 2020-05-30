@@ -14,7 +14,7 @@ test('catch disconnected nodes that were used as targets for any mutations', asy
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     runObservers.forEach(cb => cb([
         {
@@ -46,7 +46,7 @@ test('mutationObserver doesn\'t reset data when reparenting nested components', 
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('button').innerText).toEqual(1)
 

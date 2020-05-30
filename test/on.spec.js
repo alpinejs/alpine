@@ -15,7 +15,7 @@ test('data modified in event listener updates affected attribute bindings', asyn
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -33,7 +33,7 @@ test('nested data modified in event listener updates affected attribute bindings
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -52,7 +52,7 @@ test('.stop modifier', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('div').__x.$data.foo).toEqual('bar')
 
@@ -73,7 +73,7 @@ test('.self modifier', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 
@@ -97,7 +97,7 @@ test('.prevent modifier', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('input').checked).toEqual(false)
 
@@ -115,7 +115,7 @@ test('.window modifier', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -133,7 +133,7 @@ test('unbind global event handler when element is removed', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.body.click()
 
@@ -155,7 +155,7 @@ test('.document modifier', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -173,7 +173,7 @@ test('.once modifier', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
 
@@ -197,7 +197,7 @@ test('.once modifier does not remove listener if false is returned', async () =>
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
 
@@ -223,7 +223,7 @@ test('keydown modifiers', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(0)
 
@@ -253,7 +253,7 @@ test('keydown combo modifiers', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(0)
 
@@ -277,7 +277,7 @@ test('keydown with specified key and stop modifier only stops for specified key'
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(0)
 
@@ -315,7 +315,7 @@ test('click away', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false)
 
@@ -344,7 +344,7 @@ test('supports short syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -363,7 +363,7 @@ test('event with colon', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 
@@ -383,7 +383,7 @@ test('prevent default action when an event returns false', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('input').checked).toEqual(false)
 
@@ -406,7 +406,7 @@ test('allow method reference to be passed to listeners', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 
@@ -425,7 +425,7 @@ test('event instance is passed to method reference', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 
@@ -445,7 +445,7 @@ test('autocomplete event does not trigger keydown with modifier callback', async
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(0)
 

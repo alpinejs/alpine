@@ -17,7 +17,7 @@ test('x-init', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(spanValue).toEqual('baz')
 })
@@ -46,7 +46,7 @@ test('x-init from data function with callback return for "x-mounted" functionali
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(valueA).toEqual('baz')
     expect(valueB).toEqual('bar')
@@ -61,7 +61,7 @@ test('callbacks registered within x-init can affect reactive data changes', asyn
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('baz')
 
@@ -79,7 +79,7 @@ test('callbacks registered within x-init callback can affect reactive data chang
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('baz')
 
@@ -97,7 +97,7 @@ test('x-init is capable of dispatching an event', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => {
         expect(document.querySelector('span').innerText).toEqual('baz')

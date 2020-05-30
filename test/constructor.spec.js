@@ -14,7 +14,7 @@ test('auto-detect new components at the top level', async () => {
         <section></section>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.querySelector('section').innerHTML = `
         <div x-data="{ foo: '' }">
@@ -47,7 +47,7 @@ test('auto-detect nested new components at the top level', async () => {
         <section></section>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.querySelector('section').innerHTML = `
         <article>
@@ -87,7 +87,7 @@ test('auto-detect new components and dont lose state of existing ones', async ()
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
 
@@ -131,7 +131,7 @@ test('auto-detect new components that are wrapped in non-new component tags', as
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
 
@@ -177,7 +177,7 @@ test('auto-initialize new elements added to a component', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(0)
 
@@ -225,7 +225,7 @@ test('Alpine mutations don\'t trigger (like x-if and x-for) MutationObserver', a
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.querySelector('button').click()
 
@@ -261,7 +261,7 @@ test('auto-detect x-data property changes at run-time', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(0)
 
@@ -296,7 +296,7 @@ test('nested components only get registered once on initialization', async () =>
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(initCount).toEqual(2)
 })
@@ -313,7 +313,7 @@ test('can clone an existing component to a new element', async () => {
         <div id="insert-component-here"></div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.querySelector('#insert-component-here').innerHTML = `
         <h2 x-data="{ foo: 'baz' }">
@@ -335,7 +335,7 @@ test('x-attributes are matched exactly', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.getElementById('el1').style.display).toEqual('none')
     expect(document.getElementById('el2').style.display).not.toEqual('none')
@@ -361,7 +361,7 @@ test('a mutation from another part of the HTML doesnt prevent a different alpine
         observe() {}
     }
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(initCount).toEqual(1) })
 

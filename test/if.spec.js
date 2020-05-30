@@ -16,7 +16,7 @@ test('x-if', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('p')).toBeFalsy()
 
@@ -38,7 +38,7 @@ test('elements inside x-if are still reactive', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('h2')).toBeFalsy()
     expect(document.querySelector('span').innerText).toEqual('bar')
@@ -71,7 +71,7 @@ test('x-if works inside a loop', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(1)
     expect(document.querySelector('span').innerText).toEqual('baz')
@@ -87,7 +87,7 @@ test('event listeners are attached once', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(0)
 

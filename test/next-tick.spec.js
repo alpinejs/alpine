@@ -14,7 +14,7 @@ test('$nextTick', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual('bar')
 
@@ -36,7 +36,7 @@ test('nextTick wait for x-for to finish rendering', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('p').innerText).toEqual(2)
 

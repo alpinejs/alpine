@@ -33,7 +33,7 @@ test('transition in', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
 
@@ -103,7 +103,7 @@ test('transition out', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual(null) })
 
@@ -165,7 +165,7 @@ test('if only transition leave directives are present, don\'t transition in at a
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
 
@@ -196,7 +196,7 @@ test('if only transition enter directives are present, don\'t transition out at 
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual(null) })
 
@@ -231,7 +231,7 @@ test('original class attribute classes are preserved after transition finishes',
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
 
@@ -293,7 +293,7 @@ test('transition in not called when item is already visible', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
 
@@ -342,7 +342,7 @@ test('transition out not called when item is already hidden', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await new Promise(resolve => setTimeout(resolve, 1))
 
@@ -496,7 +496,7 @@ async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleA
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     document.querySelector('button').click()
 
@@ -562,7 +562,7 @@ test('x-transition supports css animation', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
 

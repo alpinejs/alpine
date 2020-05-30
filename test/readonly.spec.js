@@ -16,7 +16,7 @@ test('read-only properties do not break the proxy', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(0)
 

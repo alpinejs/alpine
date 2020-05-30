@@ -12,7 +12,7 @@ test('attribute bindings are set on initialize', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('foo')).toEqual('bar')
 })
@@ -25,7 +25,7 @@ test('class attribute bindings are merged by string syntax', async () => {
             <button @click="isOn = ! isOn"></button>
         </div>
     `
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
     expect(document.querySelector('span').classList.contains('bar')).toBeFalsy()
@@ -53,7 +53,7 @@ test('class attribute bindings are merged by array syntax', async () => {
             <button @click="isOn = ! isOn"></button>
         </div>
     `
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
@@ -83,7 +83,7 @@ test('class attribute bindings are removed by object syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeFalsy()
 })
@@ -95,7 +95,7 @@ test('class attribute bindings are added by string syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
@@ -107,7 +107,7 @@ test('class attribute bindings are added by object syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
@@ -119,7 +119,7 @@ test('multiple classes are added by object syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeFalsy()
     expect(document.querySelector('span').classList.contains('bar')).toBeFalsy()
@@ -132,7 +132,7 @@ test('multiple classes are removed by object syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
@@ -145,7 +145,7 @@ test('class attribute bindings are added by nested object syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
@@ -157,7 +157,7 @@ test('class attribute bindings are added by array syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
@@ -169,7 +169,7 @@ test('class attribute bindings are synced by string syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
     expect(document.querySelector('span').classList.contains('baz')).toBeTruthy()
@@ -187,7 +187,7 @@ test('non-boolean attributes set to null/undefined/false are removed from the el
             <span visible="true" x-bind:visible="undefined"></span>
         </div>
     `
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('a')[0].getAttribute('href')).toBeNull()
     expect(document.querySelectorAll('a')[1].getAttribute('href')).toBeNull()
@@ -203,7 +203,7 @@ test('non-boolean empty string attributes are not removed', async () => {
             <a href="#hello" x-bind:href="''"></a>
         </div>
     `
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('a')[0].getAttribute('href')).toEqual('')
 })
@@ -244,7 +244,7 @@ test('truthy boolean attribute values are set to their attribute name', async ()
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('input')[0].disabled).toBeTruthy()
     expect(document.querySelectorAll('input')[1].checked).toBeTruthy()
@@ -308,7 +308,7 @@ test('null, undefined, or false boolean attribute values are removed', async () 
             ></script>
         </div>
     `
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('input')[0].getAttribute('disabled')).toBeNull()
     expect(document.querySelectorAll('input')[1].getAttribute('checked')).toBeNull()
@@ -343,7 +343,7 @@ test('boolean empty string attributes are not removed', async () => {
             <input x-bind:disabled="''">
         </div>
     `
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('input')[0].disabled).toEqual(true)
 })
@@ -355,7 +355,7 @@ test('binding supports short syntax', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
 })
@@ -369,7 +369,7 @@ test('checkbox values are set correctly', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('input[name="trueCheckbox"]').value).toEqual('on')
     expect(document.querySelector('input[name="falseCheckbox"]').value).toEqual('on')
@@ -386,7 +386,7 @@ test('radio values are set correctly', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('#list-1').value).toEqual('1')
     expect(document.querySelector('#list-1').checked).toBeFalsy()
@@ -406,7 +406,7 @@ test('classes are removed before being added', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('block')).toBeTruthy()
     expect(document.querySelector('span').classList.contains('text-red')).toBeTruthy()
@@ -426,7 +426,7 @@ test('extra whitespace in class binding object syntax is ignored', async () => {
             <span x-bind:class="{ '  foo  bar  ': true }"></span>
         </div>
     `
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
@@ -438,7 +438,7 @@ test('extra whitespace in class binding string syntax is ignored', async () => {
             <span x-bind:class="'  foo  bar  '"></span>
         </div>
     `
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
@@ -465,7 +465,7 @@ test('can bind an object of directives', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
 
@@ -498,7 +498,7 @@ test('x-bind object spread syntax supports x-for', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelectorAll('li')[0].innerText).toEqual('one')
     expect(document.querySelectorAll('li')[1].innerText).toEqual('two')
@@ -542,7 +542,7 @@ test('x-bind object spread syntax supports x-transition', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
 

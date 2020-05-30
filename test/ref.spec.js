@@ -14,7 +14,7 @@ test('can reference elements from event listeners', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(undefined)
 
@@ -32,7 +32,7 @@ test('can reference elements from data object methods', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(undefined)
 

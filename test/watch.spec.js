@@ -15,7 +15,7 @@ test('$watch', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('h1').innerText).toEqual('bar')
     expect(document.querySelector('h2').innerText).toEqual('lob')
@@ -40,7 +40,7 @@ test('$watch nested properties', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('h1').innerText).toEqual('baz')
     expect(document.querySelector('h2').innerText).toEqual('lob')

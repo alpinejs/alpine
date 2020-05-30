@@ -14,7 +14,7 @@ test('x-on with debounce modifier', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
 
@@ -45,7 +45,7 @@ test('x-on with debounce modifier and specified wait', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
 
@@ -76,7 +76,7 @@ test('x-model with debounce modifier', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'foo' }})
 
@@ -107,7 +107,7 @@ test('x-on with debounce modifier (with "ms" suffix)', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
 
@@ -138,7 +138,7 @@ test('keydown with key modifier and debounce with 10ms wait', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'b' })
 
@@ -162,7 +162,7 @@ test('keydown with debounce modifier and no specified wait', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').innerText).toEqual(0)
 

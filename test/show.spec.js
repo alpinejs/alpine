@@ -14,7 +14,7 @@ test('x-show toggles display: none; with no other style attributes', async () =>
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
 
@@ -32,7 +32,7 @@ test('x-show toggles display: none; with other style attributes', async () => {
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('style')).toEqual('color: blue;')
 
@@ -58,7 +58,7 @@ test('x-show waits for transitions within it to finish before hiding an elements
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
 
@@ -89,7 +89,7 @@ test('x-show does NOT wait for transitions to finish if .immediate is present', 
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
 
@@ -112,7 +112,7 @@ test('x-show works with nested x-shows of different functions (hiding vs showing
         </div>
     `
 
-    Alpine.start()
+    await Alpine.start()
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
     expect(document.querySelector('h1').getAttribute('style')).toEqual(null)

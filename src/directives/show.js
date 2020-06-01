@@ -3,6 +3,7 @@ import { showElement, hideElement } from '../utils'
 
 export function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
 
+    // Resolve immediately if initial page load
     if (initialUpdate) {
         if (value) {
             transitionIn(el, component, initialUpdate)

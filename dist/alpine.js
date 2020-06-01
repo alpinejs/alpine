@@ -203,35 +203,39 @@
     if (forceSkip) return resolve();
     const attrs = getXAttrs(el, component, 'transition');
     const showAttr = getXAttrs(el, component, 'show')[0];
-    let transitionDirection = el.__x_showing ? 'enter' : 'leave';
+    let transition = el.__x_showing ? 'enter' : 'leave'; // If this is a CSS transition
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers;
-      transitionDirection = {
+      transition = {
         in: modifiers.includes('in'),
         out: modifiers.includes('out')
-      };
-      if (el.__x_showing && transitionDirection.out && !transitionDirection.in) return showElement(el);
-      if (!el.__x_showing && transitionDirection.in && !transitionDirection.out) return hideElement(el);
-      modifiers = transitionDirection.in && transitionDirection.out ? modifiers.filter((i, index) => el.__x_showing ? index < modifiers.indexOf('out') : index > modifiers.indexOf('out')) : modifiers;
-      transitionWithCss(el, resolve, modifiers, transitionDirection);
-    } else if (attrs.filter(attr => attr.value.includes(transitionDirection)).length > 0) {
-      transitionWithClasses(el, component, resolve, attrs, transitionDirection);
+      }; // Skip the transition's opposite direction if it is defined
+
+      if (el.__x_showing && transition.out && !transition.in) return showElement(el);
+      if (!el.__x_showing && transition.in && !transition.out) return hideElement(el); // Get related direction modifiers for this transition
+
+      modifiers = transition.in && transition.out ? modifiers.filter((i, index) => el.__x_showing ? index < modifiers.indexOf('out') : index > modifiers.indexOf('out')) : modifiers;
+      transitionWithCss(el, resolve, modifiers, transition); // If this is a Class transition
+    } else if (attrs.filter(attr => attr.value.includes(transition)).length > 0) {
+      transitionWithClasses(el, component, resolve, attrs, transition); // If neither, just resolve that damn thing
     } else {
       resolve(el);
     }
   }
 
-  function transitionWithCss(el, resolve, modifiers, transitionDirection) {
+  function transitionWithCss(el, resolve, modifiers, transition) {
+    // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
     const noModifiers = !modifiers.includes('opacity') && !modifiers.includes('scale');
     const transitionOpacity = noModifiers || modifiers.includes('opacity');
     const transitionScale = noModifiers || modifiers.includes('scale'); // If the user set these style values, we'll put them back when we're done with them.
 
     const opacityCache = el.style.opacity;
     const transformCache = el.style.transform;
-    const transformOriginCache = el.style.transformOrigin;
+    const transformOriginCache = el.style.transformOrigin; // Default values inspired by: https://material.io/design/motion/speed.html#duration
+
     const styleValues = {
-      duration: el.__x_showing || transitionDirection.in && transitionDirection.out ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2,
+      duration: el.__x_showing || transition.in && transition.out ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2,
       origin: modifierValue(modifiers, 'origin', 'center'),
       first: {
         opacity: el.__x_showing ? 0 : 1,
@@ -241,7 +245,10 @@
         opacity: el.__x_showing ? 1 : 0,
         scale: el.__x_showing ? 100 : modifierValue(modifiers, 'scale', 95)
       }
-    };
+    }; // These are the explicit stages of a transition (same stages for in and for out).
+    // This way you can get a birds eye view of the hooks, and the differences
+    // between them.
+
     const stages = {
       start() {
         if (transitionOpacity) el.style.opacity = styleValues.first.opacity;
@@ -277,22 +284,25 @@
         el.style.transitionTimingFunction = null;
       }
 
-    };
+    }; // Render Css transition
+
     renderStages(el, stages);
   }
 
-  function transitionWithClasses(el, component, resolve, attrs, transitionDirection) {
+  function transitionWithClasses(el, component, resolve, attrs, transition) {
     const originalClasses = el.__x_original_classes || [];
 
     let ensureStringExpression = expression => {
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
-    };
+    }; // Prepare stages for given directions
+
 
     let cssClasses = {
-      durring: transitionDirection,
-      start: `${transitionDirection}-start`,
-      end: `${transitionDirection}-end`
-    };
+      durring: transition,
+      start: `${transition}-start`,
+      end: `${transition}-end`
+    }; // Asigning stage css classes
+
     Object.entries(cssClasses).map(([name, value]) => {
       cssClasses[name] = ensureStringExpression((attrs.find(attr => attr.value === value) || {
         expression: ''
@@ -326,7 +336,8 @@
         el.classList.remove(...cssClasses.end.filter(i => !originalClasses.includes(i)));
       }
 
-    };
+    }; // Render Class transition
+
     renderStages(el, stages);
   }
 
@@ -351,7 +362,8 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          }
+          } // Transition is done, we can remove __x_showing from el until next transition
+
 
           el.__x_showing = undefined;
         }, duration);
@@ -604,6 +616,17 @@
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
+    // Resolve immediately if initial page load
+    if (initialUpdate) {
+      if (value) {
+        transitionIn(el, component, initialUpdate);
+      } else {
+        transitionOut(el, component, initialUpdate);
+      }
+
+      return;
+    }
+
     const handle = resolve => {
       if (!value) {
         if (el.style.display !== 'none') {
@@ -625,17 +648,7 @@
 
         resolve(() => {});
       }
-    };
-
-    if (initialUpdate) {
-      if (value) {
-        transitionIn(el, component, initialUpdate);
-      } else {
-        transitionOut(el, component, initialUpdate);
-      }
-
-      return;
-    } // The working of x-show is a bit complex because we need to
+    }; // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding
     // some element. Also, this has to be done recursively.
     // If x-show.immediate, foregoe the waiting.

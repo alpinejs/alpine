@@ -153,13 +153,25 @@ export function isNumeric(subject) {
 }
 
 export function showElement(el) {
-    if (el.style.length === 1 && el.style.display === 'none') {
-        el.removeAttribute('style')
-    } else {
-        el.style.removeProperty('display')
-    }
+  if (el.style.length === 1 && el.style.display === 'none') {
+    el.removeAttribute('style')
+  } else {
+    el.style.removeProperty('display')
+  }
 }
 
 export function hideElement(el) {
-    el.style.display = 'none'
+  el.style.display = 'none'
+}
+
+// Thanks @vue
+// https://github.com/vuejs/vue/blob/76fd45c9fd611fecfa79997706a5d218de206b68/src/shared/util.js
+export function once(fn) {
+  let called = false
+  return function () {
+    if (!called) {
+      called = true
+      fn.apply(this, arguments)
+    }
+  }
 }

@@ -2,6 +2,10 @@ import { transitionIn, transitionOut } from '../transitions'
 import { showElement, hideElement } from '../utils'
 
 export function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
+    // Resolve any previous pending transitions before starting a new one
+    if (el.__x_transition_resolve) {
+        el.__x_transition_resolve()
+    }
 
     // Resolve immediately if initial page load
     if (initialUpdate) {

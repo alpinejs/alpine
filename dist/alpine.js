@@ -187,6 +187,17 @@
   }
   function hideElement(el) {
     el.style.display = 'none';
+  } // Thanks @vue
+  // https://github.com/vuejs/vue/blob/76fd45c9fd611fecfa79997706a5d218de206b68/src/shared/util.js
+
+  function once(fn) {
+    let called = false;
+    return function () {
+      if (!called) {
+        called = true;
+        fn.apply(this, arguments);
+      }
+    };
   }
 
   function transitionIn(el, component, resolve = () => showElement(el), forceSkip = false) {
@@ -359,14 +370,17 @@
       stages.show();
       requestAnimationFrame(() => {
         stages.end();
-        setTimeout(() => {
-          stages.hide(); // Adding an "isConnected" check, in case the resolve
+        el.__x_transition_resolve = once(() => {
+          stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
 
           if (el.isConnected) {
             stages.cleanup();
           }
-        }, duration);
+
+          delete el.__x_transition_resolve;
+        });
+        setTimeout(el.__x_transition_resolve, duration);
       });
     });
   }
@@ -616,7 +630,12 @@
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
-    // Resolve immediately if initial page load
+    // Resolve any previous pending transitions before starting a new one
+    if (el.__x_transition_resolve) {
+      el.__x_transition_resolve();
+    } // Resolve immediately if initial page load
+
+
     if (initialUpdate) {
       if (value) {
         showElement(el);
@@ -643,7 +662,7 @@
           transitionIn(el, component, () => {
             showElement(el);
           });
-        } // Resolve immediately, only hold up parent `x-show`s for hidin.
+        } // Resolve immediately, only hold up parent `x-show`s for hiding.
 
 
         resolve(() => {});

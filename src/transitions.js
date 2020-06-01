@@ -1,4 +1,4 @@
-import { showElement, hideElement, getXAttrs, isNumeric } from './utils'
+import { showElement, hideElement, getXAttrs, isNumeric, once } from './utils'
 
 export function transitionIn(el, component, resolve = () => showElement(el), forceSkip = false) {
   transition(el, component, resolve, forceSkip)
@@ -9,6 +9,7 @@ export function transitionOut(el, component, resolve = () => hideElement(el), fo
 }
 
 function transition(el, component, resolve, forceSkip, display = true) {
+
   // We don't want to transition on the initial page load.
   if (forceSkip) return resolve()
 
@@ -187,17 +188,22 @@ function renderStages(el, stages) {
     stages.show()
 
     requestAnimationFrame(() => {
-      stages.end()
 
-      setTimeout(() => {
+      stages.end()
+      el.__x_transition_resolve = once(() => {
+
         stages.hide()
 
-        // Adding an "isConnected" check, in case the resolve
+        // Adding an "isConnected" check, in case the callback
         // removed the element from the DOM.
         if (el.isConnected) {
           stages.cleanup()
         }
-      }, duration)
+
+        delete el.__x_transition_resolve
+      })
+
+      setTimeout(el.__x_transition_resolve, duration);
     })
   })
 }

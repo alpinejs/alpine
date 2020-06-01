@@ -16,7 +16,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     const handle = (resolve) => {
         if (!value) {
             if (el.style.display !== 'none') {
-                transitionOut(el, component, initialUpdate, () => {
+                transitionOut(el, component, initialUpdate || el.__x_showing !== undefined, () => {
                     resolve(() => {
                         hideElement(el)
                     })
@@ -26,7 +26,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
             }
         } else {
             if (el.style.display !== '') {
-                transitionIn(el, component, initialUpdate, () => {
+                transitionIn(el, component, initialUpdate || el.__x_showing !== undefined, () => {
                     showElement(el)
                 })
             }

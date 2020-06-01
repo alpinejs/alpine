@@ -1,4 +1,5 @@
-import { transitionIn, transitionOut, getXAttrs, saferEval } from '../utils'
+import { getXAttrs } from '../utils'
+import { transitionIn, transitionOut } from '../transitions'
 
 export function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     warnIfNotTemplateTag(templateEl)
@@ -21,7 +22,7 @@ export function handleForDirective(component, templateEl, expression, initialUpd
             nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
 
             // And transition it in if it's not the first page load.
-            transitionIn(nextEl, () => {}, component, initialUpdate)
+            transitionIn(nextEl, component, initialUpdate)
 
             nextEl.__x_for = iterationScopeVariables
             component.initializeElements(nextEl, () => nextEl.__x_for)
@@ -134,9 +135,9 @@ function removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component) {
     while (nextElementFromOldLoop) {
         let nextElementFromOldLoopImmutable = nextElementFromOldLoop
         let nextSibling = nextElementFromOldLoop.nextElementSibling
-        transitionOut(nextElementFromOldLoop, () => {
+        transitionOut(nextElementFromOldLoop, component, false, () => {
             nextElementFromOldLoopImmutable.remove()
-        }, component)
+        })
         nextElementFromOldLoop = (nextSibling && nextSibling.__x_for_key !== undefined) ? nextSibling : false
     }
 }

@@ -1,47 +1,37 @@
-import { transitionIn, transitionOut } from '../utils'
+import { transitionIn, transitionOut } from '../transitions'
+import { showElement, hideElement } from '../utils'
 
 export function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
-    const hide = () => {
-        el.style.display = 'none'
-    }
 
-    const show = () => {
-        if (el.style.length === 1 && el.style.display === 'none') {
-            el.removeAttribute('style')
-        } else {
-            el.style.removeProperty('display')
-        }
-    }
-
-    if (initialUpdate === true) {
+    if (initialUpdate) {
         if (value) {
-            show()
+            transitionIn(el, component, initialUpdate)
         } else {
-            hide()
+            transitionOut(el, component, initialUpdate)
         }
         return
     }
 
     const handle = (resolve) => {
-        if (! value) {
-            if ( el.style.display !== 'none' ) {
-                transitionOut(el, () => {
+        if (!value) {
+            if (el.style.display !== 'none') {
+                transitionOut(el, component, initialUpdate, () => {
                     resolve(() => {
-                        hide()
+                        hideElement(el)
                     })
-                }, component)
+                })
             } else {
-                resolve(() => {})
+                resolve(() => { })
             }
         } else {
-            if ( el.style.display !== '' ) {
-                transitionIn(el, () => {
-                    show()
-                }, component)
+            if (el.style.display !== '') {
+                transitionIn(el, component, initialUpdate, () => {
+                    showElement(el)
+                })
             }
 
             // Resolve immediately, only hold up parent `x-show`s for hidin.
-            resolve(() => {})
+            resolve(() => { })
         }
     }
 
@@ -58,7 +48,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     // x-show is encountered during a DOM tree walk. If an element
     // we encounter is NOT a child of another x-show element we
     // can execute the previous x-show stack (if one exists).
-    if (component.showDirectiveLastElement && ! component.showDirectiveLastElement.contains(el)) {
+    if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
         component.executeAndClearRemainingShowDirectiveStack()
     }
 

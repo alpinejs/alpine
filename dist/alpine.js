@@ -175,78 +175,188 @@
 
     return name;
   }
-  function transitionIn(el, show, component, forceSkip = false) {
-    // We don't want to transition on the initial page load.
-    if (forceSkip) return show();
-    const attrs = getXAttrs(el, component, 'transition');
-    const showAttr = getXAttrs(el, component, 'show')[0]; // If this is triggered by a x-show.transition.
-
-    if (showAttr && showAttr.modifiers.includes('transition')) {
-      let modifiers = showAttr.modifiers; // If x-show.transition.out, we'll skip the "in" transition.
-
-      if (modifiers.includes('out') && !modifiers.includes('in')) return show();
-      const settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out'); // If x-show.transition.in...out... only use "in" related modifiers for this transition.
-
-      modifiers = settingBothSidesOfTransition ? modifiers.filter((i, index) => index < modifiers.indexOf('out')) : modifiers;
-      transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.filter(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value)).length > 0) {
-      transitionClassesIn(el, component, attrs, show);
+  function isNumeric(subject) {
+    return !isNaN(subject);
+  }
+  function showElement(el) {
+    if (el.style.length === 1 && el.style.display === 'none') {
+      el.removeAttribute('style');
     } else {
-      // If neither, just show that damn thing.
-      show();
+      el.style.removeProperty('display');
     }
   }
-  function transitionOut(el, hide, component, forceSkip = false) {
-    if (forceSkip) return hide();
+  function hideElement(el) {
+    el.style.display = 'none';
+  }
+
+  function transitionIn(el, component, forceSkip = false, resolve = () => showElement(el)) {
+    el.__x_showing = true;
+    transition(el, component, resolve, forceSkip);
+  }
+  function transitionOut(el, component, forceSkip = false, resolve = () => hideElement(el)) {
+    el.__x_showing = false;
+    transition(el, component, resolve, forceSkip);
+  }
+
+  function transition(el, component, resolve, forceSkip) {
+    // We don't want to transition on the initial page load.
+    if (forceSkip) return resolve();
     const attrs = getXAttrs(el, component, 'transition');
     const showAttr = getXAttrs(el, component, 'show')[0];
+    let transitionDirection = el.__x_showing ? 'enter' : 'leave';
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers;
-      if (modifiers.includes('in') && !modifiers.includes('out')) return hide();
-      const settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out');
-      modifiers = settingBothSidesOfTransition ? modifiers.filter((i, index) => index > modifiers.indexOf('out')) : modifiers;
-      transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
-    } else if (attrs.filter(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value)).length > 0) {
-      transitionClassesOut(el, component, attrs, hide);
+      transitionDirection = {
+        in: modifiers.includes('in'),
+        out: modifiers.includes('out')
+      };
+      if (el.__x_showing && transitionDirection.out && !transitionDirection.in) return showElement(el);
+      if (!el.__x_showing && transitionDirection.in && !transitionDirection.out) return hideElement(el);
+      modifiers = transitionDirection.in && transitionDirection.out ? modifiers.filter((i, index) => el.__x_showing ? index < modifiers.indexOf('out') : index > modifiers.indexOf('out')) : modifiers;
+      transitionWithCss(el, resolve, modifiers, transitionDirection);
+    } else if (attrs.filter(attr => attr.value.includes(transitionDirection)).length > 0) {
+      transitionWithClasses(el, component, resolve, attrs, transitionDirection);
     } else {
-      hide();
+      resolve(el);
     }
   }
-  function transitionHelperIn(el, modifiers, showCallback) {
-    // Default values inspired by: https://material.io/design/motion/speed.html#duration
+
+  function transitionWithCss(el, resolve, modifiers, transitionDirection) {
+    const noModifiers = !modifiers.includes('opacity') && !modifiers.includes('scale');
+    const transitionOpacity = noModifiers || modifiers.includes('opacity');
+    const transitionScale = noModifiers || modifiers.includes('scale'); // If the user set these style values, we'll put them back when we're done with them.
+
+    const opacityCache = el.style.opacity;
+    const transformCache = el.style.transform;
+    const transformOriginCache = el.style.transformOrigin;
     const styleValues = {
-      duration: modifierValue(modifiers, 'duration', 150),
+      duration: el.__x_showing || transitionDirection.in && transitionDirection.out ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2,
       origin: modifierValue(modifiers, 'origin', 'center'),
       first: {
-        opacity: 0,
-        scale: modifierValue(modifiers, 'scale', 95)
+        opacity: el.__x_showing ? 0 : 1,
+        scale: el.__x_showing ? modifierValue(modifiers, 'scale', 95) : 100
       },
       second: {
-        opacity: 1,
-        scale: 100
+        opacity: el.__x_showing ? 1 : 0,
+        scale: el.__x_showing ? 100 : modifierValue(modifiers, 'scale', 95)
       }
     };
-    transitionHelper(el, modifiers, showCallback, () => {}, styleValues);
+    const stages = {
+      start() {
+        if (transitionOpacity) el.style.opacity = styleValues.first.opacity;
+        if (transitionScale) el.style.transform = `scale(${styleValues.first.scale / 100})`;
+      },
+
+      during() {
+        if (transitionScale) el.style.transformOrigin = styleValues.origin;
+        el.style.transitionProperty = [transitionOpacity ? `opacity` : ``, transitionScale ? `transform` : ``].join(' ').trim();
+        el.style.transitionDuration = `${styleValues.duration / 1000}s`;
+        el.style.transitionTimingFunction = `cubic-bezier(0.4, 0.0, 0.2, 1)`;
+      },
+
+      show() {
+        if (el.__x_showing) resolve();
+      },
+
+      end() {
+        if (transitionOpacity) el.style.opacity = styleValues.second.opacity;
+        if (transitionScale) el.style.transform = `scale(${styleValues.second.scale / 100})`;
+      },
+
+      hide() {
+        if (!el.__x_showing) resolve();
+      },
+
+      cleanup() {
+        if (transitionOpacity) el.style.opacity = opacityCache;
+        if (transitionScale) el.style.transform = transformCache;
+        if (transitionScale) el.style.transformOrigin = transformOriginCache;
+        el.style.transitionProperty = null;
+        el.style.transitionDuration = null;
+        el.style.transitionTimingFunction = null;
+      }
+
+    };
+    renderStages(el, stages);
   }
-  function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
-    // Make the "out" transition .5x slower than the "in". (Visually better)
-    // HOWEVER, if they explicitly set a duration for the "out" transition,
-    // use that.
-    const duration = settingBothSidesOfTransition ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2;
-    const styleValues = {
-      duration: duration,
-      origin: modifierValue(modifiers, 'origin', 'center'),
-      first: {
-        opacity: 1,
-        scale: 100
-      },
-      second: {
-        opacity: 0,
-        scale: modifierValue(modifiers, 'scale', 95)
-      }
+
+  function transitionWithClasses(el, component, resolve, attrs, transitionDirection) {
+    const originalClasses = el.__x_original_classes || [];
+
+    let ensureStringExpression = expression => {
+      return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
     };
-    transitionHelper(el, modifiers, () => {}, hideCallback, styleValues);
+
+    let cssClasses = {
+      durring: transitionDirection,
+      start: `${transitionDirection}-start`,
+      end: `${transitionDirection}-end`
+    };
+    Object.entries(cssClasses).map(([name, value]) => {
+      cssClasses[name] = ensureStringExpression((attrs.find(attr => attr.value === value) || {
+        expression: ''
+      }).expression).split(' ').filter(i => i !== '');
+    });
+    const stages = {
+      start() {
+        el.classList.add(...cssClasses.start);
+      },
+
+      during() {
+        el.classList.add(...cssClasses.durring);
+      },
+
+      show() {
+        if (el.__x_showing) resolve();
+      },
+
+      end() {
+        // Don't remove classes that were in the original class attribute.
+        el.classList.remove(...cssClasses.start.filter(i => !originalClasses.includes(i)));
+        el.classList.add(...cssClasses.end);
+      },
+
+      hide() {
+        if (!el.__x_showing) resolve();
+      },
+
+      cleanup() {
+        el.classList.remove(...cssClasses.durring.filter(i => !originalClasses.includes(i)));
+        el.classList.remove(...cssClasses.end.filter(i => !originalClasses.includes(i)));
+      }
+
+    };
+    renderStages(el, stages);
+  }
+
+  function renderStages(el, stages) {
+    stages.start();
+    stages.during();
+    requestAnimationFrame(() => {
+      // Note: Safari's transitionDuration property will list out comma separated transition durations
+      // for every single transition property. Let's grab the first one and call it a day.
+      let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000;
+
+      if (duration === 0) {
+        duration = Number(getComputedStyle(el).animationDuration.replace('s', '')) * 1000;
+      }
+
+      stages.show();
+      requestAnimationFrame(() => {
+        stages.end();
+        setTimeout(() => {
+          stages.hide(); // Adding an "isConnected" check, in case the resolve
+          // removed the element from the DOM.
+
+          if (el.isConnected) {
+            stages.cleanup();
+          }
+
+          el.__x_showing = undefined;
+        }, duration);
+      });
+    });
   }
 
   function modifierValue(modifiers, key, fallback) {
@@ -279,147 +389,6 @@
     return rawValue;
   }
 
-  function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
-    // If the user set these style values, we'll put them back when we're done with them.
-    const opacityCache = el.style.opacity;
-    const transformCache = el.style.transform;
-    const transformOriginCache = el.style.transformOrigin; // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
-
-    const noModifiers = !modifiers.includes('opacity') && !modifiers.includes('scale');
-    const transitionOpacity = noModifiers || modifiers.includes('opacity');
-    const transitionScale = noModifiers || modifiers.includes('scale'); // These are the explicit stages of a transition (same stages for in and for out).
-    // This way you can get a birds eye view of the hooks, and the differences
-    // between them.
-
-    const stages = {
-      start() {
-        if (transitionOpacity) el.style.opacity = styleValues.first.opacity;
-        if (transitionScale) el.style.transform = `scale(${styleValues.first.scale / 100})`;
-      },
-
-      during() {
-        if (transitionScale) el.style.transformOrigin = styleValues.origin;
-        el.style.transitionProperty = [transitionOpacity ? `opacity` : ``, transitionScale ? `transform` : ``].join(' ').trim();
-        el.style.transitionDuration = `${styleValues.duration / 1000}s`;
-        el.style.transitionTimingFunction = `cubic-bezier(0.4, 0.0, 0.2, 1)`;
-      },
-
-      show() {
-        hook1();
-      },
-
-      end() {
-        if (transitionOpacity) el.style.opacity = styleValues.second.opacity;
-        if (transitionScale) el.style.transform = `scale(${styleValues.second.scale / 100})`;
-      },
-
-      hide() {
-        hook2();
-      },
-
-      cleanup() {
-        if (transitionOpacity) el.style.opacity = opacityCache;
-        if (transitionScale) el.style.transform = transformCache;
-        if (transitionScale) el.style.transformOrigin = transformOriginCache;
-        el.style.transitionProperty = null;
-        el.style.transitionDuration = null;
-        el.style.transitionTimingFunction = null;
-      }
-
-    };
-    transition(el, stages);
-  }
-  function transitionClassesIn(el, component, directives, showCallback) {
-    let ensureStringExpression = expression => {
-      return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
-    };
-
-    const enter = ensureStringExpression((directives.find(i => i.value === 'enter') || {
-      expression: ''
-    }).expression).split(' ').filter(i => i !== '');
-    const enterStart = ensureStringExpression((directives.find(i => i.value === 'enter-start') || {
-      expression: ''
-    }).expression).split(' ').filter(i => i !== '');
-    const enterEnd = ensureStringExpression((directives.find(i => i.value === 'enter-end') || {
-      expression: ''
-    }).expression).split(' ').filter(i => i !== '');
-    transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {});
-  }
-  function transitionClassesOut(el, component, directives, hideCallback) {
-    const leave = (directives.find(i => i.value === 'leave') || {
-      expression: ''
-    }).expression.split(' ').filter(i => i !== '');
-    const leaveStart = (directives.find(i => i.value === 'leave-start') || {
-      expression: ''
-    }).expression.split(' ').filter(i => i !== '');
-    const leaveEnd = (directives.find(i => i.value === 'leave-end') || {
-      expression: ''
-    }).expression.split(' ').filter(i => i !== '');
-    transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback);
-  }
-  function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
-    const originalClasses = el.__x_original_classes || [];
-    const stages = {
-      start() {
-        el.classList.add(...classesStart);
-      },
-
-      during() {
-        el.classList.add(...classesDuring);
-      },
-
-      show() {
-        hook1();
-      },
-
-      end() {
-        // Don't remove classes that were in the original class attribute.
-        el.classList.remove(...classesStart.filter(i => !originalClasses.includes(i)));
-        el.classList.add(...classesEnd);
-      },
-
-      hide() {
-        hook2();
-      },
-
-      cleanup() {
-        el.classList.remove(...classesDuring.filter(i => !originalClasses.includes(i)));
-        el.classList.remove(...classesEnd.filter(i => !originalClasses.includes(i)));
-      }
-
-    };
-    transition(el, stages);
-  }
-  function transition(el, stages) {
-    stages.start();
-    stages.during();
-    requestAnimationFrame(() => {
-      // Note: Safari's transitionDuration property will list out comma separated transition durations
-      // for every single transition property. Let's grab the first one and call it a day.
-      let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000;
-
-      if (duration === 0) {
-        duration = Number(getComputedStyle(el).animationDuration.replace('s', '')) * 1000;
-      }
-
-      stages.show();
-      requestAnimationFrame(() => {
-        stages.end();
-        setTimeout(() => {
-          stages.hide(); // Adding an "isConnected" check, in case the callback
-          // removed the element from the DOM.
-
-          if (el.isConnected) {
-            stages.cleanup();
-          }
-        }, duration);
-      });
-    });
-  }
-  function isNumeric(subject) {
-    return !isNaN(subject);
-  }
-
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     warnIfNotTemplateTag(templateEl);
     let iteratorNames = typeof expression === 'function' ? parseForExpression(component.evaluateReturnExpression(templateEl, expression)) : parseForExpression(expression);
@@ -434,7 +403,7 @@
       if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-        transitionIn(nextEl, () => {}, component, initialUpdate);
+        transitionIn(nextEl, component, initialUpdate);
         nextEl.__x_for = iterationScopeVariables;
         component.initializeElements(nextEl, () => nextEl.__x_for); // Otherwise update the element we found.
       } else {
@@ -535,9 +504,9 @@
     while (nextElementFromOldLoop) {
       let nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       let nextSibling = nextElementFromOldLoop.nextElementSibling;
-      transitionOut(nextElementFromOldLoop, () => {
+      transitionOut(nextElementFromOldLoop, component, false, () => {
         nextElementFromOldLoopImmutable.remove();
-      }, component);
+      });
       nextElementFromOldLoop = nextSibling && nextSibling.__x_for_key !== undefined ? nextSibling : false;
     }
   }
@@ -635,50 +604,38 @@
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
-    const hide = () => {
-      el.style.display = 'none';
-    };
-
-    const show = () => {
-      if (el.style.length === 1 && el.style.display === 'none') {
-        el.removeAttribute('style');
-      } else {
-        el.style.removeProperty('display');
-      }
-    };
-
-    if (initialUpdate === true) {
-      if (value) {
-        show();
-      } else {
-        hide();
-      }
-
-      return;
-    }
-
     const handle = resolve => {
       if (!value) {
         if (el.style.display !== 'none') {
-          transitionOut(el, () => {
+          transitionOut(el, component, initialUpdate, () => {
             resolve(() => {
-              hide();
+              hideElement(el);
             });
-          }, component);
+          });
         } else {
           resolve(() => {});
         }
       } else {
         if (el.style.display !== '') {
-          transitionIn(el, () => {
-            show();
-          }, component);
+          transitionIn(el, component, initialUpdate, () => {
+            showElement(el);
+          });
         } // Resolve immediately, only hold up parent `x-show`s for hidin.
 
 
         resolve(() => {});
       }
-    }; // The working of x-show is a bit complex because we need to
+    };
+
+    if (initialUpdate) {
+      if (value) {
+        transitionIn(el, component, initialUpdate);
+      } else {
+        transitionOut(el, component, initialUpdate);
+      }
+
+      return;
+    } // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding
     // some element. Also, this has to be done recursively.
     // If x-show.immediate, foregoe the waiting.
@@ -708,13 +665,13 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       const clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      transitionIn(el.nextElementSibling, () => {}, component, initialUpdate);
+      transitionIn(el.nextElementSibling, component, initialUpdate);
       component.initializeElements(el.nextElementSibling, extraVars);
       el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
-      transitionOut(el.nextElementSibling, () => {
+      transitionOut(el.nextElementSibling, component, initialUpdate, () => {
         el.nextElementSibling.remove();
-      }, component, initialUpdate);
+      });
     }
   }
 

@@ -1,4 +1,4 @@
-import { transitionIn, transitionOut } from '../utils'
+import { transitionIn, transitionOut } from '../transitions'
 
 export function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
     if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if`)
@@ -10,14 +10,14 @@ export function handleIfDirective(component, el, expressionResult, initialUpdate
 
         el.parentElement.insertBefore(clone, el.nextElementSibling)
 
-        transitionIn(el.nextElementSibling, () => {}, component, initialUpdate)
+        transitionIn(el.nextElementSibling, component, initialUpdate)
 
         component.initializeElements(el.nextElementSibling, extraVars)
 
         el.nextElementSibling.__x_inserted_me = true
     } else if (! expressionResult && elementHasAlreadyBeenAdded) {
-        transitionOut(el.nextElementSibling, () => {
+        transitionOut(el.nextElementSibling, component, initialUpdate, () => {
             el.nextElementSibling.remove()
-        }, component, initialUpdate)
+        })
     }
 }

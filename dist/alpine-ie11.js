@@ -4502,29 +4502,6 @@
     }
   });
 
-  var $find = arrayIteration.find;
-
-
-
-  var FIND = 'find';
-  var SKIPS_HOLES$1 = true;
-
-  var USES_TO_LENGTH$7 = arrayMethodUsesToLength(FIND);
-
-  // Shouldn't skip holes
-  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
-
-  // `Array.prototype.find` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$7 }, {
-    find: function find(callbackfn /* , that = undefined */) {
-      return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
-  addToUnscopables(FIND);
-
   // `FlattenIntoArray` abstract operation
   // https://tc39.github.io/proposal-flatMap/#sec-FlattenIntoArray
   var flattenIntoArray = function (target, original, source, sourceLen, start, depth, mapper, thisArg) {
@@ -4564,27 +4541,6 @@
       A = arraySpeciesCreate(O, 0);
       A.length = flattenIntoArray_1(A, O, O, sourceLen, 0, 1, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
       return A;
-    }
-  });
-
-  var $indexOf = arrayIncludes.indexOf;
-
-
-
-  var nativeIndexOf = [].indexOf;
-
-  var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
-  var STRICT_METHOD$2 = arrayMethodIsStrict('indexOf');
-  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
-
-  // `Array.prototype.indexOf` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.indexof
-  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$8 }, {
-    indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
-      return NEGATIVE_ZERO
-        // convert -0 to +0
-        ? nativeIndexOf.apply(this, arguments) || 0
-        : $indexOf(this, searchElement, arguments.length > 1 ? arguments[1] : undefined);
     }
   });
 
@@ -4635,19 +4591,6 @@
   addToUnscopables('values');
   addToUnscopables('entries');
 
-  var nativeJoin = [].join;
-
-  var ES3_STRINGS = indexedObject != Object;
-  var STRICT_METHOD$3 = arrayMethodIsStrict('join', ',');
-
-  // `Array.prototype.join` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.join
-  _export({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD$3 }, {
-    join: function join(separator) {
-      return nativeJoin.call(toIndexedObject(this), separator === undefined ? ',' : separator);
-    }
-  });
-
   // this method was added to unscopables after implementation
   // in popular engines, so it's moved to a separate module
 
@@ -4676,123 +4619,10 @@
     });
   }
 
-  // makes subclassing work correct for wrapped built-ins
-  var inheritIfRequired = function ($this, dummy, Wrapper) {
-    var NewTarget, NewTargetPrototype;
-    if (
-      // it can work only with native `setPrototypeOf`
-      objectSetPrototypeOf &&
-      // we haven't completely correct pre-ES6 way for getting `new.target`, so use this
-      typeof (NewTarget = dummy.constructor) == 'function' &&
-      NewTarget !== Wrapper &&
-      isObject(NewTargetPrototype = NewTarget.prototype) &&
-      NewTargetPrototype !== Wrapper.prototype
-    ) objectSetPrototypeOf($this, NewTargetPrototype);
-    return $this;
-  };
-
-  // a string of all valid unicode whitespaces
-  // eslint-disable-next-line max-len
-  var whitespaces = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF';
-
-  var whitespace = '[' + whitespaces + ']';
-  var ltrim = RegExp('^' + whitespace + whitespace + '*');
-  var rtrim = RegExp(whitespace + whitespace + '*$');
-
-  // `String.prototype.{ trim, trimStart, trimEnd, trimLeft, trimRight }` methods implementation
-  var createMethod$4 = function (TYPE) {
-    return function ($this) {
-      var string = String(requireObjectCoercible($this));
-      if (TYPE & 1) string = string.replace(ltrim, '');
-      if (TYPE & 2) string = string.replace(rtrim, '');
-      return string;
-    };
-  };
-
-  var stringTrim = {
-    // `String.prototype.{ trimLeft, trimStart }` methods
-    // https://tc39.github.io/ecma262/#sec-string.prototype.trimstart
-    start: createMethod$4(1),
-    // `String.prototype.{ trimRight, trimEnd }` methods
-    // https://tc39.github.io/ecma262/#sec-string.prototype.trimend
-    end: createMethod$4(2),
-    // `String.prototype.trim` method
-    // https://tc39.github.io/ecma262/#sec-string.prototype.trim
-    trim: createMethod$4(3)
-  };
-
-  var getOwnPropertyNames = objectGetOwnPropertyNames.f;
-  var getOwnPropertyDescriptor$3 = objectGetOwnPropertyDescriptor.f;
-  var defineProperty$3 = objectDefineProperty.f;
-  var trim = stringTrim.trim;
-
-  var NUMBER = 'Number';
-  var NativeNumber = global_1[NUMBER];
-  var NumberPrototype = NativeNumber.prototype;
-
-  // Opera ~12 has broken Object#toString
-  var BROKEN_CLASSOF = classofRaw(objectCreate(NumberPrototype)) == NUMBER;
-
-  // `ToNumber` abstract operation
-  // https://tc39.github.io/ecma262/#sec-tonumber
-  var toNumber = function (argument) {
-    var it = toPrimitive(argument, false);
-    var first, third, radix, maxCode, digits, length, index, code;
-    if (typeof it == 'string' && it.length > 2) {
-      it = trim(it);
-      first = it.charCodeAt(0);
-      if (first === 43 || first === 45) {
-        third = it.charCodeAt(2);
-        if (third === 88 || third === 120) return NaN; // Number('+0x1') should be NaN, old V8 fix
-      } else if (first === 48) {
-        switch (it.charCodeAt(1)) {
-          case 66: case 98: radix = 2; maxCode = 49; break; // fast equal of /^0b[01]+$/i
-          case 79: case 111: radix = 8; maxCode = 55; break; // fast equal of /^0o[0-7]+$/i
-          default: return +it;
-        }
-        digits = it.slice(2);
-        length = digits.length;
-        for (index = 0; index < length; index++) {
-          code = digits.charCodeAt(index);
-          // parseInt parses a string to a first unavailable symbol
-          // but ToNumber should return NaN if a string contains unavailable symbols
-          if (code < 48 || code > maxCode) return NaN;
-        } return parseInt(digits, radix);
-      }
-    } return +it;
-  };
-
-  // `Number` constructor
-  // https://tc39.github.io/ecma262/#sec-number-constructor
-  if (isForced_1(NUMBER, !NativeNumber(' 0o1') || !NativeNumber('0b1') || NativeNumber('+0x1'))) {
-    var NumberWrapper = function Number(value) {
-      var it = arguments.length < 1 ? 0 : value;
-      var dummy = this;
-      return dummy instanceof NumberWrapper
-        // check on 1..constructor(foo) case
-        && (BROKEN_CLASSOF ? fails(function () { NumberPrototype.valueOf.call(dummy); }) : classofRaw(dummy) != NUMBER)
-          ? inheritIfRequired(new NativeNumber(toNumber(it)), dummy, NumberWrapper) : toNumber(it);
-    };
-    for (var keys$1 = descriptors ? getOwnPropertyNames(NativeNumber) : (
-      // ES3:
-      'MAX_VALUE,MIN_VALUE,NaN,NEGATIVE_INFINITY,POSITIVE_INFINITY,' +
-      // ES2015 (in case, if modules with ES2015 Number statics required before):
-      'EPSILON,isFinite,isInteger,isNaN,isSafeInteger,MAX_SAFE_INTEGER,' +
-      'MIN_SAFE_INTEGER,parseFloat,parseInt,isInteger'
-    ).split(','), j = 0, key; keys$1.length > j; j++) {
-      if (has(NativeNumber, key = keys$1[j]) && !has(NumberWrapper, key)) {
-        defineProperty$3(NumberWrapper, key, getOwnPropertyDescriptor$3(NativeNumber, key));
-      }
-    }
-    NumberWrapper.prototype = NumberPrototype;
-    NumberPrototype.constructor = NumberWrapper;
-    redefine(global_1, NUMBER, NumberWrapper);
-  }
-
   var propertyIsEnumerable = objectPropertyIsEnumerable.f;
 
   // `Object.{ entries, values }` methods implementation
-  var createMethod$5 = function (TO_ENTRIES) {
+  var createMethod$4 = function (TO_ENTRIES) {
     return function (it) {
       var O = toIndexedObject(it);
       var keys = objectKeys(O);
@@ -4813,10 +4643,10 @@
   var objectToArray = {
     // `Object.entries` method
     // https://tc39.github.io/ecma262/#sec-object.entries
-    entries: createMethod$5(true),
+    entries: createMethod$4(true),
     // `Object.values` method
     // https://tc39.github.io/ecma262/#sec-object.values
-    values: createMethod$5(false)
+    values: createMethod$4(false)
   };
 
   var $entries = objectToArray.entries;
@@ -4908,6 +4738,21 @@
   var internalMetadata_3 = internalMetadata.getWeakData;
   var internalMetadata_4 = internalMetadata.onFreeze;
 
+  // makes subclassing work correct for wrapped built-ins
+  var inheritIfRequired = function ($this, dummy, Wrapper) {
+    var NewTarget, NewTargetPrototype;
+    if (
+      // it can work only with native `setPrototypeOf`
+      objectSetPrototypeOf &&
+      // we haven't completely correct pre-ES6 way for getting `new.target`, so use this
+      typeof (NewTarget = dummy.constructor) == 'function' &&
+      NewTarget !== Wrapper &&
+      isObject(NewTargetPrototype = NewTarget.prototype) &&
+      NewTargetPrototype !== Wrapper.prototype
+    ) objectSetPrototypeOf($this, NewTargetPrototype);
+    return $this;
+  };
+
   var collection = function (CONSTRUCTOR_NAME, wrapper, common) {
     var IS_MAP = CONSTRUCTOR_NAME.indexOf('Map') !== -1;
     var IS_WEAK = CONSTRUCTOR_NAME.indexOf('Weak') !== -1;
@@ -4994,7 +4839,7 @@
     return Constructor;
   };
 
-  var defineProperty$4 = objectDefineProperty.f;
+  var defineProperty$3 = objectDefineProperty.f;
 
 
 
@@ -5136,7 +4981,7 @@
           return define(this, value = value === 0 ? 0 : value, value);
         }
       });
-      if (descriptors) defineProperty$4(C.prototype, 'size', {
+      if (descriptors) defineProperty$3(C.prototype, 'size', {
         get: function () {
           return getInternalState(this).size;
         }
@@ -5349,7 +5194,7 @@
     }
   });
 
-  var getOwnPropertyDescriptor$4 = objectGetOwnPropertyDescriptor.f;
+  var getOwnPropertyDescriptor$3 = objectGetOwnPropertyDescriptor.f;
 
 
 
@@ -5362,7 +5207,7 @@
   var CORRECT_IS_REGEXP_LOGIC = correctIsRegexpLogic('startsWith');
   // https://github.com/zloirock/core-js/pull/702
   var MDN_POLYFILL_BUG =  !CORRECT_IS_REGEXP_LOGIC && !!function () {
-    var descriptor = getOwnPropertyDescriptor$4(String.prototype, 'startsWith');
+    var descriptor = getOwnPropertyDescriptor$3(String.prototype, 'startsWith');
     return descriptor && !descriptor.writable;
   }();
 
@@ -5377,27 +5222,6 @@
       return nativeStartsWith
         ? nativeStartsWith.call(that, search, index)
         : that.slice(index, index + search.length) === search;
-    }
-  });
-
-  var non = '\u200B\u0085\u180E';
-
-  // check that a method works with the correct list
-  // of whitespaces and has a correct name
-  var stringTrimForced = function (METHOD_NAME) {
-    return fails(function () {
-      return !!whitespaces[METHOD_NAME]() || non[METHOD_NAME]() != non || whitespaces[METHOD_NAME].name !== METHOD_NAME;
-    });
-  };
-
-  var $trim = stringTrim.trim;
-
-
-  // `String.prototype.trim` method
-  // https://tc39.github.io/ecma262/#sec-string.prototype.trim
-  _export({ target: 'String', proto: true, forced: stringTrimForced('trim') }, {
-    trim: function trim() {
-      return $trim(this);
     }
   });
 
@@ -5490,7 +5314,7 @@
     var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
     if (typeof expression === 'function') {
-      expression.call(dataContext);
+      return expression.call(dataContext);
     } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
     // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
 
@@ -5510,7 +5334,7 @@
     var name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
   }
-  function getXAttrs(el, type, component) {
+  function getXAttrs(el, component, type) {
     var _this2 = this;
 
     return Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute).flatMap(function (i) {
@@ -5580,111 +5404,438 @@
 
     return name;
   }
-  function transitionIn(el, show, component) {
-    var _this5 = this;
-
-    var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    // We don't want to transition on the initial page load.
-    if (forceSkip) return show();
-    var attrs = getXAttrs(el, 'transition', component);
-    var showAttr = getXAttrs(el, 'show', component)[0]; // If this is triggered by a x-show.transition.
-
-    if (showAttr && showAttr.modifiers.includes('transition')) {
-      var modifiers = showAttr.modifiers; // If x-show.transition.out, we'll skip the "in" transition.
-
-      if (modifiers.includes('out') && !modifiers.includes('in')) return show();
-      var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out'); // If x-show.transition.in...out... only use "in" related modifiers for this transition.
-
-      modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this5);
-
-        return index < modifiers.indexOf('out');
-      }.bind(this)) : modifiers;
-      transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.filter(function (attr) {
-      _newArrowCheck(this, _this5);
-
-      return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
-    }.bind(this)).length > 0) {
-      transitionClassesIn(el, attrs, show);
+  function isNumeric$1(subject) {
+    return !isNaN(subject);
+  }
+  function showElement(el) {
+    if (el.style.length === 1 && el.style.display === 'none') {
+      el.removeAttribute('style');
     } else {
-      // If neither, just show that damn thing.
-      show();
+      el.style.removeProperty('display');
     }
   }
-  function transitionOut(el, hide, component) {
-    var _this6 = this;
+  function hideElement(el) {
+    el.style.display = 'none';
+  }
 
-    var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    if (forceSkip) return hide();
-    var attrs = getXAttrs(el, 'transition', component);
-    var showAttr = getXAttrs(el, 'show', component)[0];
+  // a string of all valid unicode whitespaces
+  // eslint-disable-next-line max-len
+  var whitespaces = '\u0009\u000A\u000B\u000C\u000D\u0020\u00A0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF';
+
+  var whitespace = '[' + whitespaces + ']';
+  var ltrim = RegExp('^' + whitespace + whitespace + '*');
+  var rtrim = RegExp(whitespace + whitespace + '*$');
+
+  // `String.prototype.{ trim, trimStart, trimEnd, trimLeft, trimRight }` methods implementation
+  var createMethod$5 = function (TYPE) {
+    return function ($this) {
+      var string = String(requireObjectCoercible($this));
+      if (TYPE & 1) string = string.replace(ltrim, '');
+      if (TYPE & 2) string = string.replace(rtrim, '');
+      return string;
+    };
+  };
+
+  var stringTrim = {
+    // `String.prototype.{ trimLeft, trimStart }` methods
+    // https://tc39.github.io/ecma262/#sec-string.prototype.trimstart
+    start: createMethod$5(1),
+    // `String.prototype.{ trimRight, trimEnd }` methods
+    // https://tc39.github.io/ecma262/#sec-string.prototype.trimend
+    end: createMethod$5(2),
+    // `String.prototype.trim` method
+    // https://tc39.github.io/ecma262/#sec-string.prototype.trim
+    trim: createMethod$5(3)
+  };
+
+  var non = '\u200B\u0085\u180E';
+
+  // check that a method works with the correct list
+  // of whitespaces and has a correct name
+  var stringTrimForced = function (METHOD_NAME) {
+    return fails(function () {
+      return !!whitespaces[METHOD_NAME]() || non[METHOD_NAME]() != non || whitespaces[METHOD_NAME].name !== METHOD_NAME;
+    });
+  };
+
+  var $trim = stringTrim.trim;
+
+
+  // `String.prototype.trim` method
+  // https://tc39.github.io/ecma262/#sec-string.prototype.trim
+  _export({ target: 'String', proto: true, forced: stringTrimForced('trim') }, {
+    trim: function trim() {
+      return $trim(this);
+    }
+  });
+
+  var $find = arrayIteration.find;
+
+
+
+  var FIND = 'find';
+  var SKIPS_HOLES$1 = true;
+
+  var USES_TO_LENGTH$7 = arrayMethodUsesToLength(FIND);
+
+  // Shouldn't skip holes
+  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
+
+  // `Array.prototype.find` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.find
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$7 }, {
+    find: function find(callbackfn /* , that = undefined */) {
+      return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
+  addToUnscopables(FIND);
+
+  var $indexOf = arrayIncludes.indexOf;
+
+
+
+  var nativeIndexOf = [].indexOf;
+
+  var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
+  var STRICT_METHOD$2 = arrayMethodIsStrict('indexOf');
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+
+  // `Array.prototype.indexOf` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.indexof
+  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$8 }, {
+    indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
+      return NEGATIVE_ZERO
+        // convert -0 to +0
+        ? nativeIndexOf.apply(this, arguments) || 0
+        : $indexOf(this, searchElement, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
+  var nativeJoin = [].join;
+
+  var ES3_STRINGS = indexedObject != Object;
+  var STRICT_METHOD$3 = arrayMethodIsStrict('join', ',');
+
+  // `Array.prototype.join` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.join
+  _export({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD$3 }, {
+    join: function join(separator) {
+      return nativeJoin.call(toIndexedObject(this), separator === undefined ? ',' : separator);
+    }
+  });
+
+  var getOwnPropertyNames = objectGetOwnPropertyNames.f;
+  var getOwnPropertyDescriptor$4 = objectGetOwnPropertyDescriptor.f;
+  var defineProperty$4 = objectDefineProperty.f;
+  var trim = stringTrim.trim;
+
+  var NUMBER = 'Number';
+  var NativeNumber = global_1[NUMBER];
+  var NumberPrototype = NativeNumber.prototype;
+
+  // Opera ~12 has broken Object#toString
+  var BROKEN_CLASSOF = classofRaw(objectCreate(NumberPrototype)) == NUMBER;
+
+  // `ToNumber` abstract operation
+  // https://tc39.github.io/ecma262/#sec-tonumber
+  var toNumber = function (argument) {
+    var it = toPrimitive(argument, false);
+    var first, third, radix, maxCode, digits, length, index, code;
+    if (typeof it == 'string' && it.length > 2) {
+      it = trim(it);
+      first = it.charCodeAt(0);
+      if (first === 43 || first === 45) {
+        third = it.charCodeAt(2);
+        if (third === 88 || third === 120) return NaN; // Number('+0x1') should be NaN, old V8 fix
+      } else if (first === 48) {
+        switch (it.charCodeAt(1)) {
+          case 66: case 98: radix = 2; maxCode = 49; break; // fast equal of /^0b[01]+$/i
+          case 79: case 111: radix = 8; maxCode = 55; break; // fast equal of /^0o[0-7]+$/i
+          default: return +it;
+        }
+        digits = it.slice(2);
+        length = digits.length;
+        for (index = 0; index < length; index++) {
+          code = digits.charCodeAt(index);
+          // parseInt parses a string to a first unavailable symbol
+          // but ToNumber should return NaN if a string contains unavailable symbols
+          if (code < 48 || code > maxCode) return NaN;
+        } return parseInt(digits, radix);
+      }
+    } return +it;
+  };
+
+  // `Number` constructor
+  // https://tc39.github.io/ecma262/#sec-number-constructor
+  if (isForced_1(NUMBER, !NativeNumber(' 0o1') || !NativeNumber('0b1') || NativeNumber('+0x1'))) {
+    var NumberWrapper = function Number(value) {
+      var it = arguments.length < 1 ? 0 : value;
+      var dummy = this;
+      return dummy instanceof NumberWrapper
+        // check on 1..constructor(foo) case
+        && (BROKEN_CLASSOF ? fails(function () { NumberPrototype.valueOf.call(dummy); }) : classofRaw(dummy) != NUMBER)
+          ? inheritIfRequired(new NativeNumber(toNumber(it)), dummy, NumberWrapper) : toNumber(it);
+    };
+    for (var keys$1 = descriptors ? getOwnPropertyNames(NativeNumber) : (
+      // ES3:
+      'MAX_VALUE,MIN_VALUE,NaN,NEGATIVE_INFINITY,POSITIVE_INFINITY,' +
+      // ES2015 (in case, if modules with ES2015 Number statics required before):
+      'EPSILON,isFinite,isInteger,isNaN,isSafeInteger,MAX_SAFE_INTEGER,' +
+      'MIN_SAFE_INTEGER,parseFloat,parseInt,isInteger'
+    ).split(','), j = 0, key; keys$1.length > j; j++) {
+      if (has(NativeNumber, key = keys$1[j]) && !has(NumberWrapper, key)) {
+        defineProperty$4(NumberWrapper, key, getOwnPropertyDescriptor$4(NativeNumber, key));
+      }
+    }
+    NumberWrapper.prototype = NumberPrototype;
+    NumberPrototype.constructor = NumberWrapper;
+    redefine(global_1, NUMBER, NumberWrapper);
+  }
+
+  function transitionIn(el, component) {
+    var _this = this;
+
+    var forceSkip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var resolve = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+      _newArrowCheck(this, _this);
+
+      return showElement(el);
+    }.bind(this);
+    el.__x_showing = true;
+    transition(el, component, resolve, forceSkip);
+  }
+  function transitionOut(el, component) {
+    var _this2 = this;
+
+    var forceSkip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+    var resolve = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+      _newArrowCheck(this, _this2);
+
+      return hideElement(el);
+    }.bind(this);
+    el.__x_showing = false;
+    transition(el, component, resolve, forceSkip);
+  }
+
+  function transition(el, component, resolve, forceSkip) {
+    var _this3 = this;
+
+    // We don't want to transition on the initial page load.
+    if (forceSkip) return resolve();
+    var attrs = getXAttrs(el, component, 'transition');
+    var showAttr = getXAttrs(el, component, 'show')[0];
+    var direction = el.__x_showing ? 'enter' : 'leave';
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       var modifiers = showAttr.modifiers;
-      if (modifiers.includes('in') && !modifiers.includes('out')) return hide();
-      var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out');
-      modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this6);
-
-        return index > modifiers.indexOf('out');
-      }.bind(this)) : modifiers;
-      transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
+      var transitionDirection = {
+        "in": modifiers.includes('in'),
+        out: modifiers.includes('out')
+      };
+      if (el.__x_showing && transitionDirection.out === true && transitionDirection["in"] === false) return showElement(el);
+      if (!el.__x_showing && transitionDirection["in"] === true && transitionDirection.out === false) return hideElement(el);
+      transitionWithCss(el, resolve, attrs, transitionDirection);
     } else if (attrs.filter(function (attr) {
-      _newArrowCheck(this, _this6);
+      _newArrowCheck(this, _this3);
 
-      return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
+      return attr.value.includes(direction);
     }.bind(this)).length > 0) {
-      transitionClassesOut(el, attrs, hide);
+      transitionWithClasses(el, resolve, attrs, component);
     } else {
-      hide();
+      resolve(el);
     }
   }
-  function transitionHelperIn(el, modifiers, showCallback) {
-    var _this7 = this;
 
-    // Default values inspired by: https://material.io/design/motion/speed.html#duration
+  function transitionWithCss(el, resolve, modifiers, transitionDirection) {
+    if (transitionDirection["in"] && !transitionDirection.out) {
+      return resolve();
+    }
+
+    var noModifiers = !modifiers.includes('opacity') && !modifiers.includes('scale');
+    var transitionOpacity = noModifiers || modifiers.includes('opacity');
+    var transitionScale = noModifiers || modifiers.includes('scale'); // If the user set these style values, we'll put them back when we're done with them.
+
+    var opacityCache = el.style.opacity;
+    var transformCache = el.style.transform;
+    var transformOriginCache = el.style.transformOrigin;
     var styleValues = {
-      duration: modifierValue(modifiers, 'duration', 150),
+      duration: !el.__x_showing && !transitionDirection.out ? modifierValue(modifiers, 'duration', 150) / 2 : modifierValue(modifiers, 'duration', 150),
       origin: modifierValue(modifiers, 'origin', 'center'),
       first: {
-        opacity: 0,
-        scale: modifierValue(modifiers, 'scale', 95)
+        opacity: el.__x_showing ? 0 : 1,
+        scale: el.__x_showing ? modifierValue(modifiers, 'scale', 95) : 100
       },
       second: {
-        opacity: 1,
-        scale: 100
+        opacity: el.__x_showing ? 1 : 0,
+        scale: el.__x_showing ? 100 : modifierValue(modifiers, 'scale', 95)
       }
     };
-    transitionHelper(el, modifiers, showCallback, function () {
-      _newArrowCheck(this, _this7);
-    }.bind(this), styleValues);
+    var stages = {
+      start: function start() {
+        if (transitionOpacity) el.style.opacity = styleValues.first.opacity;
+        if (transitionScale) el.style.transform = "scale(".concat(styleValues.first.scale / 100, ")");
+      },
+      during: function during() {
+        if (transitionScale) el.style.transformOrigin = styleValues.origin;
+        el.style.transitionProperty = [transitionOpacity ? "opacity" : "", transitionScale ? "transform" : ""].join(' ').trim();
+        el.style.transitionDuration = "".concat(styleValues.duration / 1000, "s");
+        el.style.transitionTimingFunction = "cubic-bezier(0.4, 0.0, 0.2, 1)";
+      },
+      show: function show() {
+        if (el.__x_showing) resolve();
+      },
+      end: function end() {
+        if (transitionOpacity) el.style.opacity = styleValues.second.opacity;
+        if (transitionScale) el.style.transform = "scale(".concat(styleValues.second.scale / 100, ")");
+      },
+      hide: function hide() {
+        if (!el.__x_showing) resolve();
+      },
+      cleanup: function cleanup() {
+        if (transitionOpacity) el.style.opacity = opacityCache;
+        if (transitionScale) el.style.transform = transformCache;
+        if (transitionScale) el.style.transformOrigin = transformOriginCache;
+        el.style.transitionProperty = null;
+        el.style.transitionDuration = null;
+        el.style.transitionTimingFunction = null;
+      }
+    };
+    renderStages(el, stages);
   }
-  function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
+
+  function transitionWithClasses(el, resolve, attrs, component) {
+    var _this4 = this;
+
+    var originalClasses = el.__x_original_classes || [];
+
+    var ensureStringExpression = function ensureStringExpression(expression) {
+      _newArrowCheck(this, _this4);
+
+      return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
+    }.bind(this);
+
+    var direction = el.__x_showing ? 'enter' : 'leave';
+    var cssClasses = {
+      durring: direction,
+      start: "".concat(direction, "-start"),
+      end: "".concat(direction, "-end")
+    };
+    Object.entries(cssClasses).map(function (_ref) {
+      var _this5 = this;
+
+      var _ref2 = _slicedToArray(_ref, 2),
+          name = _ref2[0],
+          value = _ref2[1];
+
+      _newArrowCheck(this, _this4);
+
+      cssClasses[name] = ensureStringExpression((attrs.find(function (attr) {
+        _newArrowCheck(this, _this5);
+
+        return attr.value === value;
+      }.bind(this)) || {
+        expression: ''
+      }).expression).split(' ').filter(function (i) {
+        _newArrowCheck(this, _this5);
+
+        return i !== '';
+      }.bind(this));
+    }.bind(this));
+    var stages = {
+      start: function start() {
+        var _el$classList;
+
+        (_el$classList = el.classList).add.apply(_el$classList, _toConsumableArray(cssClasses.start));
+      },
+      during: function during() {
+        var _el$classList2;
+
+        (_el$classList2 = el.classList).add.apply(_el$classList2, _toConsumableArray(cssClasses.durring));
+      },
+      show: function show() {
+        if (el.__x_showing) resolve();
+      },
+      end: function end() {
+        var _el$classList3,
+            _this6 = this,
+            _el$classList4;
+
+        // Don't remove classes that were in the original class attribute.
+        (_el$classList3 = el.classList).remove.apply(_el$classList3, _toConsumableArray(cssClasses.start.filter(function (i) {
+          _newArrowCheck(this, _this6);
+
+          return !originalClasses.includes(i);
+        }.bind(this))));
+
+        (_el$classList4 = el.classList).add.apply(_el$classList4, _toConsumableArray(cssClasses.end));
+      },
+      hide: function hide() {
+        if (!el.__x_showing) resolve();
+      },
+      cleanup: function cleanup() {
+        var _el$classList5,
+            _this7 = this,
+            _el$classList6;
+
+        (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(cssClasses.durring.filter(function (i) {
+          _newArrowCheck(this, _this7);
+
+          return !originalClasses.includes(i);
+        }.bind(this))));
+
+        (_el$classList6 = el.classList).remove.apply(_el$classList6, _toConsumableArray(cssClasses.end.filter(function (i) {
+          _newArrowCheck(this, _this7);
+
+          return !originalClasses.includes(i);
+        }.bind(this))));
+      }
+    };
+    renderStages(el, stages);
+  }
+
+  function renderStages(el, stages) {
     var _this8 = this;
 
-    // Make the "out" transition .5x slower than the "in". (Visually better)
-    // HOWEVER, if they explicitly set a duration for the "out" transition,
-    // use that.
-    var duration = settingBothSidesOfTransition ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2;
-    var styleValues = {
-      duration: duration,
-      origin: modifierValue(modifiers, 'origin', 'center'),
-      first: {
-        opacity: 1,
-        scale: 100
-      },
-      second: {
-        opacity: 0,
-        scale: modifierValue(modifiers, 'scale', 95)
-      }
-    };
-    transitionHelper(el, modifiers, function () {
+    stages.start();
+    stages.during();
+    requestAnimationFrame(function () {
+      var _this9 = this;
+
       _newArrowCheck(this, _this8);
-    }.bind(this), hideCallback, styleValues);
+
+      // Note: Safari's transitionDuration property will list out comma separated transition durations
+      // for every single transition property. Let's grab the first one and call it a day.
+      var duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000;
+
+      if (duration === 0) {
+        duration = Number(getComputedStyle(el).animationDuration.replace('s', '')) * 1000;
+      }
+
+      stages.show();
+      requestAnimationFrame(function () {
+        var _this10 = this;
+
+        _newArrowCheck(this, _this9);
+
+        stages.end();
+        setTimeout(function () {
+          _newArrowCheck(this, _this10);
+
+          stages.hide(); // Adding an "isConnected" check, in case the resolve
+          // removed the element from the DOM.
+
+          if (el.isConnected) {
+            stages.cleanup();
+          }
+        }.bind(this), duration);
+      }.bind(this));
+    }.bind(this));
   }
 
-  function modifierValue(modifiers, key, fallback) {
+  function modifierValue(modifiers, key) {
+    var fallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
     // If the modifier isn't present, use the default.
     if (modifiers.indexOf(key) === -1) return fallback; // If it IS present, grab the value after it: x-show.transition.duration.500ms
 
@@ -5695,7 +5846,7 @@
       // Check if the very next value is NOT a number and return the fallback.
       // If x-show.transition.scale, we'll use the default scale value.
       // That is how a user opts out of the opacity transition.
-      if (!isNumeric(rawValue)) return fallback;
+      if (!isNumeric(rawValue) && rawValue) return fallback;
     }
 
     if (key === 'duration') {
@@ -5714,230 +5865,11 @@
     return rawValue;
   }
 
-  function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
-    // If the user set these style values, we'll put them back when we're done with them.
-    var opacityCache = el.style.opacity;
-    var transformCache = el.style.transform;
-    var transformOriginCache = el.style.transformOrigin; // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
-
-    var noModifiers = !modifiers.includes('opacity') && !modifiers.includes('scale');
-    var transitionOpacity = noModifiers || modifiers.includes('opacity');
-    var transitionScale = noModifiers || modifiers.includes('scale'); // These are the explicit stages of a transition (same stages for in and for out).
-    // This way you can get a birds eye view of the hooks, and the differences
-    // between them.
-
-    var stages = {
-      start: function start() {
-        if (transitionOpacity) el.style.opacity = styleValues.first.opacity;
-        if (transitionScale) el.style.transform = "scale(".concat(styleValues.first.scale / 100, ")");
-      },
-      during: function during() {
-        if (transitionScale) el.style.transformOrigin = styleValues.origin;
-        el.style.transitionProperty = [transitionOpacity ? "opacity" : "", transitionScale ? "transform" : ""].join(' ').trim();
-        el.style.transitionDuration = "".concat(styleValues.duration / 1000, "s");
-        el.style.transitionTimingFunction = "cubic-bezier(0.4, 0.0, 0.2, 1)";
-      },
-      show: function show() {
-        hook1();
-      },
-      end: function end() {
-        if (transitionOpacity) el.style.opacity = styleValues.second.opacity;
-        if (transitionScale) el.style.transform = "scale(".concat(styleValues.second.scale / 100, ")");
-      },
-      hide: function hide() {
-        hook2();
-      },
-      cleanup: function cleanup() {
-        if (transitionOpacity) el.style.opacity = opacityCache;
-        if (transitionScale) el.style.transform = transformCache;
-        if (transitionScale) el.style.transformOrigin = transformOriginCache;
-        el.style.transitionProperty = null;
-        el.style.transitionDuration = null;
-        el.style.transitionTimingFunction = null;
-      }
-    };
-    transition(el, stages);
-  }
-  function transitionClassesIn(el, directives, showCallback) {
-    var _this9 = this;
-
-    var enter = (directives.find(function (i) {
-      _newArrowCheck(this, _this9);
-
-      return i.value === 'enter';
-    }.bind(this)) || {
-      expression: ''
-    }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this9);
-
-      return i !== '';
-    }.bind(this));
-    var enterStart = (directives.find(function (i) {
-      _newArrowCheck(this, _this9);
-
-      return i.value === 'enter-start';
-    }.bind(this)) || {
-      expression: ''
-    }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this9);
-
-      return i !== '';
-    }.bind(this));
-    var enterEnd = (directives.find(function (i) {
-      _newArrowCheck(this, _this9);
-
-      return i.value === 'enter-end';
-    }.bind(this)) || {
-      expression: ''
-    }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this9);
-
-      return i !== '';
-    }.bind(this));
-    transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
-      _newArrowCheck(this, _this9);
-    }.bind(this));
-  }
-  function transitionClassesOut(el, directives, hideCallback) {
-    var _this10 = this;
-
-    var leave = (directives.find(function (i) {
-      _newArrowCheck(this, _this10);
-
-      return i.value === 'leave';
-    }.bind(this)) || {
-      expression: ''
-    }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this10);
-
-      return i !== '';
-    }.bind(this));
-    var leaveStart = (directives.find(function (i) {
-      _newArrowCheck(this, _this10);
-
-      return i.value === 'leave-start';
-    }.bind(this)) || {
-      expression: ''
-    }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this10);
-
-      return i !== '';
-    }.bind(this));
-    var leaveEnd = (directives.find(function (i) {
-      _newArrowCheck(this, _this10);
-
-      return i.value === 'leave-end';
-    }.bind(this)) || {
-      expression: ''
-    }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this10);
-
-      return i !== '';
-    }.bind(this));
-    transitionClasses(el, leave, leaveStart, leaveEnd, function () {
-      _newArrowCheck(this, _this10);
-    }.bind(this), hideCallback);
-  }
-  function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
-    var originalClasses = el.__x_original_classes || [];
-    var stages = {
-      start: function start() {
-        var _el$classList;
-
-        (_el$classList = el.classList).add.apply(_el$classList, _toConsumableArray(classesStart));
-      },
-      during: function during() {
-        var _el$classList2;
-
-        (_el$classList2 = el.classList).add.apply(_el$classList2, _toConsumableArray(classesDuring));
-      },
-      show: function show() {
-        hook1();
-      },
-      end: function end() {
-        var _el$classList3,
-            _this11 = this,
-            _el$classList4;
-
-        // Don't remove classes that were in the original class attribute.
-        (_el$classList3 = el.classList).remove.apply(_el$classList3, _toConsumableArray(classesStart.filter(function (i) {
-          _newArrowCheck(this, _this11);
-
-          return !originalClasses.includes(i);
-        }.bind(this))));
-
-        (_el$classList4 = el.classList).add.apply(_el$classList4, _toConsumableArray(classesEnd));
-      },
-      hide: function hide() {
-        hook2();
-      },
-      cleanup: function cleanup() {
-        var _el$classList5,
-            _this12 = this,
-            _el$classList6;
-
-        (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(classesDuring.filter(function (i) {
-          _newArrowCheck(this, _this12);
-
-          return !originalClasses.includes(i);
-        }.bind(this))));
-
-        (_el$classList6 = el.classList).remove.apply(_el$classList6, _toConsumableArray(classesEnd.filter(function (i) {
-          _newArrowCheck(this, _this12);
-
-          return !originalClasses.includes(i);
-        }.bind(this))));
-      }
-    };
-    transition(el, stages);
-  }
-  function transition(el, stages) {
-    var _this13 = this;
-
-    stages.start();
-    stages.during();
-    requestAnimationFrame(function () {
-      var _this14 = this;
-
-      _newArrowCheck(this, _this13);
-
-      // Note: Safari's transitionDuration property will list out comma separated transition durations
-      // for every single transition property. Let's grab the first one and call it a day.
-      var duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000;
-
-      if (duration === 0) {
-        duration = Number(getComputedStyle(el).animationDuration.replace('s', '')) * 1000;
-      }
-
-      stages.show();
-      requestAnimationFrame(function () {
-        var _this15 = this;
-
-        _newArrowCheck(this, _this14);
-
-        stages.end();
-        setTimeout(function () {
-          _newArrowCheck(this, _this15);
-
-          stages.hide(); // Adding an "isConnected" check, in case the callback
-          // removed the element from the DOM.
-
-          if (el.isConnected) {
-            stages.cleanup();
-          }
-        }.bind(this), duration);
-      }.bind(this));
-    }.bind(this));
-  }
-  function isNumeric(subject) {
-    return !isNaN(subject);
-  }
-
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     var _this = this;
 
     warnIfNotTemplateTag(templateEl);
-    var iteratorNames = parseForExpression(expression);
+    var iteratorNames = typeof expression === 'function' ? parseForExpression(component.evaluateReturnExpression(templateEl, expression)) : parseForExpression(expression);
     var items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
     var currentEl = templateEl;
@@ -5953,9 +5885,7 @@
       if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-        transitionIn(nextEl, function () {
-          _newArrowCheck(this, _this2);
-        }.bind(this), component, initialUpdate);
+        transitionIn(nextEl, component, initialUpdate);
         nextEl.__x_for = iterationScopeVariables;
         component.initializeElements(nextEl, function () {
           _newArrowCheck(this, _this2);
@@ -5976,7 +5906,7 @@
       currentEl = nextEl;
       currentEl.__x_for_key = currentKey;
     }.bind(this));
-    removeAnyLeftOverElementsFromPreviousUpdate(currentEl);
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component);
   } // This was taken from VueJS 2.* core. Thanks Vue!
 
   function parseForExpression(expression) {
@@ -6016,7 +5946,7 @@
   function generateKeyForIteration(component, el, index, iterationScopeVariables) {
     var _this3 = this;
 
-    var bindKeyAttribute = getXAttrs(el, 'bind', component).filter(function (attr) {
+    var bindKeyAttribute = getXAttrs(el, component, 'bind').filter(function (attr) {
       _newArrowCheck(this, _this3);
 
       return attr.value === 'key';
@@ -6035,7 +5965,7 @@
   }
 
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
-    var ifAttribute = getXAttrs(el, 'if', component)[0];
+    var ifAttribute = getXAttrs(el, component, 'if')[0];
 
     if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
       return [];
@@ -6068,7 +5998,7 @@
     }
   }
 
-  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component) {
     var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     var _loop = function _loop() {
@@ -6076,11 +6006,11 @@
 
       var nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       var nextSibling = nextElementFromOldLoop.nextElementSibling;
-      transitionOut(nextElementFromOldLoop, function () {
+      transitionOut(nextElementFromOldLoop, component, false, function () {
         _newArrowCheck(this, _this4);
 
         nextElementFromOldLoopImmutable.remove();
-      }.bind(this), component);
+      }.bind(this));
       nextElementFromOldLoop = nextSibling && nextSibling.__x_for_key !== undefined ? nextSibling : false;
     };
 
@@ -6248,9 +6178,9 @@
 
     if (initialUpdate === true) {
       if (value) {
-        show();
+        showElement(el);
       } else {
-        hide();
+        hideElement(el);
       }
 
       return;
@@ -6263,7 +6193,7 @@
 
       if (!value) {
         if (el.style.display !== 'none') {
-          transitionOut(el, function () {
+          transitionOut(el, component, initialUpdate, function () {
             var _this3 = this;
 
             _newArrowCheck(this, _this2);
@@ -6273,7 +6203,7 @@
 
               hide();
             }.bind(this));
-          }.bind(this), component);
+          }.bind(this));
         } else {
           resolve(function () {
             _newArrowCheck(this, _this2);
@@ -6281,11 +6211,11 @@
         }
       } else {
         if (el.style.display !== '') {
-          transitionIn(el, function () {
+          transitionIn(el, component, initialUpdate, function () {
             _newArrowCheck(this, _this2);
 
             show();
-          }.bind(this), component);
+          }.bind(this));
         } // Resolve immediately, only hold up parent `x-show`s for hidin.
 
 
@@ -6329,17 +6259,15 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       var clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      transitionIn(el.nextElementSibling, function () {
-        _newArrowCheck(this, _this);
-      }.bind(this), component, initialUpdate);
+      transitionIn(el.nextElementSibling, component, initialUpdate);
       component.initializeElements(el.nextElementSibling, extraVars);
       el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
-      transitionOut(el.nextElementSibling, function () {
+      transitionOut(el.nextElementSibling, component, initialUpdate, function () {
         _newArrowCheck(this, _this);
 
         el.nextElementSibling.remove();
-      }.bind(this), component, initialUpdate);
+      }.bind(this));
     }
   }
 
@@ -6408,7 +6336,7 @@
 
       if (modifiers.includes('debounce')) {
         var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
-        var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
+        var wait = isNumeric$1(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
         _handler2 = debounce(_handler2, wait);
       }
 
@@ -6443,7 +6371,7 @@
 
     if (keyModifiers.includes('debounce')) {
       var debounceIndex = keyModifiers.indexOf('debounce');
-      keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
+      keyModifiers.splice(debounceIndex, isNumeric$1((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
     } // If no modifier is specified, we'll call it a press.
 
 
@@ -6858,7 +6786,7 @@
       value: function initializeElement(el, extraVars) {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
-        if (el.hasAttribute('class') && getXAttrs(el, undefined, this).length > 0) {
+        if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
           el.__x_original_classes = el.getAttribute('class').split(' ');
         }
 
@@ -6955,7 +6883,7 @@
       value: function registerListeners(el, extraVars) {
         var _this14 = this;
 
-        getXAttrs(el, undefined, this).forEach(function (_ref) {
+        getXAttrs(el, this).forEach(function (_ref) {
           var type = _ref.type,
               value = _ref.value,
               modifiers = _ref.modifiers,
@@ -6981,7 +6909,7 @@
 
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
-        var attrs = getXAttrs(el, undefined, this);
+        var attrs = getXAttrs(el, this);
 
         if (el.type !== undefined && el.type === 'radio') {
           // If there's an x-model on a radio input, move it to end of attribute list

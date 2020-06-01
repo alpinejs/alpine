@@ -19,7 +19,7 @@ function transition(el, component, resolve, forceSkip) {
 
   let transition = el.__x_showing ? 'enter' : 'leave'
 
-  // If this is a CSS transition
+  // Check if this is a transition with inline styles
   if (showAttr && showAttr.modifiers.includes('transition')) {
     let modifiers = showAttr.modifiers
 
@@ -28,11 +28,13 @@ function transition(el, component, resolve, forceSkip) {
       out: modifiers.includes('out')
     }
 
-    // Skip the transition's opposite direction if it is defined
-    if (el.__x_showing && (transition.out && !transition.in)) return showElement(el)
-    if (! el.__x_showing && (transition.in && !transition.out)) return hideElement(el)
+    // When showing skip the transition in if only transition out defined
+    if (el.__x_showing && (transition.out && ! transition.in)) return showElement(el)
 
-    // Get related direction modifiers for this transition
+    // When hiding skip the transiton out if only transition in defined
+    if (! el.__x_showing && (transition.in && ! transition.out)) return hideElement(el)
+
+    // Get related modifiers for this transition
     modifiers = (transition.in && transition.out)
       ? modifiers.filter((i, index) =>
         el.__x_showing
@@ -40,19 +42,20 @@ function transition(el, component, resolve, forceSkip) {
           : index > modifiers.indexOf('out'))
       : modifiers
 
-    transitionWithCss(el, resolve, modifiers, transition)
+    transitionWithInlineStyles(el, resolve, modifiers, transition)
 
-    // If this is a Class transition
+  // Check if this is a transition with css classes
   } else if (attrs.filter(attr => attr.value.includes(transition)).length > 0) {
-    transitionWithClasses(el, component, resolve, attrs, transition)
 
-    // If neither, just resolve that damn thing
+    transitionWithCssClasses(el, component, resolve, attrs, transition)
+
+  // Check if neither, just resolve that damn thing
   } else {
     resolve(el)
   }
 }
 
-function transitionWithCss(el, resolve, modifiers, transition) {
+function transitionWithInlineStyles(el, resolve, modifiers, transition) {
   // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
   const noModifiers = ! modifiers.includes('opacity') && ! modifiers.includes('scale')
   const transitionOpacity = noModifiers || modifiers.includes('opacity')
@@ -94,6 +97,7 @@ function transitionWithCss(el, resolve, modifiers, transition) {
       el.style.transitionTimingFunction = `cubic-bezier(0.4, 0.0, 0.2, 1)`
     },
     show() {
+      // Resolve if showing
       if (el.__x_showing) resolve()
     },
     end() {
@@ -101,7 +105,8 @@ function transitionWithCss(el, resolve, modifiers, transition) {
       if (transitionScale) el.style.transform = `scale(${styleValues.second.scale / 100})`
     },
     hide() {
-      if (!el.__x_showing) resolve()
+      // Resolve if hiding
+      if (! el.__x_showing) resolve()
     },
     cleanup() {
       if (transitionOpacity) el.style.opacity = opacityCache
@@ -112,11 +117,11 @@ function transitionWithCss(el, resolve, modifiers, transition) {
       el.style.transitionTimingFunction = null
     },
   }
-  // Render Css transition
+  // Render transition with inline styles
   renderStages(el, stages)
 }
 
-function transitionWithClasses(el, component, resolve, attrs, transition) {
+function transitionWithCssClasses(el, component, resolve, attrs, transition) {
   const originalClasses = el.__x_original_classes || []
 
   let ensureStringExpression = (expression) => {
@@ -125,14 +130,14 @@ function transitionWithClasses(el, component, resolve, attrs, transition) {
       : expression
   }
 
-  // Prepare stages for given directions
+  // Prepare stage group names for given directions
   let cssClasses = {
     durring: transition,
     start: `${transition}-start`,
     end: `${transition}-end`,
   }
 
-  // Asigning stage css classes
+  // Asigning stage groups to css classes
   Object.entries(cssClasses).map(([name, value]) => {
     cssClasses[name] = ensureStringExpression((attrs.find(attr => attr.value === value) || { expression: '' }).expression)
       .split(' ').filter(i => i !== '')
@@ -146,6 +151,7 @@ function transitionWithClasses(el, component, resolve, attrs, transition) {
       el.classList.add(...cssClasses.durring)
     },
     show() {
+      // Resolve if hiding
       if (el.__x_showing) resolve()
     },
     end() {
@@ -154,6 +160,7 @@ function transitionWithClasses(el, component, resolve, attrs, transition) {
       el.classList.add(...cssClasses.end)
     },
     hide() {
+      // Resolve if showing
       if (! el.__x_showing) resolve()
     },
     cleanup() {
@@ -162,7 +169,7 @@ function transitionWithClasses(el, component, resolve, attrs, transition) {
     },
   }
 
-  // Render Class transition
+  // Render transition with css classes
   renderStages(el, stages)
 }
 
@@ -192,7 +199,7 @@ function renderStages(el, stages) {
         if (el.isConnected) {
           stages.cleanup()
         }
-        // Transition is done, we can remove __x_showing from el until next transition
+        // Transition is done, we can remove __x_showing from el until the next transition
         el.__x_showing = undefined
       }, duration)
     })

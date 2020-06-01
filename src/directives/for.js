@@ -22,7 +22,7 @@ export function handleForDirective(component, templateEl, expression, initialUpd
             nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
 
             // And transition it in if it's not the first page load.
-            transitionIn(nextEl, component, initialUpdate)
+            transitionIn(nextEl, component, initialUpdate, () => {})
 
             nextEl.__x_for = iterationScopeVariables
             component.initializeElements(nextEl, () => nextEl.__x_for)

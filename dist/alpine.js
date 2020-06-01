@@ -203,28 +203,29 @@
     if (forceSkip) return resolve();
     const attrs = getXAttrs(el, component, 'transition');
     const showAttr = getXAttrs(el, component, 'show')[0];
-    let transition = el.__x_showing ? 'enter' : 'leave'; // If this is a CSS transition
+    let transition = el.__x_showing ? 'enter' : 'leave'; // Check if this is a transition with inline styles
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers;
       transition = {
         in: modifiers.includes('in'),
         out: modifiers.includes('out')
-      }; // Skip the transition's opposite direction if it is defined
+      }; // When showing skip the transition in if only transition out defined
 
-      if (el.__x_showing && transition.out && !transition.in) return showElement(el);
-      if (!el.__x_showing && transition.in && !transition.out) return hideElement(el); // Get related direction modifiers for this transition
+      if (el.__x_showing && transition.out && !transition.in) return showElement(el); // When hiding skip the transiton out if only transition in defined
+
+      if (!el.__x_showing && transition.in && !transition.out) return hideElement(el); // Get related modifiers for this transition
 
       modifiers = transition.in && transition.out ? modifiers.filter((i, index) => el.__x_showing ? index < modifiers.indexOf('out') : index > modifiers.indexOf('out')) : modifiers;
-      transitionWithCss(el, resolve, modifiers, transition); // If this is a Class transition
+      transitionWithInlineStyles(el, resolve, modifiers, transition); // Check if this is a transition with css classes
     } else if (attrs.filter(attr => attr.value.includes(transition)).length > 0) {
-      transitionWithClasses(el, component, resolve, attrs, transition); // If neither, just resolve that damn thing
+      transitionWithCssClasses(el, component, resolve, attrs, transition); // Check if neither, just resolve that damn thing
     } else {
       resolve(el);
     }
   }
 
-  function transitionWithCss(el, resolve, modifiers, transition) {
+  function transitionWithInlineStyles(el, resolve, modifiers, transition) {
     // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
     const noModifiers = !modifiers.includes('opacity') && !modifiers.includes('scale');
     const transitionOpacity = noModifiers || modifiers.includes('opacity');
@@ -263,6 +264,7 @@
       },
 
       show() {
+        // Resolve if showing
         if (el.__x_showing) resolve();
       },
 
@@ -272,6 +274,7 @@
       },
 
       hide() {
+        // Resolve if hiding
         if (!el.__x_showing) resolve();
       },
 
@@ -284,24 +287,24 @@
         el.style.transitionTimingFunction = null;
       }
 
-    }; // Render Css transition
+    }; // Render transition with inline styles
 
     renderStages(el, stages);
   }
 
-  function transitionWithClasses(el, component, resolve, attrs, transition) {
+  function transitionWithCssClasses(el, component, resolve, attrs, transition) {
     const originalClasses = el.__x_original_classes || [];
 
     let ensureStringExpression = expression => {
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
-    }; // Prepare stages for given directions
+    }; // Prepare stage group names for given directions
 
 
     let cssClasses = {
       durring: transition,
       start: `${transition}-start`,
       end: `${transition}-end`
-    }; // Asigning stage css classes
+    }; // Asigning stage groups to css classes
 
     Object.entries(cssClasses).map(([name, value]) => {
       cssClasses[name] = ensureStringExpression((attrs.find(attr => attr.value === value) || {
@@ -318,6 +321,7 @@
       },
 
       show() {
+        // Resolve if hiding
         if (el.__x_showing) resolve();
       },
 
@@ -328,6 +332,7 @@
       },
 
       hide() {
+        // Resolve if showing
         if (!el.__x_showing) resolve();
       },
 
@@ -336,7 +341,7 @@
         el.classList.remove(...cssClasses.end.filter(i => !originalClasses.includes(i)));
       }
 
-    }; // Render Class transition
+    }; // Render transition with css classes
 
     renderStages(el, stages);
   }
@@ -362,7 +367,7 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          } // Transition is done, we can remove __x_showing from el until next transition
+          } // Transition is done, we can remove __x_showing from el until the next transition
 
 
           el.__x_showing = undefined;
@@ -415,7 +420,7 @@
       if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-        transitionIn(nextEl, component, initialUpdate);
+        transitionIn(nextEl, component, initialUpdate, () => {});
         nextEl.__x_for = iterationScopeVariables;
         component.initializeElements(nextEl, () => nextEl.__x_for); // Otherwise update the element we found.
       } else {
@@ -653,7 +658,7 @@
     }; // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding
     // some element. Also, this has to be done recursively.
-    // If x-show.immediate, foregoe the waiting.
+    // If x-show.immediate, forget the waiting.
 
 
     if (modifiers.includes('immediate')) {
@@ -680,7 +685,7 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       const clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      transitionIn(el.nextElementSibling, component, initialUpdate);
+      transitionIn(el.nextElementSibling, component, initialUpdate, () => {});
       component.initializeElements(el.nextElementSibling, extraVars);
       el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {

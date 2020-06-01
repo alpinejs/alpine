@@ -15,7 +15,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
 
     const handle = (resolve) => {
         let forceSkip = el.__x_is_showing || initialUpdate
-        if (!value) {
+        if (! value) {
             if (el.style.display !== 'none') {
                 transitionOut(el, component, forceSkip, () => {
                     resolve(() => {
@@ -41,7 +41,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     // wait for any child transitions to finish before hiding
     // some element. Also, this has to be done recursively.
 
-    // If x-show.immediate, foregoe the waiting.
+    // If x-show.immediate, forget the waiting.
     if (modifiers.includes('immediate')) {
         handle(finish => finish())
         return
@@ -50,7 +50,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     // x-show is encountered during a DOM tree walk. If an element
     // we encounter is NOT a child of another x-show element we
     // can execute the previous x-show stack (if one exists).
-    if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
+    if (component.showDirectiveLastElement && ! component.showDirectiveLastElement.contains(el)) {
         component.executeAndClearRemainingShowDirectiveStack()
     }
 

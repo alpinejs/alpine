@@ -10,7 +10,7 @@ export function handleIfDirective(component, el, expressionResult, initialUpdate
 
         el.parentElement.insertBefore(clone, el.nextElementSibling)
 
-        transitionIn(el.nextElementSibling, component, initialUpdate)
+        transitionIn(el.nextElementSibling, component, initialUpdate, () => {})
 
         component.initializeElements(el.nextElementSibling, extraVars)
 

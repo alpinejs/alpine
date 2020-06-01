@@ -5404,7 +5404,7 @@
 
     return name;
   }
-  function isNumeric$1(subject) {
+  function isNumeric(subject) {
     return !isNaN(subject);
   }
   function showElement(el) {
@@ -5626,42 +5626,47 @@
     if (forceSkip) return resolve();
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0];
-    var direction = el.__x_showing ? 'enter' : 'leave';
+    var transition = el.__x_showing ? 'enter' : 'leave'; // If this is a CSS transition
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       var modifiers = showAttr.modifiers;
-      var transitionDirection = {
+      transition = {
         "in": modifiers.includes('in'),
         out: modifiers.includes('out')
-      };
-      if (el.__x_showing && transitionDirection.out === true && transitionDirection["in"] === false) return showElement(el);
-      if (!el.__x_showing && transitionDirection["in"] === true && transitionDirection.out === false) return hideElement(el);
-      transitionWithCss(el, resolve, attrs, transitionDirection);
+      }; // Skip the transition's opposite direction if it is defined
+
+      if (el.__x_showing && transition.out && !transition["in"]) return showElement(el);
+      if (!el.__x_showing && transition["in"] && !transition.out) return hideElement(el); // Get related direction modifiers for this transition
+
+      modifiers = transition["in"] && transition.out ? modifiers.filter(function (i, index) {
+        _newArrowCheck(this, _this3);
+
+        return el.__x_showing ? index < modifiers.indexOf('out') : index > modifiers.indexOf('out');
+      }.bind(this)) : modifiers;
+      transitionWithCss(el, resolve, modifiers, transition); // If this is a Class transition
     } else if (attrs.filter(function (attr) {
       _newArrowCheck(this, _this3);
 
-      return attr.value.includes(direction);
+      return attr.value.includes(transition);
     }.bind(this)).length > 0) {
-      transitionWithClasses(el, resolve, attrs, component);
+      transitionWithClasses(el, component, resolve, attrs, transition); // If neither, just resolve that damn thing
     } else {
       resolve(el);
     }
   }
 
-  function transitionWithCss(el, resolve, modifiers, transitionDirection) {
-    if (transitionDirection["in"] && !transitionDirection.out) {
-      return resolve();
-    }
-
+  function transitionWithCss(el, resolve, modifiers, transition) {
+    // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
     var noModifiers = !modifiers.includes('opacity') && !modifiers.includes('scale');
     var transitionOpacity = noModifiers || modifiers.includes('opacity');
     var transitionScale = noModifiers || modifiers.includes('scale'); // If the user set these style values, we'll put them back when we're done with them.
 
     var opacityCache = el.style.opacity;
     var transformCache = el.style.transform;
-    var transformOriginCache = el.style.transformOrigin;
+    var transformOriginCache = el.style.transformOrigin; // Default values inspired by: https://material.io/design/motion/speed.html#duration
+
     var styleValues = {
-      duration: !el.__x_showing && !transitionDirection.out ? modifierValue(modifiers, 'duration', 150) / 2 : modifierValue(modifiers, 'duration', 150),
+      duration: el.__x_showing || transition["in"] && transition.out ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2,
       origin: modifierValue(modifiers, 'origin', 'center'),
       first: {
         opacity: el.__x_showing ? 0 : 1,
@@ -5671,7 +5676,10 @@
         opacity: el.__x_showing ? 1 : 0,
         scale: el.__x_showing ? 100 : modifierValue(modifiers, 'scale', 95)
       }
-    };
+    }; // These are the explicit stages of a transition (same stages for in and for out).
+    // This way you can get a birds eye view of the hooks, and the differences
+    // between them.
+
     var stages = {
       start: function start() {
         if (transitionOpacity) el.style.opacity = styleValues.first.opacity;
@@ -5701,11 +5709,12 @@
         el.style.transitionDuration = null;
         el.style.transitionTimingFunction = null;
       }
-    };
+    }; // Render Css transition
+
     renderStages(el, stages);
   }
 
-  function transitionWithClasses(el, resolve, attrs, component) {
+  function transitionWithClasses(el, component, resolve, attrs, transition) {
     var _this4 = this;
 
     var originalClasses = el.__x_original_classes || [];
@@ -5714,14 +5723,15 @@
       _newArrowCheck(this, _this4);
 
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
-    }.bind(this);
+    }.bind(this); // Prepare stages for given directions
 
-    var direction = el.__x_showing ? 'enter' : 'leave';
+
     var cssClasses = {
-      durring: direction,
-      start: "".concat(direction, "-start"),
-      end: "".concat(direction, "-end")
-    };
+      durring: transition,
+      start: "".concat(transition, "-start"),
+      end: "".concat(transition, "-end")
+    }; // Asigning stage css classes
+
     Object.entries(cssClasses).map(function (_ref) {
       var _this5 = this;
 
@@ -5791,7 +5801,8 @@
           return !originalClasses.includes(i);
         }.bind(this))));
       }
-    };
+    }; // Render Class transition
+
     renderStages(el, stages);
   }
 
@@ -5828,14 +5839,16 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          }
+          } // Transition is done, we can remove __x_showing from el until next transition
+
+
+          el.__x_showing = undefined;
         }.bind(this), duration);
       }.bind(this));
     }.bind(this));
   }
 
-  function modifierValue(modifiers, key) {
-    var fallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+  function modifierValue(modifiers, key, fallback) {
     // If the modifier isn't present, use the default.
     if (modifiers.indexOf(key) === -1) return fallback; // If it IS present, grab the value after it: x-show.transition.duration.500ms
 
@@ -5846,7 +5859,7 @@
       // Check if the very next value is NOT a number and return the fallback.
       // If x-show.transition.scale, we'll use the default scale value.
       // That is how a user opts out of the opacity transition.
-      if (!isNumeric(rawValue) && rawValue) return fallback;
+      if (!isNumeric(rawValue)) return fallback;
     }
 
     if (key === 'duration') {
@@ -6160,27 +6173,12 @@
 
     var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
-    var hide = function hide() {
-      _newArrowCheck(this, _this);
-
-      el.style.display = 'none';
-    }.bind(this);
-
-    var show = function show() {
-      _newArrowCheck(this, _this);
-
-      if (el.style.length === 1 && el.style.display === 'none') {
-        el.removeAttribute('style');
-      } else {
-        el.style.removeProperty('display');
-      }
-    }.bind(this);
-
-    if (initialUpdate === true) {
+    // Resolve immediately if initial page load
+    if (initialUpdate) {
       if (value) {
-        showElement(el);
+        transitionIn(el, component, initialUpdate);
       } else {
-        hideElement(el);
+        transitionOut(el, component, initialUpdate);
       }
 
       return;
@@ -6193,7 +6191,7 @@
 
       if (!value) {
         if (el.style.display !== 'none') {
-          transitionOut(el, component, initialUpdate, function () {
+          transitionOut(el, component, initialUpdate || el.__x_showing !== undefined, function () {
             var _this3 = this;
 
             _newArrowCheck(this, _this2);
@@ -6201,7 +6199,7 @@
             resolve(function () {
               _newArrowCheck(this, _this3);
 
-              hide();
+              hideElement(el);
             }.bind(this));
           }.bind(this));
         } else {
@@ -6211,10 +6209,10 @@
         }
       } else {
         if (el.style.display !== '') {
-          transitionIn(el, component, initialUpdate, function () {
+          transitionIn(el, component, initialUpdate || el.__x_showing !== undefined, function () {
             _newArrowCheck(this, _this2);
 
-            show();
+            showElement(el);
           }.bind(this));
         } // Resolve immediately, only hold up parent `x-show`s for hidin.
 
@@ -6336,7 +6334,7 @@
 
       if (modifiers.includes('debounce')) {
         var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
-        var wait = isNumeric$1(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
+        var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
         _handler2 = debounce(_handler2, wait);
       }
 
@@ -6371,7 +6369,7 @@
 
     if (keyModifiers.includes('debounce')) {
       var debounceIndex = keyModifiers.indexOf('debounce');
-      keyModifiers.splice(debounceIndex, isNumeric$1((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
+      keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
     } // If no modifier is specified, we'll call it a press.
 
 

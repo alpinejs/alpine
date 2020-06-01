@@ -103,7 +103,7 @@ export function getXAttrs(el, component, type) {
         })
         .filter(i => {
             // If no type is passed in for filtering, bypass filter
-            if (! type) return true
+            if (!type) return true
 
             return i.type === type
         })
@@ -128,8 +128,8 @@ export function isBooleanAttr(attrName) {
     // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
     // Array roughly ordered by estimated usage
     const booleanAttributes = [
-        'disabled','checked','required','readonly','hidden','open', 'selected',
-        'autofocus', 'itemscope', 'multiple', 'novalidate','allowfullscreen',
+        'disabled', 'checked', 'required', 'readonly', 'hidden', 'open', 'selected',
+        'autofocus', 'itemscope', 'multiple', 'novalidate', 'allowfullscreen',
         'allowpaymentrequest', 'formnovalidate', 'autoplay', 'controls', 'loop',
         'muted', 'playsinline', 'default', 'ismap', 'reversed', 'async', 'defer',
         'nomodule'
@@ -148,8 +148,8 @@ export function replaceAtAndColonWithStandardSyntax(name) {
     return name
 }
 
-export function isNumeric(subject){
-    return ! isNaN(subject)
+export function isNumeric(subject) {
+    return !isNaN(subject)
 }
 
 export function showElement(el) {

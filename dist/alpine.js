@@ -628,9 +628,11 @@
     }
 
     const handle = resolve => {
+      let forceSkip = el.__x_is_showing || initialUpdate;
+
       if (!value) {
         if (el.style.display !== 'none') {
-          transitionOut(el, component, initialUpdate || el.__x_showing !== undefined, () => {
+          transitionOut(el, component, forceSkip, () => {
             resolve(() => {
               hideElement(el);
             });
@@ -640,7 +642,7 @@
         }
       } else {
         if (el.style.display !== '') {
-          transitionIn(el, component, initialUpdate || el.__x_showing !== undefined, () => {
+          transitionIn(el, component, forceSkip, () => {
             showElement(el);
           });
         } // Resolve immediately, only hold up parent `x-show`s for hidin.

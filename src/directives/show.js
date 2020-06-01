@@ -14,25 +14,26 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     }
 
     const handle = (resolve) => {
-        if (! value) {
+        let forceSkip = el.__x_is_showing || initialUpdate
+        if (!value) {
             if (el.style.display !== 'none') {
-                transitionOut(el, component, initialUpdate || el.__x_showing !== undefined, () => {
+                transitionOut(el, component, forceSkip, () => {
                     resolve(() => {
                         hideElement(el)
                     })
                 })
             } else {
-                resolve(() => {})
+                resolve(() => { })
             }
         } else {
             if (el.style.display !== '') {
-                transitionIn(el, component, initialUpdate || el.__x_showing !== undefined, () => {
+                transitionIn(el, component, forceSkip, () => {
                     showElement(el)
                 })
             }
 
             // Resolve immediately, only hold up parent `x-show`s for hidin.
-            resolve(() => {})
+            resolve(() => { })
         }
     }
 
@@ -49,7 +50,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     // x-show is encountered during a DOM tree walk. If an element
     // we encounter is NOT a child of another x-show element we
     // can execute the previous x-show stack (if one exists).
-    if (component.showDirectiveLastElement && ! component.showDirectiveLastElement.contains(el)) {
+    if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
         component.executeAndClearRemainingShowDirectiveStack()
     }
 

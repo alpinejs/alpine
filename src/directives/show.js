@@ -15,24 +15,24 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
 
     const handle = (resolve) => {
         if (! value) {
-            if (el.style.display !== 'none') {
+            if ( el.style.display !== 'none' ) {
                 transitionOut(el, component, () => {
                     resolve(() => {
                         hideElement(el)
                     })
                 })
             } else {
-                resolve(() => { })
+                resolve(() => {})
             }
         } else {
-            if (el.style.display !== '') {
+            if ( el.style.display !== '' ) {
                 transitionIn(el, component, () => {
                     showElement(el)
                 })
             }
 
-            // Resolve immediately, only hold up parent `x-show`s for hidin.
-            resolve(() => { })
+            // Resolve immediately, only hold up parent `x-show`s for hiding.
+            resolve(() => {})
         }
     }
 

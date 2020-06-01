@@ -1,23 +1,21 @@
 import { showElement, hideElement, getXAttrs, isNumeric } from './utils'
 
-export function transitionIn(el, component, forceSkip = false, resolve = () => showElement(el)) {
-  el.__x_showing = true
+export function transitionIn(el, component, resolve = () => showElement(el), forceSkip = false) {
   transition(el, component, resolve, forceSkip)
 }
 
-export function transitionOut(el, component, forceSkip = false, resolve = () => hideElement(el)) {
-  el.__x_showing = false
-  transition(el, component, resolve, forceSkip)
+export function transitionOut(el, component, resolve = () => hideElement(el), forceSkip = false) {
+  transition(el, component, resolve, forceSkip, false)
 }
 
-function transition(el, component, resolve, forceSkip) {
+function transition(el, component, resolve, forceSkip, display = true) {
   // We don't want to transition on the initial page load.
   if (forceSkip) return resolve()
 
   const attrs = getXAttrs(el, component, 'transition')
   const showAttr = getXAttrs(el, component, 'show')[0]
 
-  let transition = el.__x_showing ? 'enter' : 'leave'
+  let transition = display ? 'enter' : 'leave'
 
   // Check if this is a transition with inline styles
   if (showAttr && showAttr.modifiers.includes('transition')) {
@@ -29,25 +27,25 @@ function transition(el, component, resolve, forceSkip) {
     }
 
     // When showing skip the transition in if only transition out defined
-    if (el.__x_showing && (transition.out && ! transition.in)) return showElement(el)
+    if (display && (transition.out && ! transition.in)) return showElement(el)
 
     // When hiding skip the transiton out if only transition in defined
-    if (! el.__x_showing && (transition.in && ! transition.out)) return hideElement(el)
+    if (! display && (transition.in && ! transition.out)) return hideElement(el)
 
     // Get related modifiers for this transition
     modifiers = (transition.in && transition.out)
       ? modifiers.filter((i, index) =>
-        el.__x_showing
+        display
           ? index < modifiers.indexOf('out')
           : index > modifiers.indexOf('out'))
       : modifiers
 
-    transitionWithInlineStyles(el, resolve, modifiers, transition)
+    transitionWithInlineStyles(el, resolve, modifiers, transition, display)
 
   // Check if this is a transition with css classes
   } else if (attrs.filter(attr => attr.value.includes(transition)).length > 0) {
 
-    transitionWithCssClasses(el, component, resolve, attrs, transition)
+    transitionWithCssClasses(el, component, resolve, attrs, transition, display)
 
   // Check if neither, just resolve that damn thing
   } else {
@@ -55,7 +53,7 @@ function transition(el, component, resolve, forceSkip) {
   }
 }
 
-function transitionWithInlineStyles(el, resolve, modifiers, transition) {
+function transitionWithInlineStyles(el, resolve, modifiers, transition, display) {
   // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
   const noModifiers = ! modifiers.includes('opacity') && ! modifiers.includes('scale')
   const transitionOpacity = noModifiers || modifiers.includes('opacity')
@@ -68,17 +66,17 @@ function transitionWithInlineStyles(el, resolve, modifiers, transition) {
 
   // Default values inspired by: https://material.io/design/motion/speed.html#duration
   const styleValues = {
-    duration: el.__x_showing || (transition.in && transition.out)
+    duration: display || (transition.in && transition.out)
       ? modifierValue(modifiers, 'duration', 150)
       : modifierValue(modifiers, 'duration', 150) / 2,
     origin: modifierValue(modifiers, 'origin', 'center'),
     first: {
-      opacity: el.__x_showing ? 0 : 1,
-      scale: el.__x_showing ? modifierValue(modifiers, 'scale', 95) : 100,
+      opacity: display ? 0 : 1,
+      scale: display ? modifierValue(modifiers, 'scale', 95) : 100,
     },
     second: {
-      opacity: el.__x_showing ? 1 : 0,
-      scale: el.__x_showing ? 100 : modifierValue(modifiers, 'scale', 95),
+      opacity: display ? 1 : 0,
+      scale: display ? 100 : modifierValue(modifiers, 'scale', 95),
     },
   }
 
@@ -98,7 +96,7 @@ function transitionWithInlineStyles(el, resolve, modifiers, transition) {
     },
     show() {
       // Resolve if showing
-      if (el.__x_showing) resolve()
+      if (display) resolve()
     },
     end() {
       if (transitionOpacity) el.style.opacity = styleValues.second.opacity
@@ -106,7 +104,7 @@ function transitionWithInlineStyles(el, resolve, modifiers, transition) {
     },
     hide() {
       // Resolve if hiding
-      if (! el.__x_showing) resolve()
+      if (! display) resolve()
     },
     cleanup() {
       if (transitionOpacity) el.style.opacity = opacityCache
@@ -121,7 +119,7 @@ function transitionWithInlineStyles(el, resolve, modifiers, transition) {
   renderStages(el, stages)
 }
 
-function transitionWithCssClasses(el, component, resolve, attrs, transition) {
+function transitionWithCssClasses(el, component, resolve, attrs, transition, display) {
   const originalClasses = el.__x_original_classes || []
 
   let ensureStringExpression = (expression) => {
@@ -152,7 +150,7 @@ function transitionWithCssClasses(el, component, resolve, attrs, transition) {
     },
     show() {
       // Resolve if hiding
-      if (el.__x_showing) resolve()
+      if (display) resolve()
     },
     end() {
       // Don't remove classes that were in the original class attribute.
@@ -161,7 +159,7 @@ function transitionWithCssClasses(el, component, resolve, attrs, transition) {
     },
     hide() {
       // Resolve if showing
-      if (! el.__x_showing) resolve()
+      if (! display) resolve()
     },
     cleanup() {
       el.classList.remove(...cssClasses.durring.filter(i => ! originalClasses.includes(i)))
@@ -199,8 +197,6 @@ function renderStages(el, stages) {
         if (el.isConnected) {
           stages.cleanup()
         }
-        // Transition is done, we can remove __x_showing from el until the next transition
-        el.__x_showing = undefined
       }, duration)
     })
   })

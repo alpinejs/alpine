@@ -5597,36 +5597,35 @@
   function transitionIn(el, component) {
     var _this = this;
 
-    var forceSkip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var resolve = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+    var resolve = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
       _newArrowCheck(this, _this);
 
       return showElement(el);
     }.bind(this);
-    el.__x_showing = true;
+    var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     transition(el, component, resolve, forceSkip);
   }
   function transitionOut(el, component) {
     var _this2 = this;
 
-    var forceSkip = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-    var resolve = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : function () {
+    var resolve = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
       _newArrowCheck(this, _this2);
 
       return hideElement(el);
     }.bind(this);
-    el.__x_showing = false;
-    transition(el, component, resolve, forceSkip);
+    var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    transition(el, component, resolve, forceSkip, false);
   }
 
   function transition(el, component, resolve, forceSkip) {
     var _this3 = this;
 
+    var display = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
     // We don't want to transition on the initial page load.
     if (forceSkip) return resolve();
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0];
-    var transition = el.__x_showing ? 'enter' : 'leave'; // Check if this is a transition with inline styles
+    var transition = display ? 'enter' : 'leave'; // Check if this is a transition with inline styles
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       var modifiers = showAttr.modifiers;
@@ -5635,28 +5634,28 @@
         out: modifiers.includes('out')
       }; // When showing skip the transition in if only transition out defined
 
-      if (el.__x_showing && transition.out && !transition["in"]) return showElement(el); // When hiding skip the transiton out if only transition in defined
+      if (display && transition.out && !transition["in"]) return showElement(el); // When hiding skip the transiton out if only transition in defined
 
-      if (!el.__x_showing && transition["in"] && !transition.out) return hideElement(el); // Get related modifiers for this transition
+      if (!display && transition["in"] && !transition.out) return hideElement(el); // Get related modifiers for this transition
 
       modifiers = transition["in"] && transition.out ? modifiers.filter(function (i, index) {
         _newArrowCheck(this, _this3);
 
-        return el.__x_showing ? index < modifiers.indexOf('out') : index > modifiers.indexOf('out');
+        return display ? index < modifiers.indexOf('out') : index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
-      transitionWithInlineStyles(el, resolve, modifiers, transition); // Check if this is a transition with css classes
+      transitionWithInlineStyles(el, resolve, modifiers, transition, display); // Check if this is a transition with css classes
     } else if (attrs.filter(function (attr) {
       _newArrowCheck(this, _this3);
 
       return attr.value.includes(transition);
     }.bind(this)).length > 0) {
-      transitionWithCssClasses(el, component, resolve, attrs, transition); // Check if neither, just resolve that damn thing
+      transitionWithCssClasses(el, component, resolve, attrs, transition, display); // Check if neither, just resolve that damn thing
     } else {
       resolve(el);
     }
   }
 
-  function transitionWithInlineStyles(el, resolve, modifiers, transition) {
+  function transitionWithInlineStyles(el, resolve, modifiers, transition, display) {
     // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
     var noModifiers = !modifiers.includes('opacity') && !modifiers.includes('scale');
     var transitionOpacity = noModifiers || modifiers.includes('opacity');
@@ -5667,15 +5666,15 @@
     var transformOriginCache = el.style.transformOrigin; // Default values inspired by: https://material.io/design/motion/speed.html#duration
 
     var styleValues = {
-      duration: el.__x_showing || transition["in"] && transition.out ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2,
+      duration: display || transition["in"] && transition.out ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2,
       origin: modifierValue(modifiers, 'origin', 'center'),
       first: {
-        opacity: el.__x_showing ? 0 : 1,
-        scale: el.__x_showing ? modifierValue(modifiers, 'scale', 95) : 100
+        opacity: display ? 0 : 1,
+        scale: display ? modifierValue(modifiers, 'scale', 95) : 100
       },
       second: {
-        opacity: el.__x_showing ? 1 : 0,
-        scale: el.__x_showing ? 100 : modifierValue(modifiers, 'scale', 95)
+        opacity: display ? 1 : 0,
+        scale: display ? 100 : modifierValue(modifiers, 'scale', 95)
       }
     }; // These are the explicit stages of a transition (same stages for in and for out).
     // This way you can get a birds eye view of the hooks, and the differences
@@ -5694,7 +5693,7 @@
       },
       show: function show() {
         // Resolve if showing
-        if (el.__x_showing) resolve();
+        if (display) resolve();
       },
       end: function end() {
         if (transitionOpacity) el.style.opacity = styleValues.second.opacity;
@@ -5702,7 +5701,7 @@
       },
       hide: function hide() {
         // Resolve if hiding
-        if (!el.__x_showing) resolve();
+        if (!display) resolve();
       },
       cleanup: function cleanup() {
         if (transitionOpacity) el.style.opacity = opacityCache;
@@ -5717,7 +5716,7 @@
     renderStages(el, stages);
   }
 
-  function transitionWithCssClasses(el, component, resolve, attrs, transition) {
+  function transitionWithCssClasses(el, component, resolve, attrs, transition, display) {
     var _this4 = this;
 
     var originalClasses = el.__x_original_classes || [];
@@ -5769,7 +5768,7 @@
       },
       show: function show() {
         // Resolve if hiding
-        if (el.__x_showing) resolve();
+        if (display) resolve();
       },
       end: function end() {
         var _el$classList3,
@@ -5787,7 +5786,7 @@
       },
       hide: function hide() {
         // Resolve if showing
-        if (!el.__x_showing) resolve();
+        if (!display) resolve();
       },
       cleanup: function cleanup() {
         var _el$classList5,
@@ -5844,10 +5843,7 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          } // Transition is done, we can remove __x_showing from el until the next transition
-
-
-          el.__x_showing = undefined;
+          }
         }.bind(this), duration);
       }.bind(this));
     }.bind(this));
@@ -5903,9 +5899,9 @@
       if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-        transitionIn(nextEl, component, initialUpdate, function () {
+        transitionIn(nextEl, component, function () {
           _newArrowCheck(this, _this2);
-        }.bind(this));
+        }.bind(this), initialUpdate);
         nextEl.__x_for = iterationScopeVariables;
         component.initializeElements(nextEl, function () {
           _newArrowCheck(this, _this2);
@@ -6026,7 +6022,7 @@
 
       var nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       var nextSibling = nextElementFromOldLoop.nextElementSibling;
-      transitionOut(nextElementFromOldLoop, component, false, function () {
+      transitionOut(nextElementFromOldLoop, component, function () {
         _newArrowCheck(this, _this4);
 
         nextElementFromOldLoopImmutable.remove();
@@ -6183,9 +6179,9 @@
     // Resolve immediately if initial page load
     if (initialUpdate) {
       if (value) {
-        transitionIn(el, component, initialUpdate);
+        showElement(el);
       } else {
-        transitionOut(el, component, initialUpdate);
+        hideElement(el);
       }
 
       return;
@@ -6196,11 +6192,9 @@
 
       _newArrowCheck(this, _this);
 
-      var forceSkip = el.__x_is_showing || initialUpdate;
-
       if (!value) {
         if (el.style.display !== 'none') {
-          transitionOut(el, component, forceSkip, function () {
+          transitionOut(el, component, function () {
             var _this3 = this;
 
             _newArrowCheck(this, _this2);
@@ -6218,7 +6212,7 @@
         }
       } else {
         if (el.style.display !== '') {
-          transitionIn(el, component, forceSkip, function () {
+          transitionIn(el, component, function () {
             _newArrowCheck(this, _this2);
 
             showElement(el);
@@ -6266,17 +6260,17 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       var clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      transitionIn(el.nextElementSibling, component, initialUpdate, function () {
+      transitionIn(el.nextElementSibling, component, function () {
         _newArrowCheck(this, _this);
-      }.bind(this));
+      }.bind(this), initialUpdate);
       component.initializeElements(el.nextElementSibling, extraVars);
       el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
-      transitionOut(el.nextElementSibling, component, initialUpdate, function () {
+      transitionOut(el.nextElementSibling, component, function () {
         _newArrowCheck(this, _this);
 
         el.nextElementSibling.remove();
-      }.bind(this));
+      }.bind(this), initialUpdate);
     }
   }
 

@@ -6,18 +6,17 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     // Resolve immediately if initial page load
     if (initialUpdate) {
         if (value) {
-            transitionIn(el, component, initialUpdate)
+            showElement(el)
         } else {
-            transitionOut(el, component, initialUpdate)
+            hideElement(el)
         }
         return
     }
 
     const handle = (resolve) => {
-        let forceSkip = el.__x_is_showing || initialUpdate
         if (! value) {
             if (el.style.display !== 'none') {
-                transitionOut(el, component, forceSkip, () => {
+                transitionOut(el, component, () => {
                     resolve(() => {
                         hideElement(el)
                     })
@@ -27,7 +26,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
             }
         } else {
             if (el.style.display !== '') {
-                transitionIn(el, component, forceSkip, () => {
+                transitionIn(el, component, () => {
                     showElement(el)
                 })
             }

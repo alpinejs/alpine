@@ -189,21 +189,19 @@
     el.style.display = 'none';
   }
 
-  function transitionIn(el, component, forceSkip = false, resolve = () => showElement(el)) {
-    el.__x_showing = true;
+  function transitionIn(el, component, resolve = () => showElement(el), forceSkip = false) {
     transition(el, component, resolve, forceSkip);
   }
-  function transitionOut(el, component, forceSkip = false, resolve = () => hideElement(el)) {
-    el.__x_showing = false;
-    transition(el, component, resolve, forceSkip);
+  function transitionOut(el, component, resolve = () => hideElement(el), forceSkip = false) {
+    transition(el, component, resolve, forceSkip, false);
   }
 
-  function transition(el, component, resolve, forceSkip) {
+  function transition(el, component, resolve, forceSkip, display = true) {
     // We don't want to transition on the initial page load.
     if (forceSkip) return resolve();
     const attrs = getXAttrs(el, component, 'transition');
     const showAttr = getXAttrs(el, component, 'show')[0];
-    let transition = el.__x_showing ? 'enter' : 'leave'; // Check if this is a transition with inline styles
+    let transition = display ? 'enter' : 'leave'; // Check if this is a transition with inline styles
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers;
@@ -212,20 +210,20 @@
         out: modifiers.includes('out')
       }; // When showing skip the transition in if only transition out defined
 
-      if (el.__x_showing && transition.out && !transition.in) return showElement(el); // When hiding skip the transiton out if only transition in defined
+      if (display && transition.out && !transition.in) return showElement(el); // When hiding skip the transiton out if only transition in defined
 
-      if (!el.__x_showing && transition.in && !transition.out) return hideElement(el); // Get related modifiers for this transition
+      if (!display && transition.in && !transition.out) return hideElement(el); // Get related modifiers for this transition
 
-      modifiers = transition.in && transition.out ? modifiers.filter((i, index) => el.__x_showing ? index < modifiers.indexOf('out') : index > modifiers.indexOf('out')) : modifiers;
-      transitionWithInlineStyles(el, resolve, modifiers, transition); // Check if this is a transition with css classes
+      modifiers = transition.in && transition.out ? modifiers.filter((i, index) => display ? index < modifiers.indexOf('out') : index > modifiers.indexOf('out')) : modifiers;
+      transitionWithInlineStyles(el, resolve, modifiers, transition, display); // Check if this is a transition with css classes
     } else if (attrs.filter(attr => attr.value.includes(transition)).length > 0) {
-      transitionWithCssClasses(el, component, resolve, attrs, transition); // Check if neither, just resolve that damn thing
+      transitionWithCssClasses(el, component, resolve, attrs, transition, display); // Check if neither, just resolve that damn thing
     } else {
       resolve(el);
     }
   }
 
-  function transitionWithInlineStyles(el, resolve, modifiers, transition) {
+  function transitionWithInlineStyles(el, resolve, modifiers, transition, display) {
     // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
     const noModifiers = !modifiers.includes('opacity') && !modifiers.includes('scale');
     const transitionOpacity = noModifiers || modifiers.includes('opacity');
@@ -236,15 +234,15 @@
     const transformOriginCache = el.style.transformOrigin; // Default values inspired by: https://material.io/design/motion/speed.html#duration
 
     const styleValues = {
-      duration: el.__x_showing || transition.in && transition.out ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2,
+      duration: display || transition.in && transition.out ? modifierValue(modifiers, 'duration', 150) : modifierValue(modifiers, 'duration', 150) / 2,
       origin: modifierValue(modifiers, 'origin', 'center'),
       first: {
-        opacity: el.__x_showing ? 0 : 1,
-        scale: el.__x_showing ? modifierValue(modifiers, 'scale', 95) : 100
+        opacity: display ? 0 : 1,
+        scale: display ? modifierValue(modifiers, 'scale', 95) : 100
       },
       second: {
-        opacity: el.__x_showing ? 1 : 0,
-        scale: el.__x_showing ? 100 : modifierValue(modifiers, 'scale', 95)
+        opacity: display ? 1 : 0,
+        scale: display ? 100 : modifierValue(modifiers, 'scale', 95)
       }
     }; // These are the explicit stages of a transition (same stages for in and for out).
     // This way you can get a birds eye view of the hooks, and the differences
@@ -265,7 +263,7 @@
 
       show() {
         // Resolve if showing
-        if (el.__x_showing) resolve();
+        if (display) resolve();
       },
 
       end() {
@@ -275,7 +273,7 @@
 
       hide() {
         // Resolve if hiding
-        if (!el.__x_showing) resolve();
+        if (!display) resolve();
       },
 
       cleanup() {
@@ -292,7 +290,7 @@
     renderStages(el, stages);
   }
 
-  function transitionWithCssClasses(el, component, resolve, attrs, transition) {
+  function transitionWithCssClasses(el, component, resolve, attrs, transition, display) {
     const originalClasses = el.__x_original_classes || [];
 
     let ensureStringExpression = expression => {
@@ -322,7 +320,7 @@
 
       show() {
         // Resolve if hiding
-        if (el.__x_showing) resolve();
+        if (display) resolve();
       },
 
       end() {
@@ -333,7 +331,7 @@
 
       hide() {
         // Resolve if showing
-        if (!el.__x_showing) resolve();
+        if (!display) resolve();
       },
 
       cleanup() {
@@ -367,10 +365,7 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          } // Transition is done, we can remove __x_showing from el until the next transition
-
-
-          el.__x_showing = undefined;
+          }
         }, duration);
       });
     });
@@ -420,7 +415,7 @@
       if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-        transitionIn(nextEl, component, initialUpdate, () => {});
+        transitionIn(nextEl, component, () => {}, initialUpdate);
         nextEl.__x_for = iterationScopeVariables;
         component.initializeElements(nextEl, () => nextEl.__x_for); // Otherwise update the element we found.
       } else {
@@ -521,7 +516,7 @@
     while (nextElementFromOldLoop) {
       let nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       let nextSibling = nextElementFromOldLoop.nextElementSibling;
-      transitionOut(nextElementFromOldLoop, component, false, () => {
+      transitionOut(nextElementFromOldLoop, component, () => {
         nextElementFromOldLoopImmutable.remove();
       });
       nextElementFromOldLoop = nextSibling && nextSibling.__x_for_key !== undefined ? nextSibling : false;
@@ -624,20 +619,18 @@
     // Resolve immediately if initial page load
     if (initialUpdate) {
       if (value) {
-        transitionIn(el, component, initialUpdate);
+        showElement(el);
       } else {
-        transitionOut(el, component, initialUpdate);
+        hideElement(el);
       }
 
       return;
     }
 
     const handle = resolve => {
-      let forceSkip = el.__x_is_showing || initialUpdate;
-
       if (!value) {
         if (el.style.display !== 'none') {
-          transitionOut(el, component, forceSkip, () => {
+          transitionOut(el, component, () => {
             resolve(() => {
               hideElement(el);
             });
@@ -647,7 +640,7 @@
         }
       } else {
         if (el.style.display !== '') {
-          transitionIn(el, component, forceSkip, () => {
+          transitionIn(el, component, () => {
             showElement(el);
           });
         } // Resolve immediately, only hold up parent `x-show`s for hidin.
@@ -685,13 +678,13 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       const clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      transitionIn(el.nextElementSibling, component, initialUpdate, () => {});
+      transitionIn(el.nextElementSibling, component, () => {}, initialUpdate);
       component.initializeElements(el.nextElementSibling, extraVars);
       el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
-      transitionOut(el.nextElementSibling, component, initialUpdate, () => {
+      transitionOut(el.nextElementSibling, component, () => {
         el.nextElementSibling.remove();
-      });
+      }, initialUpdate);
     }
   }
 

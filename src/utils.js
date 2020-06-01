@@ -103,7 +103,7 @@ export function getXAttrs(el, component, type) {
         })
         .filter(i => {
             // If no type is passed in for filtering, bypass filter
-            if (!type) return true
+            if (! type) return true
 
             return i.type === type
         })
@@ -149,7 +149,7 @@ export function replaceAtAndColonWithStandardSyntax(name) {
 }
 
 export function isNumeric(subject) {
-    return !isNaN(subject)
+    return ! isNaN(subject)
 }
 
 export function showElement(el) {

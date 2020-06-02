@@ -299,7 +299,7 @@
 
 
     let cssClasses = {
-      durring: transition,
+      during: transition,
       start: `${transition}-start`,
       end: `${transition}-end`
     }; // Asigning stage groups to css classes
@@ -315,7 +315,7 @@
       },
 
       during() {
-        el.classList.add(...cssClasses.durring);
+        el.classList.add(...cssClasses.during);
       },
 
       show() {
@@ -335,7 +335,7 @@
       },
 
       cleanup() {
-        el.classList.remove(...cssClasses.durring.filter(i => !originalClasses.includes(i)));
+        el.classList.remove(...cssClasses.during.filter(i => !originalClasses.includes(i)));
         el.classList.remove(...cssClasses.end.filter(i => !originalClasses.includes(i)));
       }
 

@@ -5729,7 +5729,7 @@
 
 
     var cssClasses = {
-      durring: transition,
+      during: transition,
       start: "".concat(transition, "-start"),
       end: "".concat(transition, "-end")
     }; // Asigning stage groups to css classes
@@ -5764,7 +5764,7 @@
       during: function during() {
         var _el$classList2;
 
-        (_el$classList2 = el.classList).add.apply(_el$classList2, _toConsumableArray(cssClasses.durring));
+        (_el$classList2 = el.classList).add.apply(_el$classList2, _toConsumableArray(cssClasses.during));
       },
       show: function show() {
         // Resolve if showing
@@ -5793,7 +5793,7 @@
             _this7 = this,
             _el$classList6;
 
-        (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(cssClasses.durring.filter(function (i) {
+        (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(cssClasses.during.filter(function (i) {
           _newArrowCheck(this, _this7);
 
           return !originalClasses.includes(i);

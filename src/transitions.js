@@ -130,7 +130,7 @@ function transitionWithCssClasses(el, component, resolve, attrs, transition, dis
 
     // Prepare stage group names for given directions
     let cssClasses = {
-        durring: transition,
+        during: transition,
         start: `${transition}-start`,
         end: `${transition}-end`,
     }
@@ -146,7 +146,7 @@ function transitionWithCssClasses(el, component, resolve, attrs, transition, dis
             el.classList.add(...cssClasses.start)
         },
         during() {
-            el.classList.add(...cssClasses.durring)
+            el.classList.add(...cssClasses.during)
         },
         show() {
             // Resolve if showing
@@ -162,7 +162,7 @@ function transitionWithCssClasses(el, component, resolve, attrs, transition, dis
             if (! display) resolve()
         },
         cleanup() {
-            el.classList.remove(...cssClasses.durring.filter(i => ! originalClasses.includes(i)))
+            el.classList.remove(...cssClasses.during.filter(i => ! originalClasses.includes(i)))
             el.classList.remove(...cssClasses.end.filter(i => ! originalClasses.includes(i)))
         },
     }

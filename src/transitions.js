@@ -9,7 +9,6 @@ export function transitionOut(el, component, resolve = () => hideElement(el), fo
 }
 
 function transition(el, component, resolve, forceSkip, display = true) {
-
     // We don't want to transition on the initial page load.
     if (forceSkip) return resolve()
 
@@ -191,7 +190,7 @@ function renderStages(el, stages) {
             stages.end()
 
             // Asign current transition to el in case we need to force it
-            el.__x_remaining_transitions = () => {
+            el.__x_transition_remaining =() => {
 
                 stages.hide()
 
@@ -202,13 +201,16 @@ function renderStages(el, stages) {
                 }
 
                 // Safe to remove transition from el since it is completed
-                delete el.__x_remaining_transitions
+                delete el.__x_transition_remaining
+                if(el.__x_transition_timer){
+                    clearTimeout(el.__x_transition_timer)
+                }
             }
 
-            setTimeout(() => {
+            el.__x_transition_timer = setTimeout(() => {
                 // We only want to run remaining transitions in the end if they exists
-                if (el.__x_remaining_transitions) {
-                    el.__x_remaining_transitions()
+                if (el.__x_transition_remaining) {
+                    el.__x_transition_remaining()
                 }
             }, duration);
         })

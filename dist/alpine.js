@@ -360,7 +360,7 @@
       requestAnimationFrame(() => {
         stages.end(); // Asign current transition to el in case we need to force it
 
-        el.__x_remaining_transitions = () => {
+        el.__x_transition_remaining = () => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
 
@@ -369,13 +369,17 @@
           } // Safe to remove transition from el since it is completed
 
 
-          delete el.__x_remaining_transitions;
+          delete el.__x_transition_remaining;
+
+          if (el.__x_transition_timer) {
+            clearTimeout(el.__x_transition_timer);
+          }
         };
 
-        setTimeout(() => {
+        el.__x_transition_timer = setTimeout(() => {
           // We only want to run remaining transitions in the end if they exists
-          if (el.__x_remaining_transitions) {
-            el.__x_remaining_transitions();
+          if (el.__x_transition_remaining) {
+            el.__x_transition_remaining();
           }
         }, duration);
       });
@@ -628,8 +632,8 @@
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
     // Resolve any previous pending transitions before starting a new one
-    if (el.__x_remaining_transitions) {
-      el.__x_remaining_transitions();
+    if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
+      el.__x_transition_remaining();
     } // Resolve immediately if initial page load
 
 
@@ -648,7 +652,7 @@
         if (el.style.display !== 'none') {
           transitionOut(el, component, () => {
             // If previous transitions still there, don't use resolve
-            if (el.__x_remaining_transitions) {
+            if (el.__x_transition_remaining) {
               hideElement(el);
             } else {
               resolve(() => {
@@ -668,7 +672,10 @@
 
 
         resolve(() => {});
-      }
+      } // Asign current value to el to check later on for preventing transition overlaps
+
+
+      el.__x_transition_last_value = value;
     }; // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding
     // some element. Also, this has to be done recursively.
@@ -685,11 +692,13 @@
 
     if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
       component.executeAndClearRemainingShowDirectiveStack();
-    } // We'll push the handler onto a stack to be handled later.
+    } // If x-show value changed from previous transition we'll push the handler onto a stack to be handled later.
 
 
-    component.showDirectiveStack.push(handle);
-    component.showDirectiveLastElement = el;
+    if (el.__x_transition_last_value !== value) {
+      component.showDirectiveStack.push(handle);
+      component.showDirectiveLastElement = el;
+    }
   }
 
   function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {

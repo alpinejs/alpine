@@ -5923,7 +5923,7 @@
 
         stages.end(); // Asign current transition to el in case we need to force it
 
-        el.__x_remaning_transitions = function () {
+        el.__x_remaining_transitions = function () {
           _newArrowCheck(this, _this15);
 
           stages.hide(); // Adding an "isConnected" check, in case the callback
@@ -5934,15 +5934,15 @@
           } // Safe to remove transition from el since it is completed
 
 
-          delete el.__x_remaning_transitions;
+          delete el.__x_remaining_transitions;
         }.bind(this);
 
         setTimeout(function () {
           _newArrowCheck(this, _this15);
 
-          // We only want to run remaning transitions in the end if they exists
-          if (el.__x_remaning_transitions) {
-            el.__x_remaning_transitions();
+          // We only want to run remaining transitions in the end if they exists
+          if (el.__x_remaining_transitions) {
+            el.__x_remaining_transitions();
           }
         }.bind(this), duration);
       }.bind(this));
@@ -6250,8 +6250,8 @@
     var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
     // Resolve any previous pending transitions before starting a new one
-    if (el.__x_remaning_transitions) {
-      el.__x_remaning_transitions();
+    if (el.__x_remaining_transitions) {
+      el.__x_remaining_transitions();
     }
 
     var hide = function hide() {
@@ -6293,7 +6293,7 @@
             _newArrowCheck(this, _this2);
 
             // If previous transitions still there, don't use resolve
-            if (el.__x_remaning_transitions) {
+            if (el.__x_remaining_transitions) {
               hide();
             } else {
               resolve(function () {

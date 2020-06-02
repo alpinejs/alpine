@@ -1,4 +1,4 @@
-import { showElement, hideElement, getXAttrs, isNumeric, once } from './utils'
+import { showElement, hideElement, getXAttrs, isNumeric } from './utils'
 
 export function transitionIn(el, component, resolve = () => showElement(el), forceSkip = false) {
     transition(el, component, resolve, forceSkip)

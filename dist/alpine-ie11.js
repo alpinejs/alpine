@@ -5767,7 +5767,7 @@
         (_el$classList2 = el.classList).add.apply(_el$classList2, _toConsumableArray(cssClasses.durring));
       },
       show: function show() {
-        // Resolve if hiding
+        // Resolve if showing
         if (display) resolve();
       },
       end: function end() {
@@ -5785,7 +5785,7 @@
         (_el$classList4 = el.classList).add.apply(_el$classList4, _toConsumableArray(cssClasses.end));
       },
       hide: function hide() {
-        // Resolve if showing
+        // Resolve if hiding
         if (!display) resolve();
       },
       cleanup: function cleanup() {
@@ -5834,7 +5834,7 @@
 
         _newArrowCheck(this, _this9);
 
-        stages.end();
+        stages.end(); // Asign current transition to el in case we need to force it
 
         el.__x_remaning_transitions = function () {
           _newArrowCheck(this, _this10);
@@ -5844,7 +5844,8 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          }
+          } // Safe to remove transition from el since it is completed
+
 
           delete el.__x_remaning_transitions;
         }.bind(this);
@@ -5852,6 +5853,7 @@
         setTimeout(function () {
           _newArrowCheck(this, _this10);
 
+          // We only want to run remaning transitions in the end if they exists
           if (el.__x_remaning_transitions) {
             el.__x_remaning_transitions();
           }

@@ -319,7 +319,7 @@
       },
 
       show() {
-        // Resolve if hiding
+        // Resolve if showing
         if (display) resolve();
       },
 
@@ -330,7 +330,7 @@
       },
 
       hide() {
-        // Resolve if showing
+        // Resolve if hiding
         if (!display) resolve();
       },
 
@@ -358,7 +358,7 @@
 
       stages.show();
       requestAnimationFrame(() => {
-        stages.end();
+        stages.end(); // Asign current transition to el in case we need to force it
 
         el.__x_remaning_transitions = () => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
@@ -366,12 +366,14 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          }
+          } // Safe to remove transition from el since it is completed
+
 
           delete el.__x_remaning_transitions;
         };
 
         setTimeout(() => {
+          // We only want to run remaning transitions in the end if they exists
           if (el.__x_remaning_transitions) {
             el.__x_remaning_transitions();
           }

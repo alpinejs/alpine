@@ -31,7 +31,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
                     }
                 })
             } else {
-                resolve(() => { })
+                resolve(() => {})
             }
         } else {
             if ( el.style.display !== '' ) {
@@ -41,7 +41,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
             }
 
             // Resolve immediately, only hold up parent `x-show`s for hiding.
-            resolve(() => { })
+            resolve(() => {})
         }
     }
 

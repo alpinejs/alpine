@@ -188,9 +188,9 @@ function renderStages(el, stages) {
         stages.show()
 
         requestAnimationFrame(() => {
-
-
             stages.end()
+
+            // Asign current transition to el in case we need to force it
             el.__x_remaning_transitions = () => {
 
                 stages.hide()
@@ -201,10 +201,12 @@ function renderStages(el, stages) {
                     stages.cleanup()
                 }
 
+                // Safe to remove transition from el since it is completed
                 delete el.__x_remaning_transitions
             }
 
             setTimeout(() => {
+                // We only want to run remaning transitions in the end if they exists
                 if (el.__x_remaning_transitions) {
                     el.__x_remaning_transitions()
                 }

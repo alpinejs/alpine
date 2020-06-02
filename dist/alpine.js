@@ -645,6 +645,7 @@
       if (!value) {
         if (el.style.display !== 'none') {
           transitionOut(el, component, () => {
+            // If previous transitions still there, don't use resolve
             if (el.__x_remaning_transitions) {
               hideElement(el);
             } else {

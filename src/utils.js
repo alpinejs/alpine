@@ -153,13 +153,13 @@ export function isNumeric(subject) {
 }
 
 export function showElement(el) {
-  if (el.style.length === 1 && el.style.display === 'none') {
-    el.removeAttribute('style')
-  } else {
-    el.style.removeProperty('display')
-  }
+    if (el.style.length === 1 && el.style.display === 'none') {
+        el.removeAttribute('style')
+    } else {
+        el.style.removeProperty('display')
+    }
 }
 
 export function hideElement(el) {
-  el.style.display = 'none'
+    el.style.display = 'none'
 }

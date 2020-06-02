@@ -5835,14 +5835,25 @@
         _newArrowCheck(this, _this9);
 
         stages.end();
-        setTimeout(function () {
+
+        el.__x_remaning_transitions = function () {
           _newArrowCheck(this, _this10);
 
-          stages.hide(); // Adding an "isConnected" check, in case the resolve
+          stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
 
           if (el.isConnected) {
             stages.cleanup();
+          }
+
+          delete el.__x_remaning_transitions;
+        }.bind(this);
+
+        setTimeout(function () {
+          _newArrowCheck(this, _this10);
+
+          if (el.__x_remaning_transitions) {
+            el.__x_remaning_transitions();
           }
         }.bind(this), duration);
       }.bind(this));
@@ -6176,7 +6187,12 @@
 
     var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
-    // Resolve immediately if initial page load
+    // Resolve any previous pending transitions before starting a new one
+    if (el.__x_remaning_transitions) {
+      el.__x_remaning_transitions();
+    } // Resolve immediately if initial page load
+
+
     if (initialUpdate) {
       if (value) {
         showElement(el);
@@ -6199,11 +6215,16 @@
 
             _newArrowCheck(this, _this2);
 
-            resolve(function () {
-              _newArrowCheck(this, _this3);
-
+            // If previous transitions still there, don't use resolve
+            if (el.__x_remaning_transitions) {
               hideElement(el);
-            }.bind(this));
+            } else {
+              resolve(function () {
+                _newArrowCheck(this, _this3);
+
+                hideElement(el);
+              }.bind(this));
+            }
           }.bind(this));
         } else {
           resolve(function () {
@@ -6217,7 +6238,7 @@
 
             showElement(el);
           }.bind(this));
-        } // Resolve immediately, only hold up parent `x-show`s for hidin.
+        } // Resolve immediately, only hold up parent `x-show`s for hiding.
 
 
         resolve(function () {

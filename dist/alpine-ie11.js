@@ -63,7 +63,7 @@
 
   // Full polyfill for browsers with no classList support
   // Including IE < Edge missing SVGElement.classList
-  if (!("classList" in document.createElement("_"))
+  if (!("classList" in document.createElement("_")) 
   	|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
 
   (function (view) {
@@ -3121,7 +3121,7 @@
     // as the regeneratorRuntime namespace. Otherwise create a new empty
     // object. Either way, the resulting object will be used to initialize
     // the regeneratorRuntime variable at the top of this file.
-     module.exports
+     module.exports 
   ));
 
   try {
@@ -6253,9 +6253,8 @@
     var _this = this;
 
     var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
-    // Prepare el in case we need to use transition
-    el.__x_transition = {}; // Resolve any previous pending transitions before starting a new one
 
+    // Resolve any previous pending transitions before starting a new one
     if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
       el.__x_transition_remaining();
     }
@@ -6284,10 +6283,7 @@
       }
 
       return;
-    } // Asign current value to el to check later on for preventing transition overlaps
-
-
-    el.__x_transition_last_value = value;
+    }
 
     var handle = function handle(resolve) {
       var _this2 = this;
@@ -6359,9 +6355,8 @@
 
     if (el.__x_transition_last_value !== value) {
       component.showDirectiveStack.push(handle);
+      component.showDirectiveLastElement = el;
     }
-
-    component.showDirectiveLastElement = el;
   }
 
   function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {

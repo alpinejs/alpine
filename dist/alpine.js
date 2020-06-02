@@ -360,7 +360,7 @@
       requestAnimationFrame(() => {
         stages.end(); // Asign current transition to el in case we need to force it
 
-        el.__x_remaning_transitions = () => {
+        el.__x_remaining_transitions = () => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
 
@@ -369,13 +369,13 @@
           } // Safe to remove transition from el since it is completed
 
 
-          delete el.__x_remaning_transitions;
+          delete el.__x_remaining_transitions;
         };
 
         setTimeout(() => {
-          // We only want to run remaning transitions in the end if they exists
-          if (el.__x_remaning_transitions) {
-            el.__x_remaning_transitions();
+          // We only want to run remaining transitions in the end if they exists
+          if (el.__x_remaining_transitions) {
+            el.__x_remaining_transitions();
           }
         }, duration);
       });
@@ -628,8 +628,8 @@
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
     // Resolve any previous pending transitions before starting a new one
-    if (el.__x_remaning_transitions) {
-      el.__x_remaning_transitions();
+    if (el.__x_remaining_transitions) {
+      el.__x_remaining_transitions();
     } // Resolve immediately if initial page load
 
 
@@ -648,7 +648,7 @@
         if (el.style.display !== 'none') {
           transitionOut(el, component, () => {
             // If previous transitions still there, don't use resolve
-            if (el.__x_remaning_transitions) {
+            if (el.__x_remaining_transitions) {
               hideElement(el);
             } else {
               resolve(() => {

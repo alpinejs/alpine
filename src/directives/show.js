@@ -3,8 +3,8 @@ import { showElement, hideElement } from '../utils'
 
 export function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
     // Resolve any previous pending transitions before starting a new one
-    if (el.__x_remaning_transitions) {
-        el.__x_remaning_transitions()
+    if (el.__x_remaining_transitions) {
+        el.__x_remaining_transitions()
     }
 
     // Resolve immediately if initial page load
@@ -22,7 +22,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
             if ( el.style.display !== 'none' ) {
                 transitionOut(el, component, () => {
                     // If previous transitions still there, don't use resolve
-                    if (el.__x_remaning_transitions) {
+                    if (el.__x_remaining_transitions) {
                         hideElement(el)
                     } else {
                         resolve(() => {

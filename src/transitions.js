@@ -191,7 +191,7 @@ function renderStages(el, stages) {
             stages.end()
 
             // Asign current transition to el in case we need to force it
-            el.__x_remaning_transitions = () => {
+            el.__x_remaining_transitions = () => {
 
                 stages.hide()
 
@@ -202,13 +202,13 @@ function renderStages(el, stages) {
                 }
 
                 // Safe to remove transition from el since it is completed
-                delete el.__x_remaning_transitions
+                delete el.__x_remaining_transitions
             }
 
             setTimeout(() => {
-                // We only want to run remaning transitions in the end if they exists
-                if (el.__x_remaning_transitions) {
-                    el.__x_remaning_transitions()
+                // We only want to run remaining transitions in the end if they exists
+                if (el.__x_remaining_transitions) {
+                    el.__x_remaining_transitions()
                 }
             }, duration);
         })

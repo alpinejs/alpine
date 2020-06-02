@@ -621,7 +621,7 @@ test('x-transition supports css animation', async () => {
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(false)
 })
 
-test('remaning transitions forced to complete if they exists', async () => {
+test('remaining transitions forced to complete if they exists', async () => {
   jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
       setTimeout(callback, 0)
   });

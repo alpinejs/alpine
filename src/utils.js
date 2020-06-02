@@ -397,13 +397,25 @@ export function transition(el, stages) {
         requestAnimationFrame(() => {
             stages.end()
 
-            setTimeout(() => {
+            // Asign current transition to el in case we need to force it
+            el.__x_remaning_transitions = () => {
+
                 stages.hide()
 
                 // Adding an "isConnected" check, in case the callback
                 // removed the element from the DOM.
                 if (el.isConnected) {
                     stages.cleanup()
+                }
+
+                // Safe to remove transition from el since it is completed
+                delete el.__x_remaning_transitions
+            }
+
+            setTimeout(() => {
+                // We only want to run remaning transitions in the end if they exists
+                if (el.__x_remaning_transitions) {
+                    el.__x_remaning_transitions()
                 }
             }, duration);
         })

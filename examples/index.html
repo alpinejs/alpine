@@ -38,6 +38,14 @@
         <script src="/dist/alpine.js" defer></script>
     </head>
     <body>
+
+    <div x-data="{open: false}">
+        <button x-on:click="open = !open">Toggle</button>
+        <div>
+            Open : <span x-text="open"></span>
+        </div>
+        <div x-show.transition.duration.1000="open">Content</div>
+    </div>
         <table>
             <thead>
                 <tr>

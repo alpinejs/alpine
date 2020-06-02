@@ -187,17 +187,6 @@
   }
   function hideElement(el) {
     el.style.display = 'none';
-  } // Thanks @vue
-  // https://github.com/vuejs/vue/blob/76fd45c9fd611fecfa79997706a5d218de206b68/src/shared/util.js
-
-  function once(fn) {
-    let called = false;
-    return function () {
-      if (!called) {
-        called = true;
-        fn.apply(this, arguments);
-      }
-    };
   }
 
   function transitionIn(el, component, resolve = () => showElement(el), forceSkip = false) {
@@ -370,7 +359,8 @@
       stages.show();
       requestAnimationFrame(() => {
         stages.end();
-        el.__x_transition_resolve = once(() => {
+
+        el.__x_remaning_transitions = () => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
 
@@ -378,9 +368,14 @@
             stages.cleanup();
           }
 
-          delete el.__x_transition_resolve;
-        });
-        setTimeout(el.__x_transition_resolve, duration);
+          delete el.__x_remaning_transitions;
+        };
+
+        setTimeout(() => {
+          if (el.__x_remaning_transitions) {
+            el.__x_remaning_transitions();
+          }
+        }, duration);
       });
     });
   }
@@ -631,8 +626,8 @@
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
     // Resolve any previous pending transitions before starting a new one
-    if (el.__x_transition_resolve) {
-      el.__x_transition_resolve();
+    if (el.__x_remaning_transitions) {
+      el.__x_remaning_transitions();
     } // Resolve immediately if initial page load
 
 
@@ -650,9 +645,13 @@
       if (!value) {
         if (el.style.display !== 'none') {
           transitionOut(el, component, () => {
-            resolve(() => {
+            if (el.__x_remaning_transitions) {
               hideElement(el);
-            });
+            } else {
+              resolve(() => {
+                hideElement(el);
+              });
+            }
           });
         } else {
           resolve(() => {});

@@ -43,12 +43,12 @@ function transition(el, component, resolve, forceSkip, display = true) {
 
     transitionWithInlineStyles(el, resolve, modifiers, transition, display)
 
-  // Check if this is a transition with css classes
+    // Check if this is a transition with css classes
   } else if (attrs.filter(attr => attr.value.includes(transition)).length > 0) {
 
     transitionWithCssClasses(el, component, resolve, attrs, transition, display)
 
-  // Check if neither, just resolve that damn thing
+    // Check if neither, just resolve that damn thing
   } else {
     resolve(el)
   }
@@ -189,8 +189,9 @@ function renderStages(el, stages) {
 
     requestAnimationFrame(() => {
 
+
       stages.end()
-      el.__x_transition_resolve = once(() => {
+      el.__x_remaning_transitions = () => {
 
         stages.hide()
 
@@ -200,10 +201,14 @@ function renderStages(el, stages) {
           stages.cleanup()
         }
 
-        delete el.__x_transition_resolve
-      })
+        delete el.__x_remaning_transitions
+      }
 
-      setTimeout(el.__x_transition_resolve, duration);
+      setTimeout(() => {
+        if (el.__x_remaning_transitions) {
+          el.__x_remaning_transitions()
+        }
+      }, duration);
     })
   })
 }

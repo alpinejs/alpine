@@ -150,7 +150,7 @@ function transitionWithCssClasses(el, component, resolve, attrs, transition, dis
             el.classList.add(...cssClasses.durring)
         },
         show() {
-            // Resolve if hiding
+            // Resolve if showing
             if (display) resolve()
         },
         end() {
@@ -159,7 +159,7 @@ function transitionWithCssClasses(el, component, resolve, attrs, transition, dis
             el.classList.add(...cssClasses.end)
         },
         hide() {
-            // Resolve if showing
+            // Resolve if hiding
             if (! display) resolve()
         },
         cleanup() {

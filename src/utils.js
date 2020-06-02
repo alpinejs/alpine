@@ -179,6 +179,7 @@ export function transitionIn(el, show, component, forceSkip = false) {
 }
 
 export function transitionOut(el, hide, component, forceSkip = false) {
+     // We don't want to transition on the initial page load.
     if (forceSkip) return hide()
 
     const attrs = getXAttrs(el, component, 'transition')
@@ -398,7 +399,7 @@ export function transition(el, stages) {
             stages.end()
 
             // Asign current transition to el in case we need to force it
-            el.__x_remaining_transitions = () => {
+            el.__x_remaining_transitions =() => {
 
                 stages.hide()
 
@@ -410,9 +411,12 @@ export function transition(el, stages) {
 
                 // Safe to remove transition from el since it is completed
                 delete el.__x_remaining_transitions
+                if(el.__x_transition_timer){
+                    clearTimeout(el.__x_transition_timer)
+                }
             }
 
-            setTimeout(() => {
+            el.__x_transition_timer = setTimeout(() => {
                 // We only want to run remaining transitions in the end if they exists
                 if (el.__x_remaining_transitions) {
                     el.__x_remaining_transitions()

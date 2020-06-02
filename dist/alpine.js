@@ -197,6 +197,7 @@
     }
   }
   function transitionOut(el, hide, component, forceSkip = false) {
+    // We don't want to transition on the initial page load.
     if (forceSkip) return hide();
     const attrs = getXAttrs(el, component, 'transition');
     const showAttr = getXAttrs(el, component, 'show')[0];
@@ -416,9 +417,13 @@
 
 
           delete el.__x_remaining_transitions;
+
+          if (el.__x_transition_timer) {
+            clearTimeout(el.__x_transition_timer);
+          }
         };
 
-        setTimeout(() => {
+        el.__x_transition_timer = setTimeout(() => {
           // We only want to run remaining transitions in the end if they exists
           if (el.__x_remaining_transitions) {
             el.__x_remaining_transitions();
@@ -647,7 +652,7 @@
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
     // Resolve any previous pending transitions before starting a new one
-    if (el.__x_remaining_transitions) {
+    if (el.__x_remaining_transitions && el.__x_current_transition_value !== value) {
       el.__x_remaining_transitions();
     }
 
@@ -694,11 +699,14 @@
           transitionIn(el, () => {
             show();
           }, component);
-        } // Resolve immediately, only hold up parent `x-show`s for hidin.
+        } // Resolve immediately, only hold up parent `x-show`s for hiding.
 
 
         resolve(() => {});
-      }
+      } // Asign current value to el to check later on for preventing transition overlaps
+
+
+      el.__x_current_transition_value = value;
     }; // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding
     // some element. Also, this has to be done recursively.
@@ -715,10 +723,13 @@
 
     if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
       component.executeAndClearRemainingShowDirectiveStack();
-    } // We'll push the handler onto a stack to be handled later.
+    } // If x-show value changed from previous transition we'll push the handler onto a stack to be handled later.
 
 
-    component.showDirectiveStack.push(handle);
+    if (el.__x_current_transition_value !== value) {
+      component.showDirectiveStack.push(handle);
+    }
+
     component.showDirectiveLastElement = el;
   }
 

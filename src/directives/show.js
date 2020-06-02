@@ -2,8 +2,8 @@ import { transitionIn, transitionOut } from '../utils'
 
 export function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
     // Resolve any previous pending transitions before starting a new one
-    if (el.__x_remaining_transitions && el.__x_current_transition_value !== value) {
-        el.__x_remaining_transitions()
+    if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
+        el.__x_transition_remaining()
     }
 
     const hide = () => {
@@ -32,7 +32,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
             if ( el.style.display !== 'none' ) {
                 transitionOut(el, () => {
                     // If previous transitions still there, don't use resolve
-                    if (el.__x_remaining_transitions) {
+                    if ( el.__x_transition_remaining ) {
                         hide()
                     } else {
                         resolve(() => {
@@ -55,7 +55,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
         }
 
         // Asign current value to el to check later on for preventing transition overlaps
-        el.__x_current_transition_value = value
+        el.__x_transition_last_value = value
     }
 
     // The working of x-show is a bit complex because we need to
@@ -76,9 +76,8 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     }
 
     // If x-show value changed from previous transition we'll push the handler onto a stack to be handled later.
-    if (el.__x_current_transition_value !== value) {
+    if (el.__x_transition_last_value !== value) {
         component.showDirectiveStack.push(handle)
+        component.showDirectiveLastElement = el
     }
-
-    component.showDirectiveLastElement = el
 }

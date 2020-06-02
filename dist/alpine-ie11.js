@@ -63,7 +63,7 @@
 
   // Full polyfill for browsers with no classList support
   // Including IE < Edge missing SVGElement.classList
-  if (!("classList" in document.createElement("_")) 
+  if (!("classList" in document.createElement("_"))
   	|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
 
   (function (view) {
@@ -3121,7 +3121,7 @@
     // as the regeneratorRuntime namespace. Otherwise create a new empty
     // object. Either way, the resulting object will be used to initialize
     // the regeneratorRuntime variable at the top of this file.
-     module.exports 
+     module.exports
   ));
 
   try {
@@ -5616,6 +5616,7 @@
     var _this6 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    // We don't want to transition on the initial page load.
     if (forceSkip) return hide();
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0];
@@ -5923,7 +5924,7 @@
 
         stages.end(); // Asign current transition to el in case we need to force it
 
-        el.__x_remaining_transitions = function () {
+        el.__x_transition_remaining = function () {
           _newArrowCheck(this, _this15);
 
           stages.hide(); // Adding an "isConnected" check, in case the callback
@@ -5934,15 +5935,19 @@
           } // Safe to remove transition from el since it is completed
 
 
-          delete el.__x_remaining_transitions;
+          delete el.__x_transition_remaining;
+
+          if (el.__x_transition_timer) {
+            clearTimeout(el.__x_transition_timer);
+          }
         }.bind(this);
 
-        setTimeout(function () {
+        el.__x_transition_timer = setTimeout(function () {
           _newArrowCheck(this, _this15);
 
           // We only want to run remaining transitions in the end if they exists
-          if (el.__x_remaining_transitions) {
-            el.__x_remaining_transitions();
+          if (el.__x_transition_remaining) {
+            el.__x_transition_remaining();
           }
         }.bind(this), duration);
       }.bind(this));
@@ -6248,10 +6253,11 @@
     var _this = this;
 
     var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
+    // Prepare el in case we need to use transition
+    el.__x_transition = {}; // Resolve any previous pending transitions before starting a new one
 
-    // Resolve any previous pending transitions before starting a new one
-    if (el.__x_remaining_transitions) {
-      el.__x_remaining_transitions();
+    if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
+      el.__x_transition_remaining();
     }
 
     var hide = function hide() {
@@ -6278,7 +6284,10 @@
       }
 
       return;
-    }
+    } // Asign current value to el to check later on for preventing transition overlaps
+
+
+    el.__x_transition_last_value = value;
 
     var handle = function handle(resolve) {
       var _this2 = this;
@@ -6293,7 +6302,7 @@
             _newArrowCheck(this, _this2);
 
             // If previous transitions still there, don't use resolve
-            if (el.__x_remaining_transitions) {
+            if (el.__x_transition_remaining) {
               hide();
             } else {
               resolve(function () {
@@ -6315,13 +6324,16 @@
 
             show();
           }.bind(this), component);
-        } // Resolve immediately, only hold up parent `x-show`s for hidin.
+        } // Resolve immediately, only hold up parent `x-show`s for hiding.
 
 
         resolve(function () {
           _newArrowCheck(this, _this2);
         }.bind(this));
-      }
+      } // Asign current value to el to check later on for preventing transition overlaps
+
+
+      el.__x_transition_last_value = value;
     }.bind(this); // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding
     // some element. Also, this has to be done recursively.
@@ -6342,10 +6354,13 @@
 
     if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
       component.executeAndClearRemainingShowDirectiveStack();
-    } // We'll push the handler onto a stack to be handled later.
+    } // If x-show value changed from previous transition we'll push the handler onto a stack to be handled later.
 
 
-    component.showDirectiveStack.push(handle);
+    if (el.__x_transition_last_value !== value) {
+      component.showDirectiveStack.push(handle);
+    }
+
     component.showDirectiveLastElement = el;
   }
 

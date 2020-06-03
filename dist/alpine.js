@@ -407,7 +407,7 @@
       requestAnimationFrame(() => {
         stages.end(); // Asign current transition to el in case we need to force it
 
-        el.__x_transition_remaining = () => {
+        el.__x_transition_remaining = once(() => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
 
@@ -417,23 +417,26 @@
 
 
           delete el.__x_transition_remaining;
-
-          if (el.__x_transition_timer) {
-            clearTimeout(el.__x_transition_timer);
-          }
-        };
-
-        el.__x_transition_timer = setTimeout(() => {
-          // We only want to run remaining transitions in the end if they exists
-          if (el.__x_transition_remaining) {
-            el.__x_transition_remaining();
-          }
-        }, duration);
+        });
+        setTimeout(el.__x_transition_remaining, duration);
       });
     });
   }
   function isNumeric(subject) {
     return !isNaN(subject);
+  }
+  /**
+   * Ensure a function is called only once.
+   */
+
+  function once(fn) {
+    let called = false;
+    return function () {
+      if (!called) {
+        called = true;
+        fn.apply(this, arguments);
+      }
+    };
   }
 
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {

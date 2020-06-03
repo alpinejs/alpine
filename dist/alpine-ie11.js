@@ -6202,6 +6202,8 @@
 
 
     if (initialUpdate) {
+      // Asign current value to el to check later on for preventing transition overlaps
+      el.__x_transition_last_value = value;
       return value ? showElement(el) : hideElement(el);
     }
 
@@ -6237,7 +6239,7 @@
             _newArrowCheck(this, _this2);
           }.bind(this));
         }
-      } // Asign current value to el to check later on for preventing transition overlaps
+      } // Asign current value to el
 
 
       el.__x_transition_last_value = value;

@@ -1,7 +1,7 @@
 import { transitionIn, transitionOut } from '../utils'
 
 export function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
-    // Resolve any previous pending transitions before starting a new one
+    // if value is changed resolve any previous pending transitions before starting a new one
     if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
         el.__x_transition_remaining()
     }
@@ -31,7 +31,8 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
         if (! value) {
             if ( el.style.display !== 'none' ) {
                 transitionOut(el, () => {
-                    // If previous transitions still there, don't use resolve
+                    // If there is a remaning transition
+                    // and value is changed, don't use resolve
                     if ( el.__x_transition_remaining ) {
                         hide()
                     } else {

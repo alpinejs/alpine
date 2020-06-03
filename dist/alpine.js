@@ -646,31 +646,21 @@
     }
 
     const handle = resolve => {
-      if (!value) {
+      if (value) {
+        transitionIn(el, component, () => {
+          showElement(el);
+        });
+        resolve(() => {});
+      } else {
         if (el.style.display !== 'none') {
           transitionOut(el, component, () => {
-            // If there is a remaning transition
-            // and value is changed, don't use resolve
-            if (el.__x_transition_remaining) {
+            resolve(() => {
               hideElement(el);
-            } else {
-              resolve(() => {
-                hideElement(el);
-              });
-            }
+            });
           });
         } else {
           resolve(() => {});
         }
-      } else {
-        if (el.style.display !== '') {
-          transitionIn(el, component, () => {
-            showElement(el);
-          });
-        } // Resolve immediately, only hold up parent `x-show`s for hiding.
-
-
-        resolve(() => {});
       } // Asign current value to el to check later on for preventing transition overlaps
 
 

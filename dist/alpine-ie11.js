@@ -6210,43 +6210,33 @@
 
       _newArrowCheck(this, _this);
 
-      if (!value) {
+      if (value) {
+        transitionIn(el, component, function () {
+          _newArrowCheck(this, _this2);
+
+          showElement(el);
+        }.bind(this));
+        resolve(function () {
+          _newArrowCheck(this, _this2);
+        }.bind(this));
+      } else {
         if (el.style.display !== 'none') {
           transitionOut(el, component, function () {
             var _this3 = this;
 
             _newArrowCheck(this, _this2);
 
-            // If there is a remaning transition
-            // and value is changed, don't use resolve
-            if (el.__x_transition_remaining) {
-              hideElement(el);
-            } else {
-              resolve(function () {
-                _newArrowCheck(this, _this3);
+            resolve(function () {
+              _newArrowCheck(this, _this3);
 
-                hideElement(el);
-              }.bind(this));
-            }
+              hideElement(el);
+            }.bind(this));
           }.bind(this));
         } else {
           resolve(function () {
             _newArrowCheck(this, _this2);
           }.bind(this));
         }
-      } else {
-        if (el.style.display !== '') {
-          transitionIn(el, component, function () {
-            _newArrowCheck(this, _this2);
-
-            showElement(el);
-          }.bind(this));
-        } // Resolve immediately, only hold up parent `x-show`s for hiding.
-
-
-        resolve(function () {
-          _newArrowCheck(this, _this2);
-        }.bind(this));
       } // Asign current value to el to check later on for preventing transition overlaps
 
 

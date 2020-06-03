@@ -6255,7 +6255,7 @@
 
     var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
-    // Resolve any previous pending transitions before starting a new one
+    // if value is changed resolve any previous pending transitions before starting a new one
     if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
       el.__x_transition_remaining();
     }
@@ -6291,42 +6291,33 @@
 
       _newArrowCheck(this, _this);
 
-      if (!value) {
+      if (value) {
+        transitionIn(el, function () {
+          _newArrowCheck(this, _this2);
+
+          show();
+        }.bind(this), component);
+        resolve(function () {
+          _newArrowCheck(this, _this2);
+        }.bind(this));
+      } else {
         if (el.style.display !== 'none') {
           transitionOut(el, function () {
             var _this3 = this;
 
             _newArrowCheck(this, _this2);
 
-            // If previous transitions still there, don't use resolve
-            if (el.__x_transition_remaining) {
-              hide();
-            } else {
-              resolve(function () {
-                _newArrowCheck(this, _this3);
+            resolve(function () {
+              _newArrowCheck(this, _this3);
 
-                hide();
-              }.bind(this));
-            }
+              hide();
+            }.bind(this));
           }.bind(this), component);
         } else {
           resolve(function () {
             _newArrowCheck(this, _this2);
           }.bind(this));
         }
-      } else {
-        if (el.style.display !== '') {
-          transitionIn(el, function () {
-            _newArrowCheck(this, _this2);
-
-            show();
-          }.bind(this), component);
-        } // Resolve immediately, only hold up parent `x-show`s for hiding.
-
-
-        resolve(function () {
-          _newArrowCheck(this, _this2);
-        }.bind(this));
       } // Asign current value to el to check later on for preventing transition overlaps
 
 

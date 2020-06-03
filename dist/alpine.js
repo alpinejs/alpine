@@ -654,7 +654,7 @@
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
-    // Resolve any previous pending transitions before starting a new one
+    // if value is changed resolve any previous pending transitions before starting a new one
     if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
       el.__x_transition_remaining();
     }
@@ -682,30 +682,21 @@
     }
 
     const handle = resolve => {
-      if (!value) {
+      if (value) {
+        transitionIn(el, () => {
+          show();
+        }, component);
+        resolve(() => {});
+      } else {
         if (el.style.display !== 'none') {
           transitionOut(el, () => {
-            // If previous transitions still there, don't use resolve
-            if (el.__x_transition_remaining) {
+            resolve(() => {
               hide();
-            } else {
-              resolve(() => {
-                hide();
-              });
-            }
+            });
           }, component);
         } else {
           resolve(() => {});
         }
-      } else {
-        if (el.style.display !== '') {
-          transitionIn(el, () => {
-            show();
-          }, component);
-        } // Resolve immediately, only hold up parent `x-show`s for hiding.
-
-
-        resolve(() => {});
       } // Asign current value to el to check later on for preventing transition overlaps
 
 

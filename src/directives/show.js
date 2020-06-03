@@ -28,36 +28,27 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     }
 
     const handle = (resolve) => {
-        if (! value) {
+        if(value) {
+            transitionIn(el,() => {
+                show()
+            }, component)
+            resolve(() => {})
+        } else {
             if ( el.style.display !== 'none' ) {
                 transitionOut(el, () => {
-                    // If there is a remaning transition
-                    // and value is changed, don't use resolve
-                    if ( el.__x_transition_remaining ) {
+                    resolve(() => {
                         hide()
-                    } else {
-                        resolve(() => {
-                            hide()
-                        })
-                    }
-                }, component)
+                    })
+                },component)
             } else {
                 resolve(() => {})
             }
-        } else {
-            if ( el.style.display !== '' ) {
-                transitionIn(el, () => {
-                    show()
-                }, component)
-            }
-
-            // Resolve immediately, only hold up parent `x-show`s for hiding.
-            resolve(() => {})
         }
 
         // Asign current value to el to check later on for preventing transition overlaps
         el.__x_transition_last_value = value
     }
+
 
     // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding

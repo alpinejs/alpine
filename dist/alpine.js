@@ -1647,6 +1647,7 @@
 
   const Alpine = {
     version: "2.3.5",
+    pauseObserver: false,
     start: async function start() {
       if (!isTesting()) {
         await domReady();
@@ -1686,6 +1687,8 @@
         subtree: true
       };
       const observer = new MutationObserver(mutations => {
+        if (this.pauseObserver) return;
+
         for (let i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(node => {

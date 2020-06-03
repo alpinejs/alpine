@@ -188,6 +188,20 @@
   function hideElement(el) {
     el.style.display = 'none';
   }
+  /**
+   * Thanks to @Vue
+   * Ensure a function is called only once.
+   */
+
+  function once(fn) {
+    let called = false;
+    return function () {
+      if (!called) {
+        called = true;
+        fn.apply(this, arguments);
+      }
+    };
+  }
 
   function transitionIn(el, component, resolve = () => showElement(el), forceSkip = false) {
     transition(el, component, resolve, forceSkip);
@@ -360,7 +374,7 @@
       requestAnimationFrame(() => {
         stages.end(); // Asign current transition to el in case we need to force it
 
-        el.__x_transition_remaining = () => {
+        el.__x_transition_remaining = once(() => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
 
@@ -370,18 +384,8 @@
 
 
           delete el.__x_transition_remaining;
-
-          if (el.__x_transition_timer) {
-            clearTimeout(el.__x_transition_timer);
-          }
-        };
-
-        el.__x_transition_timer = setTimeout(() => {
-          // We only want to run remaining transitions in the end if they exists
-          if (el.__x_transition_remaining) {
-            el.__x_transition_remaining();
-          }
-        }, duration);
+        });
+        setTimeout(el.__x_transition_remaining, duration);
       });
     });
   }
@@ -631,27 +635,22 @@
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
-    // Resolve any previous pending transitions before starting a new one
+    // if value is changed resolve any previous pending transitions before starting a new one
     if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
       el.__x_transition_remaining();
     } // Resolve immediately if initial page load
 
 
     if (initialUpdate) {
-      if (value) {
-        showElement(el);
-      } else {
-        hideElement(el);
-      }
-
-      return;
+      return value ? showElement(el) : hideElement(el);
     }
 
     const handle = resolve => {
       if (!value) {
         if (el.style.display !== 'none') {
           transitionOut(el, component, () => {
-            // If previous transitions still there, don't use resolve
+            // If there is a remaning transition
+            // and value is changed, don't use resolve
             if (el.__x_transition_remaining) {
               hideElement(el);
             } else {

@@ -665,33 +665,40 @@ test('remaining transitions forced to complete if they exists', async () => {
     // trigger animation out
     document.querySelector('button').click()
 
-    // Wait for some requestAnimationFrame
+    // Wait for the next requestAnimationFrame
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
-        }, 10)
+        }, 0)
     )
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
+
+    // Wait for the next requestAnimationFrame
+        await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 0)
+    )
 
     // trigger animation in
     document.querySelector('button').click()
 
-    // Wait for some requestAnimationFrame
+    // Wait for the next requestAnimationFrame
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
-        }, 10)
+        }, 0)
     )
     expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
 
     // trigger animation out
     document.querySelector('button').click()
 
-    // Wait for some requestAnimationFrame
+    // Wait for the next requestAnimationFrame
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
-        }, 10)
+        }, 0)
     )
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
 

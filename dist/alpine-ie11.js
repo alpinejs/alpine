@@ -5417,6 +5417,20 @@
   function hideElement(el) {
     el.style.display = 'none';
   }
+  /**
+   * Thanks to @Vue
+   * Ensure a function is called only once.
+   */
+
+  function once(fn) {
+    var called = false;
+    return function () {
+      if (!called) {
+        called = true;
+        fn.apply(this, arguments);
+      }
+    };
+  }
 
   // a string of all valid unicode whitespaces
   // eslint-disable-next-line max-len
@@ -5836,7 +5850,7 @@
 
         stages.end(); // Asign current transition to el in case we need to force it
 
-        el.__x_transition_remaining = function () {
+        el.__x_transition_remaining = once(function () {
           _newArrowCheck(this, _this10);
 
           stages.hide(); // Adding an "isConnected" check, in case the callback
@@ -5848,20 +5862,8 @@
 
 
           delete el.__x_transition_remaining;
-
-          if (el.__x_transition_timer) {
-            clearTimeout(el.__x_transition_timer);
-          }
-        }.bind(this);
-
-        el.__x_transition_timer = setTimeout(function () {
-          _newArrowCheck(this, _this10);
-
-          // We only want to run remaining transitions in the end if they exists
-          if (el.__x_transition_remaining) {
-            el.__x_transition_remaining();
-          }
-        }.bind(this), duration);
+        }.bind(this));
+        setTimeout(el.__x_transition_remaining, duration);
       }.bind(this));
     }.bind(this));
   }
@@ -6193,20 +6195,14 @@
 
     var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
-    // Resolve any previous pending transitions before starting a new one
+    // if value is changed resolve any previous pending transitions before starting a new one
     if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
       el.__x_transition_remaining();
     } // Resolve immediately if initial page load
 
 
     if (initialUpdate) {
-      if (value) {
-        showElement(el);
-      } else {
-        hideElement(el);
-      }
-
-      return;
+      return value ? showElement(el) : hideElement(el);
     }
 
     var handle = function handle(resolve) {
@@ -6221,7 +6217,8 @@
 
             _newArrowCheck(this, _this2);
 
-            // If previous transitions still there, don't use resolve
+            // If there is a remaning transition
+            // and value is changed, don't use resolve
             if (el.__x_transition_remaining) {
               hideElement(el);
             } else {

@@ -1,4 +1,4 @@
-import { showElement, hideElement, getXAttrs, isNumeric } from './utils'
+import { showElement, hideElement, getXAttrs, isNumeric, once } from './utils'
 
 export function transitionIn(el, component, resolve = () => showElement(el), forceSkip = false) {
     transition(el, component, resolve, forceSkip)
@@ -190,8 +190,7 @@ function renderStages(el, stages) {
             stages.end()
 
             // Asign current transition to el in case we need to force it
-            el.__x_transition_remaining =() => {
-
+            el.__x_transition_remaining = once(() => {
                 stages.hide()
 
                 // Adding an "isConnected" check, in case the callback
@@ -202,17 +201,9 @@ function renderStages(el, stages) {
 
                 // Safe to remove transition from el since it is completed
                 delete el.__x_transition_remaining
-                if(el.__x_transition_timer){
-                    clearTimeout(el.__x_transition_timer)
-                }
-            }
+            })
 
-            el.__x_transition_timer = setTimeout(() => {
-                // We only want to run remaining transitions in the end if they exists
-                if (el.__x_transition_remaining) {
-                    el.__x_transition_remaining()
-                }
-            }, duration);
+            setTimeout(el.__x_transition_remaining, duration);
         })
     })
 }

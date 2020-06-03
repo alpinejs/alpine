@@ -672,6 +672,9 @@
     };
 
     if (initialUpdate === true) {
+      // Asign current value to el to check later on for preventing transition overlaps
+      el.__x_transition_last_value = value;
+
       if (value) {
         show();
       } else {
@@ -697,7 +700,7 @@
         } else {
           resolve(() => {});
         }
-      } // Asign current value to el to check later on for preventing transition overlaps
+      } // Asign current value to el
 
 
       el.__x_transition_last_value = value;

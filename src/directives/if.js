@@ -1,7 +1,7 @@
-import { transitionIn, transitionOut } from '../utils'
+import { transitionIn, transitionOut, warnIfMalformedTemplate } from '../utils'
 
 export function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
-    if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if`)
+    warnIfMalformedTemplate(el, 'x-if')
 
     const elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true
 

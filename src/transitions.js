@@ -42,12 +42,12 @@ function transition(el, component, resolve, forceSkip, display = true) {
 
         transitionWithInlineStyles(el, resolve, modifiers, transition, display)
 
-        // Check if this is a transition with css classes
+    // Check if this is a transition with css classes
     } else if (attrs.filter(attr => attr.value.includes(transition)).length > 0) {
 
         transitionWithCssClasses(el, component, resolve, attrs, transition, display)
 
-        // Check if neither, just resolve that damn thing
+    // Check if neither, just resolve that damn thing
     } else {
         resolve(el)
     }
@@ -199,7 +199,7 @@ function renderStages(el, stages) {
                     stages.cleanup()
                 }
 
-                // Safe to remove transition from el since it is completed
+                // Safe to remove remaining transition from el since it is completed
                 delete el.__x_transition_remaining
             })
 

@@ -938,6 +938,9 @@
     }
   })();
 
+  // For the IE11 build.
+  SVGElement.prototype.contains = SVGElement.prototype.contains || HTMLElement.prototype.contains;
+
   var check = function (it) {
     return it && it.Math == Math && it;
   };
@@ -5274,6 +5277,13 @@
   function isTesting() {
     return navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
   }
+  function warnIfMalformedTemplate(el, directive) {
+    if (el.tagName.toLowerCase() !== 'template') {
+      console.warn("Alpine: [".concat(directive, "] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#").concat(directive));
+    } else if (el.content.childElementCount !== 1) {
+      console.warn("Alpine: <template> tag with [".concat(directive, "] encountered with multiple element roots. Make sure <template> only has a single child node."));
+    }
+  }
   function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
   }
@@ -5404,14 +5414,12 @@
 
     return name;
   }
-
   function isNumeric(subject) {
     return !isNaN(subject);
   }
   function showElement(el) {
     if (el.style.length === 1 && el.style.display === 'none') {
       el.removeAttribute('style');
-
     } else {
       el.style.removeProperty('display');
     }
@@ -5420,7 +5428,8 @@
     el.style.display = 'none';
   }
   /**
-   * Thanks to @Vue
+   * Thanks @Vue
+   * https://github.com/vuejs/vue/blob/76fd45c9fd611fecfa79997706a5d218de206b68/src/shared/util.js
    * Ensure a function is called only once.
    */
 
@@ -5742,7 +5751,7 @@
 
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
     }.bind(this); // Prepare stage group names for given directions
-    
+
 
     var cssClasses = {
       during: transition,
@@ -5903,7 +5912,7 @@
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     var _this = this;
 
-    warnIfNotTemplateTag(templateEl);
+    warnIfMalformedTemplate(templateEl, 'x-for');
     var iteratorNames = typeof expression === 'function' ? parseForExpression(component.evaluateReturnExpression(templateEl, expression)) : parseForExpression(expression);
     var items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
@@ -5997,10 +6006,6 @@
     }.bind(this));
   }
 
-  function warnIfNotTemplateTag(el) {
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
-  }
-
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
     var ifAttribute = getXAttrs(el, component, 'if')[0];
 
@@ -6013,7 +6018,6 @@
 
   function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
     var clone = document.importNode(templateEl.content, true);
-    if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.');
     currentEl.parentElement.insertBefore(clone, currentEl.nextElementSibling);
     return currentEl.nextElementSibling;
   }
@@ -6277,7 +6281,7 @@
   function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
     var _this = this;
 
-    if (el.nodeName.toLowerCase() !== 'template') console.warn("Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if");
+    warnIfMalformedTemplate(el, 'x-if');
     var elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true;
 
     if (expressionResult && !elementHasAlreadyBeenAdded) {
@@ -6626,7 +6630,9 @@
       var dataAttr = this.$el.getAttribute('x-data');
       var dataExpression = dataAttr === '' ? '{}' : dataAttr;
       var initExpression = this.$el.getAttribute('x-init');
-      this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {});
+      this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {
+        $el: this.$el
+      });
       /* IE11-ONLY:START */
       // For IE11, add our magic properties to the original data for access.
       // The Proxy polyfill does not allow properties to be added after creation.
@@ -7073,7 +7079,9 @@
               (function () {
                 var _this22 = this;
 
-                var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
+                var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {
+                  $el: _this21.$el
+                });
                 Object.keys(rawData).forEach(function (key) {
                   _newArrowCheck(this, _this22);
 

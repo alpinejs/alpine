@@ -173,7 +173,8 @@ export function hideElement(el) {
 }
 
 /**
- * Thanks to @Vue
+ * Thanks @Vue
+ * https://github.com/vuejs/vue/blob/76fd45c9fd611fecfa79997706a5d218de206b68/src/shared/util.js
  * Ensure a function is called only once.
  */
 export function once(fn) {

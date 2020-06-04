@@ -63,7 +63,7 @@
 
   // Full polyfill for browsers with no classList support
   // Including IE < Edge missing SVGElement.classList
-  if (!("classList" in document.createElement("_"))
+  if (!("classList" in document.createElement("_")) 
   	|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg","g"))) {
 
   (function (view) {
@@ -3121,7 +3121,7 @@
     // as the regeneratorRuntime namespace. Otherwise create a new empty
     // object. Either way, the resulting object will be used to initialize
     // the regeneratorRuntime variable at the top of this file.
-     module.exports
+     module.exports 
   ));
 
   try {
@@ -5490,7 +5490,7 @@
     var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
     if (typeof expression === 'function') {
-      expression.call(dataContext);
+      return expression.call(dataContext);
     } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
     // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
 
@@ -5510,7 +5510,7 @@
     var name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
   }
-  function getXAttrs(el, type, component) {
+  function getXAttrs(el, component, type) {
     var _this2 = this;
 
     return Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute).flatMap(function (i) {
@@ -5586,8 +5586,8 @@
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     // We don't want to transition on the initial page load.
     if (forceSkip) return show();
-    var attrs = getXAttrs(el, 'transition', component);
-    var showAttr = getXAttrs(el, 'show', component)[0]; // If this is triggered by a x-show.transition.
+    var attrs = getXAttrs(el, component, 'transition');
+    var showAttr = getXAttrs(el, component, 'show')[0]; // If this is triggered by a x-show.transition.
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       var modifiers = showAttr.modifiers; // If x-show.transition.out, we'll skip the "in" transition.
@@ -5606,7 +5606,7 @@
 
       return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
     }.bind(this)).length > 0) {
-      transitionClassesIn(el, attrs, show);
+      transitionClassesIn(el, component, attrs, show);
     } else {
       // If neither, just show that damn thing.
       show();
@@ -5617,8 +5617,8 @@
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     if (forceSkip) return hide();
-    var attrs = getXAttrs(el, 'transition', component);
-    var showAttr = getXAttrs(el, 'show', component)[0];
+    var attrs = getXAttrs(el, component, 'transition');
+    var showAttr = getXAttrs(el, component, 'show')[0];
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       var modifiers = showAttr.modifiers;
@@ -5635,7 +5635,7 @@
 
       return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
     }.bind(this)).length > 0) {
-      transitionClassesOut(el, attrs, hide);
+      transitionClassesOut(el, component, attrs, hide);
     } else {
       hide();
     }
@@ -5758,38 +5758,44 @@
     };
     transition(el, stages);
   }
-  function transitionClassesIn(el, directives, showCallback) {
+  function transitionClassesIn(el, component, directives, showCallback) {
     var _this9 = this;
 
-    var enter = (directives.find(function (i) {
+    var ensureStringExpression = function ensureStringExpression(expression) {
+      _newArrowCheck(this, _this9);
+
+      return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
+    }.bind(this);
+
+    var enter = ensureStringExpression((directives.find(function (i) {
       _newArrowCheck(this, _this9);
 
       return i.value === 'enter';
     }.bind(this)) || {
       expression: ''
-    }).expression.split(' ').filter(function (i) {
+    }).expression).split(' ').filter(function (i) {
       _newArrowCheck(this, _this9);
 
       return i !== '';
     }.bind(this));
-    var enterStart = (directives.find(function (i) {
+    var enterStart = ensureStringExpression((directives.find(function (i) {
       _newArrowCheck(this, _this9);
 
       return i.value === 'enter-start';
     }.bind(this)) || {
       expression: ''
-    }).expression.split(' ').filter(function (i) {
+    }).expression).split(' ').filter(function (i) {
       _newArrowCheck(this, _this9);
 
       return i !== '';
     }.bind(this));
-    var enterEnd = (directives.find(function (i) {
+    var enterEnd = ensureStringExpression((directives.find(function (i) {
       _newArrowCheck(this, _this9);
 
       return i.value === 'enter-end';
     }.bind(this)) || {
       expression: ''
-    }).expression.split(' ').filter(function (i) {
+    }).expression).split(' ').filter(function (i) {
       _newArrowCheck(this, _this9);
 
       return i !== '';
@@ -5798,7 +5804,7 @@
       _newArrowCheck(this, _this9);
     }.bind(this));
   }
-  function transitionClassesOut(el, directives, hideCallback) {
+  function transitionClassesOut(el, component, directives, hideCallback) {
     var _this10 = this;
 
     var leave = (directives.find(function (i) {
@@ -5937,7 +5943,7 @@
     var _this = this;
 
     warnIfNotTemplateTag(templateEl);
-    var iteratorNames = parseForExpression(expression);
+    var iteratorNames = typeof expression === 'function' ? parseForExpression(component.evaluateReturnExpression(templateEl, expression)) : parseForExpression(expression);
     var items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
     var currentEl = templateEl;
@@ -5976,7 +5982,7 @@
       currentEl = nextEl;
       currentEl.__x_for_key = currentKey;
     }.bind(this));
-    removeAnyLeftOverElementsFromPreviousUpdate(currentEl);
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component);
   } // This was taken from VueJS 2.* core. Thanks Vue!
 
   function parseForExpression(expression) {
@@ -6016,7 +6022,7 @@
   function generateKeyForIteration(component, el, index, iterationScopeVariables) {
     var _this3 = this;
 
-    var bindKeyAttribute = getXAttrs(el, 'bind', component).filter(function (attr) {
+    var bindKeyAttribute = getXAttrs(el, component, 'bind').filter(function (attr) {
       _newArrowCheck(this, _this3);
 
       return attr.value === 'key';
@@ -6035,7 +6041,7 @@
   }
 
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
-    var ifAttribute = getXAttrs(el, 'if', component)[0];
+    var ifAttribute = getXAttrs(el, component, 'if')[0];
 
     if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
       return [];
@@ -6068,7 +6074,7 @@
     }
   }
 
-  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component) {
     var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     var _loop = function _loop() {
@@ -6125,23 +6131,25 @@
           el.checked = el.value == value;
         }
       } else if (el.type === 'checkbox') {
-        if (typeof value === 'string') {
-          el.value = value;
-        } else if (Array.isArray(value)) {
-          // I'm purposely not using Array.includes here because it's
-          // strict, and because of Numeric/String mis-casting, I
-          // want the "includes" to be "fuzzy".
-          el.checked = value.some(function (val) {
-            _newArrowCheck(this, _this);
-
-            return val == el.value;
-          }.bind(this));
-        } else {
-          el.checked = !!value;
-        } // If we are explicitly binding a string to the :value, set the string,
+        // If we are explicitly binding a string to the :value, set the string,
         // If the value is a boolean, leave it alone, it will be set to "on"
         // automatically.
+        if (typeof value === 'string' && attrType === 'bind') {
+          el.value = value;
+        } else if (attrType !== 'bind') {
+          if (Array.isArray(value)) {
+            // I'm purposely not using Array.includes here because it's
+            // strict, and because of Numeric/String mis-casting, I
+            // want the "includes" to be "fuzzy".
+            el.checked = value.some(function (val) {
+              _newArrowCheck(this, _this);
 
+              return val == el.value;
+            }.bind(this));
+          } else {
+            el.checked = !!value;
+          }
+        }
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {
@@ -6856,7 +6864,7 @@
       value: function initializeElement(el, extraVars) {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
-        if (el.hasAttribute('class') && getXAttrs(el, undefined, this).length > 0) {
+        if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
           el.__x_original_classes = el.getAttribute('class').split(' ');
         }
 
@@ -6953,7 +6961,7 @@
       value: function registerListeners(el, extraVars) {
         var _this14 = this;
 
-        getXAttrs(el, undefined, this).forEach(function (_ref) {
+        getXAttrs(el, this).forEach(function (_ref) {
           var type = _ref.type,
               value = _ref.value,
               modifiers = _ref.modifiers,
@@ -6979,7 +6987,7 @@
 
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
-        var attrs = getXAttrs(el, undefined, this);
+        var attrs = getXAttrs(el, this);
 
         if (el.type !== undefined && el.type === 'radio') {
           // If there's an x-model on a radio input, move it to end of attribute list
@@ -7320,13 +7328,15 @@
       var _this8 = this;
 
       if (!el.__x) {
+        // Wrap in a try/catch so that we don't prevent other components
+        // from initializing when one component contains an error.
         try {
           el.__x = new Component(el);
-        } catch (err) {
-          window.setTimeout(function () {
+        } catch (error) {
+          setTimeout(function () {
             _newArrowCheck(this, _this8);
 
-            throw err;
+            throw error;
           }.bind(this), 0);
         }
       }

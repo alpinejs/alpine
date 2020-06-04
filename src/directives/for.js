@@ -1,8 +1,8 @@
-import { getXAttrs } from '../utils'
+import { getXAttrs, warnIfMalformedTemplate } from '../utils'
 import { transitionIn, transitionOut } from '../transitions'
 
 export function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
-    warnIfNotTemplateTag(templateEl)
+    warnIfMalformedTemplate(templateEl, 'x-for')
 
     let iteratorNames = typeof expression === 'function'
         ? parseForExpression(component.evaluateReturnExpression(templateEl, expression))
@@ -86,10 +86,6 @@ function generateKeyForIteration(component, el, index, iterationScopeVariables) 
     return component.evaluateReturnExpression(el, bindKeyAttribute.expression, () => iterationScopeVariables)
 }
 
-function warnIfNotTemplateTag(el) {
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.')
-}
-
 function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
     let ifAttribute = getXAttrs(el, component, 'if')[0]
 
@@ -102,8 +98,6 @@ function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, e
 
 function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
     let clone = document.importNode(templateEl.content, true  )
-
-    if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.')
 
     currentEl.parentElement.insertBefore(clone, currentEl.nextElementSibling)
 

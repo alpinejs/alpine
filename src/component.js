@@ -17,7 +17,7 @@ export default class Component {
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
         const initExpression = this.$el.getAttribute('x-init')
 
-        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {})
+        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, { $el: this.$el })
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
@@ -340,7 +340,7 @@ export default class Component {
                 if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-                    const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})
+                    const rawData = saferEval(mutations[i].target.getAttribute('x-data'), { $el: this.$el })
 
                     Object.keys(rawData).forEach(key => {
                         if (this.$data[key] !== rawData[key]) {

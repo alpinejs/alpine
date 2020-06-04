@@ -427,6 +427,27 @@
                 </tr>
 
                 <tr>
+                    <td>x-bind spread</td>
+                    <td>
+                        <div x-data="modal()">
+                            I should be "hey": <span x-bind="bound"></span>
+                        </div>
+
+                        <script>
+                            function modal() {
+                               return {
+                                   foo: { bar: 'hey' },
+                                   bound: {
+                                       ['x-text']() { return this.foo.bar }
+                                   },
+                               }
+                            }
+                        </script>
+
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Cloak</td>
                     <td>
                         <div x-data="{}" x-cloak>

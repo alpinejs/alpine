@@ -24,7 +24,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             // automatically.
             if (typeof value === 'string' && attrType === 'bind') {
                 el.value = value
-            }else if (attrType !== 'bind') {
+            } else if (attrType !== 'bind') {
                if (Array.isArray(value)) {
                 // I'm purposely not using Array.includes here because it's
                 // strict, and because of Numeric/String mis-casting, I

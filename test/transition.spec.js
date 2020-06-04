@@ -621,6 +621,7 @@ test('x-transition supports css animation', async () => {
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(false)
 })
 
+
 test('remaining transitions forced to complete if they exists', async () => {
     jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
         setTimeout(callback, 0)
@@ -650,11 +651,7 @@ test('remaining transitions forced to complete if they exists', async () => {
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
 
-    // animation in
-    document.querySelector('button').click()
-    // animation out
-    document.querySelector('button').click()
-    // animation in
+    // trigger animation in
     document.querySelector('button').click()
 
     // Wait for the first requestAnimationFrame
@@ -665,26 +662,10 @@ test('remaining transitions forced to complete if they exists', async () => {
     )
     expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
 
-    // The class should still be there since the animationDuration property is 100ms
-    await new Promise((resolve) =>
-        setTimeout(() => {
-            resolve();
-        }, 99)
-    )
-    expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
-
-    // The class shouldn't be there anymore
-    await new Promise((resolve) =>
-        setTimeout(() => {
-            resolve();
-        }, 10)
-    )
-    expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(false)
-
-    // animation out
+    // trigger animation out
     document.querySelector('button').click()
 
-    // Wait for the first requestAnimationFrame
+    // Wait for the next requestAnimationFrame
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
@@ -692,7 +673,36 @@ test('remaining transitions forced to complete if they exists', async () => {
     )
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
 
-    // The class should still be there since the animationDuration property is 100ms
+    // Wait for the next requestAnimationFrame
+        await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 0)
+    )
+
+    // trigger animation in
+    document.querySelector('button').click()
+
+    // Wait for the next requestAnimationFrame
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 0)
+    )
+    expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
+
+    // trigger animation out
+    document.querySelector('button').click()
+
+    // Wait for the next requestAnimationFrame
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 0)
+    )
+    expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
+
+    // The leave class should still be there since the animationDuration property is 100ms
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
@@ -707,4 +717,4 @@ test('remaining transitions forced to complete if they exists', async () => {
         }, 10)
     )
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(false)
-  })
+})

@@ -316,7 +316,7 @@
       during: transition,
       start: `${transition}-start`,
       end: `${transition}-end`
-    }; // Asigning stage groups to css classes
+    }; // Assign stage groups to css classes
 
     Object.entries(cssClasses).map(([name, value]) => {
       cssClasses[name] = ensureStringExpression((attrs.find(attr => attr.value === value) || {
@@ -372,7 +372,7 @@
 
       stages.show();
       requestAnimationFrame(() => {
-        stages.end(); // Asign current transition to el in case we need to force it
+        stages.end(); // Assign current transition to el in case we need to force it
 
         el.__x_transition_remaining = once(() => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
@@ -642,7 +642,7 @@
 
 
     if (initialUpdate) {
-      // Asign current value to el to check later on for preventing transition overlaps
+      // Assign current value to el to check later on for preventing transition overlaps
       el.__x_transition_last_value = value;
       return value ? showElement(el) : hideElement(el);
     }
@@ -663,7 +663,7 @@
         } else {
           resolve(() => {});
         }
-      } // Asign current value to el
+      } // Assign current value to el
 
 
       el.__x_transition_last_value = value;

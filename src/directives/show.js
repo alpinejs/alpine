@@ -9,7 +9,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
 
     // Resolve immediately if initial page load
     if (initialUpdate) {
-        // Asign current value to el to check later on for preventing transition overlaps
+        // Assign current value to el to check later on for preventing transition overlaps
         el.__x_transition_last_value = value
         return value ? showElement(el) : hideElement(el)
     }
@@ -31,7 +31,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
                 resolve(() => {})
             }
         }
-        // Asign current value to el
+        // Assign current value to el
         el.__x_transition_last_value = value
     }
 

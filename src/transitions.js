@@ -135,7 +135,7 @@ function transitionWithCssClasses(el, component, resolve, attrs, transition, dis
         end: `${transition}-end`,
     }
 
-    // Asigning stage groups to css classes
+    // Assign stage groups to css classes
     Object.entries(cssClasses).map(([name, value]) => {
         cssClasses[name] = ensureStringExpression((attrs.find(attr => attr.value === value) || { expression: '' }).expression)
             .split(' ').filter(i => i !== '')
@@ -189,7 +189,7 @@ function renderStages(el, stages) {
         requestAnimationFrame(() => {
             stages.end()
 
-            // Asign current transition to el in case we need to force it
+            // Assign current transition to el in case we need to force it
             el.__x_transition_remaining = once(() => {
                 stages.hide()
 

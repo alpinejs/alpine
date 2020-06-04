@@ -76,12 +76,14 @@ const Alpine = {
 
     initializeComponent: function (el) {
         if (! el.__x) {
+            // Wrap in a try/catch so that we don't prevent other components
+            // from initializing when one component contains an error.
             try {
                 el.__x = new Component(el)
-            } catch (err) {
-                window.setTimeout(() => {
-                    throw err;
-                }, 0);
+            } catch (error) {
+                setTimeout(() => {
+                    throw error
+                }, 0)
             }
         }
     },

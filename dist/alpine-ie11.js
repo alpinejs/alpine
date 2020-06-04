@@ -5922,7 +5922,7 @@
 
         _newArrowCheck(this, _this14);
 
-        stages.end(); // Asign current transition to el in case we need to force it
+        stages.end(); // Assign current transition to el in case we need to force it
 
         el.__x_transition_remaining = once(function () {
           _newArrowCheck(this, _this15);
@@ -6277,7 +6277,7 @@
     }.bind(this);
 
     if (initialUpdate === true) {
-      // Asign current value to el to check later on for preventing transition overlaps
+      // Assign current value to el to check later on for preventing transition overlaps
       el.__x_transition_last_value = value;
 
       if (value) {
@@ -6321,7 +6321,7 @@
             _newArrowCheck(this, _this2);
           }.bind(this));
         }
-      } // Asign current value to el
+      } // Assign current value to el
 
 
       el.__x_transition_last_value = value;

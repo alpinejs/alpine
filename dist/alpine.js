@@ -405,7 +405,7 @@
 
       stages.show();
       requestAnimationFrame(() => {
-        stages.end(); // Asign current transition to el in case we need to force it
+        stages.end(); // Assign current transition to el in case we need to force it
 
         el.__x_transition_remaining = once(() => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
@@ -672,7 +672,7 @@
     };
 
     if (initialUpdate === true) {
-      // Asign current value to el to check later on for preventing transition overlaps
+      // Assign current value to el to check later on for preventing transition overlaps
       el.__x_transition_last_value = value;
 
       if (value) {
@@ -700,7 +700,7 @@
         } else {
           resolve(() => {});
         }
-      } // Asign current value to el
+      } // Assign current value to el
 
 
       el.__x_transition_last_value = value;

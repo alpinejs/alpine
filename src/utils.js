@@ -398,7 +398,7 @@ export function transition(el, stages) {
         requestAnimationFrame(() => {
             stages.end()
 
-            // Asign current transition to el in case we need to force it
+            // Assign current transition to el in case we need to force it
             el.__x_transition_remaining = once(() => {
                 stages.hide()
 

@@ -13,8 +13,8 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 > Note: This tool's syntax is almost entirely borrowed from [Vue](https://vuejs.org/) (and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
 
 [**日本語ドキュメント**](./README.ja.md)
-
 [**繁體中文使用文件**](./README_zh-TW.md)
+[**Документация на русском**](./README.ru.md)
 
 ## Install
 
@@ -133,7 +133,7 @@ And 6 magic properties:
 
 **Want your logo here? [DM on Twitter](https://twitter.com/calebporzio)**
 
-## VIP Contributers
+## VIP Contributors
 
 <table>
   <tr>
@@ -302,6 +302,12 @@ Boolean attributes are supported as per the [HTML specification](https://html.sp
 `x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as its value is executed.
 
 If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
+
+> Note: You can also specify a Javascript function name
+
+**Example:** `<button x-on:click="myFunction"></button>`
+
+This is equivalent to: `<button x-on:click="myFunction($event)"></button>`
 
 **`keydown` modifiers**
 
@@ -532,6 +538,8 @@ These behave exactly like VueJs's transition directives, except they have differ
 
 ### Magic Properties
 
+> With the exception of `$el`, magic properties are **not available within `x-data`** as the component isn't initialized yet.
+
 ---
 
 ### `$el`
@@ -564,6 +572,12 @@ These behave exactly like VueJs's transition directives, except they have differ
 
 `$event` is a magic property that can be used within an event listener to retrieve the native browser "Event" object.
 
+> Note: The $event property is only available in the DOM.
+
+If you need to access $event inside of a JavaScript function you can pass it in directly:
+
+`<button x-on:click="myFunction($event)"></button>`
+
 ---
 
 ### `$dispatch`
@@ -589,6 +603,12 @@ You can also use `$dispatch()` to trigger data updates for `x-model` bindings. F
     </span>
 </div>
 ```
+
+> Note: The $dispatch property is only available in the DOM.
+
+If you need to access $dispatch inside of a JavaScript function you can pass it in directly:
+
+`<button x-on:click="myFunction($dispatch)"></button>`
 
 ---
 

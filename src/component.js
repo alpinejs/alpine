@@ -17,7 +17,7 @@ export default class Component {
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
         const initExpression = this.$el.getAttribute('x-init')
 
-        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {})
+        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, { $el: this.$el })
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
@@ -162,7 +162,7 @@ export default class Component {
     initializeElement(el, extraVars) {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
-        if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
+        if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
             el.__x_original_classes = el.getAttribute('class').split(' ')
         }
 
@@ -221,7 +221,7 @@ export default class Component {
     }
 
     registerListeners(el, extraVars) {
-        getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
+        getXAttrs(el, this).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'on':
                     registerListener(this, el, value, modifiers, expression, extraVars)
@@ -237,7 +237,7 @@ export default class Component {
     }
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
-        let attrs = getXAttrs(el)
+        let attrs = getXAttrs(el, this)
         if (el.type !== undefined && el.type === 'radio') {
             // If there's an x-model on a radio input, move it to end of attribute list
             // to ensure that x-bind:value (if present) is processed first.
@@ -340,7 +340,7 @@ export default class Component {
                 if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-                    const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})
+                    const rawData = saferEval(mutations[i].target.getAttribute('x-data'), { $el: this.$el })
 
                     Object.keys(rawData).forEach(key => {
                         if (this.$data[key] !== rawData[key]) {

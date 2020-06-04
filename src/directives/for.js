@@ -1,9 +1,11 @@
-import { transitionIn, transitionOut, getXAttrs } from '../utils'
+import { transitionIn, transitionOut, getXAttrs, saferEval } from '../utils'
 
 export function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     warnIfNotTemplateTag(templateEl)
 
-    let iteratorNames = parseForExpression(expression)
+    let iteratorNames = typeof expression === 'function'
+        ? parseForExpression(component.evaluateReturnExpression(templateEl, expression))
+        : parseForExpression(expression)
 
     let items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars)
 
@@ -12,26 +14,20 @@ export function handleForDirective(component, templateEl, expression, initialUpd
     items.forEach((item, index) => {
         let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars())
         let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables)
-        let nextEl = currentEl.nextElementSibling
+        let nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey)
 
-        // If there's no previously x-for processed element ahead, add one.
-        if (! nextEl || nextEl.__x_for_key === undefined) {
+        // If we haven't found a matching key, insert the element at the current position.
+        if (! nextEl) {
             nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
 
             // And transition it in if it's not the first page load.
-            transitionIn(nextEl, () => {}, initialUpdate)
+            transitionIn(nextEl, () => {}, component, initialUpdate)
 
             nextEl.__x_for = iterationScopeVariables
             component.initializeElements(nextEl, () => nextEl.__x_for)
+        // Otherwise update the element we found.
         } else {
-            nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey)
-
-            // If we haven't found a matching key, just insert the element at the current position
-            if (! nextEl) {
-                nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
-            }
-
-            // Temporarily remove the key indicator to allow the normal "updateElements" to work
+            // Temporarily remove the key indicator to allow the normal "updateElements" to work.
             delete nextEl.__x_for_key
 
             nextEl.__x_for = iterationScopeVariables
@@ -42,7 +38,7 @@ export function handleForDirective(component, templateEl, expression, initialUpd
         currentEl.__x_for_key = currentKey
     })
 
-    removeAnyLeftOverElementsFromPreviousUpdate(currentEl)
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component)
 }
 
 // This was taken from VueJS 2.* core. Thanks Vue!
@@ -81,7 +77,7 @@ function getIterationScopeVariables(iteratorNames, item, index, items, extraVars
 }
 
 function generateKeyForIteration(component, el, index, iterationScopeVariables) {
-    let bindKeyAttribute = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0]
+    let bindKeyAttribute = getXAttrs(el, component, 'bind').filter(attr => attr.value === 'key')[0]
 
     // If the dev hasn't specified a key, just return the index of the iteration.
     if (! bindKeyAttribute) return index
@@ -94,7 +90,7 @@ function warnIfNotTemplateTag(el) {
 }
 
 function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
-    let ifAttribute = getXAttrs(el, 'if')[0]
+    let ifAttribute = getXAttrs(el, component, 'if')[0]
 
     if (ifAttribute && ! component.evaluateReturnExpression(el, ifAttribute.expression)) {
         return []
@@ -114,6 +110,8 @@ function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
 }
 
 function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
+    if (! nextEl) return
+
     // If the the key's DO match, no need to look ahead.
     if (nextEl.__x_for_key === currentKey) return nextEl
 
@@ -130,7 +128,7 @@ function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
     }
 }
 
-function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+function removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component) {
     var nextElementFromOldLoop = (currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined) ? currentEl.nextElementSibling : false
 
     while (nextElementFromOldLoop) {
@@ -138,7 +136,7 @@ function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
         let nextSibling = nextElementFromOldLoop.nextElementSibling
         transitionOut(nextElementFromOldLoop, () => {
             nextElementFromOldLoopImmutable.remove()
-        })
+        }, component)
         nextElementFromOldLoop = (nextSibling && nextSibling.__x_for_key !== undefined) ? nextSibling : false
     }
 }

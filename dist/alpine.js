@@ -98,11 +98,19 @@
     };
   }
   function saferEval(expression, dataContext, additionalHelperVariables = {}) {
-    return new Function(['$data', ...Object.keys(additionalHelperVariables)], `var result; with($data) { result = ${expression} }; return result`)(dataContext, ...Object.values(additionalHelperVariables));
+    if (typeof expression === 'function') {
+      return expression.call(dataContext);
+    }
+
+    return new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`)(dataContext, ...Object.values(additionalHelperVariables));
   }
   function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
-    // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+    if (typeof expression === 'function') {
+      return expression.call(dataContext);
+    } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
     // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+
+
     if (Object.keys(dataContext).includes(expression)) {
       let methodReference = new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { return ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
 
@@ -118,24 +126,40 @@
     const name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
   }
-  function getXAttrs(el, type) {
-    return Array.from(el.attributes).filter(isXAttr).map(attr => {
-      const name = replaceAtAndColonWithStandardSyntax(attr.name);
-      const typeMatch = name.match(xAttrRE);
-      const valueMatch = name.match(/:([a-zA-Z\-:]+)/);
-      const modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
-      return {
-        type: typeMatch ? typeMatch[1] : null,
-        value: valueMatch ? valueMatch[1] : null,
-        modifiers: modifiers.map(i => i.replace('.', '')),
-        expression: attr.value
-      };
+  function getXAttrs(el, component, type) {
+    return Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute).flatMap(i => {
+      if (i.type === 'bind' && i.value === null) {
+        let directiveBindings = saferEval(i.expression, component.$data);
+        return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({
+          name,
+          value
+        }));
+      } else {
+        return i;
+      }
     }).filter(i => {
       // If no type is passed in for filtering, bypass filter
       if (!type) return true;
       return i.type === type;
     });
   }
+
+  function parseHtmlAttribute({
+    name,
+    value
+  }) {
+    const normalizedName = replaceAtAndColonWithStandardSyntax(name);
+    const typeMatch = normalizedName.match(xAttrRE);
+    const valueMatch = normalizedName.match(/:([a-zA-Z\-:]+)/);
+    const modifiers = normalizedName.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
+    return {
+      type: typeMatch ? typeMatch[1] : null,
+      value: valueMatch ? valueMatch[1] : null,
+      modifiers: modifiers.map(i => i.replace('.', '')),
+      expression: value
+    };
+  }
+
   function isBooleanAttr(attrName) {
     // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
     // Array roughly ordered by estimated usage
@@ -151,11 +175,11 @@
 
     return name;
   }
-  function transitionIn(el, show, forceSkip = false) {
+  function transitionIn(el, show, component, forceSkip = false) {
     // We don't want to transition on the initial page load.
     if (forceSkip) return show();
-    const attrs = getXAttrs(el, 'transition');
-    const showAttr = getXAttrs(el, 'show')[0]; // If this is triggered by a x-show.transition.
+    const attrs = getXAttrs(el, component, 'transition');
+    const showAttr = getXAttrs(el, component, 'show')[0]; // If this is triggered by a x-show.transition.
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers; // If x-show.transition.out, we'll skip the "in" transition.
@@ -165,17 +189,17 @@
 
       modifiers = settingBothSidesOfTransition ? modifiers.filter((i, index) => index < modifiers.indexOf('out')) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.length > 0) {
-      transitionClassesIn(el, attrs, show);
+    } else if (attrs.filter(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value)).length > 0) {
+      transitionClassesIn(el, component, attrs, show);
     } else {
       // If neither, just show that damn thing.
       show();
     }
   }
-  function transitionOut(el, hide, forceSkip = false) {
+  function transitionOut(el, hide, component, forceSkip = false) {
     if (forceSkip) return hide();
-    const attrs = getXAttrs(el, 'transition');
-    const showAttr = getXAttrs(el, 'show')[0];
+    const attrs = getXAttrs(el, component, 'transition');
+    const showAttr = getXAttrs(el, component, 'show')[0];
 
     if (showAttr && showAttr.modifiers.includes('transition')) {
       let modifiers = showAttr.modifiers;
@@ -183,8 +207,8 @@
       const settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out');
       modifiers = settingBothSidesOfTransition ? modifiers.filter((i, index) => index > modifiers.indexOf('out')) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
-    } else if (attrs.length > 0) {
-      transitionClassesOut(el, attrs, hide);
+    } else if (attrs.filter(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value)).length > 0) {
+      transitionClassesOut(el, component, attrs, hide);
     } else {
       hide();
     }
@@ -305,19 +329,23 @@
     };
     transition(el, stages);
   }
-  function transitionClassesIn(el, directives, showCallback) {
-    const enter = (directives.find(i => i.value === 'enter') || {
+  function transitionClassesIn(el, component, directives, showCallback) {
+    let ensureStringExpression = expression => {
+      return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
+    };
+
+    const enter = ensureStringExpression((directives.find(i => i.value === 'enter') || {
       expression: ''
-    }).expression.split(' ').filter(i => i !== '');
-    const enterStart = (directives.find(i => i.value === 'enter-start') || {
+    }).expression).split(' ').filter(i => i !== '');
+    const enterStart = ensureStringExpression((directives.find(i => i.value === 'enter-start') || {
       expression: ''
-    }).expression.split(' ').filter(i => i !== '');
-    const enterEnd = (directives.find(i => i.value === 'enter-end') || {
+    }).expression).split(' ').filter(i => i !== '');
+    const enterEnd = ensureStringExpression((directives.find(i => i.value === 'enter-end') || {
       expression: ''
-    }).expression.split(' ').filter(i => i !== '');
+    }).expression).split(' ').filter(i => i !== '');
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {});
   }
-  function transitionClassesOut(el, directives, hideCallback) {
+  function transitionClassesOut(el, component, directives, hideCallback) {
     const leave = (directives.find(i => i.value === 'leave') || {
       expression: ''
     }).expression.split(' ').filter(i => i !== '');
@@ -369,6 +397,11 @@
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
       let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000;
+
+      if (duration === 0) {
+        duration = Number(getComputedStyle(el).animationDuration.replace('s', '')) * 1000;
+      }
+
       stages.show();
       requestAnimationFrame(() => {
         stages.end();
@@ -389,29 +422,23 @@
 
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     warnIfNotTemplateTag(templateEl);
-    let iteratorNames = parseForExpression(expression);
+    let iteratorNames = typeof expression === 'function' ? parseForExpression(component.evaluateReturnExpression(templateEl, expression)) : parseForExpression(expression);
     let items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
     let currentEl = templateEl;
     items.forEach((item, index) => {
       let iterationScopeVariables = getIterationScopeVariables(iteratorNames, item, index, items, extraVars());
       let currentKey = generateKeyForIteration(component, templateEl, index, iterationScopeVariables);
-      let nextEl = currentEl.nextElementSibling; // If there's no previously x-for processed element ahead, add one.
+      let nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(currentEl.nextElementSibling, currentKey); // If we haven't found a matching key, insert the element at the current position.
 
-      if (!nextEl || nextEl.__x_for_key === undefined) {
+      if (!nextEl) {
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
-        transitionIn(nextEl, () => {}, initialUpdate);
+        transitionIn(nextEl, () => {}, component, initialUpdate);
         nextEl.__x_for = iterationScopeVariables;
-        component.initializeElements(nextEl, () => nextEl.__x_for);
+        component.initializeElements(nextEl, () => nextEl.__x_for); // Otherwise update the element we found.
       } else {
-        nextEl = lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey); // If we haven't found a matching key, just insert the element at the current position
-
-        if (!nextEl) {
-          nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl);
-        } // Temporarily remove the key indicator to allow the normal "updateElements" to work
-
-
+        // Temporarily remove the key indicator to allow the normal "updateElements" to work.
         delete nextEl.__x_for_key;
         nextEl.__x_for = iterationScopeVariables;
         component.updateElements(nextEl, () => nextEl.__x_for);
@@ -420,7 +447,7 @@
       currentEl = nextEl;
       currentEl.__x_for_key = currentKey;
     });
-    removeAnyLeftOverElementsFromPreviousUpdate(currentEl);
+    removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component);
   } // This was taken from VueJS 2.* core. Thanks Vue!
 
   function parseForExpression(expression) {
@@ -458,7 +485,7 @@
   }
 
   function generateKeyForIteration(component, el, index, iterationScopeVariables) {
-    let bindKeyAttribute = getXAttrs(el, 'bind').filter(attr => attr.value === 'key')[0]; // If the dev hasn't specified a key, just return the index of the iteration.
+    let bindKeyAttribute = getXAttrs(el, component, 'bind').filter(attr => attr.value === 'key')[0]; // If the dev hasn't specified a key, just return the index of the iteration.
 
     if (!bindKeyAttribute) return index;
     return component.evaluateReturnExpression(el, bindKeyAttribute.expression, () => iterationScopeVariables);
@@ -469,7 +496,7 @@
   }
 
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
-    let ifAttribute = getXAttrs(el, 'if')[0];
+    let ifAttribute = getXAttrs(el, component, 'if')[0];
 
     if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
       return [];
@@ -486,7 +513,8 @@
   }
 
   function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
-    // If the the key's DO match, no need to look ahead.
+    if (!nextEl) return; // If the the key's DO match, no need to look ahead.
+
     if (nextEl.__x_for_key === currentKey) return nextEl; // If they don't, we'll look ahead for a match.
     // If we find it, we'll move it to the current position in the loop.
 
@@ -501,7 +529,7 @@
     }
   }
 
-  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl) {
+  function removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component) {
     var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     while (nextElementFromOldLoop) {
@@ -509,7 +537,7 @@
       let nextSibling = nextElementFromOldLoop.nextElementSibling;
       transitionOut(nextElementFromOldLoop, () => {
         nextElementFromOldLoopImmutable.remove();
-      });
+      }, component);
       nextElementFromOldLoop = nextSibling && nextSibling.__x_for_key !== undefined ? nextSibling : false;
     }
   }
@@ -537,13 +565,7 @@
           // I'm purposely not using Array.includes here because it's
           // strict, and because of Numeric/String mis-casting, I
           // want the "includes" to be "fuzzy".
-          let valueFound = false;
-          value.forEach(val => {
-            if (val == el.value) {
-              valueFound = true;
-            }
-          });
-          el.checked = valueFound;
+          el.checked = value.some(val => val == el.value);
         } else {
           el.checked = !!value;
         } // If we are explicitly binding a string to the :value, set the string,
@@ -557,15 +579,8 @@
       } else if (el.tagName === 'SELECT') {
         updateSelect(el, value);
       } else {
-        // Cursor position should be restored back to origin due to a safari bug
-        const selectionStart = el.selectionStart;
-        const selectionEnd = el.selectionEnd;
-        const selectionDirection = el.selectionDirection;
+        if (el.value === value) return;
         el.value = value;
-
-        if (el === document.activeElement && selectionStart !== null) {
-          el.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
-        }
       }
     } else if (attrName === 'class') {
       if (Array.isArray(value)) {
@@ -577,25 +592,23 @@
         const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
         keysSortedByBooleanValue.forEach(classNames => {
           if (value[classNames]) {
-            classNames.split(' ').forEach(className => el.classList.add(className));
+            classNames.split(' ').filter(Boolean).forEach(className => el.classList.add(className));
           } else {
-            classNames.split(' ').forEach(className => el.classList.remove(className));
+            classNames.split(' ').filter(Boolean).forEach(className => el.classList.remove(className));
           }
         });
       } else {
         const originalClasses = el.__x_original_classes || [];
-        const newClasses = value.split(' ');
+        const newClasses = value.split(' ').filter(Boolean);
         el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
       }
-    } else if (isBooleanAttr(attrName)) {
-      // Boolean attributes have to be explicitly added and removed, not just set.
-      if (!!value) {
-        el.setAttribute(attrName, '');
-      } else {
-        el.removeAttribute(attrName);
-      }
     } else {
-      el.setAttribute(attrName, value);
+      // If an attribute's bound value is null, undefined or false, remove the attribute
+      if ([null, undefined, false].includes(value)) {
+        el.removeAttribute(attrName);
+      } else {
+        isBooleanAttr(attrName) ? el.setAttribute(attrName, attrName) : el.setAttribute(attrName, value);
+      }
     }
   }
 
@@ -651,7 +664,7 @@
             resolve(() => {
               hide();
             });
-          });
+          }, component);
         } else {
           resolve(() => {});
         }
@@ -659,7 +672,7 @@
         if (el.style.display !== '') {
           transitionIn(el, () => {
             show();
-          });
+          }, component);
         } // Resolve immediately, only hold up parent `x-show`s for hidin.
 
 
@@ -695,13 +708,13 @@
     if (expressionResult && !elementHasAlreadyBeenAdded) {
       const clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
-      transitionIn(el.nextElementSibling, () => {}, initialUpdate);
+      transitionIn(el.nextElementSibling, () => {}, component, initialUpdate);
       component.initializeElements(el.nextElementSibling, extraVars);
       el.nextElementSibling.__x_inserted_me = true;
     } else if (!expressionResult && elementHasAlreadyBeenAdded) {
       transitionOut(el.nextElementSibling, () => {
         el.nextElementSibling.remove();
-      }, initialUpdate);
+      }, component, initialUpdate);
     }
   }
 
@@ -1409,7 +1422,7 @@
     initializeElement(el, extraVars) {
       // To support class attribute merging, we have to know what the element's
       // original class attribute looked like for reference.
-      if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
+      if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
         el.__x_original_classes = el.getAttribute('class').split(' ');
       }
 
@@ -1464,7 +1477,7 @@
     }
 
     registerListeners(el, extraVars) {
-      getXAttrs(el).forEach(({
+      getXAttrs(el, this).forEach(({
         type,
         value,
         modifiers,
@@ -1483,7 +1496,7 @@
     }
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
-      let attrs = getXAttrs(el);
+      let attrs = getXAttrs(el, this);
 
       if (el.type !== undefined && el.type === 'radio') {
         // If there's an x-model on a radio input, move it to end of attribute list
@@ -1577,7 +1590,7 @@
         for (let i = 0; i < mutations.length; i++) {
           // Filter out mutations triggered from child components.
           const closestParentComponent = mutations[i].target.closest('[x-data]');
-          if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) return;
+          if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
 
           if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
             const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
@@ -1592,7 +1605,7 @@
             mutations[i].addedNodes.forEach(node => {
               if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
-              if (node.matches('[x-data]')) {
+              if (node.matches('[x-data]') && !node.__x) {
                 node.__x = new Component(node);
                 return;
               }
@@ -1633,7 +1646,7 @@
   }
 
   const Alpine = {
-    version: "2.3.1",
+    version: "2.3.5",
     start: async function start() {
       if (!isTesting()) {
         await domReady();

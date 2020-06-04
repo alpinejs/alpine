@@ -23,14 +23,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
                 // I'm purposely not using Array.includes here because it's
                 // strict, and because of Numeric/String mis-casting, I
                 // want the "includes" to be "fuzzy".
-                let valueFound = false
-                value.forEach(val => {
-                    if (val == el.value) {
-                        valueFound = true
-                    }
-                })
-
-                el.checked = valueFound
+                el.checked = value.some(val => val == el.value)
             } else {
                 el.checked = !! value
             }
@@ -43,16 +36,9 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         } else if (el.tagName === 'SELECT') {
             updateSelect(el, value)
         } else {
-            // Cursor position should be restored back to origin due to a safari bug
-            const selectionStart = el.selectionStart
-            const selectionEnd = el.selectionEnd
-            const selectionDirection = el.selectionDirection
+            if (el.value === value) return
 
             el.value = value
-
-            if (el === document.activeElement && selectionStart !== null) {
-                el.setSelectionRange(selectionStart, selectionEnd, selectionDirection)
-            }
         }
     } else if (attrName === 'class') {
         if (Array.isArray(value)) {
@@ -65,25 +51,23 @@ export function handleAttributeBindingDirective(component, el, attrName, express
 
             keysSortedByBooleanValue.forEach(classNames => {
                 if (value[classNames]) {
-                    classNames.split(' ').forEach(className => el.classList.add(className))
+                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.add(className))
                 } else {
-                    classNames.split(' ').forEach(className => el.classList.remove(className))
+                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.remove(className))
                 }
             })
         } else {
             const originalClasses = el.__x_original_classes || []
-            const newClasses = value.split(' ')
+            const newClasses = value.split(' ').filter(Boolean)
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
-    } else if (isBooleanAttr(attrName)) {
-        // Boolean attributes have to be explicitly added and removed, not just set.
-        if (!! value) {
-            el.setAttribute(attrName, '')
-        } else {
-            el.removeAttribute(attrName)
-        }
     } else {
-        el.setAttribute(attrName, value)
+        // If an attribute's bound value is null, undefined or false, remove the attribute
+        if ([null, undefined, false].includes(value)) {
+            el.removeAttribute(attrName)
+        } else {
+            isBooleanAttr(attrName) ? el.setAttribute(attrName, attrName) : el.setAttribute(attrName, value)
+        }
     }
 }
 

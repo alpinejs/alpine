@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs'
 import { fireEvent, wait } from '@testing-library/dom'
+const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 test('auto-detect new components at the top level', async () => {
     var runObservers = []
@@ -339,4 +340,51 @@ test('x-attributes are matched exactly', async () => {
     expect(document.getElementById('el1').style.display).toEqual('none')
     expect(document.getElementById('el2').style.display).not.toEqual('none')
     await wait(() => { expect(document.getElementById('el3').style.display).not.toEqual('none') })
+})
+
+
+test('a mutation from another part of the HTML doesnt prevent a different alpine component from initializing', async () => {
+    document.body.innerHTML = `
+        <div x-data x-init="registerInit()">
+        </div>
+    `
+
+    var initCount = 0
+    window.registerInit = function () {
+        initCount = initCount + 1
+    }
+
+    var runObservers = []
+
+    global.MutationObserver = class {
+        constructor(callback) { runObservers.push(callback) }
+        observe() {}
+    }
+
+    Alpine.start()
+
+    await wait(() => { expect(initCount).toEqual(1) })
+
+    document.querySelector('div').innerHTML = `
+        <h1 x-data x-init="registerInit()"></h1>
+    `
+    let h2 = document.createElement('h2')
+    document.querySelector('div').parentElement.appendChild(h2)
+
+    await timeout(5)
+
+    runObservers[0]([
+        {
+            target: document.querySelector('h2'),
+            type: 'attributes',
+            addedNodes: [],
+        },
+        {
+            target: document.querySelector('div'),
+            type: 'childList',
+            addedNodes: [ document.querySelector('h1') ],
+        }
+    ])
+
+    await wait(() => { expect(initCount).toEqual(2) })
 })

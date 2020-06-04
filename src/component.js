@@ -162,7 +162,7 @@ export default class Component {
     initializeElement(el, extraVars) {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
-        if (el.hasAttribute('class') && getXAttrs(el).length > 0) {
+        if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
             el.__x_original_classes = el.getAttribute('class').split(' ')
         }
 
@@ -221,7 +221,7 @@ export default class Component {
     }
 
     registerListeners(el, extraVars) {
-        getXAttrs(el).forEach(({ type, value, modifiers, expression }) => {
+        getXAttrs(el, this).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'on':
                     registerListener(this, el, value, modifiers, expression, extraVars)
@@ -237,7 +237,7 @@ export default class Component {
     }
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
-        let attrs = getXAttrs(el)
+        let attrs = getXAttrs(el, this)
         if (el.type !== undefined && el.type === 'radio') {
             // If there's an x-model on a radio input, move it to end of attribute list
             // to ensure that x-bind:value (if present) is processed first.
@@ -333,10 +333,11 @@ export default class Component {
         }
 
         const observer = new MutationObserver((mutations) => {
-            for (let i=0; i < mutations.length; i++){
+            for (let i=0; i < mutations.length; i++) {
                 // Filter out mutations triggered from child components.
                 const closestParentComponent = mutations[i].target.closest('[x-data]')
-                if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) return
+
+                if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
                     const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {})
@@ -352,7 +353,7 @@ export default class Component {
                     mutations[i].addedNodes.forEach(node => {
                         if (node.nodeType !== 1 || node.__x_inserted_me) return
 
-                        if (node.matches('[x-data]')) {
+                        if (node.matches('[x-data]') && ! node.__x) {
                             node.__x = new Component(node)
                             return
                         }

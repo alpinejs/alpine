@@ -2,6 +2,7 @@
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
 ![npm version](https://img.shields.io/npm/v/alpinejs)
+[![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg?sanitize=true)](https://alpinejs.codewithhugo.com/chat/)
 
 Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
 
@@ -21,6 +22,12 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 ```
 
 That's it. It will initialize itself.
+
+For production environments, it's recommended to pin a specific version number in the link to avoid unexpected breakage from newer versions.
+For example, to use version `2.3.5`:
+```html
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
+```
 
 **From NPM:** Install the package from NPM.
 ```js
@@ -124,6 +131,16 @@ And 6 magic properties:
 
 **Want your logo here? [DM on Twitter](https://twitter.com/calebporzio)**
 
+## VIP Contributers
+
+<table>
+  <tr>
+    <td align="center"><a href="http://calebporzio.com"><img src="https://avatars2.githubusercontent.com/u/3670578?v=4" width="100px;" alt="Caleb Porzio"/><br /><sub><b>Caleb Porzio</b></sub></a><br /><sub>(Creator)</sub></td>
+    <td align="center"><a href="https://github.com/HugoDF"><img src="https://avatars2.githubusercontent.com/u/6459679?v=4" width="100px;" alt="Hugo"/><br /><sub><b>Hugo</b></sub></a></td>
+    <td align="center"><a href="https://github.com/ryangjchandler"><img src="https://avatars2.githubusercontent.com/u/41837763?v=4" width="100px;" alt="Ryan Chandler"/><br /><sub><b>Ryan Chandler</b></sub></a></td>
+    <td align="center"><a href="https://github.com/SimoTod"><img src="https://avatars2.githubusercontent.com/u/8427737?v=4" width="100px;" alt="Simone Todaro"/><br /><sub><b>Simone Todaro</b></sub></a></td>
+  </tr>
+</table>
 
 ### Directives
 
@@ -217,7 +234,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 | `x-show.transition.origin.top.right` | Customize the CSS transform origin `transform-origin: top right`. |
 | `x-show.transition.in.duration.200ms.out.duration.50ms` | Different durations for "in" and "out". |
 
-> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although rediculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although ridiculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
 
 > Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifer:
 ```html
@@ -243,7 +260,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 `x-bind` behaves a little differently when binding to the `class` attribute.
 
-For classes, you pass in an object who's keys are class names, and values are boolean expressions to determine if those class names are applied or not.
+For classes, you pass in an object whose keys are class names, and values are boolean expressions to determine if those class names are applied or not.
 
 For example:
 `<div x-bind:class="{ 'hidden': foo }"></div>`
@@ -252,14 +269,23 @@ In this example, the "hidden" class will only be applied when the value of the `
 
 **`x-bind` for boolean attributes**
 
-`x-bind` supports boolean attributes in the same way that value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.
+`x-bind` supports boolean attributes in the same way as value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.
 
 For example:
-`<button x-bind:disabled="myVar">Click me</button>`
+```html
+<!-- Given: -->
+<button x-bind:disabled="myVar">Click me</button>
+
+<!-- When myVar == true: -->
+<button disabled="disabled">Click me</button>
+
+<!-- When myVar == false: -->
+<button>Click me</button>
+```
 
 This will add or remove the `disabled` attribute when `myVar` is true or false respectively.
 
-Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open` etc.
+Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open`, etc.
 
 ---
 

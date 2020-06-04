@@ -536,6 +536,8 @@ These behave exactly like VueJs's transition directives, except they have differ
 
 ### Magic Properties
 
+> With the exception of `$el`, magic properties are **not available within `x-data`** as the component isn't initialized yet.
+
 ---
 
 ### `$el`

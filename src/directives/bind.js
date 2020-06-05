@@ -66,11 +66,15 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         // If an attribute's bound value is null, undefined or false, remove the attribute
         if ([null, undefined, false].includes(value)) {
             el.removeAttribute(attrName)
-        } else if (isBooleanAttr(attrName)) {
-            el.setAttribute(attrName, attrName)
-        } else if(el.getAttribute(attrName) !== value){
-            el.setAttribute(attrName, value)
-        }
+        } else {
+            isBooleanAttr(attrName) ? setIfChanged(el, attrName, attrName) : setIfChanged(el, attrName, value)
+        } 
+    }
+}
+
+function setIfChanged(el, attrName, value) {
+    if(el.getAttribute(attrName) != value){
+        el.setAttribute(attrName, value)
     }
 }
 

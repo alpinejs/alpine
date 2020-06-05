@@ -187,11 +187,14 @@ export default class Component {
 
     executeAndClearNextTickStack(el) {
         // Skip spawns from alpine directives
-        if (el === this.$el) {
-            // Walk through the $nextTick stack and clear it as we go.
-            while (this.nextTickStack.length > 0) {
-                this.nextTickStack.shift()()
-            }
+        if (el === this.$el && this.nextTickStack.length > 0) {
+            // We run the tick stack after the next frame to allow any
+            // running transitions to pass the initial show stage.
+            requestAnimationFrame(() => {
+                while (this.nextTickStack.length > 0) {
+                    this.nextTickStack.shift()()
+                }
+            })
         }
     }
 

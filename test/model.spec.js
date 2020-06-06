@@ -170,6 +170,41 @@ test('x-model binds checkbox value to array', async () => {
     })
 })
 
+test('x-model checkbox array binding supports .number modifier', async () => {
+    document.body.innerHTML = `
+        <div
+            x-data="{
+                selected: [2]
+            }"
+        >
+            <input type="checkbox" value="1" x-model.number="selected" />
+            <input type="checkbox" value="2" x-model.number="selected" />
+            <input type="checkbox" value="3" x-model.number="selected" />
+
+            <span x-bind:bar="JSON.stringify(selected)"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('input[type=checkbox]')[0].checked).toEqual(false)
+    expect(document.querySelectorAll('input[type=checkbox]')[1].checked).toEqual(true)
+    expect(document.querySelectorAll('input[type=checkbox]')[2].checked).toEqual(false)
+    expect(document.querySelector('span').getAttribute('bar')).toEqual("[2]")
+
+    fireEvent.change(document.querySelectorAll('input[type=checkbox]')[2], { target: { checked: true }})
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('bar')).toEqual("[2,3]") })
+
+    fireEvent.change(document.querySelectorAll('input[type=checkbox]')[0], { target: { checked: true }})
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('bar')).toEqual("[2,3,1]") })
+
+    fireEvent.change(document.querySelectorAll('input[type=checkbox]')[0], { target: { checked: false }})
+    fireEvent.change(document.querySelectorAll('input[type=checkbox]')[1], { target: { checked: false }})
+    await wait(() => { expect(document.querySelector('span').getAttribute('bar')).toEqual("[3]") })
+})
+
 test('x-model binds radio value', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">

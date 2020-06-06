@@ -32,9 +32,10 @@ function generateModelAssignmentFunction(el, modifiers, expression) {
         if (event instanceof CustomEvent && event.detail) {
             return event.detail
         } else if (el.type === 'checkbox') {
-            // If the data we are binding to is an array, toggle it's value inside the array.
+            // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {
-                return event.target.checked ? currentValue.concat([event.target.value]) : currentValue.filter(i => i !== event.target.value)
+                const newValue = modifiers.includes('number') ? safeParseNumber(event.target.value) : event.target.value
+                return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(i => i !== newValue)
             } else {
                 return event.target.checked
             }

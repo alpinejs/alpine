@@ -1,4 +1,5 @@
 import { registerListener } from './on'
+import { isNumeric } from '../utils'
 
 export function registerModelListener(component, el, modifiers, expression, extraVars) {
     // If the element we are binding to is a select, a radio, or checkbox
@@ -41,18 +42,21 @@ function generateModelAssignmentFunction(el, modifiers, expression) {
             return modifiers.includes('number')
                 ? Array.from(event.target.selectedOptions).map(option => {
                     const rawValue = option.value || option.text
-                    const number = rawValue ? parseFloat(rawValue) : null
-                    return isNaN(number) ? rawValue : number
+                    return safeParseNumber(rawValue)
                 })
                 : Array.from(event.target.selectedOptions).map(option => {
                     return option.value || option.text
                 })
         } else {
             const rawValue = event.target.value
-            const number = rawValue ? parseFloat(rawValue) : null
             return modifiers.includes('number')
-                ? (isNaN(number) ? rawValue : number)
+                ? safeParseNumber(rawValue)
                 : (modifiers.includes('trim') ? rawValue.trim() : rawValue)
         }
     }
+}
+
+function safeParseNumber(rawValue) {
+    const number = rawValue ? parseFloat(rawValue) : null
+    return isNumeric(number) ? number : rawValue
 }

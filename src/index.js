@@ -12,13 +12,15 @@ const Alpine = {
             this.initializeComponent(el)
         })
 
-        // It's easier and more performant to just support Turbolinks than listen
-        // to MutationObserver mutations at the document level.
-        document.addEventListener("turbolinks:load", () => {
-            this.discoverUninitializedComponents(el => {
-                this.initializeComponent(el)
+        // It's easier and more performant to just support Turbolinks, Swup and pjax 
+        // than listen to MutationObserver mutations at the document level.
+        ["turbolinks:load", "swup:contentReplaced", "pjax:complete"].forEach(event => 
+            document.addEventListener(event, () => {
+                this.discoverUninitializedComponents(el => {
+                    this.initializeComponent(el)
+                })
             })
-        })
+        )
 
         this.listenForNewUninitializedComponentsAtRunTime(el => {
             this.initializeComponent(el)

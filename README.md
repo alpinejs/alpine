@@ -589,7 +589,7 @@ If you need to access $event inside of a JavaScript function you can pass it in 
 </div>
 ```
 
-**Note on Event propagation**
+**Note on Event Propagation**
 
 Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bubbling), when you need to capture events dispatched from nodes that are under the same nesting hierarchy, you'll need to use the [`.window`](https://github.com/alpinejs/alpine#x-on) modifier:
 
@@ -602,12 +602,11 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 <div>
 ```
 
-Since both elements are nested under `div`, this won't work. 
-The `custom-event` is dispatched from the `button` and will propagate to its ancestor, the `div`.
+> This won't work because when `custom-event` is dispatched, it'll propagate to its common ancestor, the `div`.
 
-**Dispatching to components**
+**Dispatching to Components**
 
-You can take advantage of the previous technique to make your components talk to each other:
+You can also take advantage of the previous technique to make your components talk to each other:
 
 **Example:**
 

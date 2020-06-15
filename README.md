@@ -589,7 +589,27 @@ If you need to access $event inside of a JavaScript function you can pass it in 
 </div>
 ```
 
-Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bubbling), you'll need to use the [`.window`](https://github.com/alpinejs/alpine#x-on) modifier if you are trying to propagate events between sibling nodes:
+**Note on Event propagation**
+
+Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bubbling), when you need to capture events dispatched from nodes that are under the same nesting hierarchy, you'll need to use the [`.window`](https://github.com/alpinejs/alpine#x-on) modifier:
+
+**Example:**
+
+```html
+<div>
+    <span @custom-event="console.log($event.detail.foo)"></span>
+    <button @click="$dispatch('custom-event', { foo: 'bar' })">
+<div>
+```
+
+Since both elements are nested under `div`, this won't work. 
+The `custom-event` is dispatched from the `button` and will propagate to its ancestor, the `div`.
+
+**Dispatching to components**
+
+You can take advantage of the previous technique to make your components talk to each other:
+
+**Example:**
 
 ```html
 <div @foo-event.window="console.log($event.detail.foo)">

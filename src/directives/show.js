@@ -1,7 +1,7 @@
 import { transitionIn, transitionOut } from '../utils'
 
 export function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
-    // if value is changed resolve any previous pending transitions before starting a new one
+    // if value is changed resolve any previous pending transitions before starting a new one.
     if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
         el.__x_transition_remaining()
     }
@@ -19,7 +19,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     }
 
     if (initialUpdate === true) {
-        // Assign current value to el to check later on for preventing transition overlaps
+        // Assign current value to el to check later on for preventing transition overlaps.
         el.__x_transition_last_value = value
 
         if (value) {
@@ -31,27 +31,26 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
     }
 
     const handle = (resolve) => {
-        if(value) {
+        if (value) {
             transitionIn(el,() => {
                 show()
             }, component)
             resolve(() => {})
         } else {
-            if ( el.style.display !== 'none' ) {
+            if (el.style.display !== 'none' ) {
                 transitionOut(el, () => {
                     resolve(() => {
                         hide()
                     })
-                },component)
+                }, component)
             } else {
                 resolve(() => {})
             }
         }
 
-        // Assign current value to el
+        // Assign current value to el.
         el.__x_transition_last_value = value
     }
-
 
     // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding
@@ -70,9 +69,10 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
         component.executeAndClearRemainingShowDirectiveStack()
     }
 
-    // If x-show value changed from previous transition we'll push the handler onto a stack to be handled later.
     if (el.__x_transition_last_value !== value) {
+        // We'll push the handler onto a stack to be handled later.
         component.showDirectiveStack.push(handle)
+
         component.showDirectiveLastElement = el
     }
 }

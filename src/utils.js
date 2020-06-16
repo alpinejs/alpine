@@ -158,7 +158,6 @@ export function replaceAtAndColonWithStandardSyntax(name) {
 }
 
 export function transitionIn(el, show, component, forceSkip = false) {
-    // We don't want to transition on the initial page load.
     if (forceSkip) return show()
 
     const attrs = getXAttrs(el, component, 'transition')
@@ -407,7 +406,7 @@ export function transition(el, stages) {
         requestAnimationFrame(() => {
             stages.end()
 
-            // Assign current transition to el in case we need to force it
+            // Assign current transition to el in case we need to force it.
             el.__x_transition_remaining = once(() => {
                 stages.hide()
 
@@ -417,7 +416,7 @@ export function transition(el, stages) {
                     stages.cleanup()
                 }
 
-                 // Safe to remove transition from el since it is completed
+                 // Safe to remove transition from el since it is completed.
                  delete el.__x_transition_remaining
             })
 
@@ -430,15 +429,13 @@ export function isNumeric(subject){
     return ! isNaN(subject)
 }
 
-/**
- * Ensure a function is called only once.
- */
-export function once(fn) {
+export function once(callback) {
     let called = false
+
     return function () {
-        if (!called) {
+        if (! called) {
             called = true
-            fn.apply(this, arguments)
+            callback.apply(this, arguments)
         }
     }
 }

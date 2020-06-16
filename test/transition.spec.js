@@ -627,7 +627,7 @@ test('remaining transitions forced to complete if they exists', async () => {
         setTimeout(callback, 0)
     });
 
-    // (hardcoding 10ms animation time for later assertions)
+    // Hardcoding 10ms animation time for later assertions.
     jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
         return {
             transitionDuration: '0s',
@@ -651,70 +651,76 @@ test('remaining transitions forced to complete if they exists', async () => {
 
     await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
 
-    // trigger animation in
+    // Trigger animation in.
     document.querySelector('button').click()
 
-    // Wait for the first requestAnimationFrame
+    // Wait for the first requestAnimationFrame.
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 0)
     )
+
     expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
 
-    // trigger animation out
+    // Trigger animation out.
     document.querySelector('button').click()
 
-    // Wait for the next requestAnimationFrame
+    // Wait for the next requestAnimationFrame.
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 0)
     )
+
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
 
-    // Wait for the next requestAnimationFrame
+    // Wait for the next requestAnimationFrame.
         await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 0)
     )
 
-    // trigger animation in
+    // Trigger animation in.
     document.querySelector('button').click()
 
-    // Wait for the next requestAnimationFrame
+    // Wait for the next requestAnimationFrame.
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 0)
     )
+
     expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
 
-    // trigger animation out
+    // Trigger animation out.
     document.querySelector('button').click()
 
-    // Wait for the next requestAnimationFrame
+    // Wait for the next requestAnimationFrame.
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 0)
     )
+
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
 
-    // The leave class should still be there since the animationDuration property is 100ms
+    // The leave class should still be there since the animationDuration property is 100ms.
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 99)
     )
+
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
 
-    // The class shouldn't be there anymore
+    // The class shouldn't be there anymore.
     await new Promise((resolve) =>
         setTimeout(() => {
             resolve();
         }, 10)
     )
+
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(false)
 })

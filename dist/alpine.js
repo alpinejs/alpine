@@ -183,7 +183,6 @@
     return name;
   }
   function transitionIn(el, show, component, forceSkip = false) {
-    // We don't want to transition on the initial page load.
     if (forceSkip) return show();
     const attrs = getXAttrs(el, component, 'transition');
     const showAttr = getXAttrs(el, component, 'show')[0]; // If this is triggered by a x-show.transition.
@@ -412,7 +411,7 @@
 
       stages.show();
       requestAnimationFrame(() => {
-        stages.end(); // Assign current transition to el in case we need to force it
+        stages.end(); // Assign current transition to el in case we need to force it.
 
         el.__x_transition_remaining = once(() => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
@@ -420,7 +419,7 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          } // Safe to remove transition from el since it is completed
+          } // Safe to remove transition from el since it is completed.
 
 
           delete el.__x_transition_remaining;
@@ -432,16 +431,12 @@
   function isNumeric(subject) {
     return !isNaN(subject);
   }
-  /**
-   * Ensure a function is called only once.
-   */
-
-  function once(fn) {
+  function once(callback) {
     let called = false;
     return function () {
       if (!called) {
         called = true;
-        fn.apply(this, arguments);
+        callback.apply(this, arguments);
       }
     };
   }
@@ -656,7 +651,7 @@
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
-    // if value is changed resolve any previous pending transitions before starting a new one
+    // if value is changed resolve any previous pending transitions before starting a new one.
     if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
       el.__x_transition_remaining();
     }
@@ -674,7 +669,7 @@
     };
 
     if (initialUpdate === true) {
-      // Assign current value to el to check later on for preventing transition overlaps
+      // Assign current value to el to check later on for preventing transition overlaps.
       el.__x_transition_last_value = value;
 
       if (value) {
@@ -702,7 +697,7 @@
         } else {
           resolve(() => {});
         }
-      } // Assign current value to el
+      } // Assign current value to el.
 
 
       el.__x_transition_last_value = value;
@@ -722,10 +717,10 @@
 
     if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
       component.executeAndClearRemainingShowDirectiveStack();
-    } // If x-show value changed from previous transition we'll push the handler onto a stack to be handled later.
-
+    }
 
     if (el.__x_transition_last_value !== value) {
+      // We'll push the handler onto a stack to be handled later.
       component.showDirectiveStack.push(handle);
       component.showDirectiveLastElement = el;
     }

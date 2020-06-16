@@ -3,7 +3,9 @@ import { domReady, isTesting } from './utils'
 
 const Alpine = {
     version: process.env.PKG_VERSION,
-    pauseObserver: false,
+
+    pauseMutationObserver: false,
+
     start: async function () {
         if (! isTesting()) {
             await domReady()
@@ -54,7 +56,7 @@ const Alpine = {
         }
 
         const observer = new MutationObserver((mutations) => {
-            if (this.pauseObserver) return;
+            if (this.pauseMutationObserver) return;
 
             for (let i=0; i < mutations.length; i++){
                 if (mutations[i].addedNodes.length > 0) {

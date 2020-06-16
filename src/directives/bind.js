@@ -68,12 +68,12 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             el.removeAttribute(attrName)
         } else {
             isBooleanAttr(attrName) ? setIfChanged(el, attrName, attrName) : setIfChanged(el, attrName, value)
-        } 
+        }
     }
 }
 
 function setIfChanged(el, attrName, value) {
-    if(el.getAttribute(attrName) != value){
+    if (el.getAttribute(attrName) != value){
         el.setAttribute(attrName, value)
     }
 }

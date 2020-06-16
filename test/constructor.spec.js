@@ -279,6 +279,38 @@ test('auto-detect x-data property changes at run-time', async () => {
     await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
 })
 
+test('can use $el when changing x-data property at run-time', async () => {
+    var runObservers = []
+
+    global.MutationObserver = class {
+        constructor(callback) { runObservers.push(callback) }
+        observe() {}
+    }
+
+    document.body.innerHTML = `
+        <div x-data="{ count: '0' }" data-count="1">
+            <span x-text="count"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('span').innerText).toEqual('0')
+
+    document.querySelector('div').setAttribute('x-data', '{ count: $el.dataset.count }')
+
+    runObservers[0]([
+        {
+            addedNodes: [],
+            type: 'attributes',
+            attributeName: 'x-data',
+            target: document.querySelector('div')
+        }
+    ])
+
+    await wait(() => { expect(document.querySelector('span').innerText).toEqual('1') })
+})
+
 test('nested components only get registered once on initialization', async () => {
     global.MutationObserver = class {
         constructor(callback) {}

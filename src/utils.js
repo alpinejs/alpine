@@ -188,6 +188,7 @@ export function transitionIn(el, show, component, forceSkip = false) {
 }
 
 export function transitionOut(el, hide, component, forceSkip = false) {
+     // We don't want to transition on the initial page load.
     if (forceSkip) return hide()
 
     const attrs = getXAttrs(el, component, 'transition')
@@ -406,7 +407,8 @@ export function transition(el, stages) {
         requestAnimationFrame(() => {
             stages.end()
 
-            setTimeout(() => {
+            // Assign current transition to el in case we need to force it
+            el.__x_transition_remaining = once(() => {
                 stages.hide()
 
                 // Adding an "isConnected" check, in case the callback
@@ -414,11 +416,29 @@ export function transition(el, stages) {
                 if (el.isConnected) {
                     stages.cleanup()
                 }
-            }, duration);
+
+                 // Safe to remove transition from el since it is completed
+                 delete el.__x_transition_remaining
+            })
+
+            setTimeout(el.__x_transition_remaining, duration);
         })
     });
 }
 
 export function isNumeric(subject){
     return ! isNaN(subject)
+}
+
+/**
+ * Ensure a function is called only once.
+ */
+export function once(fn) {
+    let called = false
+    return function () {
+        if (!called) {
+            called = true
+            fn.apply(this, arguments)
+        }
+    }
 }

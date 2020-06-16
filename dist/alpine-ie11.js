@@ -5616,6 +5616,7 @@
     var _this6 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    // We don't want to transition on the initial page load.
     if (forceSkip) return hide();
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0];
@@ -5921,8 +5922,9 @@
 
         _newArrowCheck(this, _this14);
 
-        stages.end();
-        setTimeout(function () {
+        stages.end(); // Assign current transition to el in case we need to force it
+
+        el.__x_transition_remaining = once(function () {
           _newArrowCheck(this, _this15);
 
           stages.hide(); // Adding an "isConnected" check, in case the callback
@@ -5930,13 +5932,30 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          }
-        }.bind(this), duration);
+          } // Safe to remove transition from el since it is completed
+
+
+          delete el.__x_transition_remaining;
+        }.bind(this));
+        setTimeout(el.__x_transition_remaining, duration);
       }.bind(this));
     }.bind(this));
   }
   function isNumeric(subject) {
     return !isNaN(subject);
+  }
+  /**
+   * Ensure a function is called only once.
+   */
+
+  function once(fn) {
+    var called = false;
+    return function () {
+      if (!called) {
+        called = true;
+        fn.apply(this, arguments);
+      }
+    };
   }
 
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
@@ -6236,6 +6255,11 @@
 
     var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
+    // if value is changed resolve any previous pending transitions before starting a new one
+    if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
+      el.__x_transition_remaining();
+    }
+
     var hide = function hide() {
       _newArrowCheck(this, _this);
 
@@ -6253,6 +6277,9 @@
     }.bind(this);
 
     if (initialUpdate === true) {
+      // Assign current value to el to check later on for preventing transition overlaps
+      el.__x_transition_last_value = value;
+
       if (value) {
         show();
       } else {
@@ -6267,7 +6294,16 @@
 
       _newArrowCheck(this, _this);
 
-      if (!value) {
+      if (value) {
+        transitionIn(el, function () {
+          _newArrowCheck(this, _this2);
+
+          show();
+        }.bind(this), component);
+        resolve(function () {
+          _newArrowCheck(this, _this2);
+        }.bind(this));
+      } else {
         if (el.style.display !== 'none') {
           transitionOut(el, function () {
             var _this3 = this;
@@ -6285,20 +6321,10 @@
             _newArrowCheck(this, _this2);
           }.bind(this));
         }
-      } else {
-        if (el.style.display !== '') {
-          transitionIn(el, function () {
-            _newArrowCheck(this, _this2);
-
-            show();
-          }.bind(this), component);
-        } // Resolve immediately, only hold up parent `x-show`s for hidin.
+      } // Assign current value to el
 
 
-        resolve(function () {
-          _newArrowCheck(this, _this2);
-        }.bind(this));
-      }
+      el.__x_transition_last_value = value;
     }.bind(this); // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding
     // some element. Also, this has to be done recursively.
@@ -6319,11 +6345,13 @@
 
     if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
       component.executeAndClearRemainingShowDirectiveStack();
-    } // We'll push the handler onto a stack to be handled later.
+    } // If x-show value changed from previous transition we'll push the handler onto a stack to be handled later.
 
 
-    component.showDirectiveStack.push(handle);
-    component.showDirectiveLastElement = el;
+    if (el.__x_transition_last_value !== value) {
+      component.showDirectiveStack.push(handle);
+      component.showDirectiveLastElement = el;
+    }
   }
 
   function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {

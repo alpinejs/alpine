@@ -204,6 +204,7 @@
     }
   }
   function transitionOut(el, hide, component, forceSkip = false) {
+    // We don't want to transition on the initial page load.
     if (forceSkip) return hide();
     const attrs = getXAttrs(el, component, 'transition');
     const showAttr = getXAttrs(el, component, 'show')[0];
@@ -411,20 +412,38 @@
 
       stages.show();
       requestAnimationFrame(() => {
-        stages.end();
-        setTimeout(() => {
+        stages.end(); // Assign current transition to el in case we need to force it
+
+        el.__x_transition_remaining = once(() => {
           stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
 
           if (el.isConnected) {
             stages.cleanup();
-          }
-        }, duration);
+          } // Safe to remove transition from el since it is completed
+
+
+          delete el.__x_transition_remaining;
+        });
+        setTimeout(el.__x_transition_remaining, duration);
       });
     });
   }
   function isNumeric(subject) {
     return !isNaN(subject);
+  }
+  /**
+   * Ensure a function is called only once.
+   */
+
+  function once(fn) {
+    let called = false;
+    return function () {
+      if (!called) {
+        called = true;
+        fn.apply(this, arguments);
+      }
+    };
   }
 
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
@@ -637,6 +656,11 @@
   }
 
   function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
+    // if value is changed resolve any previous pending transitions before starting a new one
+    if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
+      el.__x_transition_remaining();
+    }
+
     const hide = () => {
       el.style.display = 'none';
     };
@@ -650,6 +674,9 @@
     };
 
     if (initialUpdate === true) {
+      // Assign current value to el to check later on for preventing transition overlaps
+      el.__x_transition_last_value = value;
+
       if (value) {
         show();
       } else {
@@ -660,7 +687,12 @@
     }
 
     const handle = resolve => {
-      if (!value) {
+      if (value) {
+        transitionIn(el, () => {
+          show();
+        }, component);
+        resolve(() => {});
+      } else {
         if (el.style.display !== 'none') {
           transitionOut(el, () => {
             resolve(() => {
@@ -670,16 +702,10 @@
         } else {
           resolve(() => {});
         }
-      } else {
-        if (el.style.display !== '') {
-          transitionIn(el, () => {
-            show();
-          }, component);
-        } // Resolve immediately, only hold up parent `x-show`s for hidin.
+      } // Assign current value to el
 
 
-        resolve(() => {});
-      }
+      el.__x_transition_last_value = value;
     }; // The working of x-show is a bit complex because we need to
     // wait for any child transitions to finish before hiding
     // some element. Also, this has to be done recursively.
@@ -696,11 +722,13 @@
 
     if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
       component.executeAndClearRemainingShowDirectiveStack();
-    } // We'll push the handler onto a stack to be handled later.
+    } // If x-show value changed from previous transition we'll push the handler onto a stack to be handled later.
 
 
-    component.showDirectiveStack.push(handle);
-    component.showDirectiveLastElement = el;
+    if (el.__x_transition_last_value !== value) {
+      component.showDirectiveStack.push(handle);
+      component.showDirectiveLastElement = el;
+    }
   }
 
   function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {

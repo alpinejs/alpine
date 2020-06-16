@@ -596,7 +596,7 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 **Example:**
 
 ```html
-<div>
+<div x-data>
     <span @custom-event="console.log($event.detail.foo)"></span>
     <button @click="$dispatch('custom-event', { foo: 'bar' })">
 <div>
@@ -611,15 +611,10 @@ You can also take advantage of the previous technique to make your components ta
 **Example:**
 
 ```html
-<div @foo-event.window="console.log($event.detail.foo)">
-    <button @click="$dispatch('bar-event', { bar: 'bar' })">
-    <!-- When clicked, will console.log "foo" -->
-</div>
+<div x-data @custom-event.window="console.log($event.detail)"></div>
 
-<div @bar-event.window="console.log($event.detail.bar)">
-    <button @click="$dispatch('foo-event', { foo: 'foo' })">
-    <!-- When clicked, will console.log "bar" -->
-</div>
+<button x-data @click="$dispatch('custom-event', 'Hello World!')">
+<!-- When clicked, will console.log "Hello World!". -->
 ```
 
 `$dispatch` is a shortcut for creating a `CustomEvent` and dispatching it using `.dispatchEvent()` internally. There are lots of good use cases for passing data around and between components using custom events. [Read here](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events) for more information on the underlying `CustomEvent` system in browsers.

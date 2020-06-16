@@ -89,10 +89,11 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
     )
 }
 
-const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/
+const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/
 
 export function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name)
+
     return xAttrRE.test(name)
 }
 
@@ -101,7 +102,7 @@ export function getXAttrs(el, component, type) {
         .filter(isXAttr)
         .map(parseHtmlAttribute)
         .flatMap(i => {
-            if (i.type === 'bind' && i.value === null) {
+            if (i.type === 'spread') {
                 let directiveBindings = saferEval(i.expression, component.$data)
 
                 return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({ name, value }))

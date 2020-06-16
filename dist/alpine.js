@@ -70,6 +70,13 @@
   function isTesting() {
     return navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
   }
+  function warnIfMalformedTemplate(el, directive) {
+    if (el.tagName.toLowerCase() !== 'template') {
+      console.warn(`Alpine: [${directive}] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#${directive}`);
+    } else if (el.content.childElementCount !== 1) {
+      console.warn(`Alpine: <template> tag with [${directive}] encountered with multiple element roots. Make sure <template> only has a single child node.`);
+    }
+  }
   function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
   }
@@ -121,14 +128,14 @@
 
     return new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
   }
-  const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/;
+  const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/;
   function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
   }
   function getXAttrs(el, component, type) {
     return Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute).flatMap(i => {
-      if (i.type === 'bind' && i.value === null) {
+      if (i.type === 'spread') {
         let directiveBindings = saferEval(i.expression, component.$data);
         return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({
           name,
@@ -421,7 +428,7 @@
   }
 
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
-    warnIfNotTemplateTag(templateEl);
+    warnIfMalformedTemplate(templateEl, 'x-for');
     let iteratorNames = typeof expression === 'function' ? parseForExpression(component.evaluateReturnExpression(templateEl, expression)) : parseForExpression(expression);
     let items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
@@ -491,10 +498,6 @@
     return component.evaluateReturnExpression(el, bindKeyAttribute.expression, () => iterationScopeVariables);
   }
 
-  function warnIfNotTemplateTag(el) {
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
-  }
-
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
     let ifAttribute = getXAttrs(el, component, 'if')[0];
 
@@ -507,7 +510,6 @@
 
   function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
     let clone = document.importNode(templateEl.content, true);
-    if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.');
     currentEl.parentElement.insertBefore(clone, currentEl.nextElementSibling);
     return currentEl.nextElementSibling;
   }
@@ -702,7 +704,7 @@
   }
 
   function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
-    if (el.nodeName.toLowerCase() !== 'template') console.warn(`Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if`);
+    warnIfMalformedTemplate(el, 'x-if');
     const elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true;
 
     if (expressionResult && !elementHasAlreadyBeenAdded) {
@@ -1297,7 +1299,9 @@
       const dataAttr = this.$el.getAttribute('x-data');
       const dataExpression = dataAttr === '' ? '{}' : dataAttr;
       const initExpression = this.$el.getAttribute('x-init');
-      this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {});
+      this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {
+        $el: this.$el
+      });
       // Construct a Proxy-based observable. This will be used to handle reactivity.
 
       let {
@@ -1593,7 +1597,9 @@
           if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
 
           if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-            const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
+            const rawData = saferEval(mutations[i].target.getAttribute('x-data'), {
+              $el: this.$el
+            });
             Object.keys(rawData).forEach(key => {
               if (this.$data[key] !== rawData[key]) {
                 this.$data[key] = rawData[key];

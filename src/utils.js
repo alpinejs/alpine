@@ -101,15 +101,15 @@ export function getXAttrs(el, component, type) {
     return Array.from(el.attributes)
         .filter(isXAttr)
         .map(parseHtmlAttribute)
-        .flatMap(i => {
-            if (i.type === 'spread') {
-                let directiveBindings = saferEval(i.expression, component.$data)
+        .reduce((accumulator, currentValue) => {
+            if (currentValue.type === 'spread') {
+                let directiveBindings = saferEval(currentValue.expression, component.$data)
 
-                return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({ name, value }))
+                return accumulator.concat(Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({ name, value })))
             } else {
-                return i
+                return accumulator.concat(currentValue)
             }
-        })
+        }, [])
         .filter(i => {
             // If no type is passed in for filtering, bypass filter
             if (! type) return true

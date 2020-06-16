@@ -7235,6 +7235,7 @@
 
   var Alpine = {
     version: "2.3.5",
+    pauseObserver: false,
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
@@ -7328,6 +7329,8 @@
         var _this6 = this;
 
         _newArrowCheck(this, _this5);
+
+        if (this.pauseObserver) return;
 
         for (var i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {

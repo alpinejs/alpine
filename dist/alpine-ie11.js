@@ -938,6 +938,9 @@
     }
   })();
 
+  // For the IE11 build.
+  SVGElement.prototype.contains = SVGElement.prototype.contains || HTMLElement.prototype.contains;
+
   var check = function (it) {
     return it && it.Math == Math && it;
   };
@@ -5450,6 +5453,13 @@
   function isTesting() {
     return navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
   }
+  function warnIfMalformedTemplate(el, directive) {
+    if (el.tagName.toLowerCase() !== 'template') {
+      console.warn("Alpine: [".concat(directive, "] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#").concat(directive));
+    } else if (el.content.childElementCount !== 1) {
+      console.warn("Alpine: <template> tag with [".concat(directive, "] encountered with multiple element roots. Make sure <template> only has a single child node."));
+    }
+  }
   function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
   }
@@ -5505,7 +5515,7 @@
 
     return new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
   }
-  var xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref)\b/;
+  var xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/;
   function isXAttr(attr) {
     var name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
@@ -5518,7 +5528,7 @@
 
       _newArrowCheck(this, _this2);
 
-      if (i.type === 'bind' && i.value === null) {
+      if (i.type === 'spread') {
         var directiveBindings = saferEval(i.expression, component.$data);
         return Object.entries(directiveBindings).map(function (_ref) {
           var _ref2 = _slicedToArray(_ref, 2),
@@ -5580,11 +5590,14 @@
 
     return name;
   }
+  function convertClassStringToArray(classList) {
+    var filterFn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Boolean;
+    return classList.split(' ').filter(filterFn);
+  }
   function transitionIn(el, show, component) {
     var _this5 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    // We don't want to transition on the initial page load.
     if (forceSkip) return show();
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0]; // If this is triggered by a x-show.transition.
@@ -5768,39 +5781,27 @@
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
     }.bind(this);
 
-    var enter = ensureStringExpression((directives.find(function (i) {
+    var enter = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
       _newArrowCheck(this, _this9);
 
       return i.value === 'enter';
     }.bind(this)) || {
       expression: ''
-    }).expression).split(' ').filter(function (i) {
-      _newArrowCheck(this, _this9);
-
-      return i !== '';
-    }.bind(this));
-    var enterStart = ensureStringExpression((directives.find(function (i) {
+    }).expression));
+    var enterStart = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
       _newArrowCheck(this, _this9);
 
       return i.value === 'enter-start';
     }.bind(this)) || {
       expression: ''
-    }).expression).split(' ').filter(function (i) {
-      _newArrowCheck(this, _this9);
-
-      return i !== '';
-    }.bind(this));
-    var enterEnd = ensureStringExpression((directives.find(function (i) {
+    }).expression));
+    var enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
       _newArrowCheck(this, _this9);
 
       return i.value === 'enter-end';
     }.bind(this)) || {
       expression: ''
-    }).expression).split(' ').filter(function (i) {
-      _newArrowCheck(this, _this9);
-
-      return i !== '';
-    }.bind(this));
+    }).expression));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
       _newArrowCheck(this, _this9);
     }.bind(this));
@@ -5808,39 +5809,27 @@
   function transitionClassesOut(el, component, directives, hideCallback) {
     var _this10 = this;
 
-    var leave = (directives.find(function (i) {
+    var leave = convertClassStringToArray((directives.find(function (i) {
       _newArrowCheck(this, _this10);
 
       return i.value === 'leave';
     }.bind(this)) || {
       expression: ''
-    }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this10);
-
-      return i !== '';
-    }.bind(this));
-    var leaveStart = (directives.find(function (i) {
+    }).expression);
+    var leaveStart = convertClassStringToArray((directives.find(function (i) {
       _newArrowCheck(this, _this10);
 
       return i.value === 'leave-start';
     }.bind(this)) || {
       expression: ''
-    }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this10);
-
-      return i !== '';
-    }.bind(this));
-    var leaveEnd = (directives.find(function (i) {
+    }).expression);
+    var leaveEnd = convertClassStringToArray((directives.find(function (i) {
       _newArrowCheck(this, _this10);
 
       return i.value === 'leave-end';
     }.bind(this)) || {
       expression: ''
-    }).expression.split(' ').filter(function (i) {
-      _newArrowCheck(this, _this10);
-
-      return i !== '';
-    }.bind(this));
+    }).expression);
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
       _newArrowCheck(this, _this10);
     }.bind(this), hideCallback);
@@ -5922,7 +5911,7 @@
 
         _newArrowCheck(this, _this14);
 
-        stages.end(); // Assign current transition to el in case we need to force it
+        stages.end(); // Assign current transition to el in case we need to force it.
 
         el.__x_transition_remaining = once(function () {
           _newArrowCheck(this, _this15);
@@ -5932,7 +5921,7 @@
 
           if (el.isConnected) {
             stages.cleanup();
-          } // Safe to remove transition from el since it is completed
+          } // Safe to remove transition from el since it is completed.
 
 
           delete el.__x_transition_remaining;
@@ -5944,16 +5933,12 @@
   function isNumeric(subject) {
     return !isNaN(subject);
   }
-  /**
-   * Ensure a function is called only once.
-   */
-
-  function once(fn) {
+  function once(callback) {
     var called = false;
     return function () {
       if (!called) {
         called = true;
-        fn.apply(this, arguments);
+        callback.apply(this, arguments);
       }
     };
   }
@@ -5961,7 +5946,7 @@
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     var _this = this;
 
-    warnIfNotTemplateTag(templateEl);
+    warnIfMalformedTemplate(templateEl, 'x-for');
     var iteratorNames = typeof expression === 'function' ? parseForExpression(component.evaluateReturnExpression(templateEl, expression)) : parseForExpression(expression);
     var items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars); // As we walk the array, we'll also walk the DOM (updating/creating as we go).
 
@@ -6055,10 +6040,6 @@
     }.bind(this));
   }
 
-  function warnIfNotTemplateTag(el) {
-    if (el.tagName.toLowerCase() !== 'template') console.warn('Alpine: [x-for] directive should only be added to <template> tags.');
-  }
-
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
     var ifAttribute = getXAttrs(el, component, 'if')[0];
 
@@ -6071,7 +6052,6 @@
 
   function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
     var clone = document.importNode(templateEl.content, true);
-    if (clone.childElementCount !== 1) console.warn('Alpine: <template> tag with [x-for] encountered with multiple element roots. Make sure <template> only has a single child node.');
     currentEl.parentElement.insertBefore(clone, currentEl.nextElementSibling);
     return currentEl.nextElementSibling;
   }
@@ -6193,13 +6173,13 @@
           _newArrowCheck(this, _this);
 
           if (value[classNames]) {
-            classNames.split(' ').filter(Boolean).forEach(function (className) {
+            convertClassStringToArray(classNames).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.add(className);
             }.bind(this));
           } else {
-            classNames.split(' ').filter(Boolean).forEach(function (className) {
+            convertClassStringToArray(classNames).forEach(function (className) {
               _newArrowCheck(this, _this2);
 
               return el.classList.remove(className);
@@ -6209,7 +6189,7 @@
       } else {
         var _originalClasses = el.__x_original_classes || [];
 
-        var newClasses = value.split(' ').filter(Boolean);
+        var newClasses = convertClassStringToArray(value);
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
     } else {
@@ -6217,8 +6197,14 @@
       if ([null, undefined, false].includes(value)) {
         el.removeAttribute(attrName);
       } else {
-        isBooleanAttr(attrName) ? el.setAttribute(attrName, attrName) : el.setAttribute(attrName, value);
+        isBooleanAttr(attrName) ? setIfChanged(el, attrName, attrName) : setIfChanged(el, attrName, value);
       }
+    }
+  }
+
+  function setIfChanged(el, attrName, value) {
+    if (el.getAttribute(attrName) != value) {
+      el.setAttribute(attrName, value);
     }
   }
 
@@ -6255,7 +6241,7 @@
 
     var initialUpdate = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
 
-    // if value is changed resolve any previous pending transitions before starting a new one
+    // if value is changed resolve any previous pending transitions before starting a new one.
     if (el.__x_transition_remaining && el.__x_transition_last_value !== value) {
       el.__x_transition_remaining();
     }
@@ -6277,7 +6263,7 @@
     }.bind(this);
 
     if (initialUpdate === true) {
-      // Assign current value to el to check later on for preventing transition overlaps
+      // Assign current value to el to check later on for preventing transition overlaps.
       el.__x_transition_last_value = value;
 
       if (value) {
@@ -6321,7 +6307,7 @@
             _newArrowCheck(this, _this2);
           }.bind(this));
         }
-      } // Assign current value to el
+      } // Assign current value to el.
 
 
       el.__x_transition_last_value = value;
@@ -6345,10 +6331,10 @@
 
     if (component.showDirectiveLastElement && !component.showDirectiveLastElement.contains(el)) {
       component.executeAndClearRemainingShowDirectiveStack();
-    } // If x-show value changed from previous transition we'll push the handler onto a stack to be handled later.
-
+    }
 
     if (el.__x_transition_last_value !== value) {
+      // We'll push the handler onto a stack to be handled later.
       component.showDirectiveStack.push(handle);
       component.showDirectiveLastElement = el;
     }
@@ -6357,7 +6343,7 @@
   function handleIfDirective(component, el, expressionResult, initialUpdate, extraVars) {
     var _this = this;
 
-    if (el.nodeName.toLowerCase() !== 'template') console.warn("Alpine: [x-if] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#x-if");
+    warnIfMalformedTemplate(el, 'x-if');
     var elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true;
 
     if (expressionResult && !elementHasAlreadyBeenAdded) {
@@ -6565,12 +6551,13 @@
       if (event instanceof CustomEvent && event.detail) {
         return event.detail;
       } else if (el.type === 'checkbox') {
-        // If the data we are binding to is an array, toggle it's value inside the array.
+        // If the data we are binding to is an array, toggle its value inside the array.
         if (Array.isArray(currentValue)) {
-          return event.target.checked ? currentValue.concat([event.target.value]) : currentValue.filter(function (i) {
+          var newValue = modifiers.includes('number') ? safeParseNumber(event.target.value) : event.target.value;
+          return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(function (i) {
             _newArrowCheck(this, _this3);
 
-            return i !== event.target.value;
+            return i !== newValue;
           }.bind(this));
         } else {
           return event.target.checked;
@@ -6580,8 +6567,7 @@
           _newArrowCheck(this, _this3);
 
           var rawValue = option.value || option.text;
-          var number = rawValue ? parseFloat(rawValue) : null;
-          return isNaN(number) ? rawValue : number;
+          return safeParseNumber(rawValue);
         }.bind(this)) : Array.from(event.target.selectedOptions).map(function (option) {
           _newArrowCheck(this, _this3);
 
@@ -6589,10 +6575,14 @@
         }.bind(this));
       } else {
         var rawValue = event.target.value;
-        var number = rawValue ? parseFloat(rawValue) : null;
-        return modifiers.includes('number') ? isNaN(number) ? rawValue : number : modifiers.includes('trim') ? rawValue.trim() : rawValue;
+        return modifiers.includes('number') ? safeParseNumber(rawValue) : modifiers.includes('trim') ? rawValue.trim() : rawValue;
       }
     }.bind(this);
+  }
+
+  function safeParseNumber(rawValue) {
+    var number = rawValue ? parseFloat(rawValue) : null;
+    return isNumeric(number) ? number : rawValue;
   }
 
   // `Reflect.set` method
@@ -6706,7 +6696,9 @@
       var dataAttr = this.$el.getAttribute('x-data');
       var dataExpression = dataAttr === '' ? '{}' : dataAttr;
       var initExpression = this.$el.getAttribute('x-init');
-      this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {});
+      this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {
+        $el: this.$el
+      });
       /* IE11-ONLY:START */
       // For IE11, add our magic properties to the original data for access.
       // The Proxy polyfill does not allow properties to be added after creation.
@@ -6893,7 +6885,7 @@
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
         if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
-          el.__x_original_classes = el.getAttribute('class').split(' ');
+          el.__x_original_classes = convertClassStringToArray(el.getAttribute('class'));
         }
 
         this.registerListeners(el, extraVars);
@@ -6924,56 +6916,63 @@
     }, {
       key: "executeAndClearNextTickStack",
       value: function executeAndClearNextTickStack(el) {
+        var _this9 = this;
+
         // Skip spawns from alpine directives
-        if (el === this.$el) {
-          // Walk through the $nextTick stack and clear it as we go.
-          while (this.nextTickStack.length > 0) {
-            this.nextTickStack.shift()();
-          }
+        if (el === this.$el && this.nextTickStack.length > 0) {
+          // We run the tick stack after the next frame to allow any
+          // running transitions to pass the initial show stage.
+          requestAnimationFrame(function () {
+            _newArrowCheck(this, _this9);
+
+            while (this.nextTickStack.length > 0) {
+              this.nextTickStack.shift()();
+            }
+          }.bind(this));
         }
       }
     }, {
       key: "executeAndClearRemainingShowDirectiveStack",
       value: function executeAndClearRemainingShowDirectiveStack() {
-        var _this9 = this;
+        var _this10 = this;
 
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
         this.showDirectiveStack.reverse().map(function (thing) {
-          var _this10 = this;
+          var _this11 = this;
 
-          _newArrowCheck(this, _this9);
+          _newArrowCheck(this, _this10);
 
           return new Promise(function (resolve) {
-            var _this11 = this;
+            var _this12 = this;
 
-            _newArrowCheck(this, _this10);
+            _newArrowCheck(this, _this11);
 
             thing(function (finish) {
-              _newArrowCheck(this, _this11);
+              _newArrowCheck(this, _this12);
 
               resolve(finish);
             }.bind(this));
           }.bind(this));
         }.bind(this)).reduce(function (nestedPromise, promise) {
-          var _this12 = this;
+          var _this13 = this;
 
-          _newArrowCheck(this, _this9);
+          _newArrowCheck(this, _this10);
 
           return nestedPromise.then(function () {
-            var _this13 = this;
+            var _this14 = this;
 
-            _newArrowCheck(this, _this12);
+            _newArrowCheck(this, _this13);
 
             return promise.then(function (finish) {
-              _newArrowCheck(this, _this13);
+              _newArrowCheck(this, _this14);
 
               return finish();
             }.bind(this));
           }.bind(this));
         }.bind(this), Promise.resolve(function () {
-          _newArrowCheck(this, _this9);
+          _newArrowCheck(this, _this10);
         }.bind(this))); // We've processed the handler stack. let's clear it.
 
         this.showDirectiveStack = [];
@@ -6987,7 +6986,7 @@
     }, {
       key: "registerListeners",
       value: function registerListeners(el, extraVars) {
-        var _this14 = this;
+        var _this15 = this;
 
         getXAttrs(el, this).forEach(function (_ref) {
           var type = _ref.type,
@@ -6995,7 +6994,7 @@
               modifiers = _ref.modifiers,
               expression = _ref.expression;
 
-          _newArrowCheck(this, _this14);
+          _newArrowCheck(this, _this15);
 
           switch (type) {
             case 'on':
@@ -7011,7 +7010,7 @@
     }, {
       key: "resolveBoundAttributes",
       value: function resolveBoundAttributes(el) {
-        var _this15 = this;
+        var _this16 = this;
 
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
@@ -7021,7 +7020,7 @@
           // If there's an x-model on a radio input, move it to end of attribute list
           // to ensure that x-bind:value (if present) is processed first.
           var modelIdx = attrs.findIndex(function (attr) {
-            _newArrowCheck(this, _this15);
+            _newArrowCheck(this, _this16);
 
             return attr.type === 'model';
           }.bind(this));
@@ -7032,14 +7031,14 @@
         }
 
         attrs.forEach(function (_ref2) {
-          var _this16 = this;
+          var _this17 = this;
 
           var type = _ref2.type,
               value = _ref2.value,
               modifiers = _ref2.modifiers,
               expression = _ref2.expression;
 
-          _newArrowCheck(this, _this15);
+          _newArrowCheck(this, _this16);
 
           switch (type) {
             case 'model':
@@ -7070,7 +7069,7 @@
               // If this element also has x-for on it, don't process x-if.
               // We will let the "x-for" directive handle the "if"ing.
               if (attrs.filter(function (i) {
-                _newArrowCheck(this, _this16);
+                _newArrowCheck(this, _this17);
 
                 return i.type === 'for';
               }.bind(this)).length > 0) return;
@@ -7091,10 +7090,10 @@
     }, {
       key: "evaluateReturnExpression",
       value: function evaluateReturnExpression(el, expression) {
-        var _this17 = this;
+        var _this18 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this17);
+          _newArrowCheck(this, _this18);
         }.bind(this);
         return saferEval(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
@@ -7103,10 +7102,10 @@
     }, {
       key: "evaluateCommandExpression",
       value: function evaluateCommandExpression(el, expression) {
-        var _this18 = this;
+        var _this19 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this18);
+          _newArrowCheck(this, _this19);
         }.bind(this);
         return saferEvalNoReturn(expression, this.$data, _objectSpread2({}, extraVars(), {
           $dispatch: this.getDispatchFunction(el)
@@ -7115,12 +7114,12 @@
     }, {
       key: "getDispatchFunction",
       value: function getDispatchFunction(el) {
-        var _this19 = this;
+        var _this20 = this;
 
         return function (event) {
           var detail = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-          _newArrowCheck(this, _this19);
+          _newArrowCheck(this, _this20);
 
           el.dispatchEvent(new CustomEvent(event, {
             detail: detail,
@@ -7131,7 +7130,7 @@
     }, {
       key: "listenForNewElementsToInitialize",
       value: function listenForNewElementsToInitialize() {
-        var _this20 = this;
+        var _this21 = this;
 
         var targetNode = this.$el;
         var observerOptions = {
@@ -7140,9 +7139,9 @@
           subtree: true
         };
         var observer = new MutationObserver(function (mutations) {
-          var _this21 = this;
+          var _this22 = this;
 
-          _newArrowCheck(this, _this20);
+          _newArrowCheck(this, _this21);
 
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
@@ -7151,14 +7150,16 @@
 
             if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
               (function () {
-                var _this22 = this;
+                var _this23 = this;
 
-                var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {});
+                var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {
+                  $el: _this22.$el
+                });
                 Object.keys(rawData).forEach(function (key) {
-                  _newArrowCheck(this, _this22);
+                  _newArrowCheck(this, _this23);
 
-                  if (_this21.$data[key] !== rawData[key]) {
-                    _this21.$data[key] = rawData[key];
+                  if (_this22.$data[key] !== rawData[key]) {
+                    _this22.$data[key] = rawData[key];
                   }
                 }.bind(this));
               })();
@@ -7166,7 +7167,7 @@
 
             if (mutations[i].addedNodes.length > 0) {
               mutations[i].addedNodes.forEach(function (node) {
-                _newArrowCheck(this, _this21);
+                _newArrowCheck(this, _this22);
 
                 if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
@@ -7185,7 +7186,7 @@
     }, {
       key: "getRefsProxy",
       value: function getRefsProxy() {
-        var _this23 = this;
+        var _this24 = this;
 
         var self = this;
         var refObj = {};
@@ -7197,7 +7198,7 @@
         // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
 
         this.walkAndSkipNestedComponents(self.$el, function (el) {
-          _newArrowCheck(this, _this23);
+          _newArrowCheck(this, _this24);
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
@@ -7211,14 +7212,14 @@
 
         return new Proxy(refObj, {
           get: function get(object, property) {
-            var _this24 = this;
+            var _this25 = this;
 
             if (property === '$isAlpineProxy') return true;
             var ref; // We can't just query the DOM because it's hard to filter out refs in
             // nested components.
 
             self.walkAndSkipNestedComponents(self.$el, function (el) {
-              _newArrowCheck(this, _this24);
+              _newArrowCheck(this, _this25);
 
               if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                 ref = el;
@@ -7235,7 +7236,7 @@
 
   var Alpine = {
     version: "2.3.5",
-    pauseObserver: false,
+    pauseMutationObserver: false,
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
@@ -7330,7 +7331,7 @@
 
         _newArrowCheck(this, _this5);
 
-        if (this.pauseObserver) return;
+        if (this.pauseMutationObserver) return;
 
         for (var i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {

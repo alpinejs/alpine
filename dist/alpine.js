@@ -182,6 +182,9 @@
 
     return name;
   }
+  function convertClassStringToArray(classList, filterFn = Boolean) {
+    return classList.split(' ').filter(filterFn);
+  }
   function transitionIn(el, show, component, forceSkip = false) {
     if (forceSkip) return show();
     const attrs = getXAttrs(el, component, 'transition');
@@ -341,27 +344,27 @@
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
     };
 
-    const enter = ensureStringExpression((directives.find(i => i.value === 'enter') || {
+    const enter = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter') || {
       expression: ''
-    }).expression).split(' ').filter(i => i !== '');
-    const enterStart = ensureStringExpression((directives.find(i => i.value === 'enter-start') || {
+    }).expression));
+    const enterStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-start') || {
       expression: ''
-    }).expression).split(' ').filter(i => i !== '');
-    const enterEnd = ensureStringExpression((directives.find(i => i.value === 'enter-end') || {
+    }).expression));
+    const enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-end') || {
       expression: ''
-    }).expression).split(' ').filter(i => i !== '');
+    }).expression));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {});
   }
   function transitionClassesOut(el, component, directives, hideCallback) {
-    const leave = (directives.find(i => i.value === 'leave') || {
+    const leave = convertClassStringToArray((directives.find(i => i.value === 'leave') || {
       expression: ''
-    }).expression.split(' ').filter(i => i !== '');
-    const leaveStart = (directives.find(i => i.value === 'leave-start') || {
+    }).expression);
+    const leaveStart = convertClassStringToArray((directives.find(i => i.value === 'leave-start') || {
       expression: ''
-    }).expression.split(' ').filter(i => i !== '');
-    const leaveEnd = (directives.find(i => i.value === 'leave-end') || {
+    }).expression);
+    const leaveEnd = convertClassStringToArray((directives.find(i => i.value === 'leave-end') || {
       expression: ''
-    }).expression.split(' ').filter(i => i !== '');
+    }).expression);
     transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback);
   }
   function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
@@ -608,14 +611,14 @@
         const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
         keysSortedByBooleanValue.forEach(classNames => {
           if (value[classNames]) {
-            classNames.split(' ').filter(Boolean).forEach(className => el.classList.add(className));
+            convertClassStringToArray(classNames).forEach(className => el.classList.add(className));
           } else {
-            classNames.split(' ').filter(Boolean).forEach(className => el.classList.remove(className));
+            convertClassStringToArray(classNames).forEach(className => el.classList.remove(className));
           }
         });
       } else {
         const originalClasses = el.__x_original_classes || [];
-        const newClasses = value.split(' ').filter(Boolean);
+        const newClasses = convertClassStringToArray(value);
         el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
       }
     } else {
@@ -623,8 +626,14 @@
       if ([null, undefined, false].includes(value)) {
         el.removeAttribute(attrName);
       } else {
-        isBooleanAttr(attrName) ? el.setAttribute(attrName, attrName) : el.setAttribute(attrName, value);
+        isBooleanAttr(attrName) ? setIfChanged(el, attrName, attrName) : setIfChanged(el, attrName, value);
       }
+    }
+  }
+
+  function setIfChanged(el, attrName, value) {
+    if (el.getAttribute(attrName) != value) {
+      el.setAttribute(attrName, value);
     }
   }
 
@@ -895,26 +904,30 @@
       if (event instanceof CustomEvent && event.detail) {
         return event.detail;
       } else if (el.type === 'checkbox') {
-        // If the data we are binding to is an array, toggle it's value inside the array.
+        // If the data we are binding to is an array, toggle its value inside the array.
         if (Array.isArray(currentValue)) {
-          return event.target.checked ? currentValue.concat([event.target.value]) : currentValue.filter(i => i !== event.target.value);
+          const newValue = modifiers.includes('number') ? safeParseNumber(event.target.value) : event.target.value;
+          return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(i => i !== newValue);
         } else {
           return event.target.checked;
         }
       } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
         return modifiers.includes('number') ? Array.from(event.target.selectedOptions).map(option => {
           const rawValue = option.value || option.text;
-          const number = rawValue ? parseFloat(rawValue) : null;
-          return isNaN(number) ? rawValue : number;
+          return safeParseNumber(rawValue);
         }) : Array.from(event.target.selectedOptions).map(option => {
           return option.value || option.text;
         });
       } else {
         const rawValue = event.target.value;
-        const number = rawValue ? parseFloat(rawValue) : null;
-        return modifiers.includes('number') ? isNaN(number) ? rawValue : number : modifiers.includes('trim') ? rawValue.trim() : rawValue;
+        return modifiers.includes('number') ? safeParseNumber(rawValue) : modifiers.includes('trim') ? rawValue.trim() : rawValue;
       }
     };
+  }
+
+  function safeParseNumber(rawValue) {
+    const number = rawValue ? parseFloat(rawValue) : null;
+    return isNumeric(number) ? number : rawValue;
   }
 
   /**
@@ -1450,7 +1463,7 @@
       // To support class attribute merging, we have to know what the element's
       // original class attribute looked like for reference.
       if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
-        el.__x_original_classes = el.getAttribute('class').split(' ');
+        el.__x_original_classes = convertClassStringToArray(el.getAttribute('class'));
       }
 
       this.registerListeners(el, extraVars);
@@ -1679,7 +1692,7 @@
 
   const Alpine = {
     version: "2.3.5",
-    pauseObserver: false,
+    pauseMutationObserver: false,
     start: async function start() {
       if (!isTesting()) {
         await domReady();
@@ -1719,7 +1732,7 @@
         subtree: true
       };
       const observer = new MutationObserver(mutations => {
-        if (this.pauseObserver) return;
+        if (this.pauseMutationObserver) return;
 
         for (let i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {

@@ -1,4 +1,4 @@
-import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce } from './utils'
+import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, convertClassStringToArray } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleTextDirective } from './directives/text'
@@ -163,7 +163,7 @@ export default class Component {
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
         if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
-            el.__x_original_classes = el.getAttribute('class').split(' ')
+            el.__x_original_classes = convertClassStringToArray(el.getAttribute('class'))
         }
 
         this.registerListeners(el, extraVars)

@@ -157,6 +157,10 @@ export function replaceAtAndColonWithStandardSyntax(name) {
     return name
 }
 
+export function convertClassStringToArray(classList, filterFn = Boolean) {
+    return classList.split(' ').filter(filterFn)
+}
+
 export function transitionIn(el, show, component, forceSkip = false) {
     if (forceSkip) return show()
 
@@ -340,20 +344,17 @@ export function transitionClassesIn(el, component, directives, showCallback) {
             : expression
     }
 
-    const enter = ensureStringExpression((directives.find(i => i.value === 'enter') || { expression: '' }).expression)
-        .split(' ').filter(i => i !== '')
-    const enterStart = ensureStringExpression((directives.find(i => i.value === 'enter-start') || { expression: '' }).expression)
-        .split(' ').filter(i => i !== '')
-    const enterEnd = ensureStringExpression((directives.find(i => i.value === 'enter-end') || { expression: '' }).expression)
-        .split(' ').filter(i => i !== '')
+    const enter = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter') || { expression: '' }).expression))
+    const enterStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-start') || { expression: '' }).expression))
+    const enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-end') || { expression: '' }).expression))
 
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {})
 }
 
 export function transitionClassesOut(el, component, directives, hideCallback) {
-    const leave = (directives.find(i => i.value === 'leave') || { expression: '' }).expression.split(' ').filter(i => i !== '')
-    const leaveStart = (directives.find(i => i.value === 'leave-start') || { expression: '' }).expression.split(' ').filter(i => i !== '')
-    const leaveEnd = (directives.find(i => i.value === 'leave-end') || { expression: '' }).expression.split(' ').filter(i => i !== '')
+    const leave = convertClassStringToArray((directives.find(i => i.value === 'leave') || { expression: '' }).expression)
+    const leaveStart = convertClassStringToArray((directives.find(i => i.value === 'leave-start') || { expression: '' }).expression)
+    const leaveEnd = convertClassStringToArray((directives.find(i => i.value === 'leave-end') || { expression: '' }).expression)
 
     transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback)
 }

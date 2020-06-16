@@ -1,4 +1,4 @@
-import { arrayUnique, isBooleanAttr } from '../utils'
+import { arrayUnique, isBooleanAttr, convertClassStringToArray } from '../utils'
 
 export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
     var value = component.evaluateReturnExpression(el, expression, extraVars)
@@ -52,14 +52,14 @@ export function handleAttributeBindingDirective(component, el, attrName, express
 
             keysSortedByBooleanValue.forEach(classNames => {
                 if (value[classNames]) {
-                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.add(className))
+                    convertClassStringToArray(classNames).forEach(className => el.classList.add(className))
                 } else {
-                    classNames.split(' ').filter(Boolean).forEach(className => el.classList.remove(className))
+                    convertClassStringToArray(classNames).forEach(className => el.classList.remove(className))
                 }
             })
         } else {
             const originalClasses = el.__x_original_classes || []
-            const newClasses = value.split(' ').filter(Boolean)
+            const newClasses = convertClassStringToArray(value)
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
     } else {

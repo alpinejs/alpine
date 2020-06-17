@@ -21,6 +21,7 @@ export default {
             "process.env.NODE_ENV": "'production'",
             // inject Alpine.js package version number
             "process.env.PKG_VERSION": `"${pkg.version}"`,
+            "process.env.LITE": "false",
             "process.env.IE11_ONLY": "true"
         }),
         resolve(),

@@ -8,7 +8,7 @@
     },
     "scripts": {
         "watch": "rollup -c -w",
-        "build": "concurrently \"rollup -c\" \"npx rollup -c rollup-ie11.config.js\"",
+        "build": "concurrently \"rollup -c\" \"rollup -c rollup-ie11.config.js\" \"rollup -c rollup-lite.config.js\"",
         "test": "npx jest",
         "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
     },

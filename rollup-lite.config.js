@@ -8,7 +8,7 @@ export default {
     input: 'src/index.js',
     output: {
         name: 'Alpine',
-        file: 'dist/alpine.js',
+        file: 'dist/alpine-lite.js',
         format: 'umd',
     },
     plugins: [
@@ -17,7 +17,7 @@ export default {
             "process.env.NODE_ENV": "'production'",
             // inject Alpine.js package version number
             "process.env.PKG_VERSION": `"${pkg.version}"`,
-            "process.env.LITE": "false",
+            "process.env.LITE": "true",
             "process.env.IE11_ONLY": "false"
         }),
         resolve(),

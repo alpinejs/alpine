@@ -1,9 +1,9 @@
 import ObservableMembrane from 'observable-membrane'
 
 export function wrap(data, mutationCallback) {
-    /* IE11-ONLY:START */
-    return wrapForIe11(data, mutationCallback)
-    /* IE11-ONLY:END */
+    if (process.env.IE11_ONLY) {
+        return wrapForIe11(data, mutationCallback)
+    }
 
 
     let membrane = new ObservableMembrane({

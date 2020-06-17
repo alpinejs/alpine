@@ -20,7 +20,8 @@ export default {
             // 'observable-membrane' uses process.env. We don't have that...
             "process.env.NODE_ENV": "'production'",
             // inject Alpine.js package version number
-            "process.env.PKG_VERSION": `"${pkg.version}"`
+            "process.env.PKG_VERSION": `"${pkg.version}"`,
+            "process.env.IE11_ONLY": "true"
         }),
         resolve(),
         filesize(),

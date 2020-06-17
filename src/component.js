@@ -19,14 +19,14 @@ export default class Component {
 
         this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, { $el: this.$el })
 
-        /* IE11-ONLY:START */
+        if (process.env.IE11_ONLY) {
             // For IE11, add our magic properties to the original data for access.
             // The Proxy polyfill does not allow properties to be added after creation.
             this.unobservedData.$el = null
             this.unobservedData.$refs = null
             this.unobservedData.$nextTick = null
             this.unobservedData.$watch = null
-        /* IE11-ONLY:END */
+        }
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
         let { membrane, data } = this.wrapDataInObservable(this.unobservedData)
@@ -375,7 +375,7 @@ export default class Component {
 
         var refObj = {}
 
-        /* IE11-ONLY:START */
+        if (process.env.IE11_ONLY) {
             // Add any properties up-front that might be necessary for the Proxy polyfill.
             refObj.$isRefsProxy = false;
             refObj.$isAlpineProxy = false;
@@ -387,7 +387,7 @@ export default class Component {
                     refObj[el.getAttribute('x-ref')] = true
                 }
             })
-        /* IE11-ONLY:END */
+        }
 
         // One of the goals of this is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and

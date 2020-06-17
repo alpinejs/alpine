@@ -5515,7 +5515,7 @@
 
     return new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
   }
-  var xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/;
+  var xAttrRE =  /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/ ;
   function isXAttr(attr) {
     var name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
@@ -5528,7 +5528,7 @@
 
       _newArrowCheck(this, _this2);
 
-      if (i.type === 'spread') {
+      if ( i.type === 'spread') {
         var directiveBindings = saferEval(i.expression, component.$data);
         return Object.entries(directiveBindings).map(function (_ref) {
           var _ref2 = _slicedToArray(_ref, 2),
@@ -5576,8 +5576,8 @@
   }
 
   function isBooleanAttr(attrName) {
-    // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
     // Array roughly ordered by estimated usage
+
     var booleanAttributes = ['disabled', 'checked', 'required', 'readonly', 'hidden', 'open', 'selected', 'autofocus', 'itemscope', 'multiple', 'novalidate', 'allowfullscreen', 'allowpaymentrequest', 'formnovalidate', 'autoplay', 'controls', 'loop', 'muted', 'playsinline', 'default', 'ismap', 'reversed', 'async', 'defer', 'nomodule'];
     return booleanAttributes.includes(attrName);
   }
@@ -5629,7 +5629,7 @@
     var _this6 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    // We don't want to transition on the initial page load.
+
     if (forceSkip) return hide();
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0];
@@ -6155,7 +6155,7 @@
         if (el.value === value) return;
         el.value = value;
       }
-    } else if (attrName === 'class') {
+    } else if ( attrName === 'class') {
       if (Array.isArray(value)) {
         var originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
@@ -6368,7 +6368,7 @@
 
     var extraVars = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
 
-    if (modifiers.includes('away')) {
+    if ( modifiers.includes('away')) {
       var _handler = function handler(e) {
         _newArrowCheck(this, _this);
 
@@ -6426,7 +6426,7 @@
         }
       }.bind(this);
 
-      if (modifiers.includes('debounce')) {
+      if ( modifiers.includes('debounce')) {
         var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
         var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
         _handler2 = debounce(_handler2, wait);
@@ -6461,7 +6461,7 @@
       return !['window', 'document', 'prevent', 'stop'].includes(i);
     }.bind(this));
 
-    if (keyModifiers.includes('debounce')) {
+    if ( keyModifiers.includes('debounce')) {
       var debounceIndex = keyModifiers.indexOf('debounce');
       keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
     } // If no modifier is specified, we'll call it a press.
@@ -6622,8 +6622,9 @@
   });
 
   function wrap(data, mutationCallback) {
-    /* IE11-ONLY:START */
-    return wrapForIe11(data, mutationCallback);
+    {
+      return wrapForIe11(data, mutationCallback);
+    }
   }
   function unwrap(membrane, observable) {
     var _this = this;
@@ -6699,16 +6700,16 @@
       this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {
         $el: this.$el
       });
-      /* IE11-ONLY:START */
-      // For IE11, add our magic properties to the original data for access.
-      // The Proxy polyfill does not allow properties to be added after creation.
 
-      this.unobservedData.$el = null;
-      this.unobservedData.$refs = null;
-      this.unobservedData.$nextTick = null;
-      this.unobservedData.$watch = null;
-      /* IE11-ONLY:END */
-      // Construct a Proxy-based observable. This will be used to handle reactivity.
+      {
+        // For IE11, add our magic properties to the original data for access.
+        // The Proxy polyfill does not allow properties to be added after creation.
+        this.unobservedData.$el = null;
+        this.unobservedData.$refs = null;
+        this.unobservedData.$nextTick = null;
+        this.unobservedData.$watch = null;
+      } // Construct a Proxy-based observable. This will be used to handle reactivity.
+
 
       var _this$wrapDataInObser = this.wrapDataInObservable(this.unobservedData),
           membrane = _this$wrapDataInObser.membrane,
@@ -7002,7 +7003,10 @@
               break;
 
             case 'model':
-              registerModelListener(this, el, modifiers, expression, extraVars);
+              {
+                registerModelListener(this, el, modifiers, expression, extraVars);
+              }
+
               break;
           }
         }.bind(this));
@@ -7016,7 +7020,7 @@
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
         var attrs = getXAttrs(el, this);
 
-        if (el.type !== undefined && el.type === 'radio') {
+        if ( el.type !== undefined && el.type === 'radio') {
           // If there's an x-model on a radio input, move it to end of attribute list
           // to ensure that x-bind:value (if present) is processed first.
           var modelIdx = attrs.findIndex(function (attr) {
@@ -7042,12 +7046,15 @@
 
           switch (type) {
             case 'model':
-              handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
+              {
+                handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
+              }
+
               break;
 
             case 'bind':
               // The :key binding on an x-for is special, ignore it.
-              if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
+              if ( el.tagName.toLowerCase() === 'template' && value === 'key') return;
               handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
               break;
 
@@ -7066,19 +7073,25 @@
               break;
 
             case 'if':
-              // If this element also has x-for on it, don't process x-if.
-              // We will let the "x-for" directive handle the "if"ing.
-              if (attrs.filter(function (i) {
-                _newArrowCheck(this, _this17);
+              {
+                // If this element also has x-for on it, don't process x-if.
+                // We will let the "x-for" directive handle the "if"ing.
+                if (attrs.filter(function (i) {
+                  _newArrowCheck(this, _this17);
 
-                return i.type === 'for';
-              }.bind(this)).length > 0) return;
-              var output = this.evaluateReturnExpression(el, expression, extraVars);
-              handleIfDirective(this, el, output, initialUpdate, extraVars);
+                  return i.type === 'for';
+                }.bind(this)).length > 0) return;
+                var output = this.evaluateReturnExpression(el, expression, extraVars);
+                handleIfDirective(this, el, output, initialUpdate, extraVars);
+              }
+
               break;
 
             case 'for':
-              handleForDirective(this, el, expression, initialUpdate, extraVars);
+              {
+                handleForDirective(this, el, expression, initialUpdate, extraVars);
+              }
+
               break;
 
             case 'cloak':
@@ -7190,25 +7203,25 @@
 
         var self = this;
         var refObj = {};
-        /* IE11-ONLY:START */
-        // Add any properties up-front that might be necessary for the Proxy polyfill.
 
-        refObj.$isRefsProxy = false;
-        refObj.$isAlpineProxy = false; // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
-        // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
+        {
+          // Add any properties up-front that might be necessary for the Proxy polyfill.
+          refObj.$isRefsProxy = false;
+          refObj.$isAlpineProxy = false; // If we are in IE, since the polyfill needs all properties to be defined before building the proxy,
+          // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
 
-        this.walkAndSkipNestedComponents(self.$el, function (el) {
-          _newArrowCheck(this, _this24);
+          this.walkAndSkipNestedComponents(self.$el, function (el) {
+            _newArrowCheck(this, _this24);
 
-          if (el.hasAttribute('x-ref')) {
-            refObj[el.getAttribute('x-ref')] = true;
-          }
-        }.bind(this));
-        /* IE11-ONLY:END */
-        // One of the goals of this is to not hold elements in memory, but rather re-evaluate
+            if (el.hasAttribute('x-ref')) {
+              refObj[el.getAttribute('x-ref')] = true;
+            }
+          }.bind(this));
+        } // One of the goals of this is to not hold elements in memory, but rather re-evaluate
         // the DOM when the system needs something from it. This way, the framework is flexible and
         // friendly to outside DOM changes from libraries like Vue/Livewire.
         // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
+
 
         return new Proxy(refObj, {
           get: function get(object, property) {

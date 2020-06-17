@@ -128,14 +128,14 @@
 
     return new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
   }
-  const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/;
+  const xAttrRE =  /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/ ;
   function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name);
     return xAttrRE.test(name);
   }
   function getXAttrs(el, component, type) {
     return Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute).flatMap(i => {
-      if (i.type === 'spread') {
+      if ( i.type === 'spread') {
         let directiveBindings = saferEval(i.expression, component.$data);
         return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({
           name,
@@ -168,8 +168,8 @@
   }
 
   function isBooleanAttr(attrName) {
-    // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
     // Array roughly ordered by estimated usage
+
     const booleanAttributes = ['disabled', 'checked', 'required', 'readonly', 'hidden', 'open', 'selected', 'autofocus', 'itemscope', 'multiple', 'novalidate', 'allowfullscreen', 'allowpaymentrequest', 'formnovalidate', 'autoplay', 'controls', 'loop', 'muted', 'playsinline', 'default', 'ismap', 'reversed', 'async', 'defer', 'nomodule'];
     return booleanAttributes.includes(attrName);
   }
@@ -206,7 +206,7 @@
     }
   }
   function transitionOut(el, hide, component, forceSkip = false) {
-    // We don't want to transition on the initial page load.
+
     if (forceSkip) return hide();
     const attrs = getXAttrs(el, component, 'transition');
     const showAttr = getXAttrs(el, component, 'show')[0];
@@ -601,7 +601,7 @@
         if (el.value === value) return;
         el.value = value;
       }
-    } else if (attrName === 'class') {
+    } else if ( attrName === 'class') {
       if (Array.isArray(value)) {
         const originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
@@ -753,7 +753,7 @@
   }
 
   function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
-    if (modifiers.includes('away')) {
+    if ( modifiers.includes('away')) {
       let handler = e => {
         // Don't do anything if the click came form the element or within it.
         if (el.contains(e.target)) return; // Don't do anything if this element isn't currently visible.
@@ -807,7 +807,7 @@
         }
       };
 
-      if (modifiers.includes('debounce')) {
+      if ( modifiers.includes('debounce')) {
         let nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
         let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
         handler = debounce(handler, wait);
@@ -834,7 +834,7 @@
       return !['window', 'document', 'prevent', 'stop'].includes(i);
     });
 
-    if (keyModifiers.includes('debounce')) {
+    if ( keyModifiers.includes('debounce')) {
       let debounceIndex = keyModifiers.indexOf('debounce');
       keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || 'invalid-wait').split('ms')[0]) ? 2 : 1);
     } // If no modifier is specified, we'll call it a press.
@@ -1338,7 +1338,7 @@
       this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {
         $el: this.$el
       });
-      // Construct a Proxy-based observable. This will be used to handle reactivity.
+
 
       let {
         membrane,
@@ -1532,7 +1532,10 @@
             break;
 
           case 'model':
-            registerModelListener(this, el, modifiers, expression, extraVars);
+            {
+              registerModelListener(this, el, modifiers, expression, extraVars);
+            }
+
             break;
         }
       });
@@ -1541,7 +1544,7 @@
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
       let attrs = getXAttrs(el, this);
 
-      if (el.type !== undefined && el.type === 'radio') {
+      if ( el.type !== undefined && el.type === 'radio') {
         // If there's an x-model on a radio input, move it to end of attribute list
         // to ensure that x-bind:value (if present) is processed first.
         const modelIdx = attrs.findIndex(attr => attr.type === 'model');
@@ -1559,12 +1562,15 @@
       }) => {
         switch (type) {
           case 'model':
-            handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
+            {
+              handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
+            }
+
             break;
 
           case 'bind':
             // The :key binding on an x-for is special, ignore it.
-            if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
+            if ( el.tagName.toLowerCase() === 'template' && value === 'key') return;
             handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
             break;
 
@@ -1583,15 +1589,21 @@
             break;
 
           case 'if':
-            // If this element also has x-for on it, don't process x-if.
-            // We will let the "x-for" directive handle the "if"ing.
-            if (attrs.filter(i => i.type === 'for').length > 0) return;
-            var output = this.evaluateReturnExpression(el, expression, extraVars);
-            handleIfDirective(this, el, output, initialUpdate, extraVars);
+            {
+              // If this element also has x-for on it, don't process x-if.
+              // We will let the "x-for" directive handle the "if"ing.
+              if (attrs.filter(i => i.type === 'for').length > 0) return;
+              var output = this.evaluateReturnExpression(el, expression, extraVars);
+              handleIfDirective(this, el, output, initialUpdate, extraVars);
+            }
+
             break;
 
           case 'for':
-            handleForDirective(this, el, expression, initialUpdate, extraVars);
+            {
+              handleForDirective(this, el, expression, initialUpdate, extraVars);
+            }
+
             break;
 
           case 'cloak':
@@ -1666,10 +1678,10 @@
     getRefsProxy() {
       var self = this;
       var refObj = {};
-      // One of the goals of this is to not hold elements in memory, but rather re-evaluate
       // the DOM when the system needs something from it. This way, the framework is flexible and
       // friendly to outside DOM changes from libraries like Vue/Livewire.
       // For this reason, I'm using an "on-demand" proxy to fake a "$refs" object.
+
 
       return new Proxy(refObj, {
         get(object, property) {

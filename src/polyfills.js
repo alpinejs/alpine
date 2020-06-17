@@ -8,3 +8,4 @@ import "@webcomponents/template"
 import "custom-event-polyfill"
 
 SVGElement.prototype.contains = SVGElement.prototype.contains || HTMLElement.prototype.contains
+SVGPathElement.prototype.contains = SVGPathElement.prototype.contains || HTMLElement.prototype.contains

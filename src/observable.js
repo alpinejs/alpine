@@ -1,7 +1,7 @@
 import ObservableMembrane from 'observable-membrane'
 
 export function wrap(data, mutationCallback) {
-    if (process.env.IE11_ONLY) {
+    if (process.env.LITE || process.env.IE11_ONLY) {
         return wrapForIe11(data, mutationCallback)
     }
 

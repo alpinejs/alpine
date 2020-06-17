@@ -89,7 +89,9 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
     )
 }
 
-const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/
+const xAttrRE = !process.env.LITE
+    ? /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/
+    : /^x-(on|bind|data|text|html|show|cloak|ref)\b/
 
 export function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name)
@@ -102,7 +104,7 @@ export function getXAttrs(el, component, type) {
         .filter(isXAttr)
         .map(parseHtmlAttribute)
         .flatMap(i => {
-            if (i.type === 'spread') {
+            if (!process.env.LITE && i.type === 'spread') {
                 let directiveBindings = saferEval(i.expression, component.$data)
 
                 return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({ name, value }))
@@ -134,6 +136,8 @@ function parseHtmlAttribute({ name, value }) {
 }
 
 export function isBooleanAttr(attrName) {
+    if (process.env.LITE) return false
+
     // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
     // Array roughly ordered by estimated usage
     const booleanAttributes = [
@@ -162,6 +166,7 @@ export function convertClassStringToArray(classList, filterFn = Boolean) {
 }
 
 export function transitionIn(el, show, component, forceSkip = false) {
+    if (process.env.LITE) return show()
     if (forceSkip) return show()
 
     const attrs = getXAttrs(el, component, 'transition')
@@ -191,6 +196,7 @@ export function transitionIn(el, show, component, forceSkip = false) {
 }
 
 export function transitionOut(el, hide, component, forceSkip = false) {
+    if (process.env.LITE) return hide()
      // We don't want to transition on the initial page load.
     if (forceSkip) return hide()
 

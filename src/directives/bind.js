@@ -41,7 +41,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
 
             el.value = value
         }
-    } else if (attrName === 'class') {
+    } else if (!process.env.LITE && attrName === 'class') {
         if (Array.isArray(value)) {
             const originalClasses = el.__x_original_classes || []
             el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))

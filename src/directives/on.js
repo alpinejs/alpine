@@ -1,7 +1,7 @@
 import { kebabCase, debounce, isNumeric } from '../utils'
 
 export function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
-    if (modifiers.includes('away')) {
+    if (!process.env.LITE && modifiers.includes('away')) {
         let handler = e => {
             // Don't do anything if the click came form the element or within it.
             if (el.contains(e.target)) return
@@ -59,7 +59,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
             }
         }
 
-        if (modifiers.includes('debounce')) {
+        if (!process.env.LITE && modifiers.includes('debounce')) {
             let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
             let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
             handler = debounce(handler, wait, this)
@@ -84,7 +84,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
         return ! ['window', 'document', 'prevent', 'stop'].includes(i)
     })
 
-    if (keyModifiers.includes('debounce')) {
+    if (!process.env.LITE && keyModifiers.includes('debounce')) {
         let debounceIndex = keyModifiers.indexOf('debounce')
         keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex+1] || 'invalid-wait').split('ms')[0]) ? 2 : 1)
     }

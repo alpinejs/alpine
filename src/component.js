@@ -231,7 +231,9 @@ export default class Component {
                     break;
 
                 case 'model':
-                    registerModelListener(this, el, modifiers, expression, extraVars)
+                    if (!process.env.LITE) {
+                        registerModelListener(this, el, modifiers, expression, extraVars)
+                    }
                     break;
                 default:
                     break;
@@ -241,7 +243,7 @@ export default class Component {
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
         let attrs = getXAttrs(el, this)
-        if (el.type !== undefined && el.type === 'radio') {
+        if (!process.env.LITE &&el.type !== undefined && el.type === 'radio') {
             // If there's an x-model on a radio input, move it to end of attribute list
             // to ensure that x-bind:value (if present) is processed first.
             const modelIdx = attrs.findIndex((attr) => attr.type === 'model')
@@ -253,12 +255,14 @@ export default class Component {
         attrs.forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':
-                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type)
+                    if (!process.env.LITE) {
+                        handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type)
+                    }
                     break;
 
                 case 'bind':
                     // The :key binding on an x-for is special, ignore it.
-                    if (el.tagName.toLowerCase() === 'template' && value === 'key') return
+                    if (!process.env.LITE &&el.tagName.toLowerCase() === 'template' && value === 'key') return
 
                     handleAttributeBindingDirective(this, el, value, expression, extraVars, type)
                     break;
@@ -280,17 +284,21 @@ export default class Component {
                     break;
 
                 case 'if':
+                    if (!process.env.LITE) {
                     // If this element also has x-for on it, don't process x-if.
                     // We will let the "x-for" directive handle the "if"ing.
-                    if (attrs.filter(i => i.type === 'for').length > 0) return
+                        if (attrs.filter(i => i.type === 'for').length > 0) return
 
-                    var output = this.evaluateReturnExpression(el, expression, extraVars)
+                        var output = this.evaluateReturnExpression(el, expression, extraVars)
 
-                    handleIfDirective(this, el, output, initialUpdate, extraVars)
+                        handleIfDirective(this, el, output, initialUpdate, extraVars)
+                    }
                     break;
 
                 case 'for':
-                    handleForDirective(this, el, expression, initialUpdate, extraVars)
+                    if (!process.env.LITE) {
+                        handleForDirective(this, el, expression, initialUpdate, extraVars)
+                    }
                     break;
 
                 case 'cloak':

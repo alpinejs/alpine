@@ -48,6 +48,13 @@
             </thead>
             <tbody>
                 <tr>
+                    <td>Broken Component</td>
+                    <td>
+                        <div x-data="some.bad.expression()">I'm a broken component</div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Simple x-if</td>
                     <td>
                         <div x-data="{ show: false }">
@@ -431,7 +438,7 @@
                     <td>x-bind spread</td>
                     <td>
                         <div x-data="modal()">
-                            I should be "hey": <span x-bind="bound"></span>
+                            I should be "hey": <span x-spread="bound"></span>
                         </div>
 
                         <script>

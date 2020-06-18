@@ -7201,7 +7201,7 @@
   }();
 
   var Alpine = {
-    version: "2.3.5",
+    version: "2.4.0",
     pauseMutationObserver: false,
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {

@@ -113,7 +113,7 @@ There are 13 directives available to you:
 | [`x-if`](#x-if) | Remove an element completely from the DOM. Needs to be used on a `<template>` tag. |
 | [`x-for`](#x-for) | Create new DOM nodes for each item in an array. Needs to be used on a `<template>` tag. |
 | [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition |
-| [`x-spread`](#x-spread) | Allows you to bind an object of Alpine directives to an element for better reausibility |
+| [`x-spread`](#x-spread) | Allows you to bind an object of Alpine directives to an element for better reusability |
 | [`x-cloak`](#x-cloak) | This attribute is removed when Alpine initializes. Useful for hiding pre-initialized DOM. |
 
 And 6 magic properties:

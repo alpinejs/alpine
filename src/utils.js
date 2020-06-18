@@ -98,24 +98,24 @@ export function isXAttr(attr) {
 }
 
 export function getXAttrs(el, component, type) {
-    return Array.from(el.attributes)
-        .filter(isXAttr)
-        .map(parseHtmlAttribute)
-        .flatMap(i => {
-            if (i.type === 'spread') {
-                let directiveBindings = saferEval(i.expression, component.$data)
+    let directives = Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute)
 
-                return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({ name, value }))
-            } else {
-                return i
-            }
-        })
-        .filter(i => {
-            // If no type is passed in for filtering, bypass filter
-            if (! type) return true
+    // Get an object of directives from x-spread.
+    let spreadDirective = directives.filter(directive => directive.type === 'spread')[0]
 
-            return i.type === type
-        })
+    if (spreadDirective) {
+        let spreadObject = saferEval(spreadDirective.expression, component.$data)
+
+        // Add x-spread directives to the pile of existing directives.
+        directives = directives.concat(Object.entries(spreadObject).map(([name, value]) => parseHtmlAttribute({ name, value })))
+    }
+
+    return directives.filter(i => {
+        // If no type is passed in for filtering, bypass filter
+        if (! type) return true
+
+        return i.type === type
+    })
 }
 
 function parseHtmlAttribute({ name, value }) {

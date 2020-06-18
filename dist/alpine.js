@@ -134,17 +134,20 @@
     return xAttrRE.test(name);
   }
   function getXAttrs(el, component, type) {
-    return Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute).flatMap(i => {
-      if (i.type === 'spread') {
-        let directiveBindings = saferEval(i.expression, component.$data);
-        return Object.entries(directiveBindings).map(([name, value]) => parseHtmlAttribute({
-          name,
-          value
-        }));
-      } else {
-        return i;
-      }
-    }).filter(i => {
+    let directives = Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute); // Get an object of directives from x-spread.
+
+    let spreadDirective = directives.filter(directive => directive.type === 'spread')[0];
+
+    if (spreadDirective) {
+      let spreadObject = saferEval(spreadDirective.expression, component.$data); // Add x-spread directives to the pile of existing directives.
+
+      directives = directives.concat(Object.entries(spreadObject).map(([name, value]) => parseHtmlAttribute({
+        name,
+        value
+      })));
+    }
+
+    return directives.filter(i => {
       // If no type is passed in for filtering, bypass filter
       if (!type) return true;
       return i.type === type;
@@ -648,7 +651,7 @@
 
   function handleTextDirective(el, output, expression) {
     // If nested model key is undefined, set the default value to empty string.
-    if (output === undefined && expression.match(/\./).length) {
+    if (output === undefined && expression.match(/\./)) {
       output = '';
     }
 

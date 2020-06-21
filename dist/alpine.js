@@ -1667,7 +1667,7 @@
   }
 
   const Alpine = {
-    version: "2.4.0",
+    version: "2.4.1",
     pauseMutationObserver: false,
     start: async function start() {
       if (!isTesting()) {

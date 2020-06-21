@@ -408,7 +408,7 @@ export function transition(el, stages) {
             stages.end()
 
             // Assign current transition to el in case we need to force it.
-            el.__x_transition_remaining = once(() => {
+            setTimeout(() => {
                 stages.hide()
 
                 // Adding an "isConnected" check, in case the callback
@@ -416,27 +416,11 @@ export function transition(el, stages) {
                 if (el.isConnected) {
                     stages.cleanup()
                 }
-
-                 // Safe to remove transition from el since it is completed.
-                 delete el.__x_transition_remaining
-            })
-
-            setTimeout(el.__x_transition_remaining, duration);
+            }, duration)
         })
     });
 }
 
 export function isNumeric(subject){
     return ! isNaN(subject)
-}
-
-export function once(callback) {
-    let called = false
-
-    return function () {
-        if (! called) {
-            called = true
-            callback.apply(this, arguments)
-        }
-    }
 }

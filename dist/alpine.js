@@ -80,6 +80,9 @@
   function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
   }
+  function camelCase(subject) {
+    return subject.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (match, char) => char.toUpperCase());
+  }
   function walk(el, callback) {
     if (callback(el) === false) return;
     let node = el.firstElementChild;
@@ -551,7 +554,7 @@
     }
   }
 
-  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
+  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType, modifiers) {
     var value = component.evaluateReturnExpression(el, expression, extraVars);
 
     if (attrName === 'value') {
@@ -612,7 +615,8 @@
         el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
       }
     } else {
-      // If an attribute's bound value is null, undefined or false, remove the attribute
+      attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName; // If an attribute's bound value is null, undefined or false, remove the attribute
+
       if ([null, undefined, false].includes(value)) {
         el.removeAttribute(attrName);
       } else {
@@ -621,7 +625,7 @@
     }
   }
 
-  function setIfChanged(el, attrName, value) {
+  function setIfChanged(el, attrName, value, namespaced = false) {
     if (el.getAttribute(attrName) != value) {
       el.setAttribute(attrName, value);
     }
@@ -1535,13 +1539,13 @@
       }) => {
         switch (type) {
           case 'model':
-            handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
+            handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type, modifiers);
             break;
 
           case 'bind':
             // The :key binding on an x-for is special, ignore it.
             if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
-            handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
+            handleAttributeBindingDirective(this, el, value, expression, extraVars, type, modifiers);
             break;
 
           case 'text':

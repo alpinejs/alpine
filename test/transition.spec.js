@@ -135,15 +135,12 @@ test('transition out', async () => {
     expect(document.querySelector('span').classList.contains('leave-end')).toEqual(true)
     expect(document.querySelector('span').getAttribute('style')).toEqual(null)
 
-    await new Promise((resolve) =>
-        setTimeout(() => {
-            expect(document.querySelector('span').classList.contains('leave')).toEqual(false)
-            expect(document.querySelector('span').classList.contains('leave-start')).toEqual(false)
-            expect(document.querySelector('span').classList.contains('leave-end')).toEqual(false)
-            expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
-            resolve();
-        }, 10)
-    )
+    await timeout(10)
+
+    expect(document.querySelector('span').classList.contains('leave')).toEqual(false)
+    expect(document.querySelector('span').classList.contains('leave-start')).toEqual(false)
+    expect(document.querySelector('span').classList.contains('leave-end')).toEqual(false)
+    expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;')
 })
 
 test('if only transition leave directives are present, don\'t transition in at all', async () => {
@@ -619,4 +616,119 @@ test('x-transition supports css animation', async () => {
         }, 10)
     )
     expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(false)
+})
+
+test('x-transition do not overlap', async () => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        setTimeout(callback, 0)
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: true }">
+            <button x-on:click="show = ! show"></button>
+
+            <span x-show.transition="show"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    // Initial state
+    expect(document.querySelector('span').style.display).toEqual("")
+    expect(document.querySelector('span').style.opacity).toEqual("")
+    expect(document.querySelector('span').style.transform).toEqual("")
+    expect(document.querySelector('span').style.transformOrigin).toEqual("")
+
+    // Trigger transition out
+    document.querySelector('button').click()
+
+    // Trigger transition in before the previous one has finished
+    await timeout(10)
+    document.querySelector('button').click()
+
+    // Check the element is still visible and style properties are correct
+    await timeout(200)
+    expect(document.querySelector('span').style.display).toEqual("")
+    expect(document.querySelector('span').style.opacity).toEqual("")
+    expect(document.querySelector('span').style.transform).toEqual("")
+    expect(document.querySelector('span').style.transformOrigin).toEqual("")
+
+    // Hide the element
+    document.querySelector('button').click()
+    await timeout(200)
+    expect(document.querySelector('span').style.display).toEqual("none")
+    expect(document.querySelector('span').style.opacity).toEqual("")
+    expect(document.querySelector('span').style.transform).toEqual("")
+    expect(document.querySelector('span').style.transformOrigin).toEqual("")
+
+    // Trigger transition in
+    document.querySelector('button').click()
+
+    // Trigger transition out before the previous one has finished
+    await timeout(10)
+    document.querySelector('button').click()
+
+    // Check the element is hidden and style properties are correct
+    await timeout(200)
+    expect(document.querySelector('span').style.display).toEqual("none")
+    expect(document.querySelector('span').style.opacity).toEqual("")
+    expect(document.querySelector('span').style.transform).toEqual("")
+    expect(document.querySelector('span').style.transformOrigin).toEqual("")
+})
+
+test('x-transition using classes do not overlap', async () => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        setTimeout(callback, 0)
+    });
+    jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
+        return { transitionDuration: '.1s' }
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: true }">
+            <button x-on:click="show = ! show"></button>
+
+            <span x-show="show"
+                x-transition:enter="enter"
+                x-transition:leave="leave">
+            </span>
+        </div>
+    `
+
+    Alpine.start()
+
+    // Initial state
+    expect(document.querySelector('span').style.display).toEqual("")
+
+    const emptyClassList = document.querySelector('span').classList
+
+    // Trigger transition out
+    document.querySelector('button').click()
+
+    // Trigger transition in before the previous one has finished
+    await timeout(10)
+    document.querySelector('button').click()
+
+    // Check the element is still visible and class property is correct
+    await timeout(200)
+    expect(document.querySelector('span').style.display).toEqual("")
+    expect(document.querySelector('span').classList).toEqual(emptyClassList)
+
+    // Hide the element
+    document.querySelector('button').click()
+    await timeout(200)
+    expect(document.querySelector('span').style.display).toEqual("none")
+    expect(document.querySelector('span').classList).toEqual(emptyClassList)
+
+    // Trigger transition in
+    document.querySelector('button').click()
+
+    // Trigger transition out before the previous one has finished
+    await timeout(10)
+    document.querySelector('button').click()
+
+    // Check the element is hidden and class property is correct
+    await timeout(200)
+    expect(document.querySelector('span').style.display).toEqual("none")
+    expect(document.querySelector('span').classList).toEqual(emptyClassList)
 })

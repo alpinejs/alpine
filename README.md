@@ -529,7 +529,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 ### `x-spread`
 **Example:**
 ```html
-<div x-data="dropdown">
+<div x-data="dropdown()">
     <button x-spread="trigger">Open Dropdown</button>
 
     <span x-spread="dialogue">Dropdown Contents</span>

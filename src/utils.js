@@ -366,27 +366,32 @@ export function transitionClassesOut(el, component, directives, hideCallback) {
 export function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
     const originalClasses = el.__x_original_classes || []
 
+    // To not remove classes that were in the original class attribute
+    const getRidOfOriginalClasses = list => list.filter(i => !originalClasses.includes(i))
+
+    const add = list => el.classList.add(...list)
+    const remove = list => el.classList.remove(...getRidOfOriginalClasses(list))
+
     const stages = {
         start() {
-            el.classList.add(...classesStart)
+            add(classesStart)
         },
         during() {
-            el.classList.add(...classesDuring)
+            add(classesDuring)
         },
         show() {
             hook1()
         },
         end() {
-            // Don't remove classes that were in the original class attribute.
-            el.classList.remove(...classesStart.filter(i => !originalClasses.includes(i)))
-            el.classList.add(...classesEnd)
+            remove(classesStart)
+            add(classesEnd)
         },
         hide() {
             hook2()
         },
         cleanup() {
-            el.classList.remove(...classesDuring.filter(i => !originalClasses.includes(i)))
-            el.classList.remove(...classesEnd.filter(i => !originalClasses.includes(i)))
+            remove(classesDuring)
+            remove(classesEnd)
         },
     }
 

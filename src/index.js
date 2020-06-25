@@ -51,7 +51,7 @@ const Alpine = {
 
         const observerOptions = {
             childList: true,
-            attributes: true,
+            attributeFilter: ['x-data'],
             subtree: true,
         }
 

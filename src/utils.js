@@ -300,16 +300,20 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
     const transitionOpacity = noModifiers || modifiers.includes('opacity')
     const transitionScale = noModifiers || modifiers.includes('scale')
 
+    const setOpacity = value => transitionOpacity && (el.style.opacity = value)
+    const setTransform = value => transitionScale && (el.style.transform = value)
+    const setTransformOrigin = value => transitionScale && (el.style.transformOrigin = value)
+
     // These are the explicit stages of a transition (same stages for in and for out).
     // This way you can get a birds eye view of the hooks, and the differences
     // between them.
     const stages = {
         start() {
-            if (transitionOpacity) el.style.opacity = styleValues.first.opacity
-            if (transitionScale) el.style.transform = `scale(${styleValues.first.scale / 100})`
+            setOpacity(styleValues.first.opacity)
+            setTransform(`scale(${styleValues.first.scale / 100})`)
         },
         during() {
-            if (transitionScale) el.style.transformOrigin = styleValues.origin
+            setTransformOrigin(styleValues.origin)
             el.style.transitionProperty = [(transitionOpacity ? `opacity` : ``), (transitionScale ? `transform` : ``)].join(' ').trim()
             el.style.transitionDuration = `${styleValues.duration / 1000}s`
             el.style.transitionTimingFunction = `cubic-bezier(0.4, 0.0, 0.2, 1)`
@@ -318,16 +322,16 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
             hook1()
         },
         end() {
-            if (transitionOpacity) el.style.opacity = styleValues.second.opacity
-            if (transitionScale) el.style.transform = `scale(${styleValues.second.scale / 100})`
+            setOpacity(styleValues.second.opacity)
+            setTransform(`scale(${styleValues.second.scale / 100})`)
         },
         hide() {
             hook2()
         },
         cleanup() {
-            if (transitionOpacity) el.style.opacity = opacityCache
-            if (transitionScale) el.style.transform = transformCache
-            if (transitionScale) el.style.transformOrigin = transformOriginCache
+            setOpacity(opacityCache)
+            setTransform(transformCache)
+            setTransformOrigin(transformOriginCache)
             el.style.transitionProperty = null
             el.style.transitionDuration = null
             el.style.transitionTimingFunction = null

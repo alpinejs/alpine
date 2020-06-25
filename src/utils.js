@@ -110,10 +110,9 @@ export function getXAttrs(el, component, type) {
         directives = directives.concat(Object.entries(spreadObject).map(([name, value]) => parseHtmlAttribute({ name, value })))
     }
     
-    // If no type is passed in for filtering, bypass filter
-    if (!type) return directives;
+    if (type) return directives.filter(i => i.type === type)
 
-    return directives.filter(i => i.type === type)
+    return directives;
 }
 
 function parseHtmlAttribute({ name, value }) {

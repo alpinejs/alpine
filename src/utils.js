@@ -367,10 +367,10 @@ export function transitionClasses(el, classesDuring, classesStart, classesEnd, h
     const originalClasses = el.__x_original_classes || []
 
     // To not remove classes that were in the original class attribute
-    const getRidOfOriginalClasses = list => list.filter(i => !originalClasses.includes(i))
+    const getTransitionClassesOnly = list => list.filter(i => !originalClasses.includes(i))
 
     const add = list => el.classList.add(...list)
-    const remove = list => el.classList.remove(...getRidOfOriginalClasses(list))
+    const remove = list => el.classList.remove(...getTransitionClassesOnly(list))
 
     const stages = {
         start() {

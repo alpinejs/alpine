@@ -58,22 +58,22 @@ const Alpine = {
         const observer = new MutationObserver((mutations) => {
             if (this.pauseMutationObserver) return;
 
-            for (let i=0; i < mutations.length; i++){
-                if (mutations[i].addedNodes.length > 0) {
-                    mutations[i].addedNodes.forEach(node => {
-                        // Discard non-element nodes (like line-breaks)
-                        if (node.nodeType !== 1) return
+            mutations.forEach(mutation => {
+                if (mutation.addedNodes.length === 0) return;
 
-                        // Discard any changes happening within an existing component.
-                        // They will take care of themselves.
-                        if (node.parentElement && node.parentElement.closest('[x-data]')) return
+                mutation.addedNodes.forEach(node => {
+                    // Discard non-element nodes (like line-breaks)
+                    if (node.nodeType !== 1) return
 
-                        this.discoverUninitializedComponents((el) => {
-                            this.initializeComponent(el)
-                        }, node.parentElement)
-                    })
-                }
-              }
+                    // Discard any changes happening within an existing component.
+                    // They will take care of themselves.
+                    if (node.parentElement && node.parentElement.closest('[x-data]')) return
+
+                    this.discoverUninitializedComponents((el) => {
+                        this.initializeComponent(el)
+                    }, node.parentElement)
+                })
+            })
         })
 
         observer.observe(targetNode, observerOptions)

@@ -348,17 +348,21 @@ export function transitionClassesIn(el, component, directives, showCallback) {
             : expression
     }
 
-    const enter = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter') || { expression: '' }).expression))
-    const enterStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-start') || { expression: '' }).expression))
-    const enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-end') || { expression: '' }).expression))
+    const getClassesBy = value => convertClassStringToArray(ensureStringExpression((directives.find(d => d.value === value) || { expression: '' }).expression))
+
+    const enter = getClassesBy('enter')
+    const enterStart = getClassesBy('enter-start')
+    const enterEnd = getClassesBy('enter-end')
 
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {})
 }
 
 export function transitionClassesOut(el, component, directives, hideCallback) {
-    const leave = convertClassStringToArray((directives.find(i => i.value === 'leave') || { expression: '' }).expression)
-    const leaveStart = convertClassStringToArray((directives.find(i => i.value === 'leave-start') || { expression: '' }).expression)
-    const leaveEnd = convertClassStringToArray((directives.find(i => i.value === 'leave-end') || { expression: '' }).expression)
+    const getClassesBy = value => convertClassStringToArray((directives.find(d => d.value === value) || { expression: '' }).expression)
+
+    const leave = getClassesBy('leave')
+    const leaveStart = getClassesBy('leave-start')
+    const leaveEnd = getClassesBy('leave-end')
 
     transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback)
 }

@@ -97,7 +97,7 @@ You can even use it for non-trivial things:
 
 ## Learn
 
-There are 13 directives available to you:
+There are 14 directives available to you:
 
 | Directive | Description |
 | --- | --- |

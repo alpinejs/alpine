@@ -289,6 +289,12 @@ function modifierValue(modifiers, key, fallback) {
     return rawValue
 }
 
+export function registerTransitionListeners(el) {
+    el.addEventListener('transitionrun', () => el.isTransitioning = true)
+    el.addEventListener('transitionend', () => el.isTransitioning = false)
+    el.addEventListener('transitioncancel', () => el.isTransitioning = false)
+}
+
 export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
     // If the user set these style values, we'll put them back when we're done with them.
     const opacityCache = el.style.opacity
@@ -390,7 +396,8 @@ export function transitionClasses(el, classesDuring, classesStart, classesEnd, h
 }
 
 export function transition(el, stages) {
-    stages.start()
+    if (el.isTransitioning) return
+	stages.start()
     stages.during()
 
     requestAnimationFrame(() => {

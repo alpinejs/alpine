@@ -6231,11 +6231,14 @@
       _newArrowCheck(this, _this);
 
       if (value) {
-        transitionIn(el, function () {
-          _newArrowCheck(this, _this2);
+        if (el.style.display === 'none') {
+          transitionIn(el, function () {
+            _newArrowCheck(this, _this2);
 
-          show();
-        }.bind(this), component);
+            show();
+          }.bind(this), component);
+        }
+
         resolve(function () {
           _newArrowCheck(this, _this2);
         }.bind(this));

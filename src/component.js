@@ -1,4 +1,4 @@
-import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, convertClassStringToArray } from './utils'
+import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, convertClassStringToArray, registerTransitionListeners } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleTextDirective } from './directives/text'
@@ -226,6 +226,10 @@ export default class Component {
     registerListeners(el, extraVars) {
         getXAttrs(el, this).forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
+                case 'show':
+                    registerTransitionListeners(el)
+                    break;
+
                 case 'on':
                     registerListener(this, el, value, modifiers, expression, extraVars)
                     break;

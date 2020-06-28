@@ -161,8 +161,18 @@ export function convertClassStringToArray(classList, filterFn = Boolean) {
     return classList.split(' ').filter(filterFn)
 }
 
+const TRANSITION_TYPE_IN = 'in'
+const TRANSITION_TYPE_OUT = 'out'
+
 export function transitionIn(el, show, component, forceSkip = false) {
+    // We don't want to transition on the initial page load.
     if (forceSkip) return show()
+
+    if (el.__x_transition && el.__x_transition.type === TRANSITION_TYPE_IN) {
+        // there is already a similar transition going on, this was probably triggered by
+        // a change in a different property, let's just leave the previous one doing its job
+        return
+    }
 
     const attrs = getXAttrs(el, component, 'transition')
     const showAttr = getXAttrs(el, component, 'show')[0]
@@ -191,8 +201,14 @@ export function transitionIn(el, show, component, forceSkip = false) {
 }
 
 export function transitionOut(el, hide, component, forceSkip = false) {
-     // We don't want to transition on the initial page load.
+    // We don't want to transition on the initial page load.
     if (forceSkip) return hide()
+
+    if (el.__x_transition && el.__x_transition.type === TRANSITION_TYPE_OUT) {
+        // there is already a similar transition going on, this was probably triggered by
+        // a change in a different property, let's just leave the previous one doing its job
+        return
+    }
 
     const attrs = getXAttrs(el, component, 'transition')
     const showAttr = getXAttrs(el, component, 'show')[0]
@@ -230,7 +246,7 @@ export function transitionHelperIn(el, modifiers, showCallback) {
         },
     }
 
-    transitionHelper(el, modifiers, showCallback, () => {}, styleValues)
+    transitionHelper(el, modifiers, showCallback, () => {}, styleValues, TRANSITION_TYPE_IN)
 }
 
 export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
@@ -254,7 +270,7 @@ export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition,
         },
     }
 
-    transitionHelper(el, modifiers, () => {}, hideCallback, styleValues)
+    transitionHelper(el, modifiers, () => {}, hideCallback, styleValues, TRANSITION_TYPE_OUT)
 }
 
 function modifierValue(modifiers, key, fallback) {
@@ -289,7 +305,12 @@ function modifierValue(modifiers, key, fallback) {
     return rawValue
 }
 
-export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
+export function transitionHelper(el, modifiers, hook1, hook2, styleValues, type) {
+    // clear the previous transition if exists to avoid caching the wrong styles
+    if (el.__x_transition) {
+        el.__x_transition.callback()
+    }
+
     // If the user set these style values, we'll put them back when we're done with them.
     const opacityCache = el.style.opacity
     const transformCache = el.style.transform
@@ -334,7 +355,7 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
         },
     }
 
-    transition(el, stages)
+    transition(el, stages, type)
 }
 
 export function transitionClassesIn(el, component, directives, showCallback) {
@@ -348,7 +369,7 @@ export function transitionClassesIn(el, component, directives, showCallback) {
     const enterStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-start') || { expression: '' }).expression))
     const enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-end') || { expression: '' }).expression))
 
-    transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {})
+    transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {}, TRANSITION_TYPE_IN)
 }
 
 export function transitionClassesOut(el, component, directives, hideCallback) {
@@ -356,10 +377,15 @@ export function transitionClassesOut(el, component, directives, hideCallback) {
     const leaveStart = convertClassStringToArray((directives.find(i => i.value === 'leave-start') || { expression: '' }).expression)
     const leaveEnd = convertClassStringToArray((directives.find(i => i.value === 'leave-end') || { expression: '' }).expression)
 
-    transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback)
+    transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback, TRANSITION_TYPE_OUT)
 }
 
-export function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
+export function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type) {
+    // clear the previous transition if exists to avoid caching the wrong classes
+    if (el.__x_transition) {
+        el.__x_transition.callback()
+    }
+
     const originalClasses = el.__x_original_classes || []
 
     const stages = {
@@ -386,10 +412,10 @@ export function transitionClasses(el, classesDuring, classesStart, classesEnd, h
         },
     }
 
-    transition(el, stages)
+    transition(el, stages, type)
 }
 
-export function transition(el, stages) {
+export function transition(el, stages, type) {
     stages.start()
     stages.during()
 
@@ -407,8 +433,11 @@ export function transition(el, stages) {
         requestAnimationFrame(() => {
             stages.end()
 
+            // Set transition type so we can avoid clearing transition if the direction is the same
+            el.__x_transition = { type: type }
+
             // Assign current transition to el in case we need to force it.
-            setTimeout(() => {
+            el.__x_transition.callback = once(() => {
                 stages.hide()
 
                 // Adding an "isConnected" check, in case the callback
@@ -416,11 +445,28 @@ export function transition(el, stages) {
                 if (el.isConnected) {
                     stages.cleanup()
                 }
-            }, duration)
+
+                delete el.__x_transition
+            })
+
+            setTimeout(el.__x_transition.callback, duration)
         })
     });
 }
 
 export function isNumeric(subject){
     return ! isNaN(subject)
+}
+
+// Thanks @vuejs
+// https://github.com/vuejs/vue/blob/4de4649d9637262a9b007720b59f80ac72a5620c/src/shared/util.js
+export function once(callback) {
+    let called = false
+
+    return function () {
+        if (! called) {
+            called = true
+            callback.apply(this, arguments)
+        }
+    }
 }

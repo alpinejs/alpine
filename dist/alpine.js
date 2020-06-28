@@ -292,11 +292,6 @@
     return rawValue;
   }
 
-  function registerTransitionListeners(el) {
-    el.addEventListener('transitionrun', () => el.isTransitioning = true);
-    el.addEventListener('transitionend', () => el.isTransitioning = false);
-    el.addEventListener('transitioncancel', () => el.isTransitioning = false);
-  }
   function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
     // If the user set these style values, we'll put them back when we're done with them.
     const opacityCache = el.style.opacity;
@@ -409,7 +404,6 @@
     transition(el, stages);
   }
   function transition(el, stages) {
-    if (el.isTransitioning) return;
     stages.start();
     stages.during();
     requestAnimationFrame(() => {
@@ -1509,10 +1503,6 @@
         expression
       }) => {
         switch (type) {
-          case 'show':
-            registerTransitionListeners(el);
-            break;
-
           case 'on':
             registerListener(this, el, value, modifiers, expression, extraVars);
             break;

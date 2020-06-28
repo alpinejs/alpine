@@ -5699,25 +5699,6 @@
     return rawValue;
   }
 
-  function registerTransitionListeners(el) {
-    var _this8 = this;
-
-    el.addEventListener('transitionrun', function () {
-      _newArrowCheck(this, _this8);
-
-      return el.isTransitioning = true;
-    }.bind(this));
-    el.addEventListener('transitionend', function () {
-      _newArrowCheck(this, _this8);
-
-      return el.isTransitioning = false;
-    }.bind(this));
-    el.addEventListener('transitioncancel', function () {
-      _newArrowCheck(this, _this8);
-
-      return el.isTransitioning = false;
-    }.bind(this));
-  }
   function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
     // If the user set these style values, we'll put them back when we're done with them.
     var opacityCache = el.style.opacity;
@@ -5763,65 +5744,65 @@
     transition(el, stages);
   }
   function transitionClassesIn(el, component, directives, showCallback) {
-    var _this9 = this;
+    var _this8 = this;
 
     var ensureStringExpression = function ensureStringExpression(expression) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this8);
 
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
     }.bind(this);
 
     var enter = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this8);
 
       return i.value === 'enter';
     }.bind(this)) || {
       expression: ''
     }).expression));
     var enterStart = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this8);
 
       return i.value === 'enter-start';
     }.bind(this)) || {
       expression: ''
     }).expression));
     var enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this8);
 
       return i.value === 'enter-end';
     }.bind(this)) || {
       expression: ''
     }).expression));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this8);
     }.bind(this));
   }
   function transitionClassesOut(el, component, directives, hideCallback) {
-    var _this10 = this;
+    var _this9 = this;
 
     var leave = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this9);
 
       return i.value === 'leave';
     }.bind(this)) || {
       expression: ''
     }).expression);
     var leaveStart = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this9);
 
       return i.value === 'leave-start';
     }.bind(this)) || {
       expression: ''
     }).expression);
     var leaveEnd = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this9);
 
       return i.value === 'leave-end';
     }.bind(this)) || {
       expression: ''
     }).expression);
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this9);
     }.bind(this), hideCallback);
   }
   function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
@@ -5842,12 +5823,12 @@
       },
       end: function end() {
         var _el$classList3,
-            _this11 = this,
+            _this10 = this,
             _el$classList4;
 
         // Don't remove classes that were in the original class attribute.
         (_el$classList3 = el.classList).remove.apply(_el$classList3, _toConsumableArray(classesStart.filter(function (i) {
-          _newArrowCheck(this, _this11);
+          _newArrowCheck(this, _this10);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -5859,17 +5840,17 @@
       },
       cleanup: function cleanup() {
         var _el$classList5,
-            _this12 = this,
+            _this11 = this,
             _el$classList6;
 
         (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(classesDuring.filter(function (i) {
-          _newArrowCheck(this, _this12);
+          _newArrowCheck(this, _this11);
 
           return !originalClasses.includes(i);
         }.bind(this))));
 
         (_el$classList6 = el.classList).remove.apply(_el$classList6, _toConsumableArray(classesEnd.filter(function (i) {
-          _newArrowCheck(this, _this12);
+          _newArrowCheck(this, _this11);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -5878,15 +5859,14 @@
     transition(el, stages);
   }
   function transition(el, stages) {
-    var _this13 = this;
+    var _this12 = this;
 
-    if (el.isTransitioning) return;
     stages.start();
     stages.during();
     requestAnimationFrame(function () {
-      var _this14 = this;
+      var _this13 = this;
 
-      _newArrowCheck(this, _this13);
+      _newArrowCheck(this, _this12);
 
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
@@ -5898,14 +5878,14 @@
 
       stages.show();
       requestAnimationFrame(function () {
-        var _this15 = this;
+        var _this14 = this;
 
-        _newArrowCheck(this, _this14);
+        _newArrowCheck(this, _this13);
 
         stages.end(); // Assign current transition to el in case we need to force it.
 
         setTimeout(function () {
-          _newArrowCheck(this, _this15);
+          _newArrowCheck(this, _this14);
 
           stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
@@ -6961,10 +6941,6 @@
               expression = _ref.expression;
 
           switch (type) {
-            case 'show':
-              registerTransitionListeners(el);
-              break;
-
             case 'on':
               registerListener(this, el, value, modifiers, expression, extraVars);
               break;

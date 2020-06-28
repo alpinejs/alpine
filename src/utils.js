@@ -397,7 +397,7 @@ export function transitionClasses(el, classesDuring, classesStart, classesEnd, h
 
 export function transition(el, stages) {
     if (el.isTransitioning) return
-	stages.start()
+    stages.start()
     stages.during()
 
     requestAnimationFrame(() => {

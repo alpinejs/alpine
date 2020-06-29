@@ -46,7 +46,7 @@ test('.passive modifier should disable e.preventDefault()', async () => {
     document.body.innerHTML = `
         <div x-data="{ defaultPrevented: null }">
             <button
-                x-on:touchstart.passive="
+                x-on:mousedown.passive="
                     $event.preventDefault();
                     defaultPrevented = $event.defaultPrevented;
                 "
@@ -60,7 +60,7 @@ test('.passive modifier should disable e.preventDefault()', async () => {
 
     expect(document.querySelector('div').__x.$data.defaultPrevented).toEqual(null)
 
-    fireEvent.touchStart(document.querySelector('button'))
+    fireEvent.mouseDown(document.querySelector('button'))
 
     await wait(() => {
         expect(document.querySelector('div').__x.$data.defaultPrevented).toEqual(false)
@@ -373,7 +373,7 @@ test('.passive + .away modifier still disables e.preventDefault()', async () => 
     document.body.innerHTML = `
         <div x-data="{ defaultPrevented: null }">
             <button
-                x-on:touchstart.away.passive="
+                x-on:mousedown.away.passive="
                     $event.preventDefault();
                     defaultPrevented = $event.defaultPrevented;
                 "
@@ -386,7 +386,7 @@ test('.passive + .away modifier still disables e.preventDefault()', async () => 
 
     expect(document.querySelector('div').__x.$data.defaultPrevented).toEqual(null)
 
-    fireEvent.touchStart(document.querySelector('span'))
+    fireEvent.mouseDown(document.querySelector('span'))
 
     await wait(() => {
         expect(document.querySelector('div').__x.$data.defaultPrevented).toEqual(false)

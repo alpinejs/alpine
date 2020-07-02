@@ -278,8 +278,8 @@ test('transition in not called when item is already visible', async () => {
     });
 
     document.body.innerHTML = `
-        <div x-data="{ show: true }">
-            <button x-on:click="show = true"></button>
+        <div x-data="{ show: true, foo: 'bar' }">
+            <button x-on:click="foo = 'bob'"></button>
 
             <span
                 x-show="show"
@@ -327,8 +327,8 @@ test('transition out not called when item is already hidden', async () => {
     });
 
     document.body.innerHTML = `
-        <div x-data="{ show: false }">
-            <button x-on:click="show = false"></button>
+        <div x-data="{ show: false, foo: 'bar' }">
+            <button x-on:click="foo = 'bob'"></button>
 
             <span
                 x-show="show"

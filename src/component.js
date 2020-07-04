@@ -282,7 +282,7 @@ export default class Component {
                 case 'if':
                     // If this element also has x-for on it, don't process x-if.
                     // We will let the "x-for" directive handle the "if"ing.
-                    if (attrs.filter(i => i.type === 'for').length > 0) return
+                    if (attrs.some(i => i.type === 'for')) return
 
                     var output = this.evaluateReturnExpression(el, expression, extraVars)
 

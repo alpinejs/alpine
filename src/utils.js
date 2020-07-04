@@ -165,6 +165,12 @@ const TRANSITION_TYPE_IN = 'in'
 const TRANSITION_TYPE_OUT = 'out'
 
 export function transitionIn(el, show, component, forceSkip = false) {
+    if (el.__x_transition && el.__x_transition.type === TRANSITION_TYPE_IN) {
+        // there is already a similar transition going on, this was probably triggered by
+        // a change in a different property, let's just leave the previous one doing its job
+        return
+    }
+
     // We don't want to transition on the initial page load.
     if (forceSkip) return show()
 
@@ -308,6 +314,7 @@ function modifierValue(modifiers, key, fallback) {
 export function transitionHelper(el, modifiers, hook1, hook2, styleValues, type) {
     // clear the previous transition if exists to avoid caching the wrong styles
     if (el.__x_transition) {
+        cancelAnimationFrame(el.__x_transition.nextFrame)
         el.__x_transition.callback()
     }
 
@@ -383,6 +390,7 @@ export function transitionClassesOut(el, component, directives, hideCallback) {
 export function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type) {
     // clear the previous transition if exists to avoid caching the wrong classes
     if (el.__x_transition) {
+        cancelAnimationFrame(el.__x_transition.nextFrame)
         el.__x_transition.callback()
     }
 
@@ -416,10 +424,31 @@ export function transitionClasses(el, classesDuring, classesStart, classesEnd, h
 }
 
 export function transition(el, stages, type) {
+    el.__x_transition = {
+        // Set transition type so we can avoid clearing transition if the direction is the same
+       type: type,
+        // create a callback for the last stages of the transition so we can call it
+        // from different point and early terminate it. Once will ensure that function
+        // is only called one time.
+        callback: once(() => {
+            stages.hide()
+
+            // Adding an "isConnected" check, in case the callback
+            // removed the element from the DOM.
+            if (el.isConnected) {
+                stages.cleanup()
+            }
+
+            delete el.__x_transition
+        }),
+        // This store the next animation frame so we can cancel it
+        nextFrame: null
+    }
+
     stages.start()
     stages.during()
 
-    requestAnimationFrame(() => {
+    el.__x_transition.nextFrame =requestAnimationFrame(() => {
         // Note: Safari's transitionDuration property will list out comma separated transition durations
         // for every single transition property. Let's grab the first one and call it a day.
         let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000
@@ -430,24 +459,8 @@ export function transition(el, stages, type) {
 
         stages.show()
 
-        requestAnimationFrame(() => {
+        el.__x_transition.nextFrame =requestAnimationFrame(() => {
             stages.end()
-
-            // Set transition type so we can avoid clearing transition if the direction is the same
-            el.__x_transition = { type: type }
-
-            // Assign current transition to el in case we need to force it.
-            el.__x_transition.callback = once(() => {
-                stages.hide()
-
-                // Adding an "isConnected" check, in case the callback
-                // removed the element from the DOM.
-                if (el.isConnected) {
-                    stages.cleanup()
-                }
-
-                delete el.__x_transition
-            })
 
             setTimeout(el.__x_transition.callback, duration)
         })

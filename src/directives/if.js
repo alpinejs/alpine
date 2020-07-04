@@ -5,7 +5,7 @@ export function handleIfDirective(component, el, expressionResult, initialUpdate
 
     const elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true
 
-    if (expressionResult && ! elementHasAlreadyBeenAdded) {
+    if (expressionResult && (! elementHasAlreadyBeenAdded || el.__x_transition)) {
         const clone = document.importNode(el.content, true);
 
         el.parentElement.insertBefore(clone, el.nextElementSibling)

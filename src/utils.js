@@ -165,12 +165,6 @@ const TRANSITION_TYPE_IN = 'in'
 const TRANSITION_TYPE_OUT = 'out'
 
 export function transitionIn(el, show, component, forceSkip = false) {
-    if (el.__x_transition && el.__x_transition.type === TRANSITION_TYPE_IN) {
-        // there is already a similar transition going on, this was probably triggered by
-        // a change in a different property, let's just leave the previous one doing its job
-        return
-    }
-
     // We don't want to transition on the initial page load.
     if (forceSkip) return show()
 
@@ -315,7 +309,7 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues, type)
     // clear the previous transition if exists to avoid caching the wrong styles
     if (el.__x_transition) {
         cancelAnimationFrame(el.__x_transition.nextFrame)
-        el.__x_transition.callback()
+        el.__x_transition.callback && el.__x_transition.callback()
     }
 
     // If the user set these style values, we'll put them back when we're done with them.
@@ -391,7 +385,7 @@ export function transitionClasses(el, classesDuring, classesStart, classesEnd, h
     // clear the previous transition if exists to avoid caching the wrong classes
     if (el.__x_transition) {
         cancelAnimationFrame(el.__x_transition.nextFrame)
-        el.__x_transition.callback()
+        el.__x_transition.callback && el.__x_transition.callback()
     }
 
     const originalClasses = el.__x_original_classes || []

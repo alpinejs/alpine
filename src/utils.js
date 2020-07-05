@@ -59,7 +59,7 @@ export function debounce(func, wait) {
 
 export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
     if (typeof expression === 'function') {
-        return expression.call(dataContext, additionalHelperVariables['$event'])
+        return expression.call(dataContext)
     }
 
     return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`))(
@@ -69,7 +69,7 @@ export function saferEval(expression, dataContext, additionalHelperVariables = {
 
 export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
     if (typeof expression === 'function') {
-        return expression.call(dataContext)
+        return expression.call(dataContext, additionalHelperVariables['$event'])
     }
 
     // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`

@@ -331,7 +331,8 @@ export default class Component {
 
         const observerOptions = {
             childList: true,
-            attributes: true,
+            attributes: true, // for IE11 to use attributeFilter (https://developer.mozilla.org/en-US/docs/Web/API/MutationObserverInit/attributeFilter#Browser_compatibility)
+            attributeFilter: ['x-data'], // reacting for only x-data attributes changes
             subtree: true,
         }
 

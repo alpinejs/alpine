@@ -215,6 +215,9 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 `x-show` toggles the `display: none;` style on the element depending if the expression resolves to `true` or `false`.
 
+> Note: when `style` is also being bound, the `x-show` directive should appear after the `x-bind:style` (or `:style`) directive to avoid issues, since x-show toggles `display: none` in the inline styles (which is also being manipulated by the style binding).
+> eg. `<div x-data="{ hide: true }" :style="`color: red`" x-show="!hide">You shouldn't see me</div>`
+
 **x-show.transition**
 
 `x-show.transition` is a convenience API for making your `x-show`s more pleasant using CSS transitions.

@@ -51,6 +51,7 @@ const Alpine = {
 
         const observerOptions = {
             childList: true,
+            attributes: true, // for IE11 to use attributeFilter (https://developer.mozilla.org/en-US/docs/Web/API/MutationObserverInit/attributeFilter#Browser_compatibility)
             attributeFilter: ['x-data'],
             subtree: true,
         }

@@ -336,14 +336,14 @@ export default class Component {
         }
 
         const observer = new MutationObserver((mutations) => {
-            for (let i=0; i < mutations.length; i++) {
+            mutations.forEach(mutation => {
                 // Filter out mutations triggered from child components.
-                const closestParentComponent = mutations[i].target.closest('[x-data]')
+                const closestParentComponent = mutation.target.closest('[x-data]')
 
-                if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue
+                if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) return; // continue
 
-                if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-                    const rawData = saferEval(mutations[i].target.getAttribute('x-data') || '{}', { $el: this.$el })
+                if (mutation.type === 'attributes' && mutation.attributeName === 'x-data') {
+                    const rawData = saferEval(mutation.target.getAttribute('x-data') || '{}', { $el: this.$el })
 
                     Object.keys(rawData).forEach(key => {
                         if (this.$data[key] !== rawData[key]) {
@@ -352,8 +352,8 @@ export default class Component {
                     })
                 }
 
-                if (mutations[i].addedNodes.length > 0) {
-                    mutations[i].addedNodes.forEach(node => {
+                if (mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach(node => {
                         if (node.nodeType !== 1 || node.__x_inserted_me) return
 
                         if (node.matches('[x-data]') && ! node.__x) {
@@ -364,7 +364,7 @@ export default class Component {
                         this.initializeElements(node)
                     })
                 }
-              }
+              })
         })
 
         observer.observe(targetNode, observerOptions);

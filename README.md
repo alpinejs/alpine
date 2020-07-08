@@ -562,7 +562,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 </script>
 ```
 
-`x-spread` allows you to extract an elements Alpine bindings into a reusable object.
+`x-spread` allows you to extract an element's Alpine bindings into a reusable object.
 
 The object keys are the directives (Can be any directive including modifiers), and the values are callbacks to be evaluated by Alpine.
 

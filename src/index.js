@@ -6,6 +6,8 @@ const Alpine = {
 
     pauseMutationObserver: false,
 
+    magicProperties: {},
+
     start: async function () {
         if (! isTesting()) {
             await domReady()
@@ -95,8 +97,12 @@ const Alpine = {
 
     clone: function (component, newEl) {
         if (! newEl.__x) {
-            newEl.__x = new Component(newEl, component.getUnobservedData())
+            newEl.__x = new Component(newEl, component)
         }
+    },
+
+    addMagicProperty: function (name, callback) {
+        this.magicProperties[name] = callback
     }
 }
 

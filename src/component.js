@@ -8,16 +8,17 @@ import { handleIfDirective } from './directives/if'
 import { registerModelListener } from './directives/model'
 import { registerListener } from './directives/on'
 import { unwrap, wrap } from './observable'
+import Alpine from './index'
 
 export default class Component {
-    constructor(el, seedDataForCloning = null) {
+    constructor(el, componentForClone = null) {
         this.$el = el
 
         const dataAttr = this.$el.getAttribute('x-data')
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
         const initExpression = this.$el.getAttribute('x-init')
 
-        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, { $el: this.$el })
+        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, { $el: this.$el })
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
@@ -26,6 +27,9 @@ export default class Component {
             this.unobservedData.$refs = null
             this.unobservedData.$nextTick = null
             this.unobservedData.$watch = null
+            Object.keys(Alpine.magicProperties).forEach(name => {
+                this.unobservedData[`$${name}`] = null
+            })
         /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
@@ -50,12 +54,19 @@ export default class Component {
             this.watchers[property].push(callback)
         }
 
+        let canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el
+
+        // Register custom magic properties.
+        Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
+            Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
+        })
+
         this.showDirectiveStack = []
         this.showDirectiveLastElement
 
         var initReturnedCallback
         // If x-init is present AND we aren't cloning (skip x-init on clone)
-        if (initExpression && ! seedDataForCloning) {
+        if (initExpression && ! componentForClone) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
             // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
             this.pauseReactivity = true
@@ -343,7 +354,7 @@ export default class Component {
                 if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-                    const rawData = saferEval(mutations[i].target.getAttribute('x-data'), { $el: this.$el })
+                    const rawData = saferEval(mutations[i].target.getAttribute('x-data') || '{}', { $el: this.$el })
 
                     Object.keys(rawData).forEach(key => {
                         if (this.$data[key] !== rawData[key]) {

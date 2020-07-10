@@ -112,7 +112,7 @@ test('class attribute bindings are added by object syntax', async () => {
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
 })
 
-test('multiple classes are added by object syntax', async () => {
+test('multiple classes are removed by object syntax', async () => {
     document.body.innerHTML = `
         <div x-data="{ isOn: false }">
             <span class="foo bar" x-bind:class="{ 'foo bar': isOn }"></span>
@@ -125,7 +125,7 @@ test('multiple classes are added by object syntax', async () => {
     expect(document.querySelector('span').classList.contains('bar')).toBeFalsy()
 })
 
-test('multiple classes are removed by object syntax', async () => {
+test('multiple classes are added by object syntax', async () => {
     document.body.innerHTML = `
         <div x-data="{ isOn: true }">
             <span x-bind:class="{ 'foo bar': isOn }"></span>

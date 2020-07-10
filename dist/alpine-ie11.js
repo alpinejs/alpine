@@ -884,59 +884,395 @@
 
   })();
 
-  // Polyfill for creating CustomEvents on IE9/10/11
+  var ApplyThisPrototype = (function() {
+    return function ApplyThisPrototype(event, target) {
+      if ((typeof target === 'object') && (target !== null)) {
+        var proto = Object.getPrototypeOf(target);
+        var property;
 
-  // code pulled from:
-  // https://github.com/d4tocchini/customevent-polyfill
-  // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent#Polyfill
-
-  (function() {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    try {
-      var ce = new window.CustomEvent('test', { cancelable: true });
-      ce.preventDefault();
-      if (ce.defaultPrevented !== true) {
-        // IE has problems with .preventDefault() on custom events
-        // http://stackoverflow.com/questions/23349191
-        throw new Error('Could not prevent default');
-      }
-    } catch (e) {
-      var CustomEvent = function(event, params) {
-        var evt, origPrevent;
-        params = params || {};
-        params.bubbles = !!params.bubbles;
-        params.cancelable = !!params.cancelable;
-
-        evt = document.createEvent('CustomEvent');
-        evt.initCustomEvent(
-          event,
-          params.bubbles,
-          params.cancelable,
-          params.detail
-        );
-        origPrevent = evt.preventDefault;
-        evt.preventDefault = function() {
-          origPrevent.call(this);
-          try {
-            Object.defineProperty(this, 'defaultPrevented', {
-              get: function() {
-                return true;
-              }
-            });
-          } catch (e) {
-            this.defaultPrevented = true;
+        for (property in proto) {
+          if (!(property in event)) {
+            var descriptor = Object.getOwnPropertyDescriptor(proto, property);
+            if (descriptor) {
+              Object.defineProperty(event, property, descriptor);
+            }
           }
-        };
-        return evt;
-      };
+        }
 
-      CustomEvent.prototype = window.Event.prototype;
-      window.CustomEvent = CustomEvent; // expose definition to window
+        for (property in target) {
+          if (!(property in event)) {
+            event[property] = target[property];
+          }
+        }
+      }
     }
   })();
+
+  (function(ApplyThisPrototype) {
+    /**
+     * Polyfill CustomEvent
+     */
+    try {
+      var event = new window.CustomEvent('event', { bubbles: true, cancelable: true });
+    } catch (error) {
+      var CustomEventOriginal = window.CustomEvent || window.Event;
+      var CustomEvent = function(eventName, params) {
+        params = params || {};
+        var event = document.createEvent('CustomEvent');
+        event.initCustomEvent(
+          eventName,
+          (params.bubbles === void 0) ? false : params.bubbles,
+          (params.cancelable === void 0) ? false : params.cancelable,
+          (params.detail === void 0) ? {} : params.detail
+        );
+        ApplyThisPrototype(event, this);
+        return event;
+      };
+      CustomEvent.prototype = CustomEventOriginal.prototype;
+      window.CustomEvent = CustomEvent;
+    }
+  })(ApplyThisPrototype);
+
+  var EventListenerInterceptor = (function() {
+
+    if(typeof EventTarget === 'undefined') {
+      window.EventTarget = Node;
+    }
+
+    /**
+     * Event listener interceptor
+     */
+
+    var EventListenerInterceptor = {
+      interceptors: [] // { target: EventTarget, interceptors: [{ add: Function, remove: Function }, ...] }
+    };
+
+
+    /**
+     * Returns if exists a previously registered listener from a target and the normalized arguments
+     * @param target
+     * @param normalizedArguments
+     * @return {*}
+     */
+    EventListenerInterceptor.getRegisteredEventListener = function(target, normalizedArguments) {
+      var key = normalizedArguments.type + '-' + (normalizedArguments.options.capture ? '1' : '0');
+      if(
+        (target.__eventListeners !== void 0) &&
+        (target.__eventListeners[key] !== void 0)
+      ) {
+        var map = target.__eventListeners[key];
+        for(var i = 0; i < map.length; i++) {
+          if(map[i].listener === normalizedArguments.listener) {
+            return map[i];
+          }
+        }
+      }
+      return null;
+    };
+
+    /**
+     * Registers a listener on a target with some options
+     * @param target
+     * @param normalizedArguments
+     */
+    EventListenerInterceptor.registerEventListener = function(target, normalizedArguments) {
+      var key = normalizedArguments.type + '-' + (normalizedArguments.options.capture ? '1' : '0');
+
+      if(target.__eventListeners === void 0) {
+        target.__eventListeners = {};
+      }
+
+      if(target.__eventListeners[key] === void 0) {
+        target.__eventListeners[key] = [];
+      }
+
+      target.__eventListeners[key].push(normalizedArguments);
+    };
+
+    /**
+     * Unregisters a listener on a target with some options
+     * @param target
+     * @param normalizedArguments
+     */
+    EventListenerInterceptor.unregisterEventListener = function(target, normalizedArguments) {
+      var key = normalizedArguments.type + '-' + (normalizedArguments.options.capture ? '1' : '0');
+      if(
+        (target.__eventListeners !==  void 0) &&
+        (target.__eventListeners[key] !== void 0)
+      ) {
+        var map = target.__eventListeners[key];
+        for(var i = 0; i < map.length; i++) {
+          if(map[i].listener === normalizedArguments.listener) {
+            map.splice(i, 1);
+          }
+        }
+
+        if(map.length === 0) {
+          delete target.__eventListeners[key];
+        }
+      }
+    };
+
+
+
+    EventListenerInterceptor.normalizeListenerCallback = function(listener) {
+      if((typeof listener === 'function') || (listener === null) || (listener === void 0)) {
+        return listener;
+      } else if((typeof listener === 'object') && (typeof listener.handleEvent === 'function')) {
+        return listener.handleEvent;
+      } else {
+        // to support Symbol
+        return function(event) {
+          listener(event);
+        };
+      }
+    };
+
+    EventListenerInterceptor.normalizeListenerOptions = function(options) {
+      switch(typeof options) {
+        case 'boolean':
+          options = { capture: options };
+          break;
+        case 'undefined':
+          options = { capture: false };
+          break;
+        case 'object':
+          if (options === null) {
+            options = { capture: false };
+          }
+          break;
+        default:
+          throw new Error('Unsupported options type for addEventListener');
+      }
+
+      options.once      = Boolean(options.once);
+      options.passive   = Boolean(options.passive);
+      options.capture   = Boolean(options.capture);
+
+      return options;
+    };
+
+    EventListenerInterceptor.normalizeListenerArguments = function(type, listener, options) {
+      return {
+        type: type,
+        listener: this.normalizeListenerCallback(listener),
+        options: this.normalizeListenerOptions(options)
+      };
+    };
+
+
+
+    EventListenerInterceptor.intercept = function(target, interceptors) {
+      // get an interceptor with this target or null
+      var interceptor = null;
+      for (var i = 0; i < this.interceptors.length; i++) {
+        if(this.interceptors[i].target === target) {
+          interceptor = this.interceptors[i];
+        }
+      }
+
+      // if no interceptor already set
+      if (interceptor === null) {
+        interceptor = { target: target, interceptors: [interceptors] };
+        this.interceptors.push(interceptor);
+
+        this.interceptAddEventListener(target, interceptor);
+        this.interceptRemoveEventListener(target, interceptor);
+      } else { // if an interceptor already set, simply add interceptors to the list
+        interceptor.interceptors.push(interceptors);
+      }
+
+      // var release = function() {
+      //   target.prototype.addEventListener = addEventListener;
+      //   target.prototype.removeEventListener = removeEventListener;
+      // };
+      // this.interceptors.push(release);
+      // return release;
+    };
+
+    EventListenerInterceptor.interceptAddEventListener = function(target, interceptor) {
+      var _this = this;
+
+      var addEventListener = target.prototype.addEventListener;
+      target.prototype.addEventListener = function(type, listener, options) {
+        var normalizedArguments = _this.normalizeListenerArguments(type, listener, options);
+        var registeredEventListener = _this.getRegisteredEventListener(this, normalizedArguments);
+
+        if (!registeredEventListener) {
+
+          normalizedArguments.polyfilled = {
+            type: normalizedArguments.type,
+            listener: normalizedArguments.listener,
+            options: {
+              capture: normalizedArguments.options.capture,
+              once: normalizedArguments.options.once,
+              passive: normalizedArguments.options.passive
+            }
+          };
+
+          for (var i = 0; i < interceptor.interceptors.length; i++) {
+            var interceptors = interceptor.interceptors[i];
+            if (typeof interceptors.add === 'function') {
+              interceptors.add(normalizedArguments);
+            }
+          }
+
+          // console.log('normalizedArguments', normalizedArguments.polyfilled);
+
+          _this.registerEventListener(this, normalizedArguments);
+
+          addEventListener.call(
+            this,
+            normalizedArguments.polyfilled.type,
+            normalizedArguments.polyfilled.listener,
+            normalizedArguments.polyfilled.options
+          );
+        }
+      };
+
+      return function() {
+        target.prototype.addEventListener = addEventListener;
+      };
+    };
+
+    EventListenerInterceptor.interceptRemoveEventListener = function(target, interceptor) {
+      var _this = this;
+
+      var removeEventListener = target.prototype.removeEventListener;
+      target.prototype.removeEventListener = function(type, listener, options) {
+        var normalizedArguments = _this.normalizeListenerArguments(type, listener, options);
+        var registeredEventListener = _this.getRegisteredEventListener(this, normalizedArguments);
+
+        if (registeredEventListener) {
+          _this.unregisterEventListener(this, normalizedArguments);
+          removeEventListener.call(
+            this,
+            registeredEventListener.polyfilled.type,
+            registeredEventListener.polyfilled.listener,
+            registeredEventListener.polyfilled.options
+          );
+        } else {
+          removeEventListener.call(this, type, listener, options);
+        }
+      };
+
+      return function() {
+        target.prototype.removeEventListener = removeEventListener;
+      };
+    };
+
+    EventListenerInterceptor.interceptAll = function(interceptors) {
+      this.intercept(EventTarget, interceptors);
+      if(!(window instanceof EventTarget)) {
+        this.intercept(Window, interceptors);
+      }
+    };
+
+    EventListenerInterceptor.releaseAll = function() {
+      for(var i = 0, l = this.interceptors.length; i < l; i++) {
+        this.interceptors();
+      }
+    };
+
+
+    EventListenerInterceptor.error = function(error) {
+      // throw error;
+      console.error(error);
+    };
+
+    return EventListenerInterceptor;
+  })();
+
+  (function(EventListenerInterceptor) {
+    /**
+     * Event listener options support
+     */
+
+    EventListenerInterceptor.detectSupportedOptions = function() {
+      var _this = this;
+
+      this.supportedOptions = {
+        once: false,
+        passive: false,
+        capture: false,
+
+        all: false,
+        some: false
+      };
+
+      document.createDocumentFragment().addEventListener('test', function() {}, {
+        get once() {
+          _this.supportedOptions.once = true;
+          return false;
+        },
+        get passive() {
+          _this.supportedOptions.passive = true;
+          return false;
+        },
+        get capture() {
+          _this.supportedOptions.capture = true;
+          return false;
+        }
+      });
+
+      // useful shortcuts to detect if options are all/some supported
+      this.supportedOptions.all  = this.supportedOptions.once && this.supportedOptions.passive && this.supportedOptions.capture;
+      this.supportedOptions.some = this.supportedOptions.once || this.supportedOptions.passive || this.supportedOptions.capture;
+    };
+
+    EventListenerInterceptor.polyfillListenerOptions = function() {
+      this.detectSupportedOptions();
+      if (!this.supportedOptions.all) {
+        var _this = this;
+
+        this.interceptAll({
+          add: function(normalizedArguments) {
+            // console.log('intercepted', normalizedArguments);
+
+            var once = normalizedArguments.options.once && !_this.supportedOptions.once;
+            var passive = normalizedArguments.options.passive && !_this.supportedOptions.passive;
+
+            if (once || passive) {
+              var listener = normalizedArguments.polyfilled.listener;
+
+              normalizedArguments.polyfilled.listener = function(event) {
+                if(once) {
+                  this.removeEventListener(normalizedArguments.type, normalizedArguments.listener, normalizedArguments.options);
+                }
+
+                if(passive) {
+                  event.preventDefault = function() {
+                    throw new Error('Unable to preventDefault inside passive event listener invocation.');
+                  };
+                }
+
+                return listener.call(this, event);
+              };
+            }
+
+            if (!_this.supportedOptions.some) {
+              normalizedArguments.polyfilled.options = normalizedArguments.options.capture;
+            }
+          }
+        });
+      }
+    };
+
+
+    EventListenerInterceptor.polyfillListenerOptions();
+
+
+    // var onclick = function() {
+    //   console.log('click');
+    // };
+
+    // document.body.addEventListener('click', onclick, false);
+    // document.body.addEventListener('click', onclick, { once: true });
+    // document.body.addEventListener('click', onclick, { once: true });
+    // document.body.addEventListener('click', onclick, false);
+    // document.body.addEventListener('click', onclick, false);
+
+  })(EventListenerInterceptor);
 
   // For the IE11 build.
   SVGElement.prototype.contains = SVGElement.prototype.contains || HTMLElement.prototype.contains;
@@ -3338,6 +3674,46 @@
     }
   });
 
+  var propertyIsEnumerable = objectPropertyIsEnumerable.f;
+
+  // `Object.{ entries, values }` methods implementation
+  var createMethod$4 = function (TO_ENTRIES) {
+    return function (it) {
+      var O = toIndexedObject(it);
+      var keys = objectKeys(O);
+      var length = keys.length;
+      var i = 0;
+      var result = [];
+      var key;
+      while (length > i) {
+        key = keys[i++];
+        if (!descriptors || propertyIsEnumerable.call(O, key)) {
+          result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
+        }
+      }
+      return result;
+    };
+  };
+
+  var objectToArray = {
+    // `Object.entries` method
+    // https://tc39.github.io/ecma262/#sec-object.entries
+    entries: createMethod$4(true),
+    // `Object.values` method
+    // https://tc39.github.io/ecma262/#sec-object.values
+    values: createMethod$4(false)
+  };
+
+  var $entries = objectToArray.entries;
+
+  // `Object.entries` method
+  // https://tc39.github.io/ecma262/#sec-object.entries
+  _export({ target: 'Object', stat: true }, {
+    entries: function entries(O) {
+      return $entries(O);
+    }
+  });
+
   // `SameValue` abstract operation
   // https://tc39.github.io/ecma262/#sec-samevalue
   var sameValue = Object.is || function is(x, y) {
@@ -4671,7 +5047,7 @@
   var rtrim = RegExp(whitespace + whitespace + '*$');
 
   // `String.prototype.{ trim, trimStart, trimEnd, trimLeft, trimRight }` methods implementation
-  var createMethod$4 = function (TYPE) {
+  var createMethod$5 = function (TYPE) {
     return function ($this) {
       var string = String(requireObjectCoercible($this));
       if (TYPE & 1) string = string.replace(ltrim, '');
@@ -4683,13 +5059,13 @@
   var stringTrim = {
     // `String.prototype.{ trimLeft, trimStart }` methods
     // https://tc39.github.io/ecma262/#sec-string.prototype.trimstart
-    start: createMethod$4(1),
+    start: createMethod$5(1),
     // `String.prototype.{ trimRight, trimEnd }` methods
     // https://tc39.github.io/ecma262/#sec-string.prototype.trimend
-    end: createMethod$4(2),
+    end: createMethod$5(2),
     // `String.prototype.trim` method
     // https://tc39.github.io/ecma262/#sec-string.prototype.trim
-    trim: createMethod$4(3)
+    trim: createMethod$5(3)
   };
 
   var getOwnPropertyNames = objectGetOwnPropertyNames.f;
@@ -4759,46 +5135,6 @@
     NumberPrototype.constructor = NumberWrapper;
     redefine(global_1, NUMBER, NumberWrapper);
   }
-
-  var propertyIsEnumerable = objectPropertyIsEnumerable.f;
-
-  // `Object.{ entries, values }` methods implementation
-  var createMethod$5 = function (TO_ENTRIES) {
-    return function (it) {
-      var O = toIndexedObject(it);
-      var keys = objectKeys(O);
-      var length = keys.length;
-      var i = 0;
-      var result = [];
-      var key;
-      while (length > i) {
-        key = keys[i++];
-        if (!descriptors || propertyIsEnumerable.call(O, key)) {
-          result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
-        }
-      }
-      return result;
-    };
-  };
-
-  var objectToArray = {
-    // `Object.entries` method
-    // https://tc39.github.io/ecma262/#sec-object.entries
-    entries: createMethod$5(true),
-    // `Object.values` method
-    // https://tc39.github.io/ecma262/#sec-object.values
-    values: createMethod$5(false)
-  };
-
-  var $entries = objectToArray.entries;
-
-  // `Object.entries` method
-  // https://tc39.github.io/ecma262/#sec-object.entries
-  _export({ target: 'Object', stat: true }, {
-    entries: function entries(O) {
-      return $entries(O);
-    }
-  });
 
   var $values = objectToArray.values;
 
@@ -6322,6 +6658,9 @@
     var _this = this;
 
     var extraVars = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
+    var options = {
+      passive: modifiers.includes('passive')
+    };
 
     if (modifiers.includes('camel')) {
       event = camelCase(event);
@@ -6331,7 +6670,7 @@
       var _handler = function handler(e) {
         _newArrowCheck(this, _this);
 
-        // Don't do anything if the click came form the element or within it.
+        // Don't do anything if the click came from the element or within it.
         if (el.contains(e.target)) return; // Don't do anything if this element isn't currently visible.
 
         if (el.offsetWidth < 1 && el.offsetHeight < 1) return; // Now that we are sure the element is visible, AND the click
@@ -6340,12 +6679,12 @@
         runListenerHandler(component, expression, e, extraVars);
 
         if (modifiers.includes('once')) {
-          document.removeEventListener(event, _handler);
+          document.removeEventListener(event, _handler, options);
         }
       }.bind(this); // Listen for this event at the root level.
 
 
-      document.addEventListener(event, _handler);
+      document.addEventListener(event, _handler, options);
     } else {
       var listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el;
 
@@ -6356,7 +6695,7 @@
         // has been removed. It's now stale.
         if (listenerTarget === window || listenerTarget === document) {
           if (!document.body.contains(el)) {
-            listenerTarget.removeEventListener(event, _handler2);
+            listenerTarget.removeEventListener(event, _handler2, options);
             return;
           }
         }
@@ -6379,7 +6718,7 @@
             e.preventDefault();
           } else {
             if (modifiers.includes('once')) {
-              listenerTarget.removeEventListener(event, _handler2);
+              listenerTarget.removeEventListener(event, _handler2, options);
             }
           }
         }
@@ -6391,7 +6730,7 @@
         _handler2 = debounce(_handler2, wait);
       }
 
-      listenerTarget.addEventListener(event, _handler2);
+      listenerTarget.addEventListener(event, _handler2, options);
     }
   }
 
@@ -6647,7 +6986,7 @@
     function Component(el) {
       var _this = this;
 
-      var seedDataForCloning = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var componentForClone = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       _classCallCheck(this, Component);
 
@@ -6655,7 +6994,7 @@
       var dataAttr = this.$el.getAttribute('x-data');
       var dataExpression = dataAttr === '' ? '{}' : dataAttr;
       var initExpression = this.$el.getAttribute('x-init');
-      this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {
+      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, {
         $el: this.$el
       });
       /* IE11-ONLY:START */
@@ -6666,6 +7005,11 @@
       this.unobservedData.$refs = null;
       this.unobservedData.$nextTick = null;
       this.unobservedData.$watch = null;
+      Object.keys(Alpine.magicProperties).forEach(function (name) {
+        _newArrowCheck(this, _this);
+
+        this.unobservedData["$".concat(name)] = null;
+      }.bind(this));
       /* IE11-ONLY:END */
       // Construct a Proxy-based observable. This will be used to handle reactivity.
 
@@ -6696,11 +7040,26 @@
         this.watchers[property].push(callback);
       }.bind(this);
 
+      var canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el; // Register custom magic properties.
+
+      Object.entries(Alpine.magicProperties).forEach(function (_ref) {
+        _newArrowCheck(this, _this);
+
+        var _ref2 = _slicedToArray(_ref, 2),
+            name = _ref2[0],
+            callback = _ref2[1];
+
+        Object.defineProperty(this.unobservedData, "$".concat(name), {
+          get: function get() {
+            return callback(canonicalComponentElementReference);
+          }
+        });
+      }.bind(this));
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
       var initReturnedCallback; // If x-init is present AND we aren't cloning (skip x-init on clone)
 
-      if (initExpression && !seedDataForCloning) {
+      if (initExpression && !componentForClone) {
         // We want to allow data manipulation, but not trigger DOM updates just yet.
         // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
         this.pauseReactivity = true;
@@ -6947,13 +7306,13 @@
       value: function registerListeners(el, extraVars) {
         var _this15 = this;
 
-        getXAttrs(el, this).forEach(function (_ref) {
+        getXAttrs(el, this).forEach(function (_ref3) {
           _newArrowCheck(this, _this15);
 
-          var type = _ref.type,
-              value = _ref.value,
-              modifiers = _ref.modifiers,
-              expression = _ref.expression;
+          var type = _ref3.type,
+              value = _ref3.value,
+              modifiers = _ref3.modifiers,
+              expression = _ref3.expression;
 
           switch (type) {
             case 'on':
@@ -6989,15 +7348,15 @@
           }
         }
 
-        attrs.forEach(function (_ref2) {
+        attrs.forEach(function (_ref4) {
           var _this17 = this;
 
           _newArrowCheck(this, _this16);
 
-          var type = _ref2.type,
-              value = _ref2.value,
-              modifiers = _ref2.modifiers,
-              expression = _ref2.expression;
+          var type = _ref4.type,
+              value = _ref4.value,
+              modifiers = _ref4.modifiers,
+              expression = _ref4.expression;
 
           switch (type) {
             case 'model':
@@ -7106,7 +7465,7 @@
               (function () {
                 var _this22 = this;
 
-                var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {
+                var rawData = saferEval(mutations[i].target.getAttribute('x-data') || '{}', {
                   $el: _this21.$el
                 });
                 Object.keys(rawData).forEach(function (key) {
@@ -7191,6 +7550,7 @@
   var Alpine = {
     version: "2.4.1",
     pauseMutationObserver: false,
+    magicProperties: {},
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
@@ -7329,8 +7689,11 @@
     },
     clone: function clone(component, newEl) {
       if (!newEl.__x) {
-        newEl.__x = new Component(newEl, component.getUnobservedData());
+        newEl.__x = new Component(newEl, component);
       }
+    },
+    addMagicProperty: function addMagicProperty(name, callback) {
+      this.magicProperties[name] = callback;
     }
   };
 

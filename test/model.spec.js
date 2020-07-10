@@ -403,14 +403,14 @@ test('x-model bind date input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '2020-07-10' }">
       <input type="date" x-model="key" />
-      <span x-text="foo"></span>
+      <span x-text="key"></span>
     </div>
     `
 
     Alpine.start()
 
-    expect(document.querySelector('input').value).toEqual('foo')
-    expect(document.querySelector('span').innerText).toEqual('foo')
+    expect(document.querySelector('input').value).toEqual('2020-07-10')
+    expect(document.querySelector('span').innerText).toEqual('2020-07-10')
 
     fireEvent.input(document.querySelector('input'), { target: { value: '2021-01-01' } });
 
@@ -424,8 +424,8 @@ test('x-model bind date input', async () => {
 test('x-model bind datetime-local input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '2020-01-01T20:00' }">
-      <input type="date" x-model="key" />
-      <span x-text="foo"></span>
+      <input type="datetime-local" x-model="key" />
+      <span x-text="key"></span>
     </div>
     `
 

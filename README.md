@@ -97,7 +97,7 @@ You can even use it for non-trivial things:
 
 ## Learn
 
-There are 13 directives available to you:
+There are 14 directives available to you:
 
 | Directive | Description |
 | --- | --- |
@@ -355,6 +355,11 @@ Adding `.window` to an event listener will install the listener on the global wi
 
 Adding the `.once` modifier to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
 
+**`.passive` modifier**
+**Example:** `<button x-on:mousedown.passive="interactive = true"></button>`
+
+Adding the `.passive` modifier to an event listener will make the listener a passive one, which means `preventDefault()` will not work on any events being processed, this can help, for example with scroll performance on touch devices.
+
 **`.debounce` modifier**
 **Example:** `<input x-on:input.debounce="fetchSomething()">`
 
@@ -529,7 +534,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 ### `x-spread`
 **Example:**
 ```html
-<div x-data="dropdown">
+<div x-data="dropdown()">
     <button x-spread="trigger">Open Dropdown</button>
 
     <span x-spread="dialogue">Dropdown Contents</span>

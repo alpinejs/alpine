@@ -42,6 +42,30 @@ test('nested data modified in event listener updates affected attribute bindings
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
+test('.passive modifier should disable e.preventDefault()', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ defaultPrevented: null }">
+            <button
+                x-on:mousedown.passive="
+                    $event.preventDefault();
+                    defaultPrevented = $event.defaultPrevented;
+                "
+            >
+                <span></span>
+            </button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('div').__x.$data.defaultPrevented).toEqual(null)
+
+    fireEvent.mouseDown(document.querySelector('button'))
+
+    await wait(() => {
+        expect(document.querySelector('div').__x.$data.defaultPrevented).toEqual(false)
+    })
+})
 
 test('.stop modifier', async () => {
     document.body.innerHTML = `
@@ -336,6 +360,39 @@ test('click away', async () => {
     await wait(() => { expect(document.querySelector('ul').classList.contains('hidden')).toEqual(false) })
 })
 
+test('.passive + .away modifier still disables e.preventDefault()', async () => {
+    // Pretend like all the elements are visible
+    Object.defineProperties(window.HTMLElement.prototype, {
+        offsetHeight: {
+            get: () => 1
+        },
+        offsetWidth: {
+            get: () => 1
+        }
+    });
+    document.body.innerHTML = `
+        <div x-data="{ defaultPrevented: null }">
+            <button
+                x-on:mousedown.away.passive="
+                    $event.preventDefault();
+                    defaultPrevented = $event.defaultPrevented;
+                "
+            ></button>
+            <span></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('div').__x.$data.defaultPrevented).toEqual(null)
+
+    fireEvent.mouseDown(document.querySelector('span'))
+
+    await wait(() => {
+        expect(document.querySelector('div').__x.$data.defaultPrevented).toEqual(false)
+    })
+})
+
 test('supports short syntax', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">
@@ -352,7 +409,6 @@ test('supports short syntax', async () => {
 
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
-
 
 test('event with colon', async () => {
     document.body.innerHTML = `

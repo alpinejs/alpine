@@ -1,9 +1,12 @@
 import { kebabCase, debounce, isNumeric } from '../utils'
 
 export function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
+    const options = {
+        passive: modifiers.includes('passive'),
+    };
     if (modifiers.includes('away')) {
         let handler = e => {
-            // Don't do anything if the click came form the element or within it.
+            // Don't do anything if the click came from the element or within it.
             if (el.contains(e.target)) return
 
             // Don't do anything if this element isn't currently visible.
@@ -14,12 +17,12 @@ export function registerListener(component, el, event, modifiers, expression, ex
             runListenerHandler(component, expression, e, extraVars)
 
             if (modifiers.includes('once')) {
-                document.removeEventListener(event, handler)
+                document.removeEventListener(event, handler, options)
             }
         }
 
         // Listen for this event at the root level.
-        document.addEventListener(event, handler)
+        document.addEventListener(event, handler, options)
     } else {
         let listenerTarget = modifiers.includes('window')
             ? window : (modifiers.includes('document') ? document : el)
@@ -29,7 +32,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
             // has been removed. It's now stale.
             if (listenerTarget === window || listenerTarget === document) {
                 if (! document.body.contains(el)) {
-                    listenerTarget.removeEventListener(event, handler)
+                    listenerTarget.removeEventListener(event, handler, options)
                     return
                 }
             }
@@ -53,7 +56,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
                     e.preventDefault()
                 } else {
                     if (modifiers.includes('once')) {
-                        listenerTarget.removeEventListener(event, handler)
+                        listenerTarget.removeEventListener(event, handler, options)
                     }
                 }
             }
@@ -65,7 +68,7 @@ export function registerListener(component, el, event, modifiers, expression, ex
             handler = debounce(handler, wait, this)
         }
 
-        listenerTarget.addEventListener(event, handler)
+        listenerTarget.addEventListener(event, handler, options)
     }
 }
 

@@ -441,3 +441,25 @@ test('x-model bind datetime-local input', async () => {
         expect(document.querySelector('span').innerText).toEqual('2021-02-02T20:00')
     })
 })
+
+// <input type="email"> 
+test('x-model bind datetime-local input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: 'alphine@example.com' }">
+      <input type="email" x-model="key" />
+      <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('alphine@example.com')
+    expect(document.querySelector('span').innerText).toEqual('alphine@example.com')
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'x@example.com' } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('x@example.com')
+        expect(document.querySelector('span').innerText).toEqual('x@example.com')
+    })
+})

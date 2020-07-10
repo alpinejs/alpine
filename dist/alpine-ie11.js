@@ -6323,6 +6323,10 @@
 
     var extraVars = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
 
+    if (modifiers.includes('camel')) {
+      event = camelCase(event);
+    }
+
     if (modifiers.includes('away')) {
       var _handler = function handler(e) {
         _newArrowCheck(this, _this);

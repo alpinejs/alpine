@@ -733,6 +733,10 @@
   }
 
   function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
+    if (modifiers.includes('camel')) {
+      event = camelCase(event);
+    }
+
     if (modifiers.includes('away')) {
       let handler = e => {
         // Don't do anything if the click came form the element or within it.

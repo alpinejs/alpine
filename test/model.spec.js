@@ -444,23 +444,254 @@ test('x-model bind datetime-local input', async () => {
 
 // <input type="email"> 
 test('x-model bind email input', async () => {
+})
+
+// <input type="month"> 
+test('x-model bind month input', async () => {
     document.body.innerHTML = `
-    <div x-data="{ key: 'alphine@example.com' }">
-      <input type="email" x-model="key" />
-      <span x-text="key"></span>
+        <div x-data="{ key: '2020-04' }">
+        <input type="month" x-model="key" />
+        <span x-text="key"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('2020-04')
+    expect(document.querySelector('span').innerText).toEqual('2020-04')
+
+    fireEvent.input(document.querySelector('input'), { target: { value: '2021-05' } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('2021-05')
+        expect(document.querySelector('span').innerText).toEqual('2021-05')
+    })
+})
+
+
+// <input type="number"> 
+test('x-model bind number input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: '11' }">
+        <input type="number" x-model="key" />
+        <span x-text="key"></span>
     </div>
     `
 
     Alpine.start()
 
-    expect(document.querySelector('input').value).toEqual('alphine@example.com')
-    expect(document.querySelector('span').innerText).toEqual('alphine@example.com')
+    expect(document.querySelector('input').value).toEqual('11')
+    expect(document.querySelector('span').innerText).toEqual('11')
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'x@example.com' } });
+    fireEvent.input(document.querySelector('input'), { target: { value: '2021' } });
 
     await wait(() => {
-        expect(document.querySelector('input').value).toEqual('x@example.com')
-        expect(document.querySelector('span').innerText).toEqual('x@example.com')
+        expect(document.querySelector('input').value).toEqual('2021')
+        expect(document.querySelector('span').innerText).toEqual('2021')
     })
 })
 
+// <input type="password"> 
+test('x-model bind password input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: 'SecretKey' }">
+        <input type="password" x-model="key" />
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('SecretKey')
+    expect(document.querySelector('span').innerText).toEqual('SecretKey')
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'NewSecretKey' } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('NewSecretKey')
+        expect(document.querySelector('span').innerText).toEqual('NewSecretKey')
+    })
+})
+
+// <input type="range"> 
+test('x-model bind range input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: '10' }">
+        <input type="range" x-model="key" />
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('10')
+    expect(document.querySelector('span').innerText).toEqual('10')
+
+    fireEvent.input(document.querySelector('input'), { target: { value: '20' } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('20')
+        expect(document.querySelector('span').innerText).toEqual('20')
+    })
+})
+
+// <input type="search"> 
+test('x-model bind search input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: '' }">
+        <input type="search" x-model="key" />
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('')
+    expect(document.querySelector('span').innerText).toEqual('')
+
+    const newValue = 'Frontend Frameworks';
+    fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual(newValue)
+        expect(document.querySelector('span').innerText).toEqual(newValue)
+    })
+})
+
+// <input type="tel"> 
+test('x-model bind tel input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: '+12345678901' }">
+        <input type="tel" x-model="key" />
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('+12345678901')
+    expect(document.querySelector('span').innerText).toEqual('+12345678901')
+
+    const newValue = '+1239874560';
+    fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual(newValue)
+        expect(document.querySelector('span').innerText).toEqual(newValue)
+    })
+})
+
+// <input type="tel"> 
+test('x-model bind tel input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: '+12345678901' }">
+        <input type="tel" x-model="key" />
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('+12345678901')
+    expect(document.querySelector('span').innerText).toEqual('+12345678901')
+
+    const newValue = '+1239874560';
+    fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual(newValue)
+        expect(document.querySelector('span').innerText).toEqual(newValue)
+    })
+})
+
+// <input type="tel"> 
+test('x-model bind time input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: '22:00' }">
+        <input type="time" x-model="key" />
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('22:00')
+    expect(document.querySelector('span').innerText).toEqual('22:00')
+
+    const newValue = '23:00';
+    fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual(newValue)
+        expect(document.querySelector('span').innerText).toEqual(newValue)
+    })
+})
+
+// <input type="time"> 
+test('x-model bind time input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: '22:00' }">
+        <input type="time" x-model="key" />
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('22:00')
+    expect(document.querySelector('span').innerText).toEqual('22:00')
+
+    const newValue = '23:00';
+    fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual(newValue)
+        expect(document.querySelector('span').innerText).toEqual(newValue)
+    })
+})
+
+// <input type="week"> 
+test('x-model bind week input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: '2020-W20' }">
+        <input type="week" x-model="key" />
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('2020-W20')
+    expect(document.querySelector('span').innerText).toEqual('2020-W20')
+
+    const newValue = '2020-W30';
+    fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual(newValue)
+        expect(document.querySelector('span').innerText).toEqual(newValue)
+    })
+})
+
+// <input type="url"> 
+test('x-model bind url input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: 'https://example.com' }">
+        <input type="url" x-model="key" />
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('https://example.com')
+    expect(document.querySelector('span').innerText).toEqual('https://example.com')
+
+    const newValue = 'https://alpine.io';
+    fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual(newValue)
+        expect(document.querySelector('span').innerText).toEqual(newValue)
+    })
+})

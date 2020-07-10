@@ -1457,6 +1457,10 @@
 
       this.registerListeners(el, extraVars);
       this.resolveBoundAttributes(el, true, extraVars);
+
+      if (el.hasAttribute('x-cloak')) {
+        el.removeAttribute('x-cloak');
+      }
     }
 
     updateElements(rootEl, extraVars = () => {}) {
@@ -1506,6 +1510,10 @@
 
     updateElement(el, extraVars) {
       this.resolveBoundAttributes(el, false, extraVars);
+
+      if (el.hasAttribute('x-cloak')) {
+        el.removeAttribute('x-cloak');
+      }
     }
 
     registerListeners(el, extraVars) {
@@ -1581,10 +1589,6 @@
 
           case 'for':
             handleForDirective(this, el, expression, initialUpdate, extraVars);
-            break;
-
-          case 'cloak':
-            el.removeAttribute('x-cloak');
             break;
         }
       });

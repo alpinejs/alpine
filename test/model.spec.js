@@ -352,3 +352,26 @@ test('x-model can listen for custom input event dispatches', async () => {
         expect(document.querySelector('span').innerText).toEqual('baz')
     })
 })
+
+// <input type="color"> 
+test('x-model bind color input', async () => {
+    document.body.innerHTML = `
+    <div x-data="{ key: '#ff0000' }">
+        <input type="color" x-model="key">
+        <span x-text="key"></span>
+    </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input').value).toEqual('#ff0000')
+    expect(document.querySelector('span').innerText).toEqual('#ff0000')
+
+    fireEvent.input(document.querySelector('input'), { target: { value: '#00ff00' } });
+
+    await wait(() => {
+        expect(document.querySelector('input').value).toEqual('#00ff00')
+        expect(document.querySelector('span').innerText).toEqual('#00ff00')
+    })
+
+})

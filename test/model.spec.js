@@ -443,7 +443,7 @@ test('x-model bind datetime-local input', async () => {
 })
 
 // <input type="email"> 
-test('x-model bind datetime-local input', async () => {
+test('x-model bind email input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: 'alphine@example.com' }">
       <input type="email" x-model="key" />
@@ -463,3 +463,4 @@ test('x-model bind datetime-local input', async () => {
         expect(document.querySelector('span').innerText).toEqual('x@example.com')
     })
 })
+

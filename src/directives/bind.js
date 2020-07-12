@@ -74,7 +74,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
     }
 }
 
-function setIfChanged(el, attrName, value, namespaced = false) {
+function setIfChanged(el, attrName, value) {
     if (el.getAttribute(attrName) != value){
         el.setAttribute(attrName, value)
     }

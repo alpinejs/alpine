@@ -86,6 +86,10 @@ export default class Component {
             // Alpine's got it's grubby little paws all over everything.
             initReturnedCallback.call(this.$data)
         }
+
+        componentForClone || setTimeout(() => {
+            Alpine.onComponentInitializeds.forEach(callback => callback(this))
+        }, 0)
     }
 
     getUnobservedData() {

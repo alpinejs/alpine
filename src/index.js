@@ -8,6 +8,8 @@ const Alpine = {
 
     magicProperties: {},
 
+    onComponentInitializeds: [],
+
     start: async function () {
         if (! isTesting()) {
             await domReady()
@@ -103,6 +105,10 @@ const Alpine = {
 
     addMagicProperty: function (name, callback) {
         this.magicProperties[name] = callback
+    },
+
+    onComponentInitialized: function (callback) {
+        this.onComponentInitializeds.push(callback)
     }
 }
 

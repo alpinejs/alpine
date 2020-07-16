@@ -1375,6 +1375,10 @@
         // Alpine's got it's grubby little paws all over everything.
         initReturnedCallback.call(this.$data);
       }
+
+      componentForClone || setTimeout(() => {
+        Alpine.onComponentInitializeds.forEach(callback => callback(this));
+      }, 0);
     }
 
     getUnobservedData() {
@@ -1683,6 +1687,7 @@
     version: "2.4.1",
     pauseMutationObserver: false,
     magicProperties: {},
+    onComponentInitializeds: [],
     start: async function start() {
       if (!isTesting()) {
         await domReady();
@@ -1761,6 +1766,9 @@
     },
     addMagicProperty: function addMagicProperty(name, callback) {
       this.magicProperties[name] = callback;
+    },
+    onComponentInitialized: function onComponentInitialized(callback) {
+      this.onComponentInitializeds.push(callback);
     }
   };
 

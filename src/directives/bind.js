@@ -1,6 +1,6 @@
-import { arrayUnique, isBooleanAttr, convertClassStringToArray } from '../utils'
+import { arrayUnique, isBooleanAttr, convertClassStringToArray, camelCase } from '../utils'
 
-export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
+export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType, modifiers) {
     var value = component.evaluateReturnExpression(el, expression, extraVars)
 
     if (attrName === 'value') {
@@ -63,6 +63,8 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
     } else {
+        attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName
+
         // If an attribute's bound value is null, undefined or false, remove the attribute
         if ([null, undefined, false].includes(value)) {
             el.removeAttribute(attrName)

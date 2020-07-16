@@ -268,14 +268,14 @@ export default class Component {
         attrs.forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':
-                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type)
+                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type, modifiers)
                     break;
 
                 case 'bind':
                     // The :key binding on an x-for is special, ignore it.
                     if (el.tagName.toLowerCase() === 'template' && value === 'key') return
 
-                    handleAttributeBindingDirective(this, el, value, expression, extraVars, type)
+                    handleAttributeBindingDirective(this, el, value, expression, extraVars, type, modifiers)
                     break;
 
                 case 'text':

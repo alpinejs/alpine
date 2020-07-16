@@ -5377,6 +5377,15 @@
   function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
   }
+  function camelCase(subject) {
+    var _this2 = this;
+
+    return subject.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, function (match, _char) {
+      _newArrowCheck(this, _this2);
+
+      return _char.toUpperCase();
+    }.bind(this));
+  }
   function walk(el, callback) {
     if (callback(el) === false) return;
     var node = el.firstElementChild;
@@ -5435,12 +5444,12 @@
     return xAttrRE.test(name);
   }
   function getXAttrs(el, component, type) {
-    var _this2 = this;
+    var _this3 = this;
 
     var directives = Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute); // Get an object of directives from x-spread.
 
     var spreadDirective = directives.filter(function (directive) {
-      _newArrowCheck(this, _this2);
+      _newArrowCheck(this, _this3);
 
       return directive.type === 'spread';
     }.bind(this))[0];
@@ -5449,7 +5458,7 @@
       var spreadObject = saferEval(spreadDirective.expression, component.$data); // Add x-spread directives to the pile of existing directives.
 
       directives = directives.concat(Object.entries(spreadObject).map(function (_ref) {
-        _newArrowCheck(this, _this2);
+        _newArrowCheck(this, _this3);
 
         var _ref2 = _slicedToArray(_ref, 2),
             name = _ref2[0],
@@ -5463,7 +5472,7 @@
     }
 
     return directives.filter(function (i) {
-      _newArrowCheck(this, _this2);
+      _newArrowCheck(this, _this3);
 
       // If no type is passed in for filtering, bypass filter
       if (!type) return true;
@@ -5472,7 +5481,7 @@
   }
 
   function parseHtmlAttribute(_ref3) {
-    var _this3 = this;
+    var _this4 = this;
 
     var name = _ref3.name,
         value = _ref3.value;
@@ -5484,7 +5493,7 @@
       type: typeMatch ? typeMatch[1] : null,
       value: valueMatch ? valueMatch[1] : null,
       modifiers: modifiers.map(function (i) {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this4);
 
         return i.replace('.', '');
       }.bind(this)),
@@ -5512,7 +5521,7 @@
     return classList.split(' ').filter(filterFn);
   }
   function transitionIn(el, show, component) {
-    var _this4 = this;
+    var _this5 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     if (forceSkip) return show();
@@ -5526,13 +5535,13 @@
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out'); // If x-show.transition.in...out... only use "in" related modifiers for this transition.
 
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this5);
 
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
     } else if (attrs.filter(function (attr) {
-      _newArrowCheck(this, _this4);
+      _newArrowCheck(this, _this5);
 
       return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
     }.bind(this)).length > 0) {
@@ -5543,7 +5552,7 @@
     }
   }
   function transitionOut(el, hide, component) {
-    var _this5 = this;
+    var _this6 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     // We don't want to transition on the initial page load.
@@ -5556,13 +5565,13 @@
       if (modifiers.includes('in') && !modifiers.includes('out')) return hide();
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out');
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this5);
+        _newArrowCheck(this, _this6);
 
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
     } else if (attrs.filter(function (attr) {
-      _newArrowCheck(this, _this5);
+      _newArrowCheck(this, _this6);
 
       return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
     }.bind(this)).length > 0) {
@@ -5572,7 +5581,7 @@
     }
   }
   function transitionHelperIn(el, modifiers, showCallback) {
-    var _this6 = this;
+    var _this7 = this;
 
     // Default values inspired by: https://material.io/design/motion/speed.html#duration
     var styleValues = {
@@ -5588,11 +5597,11 @@
       }
     };
     transitionHelper(el, modifiers, showCallback, function () {
-      _newArrowCheck(this, _this6);
+      _newArrowCheck(this, _this7);
     }.bind(this), styleValues);
   }
   function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
-    var _this7 = this;
+    var _this8 = this;
 
     // Make the "out" transition .5x slower than the "in". (Visually better)
     // HOWEVER, if they explicitly set a duration for the "out" transition,
@@ -5611,7 +5620,7 @@
       }
     };
     transitionHelper(el, modifiers, function () {
-      _newArrowCheck(this, _this7);
+      _newArrowCheck(this, _this8);
     }.bind(this), hideCallback, styleValues);
   }
 
@@ -5690,65 +5699,65 @@
     transition(el, stages);
   }
   function transitionClassesIn(el, component, directives, showCallback) {
-    var _this8 = this;
+    var _this9 = this;
 
     var ensureStringExpression = function ensureStringExpression(expression) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this9);
 
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
     }.bind(this);
 
     var enter = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this9);
 
       return i.value === 'enter';
     }.bind(this)) || {
       expression: ''
     }).expression));
     var enterStart = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this9);
 
       return i.value === 'enter-start';
     }.bind(this)) || {
       expression: ''
     }).expression));
     var enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this9);
 
       return i.value === 'enter-end';
     }.bind(this)) || {
       expression: ''
     }).expression));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this9);
     }.bind(this));
   }
   function transitionClassesOut(el, component, directives, hideCallback) {
-    var _this9 = this;
+    var _this10 = this;
 
     var leave = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'leave';
     }.bind(this)) || {
       expression: ''
     }).expression);
     var leaveStart = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'leave-start';
     }.bind(this)) || {
       expression: ''
     }).expression);
     var leaveEnd = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'leave-end';
     }.bind(this)) || {
       expression: ''
     }).expression);
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this10);
     }.bind(this), hideCallback);
   }
   function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
@@ -5769,12 +5778,12 @@
       },
       end: function end() {
         var _el$classList3,
-            _this10 = this,
+            _this11 = this,
             _el$classList4;
 
         // Don't remove classes that were in the original class attribute.
         (_el$classList3 = el.classList).remove.apply(_el$classList3, _toConsumableArray(classesStart.filter(function (i) {
-          _newArrowCheck(this, _this10);
+          _newArrowCheck(this, _this11);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -5786,17 +5795,17 @@
       },
       cleanup: function cleanup() {
         var _el$classList5,
-            _this11 = this,
+            _this12 = this,
             _el$classList6;
 
         (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(classesDuring.filter(function (i) {
-          _newArrowCheck(this, _this11);
+          _newArrowCheck(this, _this12);
 
           return !originalClasses.includes(i);
         }.bind(this))));
 
         (_el$classList6 = el.classList).remove.apply(_el$classList6, _toConsumableArray(classesEnd.filter(function (i) {
-          _newArrowCheck(this, _this11);
+          _newArrowCheck(this, _this12);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -5805,14 +5814,14 @@
     transition(el, stages);
   }
   function transition(el, stages) {
-    var _this12 = this;
+    var _this13 = this;
 
     stages.start();
     stages.during();
     requestAnimationFrame(function () {
-      var _this13 = this;
+      var _this14 = this;
 
-      _newArrowCheck(this, _this12);
+      _newArrowCheck(this, _this13);
 
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
@@ -5824,14 +5833,14 @@
 
       stages.show();
       requestAnimationFrame(function () {
-        var _this14 = this;
+        var _this15 = this;
 
-        _newArrowCheck(this, _this13);
+        _newArrowCheck(this, _this14);
 
         stages.end(); // Assign current transition to el in case we need to force it.
 
         setTimeout(function () {
-          _newArrowCheck(this, _this14);
+          _newArrowCheck(this, _this15);
 
           stages.hide(); // Adding an "isConnected" check, in case the callback
           // removed the element from the DOM.
@@ -6013,7 +6022,7 @@
     }
   });
 
-  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
+  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType, modifiers) {
     var _this = this;
 
     var value = component.evaluateReturnExpression(el, expression, extraVars);
@@ -6097,7 +6106,8 @@
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
     } else {
-      // If an attribute's bound value is null, undefined or false, remove the attribute
+      attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName; // If an attribute's bound value is null, undefined or false, remove the attribute
+
       if ([null, undefined, false].includes(value)) {
         el.removeAttribute(attrName);
       } else {
@@ -6260,6 +6270,10 @@
     var options = {
       passive: modifiers.includes('passive')
     };
+
+    if (modifiers.includes('camel')) {
+      event = camelCase(event);
+    }
 
     if (modifiers.includes('away')) {
       var _handler = function handler(e) {
@@ -6967,13 +6981,13 @@
 
           switch (type) {
             case 'model':
-              handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
+              handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type, modifiers);
               break;
 
             case 'bind':
               // The :key binding on an x-for is special, ignore it.
               if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
-              handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
+              handleAttributeBindingDirective(this, el, value, expression, extraVars, type, modifiers);
               break;
 
             case 'text':

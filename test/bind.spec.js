@@ -483,3 +483,15 @@ test('extra whitespace in class binding string syntax is ignored', async () => {
     expect(document.querySelector('span').classList.contains('foo')).toBeTruthy()
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
 })
+
+test('.camel modifier correctly sets name of attribute', async () => {
+    document.body.innerHTML = `
+        <div x-data>
+            <svg x-bind:view-box.camel="'0 0 42 42'"></svg>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('svg').getAttribute('viewBox')).toEqual('0 0 42 42')
+})

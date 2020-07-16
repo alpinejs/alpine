@@ -1,9 +1,14 @@
-import { kebabCase, debounce, isNumeric } from '../utils'
+import { kebabCase, camelCase, debounce, isNumeric } from '../utils'
 
 export function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
     const options = {
         passive: modifiers.includes('passive'),
     };
+
+    if (modifiers.includes('camel')) {
+        event = camelCase(event);
+    }
+
     if (modifiers.includes('away')) {
         let handler = e => {
             // Don't do anything if the click came from the element or within it.

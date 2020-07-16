@@ -8,16 +8,17 @@ import { handleIfDirective } from './directives/if'
 import { registerModelListener } from './directives/model'
 import { registerListener } from './directives/on'
 import { unwrap, wrap } from './observable'
+import Alpine from './index'
 
 export default class Component {
-    constructor(el, seedDataForCloning = null) {
+    constructor(el, componentForClone = null) {
         this.$el = el
 
         const dataAttr = this.$el.getAttribute('x-data')
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
         const initExpression = this.$el.getAttribute('x-init')
 
-        this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, { $el: this.$el })
+        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, { $el: this.$el })
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
@@ -26,6 +27,9 @@ export default class Component {
             this.unobservedData.$refs = null
             this.unobservedData.$nextTick = null
             this.unobservedData.$watch = null
+            Object.keys(Alpine.magicProperties).forEach(name => {
+                this.unobservedData[`$${name}`] = null
+            })
         /* IE11-ONLY:END */
 
         // Construct a Proxy-based observable. This will be used to handle reactivity.
@@ -50,12 +54,19 @@ export default class Component {
             this.watchers[property].push(callback)
         }
 
+        let canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el
+
+        // Register custom magic properties.
+        Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
+            Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
+        })
+
         this.showDirectiveStack = []
         this.showDirectiveLastElement
 
         var initReturnedCallback
         // If x-init is present AND we aren't cloning (skip x-init on clone)
-        if (initExpression && ! seedDataForCloning) {
+        if (initExpression && ! componentForClone) {
             // We want to allow data manipulation, but not trigger DOM updates just yet.
             // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
             this.pauseReactivity = true
@@ -75,6 +86,10 @@ export default class Component {
             // Alpine's got it's grubby little paws all over everything.
             initReturnedCallback.call(this.$data)
         }
+
+        componentForClone || setTimeout(() => {
+            Alpine.onComponentInitializeds.forEach(callback => callback(this))
+        }, 0)
     }
 
     getUnobservedData() {
@@ -253,14 +268,14 @@ export default class Component {
         attrs.forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':
-                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type)
+                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type, modifiers)
                     break;
 
                 case 'bind':
                     // The :key binding on an x-for is special, ignore it.
                     if (el.tagName.toLowerCase() === 'template' && value === 'key') return
 
-                    handleAttributeBindingDirective(this, el, value, expression, extraVars, type)
+                    handleAttributeBindingDirective(this, el, value, expression, extraVars, type, modifiers)
                     break;
 
                 case 'text':
@@ -282,7 +297,7 @@ export default class Component {
                 case 'if':
                     // If this element also has x-for on it, don't process x-if.
                     // We will let the "x-for" directive handle the "if"ing.
-                    if (attrs.filter(i => i.type === 'for').length > 0) return
+                    if (attrs.some(i => i.type === 'for')) return
 
                     var output = this.evaluateReturnExpression(el, expression, extraVars)
 

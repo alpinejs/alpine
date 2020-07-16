@@ -24,12 +24,14 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
 
     const handle = (resolve) => {
         if (value) {
-            transitionIn(el,() => {
-                show()
-            }, component)
+            if(el.style.display === 'none' || el.__x_transition) {
+                transitionIn(el, () => {
+                    show()
+                }, component)
+            }
             resolve(() => {})
         } else {
-            if (el.style.display !== 'none' ) {
+            if (el.style.display !== 'none') {
                 transitionOut(el, () => {
                     resolve(() => {
                         hide()

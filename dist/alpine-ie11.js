@@ -3224,8 +3224,23 @@
     }
   });
 
+  var $some = arrayIteration.some;
+
+
+
+  var STRICT_METHOD$2 = arrayMethodIsStrict('some');
+  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('some');
+
+  // `Array.prototype.some` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.some
+  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$2 || !USES_TO_LENGTH$6 }, {
+    some: function some(callbackfn /* , thisArg */) {
+      return $some(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
   var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
-  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
 
   var max$1 = Math.max;
   var min$2 = Math.min;
@@ -3235,7 +3250,7 @@
   // `Array.prototype.splice` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.splice
   // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$6 }, {
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
     splice: function splice(start, deleteCount /* , ...items */) {
       var O = toObject(this);
       var len = toLength(O.length);
@@ -4514,14 +4529,14 @@
   var FIND = 'find';
   var SKIPS_HOLES$1 = true;
 
-  var USES_TO_LENGTH$7 = arrayMethodUsesToLength(FIND);
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength(FIND);
 
   // Shouldn't skip holes
   if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
 
   // `Array.prototype.find` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$7 }, {
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$8 }, {
     find: function find(callbackfn /* , that = undefined */) {
       return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -4537,12 +4552,12 @@
   var nativeIndexOf = [].indexOf;
 
   var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
-  var STRICT_METHOD$2 = arrayMethodIsStrict('indexOf');
-  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var STRICT_METHOD$3 = arrayMethodIsStrict('indexOf');
+  var USES_TO_LENGTH$9 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.indexOf` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.indexof
-  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$8 }, {
+  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$3 || !USES_TO_LENGTH$9 }, {
     indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
       return NEGATIVE_ZERO
         // convert -0 to +0
@@ -4601,11 +4616,11 @@
   var nativeJoin = [].join;
 
   var ES3_STRINGS = indexedObject != Object;
-  var STRICT_METHOD$3 = arrayMethodIsStrict('join', ',');
+  var STRICT_METHOD$4 = arrayMethodIsStrict('join', ',');
 
   // `Array.prototype.join` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.join
-  _export({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD$3 }, {
+  _export({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD$4 }, {
     join: function join(separator) {
       return nativeJoin.call(toIndexedObject(this), separator === undefined ? ',' : separator);
     }
@@ -5423,7 +5438,7 @@
     var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
     if (typeof expression === 'function') {
-      return expression.call(dataContext);
+      return expression.call(dataContext, additionalHelperVariables['$event']);
     } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
     // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
 
@@ -5471,13 +5486,12 @@
       }.bind(this)));
     }
 
-    return directives.filter(function (i) {
+    if (type) return directives.filter(function (i) {
       _newArrowCheck(this, _this3);
 
-      // If no type is passed in for filtering, bypass filter
-      if (!type) return true;
       return i.type === type;
     }.bind(this));
+    return directives;
   }
 
   function parseHtmlAttribute(_ref3) {
@@ -5520,11 +5534,21 @@
     var filterFn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Boolean;
     return classList.split(' ').filter(filterFn);
   }
+  var TRANSITION_TYPE_IN = 'in';
+  var TRANSITION_TYPE_OUT = 'out';
   function transitionIn(el, show, component) {
     var _this5 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    // We don't want to transition on the initial page load.
     if (forceSkip) return show();
+
+    if (el.__x_transition && el.__x_transition.type === TRANSITION_TYPE_IN) {
+      // there is already a similar transition going on, this was probably triggered by
+      // a change in a different property, let's just leave the previous one doing its job
+      return;
+    }
+
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0]; // If this is triggered by a x-show.transition.
 
@@ -5540,11 +5564,11 @@
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.filter(function (attr) {
+    } else if (attrs.some(function (attr) {
       _newArrowCheck(this, _this5);
 
       return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
-    }.bind(this)).length > 0) {
+    }.bind(this))) {
       transitionClassesIn(el, component, attrs, show);
     } else {
       // If neither, just show that damn thing.
@@ -5557,6 +5581,13 @@
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     // We don't want to transition on the initial page load.
     if (forceSkip) return hide();
+
+    if (el.__x_transition && el.__x_transition.type === TRANSITION_TYPE_OUT) {
+      // there is already a similar transition going on, this was probably triggered by
+      // a change in a different property, let's just leave the previous one doing its job
+      return;
+    }
+
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0];
 
@@ -5570,11 +5601,11 @@
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
-    } else if (attrs.filter(function (attr) {
+    } else if (attrs.some(function (attr) {
       _newArrowCheck(this, _this6);
 
       return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
-    }.bind(this)).length > 0) {
+    }.bind(this))) {
       transitionClassesOut(el, component, attrs, hide);
     } else {
       hide();
@@ -5598,7 +5629,7 @@
     };
     transitionHelper(el, modifiers, showCallback, function () {
       _newArrowCheck(this, _this7);
-    }.bind(this), styleValues);
+    }.bind(this), styleValues, TRANSITION_TYPE_IN);
   }
   function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
     var _this8 = this;
@@ -5621,7 +5652,7 @@
     };
     transitionHelper(el, modifiers, function () {
       _newArrowCheck(this, _this8);
-    }.bind(this), hideCallback, styleValues);
+    }.bind(this), hideCallback, styleValues, TRANSITION_TYPE_OUT);
   }
 
   function modifierValue(modifiers, key, fallback) {
@@ -5654,8 +5685,14 @@
     return rawValue;
   }
 
-  function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
-    // If the user set these style values, we'll put them back when we're done with them.
+  function transitionHelper(el, modifiers, hook1, hook2, styleValues, type) {
+    // clear the previous transition if exists to avoid caching the wrong styles
+    if (el.__x_transition) {
+      cancelAnimationFrame(el.__x_transition.nextFrame);
+      el.__x_transition.callback && el.__x_transition.callback();
+    } // If the user set these style values, we'll put them back when we're done with them.
+
+
     var opacityCache = el.style.opacity;
     var transformCache = el.style.transform;
     var transformOriginCache = el.style.transformOrigin; // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
@@ -5696,7 +5733,7 @@
         el.style.transitionTimingFunction = null;
       }
     };
-    transition(el, stages);
+    transition(el, stages, type);
   }
   function transitionClassesIn(el, component, directives, showCallback) {
     var _this9 = this;
@@ -5730,7 +5767,7 @@
     }).expression));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
       _newArrowCheck(this, _this9);
-    }.bind(this));
+    }.bind(this), TRANSITION_TYPE_IN);
   }
   function transitionClassesOut(el, component, directives, hideCallback) {
     var _this10 = this;
@@ -5758,9 +5795,15 @@
     }).expression);
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
       _newArrowCheck(this, _this10);
-    }.bind(this), hideCallback);
+    }.bind(this), hideCallback, TRANSITION_TYPE_OUT);
   }
-  function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
+  function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type) {
+    // clear the previous transition if exists to avoid caching the wrong classes
+    if (el.__x_transition) {
+      cancelAnimationFrame(el.__x_transition.nextFrame);
+      el.__x_transition.callback && el.__x_transition.callback();
+    }
+
     var originalClasses = el.__x_original_classes || [];
     var stages = {
       start: function start() {
@@ -5811,14 +5854,35 @@
         }.bind(this))));
       }
     };
-    transition(el, stages);
+    transition(el, stages, type);
   }
-  function transition(el, stages) {
+  function transition(el, stages, type) {
     var _this13 = this;
 
+    el.__x_transition = {
+      // Set transition type so we can avoid clearing transition if the direction is the same
+      type: type,
+      // create a callback for the last stages of the transition so we can call it
+      // from different point and early terminate it. Once will ensure that function
+      // is only called one time.
+      callback: once(function () {
+        _newArrowCheck(this, _this13);
+
+        stages.hide(); // Adding an "isConnected" check, in case the callback
+        // removed the element from the DOM.
+
+        if (el.isConnected) {
+          stages.cleanup();
+        }
+
+        delete el.__x_transition;
+      }.bind(this)),
+      // This store the next animation frame so we can cancel it
+      nextFrame: null
+    };
     stages.start();
     stages.during();
-    requestAnimationFrame(function () {
+    el.__x_transition.nextFrame = requestAnimationFrame(function () {
       var _this14 = this;
 
       _newArrowCheck(this, _this13);
@@ -5832,28 +5896,27 @@
       }
 
       stages.show();
-      requestAnimationFrame(function () {
-        var _this15 = this;
-
+      el.__x_transition.nextFrame = requestAnimationFrame(function () {
         _newArrowCheck(this, _this14);
 
-        stages.end(); // Assign current transition to el in case we need to force it.
-
-        setTimeout(function () {
-          _newArrowCheck(this, _this15);
-
-          stages.hide(); // Adding an "isConnected" check, in case the callback
-          // removed the element from the DOM.
-
-          if (el.isConnected) {
-            stages.cleanup();
-          }
-        }.bind(this), duration);
+        stages.end();
+        setTimeout(el.__x_transition.callback, duration);
       }.bind(this));
     }.bind(this));
   }
   function isNumeric(subject) {
     return !isNaN(subject);
+  } // Thanks @vuejs
+  // https://github.com/vuejs/vue/blob/4de4649d9637262a9b007720b59f80ac72a5620c/src/shared/util.js
+
+  function once(callback) {
+    var called = false;
+    return function () {
+      if (!called) {
+        called = true;
+        callback.apply(this, arguments);
+      }
+    };
   }
 
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
@@ -6006,21 +6069,6 @@
       _loop();
     }
   }
-
-  var $some = arrayIteration.some;
-
-
-
-  var STRICT_METHOD$4 = arrayMethodIsStrict('some');
-  var USES_TO_LENGTH$9 = arrayMethodUsesToLength('some');
-
-  // `Array.prototype.some` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.some
-  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$4 || !USES_TO_LENGTH$9 }, {
-    some: function some(callbackfn /* , thisArg */) {
-      return $some(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
 
   function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType, modifiers) {
     var _this = this;
@@ -6187,11 +6235,14 @@
       _newArrowCheck(this, _this);
 
       if (value) {
-        transitionIn(el, function () {
-          _newArrowCheck(this, _this2);
+        if (el.style.display === 'none' || el.__x_transition) {
+          transitionIn(el, function () {
+            _newArrowCheck(this, _this2);
 
-          show();
-        }.bind(this), component);
+            show();
+          }.bind(this), component);
+        }
+
         resolve(function () {
           _newArrowCheck(this, _this2);
         }.bind(this));
@@ -6246,7 +6297,7 @@
     warnIfMalformedTemplate(el, 'x-if');
     var elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true;
 
-    if (expressionResult && !elementHasAlreadyBeenAdded) {
+    if (expressionResult && (!elementHasAlreadyBeenAdded || el.__x_transition)) {
       var clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
       transitionIn(el.nextElementSibling, function () {
@@ -7007,11 +7058,11 @@
             case 'if':
               // If this element also has x-for on it, don't process x-if.
               // We will let the "x-for" directive handle the "if"ing.
-              if (attrs.filter(function (i) {
+              if (attrs.some(function (i) {
                 _newArrowCheck(this, _this18);
 
                 return i.type === 'for';
-              }.bind(this)).length > 0) return;
+              }.bind(this))) return;
               var output = this.evaluateReturnExpression(el, expression, extraVars);
               handleIfDirective(this, el, output, initialUpdate, extraVars);
               break;

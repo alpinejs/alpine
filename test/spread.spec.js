@@ -146,3 +146,31 @@ test('x-spread syntax supports x-transition', async () => {
         }, 10)
     )
 })
+
+
+test('x-spread event handlers defined as functions receive the event object as their first argument', async () => {    
+    window.data = function () {
+        return {
+            eventType: null, 
+            button: {
+                ['@click']($event){
+                    this.eventType = $event.type;
+                }
+            }
+        };
+    };
+
+    document.body.innerHTML = `
+        <div x-data="window.data()">
+            <button x-spread="button">click me<button>
+        </div>
+    `;
+
+    Alpine.start();
+
+    document.querySelector("button").click();
+
+    await wait(() => {
+        expect(document.querySelector("div").__x.$data.eventType).toEqual("click");
+    });
+});

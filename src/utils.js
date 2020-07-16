@@ -196,7 +196,7 @@ export function transitionIn(el, show, component, forceSkip = false) {
 
         transitionHelperIn(el, modifiers, show)
     // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.filter(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value)).length > 0) {
+    } else if (attrs.some(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value))) {
         transitionClassesIn(el, component, attrs, show)
     } else {
     // If neither, just show that damn thing.
@@ -228,7 +228,7 @@ export function transitionOut(el, hide, component, forceSkip = false) {
             ? modifiers.filter((i, index) => index > modifiers.indexOf('out')) : modifiers
 
         transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide)
-    } else if (attrs.filter(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value)).length > 0) {
+    } else if (attrs.some(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value))) {
         transitionClassesOut(el, component, attrs, hide)
     } else {
         hide()

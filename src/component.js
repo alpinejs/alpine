@@ -18,7 +18,17 @@ export default class Component {
         const dataExpression = dataAttr === '' ? '{}' : dataAttr
         const initExpression = this.$el.getAttribute('x-init')
 
-        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, { $el: this.$el })
+        let dataExtras = {
+            $el: this.$el,
+        }
+
+        let canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el
+
+        Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
+            Object.defineProperty(dataExtras, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
+        })
+
+        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras)
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
@@ -54,8 +64,6 @@ export default class Component {
             this.watchers[property].push(callback)
         }
 
-        let canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el
-
         // Register custom magic properties.
         Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
             Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
@@ -63,6 +71,8 @@ export default class Component {
 
         this.showDirectiveStack = []
         this.showDirectiveLastElement
+
+        componentForClone || Alpine.onBeforeComponentInitializeds.forEach(callback => callback(this))
 
         var initReturnedCallback
         // If x-init is present AND we aren't cloning (skip x-init on clone)

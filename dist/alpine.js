@@ -606,8 +606,9 @@
     var value = component.evaluateReturnExpression(el, expression, extraVars);
 
     if (attrName === 'value') {
-      // If nested model key is undefined, set the default value to empty string.
-      if (value === undefined && expression.match(/\./).length) {
+      if (Alpine.ignoreFocusedForValueBinding && document.activeElement.isSameNode(el)) return; // If nested model key is undefined, set the default value to empty string.
+
+      if (value === undefined && expression.match(/\./)) {
         value = '';
       }
 
@@ -1374,9 +1375,18 @@
       const dataAttr = this.$el.getAttribute('x-data');
       const dataExpression = dataAttr === '' ? '{}' : dataAttr;
       const initExpression = this.$el.getAttribute('x-init');
-      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, {
+      let dataExtras = {
         $el: this.$el
+      };
+      let canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el;
+      Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
+        Object.defineProperty(dataExtras, `$${name}`, {
+          get: function get() {
+            return callback(canonicalComponentElementReference);
+          }
+        });
       });
+      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras);
       // Construct a Proxy-based observable. This will be used to handle reactivity.
 
       let {
@@ -1400,9 +1410,8 @@
       this.unobservedData.$watch = (property, callback) => {
         if (!this.watchers[property]) this.watchers[property] = [];
         this.watchers[property].push(callback);
-      };
+      }; // Register custom magic properties.
 
-      let canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el; // Register custom magic properties.
 
       Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
         Object.defineProperty(this.unobservedData, `$${name}`, {
@@ -1413,6 +1422,7 @@
       });
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
+      componentForClone || Alpine.onBeforeComponentInitializeds.forEach(callback => callback(this));
       var initReturnedCallback; // If x-init is present AND we aren't cloning (skip x-init on clone)
 
       if (initExpression && !componentForClone) {
@@ -1747,6 +1757,8 @@
     pauseMutationObserver: false,
     magicProperties: {},
     onComponentInitializeds: [],
+    onBeforeComponentInitializeds: [],
+    ignoreFocusedForValueBinding: false,
     start: async function start() {
       if (!isTesting()) {
         await domReady();
@@ -1828,6 +1840,9 @@
     },
     onComponentInitialized: function onComponentInitialized(callback) {
       this.onComponentInitializeds.push(callback);
+    },
+    onBeforeComponentInitialized: function onBeforeComponentInitialized(callback) {
+      this.onBeforeComponentInitializeds.push(callback);
     }
   };
 

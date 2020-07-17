@@ -113,10 +113,21 @@ export function getXAttrs(el, component, type) {
         // Add x-spread directives to the pile of existing directives.
         directives = directives.concat(Object.entries(spreadObject).map(([name, value]) => parseHtmlAttribute({ name, value })))
     }
-    
+
     if (type) return directives.filter(i => i.type === type)
 
-    return directives;
+    return sortDirectives(directives)
+}
+
+function sortDirectives(directives) {
+    let directiveOrder = ['bind', 'model', 'show', 'catch-all']
+
+    return directives.sort((a, b) => {
+        let typeA = directiveOrder.indexOf(a.type) === -1 ? 'catch-all' : a.type
+        let typeB = directiveOrder.indexOf(b.type) === -1 ? 'catch-all' : b.type
+
+        return directiveOrder.indexOf(typeA) - directiveOrder.indexOf(typeB)
+    })
 }
 
 function parseHtmlAttribute({ name, value }) {

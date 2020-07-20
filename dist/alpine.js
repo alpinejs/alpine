@@ -1752,7 +1752,7 @@
   }
 
   const Alpine = {
-    version: "2.4.1",
+    version: "2.5.0",
     pauseMutationObserver: false,
     magicProperties: {},
     onComponentInitializeds: [],

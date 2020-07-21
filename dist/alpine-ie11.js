@@ -23,10 +23,11 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  (function(){function k(){function p(a){return a?"object"===typeof a||"function"===typeof a:!1}var l=null;var n=function(a,c){function g(){}if(!p(a)||!p(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");l=function(){a=null;g=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){l=null;},0);var f=c;c={get:null,set:null,apply:null,construct:null};for(var h in f){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+
-  h+"'");c[h]=f[h];}"function"===typeof f&&(c.apply=f.apply.bind(f));var d=this,q=!1,r=!1;"function"===typeof a?(d=function(){var b=this&&this.constructor===d,e=Array.prototype.slice.call(arguments);g(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,e):!b&&c.apply?c.apply(a,this,e):b?(e.unshift(a),new (a.bind.apply(a,e))):a.apply(this,e)},q=!0):a instanceof Array&&(d=[],r=!0);var t=c.get?function(b){g("get");return c.get(this,b,d)}:function(b){g("get");return this[b]},w=c.set?function(b,
-  e){g("set");c.set(this,b,e,d);}:function(b,e){g("set");this[b]=e;},u={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((q||r)&&b in d)){var e={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:t.bind(a,b),set:w.bind(a,b)};Object.defineProperty(d,b,e);u[b]=!0;}});f=!0;Object.setPrototypeOf?Object.setPrototypeOf(d,Object.getPrototypeOf(a)):d.__proto__?d.__proto__=a.__proto__:f=!1;if(c.get||!f)for(var m in a)u[m]||Object.defineProperty(d,m,{get:t.bind(a,m)});Object.seal(a);Object.seal(d);
-  return d};n.revocable=function(a,c){return {proxy:new n(a,c),revoke:l}};return n}var v="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;v.Proxy||(v.Proxy=k(),v.Proxy.revocable=v.Proxy.revocable);})();
+  (function(){function n(){function v(){return null}function l(a){return a?"object"===typeof a||"function"===typeof a:!1}function p(a){if(null!==a&&!l(a))throw new TypeError("Object prototype may only be an Object or null: "+a);}var q=null,e=Object,w=!!e.create||!({__proto__:null}instanceof e),A=e.create||(w?function(a){p(a);return {__proto__:a}}:function(a){function c(){}p(a);if(null===a)throw new SyntaxError("Native Object.create is required to create objects with null prototype");c.prototype=a;return new c}),
+  B=e.getPrototypeOf||([].__proto__===Array.prototype?function(a){a=a.__proto__;return l(a)?a:null}:v);var m=function(a,c){function k(){}if(void 0===(this&&this instanceof m?this.constructor:void 0))throw new TypeError("Constructor Proxy requires 'new'");if(!l(a)||!l(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");q=function(){a=null;k=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){q=null;},0);var g=
+  c;c={get:null,set:null,apply:null,construct:null};for(var h in g){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+h+"'");c[h]=g[h];}"function"===typeof g&&(c.apply=g.apply.bind(g));g=B(a);var r=!1,t=!1;if("function"===typeof a){var f=function(){var b=this&&this.constructor===f,d=Array.prototype.slice.call(arguments);k(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,d):!b&&c.apply?c.apply(a,this,d):b?(d.unshift(a),new (a.bind.apply(a,d))):a.apply(this,
+  d)};r=!0;}else a instanceof Array?(f=[],t=!0):f=w||null!==g?A(g):{};var x=c.get?function(b){k("get");return c.get(this,b,f)}:function(b){k("get");return this[b]},C=c.set?function(b,d){k("set");c.set(this,b,d,f);}:function(b,d){k("set");this[b]=d;},y={};e.getOwnPropertyNames(a).forEach(function(b){if(!((r||t)&&b in f)){var d=e.getOwnPropertyDescriptor(a,b);e.defineProperty(f,b,{enumerable:!!d.enumerable,get:x.bind(a,b),set:C.bind(a,b)});y[b]=!0;}});h=!0;if(r||t){var D=e.setPrototypeOf||([].__proto__===
+  Array.prototype?function(b,d){p(d);b.__proto__=d;return b}:v);g&&D(f,g)||(h=!1);}if(c.get||!h)for(var u in a)y[u]||e.defineProperty(f,u,{get:x.bind(a,u)});e.seal(a);e.seal(f);return f};m.revocable=function(a,c){return {proxy:new m(a,c),revoke:q}};return m}var z="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;z.Proxy||(z.Proxy=n(),z.Proxy.revocable=z.Proxy.revocable);})();
 
   !function(e){var t=e.Element.prototype;"function"!=typeof t.matches&&(t.matches=t.msMatchesSelector||t.mozMatchesSelector||t.webkitMatchesSelector||function(e){for(var t=(this.document||this.ownerDocument).querySelectorAll(e),o=0;t[o]&&t[o]!==this;)++o;return Boolean(t[o])}),"function"!=typeof t.closest&&(t.closest=function(e){for(var t=this;t&&1===t.nodeType;){if(t.matches(e))return t;t=t.parentNode;}return null});}(window);
 
@@ -884,59 +885,395 @@
 
   })();
 
-  // Polyfill for creating CustomEvents on IE9/10/11
+  var ApplyThisPrototype = (function() {
+    return function ApplyThisPrototype(event, target) {
+      if ((typeof target === 'object') && (target !== null)) {
+        var proto = Object.getPrototypeOf(target);
+        var property;
 
-  // code pulled from:
-  // https://github.com/d4tocchini/customevent-polyfill
-  // https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent#Polyfill
-
-  (function() {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    try {
-      var ce = new window.CustomEvent('test', { cancelable: true });
-      ce.preventDefault();
-      if (ce.defaultPrevented !== true) {
-        // IE has problems with .preventDefault() on custom events
-        // http://stackoverflow.com/questions/23349191
-        throw new Error('Could not prevent default');
-      }
-    } catch (e) {
-      var CustomEvent = function(event, params) {
-        var evt, origPrevent;
-        params = params || {};
-        params.bubbles = !!params.bubbles;
-        params.cancelable = !!params.cancelable;
-
-        evt = document.createEvent('CustomEvent');
-        evt.initCustomEvent(
-          event,
-          params.bubbles,
-          params.cancelable,
-          params.detail
-        );
-        origPrevent = evt.preventDefault;
-        evt.preventDefault = function() {
-          origPrevent.call(this);
-          try {
-            Object.defineProperty(this, 'defaultPrevented', {
-              get: function() {
-                return true;
-              }
-            });
-          } catch (e) {
-            this.defaultPrevented = true;
+        for (property in proto) {
+          if (!(property in event)) {
+            var descriptor = Object.getOwnPropertyDescriptor(proto, property);
+            if (descriptor) {
+              Object.defineProperty(event, property, descriptor);
+            }
           }
-        };
-        return evt;
-      };
+        }
 
-      CustomEvent.prototype = window.Event.prototype;
-      window.CustomEvent = CustomEvent; // expose definition to window
+        for (property in target) {
+          if (!(property in event)) {
+            event[property] = target[property];
+          }
+        }
+      }
     }
   })();
+
+  (function(ApplyThisPrototype) {
+    /**
+     * Polyfill CustomEvent
+     */
+    try {
+      var event = new window.CustomEvent('event', { bubbles: true, cancelable: true });
+    } catch (error) {
+      var CustomEventOriginal = window.CustomEvent || window.Event;
+      var CustomEvent = function(eventName, params) {
+        params = params || {};
+        var event = document.createEvent('CustomEvent');
+        event.initCustomEvent(
+          eventName,
+          (params.bubbles === void 0) ? false : params.bubbles,
+          (params.cancelable === void 0) ? false : params.cancelable,
+          (params.detail === void 0) ? {} : params.detail
+        );
+        ApplyThisPrototype(event, this);
+        return event;
+      };
+      CustomEvent.prototype = CustomEventOriginal.prototype;
+      window.CustomEvent = CustomEvent;
+    }
+  })(ApplyThisPrototype);
+
+  var EventListenerInterceptor = (function() {
+
+    if(typeof EventTarget === 'undefined') {
+      window.EventTarget = Node;
+    }
+
+    /**
+     * Event listener interceptor
+     */
+
+    var EventListenerInterceptor = {
+      interceptors: [] // { target: EventTarget, interceptors: [{ add: Function, remove: Function }, ...] }
+    };
+
+
+    /**
+     * Returns if exists a previously registered listener from a target and the normalized arguments
+     * @param target
+     * @param normalizedArguments
+     * @return {*}
+     */
+    EventListenerInterceptor.getRegisteredEventListener = function(target, normalizedArguments) {
+      var key = normalizedArguments.type + '-' + (normalizedArguments.options.capture ? '1' : '0');
+      if(
+        (target.__eventListeners !== void 0) &&
+        (target.__eventListeners[key] !== void 0)
+      ) {
+        var map = target.__eventListeners[key];
+        for(var i = 0; i < map.length; i++) {
+          if(map[i].listener === normalizedArguments.listener) {
+            return map[i];
+          }
+        }
+      }
+      return null;
+    };
+
+    /**
+     * Registers a listener on a target with some options
+     * @param target
+     * @param normalizedArguments
+     */
+    EventListenerInterceptor.registerEventListener = function(target, normalizedArguments) {
+      var key = normalizedArguments.type + '-' + (normalizedArguments.options.capture ? '1' : '0');
+
+      if(target.__eventListeners === void 0) {
+        target.__eventListeners = {};
+      }
+
+      if(target.__eventListeners[key] === void 0) {
+        target.__eventListeners[key] = [];
+      }
+
+      target.__eventListeners[key].push(normalizedArguments);
+    };
+
+    /**
+     * Unregisters a listener on a target with some options
+     * @param target
+     * @param normalizedArguments
+     */
+    EventListenerInterceptor.unregisterEventListener = function(target, normalizedArguments) {
+      var key = normalizedArguments.type + '-' + (normalizedArguments.options.capture ? '1' : '0');
+      if(
+        (target.__eventListeners !==  void 0) &&
+        (target.__eventListeners[key] !== void 0)
+      ) {
+        var map = target.__eventListeners[key];
+        for(var i = 0; i < map.length; i++) {
+          if(map[i].listener === normalizedArguments.listener) {
+            map.splice(i, 1);
+          }
+        }
+
+        if(map.length === 0) {
+          delete target.__eventListeners[key];
+        }
+      }
+    };
+
+
+
+    EventListenerInterceptor.normalizeListenerCallback = function(listener) {
+      if((typeof listener === 'function') || (listener === null) || (listener === void 0)) {
+        return listener;
+      } else if((typeof listener === 'object') && (typeof listener.handleEvent === 'function')) {
+        return listener.handleEvent;
+      } else {
+        // to support Symbol
+        return function(event) {
+          listener(event);
+        };
+      }
+    };
+
+    EventListenerInterceptor.normalizeListenerOptions = function(options) {
+      switch(typeof options) {
+        case 'boolean':
+          options = { capture: options };
+          break;
+        case 'undefined':
+          options = { capture: false };
+          break;
+        case 'object':
+          if (options === null) {
+            options = { capture: false };
+          }
+          break;
+        default:
+          throw new Error('Unsupported options type for addEventListener');
+      }
+
+      options.once      = Boolean(options.once);
+      options.passive   = Boolean(options.passive);
+      options.capture   = Boolean(options.capture);
+
+      return options;
+    };
+
+    EventListenerInterceptor.normalizeListenerArguments = function(type, listener, options) {
+      return {
+        type: type,
+        listener: this.normalizeListenerCallback(listener),
+        options: this.normalizeListenerOptions(options)
+      };
+    };
+
+
+
+    EventListenerInterceptor.intercept = function(target, interceptors) {
+      // get an interceptor with this target or null
+      var interceptor = null;
+      for (var i = 0; i < this.interceptors.length; i++) {
+        if(this.interceptors[i].target === target) {
+          interceptor = this.interceptors[i];
+        }
+      }
+
+      // if no interceptor already set
+      if (interceptor === null) {
+        interceptor = { target: target, interceptors: [interceptors] };
+        this.interceptors.push(interceptor);
+
+        this.interceptAddEventListener(target, interceptor);
+        this.interceptRemoveEventListener(target, interceptor);
+      } else { // if an interceptor already set, simply add interceptors to the list
+        interceptor.interceptors.push(interceptors);
+      }
+
+      // var release = function() {
+      //   target.prototype.addEventListener = addEventListener;
+      //   target.prototype.removeEventListener = removeEventListener;
+      // };
+      // this.interceptors.push(release);
+      // return release;
+    };
+
+    EventListenerInterceptor.interceptAddEventListener = function(target, interceptor) {
+      var _this = this;
+
+      var addEventListener = target.prototype.addEventListener;
+      target.prototype.addEventListener = function(type, listener, options) {
+        var normalizedArguments = _this.normalizeListenerArguments(type, listener, options);
+        var registeredEventListener = _this.getRegisteredEventListener(this, normalizedArguments);
+
+        if (!registeredEventListener) {
+
+          normalizedArguments.polyfilled = {
+            type: normalizedArguments.type,
+            listener: normalizedArguments.listener,
+            options: {
+              capture: normalizedArguments.options.capture,
+              once: normalizedArguments.options.once,
+              passive: normalizedArguments.options.passive
+            }
+          };
+
+          for (var i = 0; i < interceptor.interceptors.length; i++) {
+            var interceptors = interceptor.interceptors[i];
+            if (typeof interceptors.add === 'function') {
+              interceptors.add(normalizedArguments);
+            }
+          }
+
+          // console.log('normalizedArguments', normalizedArguments.polyfilled);
+
+          _this.registerEventListener(this, normalizedArguments);
+
+          addEventListener.call(
+            this,
+            normalizedArguments.polyfilled.type,
+            normalizedArguments.polyfilled.listener,
+            normalizedArguments.polyfilled.options
+          );
+        }
+      };
+
+      return function() {
+        target.prototype.addEventListener = addEventListener;
+      };
+    };
+
+    EventListenerInterceptor.interceptRemoveEventListener = function(target, interceptor) {
+      var _this = this;
+
+      var removeEventListener = target.prototype.removeEventListener;
+      target.prototype.removeEventListener = function(type, listener, options) {
+        var normalizedArguments = _this.normalizeListenerArguments(type, listener, options);
+        var registeredEventListener = _this.getRegisteredEventListener(this, normalizedArguments);
+
+        if (registeredEventListener) {
+          _this.unregisterEventListener(this, normalizedArguments);
+          removeEventListener.call(
+            this,
+            registeredEventListener.polyfilled.type,
+            registeredEventListener.polyfilled.listener,
+            registeredEventListener.polyfilled.options
+          );
+        } else {
+          removeEventListener.call(this, type, listener, options);
+        }
+      };
+
+      return function() {
+        target.prototype.removeEventListener = removeEventListener;
+      };
+    };
+
+    EventListenerInterceptor.interceptAll = function(interceptors) {
+      this.intercept(EventTarget, interceptors);
+      if(!(window instanceof EventTarget)) {
+        this.intercept(Window, interceptors);
+      }
+    };
+
+    EventListenerInterceptor.releaseAll = function() {
+      for(var i = 0, l = this.interceptors.length; i < l; i++) {
+        this.interceptors();
+      }
+    };
+
+
+    EventListenerInterceptor.error = function(error) {
+      // throw error;
+      console.error(error);
+    };
+
+    return EventListenerInterceptor;
+  })();
+
+  (function(EventListenerInterceptor) {
+    /**
+     * Event listener options support
+     */
+
+    EventListenerInterceptor.detectSupportedOptions = function() {
+      var _this = this;
+
+      this.supportedOptions = {
+        once: false,
+        passive: false,
+        capture: false,
+
+        all: false,
+        some: false
+      };
+
+      document.createDocumentFragment().addEventListener('test', function() {}, {
+        get once() {
+          _this.supportedOptions.once = true;
+          return false;
+        },
+        get passive() {
+          _this.supportedOptions.passive = true;
+          return false;
+        },
+        get capture() {
+          _this.supportedOptions.capture = true;
+          return false;
+        }
+      });
+
+      // useful shortcuts to detect if options are all/some supported
+      this.supportedOptions.all  = this.supportedOptions.once && this.supportedOptions.passive && this.supportedOptions.capture;
+      this.supportedOptions.some = this.supportedOptions.once || this.supportedOptions.passive || this.supportedOptions.capture;
+    };
+
+    EventListenerInterceptor.polyfillListenerOptions = function() {
+      this.detectSupportedOptions();
+      if (!this.supportedOptions.all) {
+        var _this = this;
+
+        this.interceptAll({
+          add: function(normalizedArguments) {
+            // console.log('intercepted', normalizedArguments);
+
+            var once = normalizedArguments.options.once && !_this.supportedOptions.once;
+            var passive = normalizedArguments.options.passive && !_this.supportedOptions.passive;
+
+            if (once || passive) {
+              var listener = normalizedArguments.polyfilled.listener;
+
+              normalizedArguments.polyfilled.listener = function(event) {
+                if(once) {
+                  this.removeEventListener(normalizedArguments.type, normalizedArguments.listener, normalizedArguments.options);
+                }
+
+                if(passive) {
+                  event.preventDefault = function() {
+                    throw new Error('Unable to preventDefault inside passive event listener invocation.');
+                  };
+                }
+
+                return listener.call(this, event);
+              };
+            }
+
+            if (!_this.supportedOptions.some) {
+              normalizedArguments.polyfilled.options = normalizedArguments.options.capture;
+            }
+          }
+        });
+      }
+    };
+
+
+    EventListenerInterceptor.polyfillListenerOptions();
+
+
+    // var onclick = function() {
+    //   console.log('click');
+    // };
+
+    // document.body.addEventListener('click', onclick, false);
+    // document.body.addEventListener('click', onclick, { once: true });
+    // document.body.addEventListener('click', onclick, { once: true });
+    // document.body.addEventListener('click', onclick, false);
+    // document.body.addEventListener('click', onclick, false);
+
+  })(EventListenerInterceptor);
 
   // For the IE11 build.
   SVGElement.prototype.contains = SVGElement.prototype.contains || HTMLElement.prototype.contains;
@@ -3278,8 +3615,23 @@
     }
   });
 
+  var $some = arrayIteration.some;
+
+
+
+  var STRICT_METHOD$2 = arrayMethodIsStrict('some');
+  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('some');
+
+  // `Array.prototype.some` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.some
+  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$2 || !USES_TO_LENGTH$6 }, {
+    some: function some(callbackfn /* , thisArg */) {
+      return $some(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+    }
+  });
+
   var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
-  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
 
   var max$1 = Math.max;
   var min$2 = Math.min;
@@ -3289,7 +3641,7 @@
   // `Array.prototype.splice` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.splice
   // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$6 }, {
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
     splice: function splice(start, deleteCount /* , ...items */) {
       var O = toObject(this);
       var len = toLength(O.length);
@@ -3335,6 +3687,46 @@
       }
       O.length = len - actualDeleteCount + insertCount;
       return A;
+    }
+  });
+
+  var propertyIsEnumerable = objectPropertyIsEnumerable.f;
+
+  // `Object.{ entries, values }` methods implementation
+  var createMethod$4 = function (TO_ENTRIES) {
+    return function (it) {
+      var O = toIndexedObject(it);
+      var keys = objectKeys(O);
+      var length = keys.length;
+      var i = 0;
+      var result = [];
+      var key;
+      while (length > i) {
+        key = keys[i++];
+        if (!descriptors || propertyIsEnumerable.call(O, key)) {
+          result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
+        }
+      }
+      return result;
+    };
+  };
+
+  var objectToArray = {
+    // `Object.entries` method
+    // https://tc39.github.io/ecma262/#sec-object.entries
+    entries: createMethod$4(true),
+    // `Object.values` method
+    // https://tc39.github.io/ecma262/#sec-object.values
+    values: createMethod$4(false)
+  };
+
+  var $entries = objectToArray.entries;
+
+  // `Object.entries` method
+  // https://tc39.github.io/ecma262/#sec-object.entries
+  _export({ target: 'Object', stat: true }, {
+    entries: function entries(O) {
+      return $entries(O);
     }
   });
 
@@ -4528,14 +4920,14 @@
   var FIND = 'find';
   var SKIPS_HOLES$1 = true;
 
-  var USES_TO_LENGTH$7 = arrayMethodUsesToLength(FIND);
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength(FIND);
 
   // Shouldn't skip holes
   if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
 
   // `Array.prototype.find` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$7 }, {
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$8 }, {
     find: function find(callbackfn /* , that = undefined */) {
       return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -4551,12 +4943,12 @@
   var nativeIndexOf = [].indexOf;
 
   var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
-  var STRICT_METHOD$2 = arrayMethodIsStrict('indexOf');
-  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var STRICT_METHOD$3 = arrayMethodIsStrict('indexOf');
+  var USES_TO_LENGTH$9 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.indexOf` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.indexof
-  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$2 || !USES_TO_LENGTH$8 }, {
+  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$3 || !USES_TO_LENGTH$9 }, {
     indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
       return NEGATIVE_ZERO
         // convert -0 to +0
@@ -4615,11 +5007,11 @@
   var nativeJoin = [].join;
 
   var ES3_STRINGS = indexedObject != Object;
-  var STRICT_METHOD$3 = arrayMethodIsStrict('join', ',');
+  var STRICT_METHOD$4 = arrayMethodIsStrict('join', ',');
 
   // `Array.prototype.join` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.join
-  _export({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD$3 }, {
+  _export({ target: 'Array', proto: true, forced: ES3_STRINGS || !STRICT_METHOD$4 }, {
     join: function join(separator) {
       return nativeJoin.call(toIndexedObject(this), separator === undefined ? ',' : separator);
     }
@@ -4671,7 +5063,7 @@
   var rtrim = RegExp(whitespace + whitespace + '*$');
 
   // `String.prototype.{ trim, trimStart, trimEnd, trimLeft, trimRight }` methods implementation
-  var createMethod$4 = function (TYPE) {
+  var createMethod$5 = function (TYPE) {
     return function ($this) {
       var string = String(requireObjectCoercible($this));
       if (TYPE & 1) string = string.replace(ltrim, '');
@@ -4683,13 +5075,13 @@
   var stringTrim = {
     // `String.prototype.{ trimLeft, trimStart }` methods
     // https://tc39.github.io/ecma262/#sec-string.prototype.trimstart
-    start: createMethod$4(1),
+    start: createMethod$5(1),
     // `String.prototype.{ trimRight, trimEnd }` methods
     // https://tc39.github.io/ecma262/#sec-string.prototype.trimend
-    end: createMethod$4(2),
+    end: createMethod$5(2),
     // `String.prototype.trim` method
     // https://tc39.github.io/ecma262/#sec-string.prototype.trim
-    trim: createMethod$4(3)
+    trim: createMethod$5(3)
   };
 
   var getOwnPropertyNames = objectGetOwnPropertyNames.f;
@@ -4759,46 +5151,6 @@
     NumberPrototype.constructor = NumberWrapper;
     redefine(global_1, NUMBER, NumberWrapper);
   }
-
-  var propertyIsEnumerable = objectPropertyIsEnumerable.f;
-
-  // `Object.{ entries, values }` methods implementation
-  var createMethod$5 = function (TO_ENTRIES) {
-    return function (it) {
-      var O = toIndexedObject(it);
-      var keys = objectKeys(O);
-      var length = keys.length;
-      var i = 0;
-      var result = [];
-      var key;
-      while (length > i) {
-        key = keys[i++];
-        if (!descriptors || propertyIsEnumerable.call(O, key)) {
-          result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
-        }
-      }
-      return result;
-    };
-  };
-
-  var objectToArray = {
-    // `Object.entries` method
-    // https://tc39.github.io/ecma262/#sec-object.entries
-    entries: createMethod$5(true),
-    // `Object.values` method
-    // https://tc39.github.io/ecma262/#sec-object.values
-    values: createMethod$5(false)
-  };
-
-  var $entries = objectToArray.entries;
-
-  // `Object.entries` method
-  // https://tc39.github.io/ecma262/#sec-object.entries
-  _export({ target: 'Object', stat: true }, {
-    entries: function entries(O) {
-      return $entries(O);
-    }
-  });
 
   var $values = objectToArray.values;
 
@@ -5431,6 +5783,15 @@
   function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
   }
+  function camelCase(subject) {
+    var _this2 = this;
+
+    return subject.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, function (match, _char) {
+      _newArrowCheck(this, _this2);
+
+      return _char.toUpperCase();
+    }.bind(this));
+  }
   function walk(el, callback) {
     if (callback(el) === false) return;
     var node = el.firstElementChild;
@@ -5468,7 +5829,7 @@
     var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
     if (typeof expression === 'function') {
-      return expression.call(dataContext);
+      return expression.call(dataContext, additionalHelperVariables['$event']);
     } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
     // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
 
@@ -5489,12 +5850,12 @@
     return xAttrRE.test(name);
   }
   function getXAttrs(el, component, type) {
-    var _this2 = this;
+    var _this3 = this;
 
     var directives = Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute); // Get an object of directives from x-spread.
 
     var spreadDirective = directives.filter(function (directive) {
-      _newArrowCheck(this, _this2);
+      _newArrowCheck(this, _this3);
 
       return directive.type === 'spread';
     }.bind(this))[0];
@@ -5503,7 +5864,7 @@
       var spreadObject = saferEval(spreadDirective.expression, component.$data); // Add x-spread directives to the pile of existing directives.
 
       directives = directives.concat(Object.entries(spreadObject).map(function (_ref) {
-        _newArrowCheck(this, _this2);
+        _newArrowCheck(this, _this3);
 
         var _ref2 = _slicedToArray(_ref, 2),
             name = _ref2[0],
@@ -5516,17 +5877,29 @@
       }.bind(this)));
     }
 
-    return directives.filter(function (i) {
-      _newArrowCheck(this, _this2);
+    if (type) return directives.filter(function (i) {
+      _newArrowCheck(this, _this3);
 
-      // If no type is passed in for filtering, bypass filter
-      if (!type) return true;
       return i.type === type;
+    }.bind(this));
+    return sortDirectives(directives);
+  }
+
+  function sortDirectives(directives) {
+    var _this4 = this;
+
+    var directiveOrder = ['bind', 'model', 'show', 'catch-all'];
+    return directives.sort(function (a, b) {
+      _newArrowCheck(this, _this4);
+
+      var typeA = directiveOrder.indexOf(a.type) === -1 ? 'catch-all' : a.type;
+      var typeB = directiveOrder.indexOf(b.type) === -1 ? 'catch-all' : b.type;
+      return directiveOrder.indexOf(typeA) - directiveOrder.indexOf(typeB);
     }.bind(this));
   }
 
   function parseHtmlAttribute(_ref3) {
-    var _this3 = this;
+    var _this5 = this;
 
     var name = _ref3.name,
         value = _ref3.value;
@@ -5538,7 +5911,7 @@
       type: typeMatch ? typeMatch[1] : null,
       value: valueMatch ? valueMatch[1] : null,
       modifiers: modifiers.map(function (i) {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this5);
 
         return i.replace('.', '');
       }.bind(this)),
@@ -5565,11 +5938,21 @@
     var filterFn = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Boolean;
     return classList.split(' ').filter(filterFn);
   }
+  var TRANSITION_TYPE_IN = 'in';
+  var TRANSITION_TYPE_OUT = 'out';
   function transitionIn(el, show, component) {
-    var _this4 = this;
+    var _this6 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    // We don't want to transition on the initial page load.
     if (forceSkip) return show();
+
+    if (el.__x_transition && el.__x_transition.type === TRANSITION_TYPE_IN) {
+      // there is already a similar transition going on, this was probably triggered by
+      // a change in a different property, let's just leave the previous one doing its job
+      return;
+    }
+
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0]; // If this is triggered by a x-show.transition.
 
@@ -5580,16 +5963,16 @@
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out'); // If x-show.transition.in...out... only use "in" related modifiers for this transition.
 
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this6);
 
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
-    } else if (attrs.filter(function (attr) {
-      _newArrowCheck(this, _this4);
+    } else if (attrs.some(function (attr) {
+      _newArrowCheck(this, _this6);
 
       return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
-    }.bind(this)).length > 0) {
+    }.bind(this))) {
       transitionClassesIn(el, component, attrs, show);
     } else {
       // If neither, just show that damn thing.
@@ -5597,11 +5980,18 @@
     }
   }
   function transitionOut(el, hide, component) {
-    var _this5 = this;
+    var _this7 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     // We don't want to transition on the initial page load.
     if (forceSkip) return hide();
+
+    if (el.__x_transition && el.__x_transition.type === TRANSITION_TYPE_OUT) {
+      // there is already a similar transition going on, this was probably triggered by
+      // a change in a different property, let's just leave the previous one doing its job
+      return;
+    }
+
     var attrs = getXAttrs(el, component, 'transition');
     var showAttr = getXAttrs(el, component, 'show')[0];
 
@@ -5610,23 +6000,23 @@
       if (modifiers.includes('in') && !modifiers.includes('out')) return hide();
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out');
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this5);
+        _newArrowCheck(this, _this7);
 
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
-    } else if (attrs.filter(function (attr) {
-      _newArrowCheck(this, _this5);
+    } else if (attrs.some(function (attr) {
+      _newArrowCheck(this, _this7);
 
       return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
-    }.bind(this)).length > 0) {
+    }.bind(this))) {
       transitionClassesOut(el, component, attrs, hide);
     } else {
       hide();
     }
   }
   function transitionHelperIn(el, modifiers, showCallback) {
-    var _this6 = this;
+    var _this8 = this;
 
     // Default values inspired by: https://material.io/design/motion/speed.html#duration
     var styleValues = {
@@ -5642,11 +6032,11 @@
       }
     };
     transitionHelper(el, modifiers, showCallback, function () {
-      _newArrowCheck(this, _this6);
-    }.bind(this), styleValues);
+      _newArrowCheck(this, _this8);
+    }.bind(this), styleValues, TRANSITION_TYPE_IN);
   }
   function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
-    var _this7 = this;
+    var _this9 = this;
 
     // Make the "out" transition .5x slower than the "in". (Visually better)
     // HOWEVER, if they explicitly set a duration for the "out" transition,
@@ -5665,8 +6055,8 @@
       }
     };
     transitionHelper(el, modifiers, function () {
-      _newArrowCheck(this, _this7);
-    }.bind(this), hideCallback, styleValues);
+      _newArrowCheck(this, _this9);
+    }.bind(this), hideCallback, styleValues, TRANSITION_TYPE_OUT);
   }
 
   function modifierValue(modifiers, key, fallback) {
@@ -5699,8 +6089,14 @@
     return rawValue;
   }
 
-  function transitionHelper(el, modifiers, hook1, hook2, styleValues) {
-    // If the user set these style values, we'll put them back when we're done with them.
+  function transitionHelper(el, modifiers, hook1, hook2, styleValues, type) {
+    // clear the previous transition if exists to avoid caching the wrong styles
+    if (el.__x_transition) {
+      cancelAnimationFrame(el.__x_transition.nextFrame);
+      el.__x_transition.callback && el.__x_transition.callback();
+    } // If the user set these style values, we'll put them back when we're done with them.
+
+
     var opacityCache = el.style.opacity;
     var transformCache = el.style.transform;
     var transformOriginCache = el.style.transformOrigin; // If no modifiers are present: x-show.transition, we'll default to both opacity and scale.
@@ -5741,71 +6137,77 @@
         el.style.transitionTimingFunction = null;
       }
     };
-    transition(el, stages);
+    transition(el, stages, type);
   }
   function transitionClassesIn(el, component, directives, showCallback) {
-    var _this8 = this;
+    var _this10 = this;
 
     var ensureStringExpression = function ensureStringExpression(expression) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
     }.bind(this);
 
     var enter = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'enter';
     }.bind(this)) || {
       expression: ''
     }).expression));
     var enterStart = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'enter-start';
     }.bind(this)) || {
       expression: ''
     }).expression));
     var enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'enter-end';
     }.bind(this)) || {
       expression: ''
     }).expression));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
-      _newArrowCheck(this, _this8);
-    }.bind(this));
+      _newArrowCheck(this, _this10);
+    }.bind(this), TRANSITION_TYPE_IN);
   }
   function transitionClassesOut(el, component, directives, hideCallback) {
-    var _this9 = this;
+    var _this11 = this;
 
     var leave = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'leave';
     }.bind(this)) || {
       expression: ''
     }).expression);
     var leaveStart = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'leave-start';
     }.bind(this)) || {
       expression: ''
     }).expression);
     var leaveEnd = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'leave-end';
     }.bind(this)) || {
       expression: ''
     }).expression);
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
-      _newArrowCheck(this, _this9);
-    }.bind(this), hideCallback);
+      _newArrowCheck(this, _this11);
+    }.bind(this), hideCallback, TRANSITION_TYPE_OUT);
   }
-  function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2) {
+  function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type) {
+    // clear the previous transition if exists to avoid caching the wrong classes
+    if (el.__x_transition) {
+      cancelAnimationFrame(el.__x_transition.nextFrame);
+      el.__x_transition.callback && el.__x_transition.callback();
+    }
+
     var originalClasses = el.__x_original_classes || [];
     var stages = {
       start: function start() {
@@ -5823,12 +6225,12 @@
       },
       end: function end() {
         var _el$classList3,
-            _this10 = this,
+            _this12 = this,
             _el$classList4;
 
         // Don't remove classes that were in the original class attribute.
         (_el$classList3 = el.classList).remove.apply(_el$classList3, _toConsumableArray(classesStart.filter(function (i) {
-          _newArrowCheck(this, _this10);
+          _newArrowCheck(this, _this12);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -5840,33 +6242,54 @@
       },
       cleanup: function cleanup() {
         var _el$classList5,
-            _this11 = this,
+            _this13 = this,
             _el$classList6;
 
         (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(classesDuring.filter(function (i) {
-          _newArrowCheck(this, _this11);
+          _newArrowCheck(this, _this13);
 
           return !originalClasses.includes(i);
         }.bind(this))));
 
         (_el$classList6 = el.classList).remove.apply(_el$classList6, _toConsumableArray(classesEnd.filter(function (i) {
-          _newArrowCheck(this, _this11);
+          _newArrowCheck(this, _this13);
 
           return !originalClasses.includes(i);
         }.bind(this))));
       }
     };
-    transition(el, stages);
+    transition(el, stages, type);
   }
-  function transition(el, stages) {
-    var _this12 = this;
+  function transition(el, stages, type) {
+    var _this14 = this;
 
+    el.__x_transition = {
+      // Set transition type so we can avoid clearing transition if the direction is the same
+      type: type,
+      // create a callback for the last stages of the transition so we can call it
+      // from different point and early terminate it. Once will ensure that function
+      // is only called one time.
+      callback: once(function () {
+        _newArrowCheck(this, _this14);
+
+        stages.hide(); // Adding an "isConnected" check, in case the callback
+        // removed the element from the DOM.
+
+        if (el.isConnected) {
+          stages.cleanup();
+        }
+
+        delete el.__x_transition;
+      }.bind(this)),
+      // This store the next animation frame so we can cancel it
+      nextFrame: null
+    };
     stages.start();
     stages.during();
-    requestAnimationFrame(function () {
-      var _this13 = this;
+    el.__x_transition.nextFrame = requestAnimationFrame(function () {
+      var _this15 = this;
 
-      _newArrowCheck(this, _this12);
+      _newArrowCheck(this, _this14);
 
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
@@ -5877,28 +6300,27 @@
       }
 
       stages.show();
-      requestAnimationFrame(function () {
-        var _this14 = this;
+      el.__x_transition.nextFrame = requestAnimationFrame(function () {
+        _newArrowCheck(this, _this15);
 
-        _newArrowCheck(this, _this13);
-
-        stages.end(); // Assign current transition to el in case we need to force it.
-
-        setTimeout(function () {
-          _newArrowCheck(this, _this14);
-
-          stages.hide(); // Adding an "isConnected" check, in case the callback
-          // removed the element from the DOM.
-
-          if (el.isConnected) {
-            stages.cleanup();
-          }
-        }.bind(this), duration);
+        stages.end();
+        setTimeout(el.__x_transition.callback, duration);
       }.bind(this));
     }.bind(this));
   }
   function isNumeric(subject) {
     return !isNaN(subject);
+  } // Thanks @vuejs
+  // https://github.com/vuejs/vue/blob/4de4649d9637262a9b007720b59f80ac72a5620c/src/shared/util.js
+
+  function once(callback) {
+    var called = false;
+    return function () {
+      if (!called) {
+        called = true;
+        callback.apply(this, arguments);
+      }
+    };
   }
 
   function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
@@ -6052,22 +6474,7 @@
     }
   }
 
-  var $some = arrayIteration.some;
-
-
-
-  var STRICT_METHOD$4 = arrayMethodIsStrict('some');
-  var USES_TO_LENGTH$9 = arrayMethodUsesToLength('some');
-
-  // `Array.prototype.some` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.some
-  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$4 || !USES_TO_LENGTH$9 }, {
-    some: function some(callbackfn /* , thisArg */) {
-      return $some(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType) {
+  function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType, modifiers) {
     var _this = this;
 
     var value = component.evaluateReturnExpression(el, expression, extraVars);
@@ -6151,7 +6558,8 @@
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
     } else {
-      // If an attribute's bound value is null, undefined or false, remove the attribute
+      attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName; // If an attribute's bound value is null, undefined or false, remove the attribute
+
       if ([null, undefined, false].includes(value)) {
         el.removeAttribute(attrName);
       } else {
@@ -6231,11 +6639,14 @@
       _newArrowCheck(this, _this);
 
       if (value) {
-        transitionIn(el, function () {
-          _newArrowCheck(this, _this2);
+        if (el.style.display === 'none' || el.__x_transition) {
+          transitionIn(el, function () {
+            _newArrowCheck(this, _this2);
 
-          show();
-        }.bind(this), component);
+            show();
+          }.bind(this), component);
+        }
+
         resolve(function () {
           _newArrowCheck(this, _this2);
         }.bind(this));
@@ -6290,7 +6701,7 @@
     warnIfMalformedTemplate(el, 'x-if');
     var elementHasAlreadyBeenAdded = el.nextElementSibling && el.nextElementSibling.__x_inserted_me === true;
 
-    if (expressionResult && !elementHasAlreadyBeenAdded) {
+    if (expressionResult && (!elementHasAlreadyBeenAdded || el.__x_transition)) {
       var clone = document.importNode(el.content, true);
       el.parentElement.insertBefore(clone, el.nextElementSibling);
       transitionIn(el.nextElementSibling, function () {
@@ -6311,12 +6722,19 @@
     var _this = this;
 
     var extraVars = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
+    var options = {
+      passive: modifiers.includes('passive')
+    };
+
+    if (modifiers.includes('camel')) {
+      event = camelCase(event);
+    }
 
     if (modifiers.includes('away')) {
       var _handler = function handler(e) {
         _newArrowCheck(this, _this);
 
-        // Don't do anything if the click came form the element or within it.
+        // Don't do anything if the click came from the element or within it.
         if (el.contains(e.target)) return; // Don't do anything if this element isn't currently visible.
 
         if (el.offsetWidth < 1 && el.offsetHeight < 1) return; // Now that we are sure the element is visible, AND the click
@@ -6325,12 +6743,12 @@
         runListenerHandler(component, expression, e, extraVars);
 
         if (modifiers.includes('once')) {
-          document.removeEventListener(event, _handler);
+          document.removeEventListener(event, _handler, options);
         }
       }.bind(this); // Listen for this event at the root level.
 
 
-      document.addEventListener(event, _handler);
+      document.addEventListener(event, _handler, options);
     } else {
       var listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el;
 
@@ -6341,7 +6759,7 @@
         // has been removed. It's now stale.
         if (listenerTarget === window || listenerTarget === document) {
           if (!document.body.contains(el)) {
-            listenerTarget.removeEventListener(event, _handler2);
+            listenerTarget.removeEventListener(event, _handler2, options);
             return;
           }
         }
@@ -6364,7 +6782,7 @@
             e.preventDefault();
           } else {
             if (modifiers.includes('once')) {
-              listenerTarget.removeEventListener(event, _handler2);
+              listenerTarget.removeEventListener(event, _handler2, options);
             }
           }
         }
@@ -6376,7 +6794,7 @@
         _handler2 = debounce(_handler2, wait);
       }
 
-      listenerTarget.addEventListener(event, _handler2);
+      listenerTarget.addEventListener(event, _handler2, options);
     }
   }
 
@@ -6632,7 +7050,7 @@
     function Component(el) {
       var _this = this;
 
-      var seedDataForCloning = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var componentForClone = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
       _classCallCheck(this, Component);
 
@@ -6640,7 +7058,7 @@
       var dataAttr = this.$el.getAttribute('x-data');
       var dataExpression = dataAttr === '' ? '{}' : dataAttr;
       var initExpression = this.$el.getAttribute('x-init');
-      this.unobservedData = seedDataForCloning ? seedDataForCloning : saferEval(dataExpression, {
+      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, {
         $el: this.$el
       });
       /* IE11-ONLY:START */
@@ -6651,6 +7069,11 @@
       this.unobservedData.$refs = null;
       this.unobservedData.$nextTick = null;
       this.unobservedData.$watch = null;
+      Object.keys(Alpine.magicProperties).forEach(function (name) {
+        _newArrowCheck(this, _this);
+
+        this.unobservedData["$".concat(name)] = null;
+      }.bind(this));
       /* IE11-ONLY:END */
       // Construct a Proxy-based observable. This will be used to handle reactivity.
 
@@ -6681,11 +7104,26 @@
         this.watchers[property].push(callback);
       }.bind(this);
 
+      var canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el; // Register custom magic properties.
+
+      Object.entries(Alpine.magicProperties).forEach(function (_ref) {
+        _newArrowCheck(this, _this);
+
+        var _ref2 = _slicedToArray(_ref, 2),
+            name = _ref2[0],
+            callback = _ref2[1];
+
+        Object.defineProperty(this.unobservedData, "$".concat(name), {
+          get: function get() {
+            return callback(canonicalComponentElementReference);
+          }
+        });
+      }.bind(this));
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
       var initReturnedCallback; // If x-init is present AND we aren't cloning (skip x-init on clone)
 
-      if (initExpression && !seedDataForCloning) {
+      if (initExpression && !componentForClone) {
         // We want to allow data manipulation, but not trigger DOM updates just yet.
         // We haven't even initialized the elements with their Alpine bindings. I mean c'mon.
         this.pauseReactivity = true;
@@ -6704,6 +7142,18 @@
         // Alpine's got it's grubby little paws all over everything.
         initReturnedCallback.call(this.$data);
       }
+
+      componentForClone || setTimeout(function () {
+        var _this2 = this;
+
+        _newArrowCheck(this, _this);
+
+        Alpine.onComponentInitializeds.forEach(function (callback) {
+          _newArrowCheck(this, _this2);
+
+          return callback(this);
+        }.bind(this));
+      }.bind(this), 0);
     }
 
     _createClass(Component, [{
@@ -6714,21 +7164,21 @@
     }, {
       key: "wrapDataInObservable",
       value: function wrapDataInObservable(data) {
-        var _this2 = this;
+        var _this3 = this;
 
         var self = this;
         var updateDom = debounce(function () {
           self.updateElements(self.$el);
         }, 0);
         return wrap(data, function (target, key) {
-          var _this3 = this;
+          var _this4 = this;
 
-          _newArrowCheck(this, _this2);
+          _newArrowCheck(this, _this3);
 
           if (self.watchers[key]) {
             // If there's a watcher for this specific key, run it.
             self.watchers[key].forEach(function (callback) {
-              _newArrowCheck(this, _this3);
+              _newArrowCheck(this, _this4);
 
               return callback(target[key]);
             }.bind(this));
@@ -6736,13 +7186,13 @@
             // Let's walk through the watchers with "dot-notation" (foo.bar) and see
             // if this mutation fits any of them.
             Object.keys(self.watchers).filter(function (i) {
-              _newArrowCheck(this, _this3);
+              _newArrowCheck(this, _this4);
 
               return i.includes('.');
             }.bind(this)).forEach(function (fullDotNotationKey) {
-              var _this4 = this;
+              var _this5 = this;
 
-              _newArrowCheck(this, _this3);
+              _newArrowCheck(this, _this4);
 
               var dotNotationParts = fullDotNotationKey.split('.'); // If this dot-notation watcher's last "part" doesn't match the current
               // key, then skip it early for performance reasons.
@@ -6751,14 +7201,14 @@
               // a match, and call the watcher if one's found.
 
               dotNotationParts.reduce(function (comparisonData, part) {
-                var _this5 = this;
+                var _this6 = this;
 
-                _newArrowCheck(this, _this4);
+                _newArrowCheck(this, _this5);
 
                 if (Object.is(target, comparisonData)) {
                   // Run the watchers.
                   self.watchers[fullDotNotationKey].forEach(function (callback) {
-                    _newArrowCheck(this, _this5);
+                    _newArrowCheck(this, _this6);
 
                     return callback(target[key]);
                   }.bind(this));
@@ -6777,13 +7227,13 @@
     }, {
       key: "walkAndSkipNestedComponents",
       value: function walkAndSkipNestedComponents(el, callback) {
-        var _this6 = this;
+        var _this7 = this;
 
         var initializeComponentCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this7);
         }.bind(this);
         walk(el, function (el) {
-          _newArrowCheck(this, _this6);
+          _newArrowCheck(this, _this7);
 
           // We've hit a component.
           if (el.hasAttribute('x-data')) {
@@ -6802,13 +7252,13 @@
     }, {
       key: "initializeElements",
       value: function initializeElements(rootEl) {
-        var _this7 = this;
+        var _this8 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this8);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this8);
 
           // Don't touch spawns from for loop
           if (el.__x_for_key !== undefined) return false; // Don't touch spawns from if directives
@@ -6816,7 +7266,7 @@
           if (el.__x_inserted_me !== undefined) return false;
           this.initializeElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this7);
+          _newArrowCheck(this, _this8);
 
           el.__x = new Component(el);
         }.bind(this));
@@ -6838,19 +7288,19 @@
     }, {
       key: "updateElements",
       value: function updateElements(rootEl) {
-        var _this8 = this;
+        var _this9 = this;
 
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-          _newArrowCheck(this, _this8);
+          _newArrowCheck(this, _this9);
         }.bind(this);
         this.walkAndSkipNestedComponents(rootEl, function (el) {
-          _newArrowCheck(this, _this8);
+          _newArrowCheck(this, _this9);
 
           // Don't touch spawns from for loop (and check if the root is actually a for loop in a parent, don't skip it.)
           if (el.__x_for_key !== undefined && !el.isSameNode(this.$el)) return false;
           this.updateElement(el, extraVars);
         }.bind(this), function (el) {
-          _newArrowCheck(this, _this8);
+          _newArrowCheck(this, _this9);
 
           el.__x = new Component(el);
         }.bind(this));
@@ -6860,14 +7310,14 @@
     }, {
       key: "executeAndClearNextTickStack",
       value: function executeAndClearNextTickStack(el) {
-        var _this9 = this;
+        var _this10 = this;
 
         // Skip spawns from alpine directives
         if (el === this.$el && this.nextTickStack.length > 0) {
           // We run the tick stack after the next frame to allow any
           // running transitions to pass the initial show stage.
           requestAnimationFrame(function () {
-            _newArrowCheck(this, _this9);
+            _newArrowCheck(this, _this10);
 
             while (this.nextTickStack.length > 0) {
               this.nextTickStack.shift()();
@@ -6878,45 +7328,45 @@
     }, {
       key: "executeAndClearRemainingShowDirectiveStack",
       value: function executeAndClearRemainingShowDirectiveStack() {
-        var _this10 = this;
+        var _this11 = this;
 
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
         this.showDirectiveStack.reverse().map(function (thing) {
-          var _this11 = this;
+          var _this12 = this;
 
-          _newArrowCheck(this, _this10);
+          _newArrowCheck(this, _this11);
 
           return new Promise(function (resolve) {
-            var _this12 = this;
+            var _this13 = this;
 
-            _newArrowCheck(this, _this11);
+            _newArrowCheck(this, _this12);
 
             thing(function (finish) {
-              _newArrowCheck(this, _this12);
+              _newArrowCheck(this, _this13);
 
               resolve(finish);
             }.bind(this));
           }.bind(this));
         }.bind(this)).reduce(function (nestedPromise, promise) {
-          var _this13 = this;
+          var _this14 = this;
 
-          _newArrowCheck(this, _this10);
+          _newArrowCheck(this, _this11);
 
           return nestedPromise.then(function () {
-            var _this14 = this;
+            var _this15 = this;
 
-            _newArrowCheck(this, _this13);
+            _newArrowCheck(this, _this14);
 
             return promise.then(function (finish) {
-              _newArrowCheck(this, _this14);
+              _newArrowCheck(this, _this15);
 
               return finish();
             }.bind(this));
           }.bind(this));
         }.bind(this), Promise.resolve(function () {
-          _newArrowCheck(this, _this10);
+          _newArrowCheck(this, _this11);
         }.bind(this))); // We've processed the handler stack. let's clear it.
 
         this.showDirectiveStack = [];
@@ -6930,15 +7380,15 @@
     }, {
       key: "registerListeners",
       value: function registerListeners(el, extraVars) {
-        var _this15 = this;
+        var _this16 = this;
 
-        getXAttrs(el, this).forEach(function (_ref) {
-          _newArrowCheck(this, _this15);
+        getXAttrs(el, this).forEach(function (_ref3) {
+          _newArrowCheck(this, _this16);
 
-          var type = _ref.type,
-              value = _ref.value,
-              modifiers = _ref.modifiers,
-              expression = _ref.expression;
+          var type = _ref3.type,
+              value = _ref3.value,
+              modifiers = _ref3.modifiers,
+              expression = _ref3.expression;
 
           switch (type) {
             case 'on':
@@ -6954,7 +7404,7 @@
     }, {
       key: "resolveBoundAttributes",
       value: function resolveBoundAttributes(el) {
-        var _this16 = this;
+        var _this17 = this;
 
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
@@ -6964,7 +7414,7 @@
           // If there's an x-model on a radio input, move it to end of attribute list
           // to ensure that x-bind:value (if present) is processed first.
           var modelIdx = attrs.findIndex(function (attr) {
-            _newArrowCheck(this, _this16);
+            _newArrowCheck(this, _this17);
 
             return attr.type === 'model';
           }.bind(this));
@@ -6974,25 +7424,25 @@
           }
         }
 
-        attrs.forEach(function (_ref2) {
-          var _this17 = this;
+        attrs.forEach(function (_ref4) {
+          var _this18 = this;
 
-          _newArrowCheck(this, _this16);
+          _newArrowCheck(this, _this17);
 
-          var type = _ref2.type,
-              value = _ref2.value,
-              modifiers = _ref2.modifiers,
-              expression = _ref2.expression;
+          var type = _ref4.type,
+              value = _ref4.value,
+              modifiers = _ref4.modifiers,
+              expression = _ref4.expression;
 
           switch (type) {
             case 'model':
-              handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type);
+              handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type, modifiers);
               break;
 
             case 'bind':
               // The :key binding on an x-for is special, ignore it.
               if (el.tagName.toLowerCase() === 'template' && value === 'key') return;
-              handleAttributeBindingDirective(this, el, value, expression, extraVars, type);
+              handleAttributeBindingDirective(this, el, value, expression, extraVars, type, modifiers);
               break;
 
             case 'text':
@@ -7012,11 +7462,11 @@
             case 'if':
               // If this element also has x-for on it, don't process x-if.
               // We will let the "x-for" directive handle the "if"ing.
-              if (attrs.filter(function (i) {
-                _newArrowCheck(this, _this17);
+              if (attrs.some(function (i) {
+                _newArrowCheck(this, _this18);
 
                 return i.type === 'for';
-              }.bind(this)).length > 0) return;
+              }.bind(this))) return;
               var output = this.evaluateReturnExpression(el, expression, extraVars);
               handleIfDirective(this, el, output, initialUpdate, extraVars);
               break;
@@ -7034,10 +7484,10 @@
     }, {
       key: "evaluateReturnExpression",
       value: function evaluateReturnExpression(el, expression) {
-        var _this18 = this;
+        var _this19 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this18);
+          _newArrowCheck(this, _this19);
         }.bind(this);
         return saferEval(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
           $dispatch: this.getDispatchFunction(el)
@@ -7046,10 +7496,10 @@
     }, {
       key: "evaluateCommandExpression",
       value: function evaluateCommandExpression(el, expression) {
-        var _this19 = this;
+        var _this20 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this19);
+          _newArrowCheck(this, _this20);
         }.bind(this);
         return saferEvalNoReturn(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
           $dispatch: this.getDispatchFunction(el)
@@ -7069,7 +7519,7 @@
     }, {
       key: "listenForNewElementsToInitialize",
       value: function listenForNewElementsToInitialize() {
-        var _this20 = this;
+        var _this21 = this;
 
         var targetNode = this.$el;
         var observerOptions = {
@@ -7078,9 +7528,9 @@
           subtree: true
         };
         var observer = new MutationObserver(function (mutations) {
-          var _this21 = this;
+          var _this22 = this;
 
-          _newArrowCheck(this, _this20);
+          _newArrowCheck(this, _this21);
 
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
@@ -7089,16 +7539,16 @@
 
             if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
               (function () {
-                var _this22 = this;
+                var _this23 = this;
 
-                var rawData = saferEval(mutations[i].target.getAttribute('x-data'), {
-                  $el: _this21.$el
+                var rawData = saferEval(mutations[i].target.getAttribute('x-data') || '{}', {
+                  $el: _this22.$el
                 });
                 Object.keys(rawData).forEach(function (key) {
-                  _newArrowCheck(this, _this22);
+                  _newArrowCheck(this, _this23);
 
-                  if (_this21.$data[key] !== rawData[key]) {
-                    _this21.$data[key] = rawData[key];
+                  if (_this22.$data[key] !== rawData[key]) {
+                    _this22.$data[key] = rawData[key];
                   }
                 }.bind(this));
               })();
@@ -7106,7 +7556,7 @@
 
             if (mutations[i].addedNodes.length > 0) {
               mutations[i].addedNodes.forEach(function (node) {
-                _newArrowCheck(this, _this21);
+                _newArrowCheck(this, _this22);
 
                 if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
@@ -7125,7 +7575,7 @@
     }, {
       key: "getRefsProxy",
       value: function getRefsProxy() {
-        var _this23 = this;
+        var _this24 = this;
 
         var self = this;
         var refObj = {};
@@ -7137,7 +7587,7 @@
         // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
 
         this.walkAndSkipNestedComponents(self.$el, function (el) {
-          _newArrowCheck(this, _this23);
+          _newArrowCheck(this, _this24);
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
@@ -7151,14 +7601,14 @@
 
         return new Proxy(refObj, {
           get: function get(object, property) {
-            var _this24 = this;
+            var _this25 = this;
 
             if (property === '$isAlpineProxy') return true;
             var ref; // We can't just query the DOM because it's hard to filter out refs in
             // nested components.
 
             self.walkAndSkipNestedComponents(self.$el, function (el) {
-              _newArrowCheck(this, _this24);
+              _newArrowCheck(this, _this25);
 
               if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                 ref = el;
@@ -7174,8 +7624,10 @@
   }();
 
   var Alpine = {
-    version: "2.4.1",
+    version: "2.5.0",
     pauseMutationObserver: false,
+    magicProperties: {},
+    onComponentInitializeds: [],
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
@@ -7314,8 +7766,14 @@
     },
     clone: function clone(component, newEl) {
       if (!newEl.__x) {
-        newEl.__x = new Component(newEl, component.getUnobservedData());
+        newEl.__x = new Component(newEl, component);
       }
+    },
+    addMagicProperty: function addMagicProperty(name, callback) {
+      this.magicProperties[name] = callback;
+    },
+    onComponentInitialized: function onComponentInitialized(callback) {
+      this.onComponentInitializeds.push(callback);
     }
   };
 

@@ -126,3 +126,50 @@ test('x-show works with nested x-shows of different functions (hiding vs showing
         expect(document.querySelector('h1').getAttribute('style')).toEqual(null)
     })
 })
+
+// Regression in 2.4.0
+test('x-show with x-bind:style inside x-for works correctly', async () => {
+    document.body.innerHTML = `
+        <div x-data="{items: [{ cleared: false }, { cleared: false }]}">
+            <template x-for="(item, index) in items" :key="index">
+                <button x-show="! item.cleared"
+                    x-bind:style="'background: #999'"
+                    @click="item.cleared = true"
+                >
+                </button>
+            </template>
+        </div>
+    `
+    Alpine.start()
+
+    expect(document.querySelectorAll('button')[0].style.display).toEqual('')
+    expect(document.querySelectorAll('button')[1].style.display).toEqual('')
+
+    document.querySelectorAll('button')[0].click()
+
+    await wait(() => {
+        expect(document.querySelectorAll('button')[0].style.display).toEqual('none')
+        expect(document.querySelectorAll('button')[1].style.display).toEqual('')
+    })
+
+    document.querySelectorAll('button')[1].click()
+
+    await wait(() => {
+        expect(document.querySelectorAll('button')[0].style.display).toEqual('none')
+        expect(document.querySelectorAll('button')[1].style.display).toEqual('none')
+    })
+})
+
+test('x-show takes precedence over style bindings for display property', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ show: false }">
+            <span x-show="show" :style="'color: red;'"></span>
+            <span :style="'color: red;'" x-show="show"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span')[0].getAttribute('style')).toContain('display: none;')
+    expect(document.querySelectorAll('span')[1].getAttribute('style')).toContain('display: none;')
+})

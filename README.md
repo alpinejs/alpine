@@ -290,6 +290,11 @@ This will add or remove the `disabled` attribute when `myVar` is true or false r
 
 Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open`, etc.
 
+**`.camel` modifier**
+**Example:** `<svg x-bind:view-box.camel="viewBox">`
+
+The `camel` modifier will bind to the camel case equivalent of the attribute name. In the example above, the value of `viewBox` will be bound the `viewBox` attribute as opposed to the `view-box` attribute.
+
 ---
 
 ### `x-on`
@@ -373,6 +378,11 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 <input x-on:input.debounce.750="fetchSomething()">
 <input x-on:input.debounce.750ms="fetchSomething()">
 ```
+
+**`.camel` modifier**
+**Example:** `<input x-on:event-name.camel="doSomething()">`
+
+The `camel` modifier will attach an event listener for the camel case equivalent event name. In the example above, the expression will be evaluated when the `eventName` event is fired on the element.
 
 ---
 
@@ -562,7 +572,7 @@ These behave exactly like VueJs's transition directives, except they have differ
 </script>
 ```
 
-`x-spread` allows you to extract an elements Alpine bindings into a reusable object.
+`x-spread` allows you to extract an element's Alpine bindings into a reusable object.
 
 The object keys are the directives (Can be any directive including modifiers), and the values are callbacks to be evaluated by Alpine.
 

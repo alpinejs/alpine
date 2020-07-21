@@ -86,6 +86,10 @@ export default class Component {
             // Alpine's got it's grubby little paws all over everything.
             initReturnedCallback.call(this.$data)
         }
+
+        componentForClone || setTimeout(() => {
+            Alpine.onComponentInitializeds.forEach(callback => callback(this))
+        }, 0)
     }
 
     getUnobservedData() {
@@ -264,14 +268,14 @@ export default class Component {
         attrs.forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':
-                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type)
+                    handleAttributeBindingDirective(this, el, 'value', expression, extraVars, type, modifiers)
                     break;
 
                 case 'bind':
                     // The :key binding on an x-for is special, ignore it.
                     if (el.tagName.toLowerCase() === 'template' && value === 'key') return
 
-                    handleAttributeBindingDirective(this, el, value, expression, extraVars, type)
+                    handleAttributeBindingDirective(this, el, value, expression, extraVars, type, modifiers)
                     break;
 
                 case 'text':
@@ -293,7 +297,7 @@ export default class Component {
                 case 'if':
                     // If this element also has x-for on it, don't process x-if.
                     // We will let the "x-for" directive handle the "if"ing.
-                    if (attrs.filter(i => i.type === 'for').length > 0) return
+                    if (attrs.some(i => i.type === 'for')) return
 
                     var output = this.evaluateReturnExpression(el, expression, extraVars)
 

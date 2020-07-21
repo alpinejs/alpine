@@ -256,15 +256,6 @@ export default class Component {
 
     resolveBoundAttributes(el, initialUpdate = false, extraVars) {
         let attrs = getXAttrs(el, this)
-        if (el.type !== undefined && el.type === 'radio') {
-            // If there's an x-model on a radio input, move it to end of attribute list
-            // to ensure that x-bind:value (if present) is processed first.
-            const modelIdx = attrs.findIndex((attr) => attr.type === 'model')
-            if (modelIdx > -1) {
-                attrs.push(attrs.splice(modelIdx, 1)[0])
-            }
-        }
-
         attrs.forEach(({ type, value, modifiers, expression }) => {
             switch (type) {
                 case 'model':

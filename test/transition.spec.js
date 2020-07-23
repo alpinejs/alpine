@@ -437,6 +437,17 @@ test('transition with x-show.transition helper', async () => {
         'display: none;',
     ])
 
+    await assertTransitionHelperStyleAttributeValues('x-show.transition.scale.85.duration.200ms.delay.100ms', [
+        'display: none; transform: scale(0.85); transform-origin: center; transition-delay: 0.1s; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'transform: scale(0.85); transform-origin: center; transition-delay: 0.1s; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'transform: scale(1); transform-origin: center; transition-delay: 0.1s; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        '',
+        'transform: scale(1); transform-origin: center; transition-delay: 0.1s; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'transform: scale(1); transform-origin: center; transition-delay: 0.1s; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'transform: scale(0.85); transform-origin: center; transition-delay: 0.1s; transition-property: transform; transition-duration: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'display: none;',
+    ])
+
     await assertTransitionHelperStyleAttributeValues('x-show.transition.scale.85.duration.200ms.origin.top', [
         'display: none; transform: scale(0.85); transform-origin: top; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(0.85); transform-origin: top; transition-property: transform; transition-duration: 0.2s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',

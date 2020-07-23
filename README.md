@@ -234,11 +234,11 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 | `x-show.transition.scale` | Only use the scale. |
 | `x-show.transition.scale.75` | Customize the CSS scale transform `transform: scale(.75)`. |
 | `x-show.transition.duration.200ms` | Sets the "in" transition to 200ms. The out will be set to half that (100ms). |
-| `x-show.transition.delay.200ms` | Sets the "in" transition to 200ms. The out will be set to half that (100ms). |
+| `x-show.transition.delay.200ms` | Sets 200ms delay on transition. |
 | `x-show.transition.origin.top.right` | Customize the CSS transform origin `transform-origin: top right`. |
 | `x-show.transition.in.duration.200ms.out.duration.50ms` | Different durations for "in" and "out". |
 
-> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although ridiculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although ridiculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.delay.200ms.origin.bottom.left.opacity.scale.95`
 
 > Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifer:
 ```html

@@ -1,5 +1,5 @@
 (function (factory) {
-  typeof define === 'function' && define.amd ? define(['events-polyfill/src/constructors/CustomEvent', 'events-polyfill/src/ListenerOptions'], factory) :
+  typeof define === 'function' && define.amd ? define(factory) :
   factory();
 }((function () { 'use strict';
 
@@ -23,10 +23,11 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  (function(){function k(){function p(a){return a?"object"===typeof a||"function"===typeof a:!1}var l=null;var n=function(a,c){function g(){}if(!p(a)||!p(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");l=function(){a=null;g=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){l=null;},0);var f=c;c={get:null,set:null,apply:null,construct:null};for(var h in f){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+
-  h+"'");c[h]=f[h];}"function"===typeof f&&(c.apply=f.apply.bind(f));var d=this,q=!1,r=!1;"function"===typeof a?(d=function(){var b=this&&this.constructor===d,e=Array.prototype.slice.call(arguments);g(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,e):!b&&c.apply?c.apply(a,this,e):b?(e.unshift(a),new (a.bind.apply(a,e))):a.apply(this,e)},q=!0):a instanceof Array&&(d=[],r=!0);var t=c.get?function(b){g("get");return c.get(this,b,d)}:function(b){g("get");return this[b]},w=c.set?function(b,
-  e){g("set");c.set(this,b,e,d);}:function(b,e){g("set");this[b]=e;},u={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((q||r)&&b in d)){var e={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:t.bind(a,b),set:w.bind(a,b)};Object.defineProperty(d,b,e);u[b]=!0;}});f=!0;Object.setPrototypeOf?Object.setPrototypeOf(d,Object.getPrototypeOf(a)):d.__proto__?d.__proto__=a.__proto__:f=!1;if(c.get||!f)for(var m in a)u[m]||Object.defineProperty(d,m,{get:t.bind(a,m)});Object.seal(a);Object.seal(d);
-  return d};n.revocable=function(a,c){return {proxy:new n(a,c),revoke:l}};return n}var v="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;v.Proxy||(v.Proxy=k(),v.Proxy.revocable=v.Proxy.revocable);})();
+  (function(){function n(){function v(){return null}function l(a){return a?"object"===typeof a||"function"===typeof a:!1}function p(a){if(null!==a&&!l(a))throw new TypeError("Object prototype may only be an Object or null: "+a);}var q=null,e=Object,w=!!e.create||!({__proto__:null}instanceof e),A=e.create||(w?function(a){p(a);return {__proto__:a}}:function(a){function c(){}p(a);if(null===a)throw new SyntaxError("Native Object.create is required to create objects with null prototype");c.prototype=a;return new c}),
+  B=e.getPrototypeOf||([].__proto__===Array.prototype?function(a){a=a.__proto__;return l(a)?a:null}:v);var m=function(a,c){function k(){}if(void 0===(this&&this instanceof m?this.constructor:void 0))throw new TypeError("Constructor Proxy requires 'new'");if(!l(a)||!l(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");q=function(){a=null;k=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){q=null;},0);var g=
+  c;c={get:null,set:null,apply:null,construct:null};for(var h in g){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+h+"'");c[h]=g[h];}"function"===typeof g&&(c.apply=g.apply.bind(g));g=B(a);var r=!1,t=!1;if("function"===typeof a){var f=function(){var b=this&&this.constructor===f,d=Array.prototype.slice.call(arguments);k(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,d):!b&&c.apply?c.apply(a,this,d):b?(d.unshift(a),new (a.bind.apply(a,d))):a.apply(this,
+  d)};r=!0;}else a instanceof Array?(f=[],t=!0):f=w||null!==g?A(g):{};var x=c.get?function(b){k("get");return c.get(this,b,f)}:function(b){k("get");return this[b]},C=c.set?function(b,d){k("set");c.set(this,b,d,f);}:function(b,d){k("set");this[b]=d;},y={};e.getOwnPropertyNames(a).forEach(function(b){if(!((r||t)&&b in f)){var d=e.getOwnPropertyDescriptor(a,b);e.defineProperty(f,b,{enumerable:!!d.enumerable,get:x.bind(a,b),set:C.bind(a,b)});y[b]=!0;}});h=!0;if(r||t){var D=e.setPrototypeOf||([].__proto__===
+  Array.prototype?function(b,d){p(d);b.__proto__=d;return b}:v);g&&D(f,g)||(h=!1);}if(c.get||!h)for(var u in a)y[u]||e.defineProperty(f,u,{get:x.bind(a,u)});e.seal(a);e.seal(f);return f};m.revocable=function(a,c){return {proxy:new m(a,c),revoke:q}};return m}var z="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;z.Proxy||(z.Proxy=n(),z.Proxy.revocable=z.Proxy.revocable);})();
 
   !function(e){var t=e.Element.prototype;"function"!=typeof t.matches&&(t.matches=t.msMatchesSelector||t.mozMatchesSelector||t.webkitMatchesSelector||function(e){for(var t=(this.document||this.ownerDocument).querySelectorAll(e),o=0;t[o]&&t[o]!==this;)++o;return Boolean(t[o])}),"function"!=typeof t.closest&&(t.closest=function(e){for(var t=this;t&&1===t.nodeType;){if(t.matches(e))return t;t=t.parentNode;}return null});}(window);
 
@@ -883,6 +884,396 @@
     }
 
   })();
+
+  var ApplyThisPrototype = (function() {
+    return function ApplyThisPrototype(event, target) {
+      if ((typeof target === 'object') && (target !== null)) {
+        var proto = Object.getPrototypeOf(target);
+        var property;
+
+        for (property in proto) {
+          if (!(property in event)) {
+            var descriptor = Object.getOwnPropertyDescriptor(proto, property);
+            if (descriptor) {
+              Object.defineProperty(event, property, descriptor);
+            }
+          }
+        }
+
+        for (property in target) {
+          if (!(property in event)) {
+            event[property] = target[property];
+          }
+        }
+      }
+    }
+  })();
+
+  (function(ApplyThisPrototype) {
+    /**
+     * Polyfill CustomEvent
+     */
+    try {
+      var event = new window.CustomEvent('event', { bubbles: true, cancelable: true });
+    } catch (error) {
+      var CustomEventOriginal = window.CustomEvent || window.Event;
+      var CustomEvent = function(eventName, params) {
+        params = params || {};
+        var event = document.createEvent('CustomEvent');
+        event.initCustomEvent(
+          eventName,
+          (params.bubbles === void 0) ? false : params.bubbles,
+          (params.cancelable === void 0) ? false : params.cancelable,
+          (params.detail === void 0) ? {} : params.detail
+        );
+        ApplyThisPrototype(event, this);
+        return event;
+      };
+      CustomEvent.prototype = CustomEventOriginal.prototype;
+      window.CustomEvent = CustomEvent;
+    }
+  })(ApplyThisPrototype);
+
+  var EventListenerInterceptor = (function() {
+
+    if(typeof EventTarget === 'undefined') {
+      window.EventTarget = Node;
+    }
+
+    /**
+     * Event listener interceptor
+     */
+
+    var EventListenerInterceptor = {
+      interceptors: [] // { target: EventTarget, interceptors: [{ add: Function, remove: Function }, ...] }
+    };
+
+
+    /**
+     * Returns if exists a previously registered listener from a target and the normalized arguments
+     * @param target
+     * @param normalizedArguments
+     * @return {*}
+     */
+    EventListenerInterceptor.getRegisteredEventListener = function(target, normalizedArguments) {
+      var key = normalizedArguments.type + '-' + (normalizedArguments.options.capture ? '1' : '0');
+      if(
+        (target.__eventListeners !== void 0) &&
+        (target.__eventListeners[key] !== void 0)
+      ) {
+        var map = target.__eventListeners[key];
+        for(var i = 0; i < map.length; i++) {
+          if(map[i].listener === normalizedArguments.listener) {
+            return map[i];
+          }
+        }
+      }
+      return null;
+    };
+
+    /**
+     * Registers a listener on a target with some options
+     * @param target
+     * @param normalizedArguments
+     */
+    EventListenerInterceptor.registerEventListener = function(target, normalizedArguments) {
+      var key = normalizedArguments.type + '-' + (normalizedArguments.options.capture ? '1' : '0');
+
+      if(target.__eventListeners === void 0) {
+        target.__eventListeners = {};
+      }
+
+      if(target.__eventListeners[key] === void 0) {
+        target.__eventListeners[key] = [];
+      }
+
+      target.__eventListeners[key].push(normalizedArguments);
+    };
+
+    /**
+     * Unregisters a listener on a target with some options
+     * @param target
+     * @param normalizedArguments
+     */
+    EventListenerInterceptor.unregisterEventListener = function(target, normalizedArguments) {
+      var key = normalizedArguments.type + '-' + (normalizedArguments.options.capture ? '1' : '0');
+      if(
+        (target.__eventListeners !==  void 0) &&
+        (target.__eventListeners[key] !== void 0)
+      ) {
+        var map = target.__eventListeners[key];
+        for(var i = 0; i < map.length; i++) {
+          if(map[i].listener === normalizedArguments.listener) {
+            map.splice(i, 1);
+          }
+        }
+
+        if(map.length === 0) {
+          delete target.__eventListeners[key];
+        }
+      }
+    };
+
+
+
+    EventListenerInterceptor.normalizeListenerCallback = function(listener) {
+      if((typeof listener === 'function') || (listener === null) || (listener === void 0)) {
+        return listener;
+      } else if((typeof listener === 'object') && (typeof listener.handleEvent === 'function')) {
+        return listener.handleEvent;
+      } else {
+        // to support Symbol
+        return function(event) {
+          listener(event);
+        };
+      }
+    };
+
+    EventListenerInterceptor.normalizeListenerOptions = function(options) {
+      switch(typeof options) {
+        case 'boolean':
+          options = { capture: options };
+          break;
+        case 'undefined':
+          options = { capture: false };
+          break;
+        case 'object':
+          if (options === null) {
+            options = { capture: false };
+          }
+          break;
+        default:
+          throw new Error('Unsupported options type for addEventListener');
+      }
+
+      options.once      = Boolean(options.once);
+      options.passive   = Boolean(options.passive);
+      options.capture   = Boolean(options.capture);
+
+      return options;
+    };
+
+    EventListenerInterceptor.normalizeListenerArguments = function(type, listener, options) {
+      return {
+        type: type,
+        listener: this.normalizeListenerCallback(listener),
+        options: this.normalizeListenerOptions(options)
+      };
+    };
+
+
+
+    EventListenerInterceptor.intercept = function(target, interceptors) {
+      // get an interceptor with this target or null
+      var interceptor = null;
+      for (var i = 0; i < this.interceptors.length; i++) {
+        if(this.interceptors[i].target === target) {
+          interceptor = this.interceptors[i];
+        }
+      }
+
+      // if no interceptor already set
+      if (interceptor === null) {
+        interceptor = { target: target, interceptors: [interceptors] };
+        this.interceptors.push(interceptor);
+
+        this.interceptAddEventListener(target, interceptor);
+        this.interceptRemoveEventListener(target, interceptor);
+      } else { // if an interceptor already set, simply add interceptors to the list
+        interceptor.interceptors.push(interceptors);
+      }
+
+      // var release = function() {
+      //   target.prototype.addEventListener = addEventListener;
+      //   target.prototype.removeEventListener = removeEventListener;
+      // };
+      // this.interceptors.push(release);
+      // return release;
+    };
+
+    EventListenerInterceptor.interceptAddEventListener = function(target, interceptor) {
+      var _this = this;
+
+      var addEventListener = target.prototype.addEventListener;
+      target.prototype.addEventListener = function(type, listener, options) {
+        var normalizedArguments = _this.normalizeListenerArguments(type, listener, options);
+        var registeredEventListener = _this.getRegisteredEventListener(this, normalizedArguments);
+
+        if (!registeredEventListener) {
+
+          normalizedArguments.polyfilled = {
+            type: normalizedArguments.type,
+            listener: normalizedArguments.listener,
+            options: {
+              capture: normalizedArguments.options.capture,
+              once: normalizedArguments.options.once,
+              passive: normalizedArguments.options.passive
+            }
+          };
+
+          for (var i = 0; i < interceptor.interceptors.length; i++) {
+            var interceptors = interceptor.interceptors[i];
+            if (typeof interceptors.add === 'function') {
+              interceptors.add(normalizedArguments);
+            }
+          }
+
+          // console.log('normalizedArguments', normalizedArguments.polyfilled);
+
+          _this.registerEventListener(this, normalizedArguments);
+
+          addEventListener.call(
+            this,
+            normalizedArguments.polyfilled.type,
+            normalizedArguments.polyfilled.listener,
+            normalizedArguments.polyfilled.options
+          );
+        }
+      };
+
+      return function() {
+        target.prototype.addEventListener = addEventListener;
+      };
+    };
+
+    EventListenerInterceptor.interceptRemoveEventListener = function(target, interceptor) {
+      var _this = this;
+
+      var removeEventListener = target.prototype.removeEventListener;
+      target.prototype.removeEventListener = function(type, listener, options) {
+        var normalizedArguments = _this.normalizeListenerArguments(type, listener, options);
+        var registeredEventListener = _this.getRegisteredEventListener(this, normalizedArguments);
+
+        if (registeredEventListener) {
+          _this.unregisterEventListener(this, normalizedArguments);
+          removeEventListener.call(
+            this,
+            registeredEventListener.polyfilled.type,
+            registeredEventListener.polyfilled.listener,
+            registeredEventListener.polyfilled.options
+          );
+        } else {
+          removeEventListener.call(this, type, listener, options);
+        }
+      };
+
+      return function() {
+        target.prototype.removeEventListener = removeEventListener;
+      };
+    };
+
+    EventListenerInterceptor.interceptAll = function(interceptors) {
+      this.intercept(EventTarget, interceptors);
+      if(!(window instanceof EventTarget)) {
+        this.intercept(Window, interceptors);
+      }
+    };
+
+    EventListenerInterceptor.releaseAll = function() {
+      for(var i = 0, l = this.interceptors.length; i < l; i++) {
+        this.interceptors();
+      }
+    };
+
+
+    EventListenerInterceptor.error = function(error) {
+      // throw error;
+      console.error(error);
+    };
+
+    return EventListenerInterceptor;
+  })();
+
+  (function(EventListenerInterceptor) {
+    /**
+     * Event listener options support
+     */
+
+    EventListenerInterceptor.detectSupportedOptions = function() {
+      var _this = this;
+
+      this.supportedOptions = {
+        once: false,
+        passive: false,
+        capture: false,
+
+        all: false,
+        some: false
+      };
+
+      document.createDocumentFragment().addEventListener('test', function() {}, {
+        get once() {
+          _this.supportedOptions.once = true;
+          return false;
+        },
+        get passive() {
+          _this.supportedOptions.passive = true;
+          return false;
+        },
+        get capture() {
+          _this.supportedOptions.capture = true;
+          return false;
+        }
+      });
+
+      // useful shortcuts to detect if options are all/some supported
+      this.supportedOptions.all  = this.supportedOptions.once && this.supportedOptions.passive && this.supportedOptions.capture;
+      this.supportedOptions.some = this.supportedOptions.once || this.supportedOptions.passive || this.supportedOptions.capture;
+    };
+
+    EventListenerInterceptor.polyfillListenerOptions = function() {
+      this.detectSupportedOptions();
+      if (!this.supportedOptions.all) {
+        var _this = this;
+
+        this.interceptAll({
+          add: function(normalizedArguments) {
+            // console.log('intercepted', normalizedArguments);
+
+            var once = normalizedArguments.options.once && !_this.supportedOptions.once;
+            var passive = normalizedArguments.options.passive && !_this.supportedOptions.passive;
+
+            if (once || passive) {
+              var listener = normalizedArguments.polyfilled.listener;
+
+              normalizedArguments.polyfilled.listener = function(event) {
+                if(once) {
+                  this.removeEventListener(normalizedArguments.type, normalizedArguments.listener, normalizedArguments.options);
+                }
+
+                if(passive) {
+                  event.preventDefault = function() {
+                    throw new Error('Unable to preventDefault inside passive event listener invocation.');
+                  };
+                }
+
+                return listener.call(this, event);
+              };
+            }
+
+            if (!_this.supportedOptions.some) {
+              normalizedArguments.polyfilled.options = normalizedArguments.options.capture;
+            }
+          }
+        });
+      }
+    };
+
+
+    EventListenerInterceptor.polyfillListenerOptions();
+
+
+    // var onclick = function() {
+    //   console.log('click');
+    // };
+
+    // document.body.addEventListener('click', onclick, false);
+    // document.body.addEventListener('click', onclick, { once: true });
+    // document.body.addEventListener('click', onclick, { once: true });
+    // document.body.addEventListener('click', onclick, false);
+    // document.body.addEventListener('click', onclick, false);
+
+  })(EventListenerInterceptor);
 
   // For the IE11 build.
   SVGElement.prototype.contains = SVGElement.prototype.contains || HTMLElement.prototype.contains;
@@ -5491,11 +5882,24 @@
 
       return i.type === type;
     }.bind(this));
-    return directives;
+    return sortDirectives(directives);
+  }
+
+  function sortDirectives(directives) {
+    var _this4 = this;
+
+    var directiveOrder = ['bind', 'model', 'show', 'catch-all'];
+    return directives.sort(function (a, b) {
+      _newArrowCheck(this, _this4);
+
+      var typeA = directiveOrder.indexOf(a.type) === -1 ? 'catch-all' : a.type;
+      var typeB = directiveOrder.indexOf(b.type) === -1 ? 'catch-all' : b.type;
+      return directiveOrder.indexOf(typeA) - directiveOrder.indexOf(typeB);
+    }.bind(this));
   }
 
   function parseHtmlAttribute(_ref3) {
-    var _this4 = this;
+    var _this5 = this;
 
     var name = _ref3.name,
         value = _ref3.value;
@@ -5507,7 +5911,7 @@
       type: typeMatch ? typeMatch[1] : null,
       value: valueMatch ? valueMatch[1] : null,
       modifiers: modifiers.map(function (i) {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this5);
 
         return i.replace('.', '');
       }.bind(this)),
@@ -5537,7 +5941,7 @@
   var TRANSITION_TYPE_IN = 'in';
   var TRANSITION_TYPE_OUT = 'out';
   function transitionIn(el, show, component) {
-    var _this5 = this;
+    var _this6 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     // We don't want to transition on the initial page load.
@@ -5559,13 +5963,13 @@
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out'); // If x-show.transition.in...out... only use "in" related modifiers for this transition.
 
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this5);
+        _newArrowCheck(this, _this6);
 
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
     } else if (attrs.some(function (attr) {
-      _newArrowCheck(this, _this5);
+      _newArrowCheck(this, _this6);
 
       return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
     }.bind(this))) {
@@ -5576,7 +5980,7 @@
     }
   }
   function transitionOut(el, hide, component) {
-    var _this6 = this;
+    var _this7 = this;
 
     var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     // We don't want to transition on the initial page load.
@@ -5596,13 +6000,13 @@
       if (modifiers.includes('in') && !modifiers.includes('out')) return hide();
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out');
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this6);
+        _newArrowCheck(this, _this7);
 
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
     } else if (attrs.some(function (attr) {
-      _newArrowCheck(this, _this6);
+      _newArrowCheck(this, _this7);
 
       return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
     }.bind(this))) {
@@ -5612,7 +6016,7 @@
     }
   }
   function transitionHelperIn(el, modifiers, showCallback) {
-    var _this7 = this;
+    var _this8 = this;
 
     // Default values inspired by: https://material.io/design/motion/speed.html#duration
     var styleValues = {
@@ -5628,11 +6032,11 @@
       }
     };
     transitionHelper(el, modifiers, showCallback, function () {
-      _newArrowCheck(this, _this7);
+      _newArrowCheck(this, _this8);
     }.bind(this), styleValues, TRANSITION_TYPE_IN);
   }
   function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
-    var _this8 = this;
+    var _this9 = this;
 
     // Make the "out" transition .5x slower than the "in". (Visually better)
     // HOWEVER, if they explicitly set a duration for the "out" transition,
@@ -5651,7 +6055,7 @@
       }
     };
     transitionHelper(el, modifiers, function () {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this9);
     }.bind(this), hideCallback, styleValues, TRANSITION_TYPE_OUT);
   }
 
@@ -5736,65 +6140,65 @@
     transition(el, stages, type);
   }
   function transitionClassesIn(el, component, directives, showCallback) {
-    var _this9 = this;
+    var _this10 = this;
 
     var ensureStringExpression = function ensureStringExpression(expression) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this10);
 
       return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
     }.bind(this);
 
     var enter = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'enter';
     }.bind(this)) || {
       expression: ''
     }).expression));
     var enterStart = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'enter-start';
     }.bind(this)) || {
       expression: ''
     }).expression));
     var enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this10);
 
       return i.value === 'enter-end';
     }.bind(this)) || {
       expression: ''
     }).expression));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this10);
     }.bind(this), TRANSITION_TYPE_IN);
   }
   function transitionClassesOut(el, component, directives, hideCallback) {
-    var _this10 = this;
+    var _this11 = this;
 
     var leave = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'leave';
     }.bind(this)) || {
       expression: ''
     }).expression);
     var leaveStart = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'leave-start';
     }.bind(this)) || {
       expression: ''
     }).expression);
     var leaveEnd = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'leave-end';
     }.bind(this)) || {
       expression: ''
     }).expression);
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this11);
     }.bind(this), hideCallback, TRANSITION_TYPE_OUT);
   }
   function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type) {
@@ -5821,12 +6225,12 @@
       },
       end: function end() {
         var _el$classList3,
-            _this11 = this,
+            _this12 = this,
             _el$classList4;
 
         // Don't remove classes that were in the original class attribute.
         (_el$classList3 = el.classList).remove.apply(_el$classList3, _toConsumableArray(classesStart.filter(function (i) {
-          _newArrowCheck(this, _this11);
+          _newArrowCheck(this, _this12);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -5838,17 +6242,17 @@
       },
       cleanup: function cleanup() {
         var _el$classList5,
-            _this12 = this,
+            _this13 = this,
             _el$classList6;
 
         (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(classesDuring.filter(function (i) {
-          _newArrowCheck(this, _this12);
+          _newArrowCheck(this, _this13);
 
           return !originalClasses.includes(i);
         }.bind(this))));
 
         (_el$classList6 = el.classList).remove.apply(_el$classList6, _toConsumableArray(classesEnd.filter(function (i) {
-          _newArrowCheck(this, _this12);
+          _newArrowCheck(this, _this13);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -5857,7 +6261,7 @@
     transition(el, stages, type);
   }
   function transition(el, stages, type) {
-    var _this13 = this;
+    var _this14 = this;
 
     el.__x_transition = {
       // Set transition type so we can avoid clearing transition if the direction is the same
@@ -5866,7 +6270,7 @@
       // from different point and early terminate it. Once will ensure that function
       // is only called one time.
       callback: once(function () {
-        _newArrowCheck(this, _this13);
+        _newArrowCheck(this, _this14);
 
         stages.hide(); // Adding an "isConnected" check, in case the callback
         // removed the element from the DOM.
@@ -5883,9 +6287,9 @@
     stages.start();
     stages.during();
     el.__x_transition.nextFrame = requestAnimationFrame(function () {
-      var _this14 = this;
+      var _this15 = this;
 
-      _newArrowCheck(this, _this13);
+      _newArrowCheck(this, _this14);
 
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
@@ -5897,7 +6301,7 @@
 
       stages.show();
       el.__x_transition.nextFrame = requestAnimationFrame(function () {
-        _newArrowCheck(this, _this14);
+        _newArrowCheck(this, _this15);
 
         stages.end();
         setTimeout(el.__x_transition.callback, duration);
@@ -7220,7 +7624,7 @@
   }();
 
   var Alpine = {
-    version: "2.4.1",
+    version: "2.5.0",
     pauseMutationObserver: false,
     magicProperties: {},
     onComponentInitializeds: [],

@@ -151,7 +151,16 @@
     }
 
     if (type) return directives.filter(i => i.type === type);
-    return directives;
+    return sortDirectives(directives);
+  }
+
+  function sortDirectives(directives) {
+    let directiveOrder = ['bind', 'model', 'show', 'catch-all'];
+    return directives.sort((a, b) => {
+      let typeA = directiveOrder.indexOf(a.type) === -1 ? 'catch-all' : a.type;
+      let typeB = directiveOrder.indexOf(b.type) === -1 ? 'catch-all' : b.type;
+      return directiveOrder.indexOf(typeA) - directiveOrder.indexOf(typeB);
+    });
   }
 
   function parseHtmlAttribute({
@@ -1753,7 +1762,7 @@
   }
 
   const Alpine = {
-    version: "2.4.1",
+    version: "2.5.0",
     pauseMutationObserver: false,
     magicProperties: {},
     onComponentInitializeds: [],

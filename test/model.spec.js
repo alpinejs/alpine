@@ -353,7 +353,7 @@ test('x-model can listen for custom input event dispatches', async () => {
     })
 })
 
-// <input type="color"> 
+// <input type="color">
 test('x-model bind color input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '#ff0000' }">
@@ -376,7 +376,7 @@ test('x-model bind color input', async () => {
 
 })
 
-// <input type="button"> 
+// <input type="button">
 test('x-model bind button input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: 'foo' }">
@@ -398,7 +398,7 @@ test('x-model bind button input', async () => {
     })
 })
 
-// <input type="date"> 
+// <input type="date">
 test('x-model bind date input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '2020-07-10' }">
@@ -420,7 +420,7 @@ test('x-model bind date input', async () => {
     })
 })
 
-// <input type="datetime-local"> 
+// <input type="datetime-local">
 test('x-model bind datetime-local input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '2020-01-01T20:00' }">
@@ -442,11 +442,11 @@ test('x-model bind datetime-local input', async () => {
     })
 })
 
-// <input type="email"> 
+// <input type="email">
 test('x-model bind email input', async () => {
 })
 
-// <input type="month"> 
+// <input type="month">
 test('x-model bind month input', async () => {
     document.body.innerHTML = `
         <div x-data="{ key: '2020-04' }">
@@ -469,7 +469,7 @@ test('x-model bind month input', async () => {
 })
 
 
-// <input type="number"> 
+// <input type="number">
 test('x-model bind number input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '11' }">
@@ -491,7 +491,7 @@ test('x-model bind number input', async () => {
     })
 })
 
-// <input type="password"> 
+// <input type="password">
 test('x-model bind password input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: 'SecretKey' }">
@@ -513,7 +513,7 @@ test('x-model bind password input', async () => {
     })
 })
 
-// <input type="range"> 
+// <input type="range">
 test('x-model bind range input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '10' }">
@@ -535,7 +535,7 @@ test('x-model bind range input', async () => {
     })
 })
 
-// <input type="search"> 
+// <input type="search">
 test('x-model bind search input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '' }">
@@ -558,7 +558,7 @@ test('x-model bind search input', async () => {
     })
 })
 
-// <input type="tel"> 
+// <input type="tel">
 test('x-model bind tel input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '+12345678901' }">
@@ -581,7 +581,7 @@ test('x-model bind tel input', async () => {
     })
 })
 
-// <input type="tel"> 
+// <input type="tel">
 test('x-model bind tel input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '+12345678901' }">
@@ -604,7 +604,7 @@ test('x-model bind tel input', async () => {
     })
 })
 
-// <input type="tel"> 
+// <input type="tel">
 test('x-model bind time input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '22:00' }">
@@ -627,7 +627,7 @@ test('x-model bind time input', async () => {
     })
 })
 
-// <input type="time"> 
+// <input type="time">
 test('x-model bind time input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '22:00' }">
@@ -650,7 +650,7 @@ test('x-model bind time input', async () => {
     })
 })
 
-// <input type="week"> 
+// <input type="week">
 test('x-model bind week input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: '2020-W20' }">
@@ -673,7 +673,7 @@ test('x-model bind week input', async () => {
     })
 })
 
-// <input type="url"> 
+// <input type="url">
 test('x-model bind url input', async () => {
     document.body.innerHTML = `
     <div x-data="{ key: 'https://example.com' }">
@@ -693,5 +693,33 @@ test('x-model bind url input', async () => {
     await wait(() => {
         expect(document.querySelector('input').value).toEqual(newValue)
         expect(document.querySelector('span').innerText).toEqual(newValue)
+    })
+})
+
+test('x-model sets value before x-on directive expression is processed', async () => {
+    window.selectValueA
+    window.selectValueB
+
+    document.body.innerHTML = `
+        <div x-data="{ a: 'foo', b: 'foo' }">
+            <select x-model="a" @change="window.selectValueA = a">
+                <option>foo</option>
+                <option>bar</option>
+            </select>
+            <select @change="window.selectValueB = b" x-model="b">
+                <option>foo</option>
+                <option>bar</option>
+            </select>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.change(document.querySelectorAll('select')[0], { target: { value: 'bar' } });
+    fireEvent.change(document.querySelectorAll('select')[1], { target: { value: 'bar' } });
+
+    await wait(() => {
+        expect(window.selectValueA).toEqual('bar')
+        expect(window.selectValueB).toEqual('bar')
     })
 })

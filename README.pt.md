@@ -59,7 +59,7 @@ _Dropdown/Modal_
     <button @click="open = true">Open Dropdown</button>
 
     <ul x-show="open" @click.away="open = false">
-        Dropdown Body
+        Corpo do Dropdown
     </ul>
 </div>
 ```
@@ -93,11 +93,11 @@ _Pré pedido de conteudo para HTML dropdown's ao passar com o rato_
         "
         @click="open = true"
     >
-        Show Dropdown
+        Mostrar Dropdown
     </button>
 
     <div x-ref="dropdown" x-show="open" @click.away="open = false">
-        Loading Spinner...
+        Carregando Spinner...
     </div>
 </div>
 ```
@@ -292,13 +292,13 @@ Por exemplo:
 
 ```html
 <!-- Given: -->
-<button x-bind:disabled="myVar">Click me</button>
+<button x-bind:disabled="myVar">Clique em mim</button>
 
 <!-- When myVar == true: -->
-<button disabled="disabled">Click me</button>
+<button disabled="disabled">Clique em mim</button>
 
 <!-- When myVar == false: -->
-<button>Click me</button>
+<button>Clique em mim</button>
 ```
 
 Isso adicionará ou removerá o atributo `disabled` quando`myVar` for verdadeiro ou falso, respectivamente.
@@ -351,12 +351,12 @@ Isso é útil para ocultar dropdowns e modals quando um utilizador clicar longe 
 **`.prevent` modificador**
 **Exemplo:** `<input type="checkbox" x-on:click.prevent>`
 
-Adding `.prevent` to an event listener will call `preventDefault` on the triggered event. In the above example, this means the checkbox wouldn't actually get checked when a user clicks on it.
+Adicionar `.prevent` a um evento de escuta ira chamar o ` preventDefault` no evento acionado. No exemplo acima, isso significa que a caixa de seleção não é realmente verificada quando um utilizador clicar nela.
 
 **`.stop` modificador**
 **Exemplo:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
 
-Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
+Adicionar `.stop` a um evento de escut ira chamar o ` stopPropagation` no evento acionado. No exemplo acima, isso significa que o evento "click" não borbulha do botão para o exterior `<div>`. Ou seja, quando um utilizador clicar no botão, `foo` não será definido como 'bar'.
 
 **`.self` modificador**
 **Exemplo:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
@@ -562,11 +562,11 @@ Elas se comportam exatamente como as diretivas de transição do VueJs, exceto q
 | Directiva      | Descrição                                                                                                                                            |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `:enter`       | Aplicado durante toda a fase de entrada.                                                                                                             |
-| `:enter-start` | Added before element is inserted, removed one frame after element is inserted.                                                                       |
-| `:enter-end`   | Added one frame after element is inserted (at the same time `enter-start` is removed), removed when transition/animation finishes.                   |
-| `:leave`       | Applied during the entire leaving phase.                                                                                                             |
-| `:leave-start` | Added immediately when a leaving transition is triggered, removed after one frame.                                                                   |
-| `:leave-end`   | Added one frame after a leaving transition is triggered (at the same time `leave-start` is removed), removed when the transition/animation finishes. |
+| `:enter-start` | Adicionado antes que o elemento seja inserido, removido um frame após o elemento ser inserido.                                                                       |
+| `:enter-end`   | Adicionado um frame após a inserção do elemento (ao mesmo tempo em que o `enter-start` é removido), removido quando a transição/animação termina.                   |
+| `:leave`       | Aplicado durante toda a fase de partida.                                                                                                             |
+| `:leave-start` | Adicionado imediatamente quando uma transição de saída é acionada, removida após um frame.                                                                   |
+| `:leave-end`   | Adicionado um frame depois que uma transição de saída é acionada (ao mesmo tempo em que o `leave-start` é removido), removido quando a transição/animação termina. |
 
 ---
 
@@ -576,9 +576,9 @@ Elas se comportam exatamente como as diretivas de transição do VueJs, exceto q
 
 ```html
 <div x-data="dropdown()">
-    <button x-spread="trigger">Open Dropdown</button>
+    <button x-spread="trigger">Dropdown Aberto</button>
 
-    <span x-spread="dialogue">Dropdown Contents</span>
+    <span x-spread="dialogue">Conteúdo da Dropdown</span>
 </div>
 
 <script>
@@ -603,19 +603,18 @@ Elas se comportam exatamente como as diretivas de transição do VueJs, exceto q
 </script>
 ```
 
-`x-spread` allows you to extract an element's Alpine bindings into a reusable object.
+O `x-spread` permite extrair as ligações de um elemento Alpine em um objeto reutilizável.
 
-The object keys are the directives (Can be any directive including modificadors), and the values are callbacks to be evaluated by Alpine.
+As chaves do objeto são as diretivas (pode ser qualquer diretiva, incluindo modificadores), e os valores são chamadas de retorno a serem avaliados pelo Alpine.
 
-> Note: The only anomaly with x-spread is when used with `x-for`. When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. Por exemplo: `['x-for']() { return 'item in items' }`.
-
+> Nota: A única anomalia com propagação x é quando usada com `x-for`. Quando a diretiva "spread" é `x-for`, devemos retornar uma string de expressão normal a partir da chamada de retorno. Por exemplo: `['x-for'] () {return 'item in items'}`.
 ---
 
 ### `x-cloak`
 
 **Exemplo:** `<div x-data="{}" x-cloak></div>`
 
-`x-cloak` attributes are removed from elements when Alpine initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
+Os atributos `x-cloak` são removidos dos elementos quando o Alpine é inicializado. Isso é útil para ocultar o DOM pré-inicializado. É típico adicionar o seguinte estilo global para que isso funcione:
 
 ```html
 <style>
@@ -625,10 +624,9 @@ The object keys are the directives (Can be any directive including modificadors)
 </style>
 ```
 
-### Magic Properties
+### Propriedades Mágicas
 
-> With the exception of `$el`, magic properties are **not available within `x-data`** as the component isn't initialized yet.
-
+> Com exceção de `$el`, as propriedades mágicas **não estão disponíveis no` x-data`**, pois o componente ainda não foi inicializado.
 ---
 
 ### `$el`
@@ -641,7 +639,7 @@ The object keys are the directives (Can be any directive including modificadors)
 </div>
 ```
 
-`$el` is a magic property that can be used to retrieve the root component DOM node.
+`$el` é uma propriedade mágica que pode ser usada para recuperar o nó DOM do componente raiz.
 
 ### `$refs`
 
@@ -653,7 +651,7 @@ The object keys are the directives (Can be any directive including modificadors)
 <button x-on:click="$refs.foo.innerText = 'bar'"></button>
 ```
 
-`$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+`$refs` é uma propriedade mágica que pode ser usada para recuperar elementos DOM marcados com `x-ref` dentro do componente. Isso é útil quando precisamos manipular manualmente os elementos do DOM.
 
 ---
 
@@ -682,7 +680,7 @@ Se precisarem aceder ao $event dentro de uma função JavaScript, podem passá-l
 ```html
 <div @custom-event="console.log($event.detail.foo)">
     <button @click="$dispatch('custom-event', { foo: 'bar' })">
-    <!-- When clicked, will console.log "bar" -->
+    <!-- Quando clicado, console.log "bar" ->
 </div>
 ```
 
@@ -701,11 +699,11 @@ Observem que, devido a [evento com bolhas](https://en.wikipedia.org/wiki/Event_b
 </div>
 ```
 
-> This won't work because when `custom-event` is dispatched, it'll propagate to its common ancestor, the `div`.
+> Isso não vai funcionar porque, quando o `custom-event` for executado, ele será propagado para seu ancestral comum, a `div`.
 
-**Dispatching to Components**
+**Expedição para componentes**
 
-You can also take advantage of the previous technique to make your components talk to each other:
+Também podemos tirar proveito da técnica anterior para fazer os componentes comunicarem entre si:
 
 **Exemplo:**
 
@@ -756,7 +754,7 @@ Se precisarem aceder ao $dispatch dentro de uma função JavaScript, poderão tr
 </div>
 ```
 
-`$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made its reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+`$ nextTick` é uma propriedade mágica que permite executar apenas uma determinada expressão APÓS o Alpine fazer suas atualizações a DOM. Isso é útil nos momentos em que desejam interagir com o estado da DOM, após refletir as atualizações de dados que fizemos.
 
 ---
 
@@ -769,7 +767,7 @@ Se precisarem aceder ao $dispatch dentro de uma função JavaScript, poderão tr
     x-data="{ open: false }"
     x-init="$watch('open', value => console.log(value))"
 >
-    <button @click="open = ! open">Toggle Open</button>
+    <button @click="open = ! open">Alternar Abrir</button>
 </div>
 ```
 

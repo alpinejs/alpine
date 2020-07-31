@@ -33,7 +33,7 @@ export function kebabCase(subject) {
 }
 
 export function camelCase(subject) {
-    return subject.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (match, char) => char.toUpperCase())
+    return subject.toLowerCase().replace(/-(\w)/g, (match, char) => char.toUpperCase())
 }
 
 export function walk(el, callback) {

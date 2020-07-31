@@ -15,6 +15,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 [**日本語ドキュメント**](./README.ja.md)
 [**繁體中文使用文件**](./README_zh-TW.md)
 [**Документация на русском**](./README.ru.md)
+[**Documentação em Português**](./README.pt.md)
 
 ## Install
 

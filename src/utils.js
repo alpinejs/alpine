@@ -130,11 +130,11 @@ function sortDirectives(directives) {
     })
 }
 
-function parseHtmlAttribute({ name, value }) {
+export function parseHtmlAttribute({ name, value }) {
     const normalizedName = replaceAtAndColonWithStandardSyntax(name)
 
     const typeMatch = normalizedName.match(xAttrRE)
-    const valueMatch = normalizedName.match(/:([a-zA-Z\-:]+)/)
+    const valueMatch = normalizedName.match(/:([a-zA-Z0-9\-:]+)/)
     const modifiers = normalizedName.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
 
     return {

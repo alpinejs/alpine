@@ -495,3 +495,17 @@ test('.camel modifier correctly sets name of attribute', async () => {
 
     expect(document.querySelector('svg').getAttribute('viewBox')).toEqual('0 0 42 42')
 })
+
+
+test('attribute binding names can contain numbers', async () => {
+    document.body.innerHTML = `
+        <svg x-data>
+            <line x1="1" y1="2" :x2="3" x-bind:y2="4" />
+        </svg>
+    `;
+
+    Alpine.start();
+
+    expect(document.querySelector('line').getAttribute('x2')).toEqual('3');
+    expect(document.querySelector('line').getAttribute('y2')).toEqual('4');
+})

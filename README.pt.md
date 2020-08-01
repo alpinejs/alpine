@@ -210,11 +210,11 @@ Também podemos misturar vários objetos de dados usando a desestruturação de 
 
 **Exemplo:** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
 
-**Estrutura:** `<div x-data="..." x-init="[expression]"></div>`
+**Estrutura:** `<div x-data="..." x-init="[expressão]"></div>`
 
 `x-init` executa uma expressão quando um componente é inicializado.
 
-Se desejam executar o código ANTES do Alpine fazer as atualizações iniciais na DOM (algo como um gancho `mounted ()` no VueJS)), podem retornar um callback do `x-init`, e será executado após:
+Caso desejem executar o código ANTES do Alpine fazer as atualizações iniciais na DOM (algo como um gancho `mounted ()` no VueJS)), podem retornar um callback do `x-init`, e é executado após:
 
 `x-init="() => { // temos acesso ao estado de pós-inicialização aqui // }"`
 
@@ -224,7 +224,7 @@ Se desejam executar o código ANTES do Alpine fazer as atualizações iniciais n
 
 **Exemplo:** `<div x-show="open"></div>`
 
-**Estrutura:** `<div x-show="[expression]"></div>`
+**Estrutura:** `<div x-show="[expressão]"></div>`
 
 `x-show` alterna o estilo `display: none;` no elemento, dependendo se a expressão for resolvida como`verdadeiro` ou `falso`.
 
@@ -246,13 +246,13 @@ Se desejam executar o código ANTES do Alpine fazer as atualizações iniciais n
 | `x-show.transition.opacity`                             | Apenas transição de desvanecer.                                                                                                                     |
 | `x-show.transition.scale`                               | Apenas transição de escala.                                                                                                                         |
 | `x-show.transition.scale.75`                            | Personalizar a transformação de escala CSS `transform: scale(.75)`.                                                                                 |
-| `x-show.transition.duration.200ms`                      | Define a transição "entrada" para 200ms. A saída será ajustada para metade disso (100ms).                                                           |
+| `x-show.transition.duration.200ms`                      | Define a transição "entrada" para 200ms. A saída é ajustada para metade disso (100ms).                                                           |
 | `x-show.transition.origin.top.right`                    | Personalizar a origem da transformação CSS `transform-origin: top right`.                                                                           |
 | `x-show.transition.in.duration.200ms.out.duration.50ms` | Durações diferentes para "entrada" e "saida".                                                                                                       |
 
 > Nota: Todos esses modificadores de transição podem ser usados em conjunto. Isso é possível (apesar de ridículo: lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
 
-> Nota: `x-show` espera que todas os filhos terminem a transição. Se desejam ignorar esse comportamento, adicionem o modificador `.immediate`:
+> Nota: `x-show` espera que todas os filhos terminem a transição. Caso desejem ignorar esse comportamento, adicionem o modificador `.immediate`:
 
 ```html
 <div x-show.immediate="open">
@@ -264,13 +264,13 @@ Se desejam executar o código ANTES do Alpine fazer as atualizações iniciais n
 
 ### `x-bind`
 
-> Nota: Podem usar a sintaxe ":" mais curta: `: type =" ... "`
+> Nota: Podem usar a sintaxe ":" mais curta: `:type =" ... "`
 
 **Exemplo:** `<input x-bind:type="inputType">`
 
-**Estrutura:** `<input x-bind:[attribute]="[expression]">`
+**Estrutura:** `<input x-bind:[attribute]="[expressão]">`
 
-`x-bind` define o valor de um atributo para o resultado de uma expressão JavaScript. A expressão tem acesso a todas as chaves do objeto de dados do componente e será atualizada sempre que seus dados forem atualizados.
+`x-bind` define o valor de um atributo para o resultado de uma expressão JavaScript. A expressão tem acesso a todas as chaves do objeto de dados do componente e é atualizada sempre que seus dados forem atualizados.
 
 > Nota: as ligações de atributo APENAS são atualizadas quando as dependências são atualizadas. A estrutura é inteligente o suficiente para observar alterações nos dados e detectar quais ligações se importam com elas.
 
@@ -282,7 +282,7 @@ Para classes, passamos um objeto cujas as chaves são nomes de classe e valores 
 
 Por exemplo: `<div x-bind:class="{ 'hidden': foo }"></div>`
 
-Neste exemplo, a classe "hidden" será aplicada apenas quando o valor do atributo de dados `foo` for `verdadeiro`.
+Neste exemplo, a classe "hidden" é aplicada apenas quando o valor do atributo de dados `foo` for `verdadeiro`.
 
 **`x-bind` para atributos booleanos**
 
@@ -294,10 +294,10 @@ Por exemplo:
 <!-- Given: -->
 <button x-bind:disabled="myVar">Clique em mim</button>
 
-<!-- When myVar == true: -->
+<!-- Quando myVar == true: -->
 <button disabled="disabled">Clique em mim</button>
 
-<!-- When myVar == false: -->
+<!-- Quando myVar == false: -->
 <button>Clique em mim</button>
 ```
 
@@ -308,7 +308,7 @@ Os atributos booleanos são suportados de acordo com a [especificação HTML](ht
 **`.camel` modificador**
 **Exemplo:** `<svg x-bind:view-box.camel="viewBox">`
 
-O modificador `camel` se ligará ao equivalente em maiúsculas e minúsculas do nome do atributo. No exemplo acima, o valor de `viewBox` será vinculado ao atributo`viewBox` em oposição ao atributo `viewbox`.
+O modificador `camel` se ligará ao equivalente em maiúsculas e minúsculas do nome do atributo. No exemplo acima, o valor de `viewBox` é vinculado ao atributo`viewBox` em oposição ao atributo `viewbox`.
 
 ---
 
@@ -318,17 +318,17 @@ O modificador `camel` se ligará ao equivalente em maiúsculas e minúsculas do 
 
 **Exemplo:** `<button x-on:click="foo = 'bar'"></button>`
 
-**Estrutura:** `<button x-on:[event]="[expression]"></button>`
+**Estrutura:** `<button x-on:[event]="[expressão]"></button>`
 
 O `x-on` anexa um evento de escuta ao elemento em que está declarado. Quando esse evento é emitido, a expressão JavaScript definida como seu valor é executada.
 
-Se algum dado for modificado na expressão, outros atributos do elemento "vinculados" a esses dados serão atualizados.
+Caso algum dado for modificado na expressão, outros atributos do elemento "vinculados" a esses dados serão atualizados.
 
 > Nota: Também podem especificar um nome de função JavaScript
 
 **Exemplo:** `<button x-on:click="myFunction"></button>`
 
-Isso é equivalente a: `<button x-on:click="myFunction($event)"></button>`
+O equivalente é: `<button x-on:click="myFunction($event)"></button>`
 
 **`keydown` modificadores**
 
@@ -344,9 +344,9 @@ Exemplos: `enter`, `escape`, `arrow-up`, `arrow-down`
 
 **Exemplo:** `<div x-on:click.away="showModal = false"></div>`
 
-Quando o modificador `.away` estiver presente, o manipulador de eventos será executado apenas quando o evento se originar de uma fonte que não seja ela própria ou seus filhos.
+Quando o modificador `.away` estiver presente, o manipulador de eventos é executado apenas quando o evento se originar de uma fonte que não seja ela própria ou seus filhos.
 
-Isso é útil para ocultar dropdowns e modals quando um utilizador clicar longe deles.
+Isso é útil para ocultar dropdowns e modais quando um utilizador clicar longe deles.
 
 **`.prevent` modificador**
 **Exemplo:** `<input type="checkbox" x-on:click.prevent>`
@@ -356,38 +356,38 @@ Adicionar `.prevent` a um evento de escuta ira chamar o ` preventDefault` no eve
 **`.stop` modificador**
 **Exemplo:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
 
-Adicionar `.stop` a um evento de escut ira chamar o ` stopPropagation` no evento acionado. No exemplo acima, isso significa que o evento "click" não borbulha do botão para o exterior `<div>`. Ou seja, quando um utilizador clicar no botão, `foo` não será definido como 'bar'.
+Adicionar `.stop` a um evento de escuta ira chamar o ` stopPropagation` no evento acionado. No exemplo acima, isso significa que o evento "click" não borbulha do botão para o exterior `<div>`. Ou seja, quando um utilizador clicar no botão, `foo` não é definido como 'bar'.
 
 **`.self` modificador**
 **Exemplo:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
 
-Adding `.self` to an event listener will only trigger the handler if the `$event.target` is the element itself. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
+Adicionar `.self` a um evento de escuta só vai acionar o manipulador quando o` $ event.target` for o próprio elemento. No exemplo acima, isso significa que o evento "click" que borbulha do botão para a `<div>` externo **não** executa o manipulador.
 
 **`.window` modificador**
 **Exemplo:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
-Adding `.window` to an event listener will install the listener on the global window object instead of the DOM node on which it is declared. This is useful for when you want to modify component state when something changes with the window, like the resize event. In this example, when the window grows larger than 768 pixels wide, we will close the modal/dropdown, otherwise maintain the same state.
+Adicionar `.window` a um evento de escuta instalará a escuta no objeto na window global em vez do nó DOM no qual está declarado. Isso é útil para quando desejamos modificar o estado do componente quando algo muda com a window, como o evento de redimensionamento. Neste exemplo, quando a janela tiver mais de 768 pixels de largura, fechamos a modal / dropdown, caso contrário, manteremos o mesmo estado.
 
-> Note: You can also use the `.document` modificador to attach listeners to `document` instead of `window`
+> Nota: Também podemos usar o modificador `.document` para anexar escutas ao` document` em vez de `window`
 
 **`.once` modificador**
 **Exemplo:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
 
-Adding the `.once` modificador to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
+Adicionar o modificador `.once` a um evento de escuta vai garantir que a escuta seja tratado apenas uma vez. Isso é útil para coisas que desejamos fazer apenas uma vez, como ir procurar parciais HTML e outras coisas.
 
 **`.passive` modificador**
 **Exemplo:** `<button x-on:mousedown.passive="interactive = true"></button>`
 
-Adding the `.passive` modificador to an event listener will make the listener a passive one, which means `preventDefault()` will not work on any events being processed, this can help, for example with scroll performance on touch devices.
+Adicionar o modificador `.passive` a um evento de escuta fará com que a escuta seja passiva, o que significa que o `preventDefault()` não vai funcionar em nenhum evento sendo processado, isso pode ajudar, por exemplo, com o desempenho do scroll em dispositivos touch.
 
 **`.debounce` modificador**
 **Exemplo:** `<input x-on:input.debounce="fetchSomething()">`
 
-The `debounce` modificador allows you to "debounce" an event handler. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
+O modificador `debounce` permite fazer "debounce" a um manipulador de eventos. Em outras palavras, o manipulador de eventos NÃO será executado até que tenha decorrido um certo tempo desde o último evento que foi disparado. Quando o manipulador estiver pronto para ser chamado, a última chamada do manipulador será executada.
 
-The default debounce "wait" time is 250 milliseconds.
+O tempo de espera de debounce padrão é de 250 milissegundos.
 
-If you wish to customize this, you can specifiy a custom wait time like so:
+Caso desejem personalizar isso, pode especificar um tempo de espera personalizado da seguinte maneira:
 
 ```
 <input x-on:input.debounce.750="fetchSomething()">
@@ -397,7 +397,7 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 **`.camel` modificador**
 **Exemplo:** `<input x-on:event-name.camel="doSomething()">`
 
-The `camel` modificador will attach an event listener for the camel case equivalent event name. In the example above, the expression will be evaluated when the `eventName` event is fired on the element.
+O modificador `camel` anexa um evento de escuta ao nome em camel case do evento equivalente. No exemplo acima, a expressão é avaliada quando o evento `eventName` for disparado no elemento
 
 ---
 
@@ -407,18 +407,18 @@ The `camel` modificador will attach an event listener for the camel case equival
 
 **Estrutura:** `<input type="text" x-model="[data item]">`
 
-`x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
+O `x-model` adiciona "ligação de dados bidirecional" a um elemento. Em outras palavras, o valor do elemento de entrada é mantido sincronizado com o valor do item de dados do componente.
 
-> Note: `x-model` is smart enough to detect changes on text inputs, checkboxes, radio buttons, textareas, selects, and multiple selects. It should behave [how Vue would](https://vuejs.org/v2/guide/forms.html) in those scenarios.
+> Nota: `x-model` é inteligente o suficiente para detectar alterações nos inputs, checkboxes, radio buttons, textareas, selects e multiplo selects. Devem comportar-se [como o Vue] (https://vuejs.org/v2/guide/forms.html) nesses casos.
 
 **`.debounce` modificador**
 **Exemplo:** `<input x-model.debounce="search">`
 
-The `debounce` modificador allows you to add a "debounce" to a value update. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
+O modificador `debounce` permite adicionar um "debounce" a uma atualização de valor. Em outras palavras, o manipulador de eventos NÃO é executado até que tenha decorrido um certo tempo desde o último evento que foi disparado. Quando o manipulador estiver pronto para ser chamado, a última chamada do manipulador é executada.
 
-The default debounce "wait" time is 250 milliseconds.
+O tempo de espera de debounce padrão é de 250 milissegundos.
 
-If you wish to customize this, you can specifiy a custom wait time like so:
+Caso desejem personalizar isso, pode especificar um tempo de espera personalizado da seguinte maneira:
 
 ```
 <input x-model.debounce.750="search">
@@ -431,9 +431,9 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 
 **Exemplo:** `<span x-text="foo"></span>`
 
-**Estrutura:** `<span x-text="[expression]"`
+**Estrutura:** `<span x-text="[expressão]"`
 
-`x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.
+O `x-text` funciona da mesma forma que o` x-bind`, exceto que, em vez de atualizar o valor de um atributo, ele atualiza o `innerText` de um elemento.
 
 ---
 
@@ -441,14 +441,13 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 
 **Exemplo:** `<span x-html="foo"></span>`
 
-**Estrutura:** `<span x-html="[expression]"`
+**Estrutura:** `<span x-html="[expressão]"`
 
-`x-html` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerHTML` of an element.
+O `x-html` funciona de maneira semelhante ao` x-bind`, exceto que, em vez de atualizar o valor de um atributo, ele atualiza o `innerHTML` de um elemento.
 
-> :warning: **Only use on trusted content and never on user-provided content.** :warning:
+> :warning: **Use apenas em conteúdo confiável e nunca em conteúdo fornecido pelo utilizador.** :warning:
 >
-> Dynamically rendering HTML from third parties can easily lead to [XSS](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) vulnerabilities.
-
+> A renderização dinâmica do HTML de terceiros pode levar facilmente às vulnerabilidades de [XSS] (https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting).
 ---
 
 ### `x-ref`
@@ -457,25 +456,25 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 
 **Estrutura:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
 
-`x-ref` provides a convenient way to retrieve raw DOM elements out of your component. By setting an `x-ref` attribute on an element, you are making it available to all event handlers inside an object called `$refs`.
+O `x-ref` fornece uma maneira conveniente de recuperar elementos DOM fora do seu componente. Ao definir um atributo `x-ref` em um elemento, torna-o disponível para todos os manipuladores de eventos dentro de um objeto chamando `$refs`.
 
-This is a helpful alternative to setting ids and using `document.querySelector` all over the place.
+Esta é uma alternativa útil para definir ID's e usar o `document.querySelector` em todo o lago.
 
-> Note: you can also bind dynamic values for x-ref: `<span :x-ref="item.id"></span>` if you need to.
+> Nota: também podemos vincular valores dinâmicos no x-ref: `<span: x-ref =" item.id "> </span>` se necessário.
 
 ---
 
 ### `x-if`
 
-**Exemplo:** `<template x-if="true"><div>Some Element</div></template>`
+**Exemplo:** `<template x-if="true"><div>Algum elemento</div></template>`
 
-**Estrutura:** `<template x-if="[expression]"><div>Some Element</div></template>`
+**Estrutura:** `<template x-if="[expressão]"><div>Algum elemento</div></template>`
 
-For cases where `x-show` isn't sufficient (`x-show` sets an element to `display: none` if it's false), `x-if` can be used to actually remove an element completely from the DOM.
+Nos casos em que `x-show` não é suficiente (`x-show` define um elemento para `display: none` se for falso),`x-if` pode ser usado para remover um elemento completamente do DOM.
 
-It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work its magic.
+É importante que o `x-if` seja usado em uma tag `<template> </template>` porque o Alpine não usa um DOM virtual. Essa implementação permite que a Alpine permaneça robusta e use o DOM real para fazer sua mágia.
 
-> Note: `x-if` must have a single element root inside the `<template></template>` tag.
+> Nota: `x-if` deve ter uma raiz de elemento único dentro da tag` <template> </template> `.
 
 ---
 
@@ -493,7 +492,7 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 
 O `x-for` está disponível para casos em que desejem criar novos nós DOM para cada item em uma matriz. Isso deve parecer semelhante ao `v-for` no Vue, com uma exceção da necessidade de existir em uma tag`template`, e não em um elemento DOM comum.
 
-Se desejam aceder ao índice atual da iteração, use a seguinte sintaxe:
+Caso desejem aceder ao índice atual da iteração, usem a seguinte sintaxe:
 
 ```html
 <template x-for="(item, index) in items" :key="index">
@@ -506,7 +505,7 @@ Se desejam aceder ao índice atual da iteração, use a seguinte sintaxe:
 
 #### Encadeamento de `x-for`s
 
-Podemos ter encadeamento de ciclos `x-for`, mas DEVEM envolver cada ciclo em um elemento. Por exemplo:
+Podemos ter encadeamento de ciclos `x-for`, mas DEVEMOS envolver cada ciclo em um elemento. Por exemplo:
 
 ```html
 <template x-for="item in items">
@@ -555,7 +554,7 @@ Podemos ter encadeamento de ciclos `x-for`, mas DEVEM envolver cada ciclo em um 
 
 > O exemplo acima usa classes de [Tailwind CSS](https://tailwindcss.com)
 
-O Alpine oferece 6 diretivas de transição diferentes para aplicar classes a vários estágios da transição de um elemento entre os estados "oculto" e "mostrado". Essas diretivas funcionam tanto com `x-show` E`x-if`.
+Alpine oferece 6 diretivas de transição diferentes para aplicar classes a vários estágios da transição de um elemento entre os estados "oculto" e "mostrado". Essas diretivas funcionam tanto com `x-show` E`x-if`.
 
 Elas se comportam exatamente como as diretivas de transição do VueJs, exceto que têm nomes diferentes e mais sensíveis:
 
@@ -635,7 +634,7 @@ Os atributos `x-cloak` são removidos dos elementos quando o Alpine é inicializ
 
 ```html
 <div x-data>
-    <button @click="$el.innerHTML = 'foo'">Replace me with "foo"</button>
+    <button @click="$el.innerHTML = 'foo'">Substitua-me por "foo"</button>
 </div>
 ```
 
@@ -667,7 +666,7 @@ Os atributos `x-cloak` são removidos dos elementos quando o Alpine é inicializ
 
 > Nota: A propriedade $event está disponível apenas nas expressões DOM.
 
-Se precisarem aceder ao $event dentro de uma função JavaScript, podem passá-lo diretamente:
+Caso precisarem aceder ao $event dentro de uma função JavaScript, podem passá-lo diretamente:
 
 `<button x-on:click="myFunction($event)"></button>`
 
@@ -699,7 +698,7 @@ Observem que, devido a [evento com bolhas](https://en.wikipedia.org/wiki/Event_b
 </div>
 ```
 
-> Isso não vai funcionar porque, quando o `custom-event` for executado, ele será propagado para seu ancestral comum, a `div`.
+> Isso não vai funcionar porque, quando o `custom-event` for executado, ele é propagado para seu ancestral comum, a `div`.
 
 **Expedição para componentes**
 
@@ -732,7 +731,7 @@ Também podemos usar `$dispatch()` para acionar atualizações de dados para lig
 
 > Nota: A propriedade $dispatch está disponível apenas nas expressões DOM.
 
-Se precisarem aceder ao $dispatch dentro de uma função JavaScript, poderão transmiti-la diretamente:
+Caso precisarem aceder ao $dispatch dentro de uma função JavaScript, poderão transmiti-la diretamente:
 
 `<button x-on:click="myFunction($dispatch)"></button>`
 
@@ -775,13 +774,13 @@ Podemos "assistir" uma propriedade de componente com o método mágico `$watch`.
 
 ## Segurança
 
-Se encontrarem uma vulnerabilidade de segurança, envie um email para [calebporzio@gmail.com](mailto:calebporzio@gmail.com)
+Caso encontrarem uma vulnerabilidade de segurança, envie um email para [calebporzio@gmail.com](mailto:calebporzio@gmail.com)
 
 O Alpine conta com uma implementação personalizada usando o objeto `Function` para avaliar suas diretivas. Apesar de ser mais seguro que o `eval()`, o seu uso é proibido em alguns ambientes, como o Google Chrome App, usando a Política de Segurança de Conteúdo restritiva (CSP).
 
-Se usam o Alpine em um site que lida com dados confidenciais e exige [CSP](https://csp.withgoogle.com/docs/strict-csp.html), precisam incluir `unsafe-eval` na sua política. Uma política robusta configurada corretamente ajudará a proteger seus utilizadores ao usar dados pessoais ou financeiros.
+Caso usem o Alpine em uma página web que lida com dados confidenciais e exige [CSP](https://csp.withgoogle.com/docs/strict-csp.html), precisam incluir `unsafe-eval` na sua política. Uma política robusta configurada corretamente ajudará a proteger seus utilizadores ao usar dados pessoais ou financeiros.
 
-Como uma política se aplica a todos os scripts da sua página, é importante que outras bibliotecas externas incluídas no site estejam cuidadosamente revisadas para garantir que sejam confiáveis e não apresentem nenhuma vulnerabilidade de Cross Site Scripting usando a função `eval()` ou manipular o DOM para injetar código malicioso na sua página.
+Como uma política se aplica a todos os scripts da sua página, é importante que outras bibliotecas externas incluídas na página web estejam cuidadosamente revisadas para garantir que sejam confiáveis e não apresentem nenhuma vulnerabilidade de Cross Site Scripting usando a função `eval()` ou manipular o DOM para injetar código malicioso na sua página.
 
 ## Licença
 

@@ -539,4 +539,23 @@ test('.camel modifier correctly binds event listener', async () => {
     });
 })
 
+test('.camel modifier correctly binds event listener with namespace', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }" x-on:ns:event-name.camel.window="foo = 'bob'">
+            <button x-on:click="$dispatch('ns:eventName')"></button>
+            <p x-text="foo"></p>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('p').innerText).toEqual('bar')
+
+    document.querySelector('button').click();
+
+    await wait(() => {
+        expect(document.querySelector('p').innerText).toEqual('bob');
+    });
+})
+
 

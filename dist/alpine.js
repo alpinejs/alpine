@@ -81,7 +81,7 @@
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase();
   }
   function camelCase(subject) {
-    return subject.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (match, char) => char.toUpperCase());
+    return subject.toLowerCase().replace(/-(\w)/g, (match, char) => char.toUpperCase());
   }
   function walk(el, callback) {
     if (callback(el) === false) return;

@@ -17,7 +17,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 | Language | Link for documentation |
 | --- | --- |
 | Japanese | [**日本語ドキュメント**](./README.ja.md) | 
-| Chinese | [**繁體中文使用文件**](./README_zh-TW.md) | 
+| Chinese | [**繁體中文使用文件**](./README.zh-TW.md) | 
 | Russian | [**Документация на русском**](./README.ru.md) | 
 | Portuguese | [**Documentação em Português**](./README.pt.md) | 
 

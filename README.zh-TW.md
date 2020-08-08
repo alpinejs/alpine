@@ -4,76 +4,77 @@
 ![npm version](https://img.shields.io/npm/v/alpinejs)
 [![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg?sanitize=true)](https://alpinejs.codewithhugo.com/chat/)
 
-Alpine.js 提供了像是 Vue 或 React 這樣的大型框架的回應式或宣告式的特性，但使用成本卻低得多。
+Alpine.js 提供了 Vue 與 React 等大框架的互動式與宣告式的功能，而不需花費太多成本。
 
-你依然可以保留你的 DOM ，並且在你認為合適的時候添加行為。
+有了 Alpine.js 就可以繼續使用 DOM，並在有需要的時候通過 Alpine.js 增加功能。
 
-你可以把 Alpine.js 想像成 JavaScript 的 [Tailwind](https://tailwindcss.com/) 。
+可以想像成是 JavaScript 版的 [Tailwind](https://tailwindcss.com/)。
 
-> 備註：這個工具的語法幾乎借鑑了 [Vue](https://vuejs.org/) （以及一些 [Angular](https://angularjs.org/) 的延伸）。我永遠感謝他們為 Web 帶來的大禮。
+> 備註：Alpine.js 的格式幾乎都是從 [Vue](https://vuejs.org/) 參考而來 (以及擴充了 [Angular](https://angularjs.org/))。本人在此由衷感謝這些套件為 Web 環境帶來的貢獻。
 
-## 部屬
+## 安裝  
 
-**使用 CDN 來源：** 在你的 `<head>` 標籤的末端添加以下腳本。
+**使用 CDN:** 將下列腳本新增至 `<head>` 末端。
 ```html
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 ```
 
-僅僅如此，它會自動初始化。
+就這樣。Alpine.js 會自行初始化。
 
-如果是正式環境，建議在連結中加入一個特定的版本號碼，避免新版本的升級題你的程式帶來執行上的意外的錯誤。
-舉個例子，你想固定在 `2.3.5` 這個版本：
+在正式環境中，建議在連結中固定特定版本，以避免新版本使功能無法使用。
+如，要使用 `2.3.5` 版則可以這樣寫：
 ```html
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
 ```
 
-**使用 NPM 來源：** 使用 NPM 程式包安裝
+**使用 NPM:** 從 NPM 安裝套件。
 ```js
 npm i alpinejs
 ```
 
-在你的腳本中引入它。
+在腳本中引入。
 ```js
 import 'alpinejs'
 ```
 
-**對於 IE11 的支援** 請使用以下腳本替代。
+**若要支援 IE11** 請改用下列腳本。
 ```html
 <script type="module" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
 <script nomodule src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>
 ```
 
-上述的寫法是 [module/nomodule 模式](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) ，它會讓現代化網頁瀏覽器自動載入它所需的程式包。而 IE11 版本的程式包將會在 IE11 上或者是其他的傳統網頁瀏覽器上被自動載入。
+上述寫法使用了 [module/nomodule 模式 (英文)](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) ，這樣寫可以讓現代瀏覽器自動載入模組套件組合，而 IE11 以及其他舊瀏覽器中則會自動載入 IE11 模組套件。
 
-## 使用
+## 開始使用
 
-*下拉式選單／互動式視窗*
+**下拉選單 Dropdown、強制回應視窗 Modal**
 ```html
 <div x-data="{ open: false }">
-    <button @click="open = true">Open Dropdown</button>
+    <button @click="open = true">展開下拉選單</button>
 
     <ul
         x-show="open"
         @click.away="open = false"
     >
-        Dropdown Body
+        下拉選單內容
     </ul>
 </div>
 ```
 
-*頁籤*
+**索引標籤 Tab**
 ```html
 <div x-data="{ tab: 'foo' }">
     <button :class="{ 'active': tab === 'foo' }" @click="tab = 'foo'">Foo</button>
     <button :class="{ 'active': tab === 'bar' }" @click="tab = 'bar'">Bar</button>
 
-    <div x-show="tab === 'foo'">Tab Foo</div>
-    <div x-show="tab === 'bar'">Tab Bar</div>
+    <div x-show="tab === 'foo'">索引標籤 Foo</div>
+    <div x-show="tab === 'bar'">索引標籤 Bar</div>
 </div>
 ```
 
-你甚至可以用它來達成一些並不顯而易見事情：
-*在懸停時預取下拉式選單的 HTML 內容*
+也可以用在更多地方：
+
+**遊標停留時預先截取下拉選單的 HTML**
 ```html
 <div x-data="{ open: false }">
     <button
@@ -83,63 +84,65 @@ import 'alpinejs'
                 .then(html => { $refs.dropdown.innerHTML = html })
         "
         @click="open = true"
-    >Show Dropdown</button>
+    >顯示下拉選單</button>
 
     <div x-ref="dropdown" x-show="open" @click.away="open = false">
-        Loading Spinner...
+        載入中進度環...
     </div>
 </div>
 ```
 
-## 教學
+## 學習
 
-共有 13 個指令可供你使用：
+總共有 14 種可用的指示詞 (Directive)：
 
-| 指令 | 功能描述 |
+| 指示詞 | 說明 |
 | --- | --- |
-| [`x-data`](#x-data) | 宣告一個新的組件範圍。 |
-| [`x-init`](#x-init) | 當一個組件被初始化時，運作一個運算式。 |
-| [`x-show`](#x-show) | 根據運算式的不同（true 或 false）在元素上切換 `display: none;` 。 |
-| [`x-bind`](#x-bind) | 將屬性的數值設定為 JS 運算式的結果。 |
-| [`x-on`](#x-on) | 替元素附加一個事件監聽器，在觸發時執行 JS 運算式。 |
-| [`x-model`](#x-model) | 替元素附加「雙向資料繫結」，使輸入元素與組件資料保持同步。 |
-| [`x-text`](#x-text) | 它的工作原理類似於 `x-bind` ，但會更新元素的 `innerText` 。 |
-| [`x-html`](#x-html) | 它的工作原理類似於 `x-bind` ，但會更新元素的 `innerHTML` 。 |
-| [`x-ref`](#x-ref) | 便利地從組件中取得原始的 DOM 元素。 |
-| [`x-if`](#x-if) | 從 DOM 中完全刪除一個元素，需要在 `<template>` 標籤上使用。 |
-| [`x-for`](#x-for) | 替陣列中的每個項次創建新的 DOM 節點，需要在 `<template>` 標籤中使用。|
-| [`x-transition`](#x-transition) | 將類別應用於元素過渡的各個階段的指令。 |
-| [`x-cloak`](#x-cloak) | 這個屬性在 Alpine 初始化時將被移除，用於隱藏預初始化的 DOM 。 |
+| [`x-data`](#x-data) | 宣告新元件定義範圍。 |
+| [`x-init`](#x-init) | 模組初始化後執行運算式。 |
+| [`x-show`](#x-show) | 依據運算式 (true 或 false) 新增或移除元素的 `display: none;`。 |
+| [`x-bind`](#x-bind) | 將屬性的值設為 JS 運算式的執行結果。 |
+| [`x-on`](#x-on) | 將事件監聽器附加至元素上。當事件發出後執行 JS 運算式。 |
+| [`x-model`](#x-model) | 為元素新增「雙向資料繫結」。保持輸入元素與元件資料間的同步。 |
+| [`x-text`](#x-text) | 與 `x-bind` 的運作方式類似，但更新的是元素的 `innerText`。 |
+| [`x-html`](#x-html) | 與 `x-bind` 的運作方式類似，但更新的是元素的 `innerHTML`。 |
+| [`x-ref`](#x-ref) |從元素中取得原始 DOM 元素的簡便方法。 |
+| [`x-if`](#x-if) | 從 DOM 中完全移除元素。必須在 `<template>` 標籤上使用。 |
+| [`x-for`](#x-for) | 為陣列中的每個項目建立新 DOM 節點。必須在 `<template>` 標籤上使用。 |
+| [`x-transition`](#x-transition) | 用於在轉場的各個階段為元素設定 Class 的指示詞 |
+| [`x-spread`](#x-spread) | 為了更佳的可複用性，可將包含 Alpine 指示詞的物件繫結至元素上 |
+| [`x-cloak`](#x-cloak) | 該屬性會在 Alpine 初始化後移除。適合用來隱藏還未初始化的 DOM。 |
 
-以及 6 種魔術屬性：
+以及 6 個魔法屬性：
 
-| 魔術屬性 | 功能描述 |
+| 魔法屬性 | 說明 |
 | --- | --- |
-| [`$el`](#el) | 檢索根組件的 DOM 節點。 |
-| [`$refs`](#refs) | 檢索組件內被標有 `x-ref` 的 DOM 元素。 |
-| [`$event`](#event) | 檢索事件監聽器中的原生瀏覽器「Event」物件。 |
-| [`$dispatch`](#dispatch) | 創建一個 `CustomEvent` 並在內部使用 `.dispatchEvent()` 進行調度。 |
-| [`$nextTick`](#nexttick) | 在 Alpine 進行回應式 DOM 更新後執行給定的運算式。 |
-| [`$watch`](#watch) | 當你「監聽」的組件屬性被改變時，會啟動一個你所提供的回呼。 |
+| [`$el`](#el) |  截取根元素的 DOM 節點。 |
+| [`$refs`](#refs) | 截取元素中以 `x-ref` 標記的 DOM 元素。 |
+| [`$event`](#event) | 在事件監聽器中截取瀏覽器的原生「Event」物件。  |
+| [`$dispatch`](#dispatch) | 建立 `CustomEvent` 並在內部以其 `.dispatchEvent()` 發送該 `CustomEvent`。 |
+| [`$nextTick`](#nexttick) | 在 Alpine 處理好 DOM 更新 **之後** 執行給定的運算式。 |
+| [`$watch`](#watch) | 當正在「監聽 - watch」的屬性發生改動後，觸發給定的回呼函式。 |
 
-## 贊助者
+
+## 贊助
 
 <img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">
 
-**想要讓你的 LOGO 置於這裡嗎？ [在 Twitter 上傳送私人訊息](https://twitter.com/calebporzio)**
+**想在這裡顯示你的 Logo 嗎？ [在 Twitter 上傳送 DM](https://twitter.com/calebporzio)**
 
-## VIP 貢獻者
+## VIP 參與者
 
 <table>
   <tr>
-    <td align="center"><a href="http://calebporzio.com"><img src="https://avatars2.githubusercontent.com/u/3670578?v=4" width="100px;" alt="Caleb Porzio"/><br /><sub><b>Caleb Porzio</b></sub></a><br /><sub>(Creator)</sub></td>
+    <td align="center"><a href="http://calebporzio.com"><img src="https://avatars2.githubusercontent.com/u/3670578?v=4" width="100px;" alt="Caleb Porzio"/><br /><sub><b>Caleb Porzio</b></sub></a><br /><sub>(作者)</sub></td>
     <td align="center"><a href="https://github.com/HugoDF"><img src="https://avatars2.githubusercontent.com/u/6459679?v=4" width="100px;" alt="Hugo"/><br /><sub><b>Hugo</b></sub></a></td>
     <td align="center"><a href="https://github.com/ryangjchandler"><img src="https://avatars2.githubusercontent.com/u/41837763?v=4" width="100px;" alt="Ryan Chandler"/><br /><sub><b>Ryan Chandler</b></sub></a></td>
     <td align="center"><a href="https://github.com/SimoTod"><img src="https://avatars2.githubusercontent.com/u/8427737?v=4" width="100px;" alt="Simone Todaro"/><br /><sub><b>Simone Todaro</b></sub></a></td>
   </tr>
 </table>
 
-### 指令
+### 指示詞
 
 ---
 
@@ -147,22 +150,22 @@ import 'alpinejs'
 
 **範例:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**結構:** `<div x-data="[JSON data object]">...</div>`
+**結構:** `<div x-data="[JSON 資料物件]">...</div>`
 
-`x-data` 宣告了一個新的組件作用域，它告訴框架得使用其作用域下的資料物件初始化一個新的組件。
+`x-data` 宣告新的元件定義範圍。使用 x-data 會告知 Alpine 以給定的資料物件來初始化新的元件。
 
-想想看，是不是就和 Vue 組件的 `data` 屬性一樣。
+可想像成 Vue 元件中的 `data` 屬性。
 
-**擷取組件邏輯**
+**抽出元素邏輯**
 
-你可以將資料（與行為）擷取到可重用的函數中：
+可以將資料 (與行為) 抽出成可重複使用的函式：
 
 ```html
 <div x-data="dropdown()">
-    <button x-on:click="open">Open</button>
+    <button x-on:click="open">開啟</button>
 
     <div x-show="isOpen()" x-on:click.away="close">
-        // Dropdown
+        // 下拉選單
     </div>
 </div>
 
@@ -178,9 +181,9 @@ import 'alpinejs'
 </script>
 ```
 
-> **對於 bundler 使用者來說**，得注意 Alpine.js 存取的函數是在全域範圍內的（`window`），你需要明確地將你的函數分配給　`window`，以便透過 `x-data` 來使用它們。例如：`window.dropdown = function () {}`（這是因為在 Webpack 、Rollup 與 Parcel 這些 module 中，你所定義的函數將是預設的 module 範圍，而不是 `window` ）。
+> **各位 Bundler 使用者**，請注意，Alpine.js 存取的函式都在全域範圍 (`window`)，要在 `x-data` 中使用函式時必須要顯式將函式指派至 `window` 上。如 `window.dropdown = function () {}` (因為 Webpack, Rollup, Parcel …等中，定義的 `function` 預設都在模組範圍內而不是 `window`)。
 
-你也可以使用物件解構來混合多個資料物件：
+也可以使用物件解構來將多個資料物件混合在一起：
 
 ```html
 <div x-data="{...dropdown(), ...tabs()}">
@@ -191,49 +194,48 @@ import 'alpinejs'
 ### `x-init`
 **範例:** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
 
-**結構:** `<div x-data="..." x-init="[expression]"></div>`
+**結構:** `<div x-data="..." x-init="[運算式]"></div>`
 
-`x-init` 會在組件初始化時運作一個運算式。
+`x-init` 會在元素初始化後執行運算式。
 
-如果你希望在 Alpine 對 DOM 進行初始化更新之後，再運作程式碼（類似於 VueJS 中的 `mounted()` 鉤子），你可以從 `x-init` 中回傳一個回呼，然後再運作：
+若想在 Alpine 將更新套用至 DOM **之後** 才執行程式碼的話 (類似 VueJS 中的 `mounted()` Hook)，可以從 `x-init` 中回傳一個回呼函式，該函式會在出套用至 DOM 後才執行：
 
-`x-init="() => { // 我們可以在這裡存取到 post-dom-initialization 後的狀態 // }"`
+`x-init="() => { // 此處可存取 DOM 初始化完畢後的狀態 // }"`
 
 ---
 
 ### `x-show`
 **範例:** `<div x-show="open"></div>`
 
-**結構:** `<div x-show="[expression]"></div>`
+**結構:** `<div x-show="[運算式]"></div>`
 
-`x-show` 會在元素上切換顯示 `display: none;` 樣式，這取決於運算式為 `true` 或 `false` 。
+`x-show` 會依據運算式為 `true` 或 `false` 來在元素上會新增或移除 `display: none;` 樣式。
 
 **x-show.transition**
 
-`x-show.transition` 是一個便利的 API ，在 CSS 轉場上你能愉快地使用`x-show` 。
+`x-show.transition` 是一個很方便的 API，可使 `x-show` 更與 CSS Transition 配合地更佳完美。
 
 ```html
 <div x-show.transition="open">
-	這些內容的出現與消失都將經過轉場。
+    這裡的內容會轉換入、轉換出。
 </div>
 ```
 
-| 指令 | 功能描述 |
+| 指示詞 | 說明 |
 | --- | --- |
-| `x-show.transition` | 同步淡出與縮放 (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
-| `x-show.transition.in` | 只有「in」轉場。 |
-| `x-show.transition.out` | 只有「out」轉場。 |
-| `x-show.transition.opacity` | 只使用淡出。 |
-| `x-show.transition.scale` | 只使用縮放。 |
-| `x-show.transition.scale.75` | 自定 CSS 縮放`transform: scale(.75)` 。 |
-| `x-show.transition.duration.200ms` | 將「in」轉場設定為 200毫秒。「out」將設定為 in 的一半（100 毫秒）。 |
-| `x-show.transition.origin.top.right` |自訂 CSS 轉場起始點`transform-origin: top right`. |
-| `x-show.transition.in.duration.200ms.out.duration.50ms` | 替「in」與「out」設定不同的持續時間。 |
+| `x-show.transition` | 同時淡入淡出並縮放。 (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
+| `x-show.transition.in` | 僅轉換入。 |
+| `x-show.transition.out` | 僅轉換出。 |
+| `x-show.transition.opacity` | 僅使用淡入淡出。 |
+| `x-show.transition.scale` | 僅使用縮放。 |
+| `x-show.transition.scale.75` | 自定 CSS 縮放變換 `transform: scale(.75)`. |
+| `x-show.transition.duration.200ms` | 設定「轉換入」的變換為 200ms。轉換出將設定為該值的一半 (100ms). |
+| `x-show.transition.origin.top.right` | 自定 CSS 變換的起始 `transform-origin: top right`. |
+| `x-show.transition.in.duration.200ms.out.duration.50ms` | 為「轉換入」與「轉換出」設定不同的持續時間。 |
 
-> 備註：這些轉場的修飾器都是可以相互配合使用，這個範例是可行的（雖然很荒謬，呵呵）：`x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+> 備註：所有的轉換修飾詞都可以互相組合使用。可以這樣用 (雖然很故意XD)： `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
 
-> 備註：`x-show` 將等待任何子轉場完成，如果你想繞過這個行為，請添加 `.immediate` 修飾器：
- 
+> 備註：`x-show` 會等待所有子節點都完成轉換後。若想跳過這個行為，請加上 `.immediate` 修飾詞：
 ```html
 <div x-show.immediate="open">
     <div x-show.transition="open">
@@ -243,138 +245,170 @@ import 'alpinejs'
 
 ### `x-bind`
 
-> 備註：你可以自由使用較短的「:」 語法：`:type="..."`
+> 備註：也可以使用較短的「:」語法： `:type="..."`
 
 **範例:** `<input x-bind:type="inputType">`
 
-**結構:** `<input x-bind:[attribute]="[expression]">`
+**結構:** `<input x-bind:[屬性]="[運算式]">`
 
-`x-bind` 將一個屬性的數值設定為 JavaScript 運算式的結果。這個運算式可以存取組件的資料物件的所有鍵，並且每次更新資料時都會同步更新。
+`x-bind` 將屬性值設為 JavaScript 運算式的結果。運算式中可以存取元件資料物件中的所有索引鍵，且每次資料有更新時都更新。
 
-> 備註：屬性繫結只有在其依賴的關係被更新時才會更新，這個框架能從明地觀察到資料的變化，並檢測那些繫結能夠關係到它們。
+> 備註：屬性繫結 **僅會** 在其相依的值更新時才更新。Alpine 框架會觀察資料的更改，並偵測哪個繫結與該資料有關。
 
-**用於類別屬性的`x-bind`**
+**將 `x-bind` 用在 Class 屬性**
 
-`x-bind` 與 `class` 屬性在繫結時的行為會有點不同。
+當繫結在 `class` 屬性時，`x-bind` 的運作模式會有點不同。
 
-對於類別而言，當你傳遞一個物件，這個物件的其鍵為類別名稱，值則是布林運算式來決定是否應該要應用這些類別名稱。
+對於 Class，需要傳入一個物件，其中物件的索引鍵為 Class 的名稱，而值則為布林運算式，用來判斷是否要套用該 Class 名稱。
 
-舉例來說：
+如：
 `<div x-bind:class="{ 'hidden': foo }"></div>`
 
-在這個範例中，只有當 `foo` 資料屬性的值為 `true` 時，hidden 類別才會被應用。
+在該例中，「hidden」class 只會在 `foo` 資料屬性的值為 `true` 時套用。
 
-**用於布林屬性的 `x-bind`**
+**將 `x-bind` 用在布林屬性**
 
-`x-bind` 支援與數值屬性相同的布林屬性，使用變數作為條件或任何可以解析為 `true` 或 `false` 的 JavaScript 運算式。
+`x-bind` 支援以與數值屬性相同的方式來繫結布林屬性，只需使用作為判斷條件的變數或是任意可以解為 `true` 或 `false` 的 JavaScript 運算式即可。
 
-舉例來說:
+如：
 ```html
-<!-- Given: -->
-<button x-bind:disabled="myVar">Click me</button>
+<!-- 如下程式: -->
+<button x-bind:disabled="myVar">點擊此處</button>
 
-<!-- When myVar == true: -->
-<button disabled="disabled">Click me</button>
+<!-- 當 myVar == true: -->
+<button disabled="disabled">點擊此處</button>
 
-<!-- When myVar == false: -->
-<button>Click me</button>
+<!-- 當 myVar == false: -->
+<button>點擊此處</button>
 ```
 
-這將在 `myVar` 為 true 或 false 時分別添加或刪除 `disabled` 屬性。
+該範例中的程式會依據 `myVar` 為 true 或 false 來新增或移除 disabled 屬性。
 
-布林屬性將支援符合 [HTML 規範](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute) 的屬性，例如：`disabled`、 `readonly`、 `required`、 `checked`、 `hidden`、 `selected` 與 `open` 等。
+布林屬性的支援係依據 [HTML 規格 (英文)](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute)，如 `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open` …等。
+
+**`.camel` 修飾詞**
+
+**範例:** `<svg x-bind:view-box.camel="viewBox">`
+
+使用 `camel` 修飾詞會繫結到對應駝峰命名法的屬性上。在上述例子中， `viewBox` 的值會被繫結到 `view-box` 所對應的 `viewBox` 屬性上。
 
 ---
 
 ### `x-on`
 
-> 備註：你可以自由使用較短的「@」 語法：`@click="..."`
+> 備註：也可以使用較短的「@」語法：`@click="..."`
 
 **範例:** `<button x-on:click="foo = 'bar'"></button>`
 
-**結構:** `<button x-on:[event]="[expression]"></button>`
+**結構:** `<button x-on:[事件]="[運算式]"></button>`
 
-`x-on` 會將一個事件監聽器附加在它所宣告的元素上頭，當這個事件被觸發時，在其值所設定的 JavaScript 運算式將會被執行。
+`x-on` 將事件監聽器附加至宣告 `x-on` 的元素上。當發出該事件後，執行設定為該事件值的對應 JavaScript 運算式。
 
-如果任何資料因為這個運算式而被修改，那麼與這個被修改的資料所「繫結」的元素屬性也會跟著更新。
+若在該運算式中有修改任何資料，則其他「繫結 Bind」該資料元素屬性也會一併更新。
 
-**`keydown` 修飾器**
+> 備註：也可以指定一個 JavaScript 函式名稱
+
+**範例:** `<button x-on:click="myFunction"></button>`
+
+與該程式碼相同: `<button x-on:click="myFunction($event)"></button>`
+
+**`keydown` 修飾詞**
+
 **範例:** `<input type="text" x-on:keydown.escape="open = false">`
 
-你可以使用附加到 `x-on:keydown` 指令中的 keydown 修飾器，來指定要監聽的特定鍵值。請注意，這些修飾器的 `Event.key` 數值的命名方式是短橫線連接式。
+可以將按鍵附加到 `x-on:keydown` 指示詞後面來指定要監聽的按鍵。請注意，該修飾詞使用的是 `-` 號分隔命名 (kebab-cased) 版本的 `Event.key` 值。
 
-例如: `enter`, `escape`, `arrow-up`, `arrow-down`
+如： `enter`, `escape`, `arrow-up`, `arrow-down`
 
-> 備註：你也可已經聽系統修飾器的鍵值組合，像是：`x-on:keydown.cmd.enter="foo"`
+> 備註：也可以監聽使用系統修飾詞的按鍵組合，如： `x-on:keydown.cmd.enter="foo"`
 
-**`.away` 修飾器**
+**`.away` 修飾詞**
+
 **範例:** `<div x-on:click.away="showModal = false"></div>`
 
-當 `.away` 修飾器存在時，事件處理程序只有在事件的起源為非其自身或其子項時才會被執行。
+當有 `.away` 修飾詞時，將只會在由非該元素或該元素子節點的其他元素發出事件時執行事件處理常式。
 
-當使用者點擊下拉式選單與互動式視窗時，這對於隱藏它們是非常有用的。
+適合用在讓使用者點擊元件外面來關閉下拉選單與強制回應視窗時隱藏這些元件等情況。
 
-**`.prevent` 修飾器**
+**`.prevent` 修飾詞**
+
 **範例:** `<input type="checkbox" x-on:click.prevent>`
 
-在事件監聽器中加入 `.prevent` 後，將在觸發事件時呼叫 `preventDefault` 。上述的範例意味著，當使用者點擊核取方塊時，這個核取方塊並不會被選中。
+在事件監聽器加上 `.prevent` 會在觸發的事件上呼叫 `preventDefault`。在上述範例中，使用 `.prevent` 則代表該多選框在使用者點擊後不會被實際選中。
 
-**`.stop` 修飾器**
+**`.stop` 修飾詞**
+
 **範例:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
 
-在事件監聽器中加入 `.stop` 後，將在觸發事件時呼叫 `stopPropagation` 。上述的範例意味著，「點擊」事件不會從按鈕上升到外部的 `<div>` 。換句話說，當使用者點擊按鈕時，`foo` 並不會被設定為 `'bar'` 。
+在事件監聽器加上 `.stop` 會在觸發的事件上呼叫 `stopPropagation`。在上述範例中，使用 `.stop` 則代表「click」事件觸發之後不會從底部 Bubble 到外層的 `<div>` 。換句話來說，使用者點擊按鈕 (Button) 後， `foo` 的值不會被設為 `'bar'`。
 
-**`.self` 修飾器**
+**`.self` 修飾詞**
+
 **範例:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
 
-只有當 `$event.target` 是元素本身時，在事件監聽器中加入 `.self` 才會觸發處理程序。上述的範例意味著，按鈕的點擊事件將 **不會** 運作到外部 `<div>` 的處理程序。 
+在事件監聽器加上 `.self` 則只會在 `$event.target` 是該元素的時候才觸發監聽器。在上述範例中，則表示從按鈕 Bubble 到外層 `<div>` 上來的「click」事件 **不會** 執行監聽器。
 
-**`.window` 修飾器**
+**`.window` 修飾詞**
+
 **範例:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
-在事件監聽器中加入 `.window` 後，將會把監聽器加入到全域的 window 物件上，而不是被它所宣告的 DOM 節點上頭。這對於你想在視窗發生變化時修改組件狀態時會非常好用，比如：調整大小的事件。在這個範例中，當視窗寬度大於 768px 時，我們將關閉互動式窗／下拉式選單，否則保持相同的狀態。
+在事件監聽器加上 `.window` 會將監聽器安裝到全域的 window 物件中，而不是宣告該監聽器的 DOM 物件上。適合用在當有其他東西修改了 window 而需要修改元件狀態的時候，如縮放事件。在本例中，當視窗調整為大於 768 像素寬時，程式會關閉強制回應視窗或下拉選單，否則會繼續維持原本的狀態。
 
->備註：你也可以使用 `.document` 修飾器，將監聽器加入到 `document` 中，而不是加入到 `window` 中。
+>備註：也可以使用 `.document` 修飾詞來將監聽器附加到 `document` 而不是 `window` 上
 
-**`.once` 修飾器**
+**`.once` 修飾詞**
+
 **範例:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
 
-在事件監聽器中加入 `.once` 修飾器後，將可以保證監聽器只被處理一次。這對於某些你只想執行一次的事件會非常有用處，比如獲取 HTML partials 之類的。
+在事件監聽器加上 `.onece` 則可以確保只會呼叫一次事件監聽器。適合用來做一些只需要做一次就好的事，如取得 HTML 部分等。
 
-**`.debounce` 修飾器**
+**`.passive` 修飾詞**
+
+**範例:** `<button x-on:mousedown.passive="interactive = true"></button>`
+
+在事件監聽器加上 `.passive` 修飾詞則可讓監聽器成為被動，也就表示在所有處理的事件上 `preventDefault()` 都將不會有任何作用。可以用在如提升觸控裝置上的滾動效能等目的。 
+
+**`.debounce` 修飾詞**
+
 **範例:** `<input x-on:input.debounce="fetchSomething()">`
 
-`debounce` 修飾器允許你替事件處理程序加上「防彈跳」機制，換而言之，事件處理程序將不會立即被運作，它會自事件觸發後等待一段時間才會開始運作。當處理程序準備好被呼叫時，最後一個處理程序的呼叫將被執行。
+`.debounce` 修飾詞可以試事件監聽器「消除彈跳 (Debouce)」。也就是說，該處理常式會等到上一個事件觸發後的一段時間後才執行。當處理常式準備好可執行後，則會執行上一個處理常式呼叫。
 
-預設的 debounce 等待時間是 250 毫秒。
+預設的消除彈跳「等待」時間為 250 毫秒。
 
-如果你想自訂這個時間，可以接著指定一個你所想要的時間，比如這樣：
+若要自定等待事件，則可使用如下方法指定：
 
 ```
 <input x-on:input.debounce.750="fetchSomething()">
 <input x-on:input.debounce.750ms="fetchSomething()">
 ```
 
+**`.camel` 修飾詞**
+
+**範例:** `<input x-on:event-name.camel="doSomething()">`
+
+使用 `.camel` 修飾詞來監聽以駝峰命名法命名的事件。在上述例子中，元素觸發 `eventName` 事件後會執行該運算式。
+
 ---
 
 ### `x-model`
 **範例:** `<input type="text" x-model="foo">`
 
-**結構:** `<input type="text" x-model="[data item]">`
+**結構:** `<input type="text" x-model="[資料項目]">`
 
-`x-model` 可以替元素增加「雙向資料繫結」。換而言之，輸入元素的數值將會與組件的資料項目的數值保持同步。
+`x-model` 可用來在元素加上「雙向資料繫結 (Two-way Data Binding)」。也就是說，輸入元素的值會保持與元件資料項目的值同步。
 
-> 備註：`x-model` 將會聰明地察覺到 inputs 、 checkboxes 、 radio buttons 、 textareas 、 selects 以及 multiple selects 的變化。在這些情形下，`x-model` 的行為將會跟
- [Vue](https://cn.vuejs.org/v2/guide/forms.html) 有著一樣的表現。
- 
-**`.debounce` 修飾器**
+> 備註：`x-model` 很聰明，會偵測文字輸入框、多選框、單選框、Textarea、下拉選單與多重選取區域等。`x-model` 的運作方式在各個情況下應該都[與 Vue 相同](https://vuejs.org/v2/guide/forms.html)。
+
+**`.debounce` 修飾詞**
+
 **範例:** `<input x-model.debounce="search">`
 
-`debounce` 修飾器允許你替事件處理程序加上「防彈跳」機制，換而言之，事件處理程序將不會立即被運作，它會自事件觸發後等待一段時間才會開始運作。當處理程序準備好被呼叫時，最後一個處理程序的呼叫將被執行。
+`debounce` 修飾詞可以在數值更新上加上「消除彈跳 (Debounce)」。也就是說，從上一次事件觸發之後的一段時間之後才會呼叫事件處理常式。當處理常式可呼叫後，才會執行上一個處理常式呼叫。
 
-預設的 debounce 等待時間是 250 毫秒。
+預設的消除彈跳「等待」時間為 250 毫秒。
 
-如果你想自訂這個時間，可以接著指定一個你所想要的時間，比如這樣：
+若要自定等待時間，則可用下列方式指定：
 
 ```
 <input x-model.debounce.750="search">
@@ -386,48 +420,50 @@ import 'alpinejs'
 ### `x-text`
 **範例:** `<span x-text="foo"></span>`
 
-**結構:** `<span x-text="[expression]"`
+**結構:** `<span x-text="[運算式]"`
 
-`x-text` 的工作原理與 `x-bind` 類似，只是它不會更新元素的值，而是更新元素的 `innerText` 。
+`x-text` 類似 `x-bind` ，但更新的不是元素的屬性，而是 `innerText`。
 
 ---
 
 ### `x-html`
 **範例:** `<span x-html="foo"></span>`
 
-**結構:** `<span x-html="[expression]"`
+**結構:** `<span x-html="[運算式]"`
 
-`x-text` 的工作原理與 `x-bind` 類似，只是它不會更新元素的值，而是更新元素的 `innerHTML` 。
+`x-text` 類似 `x-bind` ，但更新的不是元素的屬性，而是 `innerHTML`。
 
-> :warning: **你只能在可以信賴的來源使用這個特性，絕對不能將使用者輸入的內容用於其中** :warning:
+> :warning: **絕對不要用在使用者輸入的內容，且請只用在可信任的內容上。** :warning:
 >
-> 使用第三方內容動態生成的 HTML 很容易導致 [XSS](https://developer.mozilla.org/zh-TW/docs/Glossary/Cross-site_scripting) 漏洞的發生。
+> 從第三方來源動態呈現 HTML 可能會導致 [XSS (英文)](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) 漏洞。
 
 ---
 
 ### `x-ref`
 **範例:** `<div x-ref="foo"></div><button x-on:click="$refs.foo.innerText = 'bar'"></button>`
 
-**結構:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
+**結構:** `<div x-ref="[參照名稱]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
 
-`x-ref` 提供了一個便利的方法讓你從你的組件中獲取原始的 DOM 元素。透過在一個元素上設定一個 `x-ref` 屬性，你就可以在一個叫做 `$refs` 的物件中呼叫所有的事件處理程序。
+`x-ref` 提供從元件上取得原始 DOM 元素的簡便方法。只要在元素上設定 `x-ref` 屬性，就可以在所有事件處理常式中通過 `$refs` 物件來取得該元素。
 
-這是個很有用的替代方案，可以取代設定 id 以及到處使用 `document.querySelector` 來選取 id 。
+除了設定 ID 並在各個地方使用 `document.querySelector`，使用 `x-ref` 可作為替代方法。
 
-> 備註：如果你需要的話，也可以為 x-ref 綁定動態數值：`<span :x-ref="item.id"></span>` 。
+> 備註：若有需要也可以在 x-ref` 上繫結動態數值：`<span :x-ref="item.id"></span>`。
 
 ---
 
 ### `x-if`
-**範例:** `<template x-if="true"><div>Some Element</div></template>`
+**範例:** `<template x-if="true"><div>一些元素</div></template>`
 
-**結構:** `<template x-if="[expression]"><div>Some Element</div></template>`
+**結構:** `<template x-if="[運算式]"><div>一些元素</div></template>`
 
-對於 `x-show` 還不足夠的情形（如果元素為 false 的話，`x-show` 將元素設定為 `display: none`），`x-if` 可以用來從 DOM 中完全刪除元素。
+但遇到一些 `x-show` 不合用的情況 (`x-show` 會在表達式為 false 時將元素設為 `display: none`)，則可以使用 `x-if` 來將元素完全從 DOM 中移除。
 
-重要的是，`x-if` 必須使用在 `<template></template>` 標籤上，因為 Alpine 不使用虛擬 DOM 。因為這種實作方式可以使 Alpine 保持穩定，並使用真正的 DOM 來發揮 Alpine 的奇效。
+但要注意，`x-if` 必須要用在 `<template></template>` 標籤上，因為 Alpine 不使用虛擬 DOM。這種實作方式可保持 Alpine 簡陋，並使用真的 DOM 來處理動態 (Magic) 的部分。
 
-> 備註：`x-if` 必須使用在 `<template></template>` 標籤內擁有根元素的情形下。
+> 備註：使用 `x-if` 時 `<template></template>` 標籤中必須只能有單一根元素。
+
+> 備註：如果要在 `svg` 標籤中使用 `template`，則需要在 Alpine.js 初始化前執行一段 [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538)。
 
 ---
 
@@ -439,27 +475,25 @@ import 'alpinejs'
 </template>
 ```
 
-> 備註：`:key` 的繫結是可選的，但強烈建議你使用。
+> 備註：`:key` 繫結為非必填。但「強烈」建議要加上。
 
-`x-for` 適用於你想為陣列中每一個成員創建新的 DOM 節點的情形。這應該與 Vue 的 `v-for` 類似，但有一個例外，就是它需要存在於 `template` 標籤上而不是普通的 DOM 元素。
+`x-for` 適用於需要為陣列中每個項目建立新 DOM 節點的情況。用法看起來應該跟 Vue 中的 `v-for` 類似，但唯一不同的地方就是要放在 `template` 標籤上而不是一般的 DOM 元素。
 
-如果你想存取當下的索引，請使用下列語法：
-
+若需要存取目前迭代的索引，則可使用下列語法：
 
 ```html
 <template x-for="(item, index) in items" :key="index">
-    <!-- 如果你需要的話，也可以在疊代的內部使用「index」-->
+    <!-- 若有需要也可以在迭代中參照「index」。 -->
     <div x-text="index"></div>
 </template>
 ```
 
-> 備註：`x-for` 必須使用在 `<template></template>` 標籤內擁有根元素的情形下。
+> 備註：使用 `x-for` 時 `<template></template>` 標籤中必須只能有單一根元素。
 
+> 備註：如果要在 `svg` 標籤中使用 `template`，則需要在 Alpine.js 初始化前執行一段 [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538)。
 
-#### 巢套 `x-for`
-
-你也可以巢狀地使用 `x-for` 迴圈，但你必須將每個迴圈都包裹在同一個元素中，比如說：
-
+#### 巢狀嵌套 `x-for`
+可以嵌套多層 `x-for` 迴圈，但每個迴圈都 **必須** 放在一個元素內，如：
 
 ```html
 <template x-for="item in items">
@@ -500,27 +534,66 @@ import 'alpinejs'
 </template>
 ```
 
-> 上述範例使用了 [Tailwind CSS](https://tailwindcss.com) 中的類別。
+> 上述範例使用了 [Tailwind CSS](https://tailwindcss.com) 的 Class
 
-Alpine 提供了 6 種不同的轉場指令，用於將類別應用到元素在「隱藏」與「顯示」狀態之間的不同階段。這些指令可以與 `x-show` 和 `x-if` 同時使用。
+Alpine 中提供了 6 中不同的變換指示詞，可用於在元素變換的「hidden 隱藏」與「shown 顯示」狀態間的各個階段套用 Class。這些指示詞可用在 `x-show` **與** `x-if` 上。
 
-這些指令的行為與 VueJs 的轉場指令完全相同，只是它們的名字不同，更加地合理：
+這些行為都與 VueJS 的 transition 指示詞很類似，但不同的地方則是使用了不同的名稱：
 
-| 指令 | 功能描述 |
+| 指示詞 | 說明 |
 | --- | --- |
-| `:enter` | 在整個 entering 階段時應用。 |
-| `:enter-start` | 在元素插入前添加，在元素插入後刪除一幀。 |
-| `:enter-end` | 元素在插入後添加一幀（同時刪除 `enter-start` ），在轉場／動畫結束時刪除。|
-| `:leave` | 在整個 leaving 階段時應用。|
-| `:leave-start` | 觸發 leaving 轉場時立即添加，一幀後刪除。 |
-| `:leave-end` | 觸發 leaving 轉場後添加一幀（同時刪除 `leave-start` ），在轉場／動畫結束時刪除。 |
+| `:enter` | 套用於整個 Enter 階段。 |
+| `:enter-start` | 在元素插入前新增，並在元素插入的 1 幀後刪除。 |
+| `:enter-end` | 在元素插入後 (與 `enter-start` 刪除同時) 1 幀時新增，變換或動畫結束時刪除。 |
+| `:leave` | 套用於整個 Leave 階段。 |
+| `:leave-start` | 在 Leave 變換觸發後立刻新增、並在 1 幀後刪除。 |
+| `:leave-end` | 在 Leave 變換觸發後 (與 `leave-start` 刪除同時) 1 幀新增，並在變換或動畫結束時刪除。 |
+
+---
+
+### `x-spread`
+**範例:**
+```html
+<div x-data="dropdown()">
+    <button x-spread="trigger">開啟下拉選單</button>
+
+    <span x-spread="dialogue">下拉選單內容</span>
+</div>
+
+<script>
+    function dropdown() {
+        return {
+            open: false,
+            trigger: {
+                ['@click']() {
+                    this.open = true
+                },
+            },
+            dialogue: {
+                ['x-show']() {
+                    return this.open
+                },
+                ['@click.away']() {
+                    this.open = false
+                },
+            }
+        }
+    }
+</script>
+```
+
+`x-spread` 可用來將元素的 Alpine 繫結截取到可重複使用的元素中。
+
+元素的索引鍵為指示詞 (可以是任何指示詞，包含修飾詞)，而元素值則為由 Alpine 取值的回呼函式。
+
+> 備註：x-spread 唯一要注意的就是與 `x-for` 搭配使用的情況。當被「spread」的指示詞是 `x-for`，則回呼內回傳的應該要是運算式字串。如： `['x-for']() { return 'item in items' }`.
 
 ---
 
 ### `x-cloak`
-**Example:** `<div x-data="{}" x-cloak></div>`
+**範例:** `<div x-data="{}" x-cloak></div>`
 
-`x-cloak` attributes are removed from elements when Alpine initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
+`x-cloak` 屬性會在 Alpine 初始化後從元素上移除。可以用來隱藏還未初始化的 DOM 元素。通常使用下列全域樣式：
 
 ```html
 <style>
@@ -528,7 +601,9 @@ Alpine 提供了 6 種不同的轉場指令，用於將類別應用到元素在�
 </style>
 ```
 
-### 魔術屬性
+### 魔法屬性
+
+> 除了 `$el` 是例外，所有的魔法屬性 **在 `x-data` 中都無法使用**，因為元素還未初始化。
 
 ---
 
@@ -536,11 +611,11 @@ Alpine 提供了 6 種不同的轉場指令，用於將類別應用到元素在�
 **範例:**
 ```html
 <div x-data>
-    <button @click="$el.innerHTML = 'foo'">Replace me with "foo"</button>
+    <button @click="$el.innerHTML = 'foo'">這裡的內容會取代為「foo」</button>
 </div>
 ```
 
-`$el` 是一個魔術屬性，可以用來檢索根組件的 DOM 節點。
+`$el` 是可用來取得元件根 DOM 節點的魔法屬性。
 
 ### `$refs`
 **範例:**
@@ -550,7 +625,7 @@ Alpine 提供了 6 種不同的轉場指令，用於將類別應用到元素在�
 <button x-on:click="$refs.foo.innerText = 'bar'"></button>
 ```
 
-`$refs` 是一個很有用的魔術屬性，用於檢索組件內有標注 `x-ref` 的 DOM 元素。
+`$refs` 是可用來取得元件內以 `x-ref` 標記的 DOM 元素之魔法屬性。適合用在要手動操作 DOM 元素的情況。
 
 ---
 
@@ -560,7 +635,13 @@ Alpine 提供了 6 種不同的轉場指令，用於將類別應用到元素在�
 <input x-on:input="alert($event.target.value)">
 ```
 
-`$event` 是一個魔術屬性，可以在事件監聽器中用它來檢索原生瀏覽器的 Event 物件。
+`$event` 是可在事件監聽器內取得瀏覽器原生「Event」物件的魔法屬性。
+
+> 備註：$event 屬性只可在 DOM 運算式中使用。
+
+若有需要在 JavaScript 函式中存取 $event，則可以直接將 $event 傳入：
+
+`<button x-on:click="myFunction($event)"></button>`
 
 ---
 
@@ -569,25 +650,58 @@ Alpine 提供了 6 種不同的轉場指令，用於將類別應用到元素在�
 ```html
 <div @custom-event="console.log($event.detail.foo)">
     <button @click="$dispatch('custom-event', { foo: 'bar' })">
-    <!-- 當點擊後, bar 將會出現在 console.log 上-->
+    <!-- 點擊後會 console.log "bar" -->
 </div>
 ```
 
-`$dispatch` 是一個創建 `CustomEvent` 並且在其內部使用 `.dispatchEvent()` 的便利方法。使用自訂事件在組件之間傳遞資料有很多好的使用案例，[閱讀這裡](https://developer.mozilla.org/zh-TW/docs/Web/Guide/Events/Creating_and_triggering_events) 了解更多關於瀏覽器底層 `CustomEvent` 系統的資訊。
+**有關事件傳播 (Event Propagation)**
 
-你可能發現了，任何作為第二個參數傳入到 `$dispatch('some-event', { some: 'data' })` 的資料，都會透過新的事件「detail」屬性來提供：`$event.detail.some` 。將自訂的事件資料附加到 `.detail` 屬性是瀏覽器中 `CustomEvent` 的標準做法。[閱讀這裡](https://developer.mozilla.org/zh-TW/docs/Web/API/CustomEvent/detail) 了解更多資訊。
+請注意，由於 [Event Bubbling (英語)](https://en.wikipedia.org/wiki/Event_bubbling)，當有需要截取從相同層級節點觸發的事件時，則需要加上 [`.window`](#x-on) 修飾詞：
 
+**範例:**
 
-你也可以使用 `$dispatch()` 來觸發 `x-model` 所繫結的資料更新，比如說：
+```html
+<div x-data>
+    <span @custom-event="console.log($event.detail.foo)"></span>
+    <button @click="$dispatch('custom-event', { foo: 'bar' })">
+<div>
+```
+
+> 上述範例無效，因為 `custom-event` 觸發的時候，會傳播到共同母級節點，即 `div`。
+
+**分派至元件**
+
+也可以通過剛才那個技巧來在元件間互相溝通：
+
+**範例:**
+
+```html
+<div x-data @custom-event.window="console.log($event.detail)"></div>
+
+<button x-data @click="$dispatch('custom-event', 'Hello World!')">
+<!-- 點擊後會 console.log "Hello World!". -->
+```
+
+`$dispatch` 是建立 `CustomEvent` 並在內部使用 `.dispatchEvent()` 分派的捷徑方法。還有其他許多通過自定事件來在元件間傳遞資料的例子。請 [參考此處 (英文)](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events) 以瞭解更多有關不同瀏覽器中的 `CustomEvent` 資訊。
+
+可以注意到放在第二個參數的資料 `$dispatch('some-event', { some: 'data' })`，在新事件上可通過「detail」屬性來取得：`$event.detail.some`。將自定事件資料附加到 `.detail` 屬性是在瀏覽器中 `CustomEvent` 的標準實踐。更多資訊請 [參考此處 (英文)](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail)。
+
+也可以使用 `$dispatch()` 來觸發 `x-model` 繫結的資料更新。如：
 
 ```html
 <div x-data="{ foo: 'bar' }">
     <span x-model="foo">
         <button @click="$dispatch('input', 'baz')">
-        <!-- 點擊按鈕後，`x-model` 將捕捉到冒出的「輸入」事件，並將 foo 更新為 「baz」 -->
+        <!-- 點擊按鈕後，`x-model` 會抓到 Bubbing 的「input」事件，並將 foo 更新為「baz」 -->
     </span>
 </div>
 ```
+
+> 備註：$dispatch 屬性只可在 DOM 運算式中使用。
+
+若有需要在 JavaScript 函式中存取 $dispatch，則可以直接將 $dispatch 傳入：
+
+`<button x-on:click="myFunction($dispatch)"></button>`
 
 ---
 
@@ -605,7 +719,7 @@ Alpine 提供了 6 種不同的轉場指令，用於將類別應用到元素在�
 </div>
 ```
 
-`$nextTick` 是一個魔術屬性，它允許你只在 Alpine 進行回應式 DOM 更新後才執行給定的運算式。這對於你想在 DOM 狀態回應了你的任何資料更新後，再與之互動的情形下非常有用。
+通過 `$nextTick` 魔法屬性則可以在 Alpine 做出 DOM 更新 **之後** 才執行指定的運算式。適用於需要在資料反應到 DOM 上後才要與 DOM 互動的情況。
 
 ---
 
@@ -613,62 +727,24 @@ Alpine 提供了 6 種不同的轉場指令，用於將類別應用到元素在�
 **範例:**
 ```html
 <div x-data="{ open: false }" x-init="$watch('open', value => console.log(value))">
-    <button @click="open = ! open">Toggle Open</button>
+    <button @click="open = ! open">開啟／關閉</button>
 </div>
 ```
 
-你可以使用 `$watch` 魔術方法來「監視」一個組件的屬性。在上述的範例中，當按鈕被點擊和 `open` 被改變時，你所給予的回呼將會被觸發，並且 `console.log` 將會顯示新的數值。
+可通過 `$watch` 魔法方法來「監聽 (Watch)」元件屬性。在上述例子中，當按鈕點擊後 `open` 會該表，接著會指定給定的回呼並以新的值來執行 `console.log`。
 
+## 安全性 Security
+若你發現安全性漏洞，請傳送電子郵件至 [calebporzio@gmail.com]()
 
-## 安全性
+Alpine 仰賴與使用 `Function` 物件來自定實作以對指示詞取值。雖然比 `eval()` 來的安全，但這個做法依然在一些環境下被禁止，如 Google Chrome App 使用了限制性的 CSP (Content Security Policy，內容安全性原則)。
 
-如果你發現了安全性漏洞，請發送電子郵件至 [calebporzio@gmail.com]() 。
+若在需要處理機敏資料的網站上使用 Alpine，且需要設定 [CSP (英語)](https://csp.withgoogle.com/docs/strict-csp.html)，則必須在 CSP 設定中加上 `unsafe-eval`。設定正確且堅固的原則有助於保護使用者在處理個人資料或財務資料上的安全。
 
-Alpine 依賴使用於 `Function` 物件的自訂實作來求值於其指令。儘管它比 `eval()` 安全得多，但在某些環境中，比如：Google Chrome 應用程式，使用了限制性的網頁內容安全政策（CSP），來禁止使用它。
+由於原則設定會套用至頁面中的所有腳本，所以也應注意要小心審閱網站中引入的其他外部函式庫，以確保能信任這些函式庫，並避免這些函式庫引發 XSS 漏洞或使用 `eval()` 函式來調整 DOM 或在頁面中注入惡意程式碼。
 
-如果你在處理機敏資料並在要求 [CSP](https://csp.withgoogle.com/docs/strict-csp.html) 的網站上使用 Alpine ，則需要在政策中加入`unsafe-eval` 。正確設定可靠的政策有助於保護使用者在使用個人或財產相關的資料時的安全性。
-
-由於政策適用於網頁中的所有腳本，因此對網站中包含的其他外部程式庫必須要仔細地審查，以保證它們都是值得信賴的，並且它們不會因為使用 `eval()` 函數或控制 DOM 在頁面中注入惡意程式碼而造成跨網站指令碼的漏洞。
- 
-## V3 路線圖
-* Move from `x-ref` to `ref` for Vue parity?
-* Add `Alpine.directive()`
-* Add `Alpine.component('foo', {...})` (With magic `__init()` method)
-* Dispatch Alpine events for "loaded", "transition-start", etc... ([#299](https://github.com/alpinejs/alpine/pull/299)) ?
-* Remove "object" (and array) syntax from `x-bind:class="{ 'foo': true }"` ([#236](https://github.com/alpinejs/alpine/pull/236) to add support for object syntax for the `style` attribute)
-* Improve `x-for` mutation reactivity ([#165](https://github.com/alpinejs/alpine/pull/165))
-* Add "deep watching" support in V3 ([#294](https://github.com/alpinejs/alpine/pull/294))
-* Add `$el` shortcut
-* Change `@click.away` to `@click.outside`?
-
-## 授權條款
+## 授權條款 License
 
 Copyright © 2019-2020 Caleb Porzio and contributors
 
 Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.
-
-## 翻譯對照表
-
-| 英文 | 此文件採用譯名 |
-| --- | --- |
-| animation | 動畫 |
-| binding | 繫結 |
-| callback | 回呼 |
-| components | 組件 |
-| declarative | 宣告式 |
-| destructuring | 解構 |
-| debounce | 防彈跳 |
-| dropdown | 下拉式選單 |
-| expression | 運算式 |
-| handler | 處理程序 |
-| insert | 插入 |
-| kebab-case | 短橫線連接式 |
-| listener | 監聽器 |
-| modifier | 修飾器 |
-| modals | 互動式視窗 |
-| nesting | 巢套 |
-| package | 軟體包 |
-| reactive | 回應式 |
-| tabs | 頁籤 |
-| transition | 轉場 |
-| two-way data binding | 雙向資料繫結 |
+透過 MIT 授權條款授權，詳情請參閱 [LICENSE.md](LICENSE.md)。

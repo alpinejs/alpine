@@ -431,6 +431,9 @@ test('event with colon', async () => {
 })
 
 test.skip('prevent default action when an event returns false', async () => {
+    // This test is skipped because in a browser this works, but it won't
+    // pass in this tests unless we bypass the promise resolving system
+    // for the result of an event handler expression.
     window.confirm = jest.fn().mockReturnValue(false)
 
     document.body.innerHTML = `

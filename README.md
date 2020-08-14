@@ -12,9 +12,14 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 > Note: This tool's syntax is almost entirely borrowed from [Vue](https://vuejs.org/) (and by extension [Angular](https://angularjs.org/)). I am forever grateful for the gift they are to the web.
 
-[**日本語ドキュメント**](./README.ja.md)
-[**繁體中文使用文件**](./README_zh-TW.md)
-[**Документация на русском**](./README.ru.md)
+## Translated documentation
+
+| Language | Link for documentation |
+| --- | --- |
+| Japanese | [**日本語ドキュメント**](./README.ja.md) | 
+| Chinese | [**繁體中文使用文件**](./README_zh-TW.md) | 
+| Russian | [**Документация на русском**](./README.ru.md) | 
+| Portuguese | [**Documentação em Português**](./README.pt.md) | 
 
 ## Install
 
@@ -457,6 +462,8 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 
 > Note: `x-if` must have a single element root inside the `<template></template>` tag.
 
+> Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
+
 ---
 
 ### `x-for`
@@ -481,6 +488,8 @@ If you want to access the current index of the iteration, use the following synt
 ```
 
 > Note: `x-for` must have a single element root inside of the `<template></template>` tag.
+
+> Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
 
 #### Nesting `x-for`s
 You can nest `x-for` loops, but you MUST wrap each loop in an element. For example:

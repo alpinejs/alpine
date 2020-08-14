@@ -33,7 +33,7 @@ export function kebabCase(subject) {
 }
 
 export function camelCase(subject) {
-    return subject.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (match, char) => char.toUpperCase())
+    return subject.toLowerCase().replace(/-(\w)/g, (match, char) => char.toUpperCase())
 }
 
 export function walk(el, callback) {
@@ -138,11 +138,11 @@ function sortDirectives(directives) {
     })
 }
 
-function parseHtmlAttribute({ name, value }) {
+export function parseHtmlAttribute({ name, value }) {
     const normalizedName = replaceAtAndColonWithStandardSyntax(name)
 
     const typeMatch = normalizedName.match(xAttrRE)
-    const valueMatch = normalizedName.match(/:([a-zA-Z\-:]+)/)
+    const valueMatch = normalizedName.match(/:([a-zA-Z0-9\-:]+)/)
     const modifiers = normalizedName.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
 
     return {

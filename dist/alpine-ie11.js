@@ -23,10 +23,11 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  (function(){function k(){function p(a){return a?"object"===typeof a||"function"===typeof a:!1}var l=null;var n=function(a,c){function g(){}if(!p(a)||!p(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");l=function(){a=null;g=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){l=null;},0);var f=c;c={get:null,set:null,apply:null,construct:null};for(var h in f){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+
-  h+"'");c[h]=f[h];}"function"===typeof f&&(c.apply=f.apply.bind(f));var d=this,q=!1,r=!1;"function"===typeof a?(d=function(){var b=this&&this.constructor===d,e=Array.prototype.slice.call(arguments);g(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,e):!b&&c.apply?c.apply(a,this,e):b?(e.unshift(a),new (a.bind.apply(a,e))):a.apply(this,e)},q=!0):a instanceof Array&&(d=[],r=!0);var t=c.get?function(b){g("get");return c.get(this,b,d)}:function(b){g("get");return this[b]},w=c.set?function(b,
-  e){g("set");c.set(this,b,e,d);}:function(b,e){g("set");this[b]=e;},u={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((q||r)&&b in d)){var e={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:t.bind(a,b),set:w.bind(a,b)};Object.defineProperty(d,b,e);u[b]=!0;}});f=!0;Object.setPrototypeOf?Object.setPrototypeOf(d,Object.getPrototypeOf(a)):d.__proto__?d.__proto__=a.__proto__:f=!1;if(c.get||!f)for(var m in a)u[m]||Object.defineProperty(d,m,{get:t.bind(a,m)});Object.seal(a);Object.seal(d);
-  return d};n.revocable=function(a,c){return {proxy:new n(a,c),revoke:l}};return n}var v="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;v.Proxy||(v.Proxy=k(),v.Proxy.revocable=v.Proxy.revocable);})();
+  (function(){function n(){function v(){return null}function l(a){return a?"object"===typeof a||"function"===typeof a:!1}function p(a){if(null!==a&&!l(a))throw new TypeError("Object prototype may only be an Object or null: "+a);}var q=null,e=Object,w=!!e.create||!({__proto__:null}instanceof e),A=e.create||(w?function(a){p(a);return {__proto__:a}}:function(a){function c(){}p(a);if(null===a)throw new SyntaxError("Native Object.create is required to create objects with null prototype");c.prototype=a;return new c}),
+  B=e.getPrototypeOf||([].__proto__===Array.prototype?function(a){a=a.__proto__;return l(a)?a:null}:v);var m=function(a,c){function k(){}if(void 0===(this&&this instanceof m?this.constructor:void 0))throw new TypeError("Constructor Proxy requires 'new'");if(!l(a)||!l(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");q=function(){a=null;k=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){q=null;},0);var g=
+  c;c={get:null,set:null,apply:null,construct:null};for(var h in g){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+h+"'");c[h]=g[h];}"function"===typeof g&&(c.apply=g.apply.bind(g));g=B(a);var r=!1,t=!1;if("function"===typeof a){var f=function(){var b=this&&this.constructor===f,d=Array.prototype.slice.call(arguments);k(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,d):!b&&c.apply?c.apply(a,this,d):b?(d.unshift(a),new (a.bind.apply(a,d))):a.apply(this,
+  d)};r=!0;}else a instanceof Array?(f=[],t=!0):f=w||null!==g?A(g):{};var x=c.get?function(b){k("get");return c.get(this,b,f)}:function(b){k("get");return this[b]},C=c.set?function(b,d){k("set");c.set(this,b,d,f);}:function(b,d){k("set");this[b]=d;},y={};e.getOwnPropertyNames(a).forEach(function(b){if(!((r||t)&&b in f)){var d=e.getOwnPropertyDescriptor(a,b);e.defineProperty(f,b,{enumerable:!!d.enumerable,get:x.bind(a,b),set:C.bind(a,b)});y[b]=!0;}});h=!0;if(r||t){var D=e.setPrototypeOf||([].__proto__===
+  Array.prototype?function(b,d){p(d);b.__proto__=d;return b}:v);g&&D(f,g)||(h=!1);}if(c.get||!h)for(var u in a)y[u]||e.defineProperty(f,u,{get:x.bind(a,u)});e.seal(a);e.seal(f);return f};m.revocable=function(a,c){return {proxy:new m(a,c),revoke:q}};return m}var z="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;z.Proxy||(z.Proxy=n(),z.Proxy.revocable=z.Proxy.revocable);})();
 
   !function(e){var t=e.Element.prototype;"function"!=typeof t.matches&&(t.matches=t.msMatchesSelector||t.mozMatchesSelector||t.webkitMatchesSelector||function(e){for(var t=(this.document||this.ownerDocument).querySelectorAll(e),o=0;t[o]&&t[o]!==this;)++o;return Boolean(t[o])}),"function"!=typeof t.closest&&(t.closest=function(e){for(var t=this;t&&1===t.nodeType;){if(t.matches(e))return t;t=t.parentNode;}return null});}(window);
 
@@ -3506,38 +3507,15 @@
     ArrayPrototype$1[UNSCOPABLES][key] = true;
   };
 
-  var $findIndex = arrayIteration.findIndex;
-
-
-
-  var FIND_INDEX = 'findIndex';
-  var SKIPS_HOLES = true;
-
-  var USES_TO_LENGTH$2 = arrayMethodUsesToLength(FIND_INDEX);
-
-  // Shouldn't skip holes
-  if (FIND_INDEX in []) Array(1)[FIND_INDEX](function () { SKIPS_HOLES = false; });
-
-  // `Array.prototype.findIndex` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.findindex
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES || !USES_TO_LENGTH$2 }, {
-    findIndex: function findIndex(callbackfn /* , that = undefined */) {
-      return $findIndex(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  // https://tc39.github.io/ecma262/#sec-array.prototype-@@unscopables
-  addToUnscopables(FIND_INDEX);
-
   var $includes = arrayIncludes.includes;
 
 
 
-  var USES_TO_LENGTH$3 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var USES_TO_LENGTH$2 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.includes` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.includes
-  _export({ target: 'Array', proto: true, forced: !USES_TO_LENGTH$3 }, {
+  _export({ target: 'Array', proto: true, forced: !USES_TO_LENGTH$2 }, {
     includes: function includes(el /* , fromIndex = 0 */) {
       return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3552,12 +3530,12 @@
 
   var HAS_SPECIES_SUPPORT$1 = arrayMethodHasSpeciesSupport('map');
   // FF49- issue
-  var USES_TO_LENGTH$4 = arrayMethodUsesToLength('map');
+  var USES_TO_LENGTH$3 = arrayMethodUsesToLength('map');
 
   // `Array.prototype.map` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.map
   // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 || !USES_TO_LENGTH$4 }, {
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$1 || !USES_TO_LENGTH$3 }, {
     map: function map(callbackfn /* , thisArg */) {
       return $map(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3604,11 +3582,11 @@
 
 
   var STRICT_METHOD$1 = arrayMethodIsStrict('reduce');
-  var USES_TO_LENGTH$5 = arrayMethodUsesToLength('reduce', { 1: 0 });
+  var USES_TO_LENGTH$4 = arrayMethodUsesToLength('reduce', { 1: 0 });
 
   // `Array.prototype.reduce` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.reduce
-  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$1 || !USES_TO_LENGTH$5 }, {
+  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$1 || !USES_TO_LENGTH$4 }, {
     reduce: function reduce(callbackfn /* , initialValue */) {
       return $reduce(this, callbackfn, arguments.length, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -3619,73 +3597,13 @@
 
 
   var STRICT_METHOD$2 = arrayMethodIsStrict('some');
-  var USES_TO_LENGTH$6 = arrayMethodUsesToLength('some');
+  var USES_TO_LENGTH$5 = arrayMethodUsesToLength('some');
 
   // `Array.prototype.some` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.some
-  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$2 || !USES_TO_LENGTH$6 }, {
+  _export({ target: 'Array', proto: true, forced: !STRICT_METHOD$2 || !USES_TO_LENGTH$5 }, {
     some: function some(callbackfn /* , thisArg */) {
       return $some(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-    }
-  });
-
-  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
-  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
-
-  var max$1 = Math.max;
-  var min$2 = Math.min;
-  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
-  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
-
-  // `Array.prototype.splice` method
-  // https://tc39.github.io/ecma262/#sec-array.prototype.splice
-  // with adding support of @@species
-  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$7 }, {
-    splice: function splice(start, deleteCount /* , ...items */) {
-      var O = toObject(this);
-      var len = toLength(O.length);
-      var actualStart = toAbsoluteIndex(start, len);
-      var argumentsLength = arguments.length;
-      var insertCount, actualDeleteCount, A, k, from, to;
-      if (argumentsLength === 0) {
-        insertCount = actualDeleteCount = 0;
-      } else if (argumentsLength === 1) {
-        insertCount = 0;
-        actualDeleteCount = len - actualStart;
-      } else {
-        insertCount = argumentsLength - 2;
-        actualDeleteCount = min$2(max$1(toInteger(deleteCount), 0), len - actualStart);
-      }
-      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER) {
-        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
-      }
-      A = arraySpeciesCreate(O, actualDeleteCount);
-      for (k = 0; k < actualDeleteCount; k++) {
-        from = actualStart + k;
-        if (from in O) createProperty(A, k, O[from]);
-      }
-      A.length = actualDeleteCount;
-      if (insertCount < actualDeleteCount) {
-        for (k = actualStart; k < len - actualDeleteCount; k++) {
-          from = k + actualDeleteCount;
-          to = k + insertCount;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
-      } else if (insertCount > actualDeleteCount) {
-        for (k = len - actualDeleteCount; k > actualStart; k--) {
-          from = k + actualDeleteCount - 1;
-          to = k + insertCount - 1;
-          if (from in O) O[to] = O[from];
-          else delete O[to];
-        }
-      }
-      for (k = 0; k < insertCount; k++) {
-        O[k + actualStart] = arguments[k + 2];
-      }
-      O.length = len - actualDeleteCount + insertCount;
-      return A;
     }
   });
 
@@ -4742,7 +4660,7 @@
   };
 
   var arrayPush = [].push;
-  var min$3 = Math.min;
+  var min$2 = Math.min;
   var MAX_UINT32 = 0xFFFFFFFF;
 
   // babel-minify transpiles RegExp('x', 'y') -> /x/y and it causes SyntaxError
@@ -4845,7 +4763,7 @@
           var e;
           if (
             z === null ||
-            (e = min$3(toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p
+            (e = min$2(toLength(splitter.lastIndex + (SUPPORTS_Y ? 0 : q)), S.length)) === p
           ) {
             q = advanceStringIndex(S, q, unicodeMatching);
           } else {
@@ -4865,7 +4783,7 @@
   }, !SUPPORTS_Y);
 
   var IS_CONCAT_SPREADABLE = wellKnownSymbol('isConcatSpreadable');
-  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
+  var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF;
   var MAXIMUM_ALLOWED_INDEX_EXCEEDED = 'Maximum allowed index exceeded';
 
   // We can't use this feature detection in V8 since it causes
@@ -4900,10 +4818,10 @@
         E = i === -1 ? O : arguments[i];
         if (isConcatSpreadable(E)) {
           len = toLength(E.length);
-          if (n + len > MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n + len > MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           for (k = 0; k < len; k++, n++) if (k in E) createProperty(A, n, E[k]);
         } else {
-          if (n >= MAX_SAFE_INTEGER$1) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
+          if (n >= MAX_SAFE_INTEGER) throw TypeError(MAXIMUM_ALLOWED_INDEX_EXCEEDED);
           createProperty(A, n++, E);
         }
       }
@@ -4917,16 +4835,16 @@
 
 
   var FIND = 'find';
-  var SKIPS_HOLES$1 = true;
+  var SKIPS_HOLES = true;
 
-  var USES_TO_LENGTH$8 = arrayMethodUsesToLength(FIND);
+  var USES_TO_LENGTH$6 = arrayMethodUsesToLength(FIND);
 
   // Shouldn't skip holes
-  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES$1 = false; });
+  if (FIND in []) Array(1)[FIND](function () { SKIPS_HOLES = false; });
 
   // `Array.prototype.find` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.find
-  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES$1 || !USES_TO_LENGTH$8 }, {
+  _export({ target: 'Array', proto: true, forced: SKIPS_HOLES || !USES_TO_LENGTH$6 }, {
     find: function find(callbackfn /* , that = undefined */) {
       return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
     }
@@ -4943,11 +4861,11 @@
 
   var NEGATIVE_ZERO = !!nativeIndexOf && 1 / [1].indexOf(1, -0) < 0;
   var STRICT_METHOD$3 = arrayMethodIsStrict('indexOf');
-  var USES_TO_LENGTH$9 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
+  var USES_TO_LENGTH$7 = arrayMethodUsesToLength('indexOf', { ACCESSORS: true, 1: 0 });
 
   // `Array.prototype.indexOf` method
   // https://tc39.github.io/ecma262/#sec-array.prototype.indexof
-  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$3 || !USES_TO_LENGTH$9 }, {
+  _export({ target: 'Array', proto: true, forced: NEGATIVE_ZERO || !STRICT_METHOD$3 || !USES_TO_LENGTH$7 }, {
     indexOf: function indexOf(searchElement /* , fromIndex = 0 */) {
       return NEGATIVE_ZERO
         // convert -0 to +0
@@ -5545,8 +5463,8 @@
     ];
   });
 
-  var max$2 = Math.max;
-  var min$4 = Math.min;
+  var max$1 = Math.max;
+  var min$3 = Math.min;
   var floor$1 = Math.floor;
   var SUBSTITUTION_SYMBOLS = /\$([$&'`]|\d\d?|<[^>]*>)/g;
   var SUBSTITUTION_SYMBOLS_NO_NAMED = /\$([$&'`]|\d\d?)/g;
@@ -5611,7 +5529,7 @@
           result = results[i];
 
           var matched = String(result[0]);
-          var position = max$2(min$4(toInteger(result.index), S.length), 0);
+          var position = max$1(min$3(toInteger(result.index), S.length), 0);
           var captures = [];
           // NOTE: This is equivalent to
           //   captures = result.slice(1).map(maybeToString)
@@ -5679,7 +5597,7 @@
 
 
   var nativeStartsWith = ''.startsWith;
-  var min$5 = Math.min;
+  var min$4 = Math.min;
 
   var CORRECT_IS_REGEXP_LOGIC = correctIsRegexpLogic('startsWith');
   // https://github.com/zloirock/core-js/pull/702
@@ -5694,7 +5612,7 @@
     startsWith: function startsWith(searchString /* , position = 0 */) {
       var that = String(requireObjectCoercible(this));
       notARegexp(searchString);
-      var index = toLength(min$5(arguments.length > 1 ? arguments[1] : undefined, that.length));
+      var index = toLength(min$4(arguments.length > 1 ? arguments[1] : undefined, that.length));
       var search = String(searchString);
       return nativeStartsWith
         ? nativeStartsWith.call(that, search, index)
@@ -5828,20 +5746,23 @@
     var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
     if (typeof expression === 'function') {
-      return expression.call(dataContext, additionalHelperVariables['$event']);
-    } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
-    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+      return Promise.resolve(expression.call(dataContext, additionalHelperVariables['$event']));
+    }
 
+    var AsyncFunction = Function; // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
 
     if (Object.keys(dataContext).includes(expression)) {
       var methodReference = new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { return ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 
       if (typeof methodReference === 'function') {
-        return methodReference.call(dataContext, additionalHelperVariables['$event']);
+        return Promise.resolve(methodReference.call(dataContext, additionalHelperVariables['$event']));
+      } else {
+        return Promise.resolve();
       }
     }
 
-    return new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
+    return Promise.resolve(new AsyncFunction(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables)))));
   }
   var xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/;
   function isXAttr(attr) {
@@ -5904,7 +5825,7 @@
         value = _ref3.value;
     var normalizedName = replaceAtAndColonWithStandardSyntax(name);
     var typeMatch = normalizedName.match(xAttrRE);
-    var valueMatch = normalizedName.match(/:([a-zA-Z\-:]+)/);
+    var valueMatch = normalizedName.match(/:([a-zA-Z0-9\-:]+)/);
     var modifiers = normalizedName.match(/\.[^.\]]+(?=[^\]]*$)/g) || [];
     return {
       type: typeMatch ? typeMatch[1] : null,
@@ -5917,7 +5838,6 @@
       expression: value
     };
   }
-
   function isBooleanAttr(attrName) {
     // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
     // Array roughly ordered by estimated usage
@@ -6479,8 +6399,9 @@
     var value = component.evaluateReturnExpression(el, expression, extraVars);
 
     if (attrName === 'value') {
-      // If nested model key is undefined, set the default value to empty string.
-      if (value === undefined && expression.match(/\./).length) {
+      if (Alpine.ignoreFocusedForValueBinding && document.activeElement.isSameNode(el)) return; // If nested model key is undefined, set the default value to empty string.
+
+      if (value === undefined && expression.match(/\./)) {
         value = '';
       }
 
@@ -6717,6 +6638,66 @@
     }
   }
 
+  var HAS_SPECIES_SUPPORT$2 = arrayMethodHasSpeciesSupport('splice');
+  var USES_TO_LENGTH$8 = arrayMethodUsesToLength('splice', { ACCESSORS: true, 0: 0, 1: 2 });
+
+  var max$2 = Math.max;
+  var min$5 = Math.min;
+  var MAX_SAFE_INTEGER$1 = 0x1FFFFFFFFFFFFF;
+  var MAXIMUM_ALLOWED_LENGTH_EXCEEDED = 'Maximum allowed length exceeded';
+
+  // `Array.prototype.splice` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.splice
+  // with adding support of @@species
+  _export({ target: 'Array', proto: true, forced: !HAS_SPECIES_SUPPORT$2 || !USES_TO_LENGTH$8 }, {
+    splice: function splice(start, deleteCount /* , ...items */) {
+      var O = toObject(this);
+      var len = toLength(O.length);
+      var actualStart = toAbsoluteIndex(start, len);
+      var argumentsLength = arguments.length;
+      var insertCount, actualDeleteCount, A, k, from, to;
+      if (argumentsLength === 0) {
+        insertCount = actualDeleteCount = 0;
+      } else if (argumentsLength === 1) {
+        insertCount = 0;
+        actualDeleteCount = len - actualStart;
+      } else {
+        insertCount = argumentsLength - 2;
+        actualDeleteCount = min$5(max$2(toInteger(deleteCount), 0), len - actualStart);
+      }
+      if (len + insertCount - actualDeleteCount > MAX_SAFE_INTEGER$1) {
+        throw TypeError(MAXIMUM_ALLOWED_LENGTH_EXCEEDED);
+      }
+      A = arraySpeciesCreate(O, actualDeleteCount);
+      for (k = 0; k < actualDeleteCount; k++) {
+        from = actualStart + k;
+        if (from in O) createProperty(A, k, O[from]);
+      }
+      A.length = actualDeleteCount;
+      if (insertCount < actualDeleteCount) {
+        for (k = actualStart; k < len - actualDeleteCount; k++) {
+          from = k + actualDeleteCount;
+          to = k + insertCount;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+        for (k = len; k > len - actualDeleteCount + insertCount; k--) delete O[k - 1];
+      } else if (insertCount > actualDeleteCount) {
+        for (k = len - actualDeleteCount; k > actualStart; k--) {
+          from = k + actualDeleteCount - 1;
+          to = k + insertCount - 1;
+          if (from in O) O[to] = O[from];
+          else delete O[to];
+        }
+      }
+      for (k = 0; k < insertCount; k++) {
+        O[k + actualStart] = arguments[k + 2];
+      }
+      O.length = len - actualDeleteCount + insertCount;
+      return A;
+    }
+  });
+
   function registerListener(component, el, event, modifiers, expression) {
     var _this = this;
 
@@ -6752,6 +6733,8 @@
       var listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el;
 
       var _handler2 = function handler(e) {
+        var _this2 = this;
+
         _newArrowCheck(this, _this);
 
         // Remove this global event handler if the element that declared it
@@ -6776,14 +6759,17 @@
 
         if (!modifiers.includes('self') || e.target === el) {
           var returnValue = runListenerHandler(component, expression, e, extraVars);
+          returnValue.then(function (value) {
+            _newArrowCheck(this, _this2);
 
-          if (returnValue === false) {
-            e.preventDefault();
-          } else {
-            if (modifiers.includes('once')) {
-              listenerTarget.removeEventListener(event, _handler2, options);
+            if (value === false) {
+              e.preventDefault();
+            } else {
+              if (modifiers.includes('once')) {
+                listenerTarget.removeEventListener(event, _handler2, options);
+              }
             }
-          }
+          }.bind(this));
         }
       }.bind(this);
 
@@ -6798,10 +6784,10 @@
   }
 
   function runListenerHandler(component, expression, e, extraVars) {
-    var _this2 = this;
+    var _this3 = this;
 
     return component.evaluateCommandExpression(e.target, expression, function () {
-      _newArrowCheck(this, _this2);
+      _newArrowCheck(this, _this3);
 
       return _objectSpread2(_objectSpread2({}, extraVars()), {}, {
         '$event': e
@@ -6814,10 +6800,10 @@
   }
 
   function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
-    var _this3 = this;
+    var _this4 = this;
 
     var keyModifiers = modifiers.filter(function (i) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       return !['window', 'document', 'prevent', 'stop'].includes(i);
     }.bind(this));
@@ -6834,19 +6820,19 @@
 
     var systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super'];
     var selectedSystemKeyModifiers = systemKeyModifiers.filter(function (modifier) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       return keyModifiers.includes(modifier);
     }.bind(this));
     keyModifiers = keyModifiers.filter(function (i) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       return !selectedSystemKeyModifiers.includes(i);
     }.bind(this));
 
     if (selectedSystemKeyModifiers.length > 0) {
       var activelyPressedKeyModifiers = selectedSystemKeyModifiers.filter(function (modifier) {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this4);
 
         // Alias "cmd" and "super" to "meta"
         if (modifier === 'cmd' || modifier === 'super') modifier = 'meta';
@@ -7057,9 +7043,24 @@
       var dataAttr = this.$el.getAttribute('x-data');
       var dataExpression = dataAttr === '' ? '{}' : dataAttr;
       var initExpression = this.$el.getAttribute('x-init');
-      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, {
+      var dataExtras = {
         $el: this.$el
-      });
+      };
+      var canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el;
+      Object.entries(Alpine.magicProperties).forEach(function (_ref) {
+        _newArrowCheck(this, _this);
+
+        var _ref2 = _slicedToArray(_ref, 2),
+            name = _ref2[0],
+            callback = _ref2[1];
+
+        Object.defineProperty(dataExtras, "$".concat(name), {
+          get: function get() {
+            return callback(canonicalComponentElementReference);
+          }
+        });
+      }.bind(this));
+      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras);
       /* IE11-ONLY:START */
       // For IE11, add our magic properties to the original data for access.
       // The Proxy polyfill does not allow properties to be added after creation.
@@ -7101,16 +7102,15 @@
 
         if (!this.watchers[property]) this.watchers[property] = [];
         this.watchers[property].push(callback);
-      }.bind(this);
+      }.bind(this); // Register custom magic properties.
 
-      var canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el; // Register custom magic properties.
 
-      Object.entries(Alpine.magicProperties).forEach(function (_ref) {
+      Object.entries(Alpine.magicProperties).forEach(function (_ref3) {
         _newArrowCheck(this, _this);
 
-        var _ref2 = _slicedToArray(_ref, 2),
-            name = _ref2[0],
-            callback = _ref2[1];
+        var _ref4 = _slicedToArray(_ref3, 2),
+            name = _ref4[0],
+            callback = _ref4[1];
 
         Object.defineProperty(this.unobservedData, "$".concat(name), {
           get: function get() {
@@ -7120,6 +7120,11 @@
       }.bind(this));
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
+      componentForClone || Alpine.onBeforeComponentInitializeds.forEach(function (callback) {
+        _newArrowCheck(this, _this);
+
+        return callback(this);
+      }.bind(this));
       var initReturnedCallback; // If x-init is present AND we aren't cloning (skip x-init on clone)
 
       if (initExpression && !componentForClone) {
@@ -7381,13 +7386,13 @@
       value: function registerListeners(el, extraVars) {
         var _this16 = this;
 
-        getXAttrs(el, this).forEach(function (_ref3) {
+        getXAttrs(el, this).forEach(function (_ref5) {
           _newArrowCheck(this, _this16);
 
-          var type = _ref3.type,
-              value = _ref3.value,
-              modifiers = _ref3.modifiers,
-              expression = _ref3.expression;
+          var type = _ref5.type,
+              value = _ref5.value,
+              modifiers = _ref5.modifiers,
+              expression = _ref5.expression;
 
           switch (type) {
             case 'on':
@@ -7408,30 +7413,15 @@
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
         var attrs = getXAttrs(el, this);
-
-        if (el.type !== undefined && el.type === 'radio') {
-          // If there's an x-model on a radio input, move it to end of attribute list
-          // to ensure that x-bind:value (if present) is processed first.
-          var modelIdx = attrs.findIndex(function (attr) {
-            _newArrowCheck(this, _this17);
-
-            return attr.type === 'model';
-          }.bind(this));
-
-          if (modelIdx > -1) {
-            attrs.push(attrs.splice(modelIdx, 1)[0]);
-          }
-        }
-
-        attrs.forEach(function (_ref4) {
+        attrs.forEach(function (_ref6) {
           var _this18 = this;
 
           _newArrowCheck(this, _this17);
 
-          var type = _ref4.type,
-              value = _ref4.value,
-              modifiers = _ref4.modifiers,
-              expression = _ref4.expression;
+          var type = _ref6.type,
+              value = _ref6.value,
+              modifiers = _ref6.modifiers,
+              expression = _ref6.expression;
 
           switch (type) {
             case 'model':
@@ -7627,6 +7617,8 @@
     pauseMutationObserver: false,
     magicProperties: {},
     onComponentInitializeds: [],
+    onBeforeComponentInitializeds: [],
+    ignoreFocusedForValueBinding: false,
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
@@ -7773,6 +7765,9 @@
     },
     onComponentInitialized: function onComponentInitialized(callback) {
       this.onComponentInitializeds.push(callback);
+    },
+    onBeforeComponentInitialized: function onBeforeComponentInitialized(callback) {
+      this.onBeforeComponentInitializeds.push(callback);
     }
   };
 

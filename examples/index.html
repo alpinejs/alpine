@@ -190,6 +190,16 @@
                 </tr>
 
                 <tr>
+                    <td>x-on:click (with return false)</td>
+                    <td>
+                        <div x-data>
+                            <label for="checkbox-frozen">I should be frozen on un-checked</label>
+                            <input id="checkbox-frozen" type="checkbox" @click="return false"></input>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>x-on:click.prevent</td>
                     <td>
                         <div x-data="{}">

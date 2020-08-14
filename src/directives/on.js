@@ -57,13 +57,15 @@ export function registerListener(component, el, event, modifiers, expression, ex
             if (! modifiers.includes('self') || e.target === el) {
                 const returnValue = runListenerHandler(component, expression, e, extraVars)
 
-                if (returnValue === false) {
-                    e.preventDefault()
-                } else {
-                    if (modifiers.includes('once')) {
-                        listenerTarget.removeEventListener(event, handler, options)
+                returnValue.then(value => {
+                    if (value === false) {
+                        e.preventDefault()
+                    } else {
+                        if (modifiers.includes('once')) {
+                            listenerTarget.removeEventListener(event, handler, options)
+                        }
                     }
-                }
+                })
             }
         }
 

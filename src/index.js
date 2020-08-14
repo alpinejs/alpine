@@ -10,6 +10,10 @@ const Alpine = {
 
     onComponentInitializeds: [],
 
+    onBeforeComponentInitializeds: [],
+
+    ignoreFocusedForValueBinding: false,
+
     start: async function () {
         if (! isTesting()) {
             await domReady()
@@ -109,6 +113,10 @@ const Alpine = {
 
     onComponentInitialized: function (callback) {
         this.onComponentInitializeds.push(callback)
+    },
+
+    onBeforeComponentInitialized: function (callback) {
+        this.onBeforeComponentInitializeds.push(callback)
     }
 }
 

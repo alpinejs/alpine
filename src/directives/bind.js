@@ -1,11 +1,14 @@
 import { arrayUnique, isBooleanAttr, convertClassStringToArray, camelCase } from '../utils'
+import Alpine from '../index'
 
 export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType, modifiers) {
     var value = component.evaluateReturnExpression(el, expression, extraVars)
 
     if (attrName === 'value') {
+        if (Alpine.ignoreFocusedForValueBinding && document.activeElement.isSameNode(el)) return
+
         // If nested model key is undefined, set the default value to empty string.
-        if (value === undefined && expression.match(/\./).length) {
+        if (value === undefined && expression.match(/\./)) {
             value = ''
         }
 

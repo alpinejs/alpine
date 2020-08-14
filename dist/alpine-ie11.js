@@ -5829,20 +5829,23 @@
     var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
     if (typeof expression === 'function') {
-      return expression.call(dataContext, additionalHelperVariables['$event']);
-    } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
-    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+      return Promise.resolve(expression.call(dataContext, additionalHelperVariables['$event']));
+    }
 
+    var AsyncFunction = Function; // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
 
     if (Object.keys(dataContext).includes(expression)) {
       var methodReference = new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { return ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
 
       if (typeof methodReference === 'function') {
-        return methodReference.call(dataContext, additionalHelperVariables['$event']);
+        return Promise.resolve(methodReference.call(dataContext, additionalHelperVariables['$event']));
+      } else {
+        return Promise.resolve();
       }
     }
 
-    return new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
+    return Promise.resolve(new AsyncFunction(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables)))));
   }
   var xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/;
   function isXAttr(attr) {
@@ -6480,8 +6483,9 @@
     var value = component.evaluateReturnExpression(el, expression, extraVars);
 
     if (attrName === 'value') {
-      // If nested model key is undefined, set the default value to empty string.
-      if (value === undefined && expression.match(/\./).length) {
+      if (Alpine.ignoreFocusedForValueBinding && document.activeElement.isSameNode(el)) return; // If nested model key is undefined, set the default value to empty string.
+
+      if (value === undefined && expression.match(/\./)) {
         value = '';
       }
 
@@ -6753,6 +6757,8 @@
       var listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el;
 
       var _handler2 = function handler(e) {
+        var _this2 = this;
+
         _newArrowCheck(this, _this);
 
         // Remove this global event handler if the element that declared it
@@ -6777,14 +6783,17 @@
 
         if (!modifiers.includes('self') || e.target === el) {
           var returnValue = runListenerHandler(component, expression, e, extraVars);
+          returnValue.then(function (value) {
+            _newArrowCheck(this, _this2);
 
-          if (returnValue === false) {
-            e.preventDefault();
-          } else {
-            if (modifiers.includes('once')) {
-              listenerTarget.removeEventListener(event, _handler2, options);
+            if (value === false) {
+              e.preventDefault();
+            } else {
+              if (modifiers.includes('once')) {
+                listenerTarget.removeEventListener(event, _handler2, options);
+              }
             }
-          }
+          }.bind(this));
         }
       }.bind(this);
 
@@ -6799,10 +6808,10 @@
   }
 
   function runListenerHandler(component, expression, e, extraVars) {
-    var _this2 = this;
+    var _this3 = this;
 
     return component.evaluateCommandExpression(e.target, expression, function () {
-      _newArrowCheck(this, _this2);
+      _newArrowCheck(this, _this3);
 
       return _objectSpread2(_objectSpread2({}, extraVars()), {}, {
         '$event': e
@@ -6815,10 +6824,10 @@
   }
 
   function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
-    var _this3 = this;
+    var _this4 = this;
 
     var keyModifiers = modifiers.filter(function (i) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       return !['window', 'document', 'prevent', 'stop'].includes(i);
     }.bind(this));
@@ -6835,19 +6844,19 @@
 
     var systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super'];
     var selectedSystemKeyModifiers = systemKeyModifiers.filter(function (modifier) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       return keyModifiers.includes(modifier);
     }.bind(this));
     keyModifiers = keyModifiers.filter(function (i) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this4);
 
       return !selectedSystemKeyModifiers.includes(i);
     }.bind(this));
 
     if (selectedSystemKeyModifiers.length > 0) {
       var activelyPressedKeyModifiers = selectedSystemKeyModifiers.filter(function (modifier) {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this4);
 
         // Alias "cmd" and "super" to "meta"
         if (modifier === 'cmd' || modifier === 'super') modifier = 'meta';
@@ -7058,9 +7067,24 @@
       var dataAttr = this.$el.getAttribute('x-data');
       var dataExpression = dataAttr === '' ? '{}' : dataAttr;
       var initExpression = this.$el.getAttribute('x-init');
-      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, {
+      var dataExtras = {
         $el: this.$el
-      });
+      };
+      var canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el;
+      Object.entries(Alpine.magicProperties).forEach(function (_ref) {
+        _newArrowCheck(this, _this);
+
+        var _ref2 = _slicedToArray(_ref, 2),
+            name = _ref2[0],
+            callback = _ref2[1];
+
+        Object.defineProperty(dataExtras, "$".concat(name), {
+          get: function get() {
+            return callback(canonicalComponentElementReference);
+          }
+        });
+      }.bind(this));
+      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras);
       /* IE11-ONLY:START */
       // For IE11, add our magic properties to the original data for access.
       // The Proxy polyfill does not allow properties to be added after creation.
@@ -7102,16 +7126,15 @@
 
         if (!this.watchers[property]) this.watchers[property] = [];
         this.watchers[property].push(callback);
-      }.bind(this);
+      }.bind(this); // Register custom magic properties.
 
-      var canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el; // Register custom magic properties.
 
-      Object.entries(Alpine.magicProperties).forEach(function (_ref) {
+      Object.entries(Alpine.magicProperties).forEach(function (_ref3) {
         _newArrowCheck(this, _this);
 
-        var _ref2 = _slicedToArray(_ref, 2),
-            name = _ref2[0],
-            callback = _ref2[1];
+        var _ref4 = _slicedToArray(_ref3, 2),
+            name = _ref4[0],
+            callback = _ref4[1];
 
         Object.defineProperty(this.unobservedData, "$".concat(name), {
           get: function get() {
@@ -7121,6 +7144,11 @@
       }.bind(this));
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
+      componentForClone || Alpine.onBeforeComponentInitializeds.forEach(function (callback) {
+        _newArrowCheck(this, _this);
+
+        return callback(this);
+      }.bind(this));
       var initReturnedCallback; // If x-init is present AND we aren't cloning (skip x-init on clone)
 
       if (initExpression && !componentForClone) {
@@ -7382,13 +7410,13 @@
       value: function registerListeners(el, extraVars) {
         var _this16 = this;
 
-        getXAttrs(el, this).forEach(function (_ref3) {
+        getXAttrs(el, this).forEach(function (_ref5) {
           _newArrowCheck(this, _this16);
 
-          var type = _ref3.type,
-              value = _ref3.value,
-              modifiers = _ref3.modifiers,
-              expression = _ref3.expression;
+          var type = _ref5.type,
+              value = _ref5.value,
+              modifiers = _ref5.modifiers,
+              expression = _ref5.expression;
 
           switch (type) {
             case 'on':
@@ -7424,15 +7452,15 @@
           }
         }
 
-        attrs.forEach(function (_ref4) {
+        attrs.forEach(function (_ref6) {
           var _this18 = this;
 
           _newArrowCheck(this, _this17);
 
-          var type = _ref4.type,
-              value = _ref4.value,
-              modifiers = _ref4.modifiers,
-              expression = _ref4.expression;
+          var type = _ref6.type,
+              value = _ref6.value,
+              modifiers = _ref6.modifiers,
+              expression = _ref6.expression;
 
           switch (type) {
             case 'model':
@@ -7628,6 +7656,8 @@
     pauseMutationObserver: false,
     magicProperties: {},
     onComponentInitializeds: [],
+    onBeforeComponentInitializeds: [],
+    ignoreFocusedForValueBinding: false,
     start: function () {
       var _start = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _this = this;
@@ -7774,6 +7804,9 @@
     },
     onComponentInitialized: function onComponentInitialized(callback) {
       this.onComponentInitializeds.push(callback);
+    },
+    onBeforeComponentInitialized: function onBeforeComponentInitialized(callback) {
+      this.onBeforeComponentInitializeds.push(callback);
     }
   };
 

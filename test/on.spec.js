@@ -430,8 +430,8 @@ test('event with colon', async () => {
     await wait(() => { expect(document.querySelector('span').getAttribute('foo')).toEqual('baz') })
 })
 
-test('prevent default action when an event returns false', async () => {
-    window.confirm = jest.fn().mockImplementation(() => false)
+test.skip('prevent default action when an event returns false', async () => {
+    window.confirm = jest.fn().mockReturnValue(false)
 
     document.body.innerHTML = `
         <div x-data="{}">
@@ -447,7 +447,7 @@ test('prevent default action when an event returns false', async () => {
 
     expect(document.querySelector('input').checked).toEqual(false)
 
-    window.confirm = jest.fn().mockImplementation(() => true)
+    window.confirm = jest.fn().mockReturnValue(true)
 
     document.querySelector('input').click()
 
@@ -538,5 +538,3 @@ test('.camel modifier correctly binds event listener', async () => {
         expect(document.querySelector('p').innerText).toEqual('bob');
     });
 })
-
-

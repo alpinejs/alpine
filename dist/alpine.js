@@ -116,20 +116,28 @@
   }
   function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
     if (typeof expression === 'function') {
-      return expression.call(dataContext, additionalHelperVariables['$event']);
-    } // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
-    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+      return Promise.resolve(expression.call(dataContext, additionalHelperVariables['$event']));
+    }
 
+    let AsyncFunction = Function;
+    /* MODERN-ONLY:START */
+
+    AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+    /* MODERN-ONLY:END */
+    // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
 
     if (Object.keys(dataContext).includes(expression)) {
       let methodReference = new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { return ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
 
       if (typeof methodReference === 'function') {
-        return methodReference.call(dataContext, additionalHelperVariables['$event']);
+        return Promise.resolve(methodReference.call(dataContext, additionalHelperVariables['$event']));
+      } else {
+        return Promise.resolve();
       }
     }
 
-    return new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables));
+    return Promise.resolve(new AsyncFunction(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`)(dataContext, ...Object.values(additionalHelperVariables)));
   }
   const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/;
   function isXAttr(attr) {
@@ -845,14 +853,15 @@
 
         if (!modifiers.includes('self') || e.target === el) {
           const returnValue = runListenerHandler(component, expression, e, extraVars);
-
-          if (returnValue === false) {
-            e.preventDefault();
-          } else {
-            if (modifiers.includes('once')) {
-              listenerTarget.removeEventListener(event, handler, options);
+          returnValue.then(value => {
+            if (value === false) {
+              e.preventDefault();
+            } else {
+              if (modifiers.includes('once')) {
+                listenerTarget.removeEventListener(event, handler, options);
+              }
             }
-          }
+          });
         }
       };
 

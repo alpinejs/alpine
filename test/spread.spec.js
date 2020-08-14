@@ -148,10 +148,10 @@ test('x-spread syntax supports x-transition', async () => {
 })
 
 
-test('x-spread event handlers defined as functions receive the event object as their first argument', async () => {    
+test('x-spread event handlers defined as functions receive the event object as their first argument', async () => {
     window.data = function () {
         return {
-            eventType: null, 
+            eventType: null,
             button: {
                 ['@click']($event){
                     this.eventType = $event.type;

@@ -35,7 +35,8 @@
             }
         </style>
 
-        <script src="/dist/alpine.js" defer></script>
+        <!-- <script src="/dist/alpine.js" defer></script> -->
+        <script src="/dist/alpine-ie11.js" defer></script>
         <!-- <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script> -->
     </head>
     <body>
@@ -185,6 +186,16 @@
                                 <button x-on:click.stop>Shouldn't change to baz</button>
                             </div>
 
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>x-on:click (with return false)</td>
+                    <td>
+                        <div x-data>
+                            <label for="checkbox-frozen">I should be frozen on un-checked</label>
+                            <input id="checkbox-frozen" type="checkbox" @click="return false"></input>
                         </div>
                     </td>
                 </tr>

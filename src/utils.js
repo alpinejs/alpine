@@ -73,8 +73,14 @@ export function saferEval(expression, dataContext, additionalHelperVariables = {
 
 export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
     if (typeof expression === 'function') {
-        return expression.call(dataContext, additionalHelperVariables['$event'])
+        return Promise.resolve(expression.call(dataContext, additionalHelperVariables['$event']))
     }
+
+    let AsyncFunction = Function
+
+    /* MODERN-ONLY:START */
+        AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
+    /* MODERN-ONLY:END */
 
     // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
     // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
@@ -84,13 +90,15 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
         )
 
         if (typeof methodReference === 'function') {
-            return methodReference.call(dataContext, additionalHelperVariables['$event'])
+            return Promise.resolve(methodReference.call(dataContext, additionalHelperVariables['$event']))
+        } else {
+            return Promise.resolve()
         }
     }
 
-    return (new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
+    return Promise.resolve((new AsyncFunction(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
         dataContext, ...Object.values(additionalHelperVariables)
-    )
+    ))
 }
 
 const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/

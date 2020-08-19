@@ -3,7 +3,7 @@ import { wait } from '@testing-library/dom'
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 global.MutationObserver = class {
-    observe() {}
+    observe() { }
 }
 
 test('transition in', async () => {
@@ -415,6 +415,18 @@ test('transition with x-show.transition helper', async () => {
         'display: none;',
     ])
 
+
+    await assertTransitionHelperStyleAttributeValues('x-show.transition.scale.delay.100', [
+        'display: none; transform: scale(0.95); transform-origin: center; transition-property: transform; transition-duration: 0.15s; transition-delay: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'transform: scale(0.95); transform-origin: center; transition-property: transform; transition-duration: 0.15s; transition-delay: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'transform: scale(1); transform-origin: center; transition-property: transform; transition-duration: 0.15s; transition-delay: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        '',
+        'transform: scale(1); transform-origin: center; transition-property: transform; transition-duration: 0.075s; transition-delay: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'transform: scale(1); transform-origin: center; transition-property: transform; transition-duration: 0.075s; transition-delay: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'transform: scale(0.95); transform-origin: center; transition-property: transform; transition-duration: 0.075s; transition-delay: 0.1s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
+        'display: none;',
+    ])
+
     await assertTransitionHelperStyleAttributeValues('x-show.transition.scale.85', [
         'display: none; transform: scale(0.85); transform-origin: center; transition-property: transform; transition-duration: 0.15s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
         'transform: scale(0.85); transform-origin: center; transition-property: transform; transition-duration: 0.15s; transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);',
@@ -508,7 +520,7 @@ async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleA
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[index])
 
-    while(frameStack.length) {
+    while (frameStack.length) {
         frameStack.pop()()
         expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
     }
@@ -524,7 +536,7 @@ async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleA
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
 
-    while(frameStack.length) {
+    while (frameStack.length) {
         frameStack.pop()()
         expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
     }

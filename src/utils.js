@@ -469,9 +469,9 @@ export function transition(el, stages, type) {
     el.__x_transition.nextFrame = requestAnimationFrame(() => {
         // Note: Safari's transitionDuration property will list out comma separated transition durations
         // for every single transition property. Let's grab the first one and call it a day.
-        var computedStyles = getComputedStyle(el)
+        const computedStyles = getComputedStyle(el)
 
-        var duration = extractTime(computedStyles.transitionDuration) + extractTime(computedStyles.transitionDelay)
+        let duration = extractTime(computedStyles.transitionDuration) + extractTime(computedStyles.transitionDelay)
 
         if (duration === 0) {
             duration = extractTime(computedStyles.animationDuration) + extractTime(computedStyles.animationDelay)

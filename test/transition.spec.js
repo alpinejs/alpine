@@ -753,9 +753,9 @@ test('x-transition supports delay', async () => {
     // (hardcoding 10ms animation and delay time for later assertions)
     jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
         return {
-            transitionDuration: '0s',
+            transitionDuration: '.1s',
             animationDuration: '.1s',
-            transitionDelay: '0s',
+            transitionDelay: '.1s',
             animationDelay: '.1s'
         }
     });

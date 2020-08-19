@@ -744,3 +744,89 @@ test('x-transition using classes do not overlap', async () => {
     expect(document.querySelector('span').style.display).toEqual("none")
     expect(document.querySelector('span').classList).toEqual(emptyClassList)
 })
+
+test('x-transition supports delay', async () => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        setTimeout(callback, 0)
+    });
+
+    // (hardcoding 10ms animation and delay time for later assertions)
+    jest.spyOn(window, 'getComputedStyle').mockImplementation(el => {
+        return {
+            transitionDuration: '0s',
+            animationDuration: '.1s',
+            transitionDelay: '0s',
+            animationDelay: '.1s'
+        }
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: false }">
+            <button x-on:click="show = ! show"></button>
+
+            <span
+                x-show="show"
+                x-transition:enter="animation-enter"
+                x-transition:leave="animation-leave"
+            ></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelector('span').getAttribute('style')).toEqual('display: none;') })
+
+    // Testing animation enter
+    document.querySelector('button').click()
+
+    // Wait for the first requestAnimationFrame
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 0)
+    )
+    expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
+
+    // The class should still be there since sum of the animationDuration and animationDelay property is 200ms
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 199)
+    )
+    expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(true)
+
+    // The class shouldn't be there anymore
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 10)
+    )
+    expect(document.querySelector('span').classList.contains('animation-enter')).toEqual(false)
+
+    // Testing animation enter
+    document.querySelector('button').click()
+
+    // Wait for the first requestAnimationFrame
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 0)
+    )
+    expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
+
+    // The class should still be there since sum of the animationDuration and animationDelay property is 200ms
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 199)
+    )
+    expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(true)
+
+    // The class shouldn't be there anymore
+    await new Promise((resolve) =>
+        setTimeout(() => {
+            resolve();
+        }, 10)
+    )
+    expect(document.querySelector('span').classList.contains('animation-leave')).toEqual(false)
+})

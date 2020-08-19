@@ -255,6 +255,7 @@ export function transitionHelperIn(el, modifiers, showCallback) {
     // Default values inspired by: https://material.io/design/motion/speed.html#duration
     const styleValues = {
         duration: modifierValue(modifiers, 'duration', 150),
+        delay:  modifierValue(modifiers, 'delay', 0),
         origin: modifierValue(modifiers, 'origin', 'center'),
         first: {
             opacity: 0,
@@ -279,6 +280,7 @@ export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition,
 
     const styleValues = {
         duration: duration,
+        delay:  modifierValue(modifiers, 'delay', 0),
         origin: modifierValue(modifiers, 'origin', 'center'),
         first: {
             opacity: 1,
@@ -309,7 +311,7 @@ function modifierValue(modifiers, key, fallback) {
         if (! isNumeric(rawValue)) return fallback
     }
 
-    if (key === 'duration') {
+    if (key === 'duration' || key === 'delay') {
         // Support x-show.transition.duration.500ms && duration.500
         let match = rawValue.match(/([0-9]+)ms/)
         if (match) return match[1]
@@ -354,6 +356,7 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues, type)
             if (transitionScale) el.style.transformOrigin = styleValues.origin
             el.style.transitionProperty = [(transitionOpacity ? `opacity` : ``), (transitionScale ? `transform` : ``)].join(' ').trim()
             el.style.transitionDuration = `${styleValues.duration / 1000}s`
+            if (styleValues.delay) el.style.transitionDelay = `${styleValues.delay / 1000}s`
             el.style.transitionTimingFunction = `cubic-bezier(0.4, 0.0, 0.2, 1)`
         },
         show() {
@@ -372,6 +375,7 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues, type)
             if (transitionScale) el.style.transformOrigin = transformOriginCache
             el.style.transitionProperty = null
             el.style.transitionDuration = null
+            el.style.transitionDelay = null
             el.style.transitionTimingFunction = null
         },
     }
@@ -462,23 +466,29 @@ export function transition(el, stages, type) {
     stages.start()
     stages.during()
 
-    el.__x_transition.nextFrame =requestAnimationFrame(() => {
+    el.__x_transition.nextFrame = requestAnimationFrame(() => {
         // Note: Safari's transitionDuration property will list out comma separated transition durations
         // for every single transition property. Let's grab the first one and call it a day.
-        let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000
+        var computedStyles = getComputedStyle(el)
+
+        var duration = extractTime(computedStyles.transitionDuration) + extractTime(computedStyles.transitionDelay)
 
         if (duration === 0) {
-            duration = Number(getComputedStyle(el).animationDuration.replace('s', '')) * 1000
+            duration = extractTime(computedStyles.animationDuration) + extractTime(computedStyles.animationDelay)
         }
 
         stages.show()
 
-        el.__x_transition.nextFrame =requestAnimationFrame(() => {
+        el.__x_transition.nextFrame = requestAnimationFrame(() => {
             stages.end()
 
-            setTimeout(el.__x_transition.callback, duration)
+            setTimeout(el.__x_transition.callback, duration * 1000)
         })
     });
+}
+
+export function extractTime(property) {
+    return property ? Number(property.replace(/,.*/, '').replace('s', '')) : 0
 }
 
 export function isNumeric(subject){

@@ -3,7 +3,7 @@ import { wait } from '@testing-library/dom'
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 global.MutationObserver = class {
-    observe() { }
+    observe() {}
 }
 
 test('transition in', async () => {
@@ -520,7 +520,7 @@ async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleA
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[index])
 
-    while (frameStack.length) {
+    while(frameStack.length){
         frameStack.pop()()
         expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
     }
@@ -536,7 +536,7 @@ async function assertTransitionHelperStyleAttributeValues(xShowDirective, styleA
 
     expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
 
-    while (frameStack.length) {
+    while(frameStack.length){
         frameStack.pop()()
         expect(document.querySelector('span').getAttribute('style')).toEqual(styleAttributeExpectations[++index])
     }

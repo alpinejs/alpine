@@ -5995,7 +5995,7 @@
     }
 
     if (key === 'duration' || key === 'delay') {
-      // Support x-show.transition.duration.500ms && duration.500
+      // Support x-show.transition duration & delay with/out 'ms'
       var match = rawValue.match(/([0-9]+)ms/);
       if (match) return match[1];
     }

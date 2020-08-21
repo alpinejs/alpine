@@ -52,3 +52,26 @@ test('$watch nested properties', async () => {
         expect(document.querySelector('h2').innerText).toEqual('law')
     })
 })
+
+test('$watch arrays', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: ['one'], bob: 'lob' }" x-init="$watch('foo', value => { bob = 'baz' })">
+            <h1 x-text="foo"></h1>
+            <h2 x-text="bob"></h2>
+
+            <button x-on:click="foo.push('two')"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('h1').innerText).toEqual(['one'])
+    expect(document.querySelector('h2').innerText).toEqual('lob')
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('h1').innerText).toEqual(['one','two'])
+        expect(document.querySelector('h2').innerText).toEqual('baz')
+    })
+})

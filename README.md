@@ -405,7 +405,6 @@ The `camel` modifier will attach an event listener for the camel case equivalent
 
 The `number` modifier will convert the input's value to a number.
 
-
 **`.debounce` modifier**
 **Example:** `<input x-model.debounce="search">`
 

@@ -114,27 +114,25 @@ export default class Component {
         }, 0)
 
         return wrap(data, (target, key) => {
-            const isArray = Array.isArray(target)
             if (self.watchers[key]) {
                 // If there's a watcher for this specific key, run it.
                 self.watchers[key].forEach(callback => callback(target[key]))
-            } else if (isArray) {
-                // Array are special cases, if any of the element changes, we consider the array as mutated.
-                // Key is not relevant since it's going to be the item index
+            } else if (Array.isArray(target)) {
+                // Arrays are special cases, if any of the items change, we consider the array as mutated.
                 Object.keys(self.watchers)
                     .forEach(fullDotNotationKey => {
                         let dotNotationParts = fullDotNotationKey.split('.')
 
-                        // Ignore length mutations since they would result in duplicate calls
-                        // For example, when calling push, we would get a mutation for the item
-                        // and a second mutation for the length property
+                        // Ignore length mutations since they would result in duplicate calls.
+                        // For example, when calling push, we would get a mutation for the item's key
+                        // and a second mutation for the length property.
                         if (key === 'length') return
 
                         dotNotationParts.reduce((comparisonData, part) => {
                             if (Object.is(target, comparisonData[part])) {
-                                // Run the watchers.
                                 self.watchers[fullDotNotationKey].forEach(callback => callback(target))
                             }
+
                             return comparisonData[part]
                         }, self.getUnobservedData())
                     })

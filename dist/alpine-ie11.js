@@ -1276,7 +1276,28 @@
   })(EventListenerInterceptor);
 
   // For the IE11 build.
-  SVGElement.prototype.contains = SVGElement.prototype.contains || HTMLElement.prototype.contains;
+  SVGElement.prototype.contains = SVGElement.prototype.contains || HTMLElement.prototype.contains // .childElementCount polyfill
+  // from https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/childElementCount#Polyfill_for_IE8_IE9_Safari
+  ;
+
+  (function (constructor) {
+    if (constructor && constructor.prototype && constructor.prototype.childElementCount == null) {
+      Object.defineProperty(constructor.prototype, 'childElementCount', {
+        get: function get() {
+          var i = 0,
+              count = 0,
+              node,
+              nodes = this.childNodes;
+
+          while (node = nodes[i++]) {
+            if (node.nodeType === 1) count++;
+          }
+
+          return count;
+        }
+      });
+    }
+  })(window.Node || window.Element);
 
   var check = function (it) {
     return it && it.Math == Math && it;
@@ -5693,7 +5714,7 @@
   function warnIfMalformedTemplate(el, directive) {
     if (el.tagName.toLowerCase() !== 'template') {
       console.warn("Alpine: [".concat(directive, "] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#").concat(directive));
-    } else if (el.content.childNodes.length !== 1) {
+    } else if (el.content.childElementCount !== 1) {
       console.warn("Alpine: <template> tag with [".concat(directive, "] encountered with multiple element roots. Make sure <template> only has a single child node."));
     }
   }

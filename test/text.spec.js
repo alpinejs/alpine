@@ -34,3 +34,17 @@ test('x-text on triggered update', async () => {
 
     await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
 })
+
+test('x-text on SVG elements', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <svg>
+                <text x-text="foo"></text>
+            </svg>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelector('text').textContent).toEqual('bar') })
+})

@@ -4,5 +4,9 @@ export function handleTextDirective(el, output, expression) {
         output = ''
     }
 
-    el.innerText = output
+    if (el instanceof HTMLElement) {
+        el.innerText = output
+    } else {
+        el.textContent = output
+    }
 }

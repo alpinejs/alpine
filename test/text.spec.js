@@ -2,7 +2,7 @@ import Alpine from 'alpinejs'
 import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
-    observe() {}
+    observe() { }
 }
 
 test('x-text on init', async () => {

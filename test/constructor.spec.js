@@ -32,7 +32,7 @@ test('auto-detect new components at the top level', async () => {
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('bar') })
 })
 
 test('auto-detect nested new components at the top level', async () => {
@@ -67,7 +67,7 @@ test('auto-detect nested new components at the top level', async () => {
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('bar') })
 })
 
 test('auto-detect new components and dont lose state of existing ones', async () => {
@@ -91,7 +91,7 @@ test('auto-detect new components and dont lose state of existing ones', async ()
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
 
-    await wait(() => { expect(document.querySelector('#A span').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('#A span').textContent).toEqual('bar') })
 
     document.querySelector('#B').innerHTML = `
         <div x-data="{foo: 'baz'}">
@@ -109,8 +109,8 @@ test('auto-detect new components and dont lose state of existing ones', async ()
     ])
 
     await wait(() => {
-        expect(document.querySelector('#A span').innerText).toEqual('bar')
-        expect(document.querySelector('#B span').innerText).toEqual('baz')
+        expect(document.querySelector('#A span').textContent).toEqual('bar')
+        expect(document.querySelector('#B span').textContent).toEqual('baz')
     })
 })
 
@@ -135,7 +135,7 @@ test('auto-detect new components that are wrapped in non-new component tags', as
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar' }})
 
-    await wait(() => { expect(document.querySelector('#A span').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('#A span').textContent).toEqual('bar') })
 
     document.querySelector('#B').innerHTML = `
         <section>
@@ -155,8 +155,8 @@ test('auto-detect new components that are wrapped in non-new component tags', as
     ])
 
     await wait(() => {
-        expect(document.querySelector('#A span').innerText).toEqual('bar')
-        expect(document.querySelector('#B span').innerText).toEqual('baz')
+        expect(document.querySelector('#A span').textContent).toEqual('bar')
+        expect(document.querySelector('#B span').textContent).toEqual('baz')
     })
 })
 
@@ -179,7 +179,7 @@ test('auto-initialize new elements added to a component', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     document.querySelector('#target').innerHTML = `
         <span x-text="count"></span>
@@ -194,12 +194,12 @@ test('auto-initialize new elements added to a component', async () => {
         ] }
     ])
 
-    await wait(() => { expect(document.querySelector('#target span').innerText).toEqual(0) })
+    await wait(() => { expect(document.querySelector('#target span').textContent).toEqual('0') })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
-    await wait(() => { expect(document.querySelector('#target span').innerText).toEqual(1) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('1') })
+    await wait(() => { expect(document.querySelector('#target span').textContent).toEqual('1') })
 })
 
 test('Alpine mutations don\'t trigger (like x-if and x-for) MutationObserver', async () => {
@@ -263,7 +263,7 @@ test('auto-detect x-data property changes at run-time', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     document.querySelector('div').setAttribute('x-data', '{ count: 1 }')
 
@@ -276,7 +276,7 @@ test('auto-detect x-data property changes at run-time', async () => {
         }
     ])
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('1') })
 })
 
 test('can use $el when changing x-data property at run-time', async () => {
@@ -295,7 +295,7 @@ test('can use $el when changing x-data property at run-time', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('0')
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     document.querySelector('div').setAttribute('x-data', '{ count: $el.dataset.count }')
 
@@ -308,7 +308,7 @@ test('can use $el when changing x-data property at run-time', async () => {
         }
     ])
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('1') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('1') })
 })
 
 test('nested components only get registered once on initialization', async () => {
@@ -355,7 +355,7 @@ test('can clone an existing component to a new element', async () => {
 
     Alpine.clone(document.querySelector('h1').__x, document.querySelector('h2'))
 
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 })
 
 test('x-attributes are matched exactly', async () => {

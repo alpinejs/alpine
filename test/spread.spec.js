@@ -62,9 +62,9 @@ test('x-spread supports x-for', async () => {
 
     Alpine.start()
 
-    expect(document.querySelectorAll('li')[0].innerText).toEqual('one')
-    expect(document.querySelectorAll('li')[1].innerText).toEqual('two')
-    expect(document.querySelectorAll('li')[2].innerText).toEqual('three')
+    expect(document.querySelectorAll('li')[0].textContent).toEqual('one')
+    expect(document.querySelectorAll('li')[1].textContent).toEqual('two')
+    expect(document.querySelectorAll('li')[2].textContent).toEqual('three')
 })
 
 test('x-spread syntax supports x-transition', async () => {

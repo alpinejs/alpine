@@ -17,7 +17,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 | Language | Link for documentation |
 | --- | --- |
 | Japanese | [**日本語ドキュメント**](./README.ja.md) | 
-| Chinese | [**繁體中文使用文件**](./README_zh-TW.md) | 
+| Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) | 
 | Russian | [**Документация на русском**](./README.ru.md) | 
 | Portuguese | [**Documentação em Português**](./README.pt.md) | 
 
@@ -31,9 +31,9 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 That's it. It will initialize itself.
 
 For production environments, it's recommended to pin a specific version number in the link to avoid unexpected breakage from newer versions.
-For example, to use version `2.3.5`:
+For example, to use version `2.6.0` (latest):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.6.0/dist/alpine.min.js" defer></script>
 ```
 
 **From NPM:** Install the package from NPM.
@@ -139,16 +139,12 @@ And 6 magic properties:
 
 **Want your logo here? [DM on Twitter](https://twitter.com/calebporzio)**
 
-## VIP Contributors
+## Community Projects
 
-<table>
-  <tr>
-    <td align="center"><a href="http://calebporzio.com"><img src="https://avatars2.githubusercontent.com/u/3670578?v=4" width="100px;" alt="Caleb Porzio"/><br /><sub><b>Caleb Porzio</b></sub></a><br /><sub>(Creator)</sub></td>
-    <td align="center"><a href="https://github.com/HugoDF"><img src="https://avatars2.githubusercontent.com/u/6459679?v=4" width="100px;" alt="Hugo"/><br /><sub><b>Hugo</b></sub></a></td>
-    <td align="center"><a href="https://github.com/ryangjchandler"><img src="https://avatars2.githubusercontent.com/u/41837763?v=4" width="100px;" alt="Ryan Chandler"/><br /><sub><b>Ryan Chandler</b></sub></a></td>
-    <td align="center"><a href="https://github.com/SimoTod"><img src="https://avatars2.githubusercontent.com/u/8427737?v=4" width="100px;" alt="Simone Todaro"/><br /><sub><b>Simone Todaro</b></sub></a></td>
-  </tr>
-</table>
+* [AlpineJS Weekly Newsletter](https://alpinejs.codewithhugo.com/newsletter/)
+* [Spruce (State Management)](https://github.com/ryangjchandler/spruce)
+* [Alpine Magic Helpers](https://github.com/KevinBatdorf/alpine-magic-helpers)
+* [Awesome Alpine](https://github.com/ryangjchandler/awesome-alpine)
 
 ### Directives
 
@@ -399,6 +395,11 @@ The `camel` modifier will attach an event listener for the camel case equivalent
 `x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
 
 > Note: `x-model` is smart enough to detect changes on text inputs, checkboxes, radio buttons, textareas, selects, and multiple selects. It should behave [how Vue would](https://vuejs.org/v2/guide/forms.html) in those scenarios.
+
+**`.number` modifier**
+**Example:** `<input x-model.number="age">`
+
+The `number` modifier will convert the input's value to a number. If the value cannot be parsed as a valid number, the original value is returned.
 
 **`.debounce` modifier**
 **Example:** `<input x-model.debounce="search">`

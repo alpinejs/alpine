@@ -516,8 +516,6 @@ Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to it
 </template>
 ```
 
-This will output 10 spans, starting with an `i` value of 0.
-
 ---
 
 ### `x-transition`

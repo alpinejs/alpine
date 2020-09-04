@@ -6360,15 +6360,21 @@
   }
 
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
+    var _this4 = this;
+
     var ifAttribute = getXAttrs(el, component, 'if')[0];
 
     if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
       return [];
-    } // This adds support for the `i in 10` syntax.
+    } // This adds support for the `i in n` syntax.
 
 
     if (isNumeric(iteratorNames.items)) {
-      return _toConsumableArray(Array(parseInt(iteratorNames.items, 10)).keys());
+      return Array.from(Array(parseInt(iteratorNames.items, 10)).keys(), function (i) {
+        _newArrowCheck(this, _this4);
+
+        return i + 1;
+      }.bind(this));
     }
 
     return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);
@@ -6401,12 +6407,12 @@
     var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     var _loop = function _loop() {
-      var _this4 = this;
+      var _this5 = this;
 
       var nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       var nextSibling = nextElementFromOldLoop.nextElementSibling;
       transitionOut(nextElementFromOldLoop, function () {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this5);
 
         nextElementFromOldLoopImmutable.remove();
       }.bind(this), component);

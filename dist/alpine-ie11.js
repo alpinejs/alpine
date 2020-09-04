@@ -6368,7 +6368,7 @@
 
 
     if (isNumeric(iteratorNames.items)) {
-      return _toConsumableArray(Array(parseInt(iteratorNames.items)).keys());
+      return _toConsumableArray(Array(parseInt(iteratorNames.items, 10)).keys());
     }
 
     return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);

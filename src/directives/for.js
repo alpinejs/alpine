@@ -94,7 +94,7 @@ function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, e
 
     // This adds support for the `i in 10` syntax.
     if (isNumeric(iteratorNames.items)) {
-        return [...Array(parseInt(iteratorNames.items)).keys()]
+        return [...Array(parseInt(iteratorNames.items, 10)).keys()]
     }
 
     return component.evaluateReturnExpression(el, iteratorNames.items, extraVars)

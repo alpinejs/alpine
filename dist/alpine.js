@@ -577,6 +577,11 @@
 
     if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
       return [];
+    } // This adds support for the `i in n` syntax.
+
+
+    if (isNumeric(iteratorNames.items)) {
+      return Array.from(Array(parseInt(iteratorNames.items, 10)).keys(), i => i + 1);
     }
 
     return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);

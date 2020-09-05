@@ -477,3 +477,17 @@ test('make sure new elements with different keys added to the beginning of a loo
 
     expect(clickCount).toEqual(2)
 })
+
+test('x-for over range using i in x syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data>
+            <template x-for="i in 10">
+                <span x-text="i"></span>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span').length).toEqual(10)
+})

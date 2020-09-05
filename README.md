@@ -507,6 +507,16 @@ You can nest `x-for` loops, but you MUST wrap each loop in an element. For examp
 </template>
 ```
 
+#### Iterating over a range
+
+Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to iterate over a fixed range of elements.
+
+```html
+<template x-for="i in 10">
+    <span x-text="i"></span>
+</template>
+```
+
 ---
 
 ### `x-transition`

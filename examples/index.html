@@ -305,6 +305,17 @@
                 </tr>
 
                 <tr>
+                    <td>x-for over a range using <code>i in 10</code> syntax</td>
+                    <td>
+                        <div x-data>
+                            <template x-for="i in 10" :key="i">
+                                <span x-text="i"></span>
+                            </template>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <td>Transitions</td>
                     <td>
                         <div x-data="{ open: false }">

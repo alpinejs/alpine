@@ -21,9 +21,9 @@ Podríamos considerarlo como un [Tailwind](https://tailwindcss.com/) para JavaSc
 
 Eso es todo. Se inicializará solo.
 
-Para entornos de producción, se recomienda especificar una número de versión en concreto en el enlace para evitar comportamientos inesperados que puedan romper las nuevas versiones. Por ejemplo, para usar la versión `2.6.0` (la última):
+Para entornos de producción, se recomienda especificar una número de versión en concreto en el enlace para evitar comportamientos inesperados que puedan romper las nuevas versiones. Por ejemplo, para usar la versión `2.7.0` (la última):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.6.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
 ```
 
 **Desde NPM:** Instalar el paquete desde NPM.

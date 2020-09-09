@@ -18,7 +18,7 @@ test('read-only properties do not break the proxy', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     const input = document.querySelector('input')
     Object.defineProperty(input, 'files', {
@@ -27,5 +27,5 @@ test('read-only properties do not break the proxy', async () => {
 
     input.dispatchEvent(new Event('change'));
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('1') })
 })

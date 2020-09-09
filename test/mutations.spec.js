@@ -48,23 +48,23 @@ test('mutationObserver doesn\'t reset data when reparenting nested components', 
 
     Alpine.start()
 
-    expect(document.querySelector('button').innerText).toEqual(1)
+    expect(document.querySelector('button').textContent).toEqual('1')
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('button').innerText).toEqual(2) })
+    await wait(() => { expect(document.querySelector('button').textContent).toEqual('2') })
 
     // Move the component and run the observer
     document.getElementById('b').appendChild(document.querySelector('button'))
     runObservers.forEach(cb => {
         cb([
             {
-                target:  document.getElementById('b'),
+                target: document.getElementById('b'),
                 type: 'childList',
                 addedNodes: [ document.querySelector('button') ],
             }
         ])
     })
 
-    await wait(() => { expect(document.querySelector('button').innerText).toEqual(2) })
+    await wait(() => { expect(document.querySelector('button').textContent).toEqual('2') })
 })

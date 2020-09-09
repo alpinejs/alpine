@@ -109,7 +109,7 @@ test('x-model trims value if trim modifier is present', async () => {
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar   ' } })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('bar') })
 })
 
 test('x-model updates value when updated via changed event when lazy modifier is present', async () => {
@@ -248,7 +248,7 @@ test('x-model binds select dropdown', async () => {
     expect(document.querySelectorAll('option')[0].selected).toEqual(false)
     expect(document.querySelectorAll('option')[1].selected).toEqual(true)
     expect(document.querySelectorAll('option')[2].selected).toEqual(false)
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     fireEvent.change(document.querySelector('select'), { target: { value: 'baz' } });
 
@@ -256,7 +256,7 @@ test('x-model binds select dropdown', async () => {
         expect(document.querySelectorAll('option')[0].selected).toEqual(false)
         expect(document.querySelectorAll('option')[1].selected).toEqual(false)
         expect(document.querySelectorAll('option')[2].selected).toEqual(true)
-        expect(document.querySelector('span').innerText).toEqual('baz')
+        expect(document.querySelector('span').textContent).toEqual('baz')
     })
 })
 
@@ -278,7 +278,7 @@ test('x-model binds multiple select dropdown', async () => {
     expect(document.querySelectorAll('option')[0].selected).toEqual(false)
     expect(document.querySelectorAll('option')[1].selected).toEqual(true)
     expect(document.querySelectorAll('option')[2].selected).toEqual(false)
-    expect(document.querySelector('span').innerText).toEqual(['bar'])
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelectorAll('option')[2].selected = true
     fireEvent.change(document.querySelector('select'));
@@ -287,7 +287,7 @@ test('x-model binds multiple select dropdown', async () => {
         expect(document.querySelectorAll('option')[0].selected).toEqual(false)
         expect(document.querySelectorAll('option')[1].selected).toEqual(true)
         expect(document.querySelectorAll('option')[2].selected).toEqual(true)
-        expect(document.querySelector('span').innerText).toEqual(['bar', 'baz'])
+        expect(document.querySelector('span').textContent).toEqual('bar,baz')
     })
 })
 
@@ -302,13 +302,13 @@ test('x-model binds nested keys', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('foo')
-    expect(document.querySelector('span').innerText).toEqual('foo')
+    expect(document.querySelector('span').textContent).toEqual('foo')
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } })
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('bar')
-        expect(document.querySelector('span').innerText).toEqual('bar')
+        expect(document.querySelector('span').textContent).toEqual('bar')
     })
 })
 
@@ -323,13 +323,13 @@ test('x-model undefined nested model key defaults to empty string', async () => 
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('')
-    expect(document.querySelector('span').innerText).toEqual('')
+    expect(document.querySelector('span').textContent).toEqual('')
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } })
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('bar')
-        expect(document.querySelector('span').innerText).toEqual('bar')
+        expect(document.querySelector('span').textContent).toEqual('bar')
     })
 })
 
@@ -344,12 +344,12 @@ test('x-model can listen for custom input event dispatches', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
     await wait(() => {
-        expect(document.querySelector('span').innerText).toEqual('baz')
+        expect(document.querySelector('span').textContent).toEqual('baz')
     })
 })
 
@@ -365,13 +365,13 @@ test('x-model bind color input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('#ff0000')
-    expect(document.querySelector('span').innerText).toEqual('#ff0000')
+    expect(document.querySelector('span').textContent).toEqual('#ff0000')
 
     fireEvent.input(document.querySelector('input'), { target: { value: '#00ff00' } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('#00ff00')
-        expect(document.querySelector('span').innerText).toEqual('#00ff00')
+        expect(document.querySelector('span').textContent).toEqual('#00ff00')
     })
 
 })
@@ -388,13 +388,13 @@ test('x-model bind button input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('foo')
-    expect(document.querySelector('span').innerText).toEqual('foo')
+    expect(document.querySelector('span').textContent).toEqual('foo')
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('bar')
-        expect(document.querySelector('span').innerText).toEqual('bar')
+        expect(document.querySelector('span').textContent).toEqual('bar')
     })
 })
 
@@ -410,13 +410,13 @@ test('x-model bind date input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('2020-07-10')
-    expect(document.querySelector('span').innerText).toEqual('2020-07-10')
+    expect(document.querySelector('span').textContent).toEqual('2020-07-10')
 
     fireEvent.input(document.querySelector('input'), { target: { value: '2021-01-01' } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('2021-01-01')
-        expect(document.querySelector('span').innerText).toEqual('2021-01-01')
+        expect(document.querySelector('span').textContent).toEqual('2021-01-01')
     })
 })
 
@@ -432,13 +432,13 @@ test('x-model bind datetime-local input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('2020-01-01T20:00')
-    expect(document.querySelector('span').innerText).toEqual('2020-01-01T20:00')
+    expect(document.querySelector('span').textContent).toEqual('2020-01-01T20:00')
 
     fireEvent.input(document.querySelector('input'), { target: { value: '2021-02-02T20:00' } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('2021-02-02T20:00')
-        expect(document.querySelector('span').innerText).toEqual('2021-02-02T20:00')
+        expect(document.querySelector('span').textContent).toEqual('2021-02-02T20:00')
     })
 })
 
@@ -458,13 +458,13 @@ test('x-model bind month input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('2020-04')
-    expect(document.querySelector('span').innerText).toEqual('2020-04')
+    expect(document.querySelector('span').textContent).toEqual('2020-04')
 
     fireEvent.input(document.querySelector('input'), { target: { value: '2021-05' } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('2021-05')
-        expect(document.querySelector('span').innerText).toEqual('2021-05')
+        expect(document.querySelector('span').textContent).toEqual('2021-05')
     })
 })
 
@@ -481,13 +481,13 @@ test('x-model bind number input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('11')
-    expect(document.querySelector('span').innerText).toEqual('11')
+    expect(document.querySelector('span').textContent).toEqual('11')
 
     fireEvent.input(document.querySelector('input'), { target: { value: '2021' } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('2021')
-        expect(document.querySelector('span').innerText).toEqual('2021')
+        expect(document.querySelector('span').textContent).toEqual('2021')
     })
 })
 
@@ -503,13 +503,13 @@ test('x-model bind password input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('SecretKey')
-    expect(document.querySelector('span').innerText).toEqual('SecretKey')
+    expect(document.querySelector('span').textContent).toEqual('SecretKey')
 
     fireEvent.input(document.querySelector('input'), { target: { value: 'NewSecretKey' } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('NewSecretKey')
-        expect(document.querySelector('span').innerText).toEqual('NewSecretKey')
+        expect(document.querySelector('span').textContent).toEqual('NewSecretKey')
     })
 })
 
@@ -525,13 +525,13 @@ test('x-model bind range input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('10')
-    expect(document.querySelector('span').innerText).toEqual('10')
+    expect(document.querySelector('span').textContent).toEqual('10')
 
     fireEvent.input(document.querySelector('input'), { target: { value: '20' } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual('20')
-        expect(document.querySelector('span').innerText).toEqual('20')
+        expect(document.querySelector('span').textContent).toEqual('20')
     })
 })
 
@@ -547,14 +547,14 @@ test('x-model bind search input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('')
-    expect(document.querySelector('span').innerText).toEqual('')
+    expect(document.querySelector('span').textContent).toEqual('')
 
     const newValue = 'Frontend Frameworks';
     fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual(newValue)
-        expect(document.querySelector('span').innerText).toEqual(newValue)
+        expect(document.querySelector('span').textContent).toEqual(newValue)
     })
 })
 
@@ -570,14 +570,14 @@ test('x-model bind tel input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('+12345678901')
-    expect(document.querySelector('span').innerText).toEqual('+12345678901')
+    expect(document.querySelector('span').textContent).toEqual('+12345678901')
 
     const newValue = '+1239874560';
     fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual(newValue)
-        expect(document.querySelector('span').innerText).toEqual(newValue)
+        expect(document.querySelector('span').textContent).toEqual(newValue)
     })
 })
 
@@ -593,14 +593,14 @@ test('x-model bind tel input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('+12345678901')
-    expect(document.querySelector('span').innerText).toEqual('+12345678901')
+    expect(document.querySelector('span').textContent).toEqual('+12345678901')
 
     const newValue = '+1239874560';
     fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual(newValue)
-        expect(document.querySelector('span').innerText).toEqual(newValue)
+        expect(document.querySelector('span').textContent).toEqual(newValue)
     })
 })
 
@@ -616,14 +616,14 @@ test('x-model bind time input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('22:00')
-    expect(document.querySelector('span').innerText).toEqual('22:00')
+    expect(document.querySelector('span').textContent).toEqual('22:00')
 
     const newValue = '23:00';
     fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual(newValue)
-        expect(document.querySelector('span').innerText).toEqual(newValue)
+        expect(document.querySelector('span').textContent).toEqual(newValue)
     })
 })
 
@@ -639,14 +639,14 @@ test('x-model bind time input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('22:00')
-    expect(document.querySelector('span').innerText).toEqual('22:00')
+    expect(document.querySelector('span').textContent).toEqual('22:00')
 
     const newValue = '23:00';
     fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual(newValue)
-        expect(document.querySelector('span').innerText).toEqual(newValue)
+        expect(document.querySelector('span').textContent).toEqual(newValue)
     })
 })
 
@@ -662,14 +662,14 @@ test('x-model bind week input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('2020-W20')
-    expect(document.querySelector('span').innerText).toEqual('2020-W20')
+    expect(document.querySelector('span').textContent).toEqual('2020-W20')
 
     const newValue = '2020-W30';
     fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual(newValue)
-        expect(document.querySelector('span').innerText).toEqual(newValue)
+        expect(document.querySelector('span').textContent).toEqual(newValue)
     })
 })
 
@@ -685,14 +685,14 @@ test('x-model bind url input', async () => {
     Alpine.start()
 
     expect(document.querySelector('input').value).toEqual('https://example.com')
-    expect(document.querySelector('span').innerText).toEqual('https://example.com')
+    expect(document.querySelector('span').textContent).toEqual('https://example.com')
 
     const newValue = 'https://alpine.io';
     fireEvent.input(document.querySelector('input'), { target: { value: newValue } });
 
     await wait(() => {
         expect(document.querySelector('input').value).toEqual(newValue)
-        expect(document.querySelector('span').innerText).toEqual(newValue)
+        expect(document.querySelector('span').textContent).toEqual(newValue)
     })
 })
 

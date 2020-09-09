@@ -17,14 +17,14 @@ test('$watch', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('h1').innerText).toEqual('bar')
-    expect(document.querySelector('h2').innerText).toEqual('lob')
+    expect(document.querySelector('h1').textContent).toEqual('bar')
+    expect(document.querySelector('h2').textContent).toEqual('lob')
 
     document.querySelector('button').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual('baz')
-        expect(document.querySelector('h2').innerText).toEqual('baz')
+        expect(document.querySelector('h1').textContent).toEqual('baz')
+        expect(document.querySelector('h2').textContent).toEqual('baz')
     })
 })
 
@@ -42,14 +42,14 @@ test('$watch nested properties', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('h1').innerText).toEqual('baz')
-    expect(document.querySelector('h2').innerText).toEqual('lob')
+    expect(document.querySelector('h1').textContent).toEqual('baz')
+    expect(document.querySelector('h2').textContent).toEqual('lob')
 
     document.querySelector('button').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual('law')
-        expect(document.querySelector('h2').innerText).toEqual('law')
+        expect(document.querySelector('h1').textContent).toEqual('law')
+        expect(document.querySelector('h2').textContent).toEqual('law')
     })
 })
 
@@ -71,56 +71,56 @@ test('$watch arrays', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('h1').innerText).toEqual(['one'])
-    expect(document.querySelector('h2').innerText).toEqual('lob')
+    expect(document.querySelector('h1').textContent).toEqual('one')
+    expect(document.querySelector('h2').textContent).toEqual('lob')
 
     document.querySelector('#push').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual(['one','two'])
-        expect(document.querySelector('h2').innerText).toEqual(['one','two'])
+        expect(document.querySelector('h1').textContent).toEqual('one,two')
+        expect(document.querySelector('h2').textContent).toEqual('one,two')
     })
 
     document.querySelector('#pop').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual(['one'])
-        expect(document.querySelector('h2').innerText).toEqual(['one'])
+        expect(document.querySelector('h1').textContent).toEqual('one')
+        expect(document.querySelector('h2').textContent).toEqual('one')
     })
 
     document.querySelector('#unshift').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual(['zero','one'])
-        expect(document.querySelector('h2').innerText).toEqual(['zero','one'])
+        expect(document.querySelector('h1').textContent).toEqual('zero,one')
+        expect(document.querySelector('h2').textContent).toEqual('zero,one')
     })
 
     document.querySelector('#shift').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual(['one'])
-        expect(document.querySelector('h2').innerText).toEqual(['one'])
+        expect(document.querySelector('h1').textContent).toEqual('one')
+        expect(document.querySelector('h2').textContent).toEqual('one')
     })
 
     document.querySelector('#assign').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual([2,1,3])
-        expect(document.querySelector('h2').innerText).toEqual([2,1,3])
+        expect(document.querySelector('h1').textContent).toEqual('2,1,3')
+        expect(document.querySelector('h2').textContent).toEqual('2,1,3')
     })
 
     document.querySelector('#sort').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual([1,2,3])
-        expect(document.querySelector('h2').innerText).toEqual([1,2,3])
+        expect(document.querySelector('h1').textContent).toEqual('1,2,3')
+        expect(document.querySelector('h2').textContent).toEqual('1,2,3')
     })
 
     document.querySelector('#reverse').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual([3,2,1])
-        expect(document.querySelector('h2').innerText).toEqual([3,2,1])
+        expect(document.querySelector('h1').textContent).toEqual('3,2,1')
+        expect(document.querySelector('h2').textContent).toEqual('3,2,1')
     })
 })
 
@@ -136,13 +136,13 @@ test('$watch nested arrays', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('h1').innerText).toEqual(['one'])
-    expect(document.querySelector('h2').innerText).toEqual('lob')
+    expect(document.querySelector('h1').textContent).toEqual('one')
+    expect(document.querySelector('h2').textContent).toEqual('lob')
 
     document.querySelector('#push').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual(['one','two'])
-        expect(document.querySelector('h2').innerText).toEqual(['one','two'])
+        expect(document.querySelector('h1').textContent).toEqual('one,two')
+        expect(document.querySelector('h2').textContent).toEqual('one,two')
     })
 })

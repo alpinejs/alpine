@@ -20,21 +20,21 @@ test('x-on with debounce modifier', async () => {
 
     await timeout(10)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
-    expect(document.querySelector('span').innerText).toEqual(0)
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 } })
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     await timeout(10)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
-    expect(document.querySelector('span').innerText).toEqual(0)
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 } })
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     await timeout(249)
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     await timeout(20)
 
-    expect(document.querySelector('span').innerText).toEqual(1)
+    expect(document.querySelector('span').textContent).toEqual('1')
 })
 
 test('x-on with debounce modifier and specified wait', async () => {
@@ -51,21 +51,21 @@ test('x-on with debounce modifier and specified wait', async () => {
 
     await timeout(10)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
-    expect(document.querySelector('span').innerText).toEqual(0)
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 } })
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     await timeout(10)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
-    expect(document.querySelector('span').innerText).toEqual(0)
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 } })
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     await timeout(99)
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     await timeout(20)
 
-    expect(document.querySelector('span').innerText).toEqual(1)
+    expect(document.querySelector('span').textContent).toEqual('1')
 })
 
 test('x-model with debounce modifier', async () => {
@@ -78,25 +78,25 @@ test('x-model with debounce modifier', async () => {
 
     Alpine.start()
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'foo' }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 'foo' } })
 
     await timeout(10)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'foo' }})
-    expect(document.querySelector('span').innerText).toEqual('')
+    fireEvent.input(document.querySelector('input'), { target: { value: 'foo' } })
+    expect(document.querySelector('span').textContent).toEqual('')
 
     await timeout(10)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 'foo' }})
-    expect(document.querySelector('span').innerText).toEqual('')
+    fireEvent.input(document.querySelector('input'), { target: { value: 'foo' } })
+    expect(document.querySelector('span').textContent).toEqual('')
 
     await timeout(249)
 
-    expect(document.querySelector('span').innerText).toEqual('')
+    expect(document.querySelector('span').textContent).toEqual('')
 
     await timeout(20)
 
-    expect(document.querySelector('span').innerText).toEqual('foo')
+    expect(document.querySelector('span').textContent).toEqual('foo')
 })
 
 test('x-on with debounce modifier (with "ms" suffix)', async () => {
@@ -109,25 +109,25 @@ test('x-on with debounce modifier (with "ms" suffix)', async () => {
 
     Alpine.start()
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 } })
 
     await timeout(10)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
-    expect(document.querySelector('span').innerText).toEqual(0)
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 } })
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     await timeout(10)
 
-    fireEvent.input(document.querySelector('input'), { target: { value: 1 }})
-    expect(document.querySelector('span').innerText).toEqual(0)
+    fireEvent.input(document.querySelector('input'), { target: { value: 1 } })
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     await timeout(99)
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     await timeout(20)
 
-    expect(document.querySelector('span').innerText).toEqual(1)
+    expect(document.querySelector('span').textContent).toEqual('1')
 })
 
 test('keydown with key modifier and debounce with 10ms wait', async () => {
@@ -144,14 +144,14 @@ test('keydown with key modifier and debounce with 10ms wait', async () => {
 
     await timeout(10)
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
     fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
 
     await timeout(20)
 
-    expect(document.querySelector('span').innerText).toEqual(1)
+    expect(document.querySelector('span').textContent).toEqual('1')
 })
 
 test('keydown with debounce modifier and no specified wait', async () => {
@@ -164,12 +164,12 @@ test('keydown with debounce modifier and no specified wait', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
     fireEvent.keyDown(document.querySelector('input'), { key: 'a' })
 
     await timeout(270)
 
-    expect(document.querySelector('span').innerText).toEqual(1)
+    expect(document.querySelector('span').textContent).toEqual('1')
 })

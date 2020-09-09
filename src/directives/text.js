@@ -4,5 +4,5 @@ export function handleTextDirective(el, output, expression) {
         output = ''
     }
 
-    el.innerText = output
+    el.textContent = output
 }

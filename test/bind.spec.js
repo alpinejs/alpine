@@ -436,6 +436,32 @@ test('radio values are set correctly', async () => {
     expect(document.querySelector('#list-test').checked).toBeFalsy()
 });
 
+test('indeterminate property is set correctly for checkboxes', async () => {
+    document.body.innerHTML = `
+        <div x-data="{foo: true, bar: false}">
+            <input type="checkbox" id="checkbox1" :indeterminate="foo" />
+            <input type="checkbox" id="checkbox2" :indeterminate="bar" />
+            <input type="checkbox" id="checkbox3" checked />
+            <input type="checkbox" id="checkbox4" />
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('#checkbox1').indeterminate).toBeTruthy();
+    expect(document.querySelector('#checkbox2').indeterminate).toBeFalsy();
+    expect(document.querySelector('#checkbox3').indeterminate).toBeFalsy();
+    expect(document.querySelector('#checkbox4').indeterminate).toBeFalsy();
+
+    // `indeterminate` is a JS property and not an HTML attribute, thus there
+    // should be no attribute set on the checkbox elements
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input/checkbox#Indeterminate_state_checkboxes
+    expect(document.querySelector('#checkbox1').getAttribute('indeterminate')).toBeFalsy();
+    expect(document.querySelector('#checkbox2').getAttribute('indeterminate')).toBeFalsy();
+    expect(document.querySelector('#checkbox3').getAttribute('indeterminate')).toBeFalsy();
+    expect(document.querySelector('#checkbox4').getAttribute('indeterminate')).toBeFalsy();
+})
+
 test('classes are removed before being added', async () => {
     document.body.innerHTML = `
         <div x-data="{ isOpen: true }">

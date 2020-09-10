@@ -65,6 +65,8 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             const newClasses = convertClassStringToArray(value)
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
+    } else if (el.tagName === 'INPUT' && el.type == 'checkbox' && attrName == 'indeterminate') {
+        el.indeterminate = value
     } else {
         attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName
 

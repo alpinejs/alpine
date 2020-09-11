@@ -19,14 +19,14 @@ test('x-for', async () => {
     Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(1)
-    expect(document.querySelectorAll('span')[0].innerText).toEqual('foo')
+    expect(document.querySelectorAll('span')[0].textContent).toEqual('foo')
 
     document.querySelector('button').click()
 
     await wait(() => { expect(document.querySelectorAll('span').length).toEqual(2) })
 
-    expect(document.querySelectorAll('span')[0].innerText).toEqual('foo')
-    expect(document.querySelectorAll('span')[1].innerText).toEqual('bar')
+    expect(document.querySelectorAll('span')[0].textContent).toEqual('foo')
+    expect(document.querySelectorAll('span')[1].textContent).toEqual('bar')
 })
 
 test('removes all elements when array is empty and previously had one item', async () => {
@@ -86,14 +86,14 @@ test('elements inside of loop are reactive', async () => {
     Alpine.start()
 
     expect(document.querySelectorAll('span').length).toEqual(1)
-    expect(document.querySelector('h1').innerText).toEqual('first')
-    expect(document.querySelector('h2').innerText).toEqual('bar')
+    expect(document.querySelector('h1').textContent).toEqual('first')
+    expect(document.querySelector('h2').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
     await wait(() => {
-        expect(document.querySelector('h1').innerText).toEqual('first')
-        expect(document.querySelector('h2').innerText).toEqual('baz')
+        expect(document.querySelector('h1').textContent).toEqual('first')
+        expect(document.querySelector('h2').textContent).toEqual('baz')
     })
 })
 
@@ -112,12 +112,12 @@ test('components inside of loop are reactive', async () => {
     Alpine.start()
 
     expect(document.querySelectorAll('div.child').length).toEqual(1)
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
     await wait(() => {
-        expect(document.querySelector('span').innerText).toEqual('bob')
+        expect(document.querySelector('span').textContent).toEqual('bob')
     })
 })
 
@@ -138,12 +138,12 @@ test('components inside a plain element of loop are reactive', async () => {
     Alpine.start()
 
     expect(document.querySelectorAll('ul').length).toEqual(1)
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
     await wait(() => {
-        expect(document.querySelector('span').innerText).toEqual('bob')
+        expect(document.querySelector('span').textContent).toEqual('bob')
     })
 })
 
@@ -209,8 +209,8 @@ test('can use index inside of loop', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('h1').innerText).toEqual(0)
-    expect(document.querySelector('h2').innerText).toEqual(0)
+    expect(document.querySelector('h1').textContent).toEqual('0')
+    expect(document.querySelector('h2').textContent).toEqual('0')
 })
 
 test('can use third iterator param (collection) inside of loop', async () => {
@@ -227,8 +227,8 @@ test('can use third iterator param (collection) inside of loop', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('h1').innerText).toEqual(["foo"])
-    expect(document.querySelector('h2').innerText).toEqual(["foo"])
+    expect(document.querySelector('h1').textContent).toEqual('foo')
+    expect(document.querySelector('h2').textContent).toEqual('foo')
 })
 
 test('can use x-if in conjunction with x-for', async () => {
@@ -278,15 +278,15 @@ test('listeners in loop get fresh iteration data even though they are only regis
 
     document.querySelector('span').click()
 
-    await wait(() => { expect(document.querySelector('h1').innerText).toEqual('foo') })
+    await wait(() => { expect(document.querySelector('h1').textContent).toEqual('foo') })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('bar') })
 
     document.querySelector('span').click()
 
-    await wait(() => { expect(document.querySelector('h1').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('h1').textContent).toEqual('bar') })
 })
 
 test('nested x-for', async () => {
@@ -308,16 +308,16 @@ test('nested x-for', async () => {
     await wait(() => { expect(document.querySelectorAll('h1').length).toEqual(1) })
     await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(2) })
 
-    expect(document.querySelectorAll('h2')[0].innerText).toEqual('bob')
-    expect(document.querySelectorAll('h2')[1].innerText).toEqual('lob')
+    expect(document.querySelectorAll('h2')[0].textContent).toEqual('bob')
+    expect(document.querySelectorAll('h2')[1].textContent).toEqual('lob')
 
     document.querySelector('button').click()
 
     await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(3) })
 
-    expect(document.querySelectorAll('h2')[0].innerText).toEqual('bob')
-    expect(document.querySelectorAll('h2')[1].innerText).toEqual('lob')
-    expect(document.querySelectorAll('h2')[2].innerText).toEqual('law')
+    expect(document.querySelectorAll('h2')[0].textContent).toEqual('bob')
+    expect(document.querySelectorAll('h2')[1].textContent).toEqual('lob')
+    expect(document.querySelectorAll('h2')[2].textContent).toEqual('law')
 })
 
 test('x-for updates the right elements when new item are inserted at the beginning of the list', async () => {
@@ -343,9 +343,9 @@ test('x-for updates the right elements when new item are inserted at the beginni
 
     await wait(() => { expect(document.querySelectorAll('span').length).toEqual(3) })
 
-    expect(document.querySelectorAll('span')[0].innerText).toEqual('zero')
-    expect(document.querySelectorAll('span')[1].innerText).toEqual('one')
-    expect(document.querySelectorAll('span')[2].innerText).toEqual('two')
+    expect(document.querySelectorAll('span')[0].textContent).toEqual('zero')
+    expect(document.querySelectorAll('span')[1].textContent).toEqual('one')
+    expect(document.querySelectorAll('span')[2].textContent).toEqual('two')
 
     // Make sure states are preserved
     expect(document.querySelectorAll('span')[0].getAttribute('order')).toEqual(null)
@@ -371,10 +371,10 @@ test('nested x-for access outer loop variable', async () => {
     await wait(() => { expect(document.querySelectorAll('h1').length).toEqual(2) })
     await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(4) })
 
-    expect(document.querySelectorAll('h2')[0].innerText).toEqual('foo: bob')
-    expect(document.querySelectorAll('h2')[1].innerText).toEqual('foo: lob')
-    expect(document.querySelectorAll('h2')[2].innerText).toEqual('baz: bab')
-    expect(document.querySelectorAll('h2')[3].innerText).toEqual('baz: lab')
+    expect(document.querySelectorAll('h2')[0].textContent).toEqual('foo: bob')
+    expect(document.querySelectorAll('h2')[1].textContent).toEqual('foo: lob')
+    expect(document.querySelectorAll('h2')[2].textContent).toEqual('baz: bab')
+    expect(document.querySelectorAll('h2')[3].textContent).toEqual('baz: lab')
 })
 
 test('nested x-for event listeners', async () => {
@@ -402,20 +402,20 @@ test('nested x-for event listeners', async () => {
     await wait(() => { expect(document.querySelectorAll('h1').length).toEqual(2) })
     await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(4) })
 
-    expect(document.querySelectorAll('h2')[0].innerText).toEqual('foo: bob = 0')
-    expect(document.querySelectorAll('h2')[1].innerText).toEqual('foo: lob = 0')
-    expect(document.querySelectorAll('h2')[2].innerText).toEqual('baz: bab = 0')
-    expect(document.querySelectorAll('h2')[3].innerText).toEqual('baz: lab = 0')
+    expect(document.querySelectorAll('h2')[0].textContent).toEqual('foo: bob = 0')
+    expect(document.querySelectorAll('h2')[1].textContent).toEqual('foo: lob = 0')
+    expect(document.querySelectorAll('h2')[2].textContent).toEqual('baz: bab = 0')
+    expect(document.querySelectorAll('h2')[3].textContent).toEqual('baz: lab = 0')
 
     expect(document._alerts.length).toEqual(0)
 
     document.querySelectorAll('h2')[0].click()
 
     await wait(() => {
-        expect(document.querySelectorAll('h2')[0].innerText).toEqual('foo: bob = 1')
-        expect(document.querySelectorAll('h2')[1].innerText).toEqual('foo: lob = 0')
-        expect(document.querySelectorAll('h2')[2].innerText).toEqual('baz: bab = 0')
-        expect(document.querySelectorAll('h2')[3].innerText).toEqual('baz: lab = 0')
+        expect(document.querySelectorAll('h2')[0].textContent).toEqual('foo: bob = 1')
+        expect(document.querySelectorAll('h2')[1].textContent).toEqual('foo: lob = 0')
+        expect(document.querySelectorAll('h2')[2].textContent).toEqual('baz: bab = 0')
+        expect(document.querySelectorAll('h2')[3].textContent).toEqual('baz: lab = 0')
 
         expect(document._alerts.length).toEqual(1)
         expect(document._alerts[0]).toEqual('foo: bob = 1')
@@ -424,10 +424,10 @@ test('nested x-for event listeners', async () => {
     document.querySelectorAll('h2')[2].click()
 
     await wait(() => {
-        expect(document.querySelectorAll('h2')[0].innerText).toEqual('foo: bob = 1')
-        expect(document.querySelectorAll('h2')[1].innerText).toEqual('foo: lob = 0')
-        expect(document.querySelectorAll('h2')[2].innerText).toEqual('baz: bab = 1')
-        expect(document.querySelectorAll('h2')[3].innerText).toEqual('baz: lab = 0')
+        expect(document.querySelectorAll('h2')[0].textContent).toEqual('foo: bob = 1')
+        expect(document.querySelectorAll('h2')[1].textContent).toEqual('foo: lob = 0')
+        expect(document.querySelectorAll('h2')[2].textContent).toEqual('baz: bab = 1')
+        expect(document.querySelectorAll('h2')[3].textContent).toEqual('baz: lab = 0')
 
         expect(document._alerts.length).toEqual(2)
         expect(document._alerts[0]).toEqual('foo: bob = 1')
@@ -437,10 +437,10 @@ test('nested x-for event listeners', async () => {
     document.querySelectorAll('h2')[0].click()
 
     await wait(() => {
-        expect(document.querySelectorAll('h2')[0].innerText).toEqual('foo: bob = 2')
-        expect(document.querySelectorAll('h2')[1].innerText).toEqual('foo: lob = 0')
-        expect(document.querySelectorAll('h2')[2].innerText).toEqual('baz: bab = 1')
-        expect(document.querySelectorAll('h2')[3].innerText).toEqual('baz: lab = 0')
+        expect(document.querySelectorAll('h2')[0].textContent).toEqual('foo: bob = 2')
+        expect(document.querySelectorAll('h2')[1].textContent).toEqual('foo: lob = 0')
+        expect(document.querySelectorAll('h2')[2].textContent).toEqual('baz: bab = 1')
+        expect(document.querySelectorAll('h2')[3].textContent).toEqual('baz: lab = 0')
 
         expect(document._alerts.length).toEqual(3)
         expect(document._alerts[0]).toEqual('foo: bob = 1')
@@ -476,4 +476,18 @@ test('make sure new elements with different keys added to the beginning of a loo
     document.querySelector('h1').click()
 
     expect(clickCount).toEqual(2)
+})
+
+test('x-for over range using i in x syntax', async () => {
+    document.body.innerHTML = `
+        <div x-data>
+            <template x-for="i in 10">
+                <span x-text="i"></span>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span').length).toEqual(10)
 })

@@ -99,18 +99,18 @@ test('.self modifier', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
     await wait(() => {
-        expect(document.querySelector('span').innerText).toEqual('bar')
+        expect(document.querySelector('span').textContent).toEqual('bar')
     })
 
     document.querySelector('#selfTarget').click()
 
     await wait(() => {
-        expect(document.querySelector('span').innerText).toEqual('baz')
+        expect(document.querySelector('span').textContent).toEqual('baz')
     })
 })
 
@@ -249,23 +249,23 @@ test('keydown modifiers', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(2) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('2') })
 
     fireEvent.keyDown(document.querySelector('input'), { key: ' ' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(4) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('4') })
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Spacebar' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(6) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('6') })
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Escape' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(7) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('7') })
 })
 
 test('keydown combo modifiers', async () => {
@@ -279,15 +279,15 @@ test('keydown combo modifiers', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(0) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('0') })
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter', metaKey: true })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('1') })
 })
 
 test('keydown with specified key and stop modifier only stops for specified key', async () => {
@@ -303,16 +303,16 @@ test('keydown with specified key and stop modifier only stops for specified key'
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Escape' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('1') })
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
 
     await timeout(25)
-    expect(document.querySelector('span').innerText).toEqual(1)
+    expect(document.querySelector('span').textContent).toEqual('1')
 })
 
 test('click away', async () => {
@@ -320,10 +320,10 @@ test('click away', async () => {
     // make our own implementation using a specific class added to the class. Ugh.
     Object.defineProperties(window.HTMLElement.prototype, {
         offsetHeight: {
-          get: function() { return this.classList.contains('hidden') ? 0 : 1 }
+            get: function () { return this.classList.contains('hidden') ? 0 : 1 }
         },
         offsetWidth: {
-          get: function() { return this.classList.contains('hidden') ? 0 : 1 }
+            get: function () { return this.classList.contains('hidden') ? 0 : 1 }
         }
     });
 
@@ -467,13 +467,13 @@ test('allow method reference to be passed to listeners', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
     await new Promise(resolve => setTimeout(resolve, 1))
 
-    expect(document.querySelector('span').innerText).toEqual('baz')
+    expect(document.querySelector('span').textContent).toEqual('baz')
 })
 
 test('event instance is passed to method reference', async () => {
@@ -486,13 +486,13 @@ test('event instance is passed to method reference', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
     await new Promise(resolve => setTimeout(resolve, 1))
 
-    expect(document.querySelector('span').innerText).toEqual('baz')
+    expect(document.querySelector('span').textContent).toEqual('baz')
 })
 
 test('autocomplete event does not trigger keydown with modifier callback', async () => {
@@ -506,21 +506,21 @@ test('autocomplete event does not trigger keydown with modifier callback', async
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual(0)
+    expect(document.querySelector('span').textContent).toEqual('0')
 
     const autocompleteEvent = new Event('keydown')
 
     fireEvent.keyDown(document.querySelector('input'), { key: 'Enter' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(0) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('0') })
 
     fireEvent.keyDown(document.querySelector('input'), { key: '?' })
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('1') })
 
     fireEvent(document.querySelector('input'), autocompleteEvent)
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('1') })
 })
 
 test('.camel modifier correctly binds event listener', async () => {
@@ -533,12 +533,12 @@ test('.camel modifier correctly binds event listener', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('p').innerText).toEqual('bar')
+    expect(document.querySelector('p').textContent).toEqual('bar')
 
     document.querySelector('button').click();
 
     await wait(() => {
-        expect(document.querySelector('p').innerText).toEqual('bob');
+        expect(document.querySelector('p').textContent).toEqual('bob');
     });
 })
 
@@ -552,11 +552,11 @@ test('.camel modifier correctly binds event listener with namespace', async () =
 
     Alpine.start()
 
-    expect(document.querySelector('p').innerText).toEqual('bar')
+    expect(document.querySelector('p').textContent).toEqual('bar')
 
     document.querySelector('button').click();
 
     await wait(() => {
-        expect(document.querySelector('p').innerText).toEqual('bob');
+        expect(document.querySelector('p').textContent).toEqual('bob');
     });
 })

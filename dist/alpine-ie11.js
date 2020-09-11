@@ -3613,6 +3613,21 @@
     }
   });
 
+  var nativeReverse = [].reverse;
+  var test$1 = [1, 2];
+
+  // `Array.prototype.reverse` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.reverse
+  // fix for Safari 12.0 bug
+  // https://bugs.webkit.org/show_bug.cgi?id=188794
+  _export({ target: 'Array', proto: true, forced: String(test$1) === String(test$1.reverse()) }, {
+    reverse: function reverse() {
+      // eslint-disable-next-line no-self-assign
+      if (isArray(this)) this.length = this.length;
+      return nativeReverse.call(this);
+    }
+  });
+
   var $some = arrayIteration.some;
 
 
@@ -5715,7 +5730,7 @@
     if (el.tagName.toLowerCase() !== 'template') {
       console.warn("Alpine: [".concat(directive, "] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#").concat(directive));
     } else if (el.content.childElementCount !== 1) {
-      console.warn("Alpine: <template> tag with [".concat(directive, "] encountered with multiple element roots. Make sure <template> only has a single child node."));
+      console.warn("Alpine: <template> tag with [".concat(directive, "] encountered with multiple element roots. Make sure <template> only has a single child element."));
     }
   }
   function kebabCase(subject) {
@@ -6361,10 +6376,21 @@
   }
 
   function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, el, iteratorNames, extraVars) {
+    var _this4 = this;
+
     var ifAttribute = getXAttrs(el, component, 'if')[0];
 
     if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
       return [];
+    } // This adds support for the `i in n` syntax.
+
+
+    if (isNumeric(iteratorNames.items)) {
+      return Array.from(Array(parseInt(iteratorNames.items, 10)).keys(), function (i) {
+        _newArrowCheck(this, _this4);
+
+        return i + 1;
+      }.bind(this));
     }
 
     return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);
@@ -6397,12 +6423,12 @@
     var nextElementFromOldLoop = currentEl.nextElementSibling && currentEl.nextElementSibling.__x_for_key !== undefined ? currentEl.nextElementSibling : false;
 
     var _loop = function _loop() {
-      var _this4 = this;
+      var _this5 = this;
 
       var nextElementFromOldLoopImmutable = nextElementFromOldLoop;
       var nextSibling = nextElementFromOldLoop.nextElementSibling;
       transitionOut(nextElementFromOldLoop, function () {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this5);
 
         nextElementFromOldLoopImmutable.remove();
       }.bind(this), component);
@@ -6536,7 +6562,7 @@
       output = '';
     }
 
-    el.innerText = output;
+    el.textContent = output;
   }
 
   function handleHtmlDirective(component, el, expression, extraVars) {
@@ -7662,7 +7688,7 @@
   }();
 
   var Alpine = {
-    version: "2.6.0",
+    version: "2.7.0",
     pauseMutationObserver: false,
     magicProperties: {},
     onComponentInitializeds: [],

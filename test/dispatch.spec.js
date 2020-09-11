@@ -16,9 +16,9 @@ test('$dispatch', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('baz') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('baz') })
 })

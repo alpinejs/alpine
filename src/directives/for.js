@@ -1,4 +1,4 @@
-import { transitionIn, transitionOut, getXAttrs, warnIfMalformedTemplate } from '../utils'
+import { transitionIn, transitionOut, getXAttrs, warnIfMalformedTemplate, isNumeric } from '../utils'
 
 export function handleForDirective(component, templateEl, expression, initialUpdate, extraVars) {
     warnIfMalformedTemplate(templateEl, 'x-for')
@@ -90,6 +90,11 @@ function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, e
 
     if (ifAttribute && ! component.evaluateReturnExpression(el, ifAttribute.expression)) {
         return []
+    }
+
+    // This adds support for the `i in n` syntax.
+    if (isNumeric(iteratorNames.items)) {
+        return Array.from(Array(parseInt(iteratorNames.items, 10)).keys(), i => i + 1)
     }
 
     return component.evaluateReturnExpression(el, iteratorNames.items, extraVars)

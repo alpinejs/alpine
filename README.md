@@ -16,10 +16,11 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 | Language | Link for documentation |
 | --- | --- |
-| Japanese | [**日本語ドキュメント**](./README.ja.md) | 
-| Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) | 
-| Russian | [**Документация на русском**](./README.ru.md) | 
-| Portuguese | [**Documentação em Português**](./README.pt.md) | 
+| Japanese | [**日本語ドキュメント**](./README.ja.md) |
+| Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) |
+| Russian | [**Документация на русском**](./README.ru.md) |
+| Portuguese | [**Documentação em Português**](./README.pt.md) |
+| Spanish | [**Documentación en Español**](./README.es.md) |
 
 ## Install
 
@@ -31,9 +32,9 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 That's it. It will initialize itself.
 
 For production environments, it's recommended to pin a specific version number in the link to avoid unexpected breakage from newer versions.
-For example, to use version `2.6.0` (latest):
+For example, to use version `2.7.0` (latest):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.6.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
 ```
 
 **From NPM:** Install the package from NPM.
@@ -155,7 +156,7 @@ And 6 magic properties:
 
 **Example:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**Structure:** `<div x-data="[JSON data object]">...</div>`
+**Structure:** `<div x-data="[object literal]">...</div>`
 
 `x-data` declares a new component scope. It tells the framework to initialize a new component with the following data object.
 
@@ -503,6 +504,16 @@ You can nest `x-for` loops, but you MUST wrap each loop in an element. For examp
             <div x-text="subItem"></div>
         </template>
     </div>
+</template>
+```
+
+#### Iterating over a range
+
+Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to iterate over a fixed range of elements.
+
+```html
+<template x-for="i in 10">
+    <span x-text="i"></span>
 </template>
 ```
 

@@ -26,5 +26,5 @@ test('Proxy does not error in strict mode when reactivity is suspended', async (
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual(1200) })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('1200') })
 })

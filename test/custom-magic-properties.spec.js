@@ -13,5 +13,5 @@ test('can register custom magic properties', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('baz')
+    expect(document.querySelector('span').textContent).toEqual('baz')
 })

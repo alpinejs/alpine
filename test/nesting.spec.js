@@ -19,13 +19,13 @@ test('can nest components', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
     await timeout(20)
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('bar') })
 })
 
 test('can access parent properties after nested components', async () => {
@@ -41,5 +41,5 @@ test('can access parent properties after nested components', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 })

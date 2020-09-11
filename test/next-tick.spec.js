@@ -10,17 +10,17 @@ test('$nextTick', async () => {
         <div x-data="{foo: 'bar'}">
             <span x-text="foo" x-ref="span"></span>
 
-            <button x-on:click="foo = 'baz'; $nextTick(() => {$refs.span.innerText = 'bob'})"></button>
+            <button x-on:click="foo = 'baz'; $nextTick(() => {$refs.span.textContent = 'bob'})"></button>
         </div>
     `
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('bar')
+    expect(document.querySelector('span').textContent).toEqual('bar')
 
     document.querySelector('button').click()
 
-    await wait(() => expect(document.querySelector('span').innerText).toEqual('bob'))
+    await wait(() => expect(document.querySelector('span').textContent).toEqual('bob'))
 })
 
 test('$nextTick waits for x-for to finish rendering', async () => {
@@ -38,11 +38,11 @@ test('$nextTick waits for x-for to finish rendering', async () => {
 
     Alpine.start()
 
-    expect(document.querySelector('p').innerText).toEqual(2)
+    expect(document.querySelector('p').textContent).toEqual('2')
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('p').innerText).toEqual(3) })
+    await wait(() => { expect(document.querySelector('p').textContent).toEqual('3') })
 })
 
 test('$nextTick works with transition', async () => {
@@ -63,12 +63,12 @@ test('$nextTick works with transition', async () => {
     Alpine.start()
 
     await wait(() => {
-        expect(document.querySelector('h2').innerText).toEqual('none')
+        expect(document.querySelector('h2').textContent).toEqual('none')
     })
 
     document.querySelector('button').click()
 
     await wait(() => {
-        expect(document.querySelector('h2').innerText).toEqual('')
+        expect(document.querySelector('h2').textContent).toEqual('')
     })
 })

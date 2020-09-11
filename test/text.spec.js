@@ -2,7 +2,7 @@ import Alpine from 'alpinejs'
 import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
-    observe() {}
+    observe() { }
 }
 
 test('x-text on init', async () => {
@@ -14,7 +14,7 @@ test('x-text on init', async () => {
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('bar') })
 })
 
 test('x-text on triggered update', async () => {
@@ -28,9 +28,23 @@ test('x-text on triggered update', async () => {
 
     Alpine.start()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('') })
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bar') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('bar') })
+})
+
+test('x-text on SVG elements', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }">
+            <svg>
+                <text x-text="foo"></text>
+            </svg>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelector('text').textContent).toEqual('bar') })
 })

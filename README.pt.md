@@ -23,10 +23,10 @@ Pensem nisso como o [Tailwind](https://tailwindcss.com/) para JavaScript.
 E é isso. Ele vai se inicializar.
 
 Para ambiente de produção, é recomendado fixar o número da versão específico no link para evitar problemas inesperadas das versões mais recentes.
-Por exemplo, para usar a versão `2.6.0`:
+Por exemplo, para usar a versão `2.7.0`:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.6.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
 ```
 
 **Via NPM:** Instale o pacote pelo NPM.
@@ -159,7 +159,7 @@ E 6 propriedades mágicas:
 
 **Exemplo:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**Estrutura:** `<div x-data="[JSON data object]">...</div>`
+**Estrutura:** `<div x-data="[object literal]">...</div>`
 
 `x-data` declara um novo scope do componente. Diz à estrutura para inicializar um novo componente com o seguinte objeto de dados.
 

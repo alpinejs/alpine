@@ -26,8 +26,8 @@ test('x-init from data function with callback return for "x-mounted" functionali
     var valueA
     var valueB
     window.setValueA = (el) => { valueA = el.innerHTML }
-    window.setValueB = (el) => { valueB = el.innerText }
-    window.data = function() {
+    window.setValueB = (el) => { valueB = el.textContent }
+    window.data = function () {
         return {
             foo: 'bar',
             init() {
@@ -63,11 +63,11 @@ test('callbacks registered within x-init can affect reactive data changes', asyn
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('baz')
+    expect(document.querySelector('span').textContent).toEqual('baz')
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bob') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('bob') })
 })
 
 test('callbacks registered within x-init callback can affect reactive data changes', async () => {
@@ -81,11 +81,11 @@ test('callbacks registered within x-init callback can affect reactive data chang
 
     Alpine.start()
 
-    expect(document.querySelector('span').innerText).toEqual('baz')
+    expect(document.querySelector('span').textContent).toEqual('baz')
 
     document.querySelector('button').click()
 
-    await wait(() => { expect(document.querySelector('span').innerText).toEqual('bob') })
+    await wait(() => { expect(document.querySelector('span').textContent).toEqual('bob') })
 })
 
 test('x-init is capable of dispatching an event', async () => {
@@ -100,6 +100,6 @@ test('x-init is capable of dispatching an event', async () => {
     Alpine.start()
 
     await wait(() => {
-        expect(document.querySelector('span').innerText).toEqual('baz')
+        expect(document.querySelector('span').textContent).toEqual('baz')
     })
 })

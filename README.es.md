@@ -145,7 +145,7 @@ Y 6 propiedades mágicas:
 
 **Ejemplo:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**Estructura:** `<div x-data="[JSON data object]">...</div>`
+**Estructura:** `<div x-data="[object literal]">...</div>`
 
 `x-data` declara un nuevo *scope* del componente. Indica al *framework* que debe inicializar un nuevo componente con el objeto especificado.
 

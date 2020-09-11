@@ -91,13 +91,15 @@ function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, e
     if (ifAttribute && ! component.evaluateReturnExpression(el, ifAttribute.expression)) {
         return []
     }
+    
+    let items = component.evaluateReturnExpression(el, iteratorNames.items, extraVars)
 
     // This adds support for the `i in n` syntax.
-    if (isNumeric(iteratorNames.items)) {
-        return Array.from(Array(parseInt(iteratorNames.items, 10)).keys(), i => i + 1)
+    if (isNumeric(items)) {
+        items = Array.from(Array(items).keys(), i => i + 1)
     }
 
-    return component.evaluateReturnExpression(el, iteratorNames.items, extraVars)
+    return items
 }
 
 function addElementInLoopAfterCurrentEl(templateEl, currentEl) {

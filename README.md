@@ -16,9 +16,9 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 | Language | Link for documentation |
 | --- | --- |
-| Japanese | [**日本語ドキュメント**](./README.ja.md) | 
-| Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) | 
-| Russian | [**Документация на русском**](./README.ru.md) | 
+| Japanese | [**日本語ドキュメント**](./README.ja.md) |
+| Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) |
+| Russian | [**Документация на русском**](./README.ru.md) |
 | Portuguese | [**Documentação em Português**](./README.pt.md) |
 | Spanish | [**Documentación en Español**](./README.es.md) |
 
@@ -156,7 +156,7 @@ And 6 magic properties:
 
 **Example:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**Structure:** `<div x-data="[JSON data object]">...</div>`
+**Structure:** `<div x-data="[object literal]">...</div>`
 
 `x-data` declares a new component scope. It tells the framework to initialize a new component with the following data object.
 

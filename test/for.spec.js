@@ -491,3 +491,17 @@ test('x-for over range using i in x syntax', async () => {
 
     expect(document.querySelectorAll('span').length).toEqual(10)
 })
+
+test('x-for over range using i in x syntax with data property', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 10 }">
+            <template x-for="i in count">
+                <span x-text="i"></span>
+            </template>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('span').length).toEqual(10)
+})

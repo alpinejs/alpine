@@ -77,7 +77,7 @@
                                 x-on:click.away="open= false"
                                 x-cloak>
                                 Dropdown Body
-                            </ul>
+                            </ul>6
                         </div>
                     </td>
                 </tr>
@@ -311,6 +311,18 @@
                             <template x-for="i in 10" :key="i">
                                 <span x-text="i"></span>
                             </template>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>x-for over a range using <code>i in 10</code> syntax and data property</td>
+                    <td>
+                        <div x-data="{ count: 10 }">
+                            <template x-for="i in count" :key="i">
+                                <span x-text="i"></span>
+                            </template>
+                            <button type="button" @click="count++">Increment count</button>
                         </div>
                     </td>
                 </tr>

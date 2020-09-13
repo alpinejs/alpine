@@ -6382,18 +6382,19 @@
 
     if (ifAttribute && !component.evaluateReturnExpression(el, ifAttribute.expression)) {
       return [];
-    } // This adds support for the `i in n` syntax.
+    }
 
+    var items = component.evaluateReturnExpression(el, iteratorNames.items, extraVars); // This adds support for the `i in n` syntax.
 
-    if (isNumeric(iteratorNames.items)) {
-      return Array.from(Array(parseInt(iteratorNames.items, 10)).keys(), function (i) {
+    if (isNumeric(items) && items > 0) {
+      items = Array.from(Array(items).keys(), function (i) {
         _newArrowCheck(this, _this4);
 
         return i + 1;
       }.bind(this));
     }
 
-    return component.evaluateReturnExpression(el, iteratorNames.items, extraVars);
+    return items;
   }
 
   function addElementInLoopAfterCurrentEl(templateEl, currentEl) {

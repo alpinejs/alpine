@@ -1500,7 +1500,7 @@
               }
 
               return comparisonData[part];
-            }, self.getUnobservedData());
+            }, self.unobservedData);
           });
         } else {
           // Let's walk through the watchers with "dot-notation" (foo.bar) and see
@@ -1519,7 +1519,7 @@
               }
 
               return comparisonData[part];
-            }, self.getUnobservedData());
+            }, self.unobservedData);
           });
         } // Don't react to data changes for cases like the `x-created` hook.
 

@@ -146,3 +146,27 @@ test('$watch nested arrays', async () => {
         expect(document.querySelector('h2').textContent).toEqual('one,two')
     })
 })
+
+test('$watch with magic properties', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar', bob: 'car' }" x-init="$watch('$self.foo', value => bob = value)">
+            <span x-text="bob"></span>
+
+            <button x-on:click="$self.foo = 'far'"></button>
+        </div>
+    `
+
+    Alpine.addMagicProperty('self', function (el) {
+        return el.__x.$data
+    })
+
+    Alpine.start()
+
+    expect(document.querySelector('span').textContent).toEqual('car')
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').textContent).toEqual('far')
+    })
+})

@@ -134,7 +134,7 @@ export default class Component {
                             }
 
                             return comparisonData[part]
-                        }, self.getUnobservedData())
+                        }, self.unobservedData)
                     })
             } else {
                 // Let's walk through the watchers with "dot-notation" (foo.bar) and see
@@ -155,8 +155,9 @@ export default class Component {
                                 // Run the watchers.
                                 self.watchers[fullDotNotationKey].forEach(callback => callback(target[key]))
                             }
+
                             return comparisonData[part]
-                        }, self.getUnobservedData())
+                        }, self.unobservedData)
                     })
             }
 

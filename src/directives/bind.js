@@ -25,8 +25,8 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             // If we are explicitly binding a string to the :value, set the string,
             // If the value is a boolean, leave it alone, it will be set to "on"
             // automatically.
-            if (typeof value === 'string' && attrType === 'bind') {
-                el.value = value
+            if (value && typeof value !== 'boolean' && attrType === 'bind') {
+                el.value = String(value)
             } else if (attrType !== 'bind') {
                 if (Array.isArray(value)) {
                     // I'm purposely not using Array.includes here because it's

@@ -647,7 +647,7 @@
         // If we are explicitly binding a string to the :value, set the string,
         // If the value is a boolean, leave it alone, it will be set to "on"
         // automatically.
-        if (value && typeof value !== 'boolean' && attrType === 'bind') {
+        if (typeof value !== 'boolean' && ![null, false, undefined].includes(value) && attrType === 'bind') {
           el.value = String(value);
         } else if (attrType !== 'bind') {
           if (Array.isArray(value)) {

@@ -509,3 +509,21 @@ test('attribute binding names can contain numbers', async () => {
     expect(document.querySelector('line').getAttribute('x2')).toEqual('3');
     expect(document.querySelector('line').getAttribute('y2')).toEqual('4');
 })
+
+test('non-string and non-boolean attributes are cast to string when bound to checkbox', () => {
+    document.body.innerHTML = `
+        <div x-data="{ number: 100, zero: 0, bool: true, nullProp: null }">
+            <input type="checkbox" id="number" :value="number">
+            <input type="checkbox" id="zero" :value="zero">
+            <input type="checkbox" id="boolean" :value="bool">
+            <input type="checkbox" id="null" :value="nullProp">
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('#number').value).toEqual('100')
+    expect(document.querySelector('#zero').value).toEqual('0')
+    expect(document.querySelector('#boolean').value).toEqual('on')
+    expect(document.querySelector('#null').value).toEqual('on')
+})

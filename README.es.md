@@ -576,7 +576,9 @@ Estas, funcionan exactamente igual que las directivas de transición de VueJS co
 
 Las claves del objeto son las directivas (puede ser cualquiera, incluyendo modificadores), y los valores son *callbacks* a evaluar por Alpine.
 
-> Note: La única anomalía con x-spread ocurre cuando se usa junto a `x-for`. Cuando la directiva a extender es `x-for`, es necesario retornar una expresion en formato de *string* en el *callback*. Por ejemplo: `['x-for']() { return 'item in items' }`.
+> Note: Excepciónes con `x-spread`:
+> - Cuando la directiva a extender es `x-for`, es necesario retornar una expresion en formato de *string* en el *callback*. Por ejemplo: `['x-for']() { return 'item in items' }`.
+> - `x-init` y `x-data` no se pueden usar dentro de un objeto para "spread"
 
 ---
 

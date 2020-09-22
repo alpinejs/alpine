@@ -69,7 +69,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName
 
         // If an attribute's bound value is null, undefined or false and does not include aria, remove the attribute
-        if ([null, undefined, false].includes(value) && !attrName.includes('aria')) {
+        if ([null, undefined, false].includes(value) && !attrName.startsWith('aria')) {
             el.removeAttribute(attrName)
         } else {
             isBooleanAttr(attrName) ? setIfChanged(el, attrName, attrName) : setIfChanged(el, attrName, value)

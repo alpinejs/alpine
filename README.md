@@ -293,6 +293,22 @@ This will add or remove the `disabled` attribute when `myVar` is true or false r
 
 Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open`, etc.
 
+**`x-bind` for `aria-*` booleans attributes**
+Booleans for `aria-*` attributes require a `false` to exist so screen readers can understand the state of an object as per [W3C Recommendations](https://www.w3.org/TR/wai-aria-1.1/#state_prop_def).
+
+For example:
+
+```html
+<!-- Given: -->
+<button x-bind:aria-expanded="myVar">Click me</button>
+
+<!-- When myVar == true: -->
+<button aria-expanded="true">Click me</button>
+
+<!-- When myVar == false: -->
+<button aria-expanded="false">Click me</button>
+```
+
 **`.camel` modifier**
 **Example:** `<svg x-bind:view-box.camel="viewBox">`
 

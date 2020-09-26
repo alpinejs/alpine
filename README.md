@@ -22,6 +22,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 | Portuguese | [**Documentação em Português**](./README.pt.md) |
 | Russian | [**Документация на русском**](./README.ru.md) |
 | Spanish | [**Documentación en Español**](./README.es.md) |
+| German | [**Dokumentation in Deutsch**](./README.de.md) |
 
 ## Install
 
@@ -293,6 +294,8 @@ For example:
 This will add or remove the `disabled` attribute when `myVar` is true or false respectively.
 
 Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open`, etc.
+
+> Note: If you need a false state to show for your attribute, such as `aria-*`, chain `.toString()` to the value while binding to the attribute. For example: `:aria-expanded="isOpen.toString()"` would persist whether  `isOpen` was `true` or `false`.
 
 **`.camel` modifier**
 **Example:** `<svg x-bind:view-box.camel="viewBox">`
@@ -613,7 +616,9 @@ These behave exactly like VueJs's transition directives, except they have differ
 
 The object keys are the directives (Can be any directive including modifiers), and the values are callbacks to be evaluated by Alpine.
 
-> Note: The only anomaly with x-spread is when used with `x-for`. When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
+> Note: There are a couple of caveats to x-spread:
+> - When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
+> - `x-data` and `x-init` can't be used inside a "spread" object
 
 ---
 

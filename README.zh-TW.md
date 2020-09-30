@@ -52,12 +52,12 @@ import 'alpinejs'
 <div x-data="{ open: false }">
     <button @click="open = true">展開下拉選單</button>
 
-    <ul
+    <div
         x-show="open"
         @click.away="open = false"
     >
         下拉選單內容
-    </ul>
+    </div>
 </div>
 ```
 

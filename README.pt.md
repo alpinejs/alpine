@@ -58,9 +58,9 @@ _Dropdown/Modal_
 <div x-data="{ open: false }">
     <button @click="open = true">Open Dropdown</button>
 
-    <ul x-show="open" @click.away="open = false">
+    <div x-show="open" @click.away="open = false">
         Corpo do Dropdown
-    </ul>
+    </div>
 </div>
 ```
 

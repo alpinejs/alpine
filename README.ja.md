@@ -42,12 +42,12 @@ IE11 では、ポリフィルを提供する必要があります。次のスク
 <div x-data="{ open: false }">
     <button @click="open = true">Open Dropdown</button>
 
-    <ul
+    <div
         x-show="open"
         @click.away="open = false"
     >
         Dropdown Body
-    </ul>
+    </div>
 </div>
 ```
 

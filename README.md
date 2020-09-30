@@ -63,12 +63,12 @@ The pattern above is the [module/nomodule pattern](https://philipwalton.com/arti
 <div x-data="{ open: false }">
     <button @click="open = true">Open Dropdown</button>
 
-    <ul
+    <div
         x-show="open"
         @click.away="open = false"
     >
         Dropdown Body
-    </ul>
+    </div>
 </div>
 ```
 

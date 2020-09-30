@@ -51,12 +51,12 @@ El patrón de arriba es el [module/nomodule pattern](https://philipwalton.com/ar
 <div x-data="{ open: false }">
     <button @click="open = true">Abrir Desplegable</button>
 
-    <ul
+    <div
         x-show="open"
         @click.away="open = false"
     >
         Cuerpo del Desplegable
-    </ul>
+    </div>
 </div>
 ```
 

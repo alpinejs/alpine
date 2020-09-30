@@ -52,12 +52,12 @@ import 'alpinejs'
 <div x-data="{ open: false }">
     <button @click="open = true">Открыть дропдаун</button>
 
-    <ul
+    <div
         x-show="open"
         @click.away="open = false"
     >
         Содержимое дропдаун
-    </ul>
+    </div>
 </div>
 ```
 

@@ -21,6 +21,8 @@ Unsere Philosophie erinnert dich vielleicht an [Tailwind](https://tailwindcss.co
 | Russisch | [**Документация на русском**](./README.ru.md) | 
 | Portugiesisch | [**Documentação em Português**](./README.pt.md) |
 | Spanisch | [**Documentación en Español**](./README.es.md) |
+| German | [**Dokumentation in Deutsch**](./README.de.md) |
+| Italian | [**Documento in italiano**](./README.it.md) |
 
 ## Installation
 

@@ -27,7 +27,7 @@ Alpine.js 提供了 Vue 與 React 等大框架的互動式與宣告式的功能�
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
 ```
 
-**使用 NPM:** 從 NPM 安裝套件。
+**使用 npm:** 從 npm 安裝套件。
 ```js
 npm i alpinejs
 ```

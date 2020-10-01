@@ -37,7 +37,7 @@ Als Beispiel wird hier die (letzte) Version `2.7.0` spezifiziert:
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
 ```
 
-**Über NPM:** Installiere das Paket über NPM.
+**Über npm:** Installiere das Paket über npm.
 ```js
 npm i alpinejs
 ```

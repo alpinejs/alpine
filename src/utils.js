@@ -379,24 +379,24 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues, type)
     transition(el, stages, type)
 }
 
-export function transitionClassesIn(el, component, directives, showCallback) {
-    let ensureStringExpression = (expression) => {
-        return typeof expression === 'function'
-            ? component.evaluateReturnExpression(el, expression)
-            : expression
-    }
+const ensureStringExpression = (expression, el, component) => {
+    return typeof expression === 'function'
+        ? component.evaluateReturnExpression(el, expression)
+        : expression
+}
 
-    const enter = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter') || { expression: '' }).expression))
-    const enterStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-start') || { expression: '' }).expression))
-    const enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-end') || { expression: '' }).expression))
+export function transitionClassesIn(el, component, directives, showCallback) {
+    const enter = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter') || { expression: '' }).expression, el, component))
+    const enterStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-start') || { expression: '' }).expression, el, component))
+    const enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-end') || { expression: '' }).expression, el, component))
 
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {}, TRANSITION_TYPE_IN)
 }
 
 export function transitionClassesOut(el, component, directives, hideCallback) {
-    const leave = convertClassStringToArray((directives.find(i => i.value === 'leave') || { expression: '' }).expression)
-    const leaveStart = convertClassStringToArray((directives.find(i => i.value === 'leave-start') || { expression: '' }).expression)
-    const leaveEnd = convertClassStringToArray((directives.find(i => i.value === 'leave-end') || { expression: '' }).expression)
+    const leave = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'leave') || { expression: '' }).expression, el, component))
+    const leaveStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'leave-start') || { expression: '' }).expression, el, component))
+    const leaveEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'leave-end') || { expression: '' }).expression, el, component))
 
     transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback, TRANSITION_TYPE_OUT)
 }

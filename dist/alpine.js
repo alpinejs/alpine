@@ -381,32 +381,33 @@
     };
     transition(el, stages, type);
   }
-  function transitionClassesIn(el, component, directives, showCallback) {
-    let ensureStringExpression = expression => {
-      return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
-    };
 
+  const ensureStringExpression = (expression, el, component) => {
+    return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
+  };
+
+  function transitionClassesIn(el, component, directives, showCallback) {
     const enter = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter') || {
       expression: ''
-    }).expression));
+    }).expression, el, component));
     const enterStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-start') || {
       expression: ''
-    }).expression));
+    }).expression, el, component));
     const enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-end') || {
       expression: ''
-    }).expression));
+    }).expression, el, component));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {}, TRANSITION_TYPE_IN);
   }
   function transitionClassesOut(el, component, directives, hideCallback) {
-    const leave = convertClassStringToArray((directives.find(i => i.value === 'leave') || {
+    const leave = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'leave') || {
       expression: ''
-    }).expression);
-    const leaveStart = convertClassStringToArray((directives.find(i => i.value === 'leave-start') || {
+    }).expression, el, component));
+    const leaveStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'leave-start') || {
       expression: ''
-    }).expression);
-    const leaveEnd = convertClassStringToArray((directives.find(i => i.value === 'leave-end') || {
+    }).expression, el, component));
+    const leaveEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'leave-end') || {
       expression: ''
-    }).expression);
+    }).expression, el, component));
     transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback, TRANSITION_TYPE_OUT);
   }
   function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type) {
@@ -647,7 +648,7 @@
         // If we are explicitly binding a string to the :value, set the string,
         // If the value is a boolean, leave it alone, it will be set to "on"
         // automatically.
-        if (typeof value !== 'boolean' && ![null, false, undefined].includes(value) && attrType === 'bind') {
+        if (typeof value !== 'boolean' && ![null, undefined].includes(value) && attrType === 'bind') {
           el.value = String(value);
         } else if (attrType !== 'bind') {
           if (Array.isArray(value)) {
@@ -1433,7 +1434,11 @@
       this.unobservedData.$watch = (property, callback) => {
         if (!this.watchers[property]) this.watchers[property] = [];
         this.watchers[property].push(callback);
-      }; // Register custom magic properties.
+      };
+      /* MODERN-ONLY:START */
+      // We remove this piece of code from the legacy build.
+      // In IE11, we have already defined our helpers at this point.
+      // Register custom magic properties.
 
 
       Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
@@ -1443,6 +1448,8 @@
           }
         });
       });
+      /* MODERN-ONLY:END */
+
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
       componentForClone || Alpine.onBeforeComponentInitializeds.forEach(callback => callback(this));

@@ -20,6 +20,10 @@ export function isTesting() {
         || navigator.userAgent.includes("jsdom")
 }
 
+export function checkedAttrLooseCompare(valueA, valueB) {
+    return valueA == valueB
+}
+
 export function warnIfMalformedTemplate(el, directive) {
     if (el.tagName.toLowerCase() !== 'template') {
         console.warn(`Alpine: [${directive}] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#${directive}`)

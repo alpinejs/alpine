@@ -111,7 +111,7 @@ There are 14 directives available to you:
 | [`x-data`](#x-data) | Declares a new component scope. |
 | [`x-init`](#x-init) | Runs an expression when a component is initialized. |
 | [`x-show`](#x-show) | Toggles `display: none;` on the element depending on expression (true or false). |
-| [`x-bind`](#x-bind) | Sets the value of an attribute to the result of a JS expression |
+| [`x-bind`](#x-bind) | Sets the value of an attribute to the result of a JS expression. |
 | [`x-on`](#x-on) | Attaches an event listener to the element. Executes JS expression when emitted. |
 | [`x-model`](#x-model) | Adds "two-way data binding" to an element. Keeps input element in sync with component data. |
 | [`x-text`](#x-text) | Works similarly to `x-bind`, but will update the `innerText` of an element. |
@@ -120,7 +120,7 @@ There are 14 directives available to you:
 | [`x-if`](#x-if) | Remove an element completely from the DOM. Needs to be used on a `<template>` tag. |
 | [`x-for`](#x-for) | Create new DOM nodes for each item in an array. Needs to be used on a `<template>` tag. |
 | [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition |
-| [`x-spread`](#x-spread) | Allows you to bind an object of Alpine directives to an element for better reusability |
+| [`x-spread`](#x-spread) | Allows you to bind an object of Alpine directives to an element for better reusability. |
 | [`x-cloak`](#x-cloak) | This attribute is removed when Alpine initializes. Useful for hiding pre-initialized DOM. |
 
 And 6 magic properties:
@@ -315,7 +315,7 @@ The `camel` modifier will bind to the camel case equivalent of the attribute nam
 
 If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
 
-> Note: You can also specify a JavaScript function name
+> Note: You can also specify a JavaScript function name.
 
 **Example:** `<button x-on:click="myFunction"></button>`
 
@@ -617,7 +617,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 
 > Note: There are a couple of caveats to x-spread:
 > - When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
-> - `x-data` and `x-init` can't be used inside a "spread" object
+> - `x-data` and `x-init` can't be used inside a "spread" object.
 
 ---
 
@@ -765,7 +765,7 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
 ## Security
-If you find a security vulnerability, please send an email to [calebporzio@gmail.com]()
+If you find a security vulnerability, please send an email to [calebporzio@gmail.com]().
 
 Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP).
 

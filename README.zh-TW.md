@@ -109,8 +109,8 @@ import 'alpinejs'
 | [`x-ref`](#x-ref) |從元素中取得原始 DOM 元素的簡便方法。 |
 | [`x-if`](#x-if) | 從 DOM 中完全移除元素。必須在 `<template>` 標籤上使用。 |
 | [`x-for`](#x-for) | 為陣列中的每個項目建立新 DOM 節點。必須在 `<template>` 標籤上使用。 |
-| [`x-transition`](#x-transition) | 用於在轉場的各個階段為元素設定 Class 的指示詞 |
-| [`x-spread`](#x-spread) | 為了更佳的可複用性，可將包含 Alpine 指示詞的物件繫結至元素上 |
+| [`x-transition`](#x-transition) | 用於在轉場的各個階段為元素設定 Class 的指示詞。 |
+| [`x-spread`](#x-spread) | 為了更佳的可複用性，可將包含 Alpine 指示詞的物件繫結至元素上。 |
 | [`x-cloak`](#x-cloak) | 該屬性會在 Alpine 初始化後移除。適合用來隱藏還未初始化的 DOM。 |
 
 以及 6 個魔法屬性：
@@ -734,7 +734,7 @@ Alpine 中提供了 6 中不同的變換指示詞，可用於在元素變換的�
 可通過 `$watch` 魔法方法來「監聽 (Watch)」元件屬性。在上述例子中，當按鈕點擊後 `open` 會該表，接著會指定給定的回呼並以新的值來執行 `console.log`。
 
 ## 安全性 Security
-若你發現安全性漏洞，請傳送電子郵件至 [calebporzio@gmail.com]()
+若你發現安全性漏洞，請傳送電子郵件至 [calebporzio@gmail.com]()。
 
 Alpine 仰賴與使用 `Function` 物件來自定實作以對指示詞取值。雖然比 `eval()` 來的安全，但這個做法依然在一些環境下被禁止，如 Google Chrome App 使用了限制性的 CSP (Content Security Policy，內容安全性原則)。
 

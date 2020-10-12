@@ -84,7 +84,7 @@ The pattern above is the [module/nomodule pattern](https://philipwalton.com/arti
 ```
 
 You can even use it for non-trivial things:
-*Pre-fetching a dropdown's HTML content on hover*
+*Pre-fetching a dropdown's HTML content on hover.*
 ```html
 <div x-data="{ open: false }">
     <button
@@ -119,7 +119,7 @@ There are 14 directives available to you:
 | [`x-ref`](#x-ref) | Convenient way to retrieve raw DOM elements out of your component. |
 | [`x-if`](#x-if) | Remove an element completely from the DOM. Needs to be used on a `<template>` tag. |
 | [`x-for`](#x-for) | Create new DOM nodes for each item in an array. Needs to be used on a `<template>` tag. |
-| [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition |
+| [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition. |
 | [`x-spread`](#x-spread) | Allows you to bind an object of Alpine directives to an element for better reusability. |
 | [`x-cloak`](#x-cloak) | This attribute is removed when Alpine initializes. Useful for hiding pre-initialized DOM. |
 
@@ -253,7 +253,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 ### `x-bind`
 
-> Note: You are free to use the shorter ":" syntax: `:type="..."`
+> Note: You are free to use the shorter ":" syntax: `:type="..."`.
 
 **Example:** `<input x-bind:type="inputType">`
 
@@ -305,7 +305,7 @@ The `camel` modifier will bind to the camel case equivalent of the attribute nam
 
 ### `x-on`
 
-> Note: You are free to use the shorter "@" syntax: `@click="..."`
+> Note: You are free to use the shorter "@" syntax: `@click="..."`.
 
 **Example:** `<button x-on:click="foo = 'bar'"></button>`
 
@@ -563,7 +563,7 @@ Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to it
 </template>
 ```
 
-> The example above uses classes from [Tailwind CSS](https://tailwindcss.com)
+> The example above uses classes from [Tailwind CSS](https://tailwindcss.com).
 
 Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
 

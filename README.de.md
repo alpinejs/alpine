@@ -110,7 +110,7 @@ Es stehen 14 Direktiven zur Verfügung:
 | [`x-data`](#x-data) | Deklariert einen neuen Komponenten-Geltungsbereich. |
 | [`x-init`](#x-init) | Wertet einen Ausdruck aus, sobald die Komponente initialisiert wurde. |
 | [`x-show`](#x-show) | Schaltet anhand des Ausdrucks (true oder false) das Element auf `display: none;`. |
-| [`x-bind`](#x-bind) | Setzt den Wert eines Attributs auf das Ergebnis eines JS-Ausdrucks |
+| [`x-bind`](#x-bind) | Setzt den Wert eines Attributs auf das Ergebnis eines JS-Ausdrucks. |
 | [`x-on`](#x-on) | Verbindet einen EventHandler mit einem HTML-Elemment. Der spezifizierte JS-Code wird nur dann aufgerufen, wenn das jeweilige Ereignis empfangen wird. |
 | [`x-model`](#x-model) | Das Direktive sorgt für das Databinding mit Input-Elementen. Hierbei wird ein Databinding in beide Richtungen ermöglicht ("Two way databinding"). |
 | [`x-text`](#x-text) | Funktioniert ähnlich wie `x-bind`, wobei hier das `innerText` eines Elements aktualisiert wird. |
@@ -190,7 +190,7 @@ Datenquellen und zugehörige Funktionalität können in wiederverwendbare Funkti
 
 > **Für Nutzer von Modul-Packern**: Alpine.js ruft Funktionen auf, welche sich im globalen Geltungsbereich (`window`) befinden. Um Funktionen mit `x-data` zu benutzen, müssen sie daher explizit dem Geltungsbereich `window` zugewießen werden. Zum Beispiel `window.dropdown = function () {}` (Dieses Verhalten ist auf Webpack, Rollup, Parcel etc. zurückzuführen. Hier leben selbstdefinierte Funktionen defaultmäßig im Geltungsbereich des Moduls, und nicht `window`).
 
-Durch Objektdestrukturierung können mehrere Datenobjekte an `x-data` übergeben werden
+Durch Objektdestrukturierung können mehrere Datenobjekte an `x-data` übergeben werden:
 
 ```html
 <div x-data="{...dropdown(), ...tabs()}">
@@ -289,7 +289,7 @@ Zum Beispiel:
 <button>Klick mich</button>
 ```
 
-Hier wird das Attribut `disabled` je nach der Auswertung von `myVar` hinzugefügt oder entfernt
+Hier wird das Attribut `disabled` je nach der Auswertung von `myVar` hinzugefügt oder entfernt.
 
 
 Alle in der [HTML Spezifikation](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute) angeführten booleschen Attribute werden unterstützt. Dazu zählen `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open`, etc.
@@ -367,7 +367,7 @@ Durch das Anhängen von `.once` an einen EventHandler wird sichergestellt, dass 
 **`.passive` Modifikator**
 **Beispiel:** `<button x-on:mousedown.passive="interactive = true"></button>`
 
-Durch das Anhängen von `.passive` an einen EventHandler, wird der gegebene Listener passiv. Dadurch wird verhindert, dass das spezifizierte Ereignis abgebrochen werden kann (`preventDefault()` wird ignoriert). Dieses Vorgehen ist zum Beispiel für die Bildlaufleistung auf Touch-Geräten relevant
+Durch das Anhängen von `.passive` an einen EventHandler, wird der gegebene Listener passiv. Dadurch wird verhindert, dass das spezifizierte Ereignis abgebrochen werden kann (`preventDefault()` wird ignoriert). Dieses Vorgehen ist zum Beispiel für die Bildlaufleistung auf Touch-Geräten relevant.
 
 **`.debounce` Modifikator**
 **Beispiel:** `<input x-on:input.debounce="fetchSomething()">`
@@ -761,7 +761,7 @@ Um innerhalb einer JavaScript-Funktion auf $dispatch zuzugreifen, kann dieses al
 Die Eigenschaft einer Komponente kann mithilfe der magischen Methode `$watch` "beobachtet" werden. Erst wenn das `<button>`-Element im obigen Beispiel angeklickt wird und die Eigenschaft `open` aktualisiert wurde, wird die angegebene Callback-Funktion ausgelöst. Der neue Wert wird dann in der Konsole ausgegeben.
 
 ## Sicherheit
-Wenn du eine Sicherheitslücke findest, sende bitte eine E-mail an [calebporzio@gmail.com]()
+Wenn du eine Sicherheitslücke findest, sende bitte eine E-mail an [calebporzio@gmail.com]().
 
 Alpine basiert auf einer benutzerdefinierten Implementierung, welche das `Function`-Objekt nutzt, um seine Direktiven auszuwerten. Obwohl dieses Vorgehen sicherer ist als die Auswertung mittels `eval()`, ist dessen Nutzung in manchen Umgebungen nicht gestattet (z.B. in der Google Chrome App, aufgrund der restriktiven Content Security Policy (CSP)).
 

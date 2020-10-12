@@ -578,7 +578,7 @@ Las claves del objeto son las directivas (puede ser cualquiera, incluyendo modif
 
 > Note: Excepciónes con `x-spread`:
 > - Cuando la directiva a extender es `x-for`, es necesario retornar una expresion en formato de *string* en el *callback*. Por ejemplo: `['x-for']() { return 'item in items' }`.
-> - `x-init` y `x-data` no se pueden usar dentro de un objeto para "spread"
+> - `x-init` y `x-data` no se pueden usar dentro de un objeto para "spread".
 
 ---
 
@@ -726,7 +726,7 @@ Si necesitas acceder a $dispatch desde dentro de una función de JavaScript, pue
 Puedes hacer "watch" a la propiedad de un componente con el método mágico `$watch`. En el ejemplo de arriba, cuando se pulsa el botón y `open` cambia, la retrollamada provista ejecutara el `console.log` con el nuevo valor.
 
 ## Seguridad
-Si encuentras una brecha de seguridad, por favor envía un email a [calebporzio@gmail.com]()
+Si encuentras una brecha de seguridad, por favor envía un email a [calebporzio@gmail.com]().
 
 Alpine depende de una implementación personalizada utilizando el objeto `Function` para evaluar las directivas. A pesar de ser más seguro que `eval()`, su uso está prohibido en algunos entornos, tels como Google Chrome App, utilizando Content Security Policy restrictivas (CSP).
 

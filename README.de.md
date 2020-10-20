@@ -14,13 +14,15 @@ Unsere Philosophie erinnert dich vielleicht an [Tailwind](https://tailwindcss.co
 
 ## Übersetzungen der Dokumentation
 
-| Sprache | Link zur Dokumentation |
+| Language | Link for documentation |
 | --- | --- |
-| Japanisch | [**日本語ドキュメント**](./README.ja.md) | 
-| Chinesisch (traditionell) | [**繁體中文說明文件**](./README.zh-TW.md) | 
-| Russisch | [**Документация на русском**](./README.ru.md) | 
-| Portugiesisch | [**Documentação em Português**](./README.pt.md) |
-| Spanisch | [**Documentación en Español**](./README.es.md) |
+| Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) |
+| German | [**Dokumentation in Deutsch**](./README.de.md) |
+| Indonesian | [**Dokumentasi Bahasa Indonesia**](./README.id.md) |
+| Japanese | [**日本語ドキュメント**](./README.ja.md) |
+| Portuguese | [**Documentação em Português**](./README.pt.md) |
+| Russian | [**Документация на русском**](./README.ru.md) |
+| Spanish | [**Documentación en Español**](./README.es.md) |
 
 ## Installation
 

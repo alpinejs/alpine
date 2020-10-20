@@ -16,12 +16,13 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 | Language | Link for documentation |
 | --- | --- |
-| Japanese | [**日本語ドキュメント**](./README.ja.md) |
 | Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) |
-| Russian | [**Документация на русском**](./README.ru.md) |
-| Portuguese | [**Documentação em Português**](./README.pt.md) |
-| Spanish | [**Documentación en Español**](./README.es.md) |
 | German | [**Dokumentation in Deutsch**](./README.de.md) |
+| Indonesian | [**Dokumentasi Bahasa Indonesia**](./README.id.md) |
+| Japanese | [**日本語ドキュメント**](./README.ja.md) |
+| Portuguese | [**Documentação em Português**](./README.pt.md) |
+| Russian | [**Документация на русском**](./README.ru.md) |
+| Spanish | [**Documentación en Español**](./README.es.md) |
 
 ## Install
 

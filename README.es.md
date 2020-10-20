@@ -26,7 +26,7 @@ Para entornos de producción, se recomienda especificar una número de versión 
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
 ```
 
-**Desde NPM:** Instalar el paquete desde NPM.
+**Desde npm:** Instalar el paquete desde npm.
 ```js
 npm i alpinejs
 ```

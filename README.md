@@ -38,7 +38,7 @@ For example, to use version `2.7.0` (latest):
 <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
 ```
 
-**From NPM:** Install the package from NPM.
+**From npm:** Install the package from npm.
 ```js
 npm i alpinejs
 ```
@@ -378,7 +378,7 @@ The `debounce` modifier allows you to "debounce" an event handler. In other word
 
 The default debounce "wait" time is 250 milliseconds.
 
-If you wish to customize this, you can specifiy a custom wait time like so:
+If you wish to customize this, you can specify a custom wait time like so:
 
 ```
 <input x-on:input.debounce.750="fetchSomething()">
@@ -567,7 +567,7 @@ Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to it
 
 Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
 
-These behave exactly like VueJs's transition directives, except they have different, more sensible names:
+These behave exactly like VueJS's transition directives, except they have different, more sensible names:
 
 | Directive | Description |
 | --- | --- |

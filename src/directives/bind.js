@@ -1,4 +1,4 @@
-import { arrayUnique, isBooleanAttr, convertClassStringToArray, camelCase } from '../utils'
+import { arrayUnique, checkedAttrLooseCompare, isBooleanAttr, convertClassStringToArray, camelCase } from '../utils'
 import Alpine from '../index'
 
 export function handleAttributeBindingDirective(component, el, attrName, expression, extraVars, attrType, modifiers) {
@@ -19,7 +19,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             if (el.attributes.value === undefined && attrType === 'bind') {
                 el.value = value
             } else if (attrType !== 'bind') {
-                el.checked = el.value == value
+                el.checked = checkedAttrLooseCompare(el.value, value)
             }
         } else if (el.type === 'checkbox') {
             // If we are explicitly binding a string to the :value, set the string,
@@ -32,7 +32,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
                     // I'm purposely not using Array.includes here because it's
                     // strict, and because of Numeric/String mis-casting, I
                     // want the "includes" to be "fuzzy".
-                    el.checked = value.some(val => val == el.value)
+                    el.checked = value.some(val => checkedAttrLooseCompare(val, el.value))
                 } else {
                     el.checked = !!value
                 }

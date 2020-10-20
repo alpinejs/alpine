@@ -1,5 +1,5 @@
 import { registerListener } from './on'
-import { isNumeric } from '../utils'
+import { isNumeric, checkedAttrLooseCompare } from '../utils'
 
 export function registerModelListener(component, el, modifiers, expression, extraVars) {
     // If the element we are binding to is a select, a radio, or checkbox
@@ -35,7 +35,7 @@ function generateModelAssignmentFunction(el, modifiers, expression) {
             // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {
                 const newValue = modifiers.includes('number') ? safeParseNumber(event.target.value) : event.target.value
-                return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(i => i !== newValue)
+                return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(el => !checkedAttrLooseCompare(el, newValue))
             } else {
                 return event.target.checked
             }

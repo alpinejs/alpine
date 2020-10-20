@@ -23,10 +23,11 @@
   	return module = { exports: {} }, fn(module, module.exports), module.exports;
   }
 
-  (function(){function k(){function p(a){return a?"object"===typeof a||"function"===typeof a:!1}var l=null;var n=function(a,c){function g(){}if(!p(a)||!p(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");l=function(){a=null;g=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){l=null;},0);var f=c;c={get:null,set:null,apply:null,construct:null};for(var h in f){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+
-  h+"'");c[h]=f[h];}"function"===typeof f&&(c.apply=f.apply.bind(f));var d=this,q=!1,r=!1;"function"===typeof a?(d=function(){var b=this&&this.constructor===d,e=Array.prototype.slice.call(arguments);g(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,e):!b&&c.apply?c.apply(a,this,e):b?(e.unshift(a),new (a.bind.apply(a,e))):a.apply(this,e)},q=!0):a instanceof Array&&(d=[],r=!0);var t=c.get?function(b){g("get");return c.get(this,b,d)}:function(b){g("get");return this[b]},w=c.set?function(b,
-  e){g("set");c.set(this,b,e,d);}:function(b,e){g("set");this[b]=e;},u={};Object.getOwnPropertyNames(a).forEach(function(b){if(!((q||r)&&b in d)){var e={enumerable:!!Object.getOwnPropertyDescriptor(a,b).enumerable,get:t.bind(a,b),set:w.bind(a,b)};Object.defineProperty(d,b,e);u[b]=!0;}});f=!0;Object.setPrototypeOf?Object.setPrototypeOf(d,Object.getPrototypeOf(a)):d.__proto__?d.__proto__=a.__proto__:f=!1;if(c.get||!f)for(var m in a)u[m]||Object.defineProperty(d,m,{get:t.bind(a,m)});Object.seal(a);Object.seal(d);
-  return d};n.revocable=function(a,c){return {proxy:new n(a,c),revoke:l}};return n}var v="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;v.Proxy||(v.Proxy=k(),v.Proxy.revocable=v.Proxy.revocable);})();
+  (function(){function n(){function v(){return null}function l(a){return a?"object"===typeof a||"function"===typeof a:!1}function p(a){if(null!==a&&!l(a))throw new TypeError("Object prototype may only be an Object or null: "+a);}var q=null,e=Object,w=!!e.create||!({__proto__:null}instanceof e),A=e.create||(w?function(a){p(a);return {__proto__:a}}:function(a){function c(){}p(a);if(null===a)throw new SyntaxError("Native Object.create is required to create objects with null prototype");c.prototype=a;return new c}),
+  B=e.getPrototypeOf||([].__proto__===Array.prototype?function(a){a=a.__proto__;return l(a)?a:null}:v);var m=function(a,c){function k(){}if(void 0===(this&&this instanceof m?this.constructor:void 0))throw new TypeError("Constructor Proxy requires 'new'");if(!l(a)||!l(c))throw new TypeError("Cannot create proxy with a non-object as target or handler");q=function(){a=null;k=function(b){throw new TypeError("Cannot perform '"+b+"' on a proxy that has been revoked");};};setTimeout(function(){q=null;},0);var g=
+  c;c={get:null,set:null,apply:null,construct:null};for(var h in g){if(!(h in c))throw new TypeError("Proxy polyfill does not support trap '"+h+"'");c[h]=g[h];}"function"===typeof g&&(c.apply=g.apply.bind(g));g=B(a);var r=!1,t=!1;if("function"===typeof a){var f=function(){var b=this&&this.constructor===f,d=Array.prototype.slice.call(arguments);k(b?"construct":"apply");return b&&c.construct?c.construct.call(this,a,d):!b&&c.apply?c.apply(a,this,d):b?(d.unshift(a),new (a.bind.apply(a,d))):a.apply(this,
+  d)};r=!0;}else a instanceof Array?(f=[],t=!0):f=w||null!==g?A(g):{};var x=c.get?function(b){k("get");return c.get(this,b,f)}:function(b){k("get");return this[b]},C=c.set?function(b,d){k("set");c.set(this,b,d,f);}:function(b,d){k("set");this[b]=d;},y={};e.getOwnPropertyNames(a).forEach(function(b){if(!((r||t)&&b in f)){var d=e.getOwnPropertyDescriptor(a,b);e.defineProperty(f,b,{enumerable:!!d.enumerable,get:x.bind(a,b),set:C.bind(a,b)});y[b]=!0;}});h=!0;if(r||t){var D=e.setPrototypeOf||([].__proto__===
+  Array.prototype?function(b,d){p(d);b.__proto__=d;return b}:v);g&&D(f,g)||(h=!1);}if(c.get||!h)for(var u in a)y[u]||e.defineProperty(f,u,{get:x.bind(a,u)});e.seal(a);e.seal(f);return f};m.revocable=function(a,c){return {proxy:new m(a,c),revoke:q}};return m}var z="undefined"!==typeof process&&"[object process]"==={}.toString.call(process)||"undefined"!==typeof navigator&&"ReactNative"===navigator.product?commonjsGlobal:self;z.Proxy||(z.Proxy=n(),z.Proxy.revocable=z.Proxy.revocable);})();
 
   !function(e){var t=e.Element.prototype;"function"!=typeof t.matches&&(t.matches=t.msMatchesSelector||t.mozMatchesSelector||t.webkitMatchesSelector||function(e){for(var t=(this.document||this.ownerDocument).querySelectorAll(e),o=0;t[o]&&t[o]!==this;)++o;return Boolean(t[o])}),"function"!=typeof t.closest&&(t.closest=function(e){for(var t=this;t&&1===t.nodeType;){if(t.matches(e))return t;t=t.parentNode;}return null});}(window);
 
@@ -3612,6 +3613,21 @@
     }
   });
 
+  var nativeReverse = [].reverse;
+  var test$1 = [1, 2];
+
+  // `Array.prototype.reverse` method
+  // https://tc39.github.io/ecma262/#sec-array.prototype.reverse
+  // fix for Safari 12.0 bug
+  // https://bugs.webkit.org/show_bug.cgi?id=188794
+  _export({ target: 'Array', proto: true, forced: String(test$1) === String(test$1.reverse()) }, {
+    reverse: function reverse() {
+      // eslint-disable-next-line no-self-assign
+      if (isArray(this)) this.length = this.length;
+      return nativeReverse.call(this);
+    }
+  });
+
   var $some = arrayIteration.some;
 
 
@@ -5689,6 +5705,8 @@
     }
   }
 
+  var _this10 = undefined;
+
   // Thanks @stimulus:
   // https://github.com/stimulusjs/stimulus/blob/master/packages/%40stimulus/core/src/application.ts
   function domReady() {
@@ -5709,6 +5727,9 @@
   }
   function isTesting() {
     return navigator.userAgent.includes("Node.js") || navigator.userAgent.includes("jsdom");
+  }
+  function checkedAttrLooseCompare(valueA, valueB) {
+    return valueA == valueB;
   }
   function warnIfMalformedTemplate(el, directive) {
     if (el.tagName.toLowerCase() !== 'template') {
@@ -6078,66 +6099,67 @@
     };
     transition(el, stages, type);
   }
+
+  var ensureStringExpression = function ensureStringExpression(expression, el, component) {
+    _newArrowCheck(this, _this10);
+
+    return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
+  }.bind(undefined);
+
   function transitionClassesIn(el, component, directives, showCallback) {
-    var _this10 = this;
-
-    var ensureStringExpression = function ensureStringExpression(expression) {
-      _newArrowCheck(this, _this10);
-
-      return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
-    }.bind(this);
+    var _this11 = this;
 
     var enter = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'enter';
     }.bind(this)) || {
       expression: ''
-    }).expression));
+    }).expression, el, component));
     var enterStart = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'enter-start';
     }.bind(this)) || {
       expression: ''
-    }).expression));
+    }).expression, el, component));
     var enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this11);
 
       return i.value === 'enter-end';
     }.bind(this)) || {
       expression: ''
-    }).expression));
+    }).expression, el, component));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
-      _newArrowCheck(this, _this10);
+      _newArrowCheck(this, _this11);
     }.bind(this), TRANSITION_TYPE_IN);
   }
   function transitionClassesOut(el, component, directives, hideCallback) {
-    var _this11 = this;
+    var _this12 = this;
 
-    var leave = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this11);
+    var leave = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
+      _newArrowCheck(this, _this12);
 
       return i.value === 'leave';
     }.bind(this)) || {
       expression: ''
-    }).expression);
-    var leaveStart = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this11);
+    }).expression, el, component));
+    var leaveStart = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
+      _newArrowCheck(this, _this12);
 
       return i.value === 'leave-start';
     }.bind(this)) || {
       expression: ''
-    }).expression);
-    var leaveEnd = convertClassStringToArray((directives.find(function (i) {
-      _newArrowCheck(this, _this11);
+    }).expression, el, component));
+    var leaveEnd = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
+      _newArrowCheck(this, _this12);
 
       return i.value === 'leave-end';
     }.bind(this)) || {
       expression: ''
-    }).expression);
+    }).expression, el, component));
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
-      _newArrowCheck(this, _this11);
+      _newArrowCheck(this, _this12);
     }.bind(this), hideCallback, TRANSITION_TYPE_OUT);
   }
   function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type) {
@@ -6164,12 +6186,12 @@
       },
       end: function end() {
         var _el$classList3,
-            _this12 = this,
+            _this13 = this,
             _el$classList4;
 
         // Don't remove classes that were in the original class attribute.
         (_el$classList3 = el.classList).remove.apply(_el$classList3, _toConsumableArray(classesStart.filter(function (i) {
-          _newArrowCheck(this, _this12);
+          _newArrowCheck(this, _this13);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -6181,17 +6203,17 @@
       },
       cleanup: function cleanup() {
         var _el$classList5,
-            _this13 = this,
+            _this14 = this,
             _el$classList6;
 
         (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(classesDuring.filter(function (i) {
-          _newArrowCheck(this, _this13);
+          _newArrowCheck(this, _this14);
 
           return !originalClasses.includes(i);
         }.bind(this))));
 
         (_el$classList6 = el.classList).remove.apply(_el$classList6, _toConsumableArray(classesEnd.filter(function (i) {
-          _newArrowCheck(this, _this13);
+          _newArrowCheck(this, _this14);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -6200,7 +6222,7 @@
     transition(el, stages, type);
   }
   function transition(el, stages, type) {
-    var _this14 = this;
+    var _this15 = this;
 
     el.__x_transition = {
       // Set transition type so we can avoid clearing transition if the direction is the same
@@ -6209,7 +6231,7 @@
       // from different point and early terminate it. Once will ensure that function
       // is only called one time.
       callback: once(function () {
-        _newArrowCheck(this, _this14);
+        _newArrowCheck(this, _this15);
 
         stages.hide(); // Adding an "isConnected" check, in case the callback
         // removed the element from the DOM.
@@ -6226,9 +6248,9 @@
     stages.start();
     stages.during();
     el.__x_transition.nextFrame = requestAnimationFrame(function () {
-      var _this15 = this;
+      var _this16 = this;
 
-      _newArrowCheck(this, _this14);
+      _newArrowCheck(this, _this15);
 
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
@@ -6240,7 +6262,7 @@
 
       stages.show();
       el.__x_transition.nextFrame = requestAnimationFrame(function () {
-        _newArrowCheck(this, _this15);
+        _newArrowCheck(this, _this16);
 
         stages.end();
         setTimeout(el.__x_transition.callback, duration);
@@ -6444,13 +6466,13 @@
         if (el.attributes.value === undefined && attrType === 'bind') {
           el.value = value;
         } else if (attrType !== 'bind') {
-          el.checked = el.value == value;
+          el.checked = checkedAttrLooseCompare(el.value, value);
         }
       } else if (el.type === 'checkbox') {
         // If we are explicitly binding a string to the :value, set the string,
         // If the value is a boolean, leave it alone, it will be set to "on"
         // automatically.
-        if (typeof value !== 'boolean' && ![null, false, undefined].includes(value) && attrType === 'bind') {
+        if (typeof value !== 'boolean' && ![null, undefined].includes(value) && attrType === 'bind') {
           el.value = String(value);
         } else if (attrType !== 'bind') {
           if (Array.isArray(value)) {
@@ -6460,7 +6482,7 @@
             el.checked = value.some(function (val) {
               _newArrowCheck(this, _this);
 
-              return val == el.value;
+              return checkedAttrLooseCompare(val, el.value);
             }.bind(this));
           } else {
             el.checked = !!value;
@@ -6933,10 +6955,10 @@
         // If the data we are binding to is an array, toggle its value inside the array.
         if (Array.isArray(currentValue)) {
           var newValue = modifiers.includes('number') ? safeParseNumber(event.target.value) : event.target.value;
-          return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(function (i) {
+          return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(function (el) {
             _newArrowCheck(this, _this3);
 
-            return i !== newValue;
+            return !checkedAttrLooseCompare(el, newValue);
           }.bind(this));
         } else {
           return event.target.checked;
@@ -7100,11 +7122,22 @@
       this.unobservedData.$el = null;
       this.unobservedData.$refs = null;
       this.unobservedData.$nextTick = null;
-      this.unobservedData.$watch = null;
-      Object.keys(Alpine.magicProperties).forEach(function (name) {
+      this.unobservedData.$watch = null; // The IE build uses a proxy polyfill which doesn't allow properties
+      // to be defined after the proxy object is created so,
+      // for IE only, we need to define our helpers earlier.
+
+      Object.entries(Alpine.magicProperties).forEach(function (_ref3) {
         _newArrowCheck(this, _this);
 
-        this.unobservedData["$".concat(name)] = null;
+        var _ref4 = _slicedToArray(_ref3, 2),
+            name = _ref4[0],
+            callback = _ref4[1];
+
+        Object.defineProperty(this.unobservedData, "$".concat(name), {
+          get: function get() {
+            return callback(canonicalComponentElementReference);
+          }
+        });
       }.bind(this));
       /* IE11-ONLY:END */
       // Construct a Proxy-based observable. This will be used to handle reactivity.
@@ -7134,22 +7167,8 @@
 
         if (!this.watchers[property]) this.watchers[property] = [];
         this.watchers[property].push(callback);
-      }.bind(this); // Register custom magic properties.
+      }.bind(this);
 
-
-      Object.entries(Alpine.magicProperties).forEach(function (_ref3) {
-        _newArrowCheck(this, _this);
-
-        var _ref4 = _slicedToArray(_ref3, 2),
-            name = _ref4[0],
-            callback = _ref4[1];
-
-        Object.defineProperty(this.unobservedData, "$".concat(name), {
-          get: function get() {
-            return callback(canonicalComponentElementReference);
-          }
-        });
-      }.bind(this));
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
       componentForClone || Alpine.onBeforeComponentInitializeds.forEach(function (callback) {
@@ -7673,7 +7692,7 @@
   }();
 
   var Alpine = {
-    version: "2.7.0",
+    version: "2.7.1",
     pauseMutationObserver: false,
     magicProperties: {},
     onComponentInitializeds: [],
@@ -7714,11 +7733,7 @@
                     this.initializeComponent(el);
                   }.bind(this));
                 }.bind(this));
-                this.listenForNewUninitializedComponentsAtRunTime(function (el) {
-                  _newArrowCheck(this, _this);
-
-                  this.initializeComponent(el);
-                }.bind(this));
+                this.listenForNewUninitializedComponentsAtRunTime();
 
               case 6:
               case "end":
@@ -7759,7 +7774,7 @@
         callback(rootEl);
       }.bind(this));
     },
-    listenForNewUninitializedComponentsAtRunTime: function listenForNewUninitializedComponentsAtRunTime(callback) {
+    listenForNewUninitializedComponentsAtRunTime: function listenForNewUninitializedComponentsAtRunTime() {
       var _this5 = this;
 
       var targetNode = document.querySelector('body');

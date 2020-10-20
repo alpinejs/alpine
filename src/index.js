@@ -31,9 +31,7 @@ const Alpine = {
             })
         })
 
-        this.listenForNewUninitializedComponentsAtRunTime(el => {
-            this.initializeComponent(el)
-        })
+        this.listenForNewUninitializedComponentsAtRunTime()
     },
 
     discoverComponents: function (callback) {
@@ -54,7 +52,7 @@ const Alpine = {
             })
     },
 
-    listenForNewUninitializedComponentsAtRunTime: function (callback) {
+    listenForNewUninitializedComponentsAtRunTime: function () {
         const targetNode = document.querySelector('body');
 
         const observerOptions = {

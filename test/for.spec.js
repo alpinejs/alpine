@@ -505,3 +505,22 @@ test('x-for over range using i in x syntax with data property', async () => {
 
     expect(document.querySelectorAll('span').length).toEqual(10)
 })
+
+test('x-for with an array of numbers', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ items: [] }">
+            <template x-for="i in items">
+                <span x-text="i"></span>
+            </template>
+            <button @click="items.push(2)"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('button').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').textContent).toEqual('2')
+    })
+})

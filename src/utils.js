@@ -486,7 +486,7 @@ export function transition(el, stages, type) {
 }
 
 export function isNumeric(subject){
-    return ! isNaN(subject)
+    return ! Array.isArray(subject) && ! isNaN(subject)
 }
 
 // Thanks @vuejs

@@ -512,15 +512,23 @@ test('x-for with an array of numbers', async () => {
             <template x-for="i in items">
                 <span x-text="i"></span>
             </template>
-            <button @click="items.push(2)"></button>
+            <button id="push-2" @click="items.push(2)"></button>
+            <button id="push-3" @click="items.push(3)"></button>
         </div>
     `
 
     Alpine.start()
 
-    document.querySelector('button').click()
+    document.querySelector('#push-2').click()
 
     await wait(() => {
         expect(document.querySelector('span').textContent).toEqual('2')
+    })
+
+    document.querySelector('#push-3').click()
+
+    await wait(() => {
+        expect(document.querySelectorAll('span').length).toEqual(2)
+        expect(document.querySelectorAll('span')[1].textContent).toEqual('3')
     })
 })

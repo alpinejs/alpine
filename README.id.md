@@ -637,7 +637,7 @@ Kunci objek adalah arahan (Bisa berupa arahan apa pun termasuk pengubah), dan ni
 </style>
 ```
 
-### Properti Sihir
+### Properti Ajaib
 
 > Dengan pengecualian `$el`, properti ajaib tidak tersedia dalam `x-data` karena komponen belum diinisialisasi.
 
@@ -781,7 +781,7 @@ Karena kebijakan berlaku untuk semua skrip di halaman Anda, penting agar pustaka
 ## Tujuan selanjutnya di V3
 * Pindah dari `x-ref` ke `ref` untuk paritas Vue?
 * Menambahkan `Alpine.directive()`
-* Menambahkan `Alpine.component('foo', {...})` (Dengan metode sihir `__init()`)
+* Menambahkan `Alpine.component('foo', {...})` (Dengan metode ajaib `__init()`)
 * Mengirim peristiwa Alpine untuk "loaded", "transition-start", dll ... ([#299](https://github.com/alpinejs/alpine/pull/299)) ?
 * Menghapus "object" (dan array) sintaks dari `x-bind:class="{ 'foo': true }"` ([#236](https://github.com/alpinejs/alpine/pull/236) untuk menambah dukungan untuk sintaks objek untuk atribut `style`)
 * Memperbaiki `x-for` reaktivitas mutasi ([#165](https://github.com/alpinejs/alpine/pull/165))

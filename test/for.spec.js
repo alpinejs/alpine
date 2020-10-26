@@ -377,6 +377,30 @@ test('nested x-for access outer loop variable', async () => {
     expect(document.querySelectorAll('h2')[3].textContent).toEqual('baz: lab')
 })
 
+test('sibling x-for do not interact with each other', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foos: [1], bars: [1, 2] }">
+            <template x-for="foo in foos">
+                <h1 x-text="foo"></h1>
+            </template>
+            <template x-for="bar in bars">
+                <h2 x-text="bar"></h2>
+            </template>
+            <button @click="foos = [1, 2];bars = [1, 2, 3]">Change</button>
+        </div>
+    `
+
+    Alpine.start()
+
+    await wait(() => { expect(document.querySelectorAll('h1').length).toEqual(1) })
+    await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(2) })
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelectorAll('h1').length).toEqual(2) })
+    await wait(() => { expect(document.querySelectorAll('h2').length).toEqual(3) })
+})
+
 test('nested x-for event listeners', async () => {
     document._alerts = []
 

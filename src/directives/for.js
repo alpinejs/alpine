@@ -111,7 +111,7 @@ function addElementInLoopAfterCurrentEl(templateEl, currentEl) {
 function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
     if (! nextEl) return
 
-    // If the next El is a sibling template, we don't want it
+    // If the next El is a sibling template tag, we're done.
     if (nextEl.tagName === 'TEMPLATE') return
 
     // If the the key's DO match, no need to look ahead.

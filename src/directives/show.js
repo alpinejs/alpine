@@ -3,6 +3,7 @@ import { transitionIn, transitionOut } from '../utils'
 export function handleShowDirective(component, el, value, modifiers, initialUpdate = false) {
     const hide = () => {
         el.style.display = 'none'
+        el.__x_is_shown = false
     }
 
     const show = () => {
@@ -11,6 +12,8 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
         } else {
             el.style.removeProperty('display')
         }
+
+        el.__x_is_shown = true
     }
 
     if (initialUpdate === true) {
@@ -22,12 +25,12 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
         return
     }
 
-    const handle = (resolve) => {
+    const handle = (resolve, reject) => {
         if (value) {
-            if(el.style.display === 'none' || el.__x_transition) {
+            if (el.style.display === 'none' || el.__x_transition) {
                 transitionIn(el, () => {
                     show()
-                }, component)
+                }, reject, component)
             }
             resolve(() => {})
         } else {
@@ -36,7 +39,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
                     resolve(() => {
                         hide()
                     })
-                }, component)
+                }, reject, component)
             } else {
                 resolve(() => {})
             }
@@ -49,7 +52,7 @@ export function handleShowDirective(component, el, value, modifiers, initialUpda
 
     // If x-show.immediate, foregoe the waiting.
     if (modifiers.includes('immediate')) {
-        handle(finish => finish())
+        handle(finish => finish(), () => {})
         return
     }
 

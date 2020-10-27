@@ -5900,10 +5900,11 @@
   }
   var TRANSITION_TYPE_IN = 'in';
   var TRANSITION_TYPE_OUT = 'out';
-  function transitionIn(el, show, component) {
+  var TRANSITION_CANCELLED = 'cancelled';
+  function transitionIn(el, show, reject, component) {
     var _this6 = this;
 
-    var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    var forceSkip = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     // We don't want to transition on the initial page load.
     if (forceSkip) return show();
 
@@ -5927,22 +5928,22 @@
 
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
-      transitionHelperIn(el, modifiers, show); // Otherwise, we can assume x-transition:enter.
+      transitionHelperIn(el, modifiers, show, reject); // Otherwise, we can assume x-transition:enter.
     } else if (attrs.some(function (attr) {
       _newArrowCheck(this, _this6);
 
       return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
     }.bind(this))) {
-      transitionClassesIn(el, component, attrs, show);
+      transitionClassesIn(el, component, attrs, show, reject);
     } else {
       // If neither, just show that damn thing.
       show();
     }
   }
-  function transitionOut(el, hide, component) {
+  function transitionOut(el, hide, reject, component) {
     var _this7 = this;
 
-    var forceSkip = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    var forceSkip = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     // We don't want to transition on the initial page load.
     if (forceSkip) return hide();
 
@@ -5964,18 +5965,18 @@
 
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
-      transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide);
+      transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide, reject);
     } else if (attrs.some(function (attr) {
       _newArrowCheck(this, _this7);
 
       return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
     }.bind(this))) {
-      transitionClassesOut(el, component, attrs, hide);
+      transitionClassesOut(el, component, attrs, hide, reject);
     } else {
       hide();
     }
   }
-  function transitionHelperIn(el, modifiers, showCallback) {
+  function transitionHelperIn(el, modifiers, showCallback, reject) {
     var _this8 = this;
 
     // Default values inspired by: https://material.io/design/motion/speed.html#duration
@@ -5993,9 +5994,9 @@
     };
     transitionHelper(el, modifiers, showCallback, function () {
       _newArrowCheck(this, _this8);
-    }.bind(this), styleValues, TRANSITION_TYPE_IN);
+    }.bind(this), reject, styleValues, TRANSITION_TYPE_IN);
   }
-  function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
+  function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback, reject) {
     var _this9 = this;
 
     // Make the "out" transition .5x slower than the "in". (Visually better)
@@ -6016,7 +6017,7 @@
     };
     transitionHelper(el, modifiers, function () {
       _newArrowCheck(this, _this9);
-    }.bind(this), hideCallback, styleValues, TRANSITION_TYPE_OUT);
+    }.bind(this), hideCallback, reject, styleValues, TRANSITION_TYPE_OUT);
   }
 
   function modifierValue(modifiers, key, fallback) {
@@ -6049,11 +6050,10 @@
     return rawValue;
   }
 
-  function transitionHelper(el, modifiers, hook1, hook2, styleValues, type) {
+  function transitionHelper(el, modifiers, hook1, hook2, reject, styleValues, type) {
     // clear the previous transition if exists to avoid caching the wrong styles
     if (el.__x_transition) {
-      cancelAnimationFrame(el.__x_transition.nextFrame);
-      el.__x_transition.callback && el.__x_transition.callback();
+      el.__x_transition.cancel && el.__x_transition.cancel();
     } // If the user set these style values, we'll put them back when we're done with them.
 
 
@@ -6097,7 +6097,7 @@
         el.style.transitionTimingFunction = null;
       }
     };
-    transition(el, stages, type);
+    transition(el, stages, type, reject);
   }
 
   var ensureStringExpression = function ensureStringExpression(expression, el, component) {
@@ -6106,7 +6106,7 @@
     return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
   }.bind(undefined);
 
-  function transitionClassesIn(el, component, directives, showCallback) {
+  function transitionClassesIn(el, component, directives, showCallback, reject) {
     var _this11 = this;
 
     var enter = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
@@ -6132,9 +6132,9 @@
     }).expression, el, component));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
       _newArrowCheck(this, _this11);
-    }.bind(this), TRANSITION_TYPE_IN);
+    }.bind(this), TRANSITION_TYPE_IN, reject);
   }
-  function transitionClassesOut(el, component, directives, hideCallback) {
+  function transitionClassesOut(el, component, directives, hideCallback, reject) {
     var _this12 = this;
 
     var leave = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
@@ -6160,13 +6160,12 @@
     }).expression, el, component));
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
       _newArrowCheck(this, _this12);
-    }.bind(this), hideCallback, TRANSITION_TYPE_OUT);
+    }.bind(this), hideCallback, TRANSITION_TYPE_OUT, reject);
   }
-  function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type) {
+  function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type, reject) {
     // clear the previous transition if exists to avoid caching the wrong classes
     if (el.__x_transition) {
-      cancelAnimationFrame(el.__x_transition.nextFrame);
-      el.__x_transition.callback && el.__x_transition.callback();
+      el.__x_transition.cancel && el.__x_transition.cancel();
     }
 
     var originalClasses = el.__x_original_classes || [];
@@ -6219,29 +6218,36 @@
         }.bind(this))));
       }
     };
-    transition(el, stages, type);
+    transition(el, stages, type, reject);
   }
-  function transition(el, stages, type) {
+  function transition(el, stages, type, reject) {
     var _this15 = this;
 
+    var finish = once(function () {
+      _newArrowCheck(this, _this15);
+
+      stages.hide(); // Adding an "isConnected" check, in case the callback
+      // removed the element from the DOM.
+
+      if (el.isConnected) {
+        stages.cleanup();
+      }
+
+      delete el.__x_transition;
+    }.bind(this));
     el.__x_transition = {
       // Set transition type so we can avoid clearing transition if the direction is the same
       type: type,
       // create a callback for the last stages of the transition so we can call it
       // from different point and early terminate it. Once will ensure that function
       // is only called one time.
-      callback: once(function () {
+      cancel: once(function () {
         _newArrowCheck(this, _this15);
 
-        stages.hide(); // Adding an "isConnected" check, in case the callback
-        // removed the element from the DOM.
-
-        if (el.isConnected) {
-          stages.cleanup();
-        }
-
-        delete el.__x_transition;
+        reject(TRANSITION_CANCELLED);
+        finish();
       }.bind(this)),
+      finish: finish,
       // This store the next animation frame so we can cancel it
       nextFrame: null
     };
@@ -6265,7 +6271,7 @@
         _newArrowCheck(this, _this16);
 
         stages.end();
-        setTimeout(el.__x_transition.callback, duration);
+        setTimeout(el.__x_transition.finish, duration);
       }.bind(this));
     }.bind(this));
   }
@@ -6305,6 +6311,8 @@
         nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl); // And transition it in if it's not the first page load.
 
         transitionIn(nextEl, function () {
+          _newArrowCheck(this, _this2);
+        }.bind(this), function () {
           _newArrowCheck(this, _this2);
         }.bind(this), component, initialUpdate);
         nextEl.__x_for = iterationScopeVariables;
@@ -6438,6 +6446,8 @@
         _newArrowCheck(this, _this5);
 
         nextElementFromOldLoopImmutable.remove();
+      }.bind(this), function () {
+        _newArrowCheck(this, _this5);
       }.bind(this), component);
       nextElementFromOldLoop = nextSibling && nextSibling.__x_for_key !== undefined ? nextSibling : false;
     };
@@ -6585,6 +6595,7 @@
       _newArrowCheck(this, _this);
 
       el.style.display = 'none';
+      el.__x_is_shown = false;
     }.bind(this);
 
     var show = function show() {
@@ -6595,6 +6606,8 @@
       } else {
         el.style.removeProperty('display');
       }
+
+      el.__x_is_shown = true;
     }.bind(this);
 
     if (initialUpdate === true) {
@@ -6607,7 +6620,7 @@
       return;
     }
 
-    var handle = function handle(resolve) {
+    var handle = function handle(resolve, reject) {
       var _this2 = this;
 
       _newArrowCheck(this, _this);
@@ -6618,7 +6631,7 @@
             _newArrowCheck(this, _this2);
 
             show();
-          }.bind(this), component);
+          }.bind(this), reject, component);
         }
 
         resolve(function () {
@@ -6636,7 +6649,7 @@
 
               hide();
             }.bind(this));
-          }.bind(this), component);
+          }.bind(this), reject, component);
         } else {
           resolve(function () {
             _newArrowCheck(this, _this2);
@@ -6654,6 +6667,8 @@
         _newArrowCheck(this, _this);
 
         return finish();
+      }.bind(this), function () {
+        _newArrowCheck(this, _this);
       }.bind(this));
       return;
     } // x-show is encountered during a DOM tree walk. If an element
@@ -6680,6 +6695,8 @@
       el.parentElement.insertBefore(clone, el.nextElementSibling);
       transitionIn(el.nextElementSibling, function () {
         _newArrowCheck(this, _this);
+      }.bind(this), function () {
+        _newArrowCheck(this, _this);
       }.bind(this), component, initialUpdate);
       component.initializeElements(el.nextElementSibling, extraVars);
       el.nextElementSibling.__x_inserted_me = true;
@@ -6688,6 +6705,8 @@
         _newArrowCheck(this, _this);
 
         el.nextElementSibling.remove();
+      }.bind(this), function () {
+        _newArrowCheck(this, _this);
       }.bind(this), component, initialUpdate);
     }
   }
@@ -7416,41 +7435,39 @@
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
-        this.showDirectiveStack.reverse().map(function (thing) {
+        this.showDirectiveStack.reverse().map(function (handler) {
           var _this14 = this;
 
           _newArrowCheck(this, _this13);
 
-          return new Promise(function (resolve) {
-            var _this15 = this;
-
+          return new Promise(function (resolve, reject) {
             _newArrowCheck(this, _this14);
 
-            thing(function (finish) {
-              _newArrowCheck(this, _this15);
-
-              resolve(finish);
-            }.bind(this));
+            handler(resolve, reject);
           }.bind(this));
-        }.bind(this)).reduce(function (nestedPromise, promise) {
-          var _this16 = this;
+        }.bind(this)).reduce(function (promiseChain, promise) {
+          var _this15 = this;
 
           _newArrowCheck(this, _this13);
 
-          return nestedPromise.then(function () {
-            var _this17 = this;
+          return promiseChain.then(function () {
+            var _this16 = this;
 
-            _newArrowCheck(this, _this16);
+            _newArrowCheck(this, _this15);
 
-            return promise.then(function (finish) {
-              _newArrowCheck(this, _this17);
+            return promise.then(function (finishElement) {
+              _newArrowCheck(this, _this16);
 
-              return finish();
+              finishElement();
             }.bind(this));
           }.bind(this));
         }.bind(this), Promise.resolve(function () {
           _newArrowCheck(this, _this13);
-        }.bind(this))); // We've processed the handler stack. let's clear it.
+        }.bind(this)))["catch"](function (e) {
+          _newArrowCheck(this, _this13);
+
+          if (e !== TRANSITION_CANCELLED) throw e;
+        }.bind(this)); // We've processed the handler stack. let's clear it.
 
         this.showDirectiveStack = [];
         this.showDirectiveLastElement = undefined;
@@ -7463,10 +7480,10 @@
     }, {
       key: "registerListeners",
       value: function registerListeners(el, extraVars) {
-        var _this18 = this;
+        var _this17 = this;
 
         getXAttrs(el, this).forEach(function (_ref5) {
-          _newArrowCheck(this, _this18);
+          _newArrowCheck(this, _this17);
 
           var type = _ref5.type,
               value = _ref5.value,
@@ -7487,15 +7504,15 @@
     }, {
       key: "resolveBoundAttributes",
       value: function resolveBoundAttributes(el) {
-        var _this19 = this;
+        var _this18 = this;
 
         var initialUpdate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var extraVars = arguments.length > 2 ? arguments[2] : undefined;
         var attrs = getXAttrs(el, this);
         attrs.forEach(function (_ref6) {
-          var _this20 = this;
+          var _this19 = this;
 
-          _newArrowCheck(this, _this19);
+          _newArrowCheck(this, _this18);
 
           var type = _ref6.type,
               value = _ref6.value,
@@ -7531,7 +7548,7 @@
               // If this element also has x-for on it, don't process x-if.
               // We will let the "x-for" directive handle the "if"ing.
               if (attrs.some(function (i) {
-                _newArrowCheck(this, _this20);
+                _newArrowCheck(this, _this19);
 
                 return i.type === 'for';
               }.bind(this))) return;
@@ -7552,10 +7569,10 @@
     }, {
       key: "evaluateReturnExpression",
       value: function evaluateReturnExpression(el, expression) {
-        var _this21 = this;
+        var _this20 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this21);
+          _newArrowCheck(this, _this20);
         }.bind(this);
         return saferEval(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
           $dispatch: this.getDispatchFunction(el)
@@ -7564,10 +7581,10 @@
     }, {
       key: "evaluateCommandExpression",
       value: function evaluateCommandExpression(el, expression) {
-        var _this22 = this;
+        var _this21 = this;
 
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
-          _newArrowCheck(this, _this22);
+          _newArrowCheck(this, _this21);
         }.bind(this);
         return saferEvalNoReturn(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
           $dispatch: this.getDispatchFunction(el)
@@ -7587,7 +7604,7 @@
     }, {
       key: "listenForNewElementsToInitialize",
       value: function listenForNewElementsToInitialize() {
-        var _this23 = this;
+        var _this22 = this;
 
         var targetNode = this.$el;
         var observerOptions = {
@@ -7596,9 +7613,9 @@
           subtree: true
         };
         var observer = new MutationObserver(function (mutations) {
-          var _this24 = this;
+          var _this23 = this;
 
-          _newArrowCheck(this, _this23);
+          _newArrowCheck(this, _this22);
 
           for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
@@ -7607,16 +7624,16 @@
 
             if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
               (function () {
-                var _this25 = this;
+                var _this24 = this;
 
                 var rawData = saferEval(mutations[i].target.getAttribute('x-data') || '{}', {
-                  $el: _this24.$el
+                  $el: _this23.$el
                 });
                 Object.keys(rawData).forEach(function (key) {
-                  _newArrowCheck(this, _this25);
+                  _newArrowCheck(this, _this24);
 
-                  if (_this24.$data[key] !== rawData[key]) {
-                    _this24.$data[key] = rawData[key];
+                  if (_this23.$data[key] !== rawData[key]) {
+                    _this23.$data[key] = rawData[key];
                   }
                 }.bind(this));
               })();
@@ -7624,7 +7641,7 @@
 
             if (mutations[i].addedNodes.length > 0) {
               mutations[i].addedNodes.forEach(function (node) {
-                _newArrowCheck(this, _this24);
+                _newArrowCheck(this, _this23);
 
                 if (node.nodeType !== 1 || node.__x_inserted_me) return;
 
@@ -7643,7 +7660,7 @@
     }, {
       key: "getRefsProxy",
       value: function getRefsProxy() {
-        var _this26 = this;
+        var _this25 = this;
 
         var self = this;
         var refObj = {};
@@ -7655,7 +7672,7 @@
         // we just loop on the element, look for any x-ref and create a tmp property on a fake object.
 
         this.walkAndSkipNestedComponents(self.$el, function (el) {
-          _newArrowCheck(this, _this26);
+          _newArrowCheck(this, _this25);
 
           if (el.hasAttribute('x-ref')) {
             refObj[el.getAttribute('x-ref')] = true;
@@ -7669,14 +7686,14 @@
 
         return new Proxy(refObj, {
           get: function get(object, property) {
-            var _this27 = this;
+            var _this26 = this;
 
             if (property === '$isAlpineProxy') return true;
             var ref; // We can't just query the DOM because it's hard to filter out refs in
             // nested components.
 
             self.walkAndSkipNestedComponents(self.$el, function (el) {
-              _newArrowCheck(this, _this27);
+              _newArrowCheck(this, _this26);
 
               if (el.hasAttribute('x-ref') && el.getAttribute('x-ref') === property) {
                 ref = el;

@@ -185,10 +185,11 @@ export function convertClassStringToArray(classList, filterFn = Boolean) {
     return classList.split(' ').filter(filterFn)
 }
 
-const TRANSITION_TYPE_IN = 'in'
-const TRANSITION_TYPE_OUT = 'out'
+export const TRANSITION_TYPE_IN = 'in'
+export const TRANSITION_TYPE_OUT = 'out'
+export const TRANSITION_CANCELLED = 'cancelled'
 
-export function transitionIn(el, show, component, forceSkip = false) {
+export function transitionIn(el, show, reject, component, forceSkip = false) {
     // We don't want to transition on the initial page load.
     if (forceSkip) return show()
 
@@ -214,17 +215,17 @@ export function transitionIn(el, show, component, forceSkip = false) {
         modifiers = settingBothSidesOfTransition
             ? modifiers.filter((i, index) => index < modifiers.indexOf('out')) : modifiers
 
-        transitionHelperIn(el, modifiers, show)
+        transitionHelperIn(el, modifiers, show, reject)
     // Otherwise, we can assume x-transition:enter.
     } else if (attrs.some(attr => ['enter', 'enter-start', 'enter-end'].includes(attr.value))) {
-        transitionClassesIn(el, component, attrs, show)
+        transitionClassesIn(el, component, attrs, show, reject)
     } else {
     // If neither, just show that damn thing.
         show()
     }
 }
 
-export function transitionOut(el, hide, component, forceSkip = false) {
+export function transitionOut(el, hide, reject, component, forceSkip = false) {
     // We don't want to transition on the initial page load.
     if (forceSkip) return hide()
 
@@ -247,15 +248,15 @@ export function transitionOut(el, hide, component, forceSkip = false) {
         modifiers = settingBothSidesOfTransition
             ? modifiers.filter((i, index) => index > modifiers.indexOf('out')) : modifiers
 
-        transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide)
+        transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide, reject)
     } else if (attrs.some(attr => ['leave', 'leave-start', 'leave-end'].includes(attr.value))) {
-        transitionClassesOut(el, component, attrs, hide)
+        transitionClassesOut(el, component, attrs, hide, reject)
     } else {
         hide()
     }
 }
 
-export function transitionHelperIn(el, modifiers, showCallback) {
+export function transitionHelperIn(el, modifiers, showCallback, reject) {
     // Default values inspired by: https://material.io/design/motion/speed.html#duration
     const styleValues = {
         duration: modifierValue(modifiers, 'duration', 150),
@@ -270,10 +271,10 @@ export function transitionHelperIn(el, modifiers, showCallback) {
         },
     }
 
-    transitionHelper(el, modifiers, showCallback, () => {}, styleValues, TRANSITION_TYPE_IN)
+    transitionHelper(el, modifiers, showCallback, () => {}, reject, styleValues, TRANSITION_TYPE_IN)
 }
 
-export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback) {
+export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback, reject) {
     // Make the "out" transition .5x slower than the "in". (Visually better)
     // HOWEVER, if they explicitly set a duration for the "out" transition,
     // use that.
@@ -294,7 +295,7 @@ export function transitionHelperOut(el, modifiers, settingBothSidesOfTransition,
         },
     }
 
-    transitionHelper(el, modifiers, () => {}, hideCallback, styleValues, TRANSITION_TYPE_OUT)
+    transitionHelper(el, modifiers, () => {}, hideCallback, reject, styleValues, TRANSITION_TYPE_OUT)
 }
 
 function modifierValue(modifiers, key, fallback) {
@@ -329,11 +330,10 @@ function modifierValue(modifiers, key, fallback) {
     return rawValue
 }
 
-export function transitionHelper(el, modifiers, hook1, hook2, styleValues, type) {
+export function transitionHelper(el, modifiers, hook1, hook2, reject, styleValues, type) {
     // clear the previous transition if exists to avoid caching the wrong styles
     if (el.__x_transition) {
-        cancelAnimationFrame(el.__x_transition.nextFrame)
-        el.__x_transition.callback && el.__x_transition.callback()
+        el.__x_transition.cancel && el.__x_transition.cancel()
     }
 
     // If the user set these style values, we'll put them back when we're done with them.
@@ -380,7 +380,7 @@ export function transitionHelper(el, modifiers, hook1, hook2, styleValues, type)
         },
     }
 
-    transition(el, stages, type)
+    transition(el, stages, type, reject)
 }
 
 const ensureStringExpression = (expression, el, component) => {
@@ -389,27 +389,26 @@ const ensureStringExpression = (expression, el, component) => {
         : expression
 }
 
-export function transitionClassesIn(el, component, directives, showCallback) {
+export function transitionClassesIn(el, component, directives, showCallback, reject) {
     const enter = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter') || { expression: '' }).expression, el, component))
     const enterStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-start') || { expression: '' }).expression, el, component))
     const enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'enter-end') || { expression: '' }).expression, el, component))
 
-    transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {}, TRANSITION_TYPE_IN)
+    transitionClasses(el, enter, enterStart, enterEnd, showCallback, () => {}, TRANSITION_TYPE_IN, reject)
 }
 
-export function transitionClassesOut(el, component, directives, hideCallback) {
+export function transitionClassesOut(el, component, directives, hideCallback, reject) {
     const leave = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'leave') || { expression: '' }).expression, el, component))
     const leaveStart = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'leave-start') || { expression: '' }).expression, el, component))
     const leaveEnd = convertClassStringToArray(ensureStringExpression((directives.find(i => i.value === 'leave-end') || { expression: '' }).expression, el, component))
 
-    transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback, TRANSITION_TYPE_OUT)
+    transitionClasses(el, leave, leaveStart, leaveEnd, () => {}, hideCallback, TRANSITION_TYPE_OUT, reject)
 }
 
-export function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type) {
+export function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type, reject) {
     // clear the previous transition if exists to avoid caching the wrong classes
     if (el.__x_transition) {
-        cancelAnimationFrame(el.__x_transition.nextFrame)
-        el.__x_transition.callback && el.__x_transition.callback()
+        el.__x_transition.cancel && el.__x_transition.cancel()
     }
 
     const originalClasses = el.__x_original_classes || []
@@ -438,27 +437,34 @@ export function transitionClasses(el, classesDuring, classesStart, classesEnd, h
         },
     }
 
-    transition(el, stages, type)
+    transition(el, stages, type, reject)
 }
 
-export function transition(el, stages, type) {
+export function transition(el, stages, type, reject) {
+    const finish = once(() => {
+        stages.hide()
+
+        // Adding an "isConnected" check, in case the callback
+        // removed the element from the DOM.
+        if (el.isConnected) {
+            stages.cleanup()
+        }
+
+        delete el.__x_transition
+    })
+
     el.__x_transition = {
         // Set transition type so we can avoid clearing transition if the direction is the same
        type: type,
         // create a callback for the last stages of the transition so we can call it
         // from different point and early terminate it. Once will ensure that function
         // is only called one time.
-        callback: once(() => {
-            stages.hide()
+        cancel: once(() => {
+            reject(TRANSITION_CANCELLED)
 
-            // Adding an "isConnected" check, in case the callback
-            // removed the element from the DOM.
-            if (el.isConnected) {
-                stages.cleanup()
-            }
-
-            delete el.__x_transition
+            finish()
         }),
+        finish,
         // This store the next animation frame so we can cancel it
         nextFrame: null
     }
@@ -466,7 +472,7 @@ export function transition(el, stages, type) {
     stages.start()
     stages.during()
 
-    el.__x_transition.nextFrame =requestAnimationFrame(() => {
+    el.__x_transition.nextFrame = requestAnimationFrame(() => {
         // Note: Safari's transitionDuration property will list out comma separated transition durations
         // for every single transition property. Let's grab the first one and call it a day.
         let duration = Number(getComputedStyle(el).transitionDuration.replace(/,.*/, '').replace('s', '')) * 1000
@@ -477,10 +483,10 @@ export function transition(el, stages, type) {
 
         stages.show()
 
-        el.__x_transition.nextFrame =requestAnimationFrame(() => {
+        el.__x_transition.nextFrame = requestAnimationFrame(() => {
             stages.end()
 
-            setTimeout(el.__x_transition.callback, duration)
+            setTimeout(el.__x_transition.finish, duration)
         })
     });
 }

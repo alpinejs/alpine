@@ -732,3 +732,79 @@ test('x-transition using classes do not overlap', async () => {
     expect(document.querySelector('span').style.display).toEqual("none")
     expect(document.querySelector('span').classList).toEqual(emptyClassList)
 })
+
+test('x-transition with parent x-show does not overlap', async () => {
+    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        setTimeout(callback, 0)
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ show: true }">
+            <button x-on:click="show = ! show"></button>
+
+            <h1 x-show="show">
+                <span x-show.transition="show"></span>
+            </h1>
+        </div>
+    `
+
+    Alpine.start()
+
+    // Initial state
+    expect(document.querySelector('span').style.display).toEqual("")
+    expect(document.querySelector('span').style.opacity).toEqual("")
+    expect(document.querySelector('span').style.transform).toEqual("")
+    expect(document.querySelector('span').style.transformOrigin).toEqual("")
+    expect(document.querySelector('h1').style.display).toEqual("")
+    expect(document.querySelector('h1').style.opacity).toEqual("")
+    expect(document.querySelector('h1').style.transform).toEqual("")
+    expect(document.querySelector('h1').style.transformOrigin).toEqual("")
+
+    // Trigger transition out
+    document.querySelector('button').click()
+
+    // Trigger transition in before the previous one has finished
+    await timeout(10)
+    document.querySelector('button').click()
+
+    // Check the element is still visible and style properties are correct
+    await timeout(200)
+    expect(document.querySelector('span').style.display).toEqual("")
+    expect(document.querySelector('span').style.opacity).toEqual("")
+    expect(document.querySelector('span').style.transform).toEqual("")
+    expect(document.querySelector('span').style.transformOrigin).toEqual("")
+    expect(document.querySelector('h1').style.display).toEqual("")
+    expect(document.querySelector('h1').style.opacity).toEqual("")
+    expect(document.querySelector('h1').style.transform).toEqual("")
+    expect(document.querySelector('h1').style.transformOrigin).toEqual("")
+
+    // Hide the element
+    document.querySelector('button').click()
+    await timeout(200)
+    expect(document.querySelector('span').style.display).toEqual("none")
+    expect(document.querySelector('span').style.opacity).toEqual("")
+    expect(document.querySelector('span').style.transform).toEqual("")
+    expect(document.querySelector('span').style.transformOrigin).toEqual("")
+    expect(document.querySelector('h1').style.display).toEqual("none")
+    expect(document.querySelector('h1').style.opacity).toEqual("")
+    expect(document.querySelector('h1').style.transform).toEqual("")
+    expect(document.querySelector('h1').style.transformOrigin).toEqual("")
+
+    // Trigger transition in
+    document.querySelector('button').click()
+
+    // Trigger transition out before the previous one has finished
+    await timeout(10)
+    document.querySelector('button').click()
+
+    // Check the element is hidden and style properties are correct
+    await timeout(200)
+    expect(document.querySelector('span').style.display).toEqual("none")
+    expect(document.querySelector('span').style.opacity).toEqual("")
+    expect(document.querySelector('span').style.transform).toEqual("")
+    expect(document.querySelector('span').style.transformOrigin).toEqual("")
+    expect(document.querySelector('h1').style.display).toEqual("none")
+    expect(document.querySelector('h1').style.opacity).toEqual("")
+    expect(document.querySelector('h1').style.transform).toEqual("")
+    expect(document.querySelector('h1').style.transformOrigin).toEqual("")
+})

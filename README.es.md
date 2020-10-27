@@ -21,12 +21,12 @@ Podríamos considerarlo como un [Tailwind](https://tailwindcss.com/) para JavaSc
 
 Eso es todo. Se inicializará solo.
 
-Para entornos de producción, se recomienda especificar una número de versión en concreto en el enlace para evitar comportamientos inesperados que puedan romper las nuevas versiones. Por ejemplo, para usar la versión `2.7.0` (la última):
+Para entornos de producción, se recomienda especificar una número de versión en concreto en el enlace para evitar comportamientos inesperados que puedan romper las nuevas versiones. Por ejemplo, para usar la versión `2.7.2` (la última):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.2/dist/alpine.min.js" defer></script>
 ```
 
-**Desde NPM:** Instalar el paquete desde NPM.
+**Desde npm:** Instalar el paquete desde npm.
 ```js
 npm i alpinejs
 ```
@@ -145,7 +145,7 @@ Y 6 propiedades mágicas:
 
 **Ejemplo:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**Estructura:** `<div x-data="[JSON data object]">...</div>`
+**Estructura:** `<div x-data="[object literal]">...</div>`
 
 `x-data` declara un nuevo *scope* del componente. Indica al *framework* que debe inicializar un nuevo componente con el objeto especificado.
 
@@ -576,7 +576,9 @@ Estas, funcionan exactamente igual que las directivas de transición de VueJS co
 
 Las claves del objeto son las directivas (puede ser cualquiera, incluyendo modificadores), y los valores son *callbacks* a evaluar por Alpine.
 
-> Note: La única anomalía con x-spread ocurre cuando se usa junto a `x-for`. Cuando la directiva a extender es `x-for`, es necesario retornar una expresion en formato de *string* en el *callback*. Por ejemplo: `['x-for']() { return 'item in items' }`.
+> Note: Excepciónes con `x-spread`:
+> - Cuando la directiva a extender es `x-for`, es necesario retornar una expresion en formato de *string* en el *callback*. Por ejemplo: `['x-for']() { return 'item in items' }`.
+> - `x-init` y `x-data` no se pueden usar dentro de un objeto para "spread".
 
 ---
 
@@ -724,7 +726,7 @@ Si necesitas acceder a $dispatch desde dentro de una función de JavaScript, pue
 Puedes hacer "watch" a la propiedad de un componente con el método mágico `$watch`. En el ejemplo de arriba, cuando se pulsa el botón y `open` cambia, la retrollamada provista ejecutara el `console.log` con el nuevo valor.
 
 ## Seguridad
-Si encuentras una brecha de seguridad, por favor envía un email a [calebporzio@gmail.com]()
+Si encuentras una brecha de seguridad, por favor envía un email a [calebporzio@gmail.com]().
 
 Alpine depende de una implementación personalizada utilizando el objeto `Function` para evaluar las directivas. A pesar de ser más seguro que `eval()`, su uso está prohibido en algunos entornos, tels como Google Chrome App, utilizando Content Security Policy restrictivas (CSP).
 

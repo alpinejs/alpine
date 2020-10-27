@@ -37,8 +37,11 @@ export default class Component {
             this.unobservedData.$refs = null
             this.unobservedData.$nextTick = null
             this.unobservedData.$watch = null
-            Object.keys(Alpine.magicProperties).forEach(name => {
-                this.unobservedData[`$${name}`] = null
+            // The IE build uses a proxy polyfill which doesn't allow properties
+            // to be defined after the proxy object is created so,
+            // for IE only, we need to define our helpers earlier.
+            Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
+                Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
             })
         /* IE11-ONLY:END */
 
@@ -64,10 +67,16 @@ export default class Component {
             this.watchers[property].push(callback)
         }
 
+
+        /* MODERN-ONLY:START */
+        // We remove this piece of code from the legacy build.
+        // In IE11, we have already defined our helpers at this point.
+
         // Register custom magic properties.
         Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
             Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
         })
+        /* MODERN-ONLY:END */
 
         this.showDirectiveStack = []
         this.showDirectiveLastElement
@@ -134,7 +143,7 @@ export default class Component {
                             }
 
                             return comparisonData[part]
-                        }, self.getUnobservedData())
+                        }, self.unobservedData)
                     })
             } else {
                 // Let's walk through the watchers with "dot-notation" (foo.bar) and see
@@ -155,8 +164,9 @@ export default class Component {
                                 // Run the watchers.
                                 self.watchers[fullDotNotationKey].forEach(callback => callback(target[key]))
                             }
+
                             return comparisonData[part]
-                        }, self.getUnobservedData())
+                        }, self.unobservedData)
                     })
             }
 

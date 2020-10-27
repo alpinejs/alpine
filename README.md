@@ -16,10 +16,12 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 | Language | Link for documentation |
 | --- | --- |
-| Japanese | [**日本語ドキュメント**](./README.ja.md) | 
-| Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) | 
-| Russian | [**Документация на русском**](./README.ru.md) | 
+| Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) |
+| German | [**Dokumentation in Deutsch**](./README.de.md) |
+| Indonesian | [**Dokumentasi Bahasa Indonesia**](./README.id.md) |
+| Japanese | [**日本語ドキュメント**](./README.ja.md) |
 | Portuguese | [**Documentação em Português**](./README.pt.md) |
+| Russian | [**Документация на русском**](./README.ru.md) |
 | Spanish | [**Documentación en Español**](./README.es.md) |
 
 ## Install
@@ -32,12 +34,12 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 That's it. It will initialize itself.
 
 For production environments, it's recommended to pin a specific version number in the link to avoid unexpected breakage from newer versions.
-For example, to use version `2.7.0` (latest):
+For example, to use version `2.7.2` (latest):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.2/dist/alpine.min.js" defer></script>
 ```
 
-**From NPM:** Install the package from NPM.
+**From npm:** Install the package from npm.
 ```js
 npm i alpinejs
 ```
@@ -83,7 +85,7 @@ The pattern above is the [module/nomodule pattern](https://philipwalton.com/arti
 ```
 
 You can even use it for non-trivial things:
-*Pre-fetching a dropdown's HTML content on hover*
+*Pre-fetching a dropdown's HTML content on hover.*
 ```html
 <div x-data="{ open: false }">
     <button
@@ -110,7 +112,7 @@ There are 14 directives available to you:
 | [`x-data`](#x-data) | Declares a new component scope. |
 | [`x-init`](#x-init) | Runs an expression when a component is initialized. |
 | [`x-show`](#x-show) | Toggles `display: none;` on the element depending on expression (true or false). |
-| [`x-bind`](#x-bind) | Sets the value of an attribute to the result of a JS expression |
+| [`x-bind`](#x-bind) | Sets the value of an attribute to the result of a JS expression. |
 | [`x-on`](#x-on) | Attaches an event listener to the element. Executes JS expression when emitted. |
 | [`x-model`](#x-model) | Adds "two-way data binding" to an element. Keeps input element in sync with component data. |
 | [`x-text`](#x-text) | Works similarly to `x-bind`, but will update the `innerText` of an element. |
@@ -118,8 +120,8 @@ There are 14 directives available to you:
 | [`x-ref`](#x-ref) | Convenient way to retrieve raw DOM elements out of your component. |
 | [`x-if`](#x-if) | Remove an element completely from the DOM. Needs to be used on a `<template>` tag. |
 | [`x-for`](#x-for) | Create new DOM nodes for each item in an array. Needs to be used on a `<template>` tag. |
-| [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition |
-| [`x-spread`](#x-spread) | Allows you to bind an object of Alpine directives to an element for better reusability |
+| [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition. |
+| [`x-spread`](#x-spread) | Allows you to bind an object of Alpine directives to an element for better reusability. |
 | [`x-cloak`](#x-cloak) | This attribute is removed when Alpine initializes. Useful for hiding pre-initialized DOM. |
 
 And 6 magic properties:
@@ -156,7 +158,7 @@ And 6 magic properties:
 
 **Example:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**Structure:** `<div x-data="[JSON data object]">...</div>`
+**Structure:** `<div x-data="[object literal]">...</div>`
 
 `x-data` declares a new component scope. It tells the framework to initialize a new component with the following data object.
 
@@ -252,7 +254,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 ### `x-bind`
 
-> Note: You are free to use the shorter ":" syntax: `:type="..."`
+> Note: You are free to use the shorter ":" syntax: `:type="..."`.
 
 **Example:** `<input x-bind:type="inputType">`
 
@@ -293,6 +295,8 @@ This will add or remove the `disabled` attribute when `myVar` is true or false r
 
 Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open`, etc.
 
+> Note: If you need a false state to show for your attribute, such as `aria-*`, chain `.toString()` to the value while binding to the attribute. For example: `:aria-expanded="isOpen.toString()"` would persist whether  `isOpen` was `true` or `false`.
+
 **`.camel` modifier**
 **Example:** `<svg x-bind:view-box.camel="viewBox">`
 
@@ -302,7 +306,7 @@ The `camel` modifier will bind to the camel case equivalent of the attribute nam
 
 ### `x-on`
 
-> Note: You are free to use the shorter "@" syntax: `@click="..."`
+> Note: You are free to use the shorter "@" syntax: `@click="..."`.
 
 **Example:** `<button x-on:click="foo = 'bar'"></button>`
 
@@ -312,7 +316,7 @@ The `camel` modifier will bind to the camel case equivalent of the attribute nam
 
 If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
 
-> Note: You can also specify a JavaScript function name
+> Note: You can also specify a JavaScript function name.
 
 **Example:** `<button x-on:click="myFunction"></button>`
 
@@ -375,7 +379,7 @@ The `debounce` modifier allows you to "debounce" an event handler. In other word
 
 The default debounce "wait" time is 250 milliseconds.
 
-If you wish to customize this, you can specifiy a custom wait time like so:
+If you wish to customize this, you can specify a custom wait time like so:
 
 ```
 <input x-on:input.debounce.750="fetchSomething()">
@@ -490,6 +494,20 @@ If you want to access the current index of the iteration, use the following synt
 </template>
 ```
 
+If you want to access the array object (collection) of the iteration, use the following syntax:
+
+```html
+<template x-for="(item, index, collection) in items" :key="index">
+    <!-- You can also reference "collection" inside the iteration if you need. -->
+    <!-- Current item. -->
+    <div x-text="item"></div>
+    <!-- Same as above. -->
+    <div x-text="collection[index]"></div>
+    <!-- Previous item. -->
+    <div x-text="collection[index - 1]"></div>
+</template>
+```
+
 > Note: `x-for` must have a single element root inside of the `<template></template>` tag.
 
 > Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
@@ -546,11 +564,11 @@ Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to it
 </template>
 ```
 
-> The example above uses classes from [Tailwind CSS](https://tailwindcss.com)
+> The example above uses classes from [Tailwind CSS](https://tailwindcss.com).
 
 Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
 
-These behave exactly like VueJs's transition directives, except they have different, more sensible names:
+These behave exactly like VueJS's transition directives, except they have different, more sensible names:
 
 | Directive | Description |
 | --- | --- |
@@ -598,7 +616,9 @@ These behave exactly like VueJs's transition directives, except they have differ
 
 The object keys are the directives (Can be any directive including modifiers), and the values are callbacks to be evaluated by Alpine.
 
-> Note: The only anomaly with x-spread is when used with `x-for`. When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
+> Note: There are a couple of caveats to x-spread:
+> - When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
+> - `x-data` and `x-init` can't be used inside a "spread" object.
 
 ---
 
@@ -746,7 +766,7 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
 
 ## Security
-If you find a security vulnerability, please send an email to [calebporzio@gmail.com]()
+If you find a security vulnerability, please send an email to [calebporzio@gmail.com]().
 
 Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP).
 

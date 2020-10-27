@@ -23,13 +23,13 @@ Pensem nisso como o [Tailwind](https://tailwindcss.com/) para JavaScript.
 E é isso. Ele vai se inicializar.
 
 Para ambiente de produção, é recomendado fixar o número da versão específico no link para evitar problemas inesperadas das versões mais recentes.
-Por exemplo, para usar a versão `2.7.0`:
+Por exemplo, para usar a versão `2.7.2`:
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.2/dist/alpine.min.js" defer></script>
 ```
 
-**Via NPM:** Instale o pacote pelo NPM.
+**Via npm:** Instale o pacote pelo npm.
 
 ```js
 npm i alpinejs
@@ -81,7 +81,7 @@ _Tabs_
 ```
 
 Podemos até usá-lo para coisas não triviais:
-_Pré pedido de conteudo para o HTML da dropdown ao passar com o rato_
+_Pré pedido de conteudo para o HTML da dropdown ao passar com o rato_.
 
 ```html
 <div x-data="{ open: false }">
@@ -159,7 +159,7 @@ E 6 propriedades mágicas:
 
 **Exemplo:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**Estrutura:** `<div x-data="[JSON data object]">...</div>`
+**Estrutura:** `<div x-data="[object literal]">...</div>`
 
 `x-data` declara um novo scope do componente. Diz à estrutura para inicializar um novo componente com o seguinte objeto de dados.
 
@@ -338,7 +338,7 @@ Podemos especificar chaves específicas para escutar usando modificadores de key
 
 Exemplos: `enter`, `escape`, `arrow-up`, `arrow-down`
 
-> Nota: Também podemos ouvir a combinações de teclas do sistema como: `x-on:keydown.cmd.enter="foo"`
+> Nota: Também podemos ouvir a combinações de teclas do sistema como: `x-on:keydown.cmd.enter="foo"`.
 
 **`.away` modificador**
 
@@ -397,7 +397,7 @@ Caso desejem personalizar isso, pode especificar um tempo de espera personalizad
 **`.camel` modificador**
 **Exemplo:** `<input x-on:event-name.camel="doSomething()">`
 
-O modificador `camel` anexa um evento de escuta ao nome em camel case do evento equivalente. No exemplo acima, a expressão é avaliada quando o evento `eventName` for disparado no elemento
+O modificador `camel` anexa um evento de escuta ao nome em camel case do evento equivalente. No exemplo acima, a expressão é avaliada quando o evento `eventName` for disparado no elemento.
 
 ---
 
@@ -552,7 +552,7 @@ Podemos ter encadeamento de ciclos `x-for`, mas DEVEMOS envolver cada ciclo em u
 </template>
 ```
 
-> O exemplo acima usa classes de [Tailwind CSS](https://tailwindcss.com)
+> O exemplo acima usa classes de [Tailwind CSS](https://tailwindcss.com).
 
 Alpine oferece 6 diretivas de transição diferentes para aplicar classes a vários estágios da transição de um elemento entre os estados "oculto" e "mostrado". Essas diretivas funcionam tanto com `x-show` E`x-if`.
 
@@ -774,7 +774,7 @@ Podemos "assistir" uma propriedade de componente com o método mágico `$watch`.
 
 ## Segurança
 
-Caso encontrarem uma vulnerabilidade de segurança, envie um email para [calebporzio@gmail.com](mailto:calebporzio@gmail.com)
+Caso encontrarem uma vulnerabilidade de segurança, envie um email para [calebporzio@gmail.com](mailto:calebporzio@gmail.com).
 
 O Alpine conta com uma implementação personalizada usando o objeto `Function` para avaliar suas diretivas. Apesar de ser mais seguro que o `eval()`, o seu uso é proibido em alguns ambientes, como o Google Chrome App, usando a Política de Segurança de Conteúdo restritiva (CSP).
 

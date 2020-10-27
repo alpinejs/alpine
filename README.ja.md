@@ -14,12 +14,12 @@ DOM を保持し、適切な動作を施すことができます。
 
 **CDNより:** `<head>` セクションの最後に次のスクリプトを追加します。
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.2/dist/alpine.js" defer></script>
 ```
 
 それだけです。初期は自身で行われます。
 
-**NPMより:** NPM からパッケージをインストールします。
+**npmより:** npm からパッケージをインストールします。
 ```js
 npm i alpinejs
 ```
@@ -120,7 +120,7 @@ IE11 では、ポリフィルを提供する必要があります。次のスク
 
 **例:** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**構造:** `<div x-data="[JSON data object]">...</div>`
+**構造:** `<div x-data="[object literal]">...</div>`
 
 `x-data` は新しいコンポーネントスコープを宣言します。フレームワークに、データオブジェクトを使用して新しいコンポーネントを初期化するよう指示します。
 
@@ -365,7 +365,7 @@ Alpine は仮想 DOM を使用しないため、`<template></template>` タグ�
 </template>
 ```
 
-Alpine は、「非表示」と「表示」の遷移間のさまざまな段階にクラスを要素に適用するための6つの異なるトランジションディレクティブを提供します。これらのディレクティブは、`x-show` と `x-if` の両方で機能します。
+Alpine は、「非表示」と「表示」の遷移間のさまざまな段階にクラスを要素に適用するための6つの異なるトランジションディレクティブを提供します。これらのディレクティブは、`x-show` と `x-if` の両方で機能します。
 
 これらは、VueJs のトランジションディレクティブとまったく同じように動作しますが、より理にかなった異なる名前を持っています。
 

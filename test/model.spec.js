@@ -205,6 +205,29 @@ test('x-model checkbox array binding supports .number modifier', async () => {
     await wait(() => { expect(document.querySelector('span').getAttribute('bar')).toEqual("[3]") })
 })
 
+test('x-model checkbox array binding is consistent (if value is initially checked, it can be unchecked)', async () => {
+    // https://github.com/alpinejs/alpine/issues/814
+    document.body.innerHTML = `
+        <div
+            x-data="{
+                selected: [2]
+            }"
+        >
+            <input type="checkbox" value="2" x-model="selected" />
+
+            <span x-bind:bar="JSON.stringify(selected)"></span>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelector('input[type=checkbox]').checked).toEqual(true)
+    expect(document.querySelector('span').getAttribute('bar')).toEqual("[2]")
+
+    fireEvent.change(document.querySelector('input[type=checkbox]'), { target: { checked: false } })
+    await wait(() => { expect(document.querySelector('span').getAttribute('bar')).toEqual("[]") })
+})
+
 test('x-model binds radio value', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">

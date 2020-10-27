@@ -112,7 +112,7 @@ function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
     if (! nextEl) return
 
     // If the next El is a sibling template tag, we're done.
-    if (nextEl.tagName === 'TEMPLATE') return
+    if (nextEl.tagName.toLowerCase() === 'template') return
 
     // If the the key's DO match, no need to look ahead.
     if (nextEl.__x_for_key === currentKey) return nextEl

@@ -594,7 +594,7 @@
   }
 
   function lookAheadForMatchingKeyedElementAndMoveItIfFound(nextEl, currentKey) {
-    if (!nextEl) return; // If the next El isn't keyed, we can ignore it.
+    if (!nextEl) return; // If we are already past the x-for generated elements, we don't need to look ahead.
 
     if (nextEl.__x_for_key === undefined) return; // If the the key's DO match, no need to look ahead.
 

@@ -1,4 +1,4 @@
-import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, convertClassStringToArray } from './utils'
+import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, convertClassStringToArray, TRANSITION_CANCELLED } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleTextDirective } from './directives/text'
@@ -256,17 +256,19 @@ export default class Component {
         // The goal here is to start all the x-show transitions
         // and build a nested promise chain so that elements
         // only hide when the children are finished hiding.
-        this.showDirectiveStack.reverse().map(thing => {
-            return new Promise(resolve => {
-                thing(finish => {
-                    resolve(finish)
+        this.showDirectiveStack.reverse().map(handler => {
+            return new Promise((resolve, reject) => {
+                handler(resolve, reject)
+            })
+        }).reduce((promiseChain, promise) => {
+            return promiseChain.then(() => {
+                return promise.then(finishElement => {
+                    finishElement()
                 })
             })
-        }).reduce((nestedPromise, promise) => {
-            return nestedPromise.then(() => {
-                return promise.then(finish => finish())
-            })
-        }, Promise.resolve(() => {}))
+        }, Promise.resolve(() => {})).catch(e => {
+            if (e !== TRANSITION_CANCELLED) throw e
+        })
 
         // We've processed the handler stack. let's clear it.
         this.showDirectiveStack = []

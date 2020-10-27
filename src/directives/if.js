@@ -10,7 +10,7 @@ export function handleIfDirective(component, el, expressionResult, initialUpdate
 
         el.parentElement.insertBefore(clone, el.nextElementSibling)
 
-        transitionIn(el.nextElementSibling, () => {}, component, initialUpdate)
+        transitionIn(el.nextElementSibling, () => {}, () => {}, component, initialUpdate)
 
         component.initializeElements(el.nextElementSibling, extraVars)
 
@@ -18,6 +18,6 @@ export function handleIfDirective(component, el, expressionResult, initialUpdate
     } else if (! expressionResult && elementHasAlreadyBeenAdded) {
         transitionOut(el.nextElementSibling, () => {
             el.nextElementSibling.remove()
-        }, component, initialUpdate)
+        }, () => {}, component, initialUpdate)
     }
 }

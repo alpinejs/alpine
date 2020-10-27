@@ -21,7 +21,7 @@ export function handleForDirective(component, templateEl, expression, initialUpd
             nextEl = addElementInLoopAfterCurrentEl(templateEl, currentEl)
 
             // And transition it in if it's not the first page load.
-            transitionIn(nextEl, () => {}, component, initialUpdate)
+            transitionIn(nextEl, () => {}, () => {}, component, initialUpdate)
 
             nextEl.__x_for = iterationScopeVariables
             component.initializeElements(nextEl, () => nextEl.__x_for)
@@ -91,7 +91,7 @@ function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, e
     if (ifAttribute && ! component.evaluateReturnExpression(el, ifAttribute.expression)) {
         return []
     }
-    
+
     let items = component.evaluateReturnExpression(el, iteratorNames.items, extraVars)
 
     // This adds support for the `i in n` syntax.
@@ -137,7 +137,7 @@ function removeAnyLeftOverElementsFromPreviousUpdate(currentEl, component) {
         let nextSibling = nextElementFromOldLoop.nextElementSibling
         transitionOut(nextElementFromOldLoop, () => {
             nextElementFromOldLoopImmutable.remove()
-        }, component)
+        }, () => {}, component)
         nextElementFromOldLoop = (nextSibling && nextSibling.__x_for_key !== undefined) ? nextSibling : false
     }
 }

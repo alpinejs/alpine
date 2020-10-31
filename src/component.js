@@ -22,8 +22,10 @@ export default class Component {
             $el: this.$el,
         }
 
+        let canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el
+
         Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
-            Object.defineProperty(dataExtras, `$${name}`, { get: function () { return callback(this.$el) } });
+            Object.defineProperty(dataExtras, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
         })
 
         this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras)

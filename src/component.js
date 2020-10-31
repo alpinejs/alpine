@@ -22,10 +22,8 @@ export default class Component {
             $el: this.$el,
         }
 
-        let canonicalComponentElementReference = componentForClone ? componentForClone.$el : this.$el
-
         Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
-            Object.defineProperty(dataExtras, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
+            Object.defineProperty(dataExtras, `$${name}`, { get: function () { return callback(this.$el) } });
         })
 
         this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras)
@@ -41,7 +39,7 @@ export default class Component {
             // to be defined after the proxy object is created so,
             // for IE only, we need to define our helpers earlier.
             Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
-                Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
+                Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(this.$el) } });
             })
         /* IE11-ONLY:END */
 
@@ -74,7 +72,7 @@ export default class Component {
 
         // Register custom magic properties.
         Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
-            Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
+            Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(this.$el) } });
         })
         /* MODERN-ONLY:END */
 

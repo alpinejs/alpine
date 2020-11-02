@@ -484,6 +484,24 @@ test('extra whitespace in class binding string syntax is ignored', async () => {
     expect(document.querySelector('span').classList.contains('bar')).toBeTruthy()
 })
 
+test('undefined class binding resolves to empty string', async () => {
+    jest.spyOn(window, 'setTimeout').mockImplementation((callback,time) => {
+        callback()
+    });
+
+    document.body.innerHTML = `
+        <div x-data="{ errorClass: (hasError) => { if (hasError) { return 'red' } } }">
+            <span id="error" x-bind:class="errorClass(true)">should be red</span>
+            <span id="empty" x-bind:class="errorClass(false)">should be empty</span>
+        </div>
+    `
+
+    await expect(Alpine.start()).resolves.toBeUndefined()
+
+    expect(document.querySelector('#error').classList.value).toEqual('red')
+    expect(document.querySelector('#empty').classList.value).toEqual('')
+})
+
 test('.camel modifier correctly sets name of attribute', async () => {
     document.body.innerHTML = `
         <div x-data>

@@ -6540,7 +6540,7 @@
       } else {
         var _originalClasses = el.__x_original_classes || [];
 
-        var newClasses = convertClassStringToArray(value);
+        var newClasses = value ? convertClassStringToArray(value) : [];
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
     } else {

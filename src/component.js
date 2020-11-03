@@ -41,7 +41,7 @@ export default class Component {
             // to be defined after the proxy object is created so,
             // for IE only, we need to define our helpers earlier.
             Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
-                Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(this.$el) } });
+                Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(canonicalComponentElementReference, this.$el) } });
             })
         /* IE11-ONLY:END */
 
@@ -74,7 +74,7 @@ export default class Component {
 
         // Register custom magic properties.
         Object.entries(Alpine.magicProperties).forEach(([name, callback]) => {
-            Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(this.$el) } });
+            Object.defineProperty(this.unobservedData, `$${name}`, { get: function () { return callback(canonicalComponentElementReference, this.$el) } });
         })
         /* MODERN-ONLY:END */
 

@@ -32,6 +32,12 @@ export function warnIfMalformedTemplate(el, directive) {
     }
 }
 
+export function rethrowErrorWithContext (operation, element, error) {
+    error.message = `Could not run ${operation} on: ${element.outerHTML}
+${error.toString()}`
+    throw error;
+}
+
 export function kebabCase(subject) {
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase()
 }
@@ -65,19 +71,33 @@ export function debounce(func, wait) {
     }
 }
 
-export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
-    if (typeof expression === 'function') {
-        return expression.call(dataContext)
-    }
+function handleBadExpression(error, expression) {
+    const message = `"${expression}" is invalid due to:
+${error.toString()}`
+    const fileName = window.location.href
+    const evalError = new SyntaxError(message, fileName, 'no-line')
+    throw evalError
+}
 
-    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`))(
-        dataContext, ...Object.values(additionalHelperVariables)
-    )
+export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
+    try {
+        if (typeof expression === 'function') {
+            return expression.call(dataContext)
+        }
+
+        return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`))(
+            dataContext, ...Object.values(additionalHelperVariables)
+        )
+    } catch (error) {
+        handleBadExpression(error, expression)
+    }
 }
 
 export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
+    const resolveWithErrorHandling = value => Promise.resolve(value).catch(error => handleBadExpression(error, expression));
+
     if (typeof expression === 'function') {
-        return Promise.resolve(expression.call(dataContext, additionalHelperVariables['$event']))
+        return resolveWithErrorHandling(expression.call(dataContext, additionalHelperVariables['$event']))
     }
 
     let AsyncFunction = Function
@@ -94,13 +114,13 @@ export function saferEvalNoReturn(expression, dataContext, additionalHelperVaria
         )
 
         if (typeof methodReference === 'function') {
-            return Promise.resolve(methodReference.call(dataContext, additionalHelperVariables['$event']))
+            return resolveWithErrorHandling(methodReference.call(dataContext, additionalHelperVariables['$event']))
         } else {
             return Promise.resolve()
         }
     }
 
-    return Promise.resolve((new AsyncFunction(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
+    return resolveWithErrorHandling((new AsyncFunction(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
         dataContext, ...Object.values(additionalHelperVariables)
     ))
 }

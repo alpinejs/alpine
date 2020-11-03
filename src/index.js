@@ -1,5 +1,5 @@
 import Component from './component'
-import { domReady, isTesting } from './utils'
+import { domReady, isTesting, rethrowErrorWithContext } from './utils'
 
 const Alpine = {
     version: process.env.PKG_VERSION,
@@ -93,7 +93,7 @@ const Alpine = {
                 el.__x = new Component(el)
             } catch (error) {
                 setTimeout(() => {
-                    throw error
+                    rethrowErrorWithContext('initialization', el, error)
                 }, 0)
             }
         }

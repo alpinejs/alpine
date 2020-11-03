@@ -9,6 +9,10 @@ export function handleForDirective(component, templateEl, expression, initialUpd
 
     let items = evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, templateEl, iteratorNames, extraVars)
 
+    if (! Array.isArray(items)) {
+        throw new TypeError(`collection "${iteratorNames.items}" in x-for="${expression}" is not an array, got "${JSON.stringify(items)}"`)
+    }
+
     // As we walk the array, we'll also walk the DOM (updating/creating as we go).
     let currentEl = templateEl
     items.forEach((item, index) => {

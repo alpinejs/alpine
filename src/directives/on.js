@@ -1,4 +1,4 @@
-import { kebabCase, camelCase, debounce, isNumeric } from '../utils'
+import { kebabCase, camelCase, debounce, isNumeric, rethrowErrorWithContext } from '../utils'
 
 export function registerListener(component, el, event, modifiers, expression, extraVars = {}) {
     const options = {
@@ -82,6 +82,8 @@ export function registerListener(component, el, event, modifiers, expression, ex
 function runListenerHandler(component, expression, e, extraVars) {
     return component.evaluateCommandExpression(e.target, expression, () => {
         return {...extraVars(), '$event': e}
+    }).catch(error => {
+        rethrowErrorWithContext('listener', component.$el, error)
     })
 }
 

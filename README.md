@@ -312,7 +312,7 @@ The `camel` modifier will bind to the camel case equivalent of the attribute nam
 
 **Structure:** `<button x-on:[event]="[expression]"></button>`
 
-`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as its value is executed.
+`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as its value is executed. You can use `x-on` with any event available for the element you're adding the directive on, for a full list of events, see [the Event reference on MDN](https://developer.mozilla.org/en-US/docs/Web/Events) for a list of possible values.
 
 If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
 

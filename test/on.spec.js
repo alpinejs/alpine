@@ -560,3 +560,31 @@ test('.camel modifier correctly binds event listener with namespace', async () =
         expect(document.querySelector('p').textContent).toEqual('bob');
     });
 })
+
+test('event listeners are removed from source component when cloned', async () => {
+    window.cloneNestedComponent = function(el) {
+        const x = el.__x;
+        delete el.__x
+        Alpine.clone(x, el)
+    }
+
+    document.body.innerHTML = `
+        <div x-data="{ count: 0 }" x-on:increment="count = count+1">
+            <span x-bind:foo="count"></span>
+
+            <button x-data id="increment" x-on:click="$dispatch('increment')"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    window.cloneNestedComponent(document.querySelector('button#increment'))
+
+    expect(document.querySelector('span').getAttribute('foo')).toEqual('0')
+
+    document.querySelector('button#increment').click()
+
+    await wait(() => {
+        expect(document.querySelector('span').getAttribute('foo')).toEqual('1')
+    })
+})

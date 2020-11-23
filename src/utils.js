@@ -65,6 +65,24 @@ export function debounce(func, wait) {
     }
 }
 
+const handleError = (el, expression, error) => {
+    console.error(`Alpine: error in expression "${expression}" in component: `, el, `due to "${error}"`);
+    if (!isTesting()) {
+        throw error;
+    }
+}
+
+export function tryCatch(cb, { el, expression }) {
+    try {
+        const value = cb();
+        return value instanceof Promise
+            ? value.catch((e) => handleError(el, expression, e))
+            : value;
+    } catch (e) {
+        handleError(el, expression, e)
+    }
+}
+
 export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
     if (typeof expression === 'function') {
         return expression.call(dataContext)

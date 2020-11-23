@@ -1,4 +1,4 @@
-import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, convertClassStringToArray, TRANSITION_CANCELLED } from './utils'
+import { walk, tryCatch, saferEval, saferEvalNoReturn, getXAttrs, debounce, convertClassStringToArray, TRANSITION_CANCELLED } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleTextDirective } from './directives/text'
@@ -28,7 +28,9 @@ export default class Component {
             Object.defineProperty(dataExtras, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
         })
 
-        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras)
+        tryCatch(() => {
+            this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras)
+        }, { el, expression: dataExpression })
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
@@ -351,17 +353,18 @@ export default class Component {
     }
 
     evaluateReturnExpression(el, expression, extraVars = () => {}) {
-        return saferEval(expression, this.$data, {
+        return tryCatch(() => saferEval(expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
-        })
+        }),
+        { el, expression })
     }
 
     evaluateCommandExpression(el, expression, extraVars = () => {}) {
-        return saferEvalNoReturn(expression, this.$data, {
+        return tryCatch(() => saferEvalNoReturn(expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
-        })
+        }), { el, expression })
     }
 
     getDispatchFunction (el) {

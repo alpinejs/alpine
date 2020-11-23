@@ -354,8 +354,7 @@ export default class Component {
         return tryCatch(() => saferEval(expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
-        }),
-        { el, expression })
+        }), { el, expression })
     }
 
     evaluateCommandExpression(el, expression, extraVars = () => {}) {

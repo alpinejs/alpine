@@ -23,7 +23,7 @@ test('error in x-data eval contains element, expression and original error', asy
     `
     await expect(Alpine.start()).rejects.toThrow()
     expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"{ foo: 'bar' \" in component: ",
+        "Alpine: error in expression \"{ foo: 'bar' \" in component:",
         document.querySelector('[x-data]'),
         "due to \"SyntaxError: Unexpected token ')'\""
     )
@@ -37,7 +37,7 @@ test('error in x-bind eval contains element, expression and original error', asy
     `
     await Alpine.start()
     expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"foo.bar\" in component: ",
+        "Alpine: error in expression \"foo.bar\" in component:",
         document.querySelector('[x-bind:foo]'),
         "due to \"TypeError: Cannot read property 'bar' of null\""
     )
@@ -51,7 +51,7 @@ test('error in x-model eval contains element, expression and original error', as
     `
     await Alpine.start()
     expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"foo.bar\" in component: ",
+        "Alpine: error in expression \"foo.bar\" in component:",
         document.querySelector('[x-model]'),
         "due to \"TypeError: Cannot read property 'bar' of null\""
     )
@@ -67,7 +67,7 @@ test('error in x-for eval contains element, expression and original error', asyn
     `
     await expect(Alpine.start()).rejects.toThrow()
     expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"foo\" in component: ",
+        "Alpine: error in expression \"foo\" in component:",
         document.querySelector('[x-for]'),
         "due to \"ReferenceError: foo is not defined\""
     )

@@ -28,9 +28,7 @@ export default class Component {
             Object.defineProperty(dataExtras, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
         })
 
-        tryCatch(() => {
-            this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras)
-        }, { el, expression: dataExpression })
+        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : tryCatch(() => saferEval(dataExpression, dataExtras), { el, expression: dataExpression })
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.

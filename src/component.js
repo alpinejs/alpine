@@ -390,7 +390,8 @@ export default class Component {
                 if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-                    const rawData = saferEval(mutations[i].target.getAttribute('x-data') || '{}', { $el: this.$el })
+                    const xAttr = mutations[i].target.getAttribute('x-data') || '{}';
+                    const rawData = tryCatch(() => saferEval(xAttr, { $el: this.$el }), { el: this.$el, xAttr })
 
                     Object.keys(rawData).forEach(key => {
                         if (this.$data[key] !== rawData[key]) {

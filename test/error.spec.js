@@ -42,6 +42,20 @@ test('error in x-init eval contains element, expression and original error', asy
     )
 })
 
+test('error in x-spread eval contains element, expression and original error', async () => {
+    document.body.innerHTML = `
+        <div x-data x-spread="foo.bar">
+        </div>
+    `
+    // swallow the rendering error
+    await expect(Alpine.start()).rejects.toThrow()
+    expect(mockConsoleError).toHaveBeenCalledWith(
+        "Alpine: error in expression \"foo.bar\" in component:",
+        document.querySelector('[x-data]'),
+        "due to \"ReferenceError: foo is not defined\""
+    )
+})
+
 test('error in x-bind eval contains element, expression and original error', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: null }">

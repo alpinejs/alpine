@@ -52,6 +52,7 @@
                     <td>
                         <div x-data="some.bad.expression()">I'm a broken component</div>
                         <button x-data x-on:click="something()">I break on click</button>
+                        <div x-data x-spread="not.good">Broken x-spread</div>
                     </td>
                 </tr>
 

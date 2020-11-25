@@ -138,7 +138,8 @@ export function getXAttrs(el, component, type) {
     let spreadDirective = directives.filter(directive => directive.type === 'spread')[0]
 
     if (spreadDirective) {
-        let spreadObject = saferEval(spreadDirective.expression, component.$data)
+        const { expression } = spreadDirective
+        let spreadObject = tryCatch(() => saferEval(expression, component.$data), { expression, el })
 
         // Add x-spread directives to the pile of existing directives.
         directives = directives.concat(Object.entries(spreadObject).map(([name, value]) => parseHtmlAttribute({ name, value })))

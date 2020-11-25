@@ -149,8 +149,9 @@ export default class Component {
                 // Let's walk through the watchers with "dot-notation" (foo.bar) and see
                 // if this mutation fits any of them.
                 Object.keys(self.watchers)
-                    .filter(i => i.includes('.'))
                     .forEach(fullDotNotationKey => {
+                        if (!fullDotNotationKey.includes('.')) return;
+
                         let dotNotationParts = fullDotNotationKey.split('.')
 
                         // If this dot-notation watcher's last "part" doesn't match the current

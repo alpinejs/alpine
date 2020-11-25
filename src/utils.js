@@ -114,7 +114,10 @@ export function isXAttr(attr) {
 }
 
 export function getXAttrs(el, component, type) {
-    let directives = Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute)
+    let directives = Array.from(el.attributes).reduce((acc, attr) => {
+      isXAttr(attr) && acc.push(parseHtmlAttribute(attr))
+      return acc
+    }, [])
 
     // Get an object of directives from x-spread.
     let spreadDirective = directives.filter(directive => directive.type === 'spread')[0]

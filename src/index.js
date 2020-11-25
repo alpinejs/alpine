@@ -46,9 +46,8 @@ const Alpine = {
         const rootEls = (el || document).querySelectorAll('[x-data]');
 
         Array.from(rootEls)
-            .filter(el => el.__x === undefined)
-            .forEach(rootEl => {
-                callback(rootEl)
+            .forEach(el => {
+                el.__x === undefined && callback(el)
             })
     },
 

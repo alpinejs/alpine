@@ -1,4 +1,4 @@
-import { walk, tryCatch, saferEval, saferEvalNoReturn, getXAttrs, debounce, convertClassStringToArray, TRANSITION_CANCELLED } from './utils'
+import { walk, saferEval, saferEvalNoReturn, getXAttrs, debounce, convertClassStringToArray, TRANSITION_CANCELLED } from './utils'
 import { handleForDirective } from './directives/for'
 import { handleAttributeBindingDirective } from './directives/bind'
 import { handleTextDirective } from './directives/text'
@@ -28,7 +28,7 @@ export default class Component {
             Object.defineProperty(dataExtras, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
         })
 
-        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : tryCatch(() => saferEval(dataExpression, dataExtras), { el, expression: dataExpression })
+        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(el, dataExpression, dataExtras)
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
@@ -351,17 +351,17 @@ export default class Component {
     }
 
     evaluateReturnExpression(el, expression, extraVars = () => {}) {
-        return tryCatch(() => saferEval(expression, this.$data, {
+        return saferEval(el, expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
-        }), { el, expression })
+        })
     }
 
     evaluateCommandExpression(el, expression, extraVars = () => {}) {
-        return tryCatch(() => saferEvalNoReturn(expression, this.$data, {
+        return saferEvalNoReturn(el, expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
-        }), { el, expression })
+        })
     }
 
     getDispatchFunction (el) {
@@ -391,7 +391,7 @@ export default class Component {
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
                     const xAttr = mutations[i].target.getAttribute('x-data') || '{}';
-                    const rawData = tryCatch(() => saferEval(xAttr, { $el: this.$el }), { el: this.$el, xAttr })
+                    const rawData = saferEval(this.$el, xAttr, { $el: this.$el })
 
                     Object.keys(rawData).forEach(key => {
                         if (this.$data[key] !== rawData[key]) {

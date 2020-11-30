@@ -481,7 +481,7 @@ Alpine の初期化時に、要素から `x-cloak` 属性が削除されます�
 
 マジックメソッド `$watch` を使用してコンポーネントのプロパティを「監視」することができます。上の例では、ボタンがクリックされて `open` が変更されるとコールバックが実行され、新しい値が `console.log` によって出力されます。
 
-## Security
+## セキュリティ
 もしも脆弱性を発見した場合, [calebporzio@gmail.com]() 宛にメールを送ってください。
 
 Alpineでは `Function` オブジェクトを使用したカスタム実装に依存しています。この関数は `eval()` より安全ですが、Google Chromeアプリのような [CSP](https://csp.withgoogle.com/docs/strict-csp.html) が制限されている環境では使用が禁止されています。

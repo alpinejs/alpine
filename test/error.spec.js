@@ -110,6 +110,10 @@ test('error in x-on eval contains element, expression and original error', async
     await Alpine.start()
     document.querySelector('div').click()
     await wait(() => {
-        expect(mockConsoleError).toHaveBeenCalled()
+        expect(mockConsoleError).toHaveBeenCalledWith(
+            "Alpine: error in expression \"hello.world\" in component:",
+            document.querySelector('[x-data]'),
+            "due to \"TypeError: Cannot read property 'world' of null\""
+        )
     })
 })

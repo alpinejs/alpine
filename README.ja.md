@@ -469,6 +469,38 @@ Alpine の初期化時に、要素から `x-cloak` 属性が削除されます�
 
 `$nextTick` は、Alpine がリアクティブな DOM 更新を行った後、指定された式のみを実行できるマジックプロパティです。これは、データ更新が反映された後に DOM ステートとやり取りしたい場合に便利です。
 
+---
+
+### `$watch`
+**例:**
+```html
+<div x-data="{ open: false }" x-init="$watch('open', value => console.log(value))">
+    <button @click="open = ! open">開閉を切り替える</button>
+</div>
+```
+
+マジックメソッド `$watch` を使用してコンポーネントのプロパティを「監視」することができます。上の例では、ボタンがクリックされて `open` が変更されるとコールバックが実行され、新しい値が `console.log` によって出力されます。
+
+## セキュリティ
+もしも脆弱性を発見した場合, [calebporzio@gmail.com]() 宛にメールを送ってください。
+
+Alpineでは `Function` オブジェクトを使用したカスタム実装に依存しています。この関数は `eval()` より安全ですが、Google Chromeアプリのような [CSP](https://csp.withgoogle.com/docs/strict-csp.html) が制限されている環境では使用が禁止されています。
+
+もしも機密データを扱う環境でAlpineを使用している場合かつ [CSP](https://csp.withgoogle.com/docs/strict-csp.html) を必要とする場合は、ポリシーに `unsafe-eval`を含める必要があります。堅牢なポリシーを設定することで、個人情報や財務情報を利用する際のユーザー保護に役立ちます。
+
+ポリシーはページ内すべてのスクリプトに適用されるので、Webサイトに含まれる他の外部ライブラリを信用できるかどうか慎重に検討し、 `eval()` 関数を使用したり、DOMを操作して悪意あるコードをページに注入したりするクロスサイトスクリプティング脆弱性を防ぐことが重要です。
+
+## V3 ロードマップ
+* Vueと互換性を持たせるために `x-ref` から `ref` に変更する？
+* `Alpine.directive()` を追加する
+* `Alpine.component('foo', {...})` ( `__init()` マジックメソッドと一緒に) を追加する
+* "loaded"や"transition-start"のようなイベントを追加する ([#299](https://github.com/alpinejs/alpine/pull/299)) ？
+* オブジェクトや配列を `x-bind:class="{ 'foo': true }"` から削除する([#236](https://github.com/alpinejs/alpine/pull/236) では `style` 属性をサポートしようとしている)
+* `x-for` の性能を改善する ([#165](https://github.com/alpinejs/alpine/pull/165))
+* 「深い監視」をV3で追加する ([#294](https://github.com/alpinejs/alpine/pull/294))
+* `$el` ショートカットを追加する
+* `@click.away` から `@click.outside` に変更する？
+
 ## ライセンス
 
 Copyright © 2019-2020 Caleb Porzio and contributors

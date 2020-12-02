@@ -448,7 +448,7 @@ import 'alpinejs'
 
 除了設定 ID 並在各個地方使用 `document.querySelector`，使用 `x-ref` 可作為替代方法。
 
-> 備註：若有需要也可以在 x-ref` 上繫結動態數值：`<span :x-ref="item.id"></span>`。
+> 備註：若有需要也可以在 `x-ref` 上繫結動態數值：`<span :x-ref="item.id"></span>`。
 
 ---
 

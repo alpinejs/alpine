@@ -481,7 +481,7 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 </template>
 ```
 
-> Note: the `:key` binding is optional, but HIGHLY recommended.
+> Note: the `:key` binding is optional, but HIGHLY recommended. Why? What does it do?
 
 `x-for` is available for cases when you want to create new DOM nodes for each item in an array. This should appear similar to `v-for` in Vue, with one exception of needing to exist on a `template` tag, and not a regular DOM element.
 

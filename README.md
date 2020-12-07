@@ -448,6 +448,31 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 ### `x-ref`
 **Example:** `<div x-ref="foo"></div><button x-on:click="$refs.foo.innerText = 'bar'"></button>`
 
+**Example 2:**
+```html
+
+<form x-data="componentExample2()">
+    <input type="text" x-ref="my_example_2" x-model="example2">
+    <button type="button" @click="validationExample()">Check Example 2</button>
+</form>
+
+<script>
+    function componentExample2() {
+        return {
+            example2: '',
+            validationExample() {
+                if (this.example2 === '') {
+                    alert('Error Example 2');
+                    this.$refs.my_example_2.focus(); // <== Use refs in focus();
+                    return false;
+                }
+                return true;
+            }
+        }
+    }
+</scrip>
+```
+
 **Structure:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
 
 `x-ref` provides a convenient way to retrieve raw DOM elements out of your component. By setting an `x-ref` attribute on an element, you are making it available to all event handlers inside an object called `$refs`.
@@ -455,7 +480,6 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 This is a helpful alternative to setting ids and using `document.querySelector` all over the place.
 
 > Note: you can also bind dynamic values for x-ref: `<span :x-ref="item.id"></span>` if you need to.
-
 ---
 
 ### `x-if`

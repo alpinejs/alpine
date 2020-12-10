@@ -1,5 +1,8 @@
 {
     "main": "dist/alpine.js",
+    "exports": {
+        ".": "dist/alpine.mjs"
+    },
     "name": "alpinejs",
     "version": "2.7.3",
     "repository": {
@@ -8,7 +11,7 @@
     },
     "scripts": {
         "watch": "rollup -c -w",
-        "build": "concurrently \"rollup -c\" \"npx rollup -c rollup-ie11.config.js\" \"node inject-version-readme\"",
+        "build": "concurrently \"rollup -c\" \"npx rollup -c rollup-mjs.config.js\" \"npx rollup -c rollup-ie11.config.js\" \"node inject-version-readme\"",
         "test": "npx jest",
         "test:debug": "node --inspect node_modules/.bin/jest --runInBand"
     },

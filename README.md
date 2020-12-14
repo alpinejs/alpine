@@ -23,6 +23,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 | Portuguese | [**Documentação em Português**](./README.pt.md) |
 | Russian | [**Документация на русском**](./README.ru.md) |
 | Spanish | [**Documentación en Español**](./README.es.md) |
+| Turkish | [**Türkçe Dokümantasyon**](./README.tr.md) |
 
 ## Install
 

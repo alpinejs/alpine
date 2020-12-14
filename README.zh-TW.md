@@ -448,7 +448,7 @@ import 'alpinejs'
 
 除了設定 ID 並在各個地方使用 `document.querySelector`，使用 `x-ref` 可作為替代方法。
 
-> 備註：若有需要也可以在 x-ref` 上繫結動態數值：`<span :x-ref="item.id"></span>`。
+> 備註：若有需要也可以在 `x-ref` 上繫結動態數值：`<span :x-ref="item.id"></span>`。
 
 ---
 
@@ -536,7 +536,7 @@ import 'alpinejs'
 
 > 上述範例使用了 [Tailwind CSS](https://tailwindcss.com) 的 Class
 
-Alpine 中提供了 6 中不同的變換指示詞，可用於在元素變換的「hidden 隱藏」與「shown 顯示」狀態間的各個階段套用 Class。這些指示詞可用在 `x-show` **與** `x-if` 上。
+Alpine 中提供了 6 種不同的變換指示詞，可用於在元素變換的「hidden 隱藏」與「shown 顯示」狀態間的各個階段套用 Class。這些指示詞可用在 `x-show` **與** `x-if` 上。
 
 這些行為都與 VueJS 的 transition 指示詞很類似，但不同的地方則是使用了不同的名稱：
 

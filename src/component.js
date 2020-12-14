@@ -28,7 +28,7 @@ export default class Component {
             Object.defineProperty(dataExtras, `$${name}`, { get: function () { return callback(canonicalComponentElementReference) } });
         })
 
-        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras)
+        this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(el, dataExpression, dataExtras)
 
         /* IE11-ONLY:START */
             // For IE11, add our magic properties to the original data for access.
@@ -351,14 +351,14 @@ export default class Component {
     }
 
     evaluateReturnExpression(el, expression, extraVars = () => {}) {
-        return saferEval(expression, this.$data, {
+        return saferEval(el, expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
         })
     }
 
     evaluateCommandExpression(el, expression, extraVars = () => {}) {
-        return saferEvalNoReturn(expression, this.$data, {
+        return saferEvalNoReturn(el, expression, this.$data, {
             ...extraVars(),
             $dispatch: this.getDispatchFunction(el),
         })
@@ -390,7 +390,8 @@ export default class Component {
                 if (! (closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue
 
                 if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'x-data') {
-                    const rawData = saferEval(mutations[i].target.getAttribute('x-data') || '{}', { $el: this.$el })
+                    const xAttr = mutations[i].target.getAttribute('x-data') || '{}';
+                    const rawData = saferEval(this.$el, xAttr, { $el: this.$el })
 
                     Object.keys(rawData).forEach(key => {
                         if (this.$data[key] !== rawData[key]) {

@@ -65,44 +65,66 @@ export function debounce(func, wait) {
     }
 }
 
-export function saferEval(expression, dataContext, additionalHelperVariables = {}) {
-    if (typeof expression === 'function') {
-        return expression.call(dataContext)
+const handleError = (el, expression, error) => {
+    console.error(`Alpine: error in expression "${expression}" in component:`, el, `due to "${error}"`);
+    if (! isTesting()) {
+        throw error;
     }
-
-    return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`))(
-        dataContext, ...Object.values(additionalHelperVariables)
-    )
 }
 
-export function saferEvalNoReturn(expression, dataContext, additionalHelperVariables = {}) {
-    if (typeof expression === 'function') {
-        return Promise.resolve(expression.call(dataContext, additionalHelperVariables['$event']))
+function tryCatch(cb, { el, expression }) {
+    try {
+        const value = cb();
+        return value instanceof Promise
+            ? value.catch((e) => handleError(el, expression, e))
+            : value;
+    } catch (e) {
+        handleError(el, expression, e)
     }
+}
 
-    let AsyncFunction = Function
+export function saferEval(el, expression, dataContext, additionalHelperVariables = {}) {
+    return tryCatch(() => {
+        if (typeof expression === 'function') {
+            return expression.call(dataContext)
+        }
 
-    /* MODERN-ONLY:START */
-        AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
-    /* MODERN-ONLY:END */
-
-    // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
-    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
-    if (Object.keys(dataContext).includes(expression)) {
-        let methodReference = (new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { return ${expression} }`))(
+        return (new Function(['$data', ...Object.keys(additionalHelperVariables)], `var __alpine_result; with($data) { __alpine_result = ${expression} }; return __alpine_result`))(
             dataContext, ...Object.values(additionalHelperVariables)
         )
+    }, { el, expression })
+}
 
-        if (typeof methodReference === 'function') {
-            return Promise.resolve(methodReference.call(dataContext, additionalHelperVariables['$event']))
-        } else {
-            return Promise.resolve()
+export function saferEvalNoReturn(el, expression, dataContext, additionalHelperVariables = {}) {
+    return tryCatch(() => {
+        if (typeof expression === 'function') {
+            return Promise.resolve(expression.call(dataContext, additionalHelperVariables['$event']))
         }
-    }
 
-    return Promise.resolve((new AsyncFunction(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
-        dataContext, ...Object.values(additionalHelperVariables)
-    ))
+        let AsyncFunction = Function
+
+        /* MODERN-ONLY:START */
+            AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
+        /* MODERN-ONLY:END */
+
+        // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+        // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+        if (Object.keys(dataContext).includes(expression)) {
+            let methodReference = (new Function(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { return ${expression} }`))(
+                dataContext, ...Object.values(additionalHelperVariables)
+            )
+
+            if (typeof methodReference === 'function') {
+                return Promise.resolve(methodReference.call(dataContext, additionalHelperVariables['$event']))
+            } else {
+                return Promise.resolve()
+            }
+        }
+
+        return Promise.resolve((new AsyncFunction(['dataContext', ...Object.keys(additionalHelperVariables)], `with(dataContext) { ${expression} }`))(
+            dataContext, ...Object.values(additionalHelperVariables)
+        ))
+    }, { el, expression })
 }
 
 const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/
@@ -120,7 +142,7 @@ export function getXAttrs(el, component, type) {
     let spreadDirective = directives.filter(directive => directive.type === 'spread')[0]
 
     if (spreadDirective) {
-        let spreadObject = saferEval(spreadDirective.expression, component.$data)
+        let spreadObject = saferEval(el, spreadDirective.expression, component.$data)
 
         // Add x-spread directives to the pile of existing directives.
         directives = directives.concat(Object.entries(spreadObject).map(([name, value]) => parseHtmlAttribute({ name, value })))

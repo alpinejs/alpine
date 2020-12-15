@@ -36,9 +36,9 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 That's it. It will initialize itself.
 
 For production environments, it's recommended to pin a specific version number in the link to avoid unexpected breakage from newer versions.
-For example, to use version `2.7.3` (latest):
+For example, to use version `2.8.0` (latest):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.3/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
 ```
 
 **From npm:** Install the package from npm.

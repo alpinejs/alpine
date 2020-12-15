@@ -9,7 +9,7 @@ jest.spyOn(window, 'setTimeout').mockImplementation((callback) => {
     callback()
 })
 
-const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {})
+const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {})
 
 beforeEach(() => {
     jest.clearAllMocks()
@@ -22,10 +22,9 @@ test('error in x-data eval contains element, expression and original error', asy
         </div>
     `
     await expect(Alpine.start()).rejects.toThrow()
-    expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"{ foo: 'bar' \" in component:",
+    expect(mockConsoleWarn).toHaveBeenCalledWith(
+        `Alpine Error: "SyntaxError: Unexpected token ')'"\n\nExpression: "{ foo: 'bar' "\nElement:`,
         document.querySelector('[x-data]'),
-        "due to \"SyntaxError: Unexpected token ')'\""
     )
 })
 
@@ -35,10 +34,9 @@ test('error in x-init eval contains element, expression and original error', asy
         </div>
     `
     await Alpine.start()
-    expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"foo.bar = 'baz'\" in component:",
+    expect(mockConsoleWarn).toHaveBeenCalledWith(
+        `Alpine Error: "ReferenceError: foo is not defined"\n\nExpression: "foo.bar = 'baz'"\nElement:`,
         document.querySelector('[x-data]'),
-        "due to \"ReferenceError: foo is not defined\""
     )
 })
 
@@ -49,10 +47,9 @@ test('error in x-spread eval contains element, expression and original error', a
     `
     // swallow the rendering error
     await expect(Alpine.start()).rejects.toThrow()
-    expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"foo.bar\" in component:",
+    expect(mockConsoleWarn).toHaveBeenCalledWith(
+        `Alpine Error: "ReferenceError: foo is not defined"\n\nExpression: "foo.bar"\nElement:`,
         document.querySelector('[x-data]'),
-        "due to \"ReferenceError: foo is not defined\""
     )
 })
 
@@ -63,10 +60,9 @@ test('error in x-bind eval contains element, expression and original error', asy
         </div>
     `
     await Alpine.start()
-    expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"foo.bar\" in component:",
+    expect(mockConsoleWarn).toHaveBeenCalledWith(
+        `Alpine Error: "TypeError: Cannot read property 'bar' of null"\n\nExpression: "foo.bar"\nElement:`,
         document.querySelector('[x-bind:foo]'),
-        "due to \"TypeError: Cannot read property 'bar' of null\""
     )
 })
 
@@ -77,10 +73,9 @@ test('error in x-model eval contains element, expression and original error', as
         </div>
     `
     await Alpine.start()
-    expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"foo.bar\" in component:",
-        document.querySelector('[x-model]'),
-        "due to \"TypeError: Cannot read property 'bar' of null\""
+    expect(mockConsoleWarn).toHaveBeenCalledWith(
+        `Alpine Error: "TypeError: Cannot read property 'bar' of null"\n\nExpression: "foo.bar"\nElement:`,
+        document.querySelector('[x-model]',)
     )
 })
 
@@ -93,10 +88,9 @@ test('error in x-for eval contains element, expression and original error', asyn
         </div>
     `
     await expect(Alpine.start()).rejects.toThrow()
-    expect(mockConsoleError).toHaveBeenCalledWith(
-        "Alpine: error in expression \"foo\" in component:",
-        document.querySelector('[x-for]'),
-        "due to \"ReferenceError: foo is not defined\""
+    expect(mockConsoleWarn).toHaveBeenCalledWith(
+        `Alpine Error: "ReferenceError: foo is not defined"\n\nExpression: "foo"\nElement:`,
+        document.querySelector('[x-for]',)
     )
 })
 
@@ -110,10 +104,9 @@ test('error in x-on eval contains element, expression and original error', async
     await Alpine.start()
     document.querySelector('div').click()
     await wait(() => {
-        expect(mockConsoleError).toHaveBeenCalledWith(
-            "Alpine: error in expression \"hello.world\" in component:",
-            document.querySelector('[x-data]'),
-            "due to \"TypeError: Cannot read property 'world' of null\""
+        expect(mockConsoleWarn).toHaveBeenCalledWith(
+            `Alpine Error: "TypeError: Cannot read property 'world' of null"\n\nExpression: "hello.world"\nElement:`,
+            document.querySelector('[x-data]',)
         )
     })
 })

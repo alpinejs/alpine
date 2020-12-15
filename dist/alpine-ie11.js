@@ -5705,7 +5705,7 @@
     }
   }
 
-  var _this10 = undefined;
+  var _this3 = undefined;
 
   // Thanks @stimulus:
   // https://github.com/stimulusjs/stimulus/blob/master/packages/%40stimulus/core/src/application.ts
@@ -5774,36 +5774,81 @@
       timeout = setTimeout(later, wait);
     };
   }
-  function saferEval(expression, dataContext) {
-    var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-    if (typeof expression === 'function') {
-      return expression.call(dataContext);
+  var handleError = function handleError(el, expression, error) {
+    _newArrowCheck(this, _this3);
+
+    console.warn("Alpine Error: \"".concat(error, "\"\n\nExpression: \"").concat(expression, "\"\nElement:"), el);
+
+    if (!isTesting()) {
+      throw error;
     }
+  }.bind(undefined);
 
-    return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "var __alpine_result; with($data) { __alpine_result = ".concat(expression, " }; return __alpine_result")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
+  function tryCatch(cb, _ref) {
+    var _this4 = this;
+
+    var el = _ref.el,
+        expression = _ref.expression;
+
+    try {
+      var value = cb();
+      return value instanceof Promise ? value["catch"](function (e) {
+        _newArrowCheck(this, _this4);
+
+        return handleError(el, expression, e);
+      }.bind(this)) : value;
+    } catch (e) {
+      handleError(el, expression, e);
+    }
   }
-  function saferEvalNoReturn(expression, dataContext) {
-    var additionalHelperVariables = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-    if (typeof expression === 'function') {
-      return Promise.resolve(expression.call(dataContext, additionalHelperVariables['$event']));
-    }
+  function saferEval(el, expression, dataContext) {
+    var _this5 = this;
 
-    var AsyncFunction = Function; // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
-    // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+    var additionalHelperVariables = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+    return tryCatch(function () {
+      _newArrowCheck(this, _this5);
 
-    if (Object.keys(dataContext).includes(expression)) {
-      var methodReference = new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { return ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
-
-      if (typeof methodReference === 'function') {
-        return Promise.resolve(methodReference.call(dataContext, additionalHelperVariables['$event']));
-      } else {
-        return Promise.resolve();
+      if (typeof expression === 'function') {
+        return expression.call(dataContext);
       }
-    }
 
-    return Promise.resolve(new AsyncFunction(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables)))));
+      return new Function(['$data'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "var __alpine_result; with($data) { __alpine_result = ".concat(expression, " }; return __alpine_result")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
+    }.bind(this), {
+      el: el,
+      expression: expression
+    });
+  }
+  function saferEvalNoReturn(el, expression, dataContext) {
+    var _this6 = this;
+
+    var additionalHelperVariables = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+    return tryCatch(function () {
+      _newArrowCheck(this, _this6);
+
+      if (typeof expression === 'function') {
+        return Promise.resolve(expression.call(dataContext, additionalHelperVariables['$event']));
+      }
+
+      var AsyncFunction = Function; // For the cases when users pass only a function reference to the caller: `x-on:click="foo"`
+      // Where "foo" is a function. Also, we'll pass the function the event instance when we call it.
+
+      if (Object.keys(dataContext).includes(expression)) {
+        var methodReference = new Function(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { return ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables))));
+
+        if (typeof methodReference === 'function') {
+          return Promise.resolve(methodReference.call(dataContext, additionalHelperVariables['$event']));
+        } else {
+          return Promise.resolve();
+        }
+      }
+
+      return Promise.resolve(new AsyncFunction(['dataContext'].concat(_toConsumableArray(Object.keys(additionalHelperVariables))), "with(dataContext) { ".concat(expression, " }")).apply(void 0, [dataContext].concat(_toConsumableArray(Object.values(additionalHelperVariables)))));
+    }.bind(this), {
+      el: el,
+      expression: expression
+    });
   }
   var xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/;
   function isXAttr(attr) {
@@ -5811,25 +5856,25 @@
     return xAttrRE.test(name);
   }
   function getXAttrs(el, component, type) {
-    var _this3 = this;
+    var _this7 = this;
 
     var directives = Array.from(el.attributes).filter(isXAttr).map(parseHtmlAttribute); // Get an object of directives from x-spread.
 
     var spreadDirective = directives.filter(function (directive) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this7);
 
       return directive.type === 'spread';
     }.bind(this))[0];
 
     if (spreadDirective) {
-      var spreadObject = saferEval(spreadDirective.expression, component.$data); // Add x-spread directives to the pile of existing directives.
+      var spreadObject = saferEval(el, spreadDirective.expression, component.$data); // Add x-spread directives to the pile of existing directives.
 
-      directives = directives.concat(Object.entries(spreadObject).map(function (_ref) {
-        _newArrowCheck(this, _this3);
+      directives = directives.concat(Object.entries(spreadObject).map(function (_ref2) {
+        _newArrowCheck(this, _this7);
 
-        var _ref2 = _slicedToArray(_ref, 2),
-            name = _ref2[0],
-            value = _ref2[1];
+        var _ref3 = _slicedToArray(_ref2, 2),
+            name = _ref3[0],
+            value = _ref3[1];
 
         return parseHtmlAttribute({
           name: name,
@@ -5839,7 +5884,7 @@
     }
 
     if (type) return directives.filter(function (i) {
-      _newArrowCheck(this, _this3);
+      _newArrowCheck(this, _this7);
 
       return i.type === type;
     }.bind(this));
@@ -5847,11 +5892,11 @@
   }
 
   function sortDirectives(directives) {
-    var _this4 = this;
+    var _this8 = this;
 
     var directiveOrder = ['bind', 'model', 'show', 'catch-all'];
     return directives.sort(function (a, b) {
-      _newArrowCheck(this, _this4);
+      _newArrowCheck(this, _this8);
 
       var typeA = directiveOrder.indexOf(a.type) === -1 ? 'catch-all' : a.type;
       var typeB = directiveOrder.indexOf(b.type) === -1 ? 'catch-all' : b.type;
@@ -5859,11 +5904,11 @@
     }.bind(this));
   }
 
-  function parseHtmlAttribute(_ref3) {
-    var _this5 = this;
+  function parseHtmlAttribute(_ref4) {
+    var _this9 = this;
 
-    var name = _ref3.name,
-        value = _ref3.value;
+    var name = _ref4.name,
+        value = _ref4.value;
     var normalizedName = replaceAtAndColonWithStandardSyntax(name);
     var typeMatch = normalizedName.match(xAttrRE);
     var valueMatch = normalizedName.match(/:([a-zA-Z0-9\-:]+)/);
@@ -5872,7 +5917,7 @@
       type: typeMatch ? typeMatch[1] : null,
       value: valueMatch ? valueMatch[1] : null,
       modifiers: modifiers.map(function (i) {
-        _newArrowCheck(this, _this5);
+        _newArrowCheck(this, _this9);
 
         return i.replace('.', '');
       }.bind(this)),
@@ -5902,7 +5947,7 @@
   var TRANSITION_TYPE_OUT = 'out';
   var TRANSITION_CANCELLED = 'cancelled';
   function transitionIn(el, show, reject, component) {
-    var _this6 = this;
+    var _this10 = this;
 
     var forceSkip = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     // We don't want to transition on the initial page load.
@@ -5924,13 +5969,13 @@
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out'); // If x-show.transition.in...out... only use "in" related modifiers for this transition.
 
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this6);
+        _newArrowCheck(this, _this10);
 
         return index < modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperIn(el, modifiers, show, reject); // Otherwise, we can assume x-transition:enter.
     } else if (attrs.some(function (attr) {
-      _newArrowCheck(this, _this6);
+      _newArrowCheck(this, _this10);
 
       return ['enter', 'enter-start', 'enter-end'].includes(attr.value);
     }.bind(this))) {
@@ -5941,7 +5986,7 @@
     }
   }
   function transitionOut(el, hide, reject, component) {
-    var _this7 = this;
+    var _this11 = this;
 
     var forceSkip = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     // We don't want to transition on the initial page load.
@@ -5961,13 +6006,13 @@
       if (modifiers.includes('in') && !modifiers.includes('out')) return hide();
       var settingBothSidesOfTransition = modifiers.includes('in') && modifiers.includes('out');
       modifiers = settingBothSidesOfTransition ? modifiers.filter(function (i, index) {
-        _newArrowCheck(this, _this7);
+        _newArrowCheck(this, _this11);
 
         return index > modifiers.indexOf('out');
       }.bind(this)) : modifiers;
       transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hide, reject);
     } else if (attrs.some(function (attr) {
-      _newArrowCheck(this, _this7);
+      _newArrowCheck(this, _this11);
 
       return ['leave', 'leave-start', 'leave-end'].includes(attr.value);
     }.bind(this))) {
@@ -5977,7 +6022,7 @@
     }
   }
   function transitionHelperIn(el, modifiers, showCallback, reject) {
-    var _this8 = this;
+    var _this12 = this;
 
     // Default values inspired by: https://material.io/design/motion/speed.html#duration
     var styleValues = {
@@ -5993,11 +6038,11 @@
       }
     };
     transitionHelper(el, modifiers, showCallback, function () {
-      _newArrowCheck(this, _this8);
+      _newArrowCheck(this, _this12);
     }.bind(this), reject, styleValues, TRANSITION_TYPE_IN);
   }
   function transitionHelperOut(el, modifiers, settingBothSidesOfTransition, hideCallback, reject) {
-    var _this9 = this;
+    var _this13 = this;
 
     // Make the "out" transition .5x slower than the "in". (Visually better)
     // HOWEVER, if they explicitly set a duration for the "out" transition,
@@ -6016,7 +6061,7 @@
       }
     };
     transitionHelper(el, modifiers, function () {
-      _newArrowCheck(this, _this9);
+      _newArrowCheck(this, _this13);
     }.bind(this), hideCallback, reject, styleValues, TRANSITION_TYPE_OUT);
   }
 
@@ -6101,65 +6146,65 @@
   }
 
   var ensureStringExpression = function ensureStringExpression(expression, el, component) {
-    _newArrowCheck(this, _this10);
+    _newArrowCheck(this, _this3);
 
     return typeof expression === 'function' ? component.evaluateReturnExpression(el, expression) : expression;
   }.bind(undefined);
 
   function transitionClassesIn(el, component, directives, showCallback, reject) {
-    var _this11 = this;
+    var _this14 = this;
 
     var enter = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this11);
+      _newArrowCheck(this, _this14);
 
       return i.value === 'enter';
     }.bind(this)) || {
       expression: ''
     }).expression, el, component));
     var enterStart = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this11);
+      _newArrowCheck(this, _this14);
 
       return i.value === 'enter-start';
     }.bind(this)) || {
       expression: ''
     }).expression, el, component));
     var enterEnd = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this11);
+      _newArrowCheck(this, _this14);
 
       return i.value === 'enter-end';
     }.bind(this)) || {
       expression: ''
     }).expression, el, component));
     transitionClasses(el, enter, enterStart, enterEnd, showCallback, function () {
-      _newArrowCheck(this, _this11);
+      _newArrowCheck(this, _this14);
     }.bind(this), TRANSITION_TYPE_IN, reject);
   }
   function transitionClassesOut(el, component, directives, hideCallback, reject) {
-    var _this12 = this;
+    var _this15 = this;
 
     var leave = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this12);
+      _newArrowCheck(this, _this15);
 
       return i.value === 'leave';
     }.bind(this)) || {
       expression: ''
     }).expression, el, component));
     var leaveStart = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this12);
+      _newArrowCheck(this, _this15);
 
       return i.value === 'leave-start';
     }.bind(this)) || {
       expression: ''
     }).expression, el, component));
     var leaveEnd = convertClassStringToArray(ensureStringExpression((directives.find(function (i) {
-      _newArrowCheck(this, _this12);
+      _newArrowCheck(this, _this15);
 
       return i.value === 'leave-end';
     }.bind(this)) || {
       expression: ''
     }).expression, el, component));
     transitionClasses(el, leave, leaveStart, leaveEnd, function () {
-      _newArrowCheck(this, _this12);
+      _newArrowCheck(this, _this15);
     }.bind(this), hideCallback, TRANSITION_TYPE_OUT, reject);
   }
   function transitionClasses(el, classesDuring, classesStart, classesEnd, hook1, hook2, type, reject) {
@@ -6185,12 +6230,12 @@
       },
       end: function end() {
         var _el$classList3,
-            _this13 = this,
+            _this16 = this,
             _el$classList4;
 
         // Don't remove classes that were in the original class attribute.
         (_el$classList3 = el.classList).remove.apply(_el$classList3, _toConsumableArray(classesStart.filter(function (i) {
-          _newArrowCheck(this, _this13);
+          _newArrowCheck(this, _this16);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -6202,17 +6247,17 @@
       },
       cleanup: function cleanup() {
         var _el$classList5,
-            _this14 = this,
+            _this17 = this,
             _el$classList6;
 
         (_el$classList5 = el.classList).remove.apply(_el$classList5, _toConsumableArray(classesDuring.filter(function (i) {
-          _newArrowCheck(this, _this14);
+          _newArrowCheck(this, _this17);
 
           return !originalClasses.includes(i);
         }.bind(this))));
 
         (_el$classList6 = el.classList).remove.apply(_el$classList6, _toConsumableArray(classesEnd.filter(function (i) {
-          _newArrowCheck(this, _this14);
+          _newArrowCheck(this, _this17);
 
           return !originalClasses.includes(i);
         }.bind(this))));
@@ -6221,10 +6266,10 @@
     transition(el, stages, type, reject);
   }
   function transition(el, stages, type, reject) {
-    var _this15 = this;
+    var _this18 = this;
 
     var finish = once(function () {
-      _newArrowCheck(this, _this15);
+      _newArrowCheck(this, _this18);
 
       stages.hide(); // Adding an "isConnected" check, in case the callback
       // removed the element from the DOM.
@@ -6242,7 +6287,7 @@
       // from different point and early terminate it. Once will ensure that function
       // is only called one time.
       cancel: once(function () {
-        _newArrowCheck(this, _this15);
+        _newArrowCheck(this, _this18);
 
         reject(TRANSITION_CANCELLED);
         finish();
@@ -6254,9 +6299,9 @@
     stages.start();
     stages.during();
     el.__x_transition.nextFrame = requestAnimationFrame(function () {
-      var _this16 = this;
+      var _this19 = this;
 
-      _newArrowCheck(this, _this15);
+      _newArrowCheck(this, _this18);
 
       // Note: Safari's transitionDuration property will list out comma separated transition durations
       // for every single transition property. Let's grab the first one and call it a day.
@@ -6268,7 +6313,7 @@
 
       stages.show();
       el.__x_transition.nextFrame = requestAnimationFrame(function () {
-        _newArrowCheck(this, _this16);
+        _newArrowCheck(this, _this19);
 
         stages.end();
         setTimeout(el.__x_transition.finish, duration);
@@ -7135,7 +7180,7 @@
           }
         });
       }.bind(this));
-      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(dataExpression, dataExtras);
+      this.unobservedData = componentForClone ? componentForClone.getUnobservedData() : saferEval(el, dataExpression, dataExtras);
       /* IE11-ONLY:START */
       // For IE11, add our magic properties to the original data for access.
       // The Proxy polyfill does not allow properties to be added after creation.
@@ -7156,7 +7201,7 @@
 
         Object.defineProperty(this.unobservedData, "$".concat(name), {
           get: function get() {
-            return callback(canonicalComponentElementReference);
+            return callback(canonicalComponentElementReference, this.$el);
           }
         });
       }.bind(this));
@@ -7576,7 +7621,7 @@
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
           _newArrowCheck(this, _this20);
         }.bind(this);
-        return saferEval(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
+        return saferEval(el, expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
           $dispatch: this.getDispatchFunction(el)
         }));
       }
@@ -7588,7 +7633,7 @@
         var extraVars = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
           _newArrowCheck(this, _this21);
         }.bind(this);
-        return saferEvalNoReturn(expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
+        return saferEvalNoReturn(el, expression, this.$data, _objectSpread2(_objectSpread2({}, extraVars()), {}, {
           $dispatch: this.getDispatchFunction(el)
         }));
       }
@@ -7628,7 +7673,8 @@
               (function () {
                 var _this24 = this;
 
-                var rawData = saferEval(mutations[i].target.getAttribute('x-data') || '{}', {
+                var xAttr = mutations[i].target.getAttribute('x-data') || '{}';
+                var rawData = saferEval(_this23.$el, xAttr, {
                   $el: _this23.$el
                 });
                 Object.keys(rawData).forEach(function (key) {

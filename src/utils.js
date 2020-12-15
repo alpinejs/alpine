@@ -66,7 +66,8 @@ export function debounce(func, wait) {
 }
 
 const handleError = (el, expression, error) => {
-    console.error(`Alpine: error in expression "${expression}" in component:`, el, `due to "${error}"`);
+    console.warn(`Alpine Error: "${error}"\n\nExpression: "${expression}"\nElement:`, el);
+
     if (! isTesting()) {
         throw error;
     }

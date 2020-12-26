@@ -621,6 +621,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 > Note: There are a couple of caveats to x-spread:
 > - When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
 > - `x-data` and `x-init` can't be used inside a "spread" object.
+> - When using `x-ref`, you should bind it like any other attribute. For example: `['x-bind:x-ref']() { return 'foo' }`
 
 ---
 

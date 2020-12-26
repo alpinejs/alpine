@@ -215,3 +215,29 @@ test('x-spread event handlers defined as functions receive the event object as t
         expect(document.querySelector("div").__x.$data.eventType).toEqual("click");
     });
 });
+
+test('x-spread undefined values can fail gracefully', async () => {
+    window.data = function () {
+        return {
+            foo: {
+                ['x-text'](){
+                    return this.somethingUndefined;
+                }
+            }
+        };
+    };
+
+    document.body.innerHTML = `
+        <div x-data="window.data()">
+            <button x-text="somethingUndefined">should be empty string</button>
+            <span x-spread="foo">should be empty string<span>
+        </div>
+    `;
+
+    Alpine.start();
+
+    await wait(() => {
+        expect(document.querySelector("button").textContent).toEqual('')
+        expect(document.querySelector("span").textContent).toEqual('')
+    })
+});

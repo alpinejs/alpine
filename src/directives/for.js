@@ -46,7 +46,7 @@ function parseForExpression(expression) {
     let forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/
     let stripParensRE = /^\(|\)$/g
     let forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
-    let inMatch = String(expression).match(forAliasRE)
+    let inMatch = expression.match(forAliasRE)
     if (! inMatch) return
     let res = {}
     res.items = inMatch[2].trim()

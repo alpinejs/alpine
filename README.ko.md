@@ -321,68 +321,70 @@ You can specify specific keys to listen for using keydown modifiers appended to 
 
 `x-on:keydown` 디렉티브에 keydown 수정자를 사용하여 수신 할 특정 키를 지정할 수 있습니다.
 
-Examples: `enter`, `escape`, `arrow-up`, `arrow-down`
+예제: `enter`, `escape`, `arrow-up`, `arrow-down`
 
 > Note: You can also listen for system-modifier key combinations like: `x-on:keydown.cmd.enter="foo"`
 
-**`.away` modifier**
+> 참고: `x-on:keydown.cmd.enter="foo"`와 같이 시스템 수정자 키 조합을 사용하여 수신할 수 있습니다.
+
+**`.away` 수정자**
 
 **예제:** `<div x-on:click.away="showModal = false"></div>`
 
-When the `.away` modifier is present, the event handler will only be executed when the event originates from a source other than itself, or its children.
+`.away`수정자가 있는 경우, 이벤트 핸들러는 자신 자체가 아닌 다른 소스 또는 하위 소스에서 발생할 때 실행됩니다.
 
-This is useful for hiding dropdowns and modals when a user clicks away from them.
+이것은 사용자 클릭할 때 드롭다운과 모달을 숨기는데 유용합니다.
 
-**`.prevent` modifier**
+**`.prevent` 수정자**
 **예제:** `<input type="checkbox" x-on:click.prevent>`
 
-Adding `.prevent` to an event listener will call `preventDefault` on the triggered event. In the above example, this means the checkbox wouldn't actually get checked when a user clicks on it.
+이벤트 리스너에 `.prevent`를 추가하면 트리거된 이벤트에서 `preventDefault`가 호출됩니다. 위 예제에서 이것은 사용자가 체크박스를 클릭할 때, 체크박스가 실제로 선택되지 않음을 의미합니다.
 
-**`.stop` modifier**
+**`.stop` 수정자**
 **예제:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
 
-Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
+이벤트 리스너에 `.stop`를 추가하면 트리거된 이벤트에서 `stopPropagation`가 호출됩니다. 위 예제에서 이것은 "클릭" 이벤트가 외부 `<div>`로 버블링되지 않음을 의미합니다. 즉, 사용자가 버튼을 클릭해도 `foo`는 `'bar'`로 설정되지 않습니다.
 
-**`.self` modifier**
-**예제:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
+**`.self` 수정자**
+**예제:** `<div? x-on:click.self="foo = 'bar'"><button></button></div?>`
 
-Adding `.self` to an event listener will only trigger the handler if the `$event.target` is the element itself. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
+이벤트 리스너에 `.self`를 추가하면 `$event.target`이 요소 자체인 경우에만 이벤트 핸들러가 트리거됩니다. 위 예제에서 이것은 버튼에서 외부 `<div>`로 버블링된 "클릭"이벤트가 핸들러를 실행시키지 **않음**을 의미합니다.
 
-**`.window` modifier**
-**예제:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
+**`.window` 수정자**
+**예제:** `< x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
-Adding `.window` to an event listener will install the listener on the global window object instead of the DOM node on which it is declared. This is useful for when you want to modify component state when something changes with the window, like the resize event. In this example, when the window grows larger than 768 pixels wide, we will close the modal/dropdown, otherwise maintain the same state.
+이벤트 리스너에 `.window`를 추가하면 선언된 DOM 노드 대신 전역 윈도우 객체에 리스너가 설정됩니다. 이것은 리사이즈 이벤트와 같이 윈도우에서 무언가 변경될 때 컴포넌트의 상태를 변경하고 싶은 경우 유용합니다. 이 예제에서 우리는 윈도우 너비가 768 픽셀보다 커지면, 모달/드롭다운을 닫고 그렇지 않으면 동일한 상태를 유지합니다
 
->Note: You can also use the `.document` modifier to attach listeners to `document` instead of `window`
+>참고: `window` 대신 `.document` 수정자를 사용하여 `document`에 리스너를 추가 할 수 있습니다.
 
-**`.once` modifier**
+**`.once` 수정자**
 **예제:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
 
-Adding the `.once` modifier to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
+이벤트 리스너에 `.once` 수정자를 추가하면, 리스너가 한 번만 처리됩니다. 이것은 HTML부분 가져오기와 같이 한 번만 수행하려는 작업에 유용합니다.
 
-**`.passive` modifier**
+**`.passive` 수정자**
 **예제:** `<button x-on:mousedown.passive="interactive = true"></button>`
 
-Adding the `.passive` modifier to an event listener will make the listener a passive one, which means `preventDefault()` will not work on any events being processed, this can help, for example with scroll performance on touch devices.
+이벤트 리스너에 `.passive` 수정자를 추가하면 리스너를 수동적으로 동작하게 만듭니다. 처리 중인 어떤 이벤트에도 `preventDefault()`가 동작하지 않음을 의미합니다. 예를 들어 터치 기기의 스크롤 성능에 도움이 될 수 있습니다.
 
-**`.debounce` modifier**
+**`.debounce` 수정자**
 **예제:** `<input x-on:input.debounce="fetchSomething()">`
 
-The `debounce` modifier allows you to "debounce" an event handler. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
+`debounce` 수정자를 사용하면 이벤트 핸들러를 "디바운스" 할 수 있습니다. 즉, 이벤트 핸들러는 마지막 이벤트가 발생한 이후 일정 시간이 지날 때까지 실행되지 않습니다. 핸들러가 호출될 준비가 되면 마지막 핸들러 호출이 실행됩니다.
 
-The default debounce "wait" time is 250 milliseconds.
+디바운스의 기본 "대기" 시간은 250 밀리세컨드 입니다.
 
-If you wish to customize this, you can specifiy a custom wait time like so:
+이를 사용자화 하려면 다음과 같이 사용자 대기 시간을 지정할 수 있습니다:
 
 ```
 <input x-on:input.debounce.750="fetchSomething()">
 <input x-on:input.debounce.750ms="fetchSomething()">
 ```
 
-**`.camel` modifier**
+**`.camel` 수정자**
 **예제:** `<input x-on:event-name.camel="doSomething()">`
 
-The `camel` modifier will attach an event listener for the camel case equivalent event name. In the example above, the expression will be evaluated when the `eventName` event is fired on the element.
+`camel` 수정자는 이벤트명과 동등한 카멜 표기법으로 이벤트 리스너를 연결합니다. 위 예제에서 표현식은 요소에서 `eventName` 이벤트가 발생할 때 평가됩니다.
 
 ---
 

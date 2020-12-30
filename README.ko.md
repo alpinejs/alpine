@@ -425,7 +425,7 @@ You can specify specific keys to listen for using keydown modifiers appended to 
 
 **구조:** `<span x-text="[expression]"`
 
-`x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.
+`x-text`는 속성값을 업데이트하는 대신 요소의 `innerText`를 업데이트한다는 점을 제외하면,`x-bind`과 유사하게 동작합니다.
 
 ---
 

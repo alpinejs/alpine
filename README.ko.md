@@ -395,21 +395,23 @@ You can specify specific keys to listen for using keydown modifiers appended to 
 
 `x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
 
-> Note: `x-model` is smart enough to detect changes on text inputs, checkboxes, radio buttons, textareas, selects, and multiple selects. It should behave [how Vue would](https://vuejs.org/v2/guide/forms.html) in those scenarios.
+`x-model`은 요소에 "양방향 데이터 바인딩"을 추가합니다. 즉, 입력 요소의 값은 컴포넌트 데이터 아이템의 값과 동기화되고 유지됩니다.
 
-**`.number` modifier**
+> 참고: `x-model`은 text inputs, checkboxes, radio buttons, textareas, selects, 그리고 multiple selects 요소의 변경을 감지하는데 뛰어납니다. 이러한 시나리오에서 [how Vue would](https://vuejs.org/v2/guide/forms.html) 동작해야 합니다.
+
+**`.number` 수정자**
 **예제:** `<input x-model.number="age">`
 
-The `number` modifier will convert the input's value to a number. If the value cannot be parsed as a valid number, the original value is returned.
+`number`수정자는 input의 값을 숫자로 변환합니다. 만약 값이 유효한 숫자로 분석되지 않으면, 원본 값을 반환합니다.
 
-**`.debounce` modifier**
+**`.debounce` 수정자**
 **예제:** `<input x-model.debounce="search">`
 
-The `debounce` modifier allows you to add a "debounce" to a value update. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
+`debounce` 수정자를 사용하면 값 업데이트에 "debounce"를 추가 할 수 있습니다. 즉, 이벤트 핸들러는 마지막 이벤트가 발생한 이후 일정 시간이 지날 때까지 실행되지 않습니다. 핸들러가 호출될 준비가 되면 마지막 핸들러 호출이 실행됩니다.
 
-The default debounce "wait" time is 250 milliseconds.
+디바운스의 기본 "대기" 시간은 250 밀리세컨드 입니다.
 
-If you wish to customize this, you can specifiy a custom wait time like so:
+이를 사용자화 하려면 다음과 같이 사용자 대기 시간을 지정할 수 있습니다:
 
 ```
 <input x-model.debounce.750="search">

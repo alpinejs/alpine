@@ -448,11 +448,11 @@ You can specify specific keys to listen for using keydown modifiers appended to 
 
 **구조:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
 
-`x-ref` provides a convenient way to retrieve raw DOM elements out of your component. By setting an `x-ref` attribute on an element, you are making it available to all event handlers inside an object called `$refs`.
+`x-ref`는 컴포넌트의 원시 DOM 요소를 검색하는 편리한 방법을 제공합니다. 요소에 `x-ref`속성을 설정하면 `$refs`라는 객체 내부에서 모든 이벤트 핸들러를 사용할 수 있습니다.
 
-This is a helpful alternative to setting ids and using `document.querySelector` all over the place.
+이것은 아이디를 설정하고 모든 곳에서 `document.querySelector`를 사용하는 것에 대한 유용한 대안입니다.
 
-> Note: you can also bind dynamic values for x-ref: `<span :x-ref="item.id"></span>` if you need to.
+> 참고: 필요하다면 x-ref: `<span :x-ref="item.id"></span>`와 같이 동적으로 값을 바인딩 할 수도 있습니다.
 
 ---
 

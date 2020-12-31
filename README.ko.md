@@ -425,7 +425,7 @@ You can specify specific keys to listen for using keydown modifiers appended to 
 
 **구조:** `<span x-text="[expression]"`
 
-`x-text`는 속성값을 업데이트하는 대신 요소의 `innerText`를 업데이트한다는 점을 제외하면,`x-bind`과 유사하게 동작합니다.
+`x-text`는 속성값을 업데이트하는 대신 요소의 `innerText`를 업데이트한다는 점을 제외하면,`x-bind`와 유사하게 동작합니다.
 
 ---
 
@@ -434,11 +434,12 @@ You can specify specific keys to listen for using keydown modifiers appended to 
 
 **구조:** `<span x-html="[expression]"`
 
-`x-html` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerHTML` of an element.
+`x-html`는 속성값을 업데이트하는 대신 요소의 `innerHTML`을 업데이트한다는 점을 제외하면, `x-bind`와
+유사하게 동작합니다.
 
-> :warning: **Only use on trusted content and never on user-provided content.** :warning:
+> :warning: **신뢰성있는 컨텐트에 대해서만 사용하고 사용자 제공 컨텐트에는 절대로 사용하지 마세요** :warning:
 >
-> Dynamically rendering HTML from third parties can easily lead to [XSS](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) vulnerabilities.
+> 제 3자를 통한 동적 HTML 렌더링은 쉽게 [XSS](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting)에 취약해질 수 있습니다.
 
 ---
 

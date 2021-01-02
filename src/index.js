@@ -25,11 +25,13 @@ const Alpine = {
 
         // It's easier and more performant to just support Turbolinks than listen
         // to MutationObserver mutations at the document level.
-        document.addEventListener("turbolinks:load", () => {
+        function turbo_initializer() {
             this.discoverUninitializedComponents(el => {
                 this.initializeComponent(el)
             })
-        })
+        }
+        document.addEventListener("turbolinks:load", turbo_initializer)
+        document.addEventListener("turbo:load", turbo_initializer)
 
         this.listenForNewUninitializedComponentsAtRunTime()
     },

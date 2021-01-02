@@ -7798,9 +7798,20 @@
                     this.initializeComponent(el);
                   }.bind(this));
                 }.bind(this));
+                document.addEventListener("turbo:load", function () {
+                  var _this3 = this;
+
+                  _newArrowCheck(this, _this);
+
+                  this.discoverUninitializedComponents(function (el) {
+                    _newArrowCheck(this, _this3);
+
+                    this.initializeComponent(el);
+                  }.bind(this));
+                }.bind(this));
                 this.listenForNewUninitializedComponentsAtRunTime();
 
-              case 6:
+              case 7:
               case "end":
                 return _context.stop();
             }
@@ -7815,32 +7826,32 @@
       return start;
     }(),
     discoverComponents: function discoverComponents(callback) {
-      var _this3 = this;
+      var _this4 = this;
 
       var rootEls = document.querySelectorAll('[x-data]');
       rootEls.forEach(function (rootEl) {
-        _newArrowCheck(this, _this3);
+        _newArrowCheck(this, _this4);
 
         callback(rootEl);
       }.bind(this));
     },
     discoverUninitializedComponents: function discoverUninitializedComponents(callback) {
-      var _this4 = this;
+      var _this5 = this;
 
       var el = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
       var rootEls = (el || document).querySelectorAll('[x-data]');
       Array.from(rootEls).filter(function (el) {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this5);
 
         return el.__x === undefined;
       }.bind(this)).forEach(function (rootEl) {
-        _newArrowCheck(this, _this4);
+        _newArrowCheck(this, _this5);
 
         callback(rootEl);
       }.bind(this));
     },
     listenForNewUninitializedComponentsAtRunTime: function listenForNewUninitializedComponentsAtRunTime() {
-      var _this5 = this;
+      var _this6 = this;
 
       var targetNode = document.querySelector('body');
       var observerOptions = {
@@ -7849,18 +7860,18 @@
         subtree: true
       };
       var observer = new MutationObserver(function (mutations) {
-        var _this6 = this;
+        var _this7 = this;
 
-        _newArrowCheck(this, _this5);
+        _newArrowCheck(this, _this6);
 
         if (this.pauseMutationObserver) return;
 
         for (var i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(function (node) {
-              var _this7 = this;
+              var _this8 = this;
 
-              _newArrowCheck(this, _this6);
+              _newArrowCheck(this, _this7);
 
               // Discard non-element nodes (like line-breaks)
               if (node.nodeType !== 1) return; // Discard any changes happening within an existing component.
@@ -7868,7 +7879,7 @@
 
               if (node.parentElement && node.parentElement.closest('[x-data]')) return;
               this.discoverUninitializedComponents(function (el) {
-                _newArrowCheck(this, _this7);
+                _newArrowCheck(this, _this8);
 
                 this.initializeComponent(el);
               }.bind(this), node.parentElement);
@@ -7879,7 +7890,7 @@
       observer.observe(targetNode, observerOptions);
     },
     initializeComponent: function initializeComponent(el) {
-      var _this8 = this;
+      var _this9 = this;
 
       if (!el.__x) {
         // Wrap in a try/catch so that we don't prevent other components
@@ -7888,7 +7899,7 @@
           el.__x = new Component(el);
         } catch (error) {
           setTimeout(function () {
-            _newArrowCheck(this, _this8);
+            _newArrowCheck(this, _this9);
 
             throw error;
           }.bind(this), 0);

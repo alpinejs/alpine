@@ -1855,6 +1855,11 @@
           this.initializeComponent(el);
         });
       });
+      document.addEventListener("turbo:load", () => {
+        this.discoverUninitializedComponents(el => {
+          this.initializeComponent(el);
+        });
+      });
       this.listenForNewUninitializedComponentsAtRunTime();
     },
     discoverComponents: function discoverComponents(callback) {

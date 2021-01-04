@@ -464,7 +464,7 @@ You can specify specific keys to listen for using keydown modifiers appended to 
 `x-show`로 충분하지 않은 경우(`x-show`는 값이 거짓이면 요소를 `display: none`로 설정합니다.)
 , `x-if`는 DOM으로 부터 요소를 완전히 삭제할 때 사용할 수 있습니다.
 
-Alpine은 가상 DOM을 사용하지 않기 때문에 `x-if`가 `<template></template>` 태그에 사용된다는 것은 중요합니다. 이러한 구현을 통해 Alpine은 견고함을 유지하고 실제 DOM을 사용하여 마법을 부릴 수 있습니다.
+Alpine은 가상 DOM을 사용하지 않기 때문에 `x-if`를 `<template></template>` 태그에 사용하는게 중요합니다. 이러한 구현을 통해 Alpine은 견고함을 유지하고 실제 DOM을 사용하여 마법을 부릴 수 있습니다.
 
 > 참고: `x-if`는 `<template></template>`태그 내에 단일 루트 요소만 가져야 합니다.
 

@@ -461,13 +461,14 @@ You can specify specific keys to listen for using keydown modifiers appended to 
 
 **구조:** `<template x-if="[expression]"><div>Some Element</div></template>`
 
-For cases where `x-show` isn't sufficient (`x-show` sets an element to `display: none` if it's false), `x-if` can be used to  actually remove an element completely from the DOM.
+`x-show`로 충분하지 않은 경우(`x-show`는 값이 거짓이면 요소를 `display: none`로 설정합니다.)
+, `x-if`는 DOM으로 부터 요소를 완전히 삭제할 때 사용할 수 있습니다.
 
-It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work its magic.
+Alpine은 가상 DOM을 사용하지 않기 때문에 `x-if`가 `<template></template>` 태그에 사용된다는 것은 중요합니다. 이러한 구현을 통해 Alpine은 견고함을 유지하고 실제 DOM을 사용하여 마법을 부릴 수 있습니다.
 
-> Note: `x-if` must have a single element root inside the `<template></template>` tag.
+> 참고: `x-if`는 `<template></template>`태그 내에 단일 루트 요소만 가져야 합니다.
 
-> Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
+> 참고: `svg`에 `template`를 사용할 땐 Alpine.js 가 초기화 되기 전에 실행되도록 [폴리필](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538)을 추가해야 합니다.
 
 ---
 

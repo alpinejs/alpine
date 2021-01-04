@@ -8,7 +8,7 @@ export function handleAttributeBindingDirective(component, el, attrName, express
         if (Alpine.ignoreFocusedForValueBinding && document.activeElement.isSameNode(el)) return
 
         // If nested model key is undefined, set the default value to empty string.
-        if (value === undefined && expression.match(/\./)) {
+        if (value === undefined && String(expression).match(/\./)) {
             value = ''
         }
 

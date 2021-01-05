@@ -563,20 +563,20 @@ Alpine은 `i in n` 구문을 지원하고, 여기서 `n`은 정수이며, 고정
 </template>
 ```
 
-> The example above uses classes from [Tailwind CSS](https://tailwindcss.com).
+> 위 예제는 [Tailwind CSS](https://tailwindcss.com)의 클래스를 사용합니다.
 
-Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
+Alpine은 요소의 "숨져진" 상태와 "보여진" 상태 사이의 다양한 단계에 클래스를 적용하기 위해 6가지의 서로 다른 전환 지시자들을 제공합니다. 이 지시자들은 `x-show` 및 `x-if` 모두에서 작동합니다.
 
-These behave exactly like VueJs's transition directives, except they have different, more sensible names:
+이것들은 VueJs의 전환 지시자와 정확히 동일한 동작을 한다. 단, 그들은 조금 다른 더 합리적인 이름을 가지고 있다:
 
 | 지침 | 설명 |
 | --- | --- |
-| `:enter` | Applied during the entire entering phase. |
-| `:enter-start` | Added before element is inserted, removed one frame after element is inserted. |
-| `:enter-end` | Added one frame after element is inserted (at the same time `enter-start` is removed), removed when transition/animation finishes.
-| `:leave` | Applied during the entire leaving phase. |
-| `:leave-start` | Added immediately when a leaving transition is triggered, removed after one frame. |
-| `:leave-end` | Added one frame after a leaving transition is triggered (at the same time `leave-start` is removed), removed when the transition/animation finishes.
+| `:enter` | 전체 진입 단계에서 적용됨. |
+| `:enter-start` | 요소가 삽입되기 전에 추가되고, 요소가 삽입되고 1 프레임 이후에 삭제됨. |
+| `:enter-end` | 요소가 삽입되고 1 프레임 이후에 추가되고(동시에 `enter-start`는 삭제됨) 전환/애니메이션 종료 후 삭제됨.
+| `:leave` | 전체 이탈 단계에서 적용됨. |
+| `:leave-start` | 이탈 전환이 발생될 때 즉시 추가되고, 1 프레임 후 제거됨. |
+| `:leave-end` | 이탈 전환이 발생된 후 1 프레임 후 추가되고(동시에 `leave-start`는 삭제됨) 전환/애니메이션 종료 후 삭제됨.
 
 ---
 

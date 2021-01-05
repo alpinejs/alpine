@@ -480,36 +480,36 @@ Alpine은 가상 DOM을 사용하지 않기 때문에 `x-if`를 `<template></tem
 </template>
 ```
 
-> Note: the `:key` binding is optional, but HIGHLY recommended.
+> 참고: `:key` 바인딩은 선택사항이지만, 사용하는 것을 적극추천합니다.
 
-`x-for` is available for cases when you want to create new DOM nodes for each item in an array. This should appear similar to `v-for` in Vue, with one exception of needing to exist on a `template` tag, and not a regular DOM element.
+`x-for`는 배열의 각 항목에 대해 새로운 DOM 노드를 생성하려는 경우 사용할 수 있습니다. 이것은 일반적인 DOM 요소가 아닌 `template` 태그에 있어야 한다는 것을 제외하면 Vue의 `v-for`와 유사하게 나타나야 합니다.
 
-If you want to access the current index of the iteration, use the following syntax:
+반복문의 현재 색인에 접근하고 싶다면, 다음 문법을 사용하세요:
 
 ```html
 <template x-for="(item, index) in items" :key="index">
-    <!-- You can also reference "index" inside the iteration if you need. -->
+    <!-- 원한다면 반복문 내부의 "색인"을 참조할 수도 있습니다. -->
     <div x-text="index"></div>
 </template>
 ```
 
-If you want to access the array object (collection) of the iteration, use the following syntax:
+반복문의 배열객체(컬렉션)에 접근하고 싶다면, 다음 문법을 사용하세요:
 
 ```html
 <template x-for="(item, index, collection) in items" :key="index">
-    <!-- You can also reference "collection" inside the iteration if you need. -->
-    <!-- Current item. -->
+    <!-- 원한다면 반복문 내부의 "컬렉션"을 참조할 수도 있습니다. -->
+    <!-- 현재 항목. -->
     <div x-text="item"></div>
-    <!-- Same as above. -->
+    <!-- 위와 동일. -->
     <div x-text="collection[index]"></div>
-    <!-- Previous item. -->
+    <!-- 이전 항목. -->
     <div x-text="collection[index - 1]"></div>
 </template>
 ```
 
-> Note: `x-for` must have a single element root inside of the `<template></template>` tag.
+> 참고: `x-for`는 `<template></template>`태그 내에 단일 루트 요소만 가져야 합니다.
 
-> Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
+> 참고: `svg`에 `template`를 사용할 땐 Alpine.js 가 초기화 되기 전에 실행되도록 [폴리필](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538)을 추가해야 합니다.
 
 #### Nesting `x-for`s
 You can nest `x-for` loops, but you MUST wrap each loop in an element. For example:

@@ -244,7 +244,7 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 ### `x-bind`
 
-> 참고: 조금 더 간단한 문법을 사용할 수 있습니다. ":" syntax: `:type="..."`.
+> 참고: 조금 더 간단한 구문을 사용할 수 있습니다. ":" syntax: `:type="..."`.
 
 **예제:** `<input x-bind:type="inputType">`
 
@@ -298,7 +298,7 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 ### `x-on`
 
-> 참고: 조금 더 간단한 문법을 사용할 수 있습니다. "@" syntax: `@click="..."`.
+> 참고: 조금 더 간단한 구문을 사용할 수 있습니다. "@" syntax: `@click="..."`.
 
 **예제:** `<button x-on:click="foo = 'bar'"></button>`
 
@@ -484,7 +484,7 @@ Alpine은 가상 DOM을 사용하지 않기 때문에 `x-if`를 `<template></tem
 
 `x-for`는 배열의 각 항목에 대해 새로운 DOM 노드를 생성하려는 경우 사용할 수 있습니다. 이것은 일반적인 DOM 요소가 아닌 `template` 태그에 있어야 한다는 것을 제외하면 Vue의 `v-for`와 유사하게 나타나야 합니다.
 
-반복문의 현재 색인에 접근하고 싶다면, 다음 문법을 사용하세요:
+반복문의 현재 색인에 접근하고 싶다면, 다음 구문을 사용하세요:
 
 ```html
 <template x-for="(item, index) in items" :key="index">
@@ -493,7 +493,7 @@ Alpine은 가상 DOM을 사용하지 않기 때문에 `x-if`를 `<template></tem
 </template>
 ```
 
-반복문의 배열객체(컬렉션)에 접근하고 싶다면, 다음 문법을 사용하세요:
+반복문의 배열객체(컬렉션)에 접근하고 싶다면, 다음 구문을 사용하세요:
 
 ```html
 <template x-for="(item, index, collection) in items" :key="index">
@@ -524,9 +524,9 @@ Alpine은 가상 DOM을 사용하지 않기 때문에 `x-if`를 `<template></tem
 </template>
 ```
 
-#### Iterating over a range
+#### 범위 내의 반복
 
-Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to iterate over a fixed range of elements.
+Alpine은 `i in n` 구문을 지원하고, 여기서 `n`은 정수이며, 고정된 범위의 요소들을 반복할 수 있습니다.
 
 ```html
 <template x-for="i in 10">

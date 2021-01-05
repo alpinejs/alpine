@@ -511,8 +511,8 @@ Alpine은 가상 DOM을 사용하지 않기 때문에 `x-if`를 `<template></tem
 
 > 참고: `svg`에 `template`를 사용할 땐 Alpine.js 가 초기화 되기 전에 실행되도록 [폴리필](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538)을 추가해야 합니다.
 
-#### Nesting `x-for`s
-You can nest `x-for` loops, but you MUST wrap each loop in an element. For example:
+#### `x-for`s 중첩
+`x-for`루프를 중첩할 수는 있지만, 이 경우 각 루프를 요소로 감싸야합니다. 예제:
 
 ```html
 <template x-for="item in items">

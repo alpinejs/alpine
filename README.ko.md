@@ -301,7 +301,7 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 **구조:** `<button x-on:[event]="[expression]"></button>`
 
-`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as its value is executed. You can use `x-on` with any event available for the element you're adding the directive on, for a full list of events, see [the Event reference on MDN](https://developer.mozilla.org/en-US/docs/Web/Events) for a list of possible values.
+`x-on`은 선언 된 요소에 이벤트 리스너를 연결합니다. 해당 이벤트가 발생하면 해당 값으로 설정된 JavaScript 표현식이 실행됩니다. 전체 이벤트 목록을 보려면 지시문을 추가하는 요소에 사용할 수있는 모든 이벤트와 함께`x-on`을 사용할 수 있습니다. 사용 가능한 값 항목들은 [the Event reference on MDN](https://developer.mozilla.org/en-US/docs/Web/Events)에서 확인할 수 있습니다.
 
 표현식에서 데이터가 수정되면, 이 데이터와 연관되어 있는 다른 요소의 속성도 업데이트됩니다.
 > 참고: 자바스크립트 함수 이름을 지정할 수도 있습니다.
@@ -314,13 +314,9 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 **예제:** `<input type="text" x-on:keydown.escape="open = false">`
 
-You can specify specific keys to listen for using keydown modifiers appended to the `x-on:keydown` directive. Note that the modifiers are kebab-cased versions of `Event.key` values.
-
-`x-on:keydown` 디렉티브에 keydown 수정자를 사용하여 수신 할 특정 키를 지정할 수 있습니다.
+`x-on:keydown` 디렉티브에 keydown 수정자를 사용하여 수신 할 특정 키를 지정할 수 있습니다. 수정자는 `Event.key` 값의 케밥 케이스 버전입니다.
 
 예제: `enter`, `escape`, `arrow-up`, `arrow-down`
-
-> Note: You can also listen for system-modifier key combinations like: `x-on:keydown.cmd.enter="foo"`
 
 > 참고: `x-on:keydown.cmd.enter="foo"`와 같이 시스템 수정자 키 조합을 사용하여 수신할 수 있습니다.
 

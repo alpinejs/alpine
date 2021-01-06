@@ -255,8 +255,6 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 **클래스 속성일 경우 `x-bind`**
 
-`x-bind` behaves a little differently when binding to the `class` attribute.
-
 `x-bind` 가 `class` 속성에 바인딩 될 때는 조금 다르게 동작합니다.
 
 클래스의 경우, 키가 클래스 이름이고 값이 부울 표현 식인 객체를 전달하여 해당 클래스 이름의 적용여부를 결정합니다.

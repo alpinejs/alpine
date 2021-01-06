@@ -94,7 +94,7 @@ import 'alpinejs'
 
 ## 배우기
 
-다음과 같이 총 14개의 지침이 있습니다.
+다음과 같이 총 14개의 지침이 있습니다:
 
 | 지침 | 설명 |
 | --- | --- |
@@ -303,7 +303,7 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 **구조:** `<button x-on:[event]="[expression]"></button>`
 
-`x-on`은(는) element가 선언된 곳에 이벤트 리스너를 등록합니다. 해당 이벤트가 발생하면 값으로 설정된 자바스크립트 표현식이 실행됩니다.
+`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as its value is executed. You can use `x-on` with any event available for the element you're adding the directive on, for a full list of events, see [the Event reference on MDN](https://developer.mozilla.org/en-US/docs/Web/Events) for a list of possible values.
 
 표현식에서 데이터가 수정되면, 이 데이터와 연관되어 있는 다른 요소의 속성도 업데이트됩니다.
 > 참고: 자바스크립트 함수 이름을 지정할 수도 있습니다.

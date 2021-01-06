@@ -196,7 +196,7 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 `x-init` 구성 요소가 초기화될 때 제공된 식을 실행합니다.
 
-초기 Alpine DOM 업데이트 (예 : VueJS의 `mounted()` 후크 ) 후에 코드를 실행하려면 `x-init` 콜백을 전달할 수 있으며 초기화 후에 실행합니다.
+초기 Alpine DOM 업데이트 (예 : VueJS의 `mounted()` 후크 ) 후에 코드를 실행하려면 `x-init` 콜백을 전달할 수 있으며 초기화 후에 실행합니다:
 
 `x-init="() => { // we have access to the post-dom-initialization state here // }"`
 

@@ -469,7 +469,7 @@ For cases where `x-show` isn't sufficient (`x-show` sets an element to `display:
 
 It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work its magic.
 
-> Note: `x-if` must have a single element root inside the `<template></template>` tag.
+> Note: `x-if` must have a single root element inside the `<template></template>` tag.
 
 > Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
 
@@ -510,7 +510,7 @@ If you want to access the array object (collection) of the iteration, use the fo
 </template>
 ```
 
-> Note: `x-for` must have a single element root inside of the `<template></template>` tag.
+> Note: `x-for` must have a single root element inside of the `<template></template>` tag.
 
 > Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
 

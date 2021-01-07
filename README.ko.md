@@ -386,8 +386,6 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 **구조:** `<input type="text" x-model="[data item]">`
 
-`x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
-
 `x-model`은 요소에 "양방향 데이터 바인딩"을 추가합니다. 즉, 입력 요소의 값은 컴포넌트 데이터 아이템의 값과 동기화되고 유지됩니다.
 
 > 참고: `x-model`은 text inputs, checkboxes, radio buttons, textareas, selects, 그리고 multiple selects 요소의 변경을 감지하는데 뛰어납니다. 이러한 시나리오에서 [how Vue would](https://vuejs.org/v2/guide/forms.html) 동작해야 합니다.

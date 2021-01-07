@@ -602,13 +602,13 @@ Alpine은 요소의 "숨져진" 상태와 "보여진" 상태 사이의 다양한
 </script>
 ```
 
-`x-spread` allows you to extract an element's Alpine bindings into a reusable object.
+`x-spread`를 사용하면 요소의 Alpine 바인딩을 재사용 가능한 객체로 추출 할 수 있습니다.
 
-The object keys are the directives (Can be any directive including modifiers), and the values are callbacks to be evaluated by Alpine.
+객체 키들은 지시자들이며(수정사를 포함해 모든 지시자가 될 수 있습니다), 값들은 Alpine에 의해 평가되는 콜백입니다.
 
-> Note: There are a couple of caveats to x-spread:
-> - When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
-> - `x-data` and `x-init` can't be used inside a "spread" object.
+> 참고: x-spread에는 몇 가지 주의사항이 있습니다:
+> - `x-for`가 "spread" 지시자 일 때, 콜백에서 반드시 일반 문자열 표현식을 반환해야 합니다. 예제: `['x-for']() { return 'item in items' }`.
+> - "spread" 객체 내애서 `x-data` 와 `x-init`는 사용할 수 없습니다.
 
 ---
 

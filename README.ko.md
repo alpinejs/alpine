@@ -215,25 +215,25 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 ```html
 <div x-show.transition="open">
-    These contents will be transitioned in and out.
+    이곳의 컨텐츠들은 transition in, out이 동작됨.
 </div>
 ```
 
 | 지침 | 설명 |
 | --- | --- |
-| `x-show.transition` | A simultaneous fade and scale. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
-| `x-show.transition.in` | Only transition in. |
-| `x-show.transition.out` | Only transition out. |
-| `x-show.transition.opacity` | Only use the fade. |
-| `x-show.transition.scale` | Only use the scale. |
-| `x-show.transition.scale.75` | Customize the CSS scale transform `transform: scale(.75)`. |
-| `x-show.transition.duration.200ms` | Sets the "in" transition to 200ms. The out will be set to half that (100ms). |
-| `x-show.transition.origin.top.right` | Customize the CSS transform origin `transform-origin: top right`. |
-| `x-show.transition.in.duration.200ms.out.duration.50ms` | Different durations for "in" and "out". |
+| `x-show.transition` | fade 와 scale이 동시에 동작됨. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
+| `x-show.transition.in` | transition in만 동작됨. |
+| `x-show.transition.out` | transition out만 동작됨. |
+| `x-show.transition.opacity` | fade만 사용됨. |
+| `x-show.transition.scale` | scale만 사용됨. |
+| `x-show.transition.scale.75` | CSS scale transform 사용자화 `transform: scale(.75)`. |
+| `x-show.transition.duration.200ms` | transition "in"을 200ms로 설정. out은 그것의 절반(100ms)으로 설정됨. |
+| `x-show.transition.origin.top.right` | CSS transform origin 사용자화 `transform-origin: top right`. |
+| `x-show.transition.in.duration.200ms.out.duration.50ms` | "in" and "out"에 대한 서로 다른 동작시간. |
 
-> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although ridiculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+> 참고: 모든 transition 수정자을 서로 결합하여 사용할 수 있습니다. 이것이 가능합니다(말도 안되지만 lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
 
-> Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifer:
+> 참고: `x-show`는 모든 자식이 전환을 완료할 때 까지 대기합니다. 이 동작을 우회하려면 `.immediate`수정자를 추가하세요:
 ```html
 <div x-show.immediate="open">
     <div x-show.transition="open">
@@ -623,9 +623,9 @@ Alpine은 요소의 "숨져진" 상태와 "보여진" 상태 사이의 다양한
 </style>
 ```
 
-### Magic Properties
+### 마법 속성들
 
-> With the exception of `$el`, magic properties are **not available within `x-data`** as the component isn't initialized yet.
+> `$el`을 제외하고, 컴포넌트가 아직 초기화 되지 않은 상태에서 마법 속성들을 **`x-data`내에서 사용할 수 없습니다.**
 
 ---
 
@@ -637,7 +637,7 @@ Alpine은 요소의 "숨져진" 상태와 "보여진" 상태 사이의 다양한
 </div>
 ```
 
-`$el` is a magic property that can be used to retrieve the root component DOM node.
+`$el`은 루트 컴포넌트 DOM 노드를 검색하는데 사용할 수 있는 마법 속성입니다.
 
 ### `$refs`
 **예제:**
@@ -647,7 +647,7 @@ Alpine은 요소의 "숨져진" 상태와 "보여진" 상태 사이의 다양한
 <button x-on:click="$refs.foo.innerText = 'bar'"></button>
 ```
 
-`$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+`$refs`는 컴포넌트 내에 `x-ref`로 표시된 DOM 요소를 검색하는데 사용할 수 있는 마법 속성입니다. 이것은 DOM 요소를 수동으로 조작해야 할 때 유용합니다.
 
 ---
 
@@ -657,12 +657,11 @@ Alpine은 요소의 "숨져진" 상태와 "보여진" 상태 사이의 다양한
 <input x-on:input="alert($event.target.value)">
 ```
 
-`$event` is a magic property that can be used within an event listener to retrieve the native browser "Event" object.
+`$event`는 이벤트 리스너 내에서 기본 브라우저 "이벤트" 객체를 검색하는데 사용할 수 있는 마법 속성입니다.
 
-> Note: The $event property is only available in DOM expressions.
+> 참고: $event 속성은 DOM 표현식에서만 사용할 수 있습니다.
 
-If you need to access $event inside of a JavaScript function you can pass it in directly:
-
+자바스크립트 함수 내에서 $event에 접근해야 하는 싶은 경우 직접 전달할 수 있습니다:
 `<button x-on:click="myFunction($event)"></button>`
 
 ---
@@ -672,13 +671,13 @@ If you need to access $event inside of a JavaScript function you can pass it in 
 ```html
 <div @custom-event="console.log($event.detail.foo)">
     <button @click="$dispatch('custom-event', { foo: 'bar' })">
-    <!-- When clicked, will console.log "bar" -->
+    <!-- 클릭하면, "bar" 콘솔로그가 출력됨 -->
 </div>
 ```
 
-**Note on Event Propagation**
+**이벤트 전파에 대한 참고 사항**
 
-Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bubbling), when you need to capture events dispatched from nodes that are under the same nesting hierarchy, you'll need to use the [`.window`](https://github.com/alpinejs/alpine#x-on) modifier:
+[이벤트 버블링](https://en.wikipedia.org/wiki/Event_bubbling)으로 인해 동일한 중첩 계층에 있는 노드에서 전달된 이벤트를 캡처해야 하는 경우 [`.window`](https://github.com/alpinejs/alpine#x-on)수정자를 사용해야 합니다:
 
 **예제:**
 
@@ -689,11 +688,11 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 <div>
 ```
 
-> This won't work because when `custom-event` is dispatched, it'll propagate to its common ancestor, the `div`.
+> 이것은 `custom-event`가 전달될 때, 공통 조상인 `div`로 전파되기 때문에 작동하지 않습니다.
 
-**Dispatching to Components**
+**컴포넌트로 전달**
 
-You can also take advantage of the previous technique to make your components talk to each other:
+또한 이전 기술을 활용하여 컴포넌트가 서로 통신하도록 할 수도 있습니다:
 
 **예제:**
 
@@ -701,27 +700,27 @@ You can also take advantage of the previous technique to make your components ta
 <div x-data @custom-event.window="console.log($event.detail)"></div>
 
 <button x-data @click="$dispatch('custom-event', 'Hello World!')">
-<!-- When clicked, will console.log "Hello World!". -->
+<!-- 클릭하면 "Hello World!" 콘솔로그가 출력됨. -->
 ```
 
-`$dispatch` is a shortcut for creating a `CustomEvent` and dispatching it using `.dispatchEvent()` internally. There are lots of good use cases for passing data around and between components using custom events. [Read here](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events) for more information on the underlying `CustomEvent` system in browsers.
+`$dispatch`는 `CustomEvent`를 생성하고, 내부적으로 `.dispatchEvent()`를 사용하여 그것을 전달하는 간단한 방법입니다. 사용자 지정 이벤트를 이용하여 컴포넌트간에 데이터 전달하는 유용한 사용사례가 많이 있습니다. 브라우저의 `CustomEvent`시스템에 대한 자세한 내용은 [이곳을 읽어보세요](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events).
 
-You will notice that any data passed as the second parameter to `$dispatch('some-event', { some: 'data' })`, becomes available through the new events "detail" property: `$event.detail.some`. Attaching custom event data to the `.detail` property is standard practice for `CustomEvent`s in browsers. [Read here](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) for more info.
+`$dispatch('some-event', { some: 'data' })`에 두 번째 파라메터로 전달되는 데이터는 새로운 이벤트의 "detail"속성: `$event.detail.some`을 이용해 사용할 수 있습니다. 브라우저에서 `.detail`속성에 사용자화 이벤트 데이터를 연결하는 것은 `CustomEvent`에 대한 표준 관행입니다. 더 자세한 내용은 [이곳을 읽어보세요](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail).
 
-You can also use `$dispatch()` to trigger data updates for `x-model` bindings. For example:
+`x-model`로 바인딩된 데이터의 업데이트가 발생하도록 `$dispatch()`를 사용할 수도 있습니다. 예제:
 
 ```html
 <div x-data="{ foo: 'bar' }">
     <span x-model="foo">
         <button @click="$dispatch('input', 'baz')">
-        <!-- After the button is clicked, `x-model` will catch the bubbling "input" event, and update foo to "baz". -->
+        <!-- 버튼 클릭 이후, `x-model`은 버블링된 "input" 이벤트를 포착하고, foo를 "baz"로 업데이트 함. -->
     </span>
 </div>
 ```
 
-> Note: The $dispatch property is only available in DOM expressions.
+> 참고: $dispatch 속성은  DOM 표현식에서만 사용 가능합니다.
 
-If you need to access $dispatch inside of a JavaScript function you can pass it in directly:
+자바스크립트 함수에서 $dispatch에 접근하고 싶은 경우 직접 전달할 수 있습니다:
 
 `<button x-on:click="myFunction($dispatch)"></button>`
 
@@ -741,7 +740,7 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 </div>
 ```
 
-`$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made its reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+`$nextTick`은 Alpine이 반응형 DOM 업데이트를 수행한 이후에만 주어진 표현식이 실행되도록 하는 마법 속성입니다. 이것은 당신이 만든 데이터 업데이트가 반영된 DOM과 상호작용하고자 할 때 유용합니다.
 
 ---
 
@@ -753,30 +752,32 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 </div>
 ```
 
-You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
+`$watch`마법 메소드를 통해 컴포넌트 속성을 "감시"할 수있습니다. 위 예제에서, 버튼이 클릭되면 `open`이 변경되고, 제공된 콜백이 실행되며 `console.log`에 새로운 값이 출력됩니다.
 
 ## Security
-If you find a security vulnerability, please send an email to [calebporzio@gmail.com]().
+보안 취약점을 발견하면, [calebporzio@gmail.com]()으로 메일을 보내주세요.
 
-Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP).
+Alpine은 지시자을 평가하기 위해 `Function` 객체를 사용하는 사용자 정의 구현에 의존합니다.
+`eval ()`보다 더 안전하지만 Google Chrome 앱과 같은 일부 환경에서는 제한적인 콘텐츠 보안 정책(CSP)을 사용하여 사용이 금지됩니다.
 
-If you use Alpine in a website dealing with sensitive data and requiring [CSP](https://csp.withgoogle.com/docs/strict-csp.html), you need to include `unsafe-eval` in your policy. A robust policy correctly configured will help protecting your users when using personal or financial data.
+민감한 데이터를 다루고 [CSP](https://csp.withgoogle.com/docs/strict-csp.html)가 필요한 웹 사이트에서 Alpine을 사용하는 경우, 정책에 `unsafe-eval`을 포함해야합니다. 올바르게 구성된 강력한 정책은 개인 또는 금융 데이터를 사용할 때 사용자를 보호하는 데 도움이됩니다.
 
-Since a policy applies to all scripts in your page, it's important that other external libraries included in the website are carefully reviewed to ensure that they are trustworthy and they won't introduce any Cross Site Scripting vulnerability either using the `eval()` function or manipulating the DOM to inject malicious code in your page.
+정책이 페이지의 모든 스크립트에 적용되므로 웹 사이트에 포함 된 다른 외부 라이브러리를 신중하게 검토하여 신뢰할 수 있고 `eval()`함수를 사용하여 교차 사이트 스크립팅 취약점 또는 DOM을 조작하여 페이지에 악성 코드를 삽입을 유발하지 않는지 확인하는 것이 중요합니다.
 
 ## V3 Roadmap
-* Move from `x-ref` to `ref` for Vue parity?
-* Add `Alpine.directive()`
-* Add `Alpine.component('foo', {...})` (With magic `__init()` method)
-* Dispatch Alpine events for "loaded", "transition-start", etc... ([#299](https://github.com/alpinejs/alpine/pull/299)) ?
-* Remove "object" (and array) syntax from `x-bind:class="{ 'foo': true }"` ([#236](https://github.com/alpinejs/alpine/pull/236) to add support for object syntax for the `style` attribute)
-* Improve `x-for` mutation reactivity ([#165](https://github.com/alpinejs/alpine/pull/165))
+* Vue와 동등하게 `x-ref`에서 `ref`로 변경?
+* `Alpine.directive()` 추가
+* `Alpine.component('foo', {...})`(매직 `__init()`메소드 사용) 추가
+* "loaded", "transition-start", 그 외...([#299](https://github.com/alpinejs/alpine/pull/299))에 대한 Alpine이벤트 전달?
+* `x-bind:class="{ 'foo': true }"`에서 "객체"(그리고 배열) 제거([#236](https://github.com/alpinejs/alpine/pull/236) `style` 속성에 대한 객지 구문 지원 추가)
+* `x-for`변이 반응성 개선 ([#165](https://github.com/alpinejs/alpine/pull/165))
 * Add "deep watching" support in V3 ([#294](https://github.com/alpinejs/alpine/pull/294))
-* Add `$el` shortcut
-* Change `@click.away` to `@click.outside`?
+* V3에 "깊은 감시" 지원 추가 ([#294](https://github.com/alpinejs/alpine/pull/294))
+* `$el` 간편한 방법 추가
+* `@click.away`를 `@click.outside`로 변경?
 
-## License
+## 라이센스
 
-Copyright © 2019-2020 Caleb Porzio and contributors
+저작권 © 2019-2020 Caleb Porzio 와 기여자들
 
-Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.
+MIT 라이센스에 따라 허가되며, 더 자세한 내용은 [LICENSE.md](LICENSE.md)를 확인하세요.

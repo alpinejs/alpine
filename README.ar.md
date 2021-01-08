@@ -12,6 +12,10 @@
 
 > ملاحظة: نشير إلى أن بُنية Alpine.js شبية جداً إلى [Vue](https://vuejs.org/) (أو [Angular](https://angularjs.org/)). أنا ممتن لهذه الأُطر بما قدموه في تطوير الويب.
 
+#### ملاحظة:
+
+يمكنك قراءة التوثيق بتنسيق أفضل "RTL" من الرابط التالي ([AlpineJs بالعربية](https://alpinejs.abdelhadi.org/#/)).
+
 ## التوثيق بلغات أخرى
 
 | Language | Link for documentation |

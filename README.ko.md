@@ -94,7 +94,7 @@ import 'alpinejs'
 
 ## 배우기
 
-다음과 같이 총 14개의 지침이 있습니다.
+다음과 같이 총 14개의 지침이 있습니다:
 
 | 지침 | 설명 |
 | --- | --- |
@@ -108,7 +108,6 @@ import 'alpinejs'
 | [`x-html`](#x-html) | 유사한 방식으로 작동 `x-bind`의 `innerHTML` 요소가 업데이트됩니다. |
 | [`x-ref`](#x-ref) | 구성 요소의 DOM 요소를 가져오는 편리한 방법입니다. |
 | [`x-if`](#x-if) | 전달된 조건이 충족되지 않으면 DOM에서 요소를 완전히 제거합니다. `<template>` 태그에 사용되어야 합니다
- |
 | [`x-for`](#x-for) | 배열의 각 항목에 대해 새 DOM 노드를 만듭니다. `<template>`태그에 사용해야합니다. |
 | [`x-transition`](#x-transition) | 요소 전환의 다양한 단계에 클래스를 추가하기 위한 지시. |
 | [`x-spread`](#x-spread) | Alpine 지시문이 있는 개체를 요소에 바인딩하여 재사용성을 높일 수 있습니다. |
@@ -197,7 +196,7 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 `x-init` 구성 요소가 초기화될 때 제공된 식을 실행합니다.
 
-초기 Alpine DOM 업데이트 (예 : VueJS의 `mounted()` 후크 ) 후에 코드를 실행하려면 `x-init` 콜백을 전달할 수 있으며 초기화 후에 실행합니다.
+초기 Alpine DOM 업데이트 (예 : VueJS의 `mounted()` 후크 ) 후에 코드를 실행하려면 `x-init` 콜백을 전달할 수 있으며 초기화 후에 실행합니다:
 
 `x-init="() => { // we have access to the post-dom-initialization state here // }"`
 
@@ -216,25 +215,25 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 ```html
 <div x-show.transition="open">
-    These contents will be transitioned in and out.
+    이곳의 컨텐츠들은 transition in, out이 동작됨.
 </div>
 ```
 
 | 지침 | 설명 |
 | --- | --- |
-| `x-show.transition` | A simultaneous fade and scale. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
-| `x-show.transition.in` | Only transition in. |
-| `x-show.transition.out` | Only transition out. |
-| `x-show.transition.opacity` | Only use the fade. |
-| `x-show.transition.scale` | Only use the scale. |
-| `x-show.transition.scale.75` | Customize the CSS scale transform `transform: scale(.75)`. |
-| `x-show.transition.duration.200ms` | Sets the "in" transition to 200ms. The out will be set to half that (100ms). |
-| `x-show.transition.origin.top.right` | Customize the CSS transform origin `transform-origin: top right`. |
-| `x-show.transition.in.duration.200ms.out.duration.50ms` | Different durations for "in" and "out". |
+| `x-show.transition` | fade 와 scale이 동시에 동작됨. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
+| `x-show.transition.in` | transition in만 동작됨. |
+| `x-show.transition.out` | transition out만 동작됨. |
+| `x-show.transition.opacity` | fade만 사용됨. |
+| `x-show.transition.scale` | scale만 사용됨. |
+| `x-show.transition.scale.75` | CSS scale transform 사용자화 `transform: scale(.75)`. |
+| `x-show.transition.duration.200ms` | transition "in"을 200ms로 설정. out은 그것의 절반(100ms)으로 설정됨. |
+| `x-show.transition.origin.top.right` | CSS transform origin 사용자화 `transform-origin: top right`. |
+| `x-show.transition.in.duration.200ms.out.duration.50ms` | "in" and "out"에 대한 서로 다른 동작시간. |
 
-> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although ridiculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+> 참고: 모든 transition 수정자을 서로 결합하여 사용할 수 있습니다. 이것이 가능합니다(말도 안되지만 lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
 
-> Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifer:
+> 참고: `x-show`는 모든 자식이 전환을 완료할 때 까지 대기합니다. 이 동작을 우회하려면 `.immediate`수정자를 추가하세요:
 ```html
 <div x-show.immediate="open">
     <div x-show.transition="open">
@@ -244,7 +243,7 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 ### `x-bind`
 
-> 참고: 조금 더 간단한 문법을 사용할 수 있습니다. ":" syntax: `:type="..."`.
+> 참고: 조금 더 간단한 구문을 사용할 수 있습니다. ":" syntax: `:type="..."`.
 
 **예제:** `<input x-bind:type="inputType">`
 
@@ -255,8 +254,6 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 > 참고: 속성 바인딩은 종속성이 업데이트될 때만 업데이트됩니다. Framework는 데이터 변경 사항을 관찰하고 어떤 바인딩이 이를 처리하는지 감지할 수 있을 만큼 똑똑합니다.
 
 **클래스 속성일 경우 `x-bind`**
-
-`x-bind` behaves a little differently when binding to the `class` attribute.
 
 `x-bind` 가 `class` 속성에 바인딩 될 때는 조금 다르게 동작합니다.
 
@@ -298,13 +295,13 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 ### `x-on`
 
-> 참고: 조금 더 간단한 문법을 사용할 수 있습니다. "@" syntax: `@click="..."`.
+> 참고: 조금 더 간단한 구문을 사용할 수 있습니다. "@" syntax: `@click="..."`.
 
 **예제:** `<button x-on:click="foo = 'bar'"></button>`
 
 **구조:** `<button x-on:[event]="[expression]"></button>`
 
-`x-on`은(는) element가 선언된 곳에 이벤트 리스너를 등록합니다. 해당 이벤트가 발생하면 값으로 설정된 자바스크립트 표현식이 실행됩니다.
+`x-on`은 선언 된 요소에 이벤트 리스너를 연결합니다. 해당 이벤트가 발생하면 해당 값으로 설정된 JavaScript 표현식이 실행됩니다. 전체 이벤트 목록을 보려면 지시문을 추가하는 요소에 사용할 수있는 모든 이벤트와 함께`x-on`을 사용할 수 있습니다. 사용 가능한 값 항목들은 [the Event reference on MDN](https://developer.mozilla.org/en-US/docs/Web/Events)에서 확인할 수 있습니다.
 
 표현식에서 데이터가 수정되면, 이 데이터와 연관되어 있는 다른 요소의 속성도 업데이트됩니다.
 > 참고: 자바스크립트 함수 이름을 지정할 수도 있습니다.
@@ -317,13 +314,9 @@ Vue 컴포넌트의 `data` 속성과 유사합니다.
 
 **예제:** `<input type="text" x-on:keydown.escape="open = false">`
 
-You can specify specific keys to listen for using keydown modifiers appended to the `x-on:keydown` directive. Note that the modifiers are kebab-cased versions of `Event.key` values.
-
-`x-on:keydown` 디렉티브에 keydown 수정자를 사용하여 수신 할 특정 키를 지정할 수 있습니다.
+`x-on:keydown` 디렉티브에 keydown 수정자를 사용하여 수신 할 특정 키를 지정할 수 있습니다. 수정자는 `Event.key` 값의 케밥 케이스 버전입니다.
 
 예제: `enter`, `escape`, `arrow-up`, `arrow-down`
-
-> Note: You can also listen for system-modifier key combinations like: `x-on:keydown.cmd.enter="foo"`
 
 > 참고: `x-on:keydown.cmd.enter="foo"`와 같이 시스템 수정자 키 조합을 사용하여 수신할 수 있습니다.
 
@@ -392,8 +385,6 @@ You can specify specific keys to listen for using keydown modifiers appended to 
 **예제:** `<input type="text" x-model="foo">`
 
 **구조:** `<input type="text" x-model="[data item]">`
-
-`x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
 
 `x-model`은 요소에 "양방향 데이터 바인딩"을 추가합니다. 즉, 입력 요소의 값은 컴포넌트 데이터 아이템의 값과 동기화되고 유지됩니다.
 
@@ -480,39 +471,39 @@ Alpine은 가상 DOM을 사용하지 않기 때문에 `x-if`를 `<template></tem
 </template>
 ```
 
-> Note: the `:key` binding is optional, but HIGHLY recommended.
+> 참고: `:key` 바인딩은 선택사항이지만, 사용하는 것을 적극추천합니다.
 
-`x-for` is available for cases when you want to create new DOM nodes for each item in an array. This should appear similar to `v-for` in Vue, with one exception of needing to exist on a `template` tag, and not a regular DOM element.
+`x-for`는 배열의 각 항목에 대해 새로운 DOM 노드를 생성하려는 경우 사용할 수 있습니다. 이것은 일반적인 DOM 요소가 아닌 `template` 태그에 있어야 한다는 것을 제외하면 Vue의 `v-for`와 유사하게 나타나야 합니다.
 
-If you want to access the current index of the iteration, use the following syntax:
+반복문의 현재 색인에 접근하고 싶다면, 다음 구문을 사용하세요:
 
 ```html
 <template x-for="(item, index) in items" :key="index">
-    <!-- You can also reference "index" inside the iteration if you need. -->
+    <!-- 원한다면 반복문 내부의 "색인"을 참조할 수도 있습니다. -->
     <div x-text="index"></div>
 </template>
 ```
 
-If you want to access the array object (collection) of the iteration, use the following syntax:
+반복문의 배열객체(컬렉션)에 접근하고 싶다면, 다음 구문을 사용하세요:
 
 ```html
 <template x-for="(item, index, collection) in items" :key="index">
-    <!-- You can also reference "collection" inside the iteration if you need. -->
-    <!-- Current item. -->
+    <!-- 원한다면 반복문 내부의 "컬렉션"을 참조할 수도 있습니다. -->
+    <!-- 현재 항목. -->
     <div x-text="item"></div>
-    <!-- Same as above. -->
+    <!-- 위와 동일. -->
     <div x-text="collection[index]"></div>
-    <!-- Previous item. -->
+    <!-- 이전 항목. -->
     <div x-text="collection[index - 1]"></div>
 </template>
 ```
 
-> Note: `x-for` must have a single element root inside of the `<template></template>` tag.
+> 참고: `x-for`는 `<template></template>`태그 내에 단일 루트 요소만 가져야 합니다.
 
-> Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
+> 참고: `svg`에 `template`를 사용할 땐 Alpine.js 가 초기화 되기 전에 실행되도록 [폴리필](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538)을 추가해야 합니다.
 
-#### Nesting `x-for`s
-You can nest `x-for` loops, but you MUST wrap each loop in an element. For example:
+#### `x-for`s 중첩
+`x-for`루프를 중첩할 수는 있지만, 이 경우 각 루프를 요소로 감싸야합니다. 예제:
 
 ```html
 <template x-for="item in items">
@@ -524,9 +515,9 @@ You can nest `x-for` loops, but you MUST wrap each loop in an element. For examp
 </template>
 ```
 
-#### Iterating over a range
+#### 범위 내의 반복
 
-Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to iterate over a fixed range of elements.
+Alpine은 `i in n` 구문을 지원하고, 여기서 `n`은 정수이며, 고정된 범위의 요소들을 반복할 수 있습니다.
 
 ```html
 <template x-for="i in 10">
@@ -563,20 +554,20 @@ Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to it
 </template>
 ```
 
-> The example above uses classes from [Tailwind CSS](https://tailwindcss.com).
+> 위 예제는 [Tailwind CSS](https://tailwindcss.com)의 클래스를 사용합니다.
 
-Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
+Alpine은 요소의 "숨져진" 상태와 "보여진" 상태 사이의 다양한 단계에 클래스를 적용하기 위해 6가지의 서로 다른 전환 지시자들을 제공합니다. 이 지시자들은 `x-show` 및 `x-if` 모두에서 작동합니다.
 
-These behave exactly like VueJs's transition directives, except they have different, more sensible names:
+이것들은 VueJs의 전환 지시자와 정확히 동일한 동작을 한다. 단, 그들은 조금 다른 더 합리적인 이름을 가지고 있다:
 
 | 지침 | 설명 |
 | --- | --- |
-| `:enter` | Applied during the entire entering phase. |
-| `:enter-start` | Added before element is inserted, removed one frame after element is inserted. |
-| `:enter-end` | Added one frame after element is inserted (at the same time `enter-start` is removed), removed when transition/animation finishes.
-| `:leave` | Applied during the entire leaving phase. |
-| `:leave-start` | Added immediately when a leaving transition is triggered, removed after one frame. |
-| `:leave-end` | Added one frame after a leaving transition is triggered (at the same time `leave-start` is removed), removed when the transition/animation finishes.
+| `:enter` | 전체 진입 단계에서 적용됨. |
+| `:enter-start` | 요소가 삽입되기 전에 추가되고, 요소가 삽입되고 1 프레임 이후에 삭제됨. |
+| `:enter-end` | 요소가 삽입되고 1 프레임 이후에 추가되고(동시에 `enter-start`는 삭제됨) 전환/애니메이션 종료 후 삭제됨.
+| `:leave` | 전체 이탈 단계에서 적용됨. |
+| `:leave-start` | 이탈 전환이 발생될 때 즉시 추가되고, 1 프레임 후 제거됨. |
+| `:leave-end` | 이탈 전환이 발생된 후 1 프레임 후 추가되고(동시에 `leave-start`는 삭제됨) 전환/애니메이션 종료 후 삭제됨.
 
 ---
 
@@ -611,20 +602,20 @@ These behave exactly like VueJs's transition directives, except they have differ
 </script>
 ```
 
-`x-spread` allows you to extract an element's Alpine bindings into a reusable object.
+`x-spread`를 사용하면 요소의 Alpine 바인딩을 재사용 가능한 객체로 추출 할 수 있습니다.
 
-The object keys are the directives (Can be any directive including modifiers), and the values are callbacks to be evaluated by Alpine.
+객체 키들은 지시자들이며(수정사를 포함해 모든 지시자가 될 수 있습니다), 값들은 Alpine에 의해 평가되는 콜백입니다.
 
-> Note: There are a couple of caveats to x-spread:
-> - When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
-> - `x-data` and `x-init` can't be used inside a "spread" object.
+> 참고: x-spread에는 몇 가지 주의사항이 있습니다:
+> - `x-for`가 "spread" 지시자 일 때, 콜백에서 반드시 일반 문자열 표현식을 반환해야 합니다. 예제: `['x-for']() { return 'item in items' }`.
+> - "spread" 객체 내애서 `x-data` 와 `x-init`는 사용할 수 없습니다.
 
 ---
 
 ### `x-cloak`
 **예제:** `<div x-data="{}" x-cloak></div>`
 
-`x-cloak` attributes are removed from elements when Alpine initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
+`x-cloak`속성들은 Alpine 초기화할 때 요소에서 제거됩니다. 이것은 미리 초기화된 DOM을 숨기는데 유용합니다. 이 작업을 수행하려면 다음과 같이 전역 스타일을 추가하는 것이 일반적입니다:
 
 ```html
 <style>
@@ -632,9 +623,9 @@ The object keys are the directives (Can be any directive including modifiers), a
 </style>
 ```
 
-### Magic Properties
+### 마법 속성들
 
-> With the exception of `$el`, magic properties are **not available within `x-data`** as the component isn't initialized yet.
+> `$el`을 제외하고, 컴포넌트가 아직 초기화 되지 않은 상태에서 마법 속성들을 **`x-data`내에서 사용할 수 없습니다.**
 
 ---
 
@@ -646,7 +637,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 </div>
 ```
 
-`$el` is a magic property that can be used to retrieve the root component DOM node.
+`$el`은 루트 컴포넌트 DOM 노드를 검색하는데 사용할 수 있는 마법 속성입니다.
 
 ### `$refs`
 **예제:**
@@ -656,7 +647,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 <button x-on:click="$refs.foo.innerText = 'bar'"></button>
 ```
 
-`$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+`$refs`는 컴포넌트 내에 `x-ref`로 표시된 DOM 요소를 검색하는데 사용할 수 있는 마법 속성입니다. 이것은 DOM 요소를 수동으로 조작해야 할 때 유용합니다.
 
 ---
 
@@ -666,12 +657,11 @@ The object keys are the directives (Can be any directive including modifiers), a
 <input x-on:input="alert($event.target.value)">
 ```
 
-`$event` is a magic property that can be used within an event listener to retrieve the native browser "Event" object.
+`$event`는 이벤트 리스너 내에서 기본 브라우저 "이벤트" 객체를 검색하는데 사용할 수 있는 마법 속성입니다.
 
-> Note: The $event property is only available in DOM expressions.
+> 참고: $event 속성은 DOM 표현식에서만 사용할 수 있습니다.
 
-If you need to access $event inside of a JavaScript function you can pass it in directly:
-
+자바스크립트 함수 내에서 $event에 접근해야 하는 싶은 경우 직접 전달할 수 있습니다:
 `<button x-on:click="myFunction($event)"></button>`
 
 ---
@@ -681,13 +671,13 @@ If you need to access $event inside of a JavaScript function you can pass it in 
 ```html
 <div @custom-event="console.log($event.detail.foo)">
     <button @click="$dispatch('custom-event', { foo: 'bar' })">
-    <!-- When clicked, will console.log "bar" -->
+    <!-- 클릭하면, "bar" 콘솔로그가 출력됨 -->
 </div>
 ```
 
-**Note on Event Propagation**
+**이벤트 전파에 대한 참고 사항**
 
-Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bubbling), when you need to capture events dispatched from nodes that are under the same nesting hierarchy, you'll need to use the [`.window`](https://github.com/alpinejs/alpine#x-on) modifier:
+[이벤트 버블링](https://en.wikipedia.org/wiki/Event_bubbling)으로 인해 동일한 중첩 계층에 있는 노드에서 전달된 이벤트를 캡처해야 하는 경우 [`.window`](https://github.com/alpinejs/alpine#x-on)수정자를 사용해야 합니다:
 
 **예제:**
 
@@ -698,11 +688,11 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 <div>
 ```
 
-> This won't work because when `custom-event` is dispatched, it'll propagate to its common ancestor, the `div`.
+> 이것은 `custom-event`가 전달될 때, 공통 조상인 `div`로 전파되기 때문에 작동하지 않습니다.
 
-**Dispatching to Components**
+**컴포넌트로 전달**
 
-You can also take advantage of the previous technique to make your components talk to each other:
+또한 이전 기술을 활용하여 컴포넌트가 서로 통신하도록 할 수도 있습니다:
 
 **예제:**
 
@@ -710,27 +700,27 @@ You can also take advantage of the previous technique to make your components ta
 <div x-data @custom-event.window="console.log($event.detail)"></div>
 
 <button x-data @click="$dispatch('custom-event', 'Hello World!')">
-<!-- When clicked, will console.log "Hello World!". -->
+<!-- 클릭하면 "Hello World!" 콘솔로그가 출력됨. -->
 ```
 
-`$dispatch` is a shortcut for creating a `CustomEvent` and dispatching it using `.dispatchEvent()` internally. There are lots of good use cases for passing data around and between components using custom events. [Read here](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events) for more information on the underlying `CustomEvent` system in browsers.
+`$dispatch`는 `CustomEvent`를 생성하고, 내부적으로 `.dispatchEvent()`를 사용하여 그것을 전달하는 간단한 방법입니다. 사용자 지정 이벤트를 이용하여 컴포넌트간에 데이터 전달하는 유용한 사용사례가 많이 있습니다. 브라우저의 `CustomEvent`시스템에 대한 자세한 내용은 [이곳을 읽어보세요](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events).
 
-You will notice that any data passed as the second parameter to `$dispatch('some-event', { some: 'data' })`, becomes available through the new events "detail" property: `$event.detail.some`. Attaching custom event data to the `.detail` property is standard practice for `CustomEvent`s in browsers. [Read here](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) for more info.
+`$dispatch('some-event', { some: 'data' })`에 두 번째 파라메터로 전달되는 데이터는 새로운 이벤트의 "detail"속성: `$event.detail.some`을 이용해 사용할 수 있습니다. 브라우저에서 `.detail`속성에 사용자화 이벤트 데이터를 연결하는 것은 `CustomEvent`에 대한 표준 관행입니다. 더 자세한 내용은 [이곳을 읽어보세요](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail).
 
-You can also use `$dispatch()` to trigger data updates for `x-model` bindings. For example:
+`x-model`로 바인딩된 데이터의 업데이트가 발생하도록 `$dispatch()`를 사용할 수도 있습니다. 예제:
 
 ```html
 <div x-data="{ foo: 'bar' }">
     <span x-model="foo">
         <button @click="$dispatch('input', 'baz')">
-        <!-- After the button is clicked, `x-model` will catch the bubbling "input" event, and update foo to "baz". -->
+        <!-- 버튼 클릭 이후, `x-model`은 버블링된 "input" 이벤트를 포착하고, foo를 "baz"로 업데이트 함. -->
     </span>
 </div>
 ```
 
-> Note: The $dispatch property is only available in DOM expressions.
+> 참고: $dispatch 속성은  DOM 표현식에서만 사용 가능합니다.
 
-If you need to access $dispatch inside of a JavaScript function you can pass it in directly:
+자바스크립트 함수에서 $dispatch에 접근하고 싶은 경우 직접 전달할 수 있습니다:
 
 `<button x-on:click="myFunction($dispatch)"></button>`
 
@@ -750,7 +740,7 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 </div>
 ```
 
-`$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made its reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+`$nextTick`은 Alpine이 반응형 DOM 업데이트를 수행한 이후에만 주어진 표현식이 실행되도록 하는 마법 속성입니다. 이것은 당신이 만든 데이터 업데이트가 반영된 DOM과 상호작용하고자 할 때 유용합니다.
 
 ---
 
@@ -762,30 +752,32 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 </div>
 ```
 
-You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
+`$watch`마법 메소드를 통해 컴포넌트 속성을 "감시"할 수있습니다. 위 예제에서, 버튼이 클릭되면 `open`이 변경되고, 제공된 콜백이 실행되며 `console.log`에 새로운 값이 출력됩니다.
 
 ## Security
-If you find a security vulnerability, please send an email to [calebporzio@gmail.com]().
+보안 취약점을 발견하면, [calebporzio@gmail.com]()으로 메일을 보내주세요.
 
-Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP).
+Alpine은 지시자을 평가하기 위해 `Function` 객체를 사용하는 사용자 정의 구현에 의존합니다.
+`eval ()`보다 더 안전하지만 Google Chrome 앱과 같은 일부 환경에서는 제한적인 콘텐츠 보안 정책(CSP)을 사용하여 사용이 금지됩니다.
 
-If you use Alpine in a website dealing with sensitive data and requiring [CSP](https://csp.withgoogle.com/docs/strict-csp.html), you need to include `unsafe-eval` in your policy. A robust policy correctly configured will help protecting your users when using personal or financial data.
+민감한 데이터를 다루고 [CSP](https://csp.withgoogle.com/docs/strict-csp.html)가 필요한 웹 사이트에서 Alpine을 사용하는 경우, 정책에 `unsafe-eval`을 포함해야합니다. 올바르게 구성된 강력한 정책은 개인 또는 금융 데이터를 사용할 때 사용자를 보호하는 데 도움이됩니다.
 
-Since a policy applies to all scripts in your page, it's important that other external libraries included in the website are carefully reviewed to ensure that they are trustworthy and they won't introduce any Cross Site Scripting vulnerability either using the `eval()` function or manipulating the DOM to inject malicious code in your page.
+정책이 페이지의 모든 스크립트에 적용되므로 웹 사이트에 포함 된 다른 외부 라이브러리를 신중하게 검토하여 신뢰할 수 있고 `eval()`함수를 사용하여 교차 사이트 스크립팅 취약점 또는 DOM을 조작하여 페이지에 악성 코드를 삽입을 유발하지 않는지 확인하는 것이 중요합니다.
 
 ## V3 Roadmap
-* Move from `x-ref` to `ref` for Vue parity?
-* Add `Alpine.directive()`
-* Add `Alpine.component('foo', {...})` (With magic `__init()` method)
-* Dispatch Alpine events for "loaded", "transition-start", etc... ([#299](https://github.com/alpinejs/alpine/pull/299)) ?
-* Remove "object" (and array) syntax from `x-bind:class="{ 'foo': true }"` ([#236](https://github.com/alpinejs/alpine/pull/236) to add support for object syntax for the `style` attribute)
-* Improve `x-for` mutation reactivity ([#165](https://github.com/alpinejs/alpine/pull/165))
+* Vue와 동등하게 `x-ref`에서 `ref`로 변경?
+* `Alpine.directive()` 추가
+* `Alpine.component('foo', {...})`(매직 `__init()`메소드 사용) 추가
+* "loaded", "transition-start", 그 외...([#299](https://github.com/alpinejs/alpine/pull/299))에 대한 Alpine이벤트 전달?
+* `x-bind:class="{ 'foo': true }"`에서 "객체"(그리고 배열) 제거([#236](https://github.com/alpinejs/alpine/pull/236) `style` 속성에 대한 객지 구문 지원 추가)
+* `x-for`변이 반응성 개선 ([#165](https://github.com/alpinejs/alpine/pull/165))
 * Add "deep watching" support in V3 ([#294](https://github.com/alpinejs/alpine/pull/294))
-* Add `$el` shortcut
-* Change `@click.away` to `@click.outside`?
+* V3에 "깊은 감시" 지원 추가 ([#294](https://github.com/alpinejs/alpine/pull/294))
+* `$el` 간편한 방법 추가
+* `@click.away`를 `@click.outside`로 변경?
 
-## License
+## 라이센스
 
-Copyright © 2019-2020 Caleb Porzio and contributors
+저작권 © 2019-2020 Caleb Porzio 와 기여자들
 
-Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.
+MIT 라이센스에 따라 허가되며, 더 자세한 내용은 [LICENSE.md](LICENSE.md)를 확인하세요.

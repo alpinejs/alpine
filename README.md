@@ -16,6 +16,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 
 | Language | Link for documentation |
 | --- | --- |
+| Arabic | [**التوثيق باللغة العربية**](./README.ar.md) |
 | Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) |
 | German | [**Dokumentation in Deutsch**](./README.de.md) |
 | Indonesian | [**Dokumentasi Bahasa Indonesia**](./README.id.md) |
@@ -621,7 +622,6 @@ The object keys are the directives (Can be any directive including modifiers), a
 > Note: There are a couple of caveats to x-spread:
 > - When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
 > - `x-data` and `x-init` can't be used inside a "spread" object.
-> - When using `x-ref`, you should bind it like any other attribute. For example: `['x-bind:x-ref']() { return 'foo' }`
 
 ---
 
@@ -773,7 +773,7 @@ If you find a security vulnerability, please send an email to [calebporzio@gmail
 
 Alpine relies on a custom implementation using the `Function` object to evaluate its directives. Despite being more secure then `eval()`, its use is prohibited in some environments, such as Google Chrome App, using restrictive Content Security Policy (CSP).
 
-If you use Alpine in a website dealing with sensitive data and requiring [CSP](https://csp.withgoogle.com/docs/strict-csp.html), you need to include `unsafe-eval` in your policy. A robust policy correctly configured will help protect your users when using personal or financial data.
+If you use Alpine in a website dealing with sensitive data and requiring [CSP](https://csp.withgoogle.com/docs/strict-csp.html), you need to include `unsafe-eval` in your policy. A robust policy correctly configured will help protecting your users when using personal or financial data.
 
 Since a policy applies to all scripts in your page, it's important that other external libraries included in the website are carefully reviewed to ensure that they are trustworthy and they won't introduce any Cross Site Scripting vulnerability either using the `eval()` function or manipulating the DOM to inject malicious code in your page.
 

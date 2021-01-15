@@ -1,3 +1,5 @@
+<div dir="rtl">
+
 # Alpine.js
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
@@ -807,3 +809,5 @@ import 'alpinejs'
 حقوق النشر محفوظة  © 2019-2020 لـ Caleb Porzio والمساهمين.
 
 مرخص بموجب ترخيص MIT، راجع [LICENSE.md](LICENSE.md) للحصول على التفاصيل.
+
+</div>

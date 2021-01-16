@@ -128,7 +128,7 @@ export function saferEvalNoReturn(el, expression, dataContext, additionalHelperV
     }, { el, expression })
 }
 
-const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread)\b/
+const xAttrRE = /^x-(on|bind|data|text|html|model|if|for|show|cloak|transition|ref|spread|init)\b/
 
 export function isXAttr(attr) {
     const name = replaceAtAndColonWithStandardSyntax(attr.name)

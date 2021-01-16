@@ -103,3 +103,20 @@ test('x-init is capable of dispatching an event', async () => {
         expect(document.querySelector('span').textContent).toEqual('baz')
     })
 })
+
+test('x-init is called on component children', async () => {
+    window.parentValue = null
+    window.childValue = null
+    window.initIndex = 0
+    
+    document.body.innerHTML = `
+        <div x-data="{ foo: 'bar' }" x-init="window.parentValue = window.initIndex++">
+            <div x-init="window.childValue = window.initIndex++"></div>
+        </div>
+    `
+    
+    Alpine.start()
+    
+    expect(window.parentValue).toEqual(0)
+    expect(window.childValue).toEqual(1)
+})

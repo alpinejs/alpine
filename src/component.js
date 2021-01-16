@@ -343,6 +343,13 @@ export default class Component {
                 case 'cloak':
                     el.removeAttribute('x-cloak')
                     break;
+                    
+                case 'init':
+                    // x-init on the root element needs to be handled differently, so skip
+                    // them, and only call init on component children during the initial render. 
+                    if (!initialUpdate || el.hasAttribute('x-data')) return;
+                    this.evaluateReturnExpression(el, expression, extraVars);
+                    break;
 
                 default:
                     break;

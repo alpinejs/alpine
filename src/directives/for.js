@@ -98,7 +98,7 @@ function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, e
     if (isNumeric(items)) {
         if(items > 0) {
             items = Array.from(Array(items).keys(), i => i + 1)
-        } else {
+        } else if(items === 0) {
             items = []
         }
     }

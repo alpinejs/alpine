@@ -96,11 +96,8 @@ function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, e
 
     // This adds support for the `i in n` syntax.
     if (isNumeric(items)) {
-        if(items > 0) {
-            items = Array.from(Array(items).keys(), i => i + 1)
-        } else if(items === 0) {
-            items = []
-        }
+        items = items > 0 ? Array.from(Array(items).keys(), i => i = 1) : []
+    }
     }
 
     return items

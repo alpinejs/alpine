@@ -572,8 +572,4 @@ test('x-for over range using i in x syntax with i <= 0', async () => {
     document.querySelector('button').click()
 
     await wait(() => { expect(document.querySelectorAll('span').length).toEqual(0) })
-
-    document.querySelector('button').click()
-
-    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(0) })
 })

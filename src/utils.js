@@ -69,6 +69,7 @@ const handleError = (el, expression, error) => {
     console.warn(`Alpine Error: "${error}"\n\nExpression: "${expression}"\nElement:`, el);
 
     if (! isTesting()) {
+        Object.assign(error, { el, expression })
         throw error;
     }
 }

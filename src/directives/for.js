@@ -98,7 +98,6 @@ function evaluateItemsAndReturnEmptyIfXIfIsPresentAndFalseOnElement(component, e
     if (isNumeric(items)) {
         items = items > 0 ? Array.from(Array(items).keys(), i => i = 1) : []
     }
-    }
 
     return items
 }

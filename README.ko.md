@@ -23,9 +23,9 @@ JavaScript용 [Tailwind](https://tailwindcss.com/)라고 생각하시면 됩니�
 그것으로 끝입니다. 자체적으로 초기화됩니다.
 
 프로덕션 환경의 경우 최신 버전의 예상치 못한 문제를 방지하기 위해 링크에 특정 버전 번호를 설정하는 것이 좋습니다.
-예를 들어 `2.7.0` 버전 사용:
+예를 들어 `2.8.0` 버전 사용:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
 ```
 
 **NPM 사용:** NPM에서 패키지를 설치합니다.

@@ -28,7 +28,7 @@ export function warnIfMalformedTemplate(el, directive) {
     if (el.tagName.toLowerCase() !== 'template') {
         console.warn(`Alpine: [${directive}] directive should only be added to <template> tags. See https://github.com/alpinejs/alpine#${directive}`)
     } else if (el.content.childElementCount !== 1) {
-        console.warn(`Alpine: <template> tag with [${directive}] encountered with multiple element roots. Make sure <template> only has a single child element.`)
+        console.warn(`Alpine: <template> tag with [${directive}] encountered with an unexpected number of root elements. Make sure <template> has a single root element. `)
     }
 }
 
@@ -69,6 +69,7 @@ const handleError = (el, expression, error) => {
     console.warn(`Alpine Error: "${error}"\n\nExpression: "${expression}"\nElement:`, el);
 
     if (! isTesting()) {
+        Object.assign(error, { el, expression })
         throw error;
     }
 }

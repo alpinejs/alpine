@@ -248,7 +248,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 > Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although ridiculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
 
-> Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifer:
+> Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifier:
 ```html
 <div x-show.immediate="open">
     <div x-show.transition="open">

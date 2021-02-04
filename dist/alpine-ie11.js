@@ -6929,8 +6929,12 @@
       event = camelCase(event);
     }
 
+    var _handler2, listenerTarget;
+
     if (modifiers.includes('away')) {
-      var _handler = function handler(e) {
+      listenerTarget = document;
+
+      _handler2 = function handler(e) {
         _newArrowCheck(this, _this);
 
         // Don't do anything if the click came from the element or within it.
@@ -6942,16 +6946,13 @@
         runListenerHandler(component, expression, e, extraVars);
 
         if (modifiers.includes('once')) {
-          document.removeEventListener(event, _handler, options);
+          document.removeEventListener(event, _handler2, options);
         }
-      }.bind(this); // Listen for this event at the root level.
-
-
-      document.addEventListener(event, _handler, options);
+      }.bind(this);
     } else {
-      var listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el;
+      listenerTarget = modifiers.includes('window') ? window : modifiers.includes('document') ? document : el;
 
-      var _handler2 = function handler(e) {
+      _handler2 = function _handler(e) {
         var _this2 = this;
 
         _newArrowCheck(this, _this);
@@ -6991,15 +6992,15 @@
           }.bind(this));
         }
       }.bind(this);
-
-      if (modifiers.includes('debounce')) {
-        var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
-        var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
-        _handler2 = debounce(_handler2, wait);
-      }
-
-      listenerTarget.addEventListener(event, _handler2, options);
     }
+
+    if (modifiers.includes('debounce')) {
+      var nextModifier = modifiers[modifiers.indexOf('debounce') + 1] || 'invalid-wait';
+      var wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250;
+      _handler2 = debounce(_handler2, wait);
+    }
+
+    listenerTarget.addEventListener(event, _handler2, options);
   }
 
   function runListenerHandler(component, expression, e, extraVars) {

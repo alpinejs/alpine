@@ -34,30 +34,52 @@ function generateModelAssignmentFunction(el, modifiers, expression) {
         } else if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {
-                const newValue = modifiers.includes('number') ? safeParseNumber(event.target.value) : event.target.value
+                const newValue = parseModifiers(modifiers,event.target.value)
                 return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(el => !checkedAttrLooseCompare(el, newValue))
             } else {
                 return event.target.checked
             }
         } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
-            return modifiers.includes('number')
-                ? Array.from(event.target.selectedOptions).map(option => {
-                    const rawValue = option.value || option.text
-                    return safeParseNumber(rawValue)
-                })
-                : Array.from(event.target.selectedOptions).map(option => {
-                    return option.value || option.text
-                })
+            return parseModifiers(modifiers,Array.from(event.target.selectedOptions))
         } else {
-            const rawValue = event.target.value
-            return modifiers.includes('number')
-                ? safeParseNumber(rawValue)
-                : (modifiers.includes('trim') ? rawValue.trim() : rawValue)
+            return parseModifiers(modifiers,event.target.value)
         }
     }
 }
 
-function safeParseNumber(rawValue) {
-    const number = rawValue ? parseFloat(rawValue) : null
-    return isNumeric(number) ? number : rawValue
+// suggest: A global API for model modifiers (class)
+const ModelModifiersAPI = {
+    number(value) {
+        const number = value ? parseFloat(value) : null;
+        return isNumeric(number) ? number : value;
+    },
+    trim(value) {
+        return value ? value.trim() : value;
+    },
+    reverse(value) {
+        return value ? value.split('').reverse().join('') : value;
+    },
+    addModifier(modifierName, callback) {
+        // add custom modifier to API
+    },
+};
+
+function parseModifiers(modifiers, value) {
+    if (Array.isArray(value)) {
+        return Array.from(value).map((option) => {
+            let rawValue = option.value || option.text;
+            modifiers.map((modifier) => {
+                if (ModelModifiersAPI.hasOwnProperty(modifier)) { // we may skip this condition in API class using magic methods
+                    rawValue = ModelModifiersAPI[modifier](rawValue);
+                }
+            });
+            return rawValue;
+        });
+    }
+    modifiers.map((modifier) => {
+        if (ModelModifiersAPI.hasOwnProperty(modifier)) {
+            value = ModelModifiersAPI[modifier](value);
+        }
+    });
+    return value;
 }

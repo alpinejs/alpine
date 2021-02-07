@@ -126,6 +126,34 @@ test('x-model updates value when updated via changed event when lazy modifier is
     await wait(() => { expect(document.querySelector('input').value).toEqual('baz') })
 })
 
+test('x-model reverse value if reverse modifier is present', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: null }">
+            <input type="text" x-model.reverse="foo"></input>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.input(document.querySelector('input'), { target: { value: 'bar' } })
+
+    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.foo).toEqual('rab') })
+})
+
+test('x-model trim and reverse value if trim and reverse modifiers are present', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: null }">
+            <input type="text" x-model.reverse.trim="foo"></input>
+        </div>
+    `
+
+    Alpine.start()
+
+    fireEvent.input(document.querySelector('input'), { target: { value: '  bar  ' } })
+
+    await wait(() => { expect(document.querySelector('[x-data]').__x.$data.foo).toEqual('rab') })
+})
+
 test('x-model binds checkbox value', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: true }">

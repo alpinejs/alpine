@@ -502,13 +502,15 @@ If you want to access the array object (collection) of the iteration, use the fo
 
 ```html
 <template x-for="(item, index, collection) in items" :key="index">
-    <!-- You can also reference "collection" inside the iteration if you need. -->
-    <!-- Current item. -->
-    <div x-text="item"></div>
-    <!-- Same as above. -->
-    <div x-text="collection[index]"></div>
-    <!-- Previous item. -->
-    <div x-text="collection[index - 1]"></div>
+    <div>
+        <!-- You can also reference "collection" inside the iteration if you need. -->
+        <!-- Current item. -->
+        <div x-text="item"></div>
+        <!-- Same as above. -->
+        <div x-text="collection[index]"></div>
+        <!-- Previous item. -->
+        <div x-text="collection[index - 1]"></div>
+    </div>
 </template>
 ```
 

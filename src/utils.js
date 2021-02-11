@@ -181,18 +181,17 @@ export function parseHtmlAttribute({ name, value }) {
     }
 }
 
-export function isBooleanAttr(attrName) {
-    // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
-    // Array roughly ordered by estimated usage
-    const booleanAttributes = [
-        'disabled','checked','required','readonly','hidden','open', 'selected',
-        'autofocus', 'itemscope', 'multiple', 'novalidate','allowfullscreen',
-        'allowpaymentrequest', 'formnovalidate', 'autoplay', 'controls', 'loop',
-        'muted', 'playsinline', 'default', 'ismap', 'reversed', 'async', 'defer',
-        'nomodule'
-    ]
+// As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
+const BOOLEAN_ATTRIBUTES = new Set([
+    'disabled', 'checked', 'required', 'readonly', 'hidden', 'open', 'selected',
+    'autofocus', 'itemscope', 'multiple', 'novalidate', 'allowfullscreen',
+    'allowpaymentrequest', 'formnovalidate', 'autoplay', 'controls', 'loop',
+    'muted', 'playsinline', 'default', 'ismap', 'reversed', 'async', 'defer',
+    'nomodule'
+])
 
-    return booleanAttributes.includes(attrName)
+export function isBooleanAttr(attrName) {
+  return BOOLEAN_ATTRIBUTES.has(attrName)
 }
 
 export function replaceAtAndColonWithStandardSyntax(name) {

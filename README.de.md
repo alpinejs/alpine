@@ -161,7 +161,7 @@ Und 6 magische Eigenschaften (englisch *magic properties*):
 
 **Struktur:** `<div x-data="[JSON data object]">...</div>`
 
-`x-data` deklariert einen neuene Komponenten-Geltungsbereich. Jede neu erstellte Komponente wird nun mit der angegebenen Datenquelle initialisiert.
+`x-data` deklariert einen neuen Komponenten-Geltungsbereich. Jede neu erstellte Komponente wird nun mit der angegebenen Datenquelle initialisiert.
 
 Dies verhält sich ähnlich wie die `data`-Eigenschaft einer Vue-Komponente.
 

@@ -635,7 +635,9 @@ The object keys are the directives (Can be any directive including modifiers), a
 
 ```html
 <style>
-    [x-cloak] { display: none; }
+    [x-cloak] {
+        display: none !important;
+    }
 </style>
 ```
 

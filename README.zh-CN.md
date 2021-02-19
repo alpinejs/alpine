@@ -37,7 +37,7 @@ npm i alpinejs
 import 'alpinejs'
 ```
 
-**需要 IE11 支持的场景** 需要改用这段脚本。
+**需要 IE11 支持的场景** 改用这段脚本。
 ```html
 <script type="module" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
 <script nomodule src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>

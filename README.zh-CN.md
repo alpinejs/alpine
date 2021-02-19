@@ -102,7 +102,7 @@ import 'alpinejs'
 | [`x-show`](#x-show) | 根据表达式结果（true 或 false）控制元素的 `display: none;`（译者注：控制模块显示/隐藏） |
 | [`x-bind`](#x-bind) | 将当前属性的值设定为指令中表达式的结果。 |
 | [`x-on`](#x-on) | 向元素上挂载事件监听器。当事件触发时执行其中的表达式。 |
-| [`x-model`](#x-model) | 向当前元素新增 “双向数据绑定”。保持输入元素与组件数据同步。 |
+| [`x-model`](#x-model) | 向当前元素新增「双向数据绑定」。保持输入元素与组件数据同步。 |
 | [`x-text`](#x-text) | 和 `x-bind` 类似，但更新的是元素的 `innerText`。 |
 | [`x-html`](#x-html) | 和 `x-bind` 类似，但更新的是元素的 `innerHTML`。 |
 | [`x-ref`](#x-ref) | 在组件外获取原始 DOM 元素的简便方法。 |
@@ -118,10 +118,10 @@ import 'alpinejs'
 | --- | --- |
 | [`$el`](#el) | 获取根元素的 DOM 节点。 |
 | [`$refs`](#refs) | 获取组件中标记有 `x-ref` 的 DOM 元素。 |
-| [`$event`](#event) | 在事件监听器中获取浏览器原生的 “Event” 对象。 |
-| [`$dispatch`](#dispatch) | 创建一个 “CustomEvent” 并使用其内部的 `.dispatchEvent()` 方法进行分发。 |
+| [`$event`](#event) | 在事件监听器中获取浏览器原生的「Event」对象。 |
+| [`$dispatch`](#dispatch) | 创建一个「CustomEvent」并使用其内部的 `.dispatchEvent()` 方法进行分发。 |
 | [`$nextTick`](#nexttick) | 在 Alpine 做出响应式 DOM 更新后，执行一个给出的表达式。 |
-| [`$watch`](#watch) | 当监听的组件属性发送变化时，触发给定的回调函数。 |
+| [`$watch`](#watch) | 当监听的组件属性发生变化时，触发给定的回调函数。 |
 
 
 ## 赞助商 Sponsors
@@ -362,9 +362,9 @@ import 'alpinejs'
 **`.debounce` 修饰符**
 **例如:** `<input x-on:input.debounce="fetchSomething()">`
 
-`debounce` 修饰符允许你对事件处理器进行 “防抖”。换句话说，事件处理器将会在上次触发完成后等待一段时间才会再次触发。当处理器准备好后再处理上一个调用。
+`debounce` 修饰符允许你对事件处理器进行「防抖」。换句话说，事件处理器将会在上次触发完成后等待一段时间才会再次触发。当处理器准备好后再处理上一个调用。
 
-默认的防抖 “等待” 时间是 250 毫秒。
+默认的防抖「等待」时间是 250 毫秒。
 
 如果你打算自定义它，可以这样指定：
 
@@ -385,7 +385,7 @@ import 'alpinejs'
 
 **结构:** `<input type="text" x-model="[data item]">`
 
-`x-model` 新增 “双向数据绑定” 到一个元素上。换句话说，输入元素的 value 值将于组件中数据项的值维持同步。
+`x-model` 新增「双向数据绑定」到一个元素上。换句话说，输入元素的 value 值将于组件中数据项的值维持同步。
 
 > 备注：`x-model` 可以智能地检测文字输入框(input)、多选框(checkbox)、单选框(radio button)、文本输入区(textarea)、下拉选择(select)、下拉多选(multi selects)。他的行为及使用场景和 [Vue](https://vuejs.org/v2/guide/forms.html) 别无二致。
 
@@ -397,11 +397,11 @@ import 'alpinejs'
 **`.debounce` 修饰符**
 **例如:** `<input x-model.debounce="search">`
 
-The `debounce` modifier allows you to add a "debounce" to a value update. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
+`debounce` 修饰符允许你对值的更新进行「防抖」。换句话说，事件处理器将会在上次触发完成后等待一段时间才会再次触发。当处理器准备好后再处理上一个调用。
 
-The default debounce "wait" time is 250 milliseconds.
+默认的防抖「等待」时间是 250 毫秒。
 
-If you wish to customize this, you can specifiy a custom wait time like so:
+如果你打算自定义它，可以这样指定：
 
 ```
 <input x-model.debounce.750="search">
@@ -413,50 +413,50 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 ### `x-text`
 **例如:** `<span x-text="foo"></span>`
 
-**结构:** `<span x-text="[expression]"`
+**结构:** `<span x-text="[表达式]"`
 
-`x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.
+`x-text` 与 `x-bind` 十分相似，只不过当属性中的值更新时，他会更新元素的 `innerText`。
 
 ---
 
 ### `x-html`
 **例如:** `<span x-html="foo"></span>`
 
-**结构:** `<span x-html="[expression]"`
+**结构:** `<span x-html="[表达式]"`
 
-`x-html` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerHTML` of an element.
+`x-html` 与 `x-bind` 十分相似，只不过当属性中的值更新时，他会更新元素的 `innerHTML`。
 
-> :warning: **Only use on trusted content and never on user-provided content.** :warning:
+> :warning: **只能用在可信内容上，绝不要直接展示用户的内容** :warning:
 >
-> Dynamically rendering HTML from third parties can easily lead to [XSS](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting) vulnerabilities.
+> 动态渲染第三方来源的 HTML 会非常容易造成 [XSS 漏洞（英文）](https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting)。
 
 ---
 
 ### `x-ref`
-**Example:** `<div x-ref="foo"></div><button x-on:click="$refs.foo.innerText = 'bar'"></button>`
+**例如:** `<div x-ref="foo"></div><button x-on:click="$refs.foo.innerText = 'bar'"></button>`
 
-**Structure:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
+**结构:** `<div x-ref="[ref 名称]"></div><button x-on:click="$refs.[ref 名称].innerText = 'bar'"></button>`
 
-`x-ref` provides a convenient way to retrieve raw DOM elements out of your component. By setting an `x-ref` attribute on an element, you are making it available to all event handlers inside an object called `$refs`.
+`x-ref` 提供了一种在组件外获取原始 DOM 元素的简便方法。通过设置元素上的 `x-ref` 属性，你可在任何事件处理中通过内置对象（魔法属性） `$refs` 和标记的 refName 拿到 DOM。
 
-This is a helpful alternative to setting ids and using `document.querySelector` all over the place.
+它可以帮助你在任何地方替代设置id再通过 `document.querySelector` 取值的做法。
 
-> Note: you can also bind dynamic values for x-ref: `<span :x-ref="item.id"></span>` if you need to.
+> 备注：如果你需要，也可以绑个动态值到 x-ref `<span :x-ref="item.id"></span>`。
 
 ---
 
 ### `x-if`
 **例如:** `<template x-if="true"><div>Some Element</div></template>`
 
-**结构:** `<template x-if="[expression]"><div>Some Element</div></template>`
+**结构:** `<template x-if="[表达式]"><div>Some Element</div></template>`
 
-For cases where `x-show` isn't sufficient (`x-show` sets an element to `display: none` if it's false), `x-if` can be used to  actually remove an element completely from the DOM.
+有的时候，`x-show` 可能会不太好用（它会在值为 false 时为元素增加 `display: none` 样式），`x-if` 可以真实的完整的把元素从 DOM 中删除。
 
-It's important that `x-if` is used on a `<template></template>` tag because Alpine doesn't use a virtual DOM. This implementation allows Alpine to stay rugged and use the real DOM to work its magic.
+但要注意，`x-if` 只能在 `<template></template>` 标签中使用，因为 Alpine 没有使用虚拟 DOM。这一实现允许 Alpine 保持简洁，直接使用真实的 DOM 来完成动态部分（magic）。
 
-> Note: `x-if` must have a single root element inside the `<template></template>` tag.
+> 备注：`x-if` 要求在 `<template></template>` 标签中有单一的根元素。
 
-> Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
+> 备注：当在 `svg` 标签中使用 `template` 的时候，你需要增加 [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) 在初始化 Alpine 之前运行它。
 
 ---
 
@@ -468,41 +468,41 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 </template>
 ```
 
-> Note: the `:key` binding is optional, but HIGHLY recommended.
+> 备注：`:key` 绑定时可选的，但是强烈推荐，使用它在列表渲染中是必要的。
 
-`x-for` is available for cases when you want to create new DOM nodes for each item in an array. This should appear similar to `v-for` in Vue, with one exception of needing to exist on a `template` tag, and not a regular DOM element.
+`x-for` 可以用于为数组中的每一项创建一个新的 DOM 节点。这一特性与 Vue 中的 `v-for` 非常类似，他也需要在 `template` 标签上使用，不能是普通的 DOM 元素。
 
-If you want to access the current index of the iteration, use the following syntax:
+如果需要使用当前迭代中的索引，可以这样写：
 
 ```html
 <template x-for="(item, index) in items" :key="index">
-    <!-- You can also reference "index" inside the iteration if you need. -->
+    <!-- 你可以在需要时直接使用索引值 index。 -->
     <div x-text="index"></div>
 </template>
 ```
 
-If you want to access the array object (collection) of the iteration, use the following syntax:
+若果你需要在迭代中访问原始数组对象，可以这样写：
 
 ```html
 <template x-for="(item, index, collection) in items" :key="index">
     <div>
-        <!-- You can also reference "collection" inside the iteration if you need. -->
-        <!-- Current item. -->
+        <!-- 你可以在需要时直接使用数组原始值 collection。 -->
+        <!-- 当前项 -->
         <div x-text="item"></div>
-        <!-- Same as above. -->
+        <!-- 和上一行效果一致 -->
         <div x-text="collection[index]"></div>
-        <!-- Previous item. -->
+        <!-- 上一项 -->
         <div x-text="collection[index - 1]"></div>
     </div>
 </template>
 ```
 
-> Note: `x-for` must have a single root element inside of the `<template></template>` tag.
+> 备注：`x-for` 要求在 `<template></template>` 标签中有单一的根元素。
 
-> Note: When using `template` in a `svg` tag, you need to add a [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) that should be run before Alpine.js is initialized.
+> 备注：当在 `svg` 标签中使用 `template` 的时候，你需要增加 [polyfill](https://github.com/alpinejs/alpine/issues/637#issuecomment-654856538) 在初始化 Alpine 之前运行它。
 
-#### Nesting `x-for`s
-You can nest `x-for` loops, but you MUST wrap each loop in an element. For example:
+#### 嵌套 `x-for`
+可以嵌套使用 `x-for` 循环，但是你必须为每个循环外面都包裹一个元素，如下：
 
 ```html
 <template x-for="item in items">
@@ -514,9 +514,9 @@ You can nest `x-for` loops, but you MUST wrap each loop in an element. For examp
 </template>
 ```
 
-#### Iterating over a range
+#### 范围内迭代
 
-Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to iterate over a fixed range of elements.
+Alpine 支持 `i in n` 语法，当 n 是整数时，就可以完成在一个固定范围内迭代的目标了。
 
 ```html
 <template x-for="i in 10">
@@ -527,7 +527,7 @@ Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to it
 ---
 
 ### `x-transition`
-**Example:**
+**例如:**
 ```html
 <div
     x-show="open"
@@ -553,20 +553,20 @@ Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to it
 </template>
 ```
 
-> The example above uses classes from [Tailwind CSS](https://tailwindcss.com).
+> 这个例子使用了 [Tailwind CSS](https://tailwindcss.com) 中提供的 class。
 
-Alpine offers 6 different transition directives for applying classes to various stages of an element's transition between "hidden" and "shown" states. These directives work both with `x-show` AND `x-if`.
+Alpine 提供了 6 个不同的过渡指令用来在元素过渡（Transition）的显示/隐藏状态下不同阶段生效不同的 class。这些指令都能和 `x-show` 还有 `x-if` 一起使用。
 
-These behave exactly like VueJS's transition directives, except they have different, more sensible names:
+这些行为与 VueJS 的过渡指令完全一致。只是用了更清晰的命名。
 
-| Directive | Description |
+| 指令 | 描述 |
 | --- | --- |
-| `:enter` | Applied during the entire entering phase. |
-| `:enter-start` | Added before element is inserted, removed one frame after element is inserted. |
-| `:enter-end` | Added one frame after element is inserted (at the same time `enter-start` is removed), removed when transition/animation finishes.
-| `:leave` | Applied during the entire leaving phase. |
-| `:leave-start` | Added immediately when a leaving transition is triggered, removed after one frame. |
-| `:leave-end` | Added one frame after a leaving transition is triggered (at the same time `leave-start` is removed), removed when the transition/animation finishes.
+| `:enter` | 在整个 Enter 阶段都生效 |
+| `:enter-start` | 在元素被插入前生效，在元素被插入的后1帧被删除 |
+| `:enter-end` | 在元素被插入后1帧（`enter-start` 被移除的同时）生效，在过渡/动画结束后被删除 ｜
+| `:leave` | 在整个 Leave 阶段都生效 |
+| `:leave-start` | 在 Leave 过渡触发后立即生效，1帧即被删除 |
+| `:leave-end` | 在 Leave 过渡触发后（`leave-start` 删除的同时）1 帧新增，并在过渡/动画结束时删除。｜
 
 ---
 
@@ -601,20 +601,20 @@ These behave exactly like VueJS's transition directives, except they have differ
 </script>
 ```
 
-`x-spread` allows you to extract an element's Alpine bindings into a reusable object.
+`x-spread` 允许你展开一个可以复用的对象，其中包括元素的 Alpine 绑定。
 
-The object keys are the directives (Can be any directive including modifiers), and the values are callbacks to be evaluated by Alpine.
+这一对象的 key 是指令（当然也可以包括修饰符），value 是可被 Alpine 执行的回调。
 
-> Note: There are a couple of caveats to x-spread:
-> - When the directive being "spread" is `x-for`, you should return a normal expression string from the callback. For example: `['x-for']() { return 'item in items' }`.
-> - `x-data` and `x-init` can't be used inside a "spread" object.
+> 备注： x-spread 有以下两点需要注意
+> - 当被展开的指令是 `x-for` 时，你需要在回调中返回一个表达式字符串，如：`['x-for']() { return 'item in items' }`.
+> - `x-data` 和 `x-init` 不能在「spread」对象中使用。
 
 ---
 
 ### `x-cloak`
 **例如:** `<div x-data="{}" x-cloak></div>`
 
-`x-cloak` attributes are removed from elements when Alpine initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
+`x-cloak` 属性将在 Alpine 初始化后被移除。这对于隐藏未初始化完毕的 DOM 非常有效，一种典型的通过全局样式的工作方式如下：
 
 ```html
 <style>
@@ -626,7 +626,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 
 ### 魔法属性 Magic Properties
 
-> With the exception of `$el`, magic properties are **not available within `x-data`** as the component isn't initialized yet.
+> 除 `$el` 外，魔法属性 **在 `x-data` 中的无法使用**，因为那时组件还没初始化。
 
 ---
 
@@ -638,7 +638,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 </div>
 ```
 
-`$el` is a magic property that can be used to retrieve the root component DOM node.
+`$el` 是一个用来获取根组件 DOM 节点的魔法属性。
 
 ### `$refs`
 **例如:**
@@ -648,7 +648,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 <button x-on:click="$refs.foo.innerText = 'bar'"></button>
 ```
 
-`$refs` is a magic property that can be used to retrieve DOM elements marked with `x-ref` inside the component. This is useful when you need to manually manipulate DOM elements.
+`$refs` 是一个用来在组件中获取原生 DOM 元素的魔法属性。这可以帮助你在需要时手动拿到原始的 DOM 元素。
 
 ---
 
@@ -658,11 +658,11 @@ The object keys are the directives (Can be any directive including modifiers), a
 <input x-on:input="alert($event.target.value)">
 ```
 
-`$event` is a magic property that can be used within an event listener to retrieve the native browser "Event" object.
+`$event` 是一个用来在事件监听器中接受浏览器原生「Event」对象的魔法属性。
 
-> Note: The $event property is only available in DOM expressions.
+> 备注: $event 属性只在 DOM 表达式中有效。
 
-If you need to access $event inside of a JavaScript function you can pass it in directly:
+如果你需要在一个 JavaScript 函数中使用 $event，可以直接这么干：
 
 `<button x-on:click="myFunction($event)"></button>`
 
@@ -673,15 +673,15 @@ If you need to access $event inside of a JavaScript function you can pass it in 
 ```html
 <div @custom-event="console.log($event.detail.foo)">
     <button @click="$dispatch('custom-event', { foo: 'bar' })">
-    <!-- When clicked, will console.log "bar" -->
+    <!-- 点击时，将触发 console.log -->
 </div>
 ```
 
-**Note on Event Propagation**
+**有关事件传播 (Event Propagation)**
 
-Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bubbling), when you need to capture events dispatched from nodes that are under the same nesting hierarchy, you'll need to use the [`.window`](https://github.com/alpinejs/alpine#x-on) modifier:
+请注意，因为 [事件冒泡机制](https://en.wikipedia.org/wiki/Event_bubbling) 的存在，当你需要从相同层级节点上拦截已触发的事件时，需要增加 [`.window`](https://github.com/alpinejs/alpine#x-on) 修饰符：
 
-**Example:**
+**例如:**
 
 ```html
 <div x-data>
@@ -690,11 +690,11 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 <div>
 ```
 
-> This won't work because when `custom-event` is dispatched, it'll propagate to its common ancestor, the `div`.
+> 上面的例子是错误示范，不能正常工作，因为 `custom-event` 被触发时，他只会传播到共同的祖先，上级的 `div` 元素。
 
-**Dispatching to Components**
+**分发到组件**
 
-You can also take advantage of the previous technique to make your components talk to each other:
+也可以刚才这一技巧在组件之间通信使用：
 
 **例如:**
 
@@ -702,27 +702,27 @@ You can also take advantage of the previous technique to make your components ta
 <div x-data @custom-event.window="console.log($event.detail)"></div>
 
 <button x-data @click="$dispatch('custom-event', 'Hello World!')">
-<!-- When clicked, will console.log "Hello World!". -->
+<!-- 当点击发生时，将会 console.log "Hello World!". -->
 ```
 
-`$dispatch` is a shortcut for creating a `CustomEvent` and dispatching it using `.dispatchEvent()` internally. There are lots of good use cases for passing data around and between components using custom events. [Read here](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events) for more information on the underlying `CustomEvent` system in browsers.
+`$dispatch` 是一个创建 `CustomEvent` 并使用其内部的 `.dispatchEvent()` 进行分发的快捷方式。有很多使用自定义事件在组件间传递数据的优秀用例。[参考这篇文档](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events) 来获取更多关于浏览器中 `CustomEvent` 的信息。
 
-You will notice that any data passed as the second parameter to `$dispatch('some-event', { some: 'data' })`, becomes available through the new events "detail" property: `$event.detail.some`. Attaching custom event data to the `.detail` property is standard practice for `CustomEvent`s in browsers. [Read here](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail) for more info.
+可以注意到，放在 `$dispatch('some-event', { some: 'data' })` 第二个参数的数据，在新事件上可通过「detail」属性来拿到：`$event.detail.some`。将自定义事件的数据附加到 .detail 属性是在浏览器中 `CustomEvent` 的标准实践。更多信息参阅 [这篇文档（英文）](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail)。
 
-You can also use `$dispatch()` to trigger data updates for `x-model` bindings. For example:
+你也可以使用 `$dispatch()` 来触发 `x-model` 绑定的数据更新。例如：
 
 ```html
 <div x-data="{ foo: 'bar' }">
     <span x-model="foo">
         <button @click="$dispatch('input', 'baz')">
-        <!-- After the button is clicked, `x-model` will catch the bubbling "input" event, and update foo to "baz". -->
+        <!-- 按钮被点击后，`x-model` 将获得冒泡的 「input」事件，并更新 foo 为 「baz」。 -->
     </span>
 </div>
 ```
 
-> Note: The $dispatch property is only available in DOM expressions.
+> 备注：$dispatch 属性只在 DOM 表达式中有效。
 
-If you need to access $dispatch inside of a JavaScript function you can pass it in directly:
+如果你需要在一个 JavaScript 函数中使用 $dispatch，可以直接这么干：
 
 `<button x-on:click="myFunction($dispatch)"></button>`
 
@@ -754,7 +754,7 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 </div>
 ```
 
-你可以通过 `$watch` 魔法方法 “监视” 一个组件属性。在上面的例子中，当按钮被点击且 open 被改变时，你提供的回调函数会被调用，`console.log` 新的 value。
+你可以通过 `$watch` 魔法方法「监听」一个组件属性。在上面的例子中，当按钮被点击且 open 被改变时，你提供的回调函数会被调用，`console.log` 新的 value。
 
 ## 安全相关 Security
 如果你发现了安全漏洞，请发邮件到 [calebporzio@gmail.com]().

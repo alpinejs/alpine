@@ -177,10 +177,9 @@ import 'alpinejs'
 </script>
 ```
 
-> **For bundler users**, note that Alpine.js accesses functions that are in the global scope (`window`), you'll need to explicitly assign your functions to `window` in order to use them with `x-data` for example `window.dropdown = function () {}` (this is because with Webpack, Rollup, Parcel etc. `function`'s you define will default to the module's scope not `window`).
+> **各位 Bundler 使用者**，注意 Alpine.js 操作的函数都在全局作用域（`window`），你需要把 `x-data` 使用的函数声明到 `window` 上，例如 `window.dropdown = function () {}` (因为在 Webpack, Rollup, Parcel 等工具中，`function` 默认会被挂载模块作用域，而非 `window`).
 
-
-You can also mix-in multiple data objects using object destructuring:
+你也可以通过对象解构语法，把多个数据对象混合起来：
 
 ```html
 <div x-data="{...dropdown(), ...tabs()}">
@@ -189,50 +188,50 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-init`
-**Example:** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
+**例如：** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
 
-**Structure:** `<div x-data="..." x-init="[expression]"></div>`
+**结构：** `<div x-data="..." x-init="[expression]"></div>`
 
-`x-init` runs an expression when a component is initialized.
+`x-init` 将在组件初始化时运行给定的表达式。
 
-If you wish to run code AFTER Alpine has made its initial updates to the DOM (something like a `mounted()` hook in VueJS), you can return a callback from `x-init`, and it will be run after:
+如果你希望代码在 Alpine 对 DOM 进行初始化更新后再调用（类似 VueJS 中的 `mounted()` 钩子），你可以传入一个回调函数，它将在 DOM 操作完成后被调用，例如：
 
 `x-init="() => { // we have access to the post-dom-initialization state here // }"`
 
 ---
 
 ### `x-show`
-**Example:** `<div x-show="open"></div>`
+**例如:** `<div x-show="open"></div>`
 
-**Structure:** `<div x-show="[expression]"></div>`
+**结构:** `<div x-show="[expression]"></div>`
 
-`x-show` toggles the `display: none;` style on the element depending if the expression resolves to `true` or `false`.
+`x-show` 将根据表达式结果（true 或 false）控制元素的 `display: none;`（译者注：控制模块显示/隐藏）
 
 **x-show.transition**
 
-`x-show.transition` is a convenience API for making your `x-show`s more pleasant using CSS transitions.
+`x-show.transition` 是一个可以让你在使用 `x-show` 操作 CSS 过渡（Transition）时更爽的简便 API。
 
 ```html
 <div x-show.transition="open">
-    These contents will be transitioned in and out.
+    这段内容会在过渡中滑入/滑出。
 </div>
 ```
 
-| Directive | Description |
+| 指令 | 描述 |
 | --- | --- |
-| `x-show.transition` | A simultaneous fade and scale. (opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms)
-| `x-show.transition.in` | Only transition in. |
-| `x-show.transition.out` | Only transition out. |
-| `x-show.transition.opacity` | Only use the fade. |
-| `x-show.transition.scale` | Only use the scale. |
-| `x-show.transition.scale.75` | Customize the CSS scale transform `transform: scale(.75)`. |
-| `x-show.transition.duration.200ms` | Sets the "in" transition to 200ms. The out will be set to half that (100ms). |
-| `x-show.transition.origin.top.right` | Customize the CSS transform origin `transform-origin: top right`. |
-| `x-show.transition.in.duration.200ms.out.duration.50ms` | Different durations for "in" and "out". |
+| `x-show.transition` | 同时滑入/滑出并缩放（默认值：opacity, scale: 0.95, timing-function: cubic-bezier(0.4, 0.0, 0.2, 1), duration-in: 150ms, duration-out: 75ms）
+| `x-show.transition.in` | 仅滑入 |
+| `x-show.transition.out` | 仅滑出 |
+| `x-show.transition.opacity` | 仅使用淡入淡出 |
+| `x-show.transition.scale` | 仅使用缩放 |
+| `x-show.transition.scale.75` | 自定义 CSS 缩放转换为 `transform: scale(.75)`. |
+| `x-show.transition.duration.200ms` | 设定 "in" 的的过渡时间为 200ms。出动作（"out"）将是它的一半 (100ms). |
+| `x-show.transition.origin.top.right` | 自定义 CSS 转换起始位置为 `transform-origin: top right`. |
+| `x-show.transition.in.duration.200ms.out.duration.50ms` | 为 "in" 和 "out" 设定不同的过渡时间。 |
 
-> Note: All of these transition modifiers can be used in conjunction with each other. This is possible (although ridiculous lol): `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+> 备注： 所有的过渡修饰词都可组合使用。也就是说可以这么用（虽然真这么用过于粗暴23333）: `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
 
-> Note: `x-show` will wait for any children to finish transitioning out. If you want to bypass this behavior, add the `.immediate` modifier:
+> 备注： `x-show` 将等待子元素完成 out。如果你希望跳过这一行为，可以添加 `.immediate` 修饰词：
 ```html
 <div x-show.immediate="open">
     <div x-show.transition="open">
@@ -242,26 +241,26 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 ### `x-bind`
 
-> Note: You are free to use the shorter ":" syntax: `:type="..."`.
+> 备注：可以用 ":" 简写语法替代，例如： `:type="..."`.
 
-**Example:** `<input x-bind:type="inputType">`
+**例如:** `<input x-bind:type="inputType">`
 
-**Structure:** `<input x-bind:[attribute]="[expression]">`
+**结构:** `<input x-bind:[attribute]="[expression]">`
 
-`x-bind` sets the value of an attribute to the result of a JavaScript expression. The expression has access to all the keys of the component's data object, and will update every-time its data is updated.
+`x-bind` 将当前属性的 value 设定为指令中表达式的结果。 这一表达式可以访问组件数据对象中的所有 key，并在每次数据更新时重算结果。
 
-> Note: attribute bindings ONLY update when their dependencies update. The framework is smart enough to observe data changes and detect which bindings care about them.
+> 备注： 属性数据绑定只会在依赖的值更新时被重算。框架足够智能，可以观测数据变化并检测绑定是否关心这些变化。
 
-**`x-bind` for class attributes**
+**`x-bind` 到 class 属性**
 
-`x-bind` behaves a little differently when binding to the `class` attribute.
+`x-bind` 在完成到 `class` 属性的绑定时，行为略有不同。
 
-For classes, you pass in an object whose keys are class names, and values are boolean expressions to determine if those class names are applied or not.
+对于 class，你可以传入一个对象，key 为 class 名，值为布尔量，用来表示对应 class 是否应该生效。
 
-For example:
+例如：
 `<div x-bind:class="{ 'hidden': foo }"></div>`
 
-In this example, the "hidden" class will only be applied when the value of the `foo` data attribute is `true`.
+在这一例子中，"hidden" 这一 class 将只会在 foo 数据属性为 `true` 时有效。
 
 **`x-bind` for boolean attributes**
 
@@ -625,7 +624,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 </style>
 ```
 
-### Magic Properties
+### 魔法属性 Magic Properties
 
 > With the exception of `$el`, magic properties are **not available within `x-data`** as the component isn't initialized yet.
 
@@ -697,7 +696,7 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 
 You can also take advantage of the previous technique to make your components talk to each other:
 
-**Example:**
+**例如:**
 
 ```html
 <div x-data @custom-event.window="console.log($event.detail)"></div>
@@ -730,7 +729,7 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 ---
 
 ### `$nextTick`
-**Example:**
+**例如：**
 ```html
 <div x-data="{ fruit: 'apple' }">
     <button
@@ -743,19 +742,19 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 </div>
 ```
 
-`$nextTick` is a magic property that allows you to only execute a given expression AFTER Alpine has made its reactive DOM updates. This is useful for times you want to interact with the DOM state AFTER it's reflected any data updates you've made.
+`$nextTick` 是一个运行你在 Alpine 做出响应式 DOM 更新后，执行一个给定表达式的指令。这在你需要在完成数据更新后用 DOM 状态做交互时非常有用。
 
 ---
 
 ### `$watch`
-**Example:**
+**例如：**
 ```html
 <div x-data="{ open: false }" x-init="$watch('open', value => console.log(value))">
     <button @click="open = ! open">Toggle Open</button>
 </div>
 ```
 
-You can "watch" a component property with the `$watch` magic method. In the above example, when the button is clicked and `open` is changed, the provided callback will fire and `console.log` the new value.
+你可以通过 `$watch` 魔法方法 “监视” 一个组件属性。在上面的例子中，当按钮被点击且 open 被改变时，你提供的回调函数会被调用，`console.log` 新的 value。
 
 ## 安全相关 Security
 如果你发现了安全漏洞，请发邮件到 [calebporzio@gmail.com]().

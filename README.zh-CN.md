@@ -100,7 +100,7 @@ import 'alpinejs'
 | [`x-data`](#x-data) | 定义一个新的组件作用域。 |
 | [`x-init`](#x-init) | 组件初始化时运行其中的表达式。 |
 | [`x-show`](#x-show) | 根据表达式结果（true 或 false）控制元素的 `display: none;`（译者注：控制模块显示/隐藏） |
-| [`x-bind`](#x-bind) | 将当前属性的 value 设定为指令中表达式的结果。 |
+| [`x-bind`](#x-bind) | 将当前属性的值设定为指令中表达式的结果。 |
 | [`x-on`](#x-on) | 向元素上挂载事件监听器。当事件触发时执行其中的表达式。 |
 | [`x-model`](#x-model) | 向当前元素新增 “双向数据绑定”。保持输入元素与组件数据同步。 |
 | [`x-text`](#x-text) | 和 `x-bind` 类似，但更新的是元素的 `innerText`。 |
@@ -146,9 +146,9 @@ import 'alpinejs'
 
 **例如：** `<div x-data="{ foo: 'bar' }">...</div>`
 
-**结构：** `<div x-data="[object literal]">...</div>`
+**结构：** `<div x-data="[可迭代对象]">...</div>`
 
-`x-data` 将定义一个新的组件作用域。他将通知框架初始化带有传入数据的一个新组件。
+`x-data` 将定义一个新的组件作用域。它将通知框架初始化带有传入数据的一个新组件。
 
 类似 Vue 组件中的 data 属性。
 
@@ -190,7 +190,7 @@ import 'alpinejs'
 ### `x-init`
 **例如：** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
 
-**结构：** `<div x-data="..." x-init="[expression]"></div>`
+**结构：** `<div x-data="..." x-init="[表达式]"></div>`
 
 `x-init` 将在组件初始化时运行给定的表达式。
 
@@ -203,7 +203,7 @@ import 'alpinejs'
 ### `x-show`
 **例如:** `<div x-show="open"></div>`
 
-**结构:** `<div x-show="[expression]"></div>`
+**结构:** `<div x-show="[表达式]"></div>`
 
 `x-show` 将根据表达式结果（true 或 false）控制元素的 `display: none;`（译者注：控制模块显示/隐藏）
 
@@ -229,9 +229,9 @@ import 'alpinejs'
 | `x-show.transition.origin.top.right` | 自定义 CSS 转换起始位置为 `transform-origin: top right`. |
 | `x-show.transition.in.duration.200ms.out.duration.50ms` | 为 "in" 和 "out" 设定不同的过渡时间。 |
 
-> 备注： 所有的过渡修饰词都可组合使用。也就是说可以这么用（虽然真这么用过于粗暴23333）: `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
+> 备注： 所有的过渡修饰符都可组合使用。也就是说可以这么用（虽然真这么用过于粗暴23333）: `x-show.transition.in.duration.100ms.origin.top.right.opacity.scale.85.out.duration.200ms.origin.bottom.left.opacity.scale.95`
 
-> 备注： `x-show` 将等待子元素完成 out。如果你希望跳过这一行为，可以添加 `.immediate` 修饰词：
+> 备注： `x-show` 将等待子元素完成 out。如果你希望跳过这一行为，可以添加 `.immediate` 修饰符：
 ```html
 <div x-show.immediate="open">
     <div x-show.transition="open">
@@ -245,9 +245,9 @@ import 'alpinejs'
 
 **例如:** `<input x-bind:type="inputType">`
 
-**结构:** `<input x-bind:[attribute]="[expression]">`
+**结构:** `<input x-bind:[HTML属性]="[表达式]">`
 
-`x-bind` 将当前属性的 value 设定为指令中表达式的结果。 这一表达式可以访问组件数据对象中的所有 key，并在每次数据更新时重算结果。
+`x-bind` 将当前属性的值设定为指令中表达式的结果。 这一表达式可以访问组件数据对象中的所有 key，并在每次数据更新时重算结果。
 
 > 备注： 属性数据绑定只会在依赖的值更新时被重算。框架足够智能，可以观测数据变化并检测绑定是否关心这些变化。
 
@@ -262,140 +262,140 @@ import 'alpinejs'
 
 在这一例子中，"hidden" 这一 class 将只会在 foo 数据属性为 `true` 时有效。
 
-**`x-bind` for boolean attributes**
+**`x-bind` 到布尔值属性**
 
-`x-bind` supports boolean attributes in the same way as value attributes, using a variable as the condition or any JavaScript expression that resolves to `true` or `false`.
+`x-bind` 支持布尔值属性，与其他 value 属性一样，使用变量或者其他结果为 `true` 或 `false` 的表达式作为其条件。
 
-For example:
+例如：
 ```html
-<!-- Given: -->
+<!-- 给定值: -->
 <button x-bind:disabled="myVar">Click me</button>
 
-<!-- When myVar == true: -->
+<!-- 当 myVar == true: -->
 <button disabled="disabled">Click me</button>
 
-<!-- When myVar == false: -->
+<!-- 当 myVar == false: -->
 <button>Click me</button>
 ```
 
-This will add or remove the `disabled` attribute when `myVar` is true or false respectively.
+这将在 `myVar` 为 true 或 false 时分别新增或删除 `disabled` 属性。
 
-Boolean attributes are supported as per the [HTML specification](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute), for example `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open`, etc.
+[HTML specification 文档（英文）](https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute)中列出的布尔值属性都被支持，例如： `disabled`, `readonly`, `required`, `checked`, `hidden`, `selected`, `open` 等等。
 
-> Note: If you need a false state to show for your attribute, such as `aria-*`, chain `.toString()` to the value while binding to the attribute. For example: `:aria-expanded="isOpen.toString()"` would persist whether  `isOpen` was `true` or `false`.
+> 备注：如果你需要一个 false 状态来展示你的属性，如：`aria-*`，要用对绑定值使用链式的 `.toString()`。例如： `:aria-expanded="isOpen.toString()"` 将在 `isOpen` 为 `true` 或 `false` 时都能保持属性存在。
 
-**`.camel` modifier**
-**Example:** `<svg x-bind:view-box.camel="viewBox">`
+**`.camel` 修饰符**
+**例如:** `<svg x-bind:view-box.camel="viewBox">`
 
-The `camel` modifier will bind to the camel case equivalent of the attribute name. In the example above, the value of `viewBox` will be bound the `viewBox` attribute as opposed to the `view-box` attribute.
+`camel` 修饰符用来绑定等效驼峰写法的属性名。如上面的例子，`viewBox` 的值将被绑定到 `viewBox` 属性，他被表示为 `view-box`。
 
 ---
 
 ### `x-on`
 
-> Note: You are free to use the shorter "@" syntax: `@click="..."`.
+> 备注：你可以直接使用简化的 "@" 语法，例如：`@click="..."`。
 
-**Example:** `<button x-on:click="foo = 'bar'"></button>`
+**例如:** `<button x-on:click="foo = 'bar'"></button>`
 
-**Structure:** `<button x-on:[event]="[expression]"></button>`
+**结构:** `<button x-on:[事件]="[表达式]"></button>`
 
-`x-on` attaches an event listener to the element it's declared on. When that event is emitted, the JavaScript expression set as its value is executed. You can use `x-on` with any event available for the element you're adding the directive on, for a full list of events, see [the Event reference on MDN](https://developer.mozilla.org/en-US/docs/Web/Events) for a list of possible values.
+`x-on` 挂载一个事件监听器到声明的元素昂，当事件触发后，传入的表达式将被执行。你可以在指令所在元素可用的任何事件上使用 `x-on`，完整的事件列表，可以参考 [MDN 上的事件参考文档](https://developer.mozilla.org/en-US/docs/Web/Events)。
 
-If any data is modified in the expression, other element attributes "bound" to this data, will be updated.
+如果表达式中的进行了任何数据变动，其他绑定到这些数据的元素属性将被更新。
 
-> Note: You can also specify a JavaScript function name.
+> 备注：你也可以直接使用 JavaScript 函数名。
 
-**Example:** `<button x-on:click="myFunction"></button>`
+**例如:** `<button x-on:click="myFunction"></button>`
 
-This is equivalent to: `<button x-on:click="myFunction($event)"></button>`
+这等效于：`<button x-on:click="myFunction($event)"></button>`
 
-**`keydown` modifiers**
+**`keydown` 修饰符**
 
-**Example:** `<input type="text" x-on:keydown.escape="open = false">`
+**例如:** `<input type="text" x-on:keydown.escape="open = false">`
 
-You can specify specific keys to listen for using keydown modifiers appended to the `x-on:keydown` directive. Note that the modifiers are kebab-cased versions of `Event.key` values.
+你可以通过向 `x-on:keydown` 指令增加 keydown 修饰符来指定特定需要监听的按钮。注意修饰符是 `Event.key` 值的短横线隔开写法（kebab-cased）版本。
 
-Examples: `enter`, `escape`, `arrow-up`, `arrow-down`
+例如：`enter`, `escape`, `arrow-up`, `arrow-down`
 
-> Note: You can also listen for system-modifier key combinations like: `x-on:keydown.cmd.enter="foo"`
+> 备注：你也可以这样监听混合的系统修饰符： `x-on:keydown.cmd.enter="foo"`
 
-**`.away` modifier**
+**`.away` 修饰符**
 
-**Example:** `<div x-on:click.away="showModal = false"></div>`
+**例如:** `<div x-on:click.away="showModal = false"></div>`
 
-When the `.away` modifier is present, the event handler will only be executed when the event originates from a source other than itself, or its children.
+当 `.away` 修饰符存在时，事件处理器将在源头不是他们自己或他们的子元素时被触发。
 
-This is useful for hiding dropdowns and modals when a user clicks away from them.
+这对下拉菜单或模态框中处理用户点击其外部的位置关闭的交互动作非常有用。
 
-**`.prevent` modifier**
-**Example:** `<input type="checkbox" x-on:click.prevent>`
+**`.prevent` 修饰符**
+**例如:** `<input type="checkbox" x-on:click.prevent>`
 
-Adding `.prevent` to an event listener will call `preventDefault` on the triggered event. In the above example, this means the checkbox wouldn't actually get checked when a user clicks on it.
+增加 `.prevent` 到事件监听器上，将会调用触发事件的 `preventDefault` 方法。在上面的例子中，这意味着这个 checkbox 在用户点击时不会真的被选中。
 
-**`.stop` modifier**
-**Example:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
+**`.stop` 修饰符**
+**例如:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
 
-Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
+增加 `.stop` 到事件监听器上，将会调用触发事件的 `stopPropagation` 方法。在上面的例子中，这意味着点击事件不会从这个按钮冒泡到其他 div 上。换句话说，用户点击按钮时 `foo` 并不会被置为 `bar`。
 
-**`.self` modifier**
-**Example:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
+**`.self` 修饰符**
+**例如:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
 
-Adding `.self` to an event listener will only trigger the handler if the `$event.target` is the element itself. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
+增加 `.self` 到事件监听器上，将会使得处理器只在 `$event.target` 为元素自己的时候被调用。在上面的例子中，这意味着按钮的点击事件会冒泡的上层的 `<div>` 时，将 **不会** 调用处理器函数。
 
-**`.window` modifier**
-**Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
+**`.window` 修饰符**
+**例如:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
-Adding `.window` to an event listener will install the listener on the global window object instead of the DOM node on which it is declared. This is useful for when you want to modify component state when something changes with the window, like the resize event. In this example, when the window grows larger than 768 pixels wide, we will close the modal/dropdown, otherwise maintain the same state.
+增加 `.window` 到事件监听器上，将会安装监听器到全局的 window 对象而不是实际声明的 DOM 节点。当你需要在 window 上的属性变化（如 resize 事件）时修改自己组件的状态，这会非常有用。在例子中，当窗口宽度扩大到 768 像素以上时我们就会关闭模态框/下拉菜单，否则保持已有状态。
 
->Note: You can also use the `.document` modifier to attach listeners to `document` instead of `window`
+>备注：你也可以使用 `.document` 修饰符来挂载监听器到`document` 而不是 `window`
 
-**`.once` modifier**
-**Example:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
+**`.once` 修饰符**
+**例如:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
 
-Adding the `.once` modifier to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
+增加 `.once` 修饰符到事件监听器上，将会确保监听器只被调用一次。这对于那些你只想调一次的事件来说超有用，比如请求 HTML 片段之类的。
 
-**`.passive` modifier**
-**Example:** `<button x-on:mousedown.passive="interactive = true"></button>`
+**`.passive` 修饰符**
+**例如:** `<button x-on:mousedown.passive="interactive = true"></button>`
 
-Adding the `.passive` modifier to an event listener will make the listener a passive one, which means `preventDefault()` will not work on any events being processed, this can help, for example with scroll performance on touch devices.
+增加 `.passive` 修饰符到事件监听器上，将会使监听器为 passive 状态，这意味着 `preventDefault()`不能工作。这可以帮助处理触摸设备上的滑动性能问题。
 
-**`.debounce` modifier**
-**Example:** `<input x-on:input.debounce="fetchSomething()">`
+**`.debounce` 修饰符**
+**例如:** `<input x-on:input.debounce="fetchSomething()">`
 
-The `debounce` modifier allows you to "debounce" an event handler. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
+`debounce` 修饰符允许你对事件处理器进行 “防抖”。换句话说，事件处理器将会在上次触发完成后等待一段时间才会再次触发。当处理器准备好后再处理上一个调用。
 
-The default debounce "wait" time is 250 milliseconds.
+默认的防抖 “等待” 时间是 250 毫秒。
 
-If you wish to customize this, you can specify a custom wait time like so:
+如果你打算自定义它，可以这样指定：
 
 ```
 <input x-on:input.debounce.750="fetchSomething()">
 <input x-on:input.debounce.750ms="fetchSomething()">
 ```
 
-**`.camel` modifier**
-**Example:** `<input x-on:event-name.camel="doSomething()">`
+**`.camel` 修饰符**
+**例如:** `<input x-on:event-name.camel="doSomething()">`
 
-The `camel` modifier will attach an event listener for the camel case equivalent event name. In the example above, the expression will be evaluated when the `eventName` event is fired on the element.
+`camel` 修饰符用来挂载等效驼峰写法的事件监听器。如上面的例子，表达式将在 `eventName` 事件触发时被执行。
 
 ---
 
 ### `x-model`
-**Example:** `<input type="text" x-model="foo">`
+**例如:** `<input type="text" x-model="foo">`
 
-**Structure:** `<input type="text" x-model="[data item]">`
+**结构:** `<input type="text" x-model="[data item]">`
 
-`x-model` adds "two-way data binding" to an element. In other words, the value of the input element will be kept in sync with the value of the data item of the component.
+`x-model` 新增 “双向数据绑定” 到一个元素上。换句话说，输入元素的 value 值将于组件中数据项的值维持同步。
 
-> Note: `x-model` is smart enough to detect changes on text inputs, checkboxes, radio buttons, textareas, selects, and multiple selects. It should behave [how Vue would](https://vuejs.org/v2/guide/forms.html) in those scenarios.
+> 备注：`x-model` 可以智能地检测文字输入框(input)、多选框(checkbox)、单选框(radio button)、文本输入区(textarea)、下拉选择(select)、下拉多选(multi selects)。他的行为及使用场景和 [Vue](https://vuejs.org/v2/guide/forms.html) 别无二致。
 
-**`.number` modifier**
-**Example:** `<input x-model.number="age">`
+**`.number` 修饰符**
+**例如:** `<input x-model.number="age">`
 
-The `number` modifier will convert the input's value to a number. If the value cannot be parsed as a valid number, the original value is returned.
+`number` 修饰符将转换输入的值为数据为数字类型，如果不能被成功转换，将返回原始值。
 
-**`.debounce` modifier**
-**Example:** `<input x-model.debounce="search">`
+**`.debounce` 修饰符**
+**例如:** `<input x-model.debounce="search">`
 
 The `debounce` modifier allows you to add a "debounce" to a value update. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
 
@@ -411,18 +411,18 @@ If you wish to customize this, you can specifiy a custom wait time like so:
 ---
 
 ### `x-text`
-**Example:** `<span x-text="foo"></span>`
+**例如:** `<span x-text="foo"></span>`
 
-**Structure:** `<span x-text="[expression]"`
+**结构:** `<span x-text="[expression]"`
 
 `x-text` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerText` of an element.
 
 ---
 
 ### `x-html`
-**Example:** `<span x-html="foo"></span>`
+**例如:** `<span x-html="foo"></span>`
 
-**Structure:** `<span x-html="[expression]"`
+**结构:** `<span x-html="[expression]"`
 
 `x-html` works similarly to `x-bind`, except instead of updating the value of an attribute, it will update the `innerHTML` of an element.
 
@@ -446,9 +446,9 @@ This is a helpful alternative to setting ids and using `document.querySelector` 
 ---
 
 ### `x-if`
-**Example:** `<template x-if="true"><div>Some Element</div></template>`
+**例如:** `<template x-if="true"><div>Some Element</div></template>`
 
-**Structure:** `<template x-if="[expression]"><div>Some Element</div></template>`
+**结构:** `<template x-if="[expression]"><div>Some Element</div></template>`
 
 For cases where `x-show` isn't sufficient (`x-show` sets an element to `display: none` if it's false), `x-if` can be used to  actually remove an element completely from the DOM.
 
@@ -461,7 +461,7 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 ---
 
 ### `x-for`
-**Example:**
+**例如:**
 ```html
 <template x-for="item in items" :key="item">
     <div x-text="item"></div>
@@ -571,7 +571,7 @@ These behave exactly like VueJS's transition directives, except they have differ
 ---
 
 ### `x-spread`
-**Example:**
+**例如:**
 ```html
 <div x-data="dropdown()">
     <button x-spread="trigger">Open Dropdown</button>
@@ -612,7 +612,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 ---
 
 ### `x-cloak`
-**Example:** `<div x-data="{}" x-cloak></div>`
+**例如:** `<div x-data="{}" x-cloak></div>`
 
 `x-cloak` attributes are removed from elements when Alpine initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
 
@@ -631,7 +631,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 ---
 
 ### `$el`
-**Example:**
+**例如:**
 ```html
 <div x-data>
     <button @click="$el.innerHTML = 'foo'">Replace me with "foo"</button>
@@ -641,7 +641,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 `$el` is a magic property that can be used to retrieve the root component DOM node.
 
 ### `$refs`
-**Example:**
+**例如:**
 ```html
 <span x-ref="foo"></span>
 
@@ -653,7 +653,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 ---
 
 ### `$event`
-**Example:**
+**例如:**
 ```html
 <input x-on:input="alert($event.target.value)">
 ```
@@ -669,7 +669,7 @@ If you need to access $event inside of a JavaScript function you can pass it in 
 ---
 
 ### `$dispatch`
-**Example:**
+**例如:**
 ```html
 <div @custom-event="console.log($event.detail.foo)">
     <button @click="$dispatch('custom-event', { foo: 'bar' })">

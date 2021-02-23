@@ -6544,7 +6544,7 @@
 
     var items = component.evaluateReturnExpression(el, iteratorNames.items, extraVars); // This adds support for the `i in n` syntax.
 
-    if (isNumeric(items) && items > 0) {
+    if (isNumeric(items) && items >= 0) {
       items = Array.from(Array(items).keys(), function (i) {
         _newArrowCheck(this, _this4);
 
@@ -7352,9 +7352,13 @@
         initReturnedCallback = this.evaluateReturnExpression(this.$el, initExpression);
         this.pauseReactivity = false;
       } // Register all our listeners and set all our attribute bindings.
+      // If we're cloning a component, the third parameter ensures no duplicate
+      // event listeners are registered (the mutation observer will take care of them)
 
 
-      this.initializeElements(this.$el); // Use mutation observer to detect new elements being added within this component at run-time.
+      this.initializeElements(this.$el, function () {
+        _newArrowCheck(this, _this);
+      }.bind(this), componentForClone ? false : true); // Use mutation observer to detect new elements being added within this component at run-time.
       // Alpine's just so darn flexible amirite?
 
       this.listenForNewElementsToInitialize();
@@ -7507,6 +7511,7 @@
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
           _newArrowCheck(this, _this10);
         }.bind(this);
+        var shouldRegisterListeners = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
         this.walkAndSkipNestedComponents(rootEl, function (el) {
           _newArrowCheck(this, _this10);
 
@@ -7514,7 +7519,7 @@
           if (el.__x_for_key !== undefined) return false; // Don't touch spawns from if directives
 
           if (el.__x_inserted_me !== undefined) return false;
-          this.initializeElement(el, extraVars);
+          this.initializeElement(el, extraVars, shouldRegisterListeners);
         }.bind(this), function (el) {
           _newArrowCheck(this, _this10);
 
@@ -7526,13 +7531,15 @@
     }, {
       key: "initializeElement",
       value: function initializeElement(el, extraVars) {
+        var shouldRegisterListeners = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
         // To support class attribute merging, we have to know what the element's
         // original class attribute looked like for reference.
         if (el.hasAttribute('class') && getXAttrs(el, this).length > 0) {
           el.__x_original_classes = convertClassStringToArray(el.getAttribute('class'));
         }
 
-        this.registerListeners(el, extraVars);
+        shouldRegisterListeners && this.registerListeners(el, extraVars);
         this.resolveBoundAttributes(el, true, extraVars);
       }
     }, {

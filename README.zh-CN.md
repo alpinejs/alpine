@@ -22,9 +22,9 @@ Alpine.js 通过很低的成本提供了于 Vue 或 React 这类大型框架相�
 就是这样，Alpine.js 会自行初始化。
 
 生产环境中，建议在链接中锁定特定版本号，以此避免新版本中的变更造成问题。
-例如，锁定版本为 `2.8.0` (最新版本):
+例如，锁定版本为 `2.8.1` (最新版本):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.1/dist/alpine.min.js" defer></script>
 ```
 
 **使用 npm：** 从 npm 安装依赖包。

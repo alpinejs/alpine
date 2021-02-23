@@ -35,9 +35,9 @@ Bunu [Tailwind](https://tailwindcss.com/) 'ın JavaScript versiyonu olarak düş
 İşte bu kadar. Kendini başlatması için yeterli.
 
 Gerçek ortamda kullanırken yeni çıkan sürümlerden kaynaklanabilecek bozukluklardan kaçınmak için bağlantıda versiyon numarasını tam olarak belirtmek önerilir.
-Örneğin, `2.8.0` (son sürüm) sürümünü kullanmak için:
+Örneğin, `2.8.1` (son sürüm) sürümünü kullanmak için:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.1/dist/alpine.min.js" defer></script>
 ```
 
 **Npm ile:** Npm kullanarak paketi yükleyin.

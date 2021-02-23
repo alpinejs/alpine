@@ -34,9 +34,9 @@ Unsere Philosophie erinnert dich vielleicht an [Tailwind](https://tailwindcss.co
 Das wars. Die Initialisierung passiert automatisch.
 
 Für die Produktionsumgebung wird empfohlen, den Link mit einer spezifischen Versionsnummer zu versehen. Somit kann präventiv sichergestellt werden, dass keine unerwarteten Fehler durch Versionsaktualisierungen zustande kommen.
-Als Beispiel wird hier die (letzte) Version `2.8.0` spezifiziert:
+Als Beispiel wird hier die (letzte) Version `2.8.1` spezifiziert:
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.1/dist/alpine.min.js" defer></script>
 ```
 
 **Über npm:** Installiere das Paket über npm.

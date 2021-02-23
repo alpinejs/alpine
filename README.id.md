@@ -32,9 +32,9 @@ Anggap saja seperti [Tailwind](https://tailwindcss.com/) untuk JavaScript.
 
 Itu saja. Itu akan menginisialisasi dirinya sendiri.
 
-Untuk lingkungan produksi, disarankan untuk memasang pin pada nomor versi tertentu di link untuk menghindari kerusakan yang tidak terduga dari versi yang lebih baru. Misalnya, untuk menggunakan versi `2.8.0` (terbaru):
+Untuk lingkungan produksi, disarankan untuk memasang pin pada nomor versi tertentu di link untuk menghindari kerusakan yang tidak terduga dari versi yang lebih baru. Misalnya, untuk menggunakan versi `2.8.1` (terbaru):
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.1/dist/alpine.min.js" defer></script>
 ```
 
 **Dari NPM:** Instal paket dari NPM.

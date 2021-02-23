@@ -35,9 +35,9 @@ C'est un peu le [Tailwind](https://tailwindcss.com/) du JavaScript.
 C'est tout. L'initialisation est automatique.
 
 Dans les environnements de production, il est recommandé d'inscrire un numéro de version spécifique dans le lien, afin d'éviter qu'une nouvelle version ne provoque un comportement inattendu.
-Par exemple, pour utiliser la version `2.8.0` (la dernière) :
+Par exemple, pour utiliser la version `2.8.1` (la dernière) :
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.1/dist/alpine.min.js" defer></script>
 ```
 
 **Avec npm :** Installer le paquet avec npm.

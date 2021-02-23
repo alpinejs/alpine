@@ -14,7 +14,7 @@ DOM を保持し、適切な動作を施すことができます。
 
 **CDNより:** `<head>` セクションの最後に次のスクリプトを追加します。
 ```html
-<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.1/dist/alpine.js" defer></script>
 ```
 
 それだけです。初期は自身で行われます。

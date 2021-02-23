@@ -556,3 +556,20 @@ test('x-for with an array of numbers', async () => {
         expect(document.querySelectorAll('span')[1].textContent).toEqual('3')
     })
 })
+
+test('x-for over range using i in x syntax with i <= 0', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ count: 1 }">
+            <template x-for="i in count">
+                <span x-text="i"></span>
+            </template>
+            <button @click="count--"></button>
+        </div>
+    `
+
+    Alpine.start()
+
+    document.querySelector('button').click()
+
+    await wait(() => { expect(document.querySelectorAll('span').length).toEqual(0) })
+})

@@ -179,7 +179,7 @@ Se pueden extraer datos (y comportamiento) en funciones reutilizables:
 > **Para usuarios de bundler**, notad que Alpine.js accede a funciones que están en el *scope* global (`window`), es necesario asignar explicitamente las funciones a `window` para poder usarlas con `x-data`. Por ejemplo, `window.dropdown = function () {}` (eso pasa porque Webpack, Rollup, Parcel etc. pone las funciones que defines en el *scope* del módulo y no de `window`).
 
 
-También puedes mezclar múltiples tipos de datos usadndo desestructuración de objetos:
+También puedes mezclar múltiples tipos de datos usando desestructuración de objetos:
 
 ```html
 <div x-data="{...dropdown(), ...tabs()}">

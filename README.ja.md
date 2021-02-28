@@ -83,9 +83,9 @@ IE11 では、ポリフィルを提供する必要があります。次のスク
 
 ## Learn
 
-次の13のディレクティブを使用できます。
+次の14のディレクティブを使用できます。
 
-| ディレクティブ
+| ディレクティブ |
 | --- |
 | [`x-data`](#x-data) |
 | [`x-init`](#x-init) |
@@ -99,6 +99,7 @@ IE11 では、ポリフィルを提供する必要があります。次のスク
 | [`x-if`](#x-if) |
 | [`x-for`](#x-for) |
 | [`x-transition`](#x-transition) |
+| [`x-spread`](#x-spread) |
 | [`x-cloak`](#x-cloak) |
 
 それと5つのマジックプロパティ：
@@ -377,6 +378,47 @@ Alpine は、「非表示」と「表示」の遷移間のさまざまな段階�
 | `:leave` | リーブフェーズ全体に適用されます。 |
 | `:leave-start` | リーブ遷移がトリガされるとすぐに追加され、1フレーム後に削除されます。 |
 | `:leave-end` | リーブ遷移がトリガされた後（同時に `leave-start` が削除される）の1フレームに追加され、トランジション/アニメーションが終了すると削除されます。
+
+---
+
+### `x-spread`
+**Example:**
+```html
+<div x-data="dropdown()">
+    <button x-spread="trigger">Open Dropdown</button>
+
+    <span x-spread="dialogue">Dropdown Contents</span>
+</div>
+
+<script>
+    function dropdown() {
+        return {
+            open: false,
+            trigger: {
+                ['@click']() {
+                    this.open = true
+                },
+            },
+            dialogue: {
+                ['x-show']() {
+                    return this.open
+                },
+                ['@click.away']() {
+                    this.open = false
+                },
+            }
+        }
+    }
+</script>
+```
+
+`x-spread` は、Alpineのバインディングを要素から再利用可能なオブジェクトに抽出することができます。
+
+オブジェクトのキーはディレクティブ(もちろん修飾子を含むことができます)として、値はコールバックとして評価されます。
+
+> 注意: x-spreadにはいくつかの注意点があります。
+> - 展開されるディレクティブが`x-for` の場合、コールバックから通常の式の文字列を返す必要があります。例えば `['x-for']() { return 'item in items' }` のようにです。
+> - `x-data` と `x-init` は "spread" オブジェクトの中では使えません。
 
 ---
 

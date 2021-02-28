@@ -102,15 +102,16 @@ IE11 では、ポリフィルを提供する必要があります。次のスク
 | [`x-spread`](#x-spread) |
 | [`x-cloak`](#x-cloak) |
 
-それと5つのマジックプロパティ：
+それと6つのマジックプロパティ：
 
-| マジックプロパティ
+| マジックプロパティ |
 | --- |
 | [`$el`](#el) |
 | [`$refs`](#refs) |
 | [`$event`](#event) |
 | [`$dispatch`](#dispatch) |
 | [`$nextTick`](#nexttick) |
+| [`$watch`](#watch) |
 
 
 ### ディレクティブ

@@ -83,33 +83,35 @@ IE11 では、ポリフィルを提供する必要があります。次のスク
 
 ## Learn
 
-次の13のディレクティブを使用できます。
+次の14のディレクティブを使用できます。
 
-| ディレクティブ
-| --- |
-| [`x-data`](#x-data) |
-| [`x-init`](#x-init) |
-| [`x-show`](#x-show) |
-| [`x-bind`](#x-bind) |
-| [`x-on`](#x-on) |
-| [`x-model`](#x-model) |
-| [`x-text`](#x-text) |
-| [`x-html`](#x-html) |
-| [`x-ref`](#x-ref) |
-| [`x-if`](#x-if) |
-| [`x-for`](#x-for) |
-| [`x-transition`](#x-transition) |
-| [`x-cloak`](#x-cloak) |
+| ディレクティブ | 説明 |
+| --- | --- |
+| [`x-data`](#x-data) | 新しいコンポーネントのスコープを宣言します。 |
+| [`x-init`](#x-init) | コンポーネントが初期化されると式を実行します。 |
+| [`x-show`](#x-show) | 式の `true` `false` に応じて、要素の `display: none;` スタイルを切り替えます。 |
+| [`x-bind`](#x-bind) | 属性の値にJS式の結果を設定します。 |
+| [`x-on`](#x-on) | イベントリスナーを要素にアタッチします。イベント発行時に指定されたJS式を実行します。 |
+| [`x-model`](#x-model) | `x-model` は要素に「双方向データバインディング」を追加します。つまり、入力要素の値はコンポーネントデータと同期します。 |
+| [`x-text`](#x-text) | `x-text` は `x-bind` と同様に機能しますが、属性値を更新する代わりに要素の `innerText` を更新します。 |
+| [`x-html`](#x-html) | `x-text` は `x-bind` と同様に機能しますが、属性値を更新する代わりに要素の `innerHtml` を更新します。 |
+| [`x-ref`](#x-ref) | コンポーネントから生 DOM 要素を取得する便利な方法を提供します |
+| [`x-if`](#x-if) | DOMから完全に要素を削除します。`<template>` タグでネストする必要があります。 |
+| [`x-for`](#x-for) | 配列の各要素から新しいDOMを作成します。`<template>` タグでネストする必要があります。 |
+| [`x-transition`](#x-transition) | 要素の遷移の様々な段階にクラスを適用するためのディレクティブです。 |
+| [`x-spread`](#x-spread) | 再利用可能なAlpineディレクティブのオブジェクトを要素にバインドすることができます。 |
+| [`x-cloak`](#x-cloak) | この属性はAlpineの初期化時に削除されます。これは、事前に初期化されたDOMを隠すのに役立ちます。 |
 
-それと5つのマジックプロパティ：
+それと6つのマジックプロパティ：
 
-| マジックプロパティ
-| --- |
-| [`$el`](#el) |
-| [`$refs`](#refs) |
-| [`$event`](#event) |
-| [`$dispatch`](#dispatch) |
-| [`$nextTick`](#nexttick) |
+| マジックプロパティ | 説明 |
+| --- | --- |
+| [`$el`](#el) | ルートコンポーネントのDOMノードを取得できます。 |
+| [`$refs`](#refs) | コンポーネント内の `x-ref` でマークされたDOM要素を取得できます。 |
+| [`$event`](#event) | イベントリスナ内でネイティブブラウザの「Event」オブジェクトを取得できます。 |
+| [`$dispatch`](#dispatch) | `CustomEvent` を作成し、内部的に`.dispatchEvent()`を使用してディスパッチします。 |
+| [`$nextTick`](#nexttick) | AlpineがリアクティブなDOM更新を行った後に実行する式を指定できます。 |
+| [`$watch`](#watch) | コンポーネントのプロパティを「監視」し、変更があったときに指定されたコールバックを実行します。 |
 
 
 ### ディレクティブ
@@ -377,6 +379,47 @@ Alpine は、「非表示」と「表示」の遷移間のさまざまな段階�
 | `:leave` | リーブフェーズ全体に適用されます。 |
 | `:leave-start` | リーブ遷移がトリガされるとすぐに追加され、1フレーム後に削除されます。 |
 | `:leave-end` | リーブ遷移がトリガされた後（同時に `leave-start` が削除される）の1フレームに追加され、トランジション/アニメーションが終了すると削除されます。
+
+---
+
+### `x-spread`
+**Example:**
+```html
+<div x-data="dropdown()">
+    <button x-spread="trigger">Open Dropdown</button>
+
+    <span x-spread="dialogue">Dropdown Contents</span>
+</div>
+
+<script>
+    function dropdown() {
+        return {
+            open: false,
+            trigger: {
+                ['@click']() {
+                    this.open = true
+                },
+            },
+            dialogue: {
+                ['x-show']() {
+                    return this.open
+                },
+                ['@click.away']() {
+                    this.open = false
+                },
+            }
+        }
+    }
+</script>
+```
+
+`x-spread` は、Alpineのバインディングを要素から再利用可能なオブジェクトに抽出することができます。
+
+オブジェクトのキーはディレクティブ(もちろん修飾子を含むことができます)として、値はコールバックとして評価されます。
+
+> 注意: x-spreadにはいくつかの注意点があります。
+> - 展開されるディレクティブが`x-for` の場合、コールバックから通常の式の文字列を返す必要があります。例えば `['x-for']() { return 'item in items' }` のようにです。
+> - `x-data` と `x-init` は "spread" オブジェクトの中では使えません。
 
 ---
 

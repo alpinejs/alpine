@@ -16,12 +16,14 @@ Anggap saja seperti [Tailwind](https://tailwindcss.com/) untuk JavaScript.
 
 | Bahasa | Tautan untuk dokumentasi |
 | --- | --- |
+| Arabic | [**التوثيق باللغة العربية**](./README.ar.md) |
 | Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) |
 | Indonesian | [**Dokumentasi Bahasa Indonesia**](./README.id.md) |
 | Japanese | [**日本語ドキュメント**](./README.ja.md) |
 | Portuguese | [**Documentação em Português**](./README.pt.md) |
 | Russian | [**Документация на русском**](./README.ru.md) |
 | Spanish | [**Documentación en Español**](./README.es.md) |
+| Korean | [**한국어 문서**](./README.ko.md) |
 
 ## Instalasi
 
@@ -83,7 +85,7 @@ Pola di atas adalah pola modul / nomodule yang akan membuat bundel modern dimuat
 ```
 
 Anda bahkan dapat menggunakannya untuk hal-hal yang tidak sepele: 
-*Mengambil konten HTML dari dropdown terlebih dahulu saat mengarahkan kursor*
+*Mengambil konten HTML dari dropdown terlebih dahulu saat mengarahkan kursor*.
 ```html
 <div x-data="{ open: false }">
     <button
@@ -791,6 +793,6 @@ Karena kebijakan berlaku untuk semua skrip di halaman Anda, penting agar pustaka
 
 ## Lisensi
 
-hak cipta © 2019-2020 Caleb Porzio dan kontributor
+hak cipta © 2019-2021 Caleb Porzio dan kontributor
 
 Berlisensi di bawah lisensi MIT, lihat [LICENSE.md](LICENSE.md) untuk detailnya.

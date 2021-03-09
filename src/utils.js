@@ -1,4 +1,6 @@
 
+let errorHandler = null;
+
 // Thanks @stimulus:
 // https://github.com/stimulusjs/stimulus/blob/master/packages/%40stimulus/core/src/application.ts
 export function domReady() {
@@ -65,7 +67,17 @@ export function debounce(func, wait) {
     }
 }
 
+export function setErrorHandler(handler) {
+    errorHandler = handler;
+}
+
 const handleError = (el, expression, error) => {
+    if (errorHandler !== null) {
+        errorHandler(el, expression, error);
+
+        return;
+    }
+
     console.warn(`Alpine Error: "${error}"\n\nExpression: "${expression}"\nElement:`, el);
 
     if (! isTesting()) {

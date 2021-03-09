@@ -1,4 +1,4 @@
-import { arrayUnique, parseHtmlAttribute } from '../src/utils'
+import { arrayUnique, parseHtmlAttribute, setErrorHandler, saferEval } from '../src/utils'
 
 test('utils/arrayUnique', () => {
     const arrayMock = [1, 1, 2, 3, 1, 'a', 'b', 'c', 'b']
@@ -15,4 +15,20 @@ test('utils/parseHtmlAttribute', () => {
         modifiers: [],
         expression: 'x'
     });
+})
+
+test('utils/setErrorHandler', () => {
+    let handlerCallCount = 0;
+
+    const handler = (el, expression, error) => {
+        handlerCallCount++;
+    };
+
+    setErrorHandler(handler);
+
+    expect(handlerCallCount).toEqual(0);
+
+    saferEval(null, 'throw new Error("test");', {}, {});
+
+    expect(handlerCallCount).toEqual(1);
 })

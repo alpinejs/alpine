@@ -119,7 +119,10 @@ test('error in x-on eval causes error, handled by custom error handler', async (
         ></div>
     `
 
+    let errorHandlerCallCount = 0;
+
     Alpine.setErrorHandler((el, expression, error) => {
+        errorHandlerCallCount++;
         console.warn('[custom alpine error]', el);
     });
 
@@ -129,6 +132,8 @@ test('error in x-on eval causes error, handled by custom error handler', async (
         expect(mockConsoleWarn).toHaveBeenCalledWith(
             `[custom alpine error]`,
             document.querySelector('[x-data]',)
-        )
+        );
+
+        expect(errorHandlerCallCount).toEqual(1);
     })
 });

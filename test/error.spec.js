@@ -1,4 +1,4 @@
-import Alpine from 'alpinejs'
+import Alpine from '../src/index';
 import { wait } from '@testing-library/dom'
 
 global.MutationObserver = class {
@@ -110,3 +110,25 @@ test('error in x-on eval contains element, expression and original error', async
         )
     })
 })
+
+test('error in x-on eval causes error, handled by custom error handler', async () => {
+    document.body.innerHTML = `
+        <div
+            x-data="{hello: null}"
+            x-on:click="hello.world"
+        ></div>
+    `
+
+    Alpine.setErrorHandler((el, expression, error) => {
+        console.warn('[custom alpine error]', el);
+    });
+
+    await Alpine.start()
+    document.querySelector('div').click()
+    await wait(() => {
+        expect(mockConsoleWarn).toHaveBeenCalledWith(
+            `[custom alpine error]`,
+            document.querySelector('[x-data]',)
+        )
+    })
+});

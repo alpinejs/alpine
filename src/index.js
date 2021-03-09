@@ -1,5 +1,5 @@
 import Component from './component'
-import { domReady, isTesting } from './utils'
+import { domReady, isTesting, setErrorHandler } from './utils'
 
 const Alpine = {
     version: process.env.PKG_VERSION,
@@ -107,6 +107,10 @@ const Alpine = {
 
     addMagicProperty: function (name, callback) {
         this.magicProperties[name] = callback
+    },
+
+    setErrorHandler: function(handler) {
+        setErrorHandler(handler);
     },
 
     onComponentInitialized: function (callback) {

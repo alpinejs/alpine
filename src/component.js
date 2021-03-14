@@ -411,6 +411,8 @@ export default class Component {
                             return
                         }
 
+                        node.__x_node_add_count = (node.__x_node_add_count || 0) + 1
+
                         this.initializeElements(node)
                     })
                 }

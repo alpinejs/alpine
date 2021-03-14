@@ -2,10 +2,6 @@ import Alpine from 'alpinejs'
 import { wait, fireEvent } from '@testing-library/dom'
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-global.MutationObserver = class {
-    observe() {}
-}
-
 test('data modified in event listener updates affected attribute bindings', async () => {
     document.body.innerHTML = `
         <div x-data="{ foo: 'bar' }">
@@ -559,4 +555,37 @@ test('.camel modifier correctly binds event listener with namespace', async () =
     await wait(() => {
         expect(document.querySelector('p').textContent).toEqual('bob');
     });
+})
+
+test('event handlers only fire once when nodes have been readded to the document.', async () => {
+    document.body.innerHTML = `
+        <div id="container" x-data="{'x': 0}">
+          <span x-text="x">0</span>
+          <button id="a" x-on:click="x += 1; $el.appendChild(document.getElementById('a'))">A</button>
+          <button id="b" x-on:click="x += 1; $el.appendChild(document.getElementById('b'))">B</button>
+          <button id="c" x-on:click="x += 1; $el.appendChild(document.getElementById('c'))">C</button>
+        </div>
+    `
+    Alpine.start()
+    const span = document.querySelector('span')
+
+    expect(span.textContent).toEqual('0')
+
+    document.querySelector('#a').click()
+    await wait(() => {
+        expect(span.textContent).toEqual('1')
+    })
+    expect(document.querySelector('#container').lastChild).toEqual(document.querySelector('#a'))
+
+    document.querySelector('#a').click()
+    await wait(() => {
+        expect(span.textContent).toEqual('2')
+    })
+    expect(document.querySelector('#container').lastChild).toEqual(document.querySelector('#a'))
+
+    document.querySelector('#a').click()
+    await wait(() => {
+        expect(span.textContent).toEqual('3')
+    })
+    expect(document.querySelector('#container').lastChild).toEqual(document.querySelector('#a'))
 })

@@ -153,6 +153,7 @@ And 6 magic properties:
 * [Spruce (State Management)](https://github.com/ryangjchandler/spruce)
 * [Turbolinks Adapter](https://github.com/SimoTod/alpine-turbolinks-adapter)
 * [Alpine Magic Helpers](https://github.com/KevinBatdorf/alpine-magic-helpers)
+* [Alpine.js Devtools](https://github.com/HugoDF/alpinejs-devtools)
 * [Awesome Alpine](https://github.com/ryangjchandler/awesome-alpine)
 
 ### Directives

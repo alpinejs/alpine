@@ -6929,6 +6929,8 @@
       event = camelCase(event);
     }
 
+    var node_add_count = el.__x_node_add_count;
+
     var _handler2, listenerTarget;
 
     if (modifiers.includes('away')) {
@@ -6964,6 +6966,11 @@
             listenerTarget.removeEventListener(event, _handler2, options);
             return;
           }
+        }
+
+        if (el.__x_node_add_count !== node_add_count) {
+          listenerTarget.removeEventListener(event, _handler2, options);
+          return;
         }
 
         if (isKeyEvent(event)) {
@@ -7806,6 +7813,7 @@
                   return;
                 }
 
+                node.__x_node_add_count = (node.__x_node_add_count || 0) + 1;
                 this.initializeElements(node);
               }.bind(this));
             }

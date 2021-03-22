@@ -149,11 +149,12 @@ And 6 magic properties:
 
 ## Community Projects
 
-* [AlpineJS Weekly Newsletter](https://alpinejs.codewithhugo.com/newsletter/)
-* [Spruce (State Management)](https://github.com/ryangjchandler/spruce)
-* [Turbolinks Adapter](https://github.com/SimoTod/alpine-turbolinks-adapter)
+* [Alpine Devtools](https://github.com/HugoDF/alpinejs-devtools)
 * [Alpine Magic Helpers](https://github.com/KevinBatdorf/alpine-magic-helpers)
+* [Alpine Weekly Newsletter](https://alpinejs.codewithhugo.com/newsletter/)
+* [Spruce (State Management)](https://github.com/ryangjchandler/spruce)
 * [Awesome Alpine](https://github.com/ryangjchandler/awesome-alpine)
+* [Turbolinks Adapter](https://github.com/SimoTod/alpine-turbolinks-adapter)
 
 ### Directives
 
@@ -796,6 +797,6 @@ Since a policy applies to all scripts in your page, it's important that other ex
 
 ## License
 
-Copyright © 2019-2020 Caleb Porzio and contributors
+Copyright © 2019-2021 Caleb Porzio and contributors
 
 Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.

@@ -546,6 +546,6 @@ Alpineでは `Function` オブジェクトを使用したカスタム実装に�
 
 ## ライセンス
 
-Copyright © 2019-2020 Caleb Porzio and contributors
+Copyright © 2019-2021 Caleb Porzio and contributors
 
 MIT ライセンスの下でライセンスされています。詳細については、[LICENSE.md](LICENSE.md) を参照してください。

@@ -747,6 +747,6 @@ Ya que la política se aplica a todos los scripts de tu página, es improtante q
 
 ## Licencia
 
-Copyright © 2019-2020 Caleb Porzio y colaboradores
+Copyright © 2019-2021 Caleb Porzio y colaboradores
 
 Licenciado bajo la licencia MIT, ve [LICENSE.md](LICENSE.md) para más detalles.

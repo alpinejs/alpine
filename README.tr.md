@@ -787,6 +787,6 @@ Bu politika, sayfanızdaki tüm kodlara uygulanacağından, sitenize eklediğini
 
 ## Lisans
 
-Copyright © 2019-2020 Caleb Porzio and contributors
+Copyright © 2019-2021 Caleb Porzio and contributors
 
 MIT lisansı altında lisanslanmıştır, detaylar için [LICENSE.md](LICENSE.md) 'e bakınız.

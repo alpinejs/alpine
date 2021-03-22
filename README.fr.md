@@ -788,6 +788,6 @@ Si vous utilisez Alpine sur un site web traitant des données sensibles et néce
 
 ## License
 
-Copyright © 2019-2020 Caleb Porzio et contributeurs
+Copyright © 2019-2021 Caleb Porzio et contributeurs
 
 Licencié sous la licence du MIT, voir [LICENSE.md](LICENSE.md) pour plus de détails.

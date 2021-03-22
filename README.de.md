@@ -784,6 +784,6 @@ Da sich die policy auf alle Skripts einer Seite auswirkt, ist es wichtig sicherz
 
 ## License
 
-Copyright © 2019-2020 Caleb Porzio and contributors
+Copyright © 2019-2021 Caleb Porzio and contributors
 
 Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.

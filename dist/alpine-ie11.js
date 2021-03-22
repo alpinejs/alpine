@@ -7358,7 +7358,7 @@
 
       this.initializeElements(this.$el, function () {
         _newArrowCheck(this, _this);
-      }.bind(this), componentForClone ? false : true); // Use mutation observer to detect new elements being added within this component at run-time.
+      }.bind(this), componentForClone); // Use mutation observer to detect new elements being added within this component at run-time.
       // Alpine's just so darn flexible amirite?
 
       this.listenForNewElementsToInitialize();
@@ -7511,7 +7511,7 @@
         var extraVars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
           _newArrowCheck(this, _this10);
         }.bind(this);
-        var shouldRegisterListeners = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+        var componentForClone = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         this.walkAndSkipNestedComponents(rootEl, function (el) {
           _newArrowCheck(this, _this10);
 
@@ -7519,11 +7519,11 @@
           if (el.__x_for_key !== undefined) return false; // Don't touch spawns from if directives
 
           if (el.__x_inserted_me !== undefined) return false;
-          this.initializeElement(el, extraVars, shouldRegisterListeners);
+          this.initializeElement(el, extraVars, componentForClone ? false : true);
         }.bind(this), function (el) {
           _newArrowCheck(this, _this10);
 
-          el.__x = new Component(el);
+          if (!componentForClone) el.__x = new Component(el);
         }.bind(this));
         this.executeAndClearRemainingShowDirectiveStack();
         this.executeAndClearNextTickStack(rootEl);

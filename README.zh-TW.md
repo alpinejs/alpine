@@ -744,7 +744,7 @@ Alpine 仰賴與使用 `Function` 物件來自定實作以對指示詞取值。�
 
 ## 授權條款 License
 
-Copyright © 2019-2020 Caleb Porzio and contributors
+Copyright © 2019-2021 Caleb Porzio and contributors
 
 Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.
 透過 MIT 授權條款授權，詳情請參閱 [LICENSE.md](LICENSE.md)。

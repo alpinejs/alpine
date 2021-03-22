@@ -89,7 +89,7 @@ Pola di atas adalah pola [module/nomodule pattern](https://philipwalton.com/arti
 ```
 
 Anda bahkan dapat menggunakannya untuk hal-hal yang tidak sepele: 
-*Mengambil konten HTML dari dropdown terlebih dahulu saat mengarahkan kursor*
+*Mengambil konten HTML dari dropdown terlebih dahulu saat mengarahkan kursor*.
 ```html
 <div x-data="{ open: false }">
     <button
@@ -797,6 +797,6 @@ Karena kebijakan berlaku untuk semua skrip di halaman Anda, penting agar pustaka
 
 ## Lisensi
 
-hak cipta © 2019-2020 Caleb Porzio dan kontributor
+hak cipta © 2019-2021 Caleb Porzio dan kontributor
 
 Berlisensi di bawah lisensi MIT, lihat [LICENSE.md](LICENSE.md) untuk detailnya.

@@ -778,6 +778,6 @@ Alpine 依赖对 `Function` 对象的自定义实现来运行指令。虽然比 
 
 ## 许可证 License
 
-Copyright © 2019-2020 Caleb Porzio 与仓库所有贡献者 版权所有
+Copyright © 2019-2021 Caleb Porzio 与仓库所有贡献者 版权所有
 
 基于 MIT 许可证开源，查看 [LICENSE.md](LICENSE.md) 获取详情。

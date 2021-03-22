@@ -796,6 +796,6 @@ Since a policy applies to all scripts in your page, it's important that other ex
 
 ## License
 
-Copyright © 2019-2020 Caleb Porzio and contributors
+Copyright © 2019-2021 Caleb Porzio and contributors
 
 Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.

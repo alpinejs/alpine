@@ -778,6 +778,6 @@ Alpine은 지시자을 평가하기 위해 `Function` 객체를 사용하는 사
 
 ## 라이센스
 
-저작권 © 2019-2020 Caleb Porzio 와 기여자들
+저작권 © 2019-2021 Caleb Porzio 와 기여자들
 
 MIT 라이센스에 따라 허가되며, 더 자세한 내용은 [LICENSE.md](LICENSE.md)를 확인하세요.

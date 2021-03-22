@@ -106,7 +106,7 @@ test('x-init is capable of dispatching an event', async () => {
 
 test('onBeforeComponentInitialized is capable of modifying the element', async () => {
     document.body.innerHTML = `
-        <div x-data="{ init() { window.foo = 'bar' }"></div>
+        <div x-data="{ init() { window.foo = 'bar' } }"></div>
     `
     
     Alpine.onBeforeComponentInitialized(component => {

@@ -149,12 +149,12 @@ And 6 magic properties:
 
 ## Community Projects
 
-* [AlpineJS Weekly Newsletter](https://alpinejs.codewithhugo.com/newsletter/)
-* [Spruce (State Management)](https://github.com/ryangjchandler/spruce)
-* [Turbolinks Adapter](https://github.com/SimoTod/alpine-turbolinks-adapter)
+* [Alpine Devtools](https://github.com/HugoDF/alpinejs-devtools)
 * [Alpine Magic Helpers](https://github.com/KevinBatdorf/alpine-magic-helpers)
-* [Alpine.js Devtools](https://github.com/HugoDF/alpinejs-devtools)
+* [Alpine Weekly Newsletter](https://alpinejs.codewithhugo.com/newsletter/)
+* [Spruce (State Management)](https://github.com/ryangjchandler/spruce)
 * [Awesome Alpine](https://github.com/ryangjchandler/awesome-alpine)
+* [Turbolinks Adapter](https://github.com/SimoTod/alpine-turbolinks-adapter)
 
 ### Directives
 

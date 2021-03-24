@@ -1,15 +1,15 @@
-import { AlpineComponent, $Dispatch, AlpineEvent, SimpleAlpineEvent } from "../src";
+import { AlpineComponent, $Dispatch, SimpleEvent } from "../src";
 import Alpine from "../src";
 
-interface TestEvent extends AlpineEvent {
-    name: 'test-event',
+interface TestEvent extends CustomEvent {
+    type: 'test-event',
     detail: {
         value: number
     }
 }
 
-interface TestEventNoDetail extends SimpleAlpineEvent {
-    name: 'test-event-no-detail'
+interface TestEventNoDetail extends SimpleEvent {
+    type: 'test-event-no-detail'
 }
 
 type CanBeUndef<T> = T extends undefined ? T : never;
@@ -17,18 +17,27 @@ type CanBeUndef<T> = T extends undefined ? T : never;
 type TestComponent = {
     testString: string,
     logTestString: () => void,
-    handleSimpleEvent: (ev: SimpleAlpineEvent) => void,
-    handleAnyEvent: (ev: AlpineEvent) => void,
+    handleSimpleEvent: (ev: SimpleEvent) => void,
+    handleAnyEvent: (ev: CustomEvent) => void,
     dispatchAnyEvent: ($dispatch: $Dispatch) => void,
     dispatchEventWithDetail: ($dispatch: $Dispatch<TestEvent>) => void,
     dispatchEventWithNoDetail: ($dispatch: $Dispatch<TestEventNoDetail>) => void,
-    typedEventFromGeneric: (ev: AlpineEvent, $dispatch: $Dispatch<TestEvent>) => void,
+    dispatchMultipleEventTypes: ($dispatch: $Dispatch<TestEvent | TestEventNoDetail>) => void,
+    typedEventFromGeneric: (ev: CustomEvent, $dispatch: $Dispatch<TestEvent>) => void,
     genericEventFromTyped: (ev: TestEventNoDetail, $dispatch: $Dispatch) => void,
 }
 
 function makeComponent(param: string): AlpineComponent<TestComponent> {
     return {
-        ...Alpine._BASE,
+        dispatchMultipleEventTypes($dispatch: $Dispatch<TestEvent> & $Dispatch<TestEventNoDetail>): void {
+            $dispatch('test-event-no-detail');
+            // @ts-expect-error
+            $dispatch('test-event');
+            $dispatch('test-event', {value: 42});
+            // @ts-expect-error
+            $dispatch('test-event-no-detail', {value: 42});
+        },
+
         testString: param,
         logTestString() {
             console.log(this.testString);
@@ -43,14 +52,14 @@ function makeComponent(param: string): AlpineComponent<TestComponent> {
             const undef: CanBeUndef<typeof testString>;
         },
         handleSimpleEvent(ev) {
-            console.log(ev.name);
+            console.log(ev.type);
             // @ts-expect-error -- not present on simple event
             console.log(ev.detail);
             // @ts-expect-error
             console.log(ev.nonProp);
         },
         handleAnyEvent(ev) {
-            console.log(ev.name);
+            console.log(ev.type);
             console.log(ev.detail);
             // @ts-expect-error
             console.log(ev.nonProp);
@@ -110,6 +119,7 @@ function makeComponent(param: string): AlpineComponent<TestComponent> {
             // @ts-expect-error
             $dispatch('test-event', "event detail", 42);
         },
+        ...Alpine._BASE
     }
 }
 

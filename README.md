@@ -784,6 +784,100 @@ If you use Alpine in a website dealing with sensitive data and requiring [CSP](h
 
 Since a policy applies to all scripts in your page, it's important that other external libraries included in the website are carefully reviewed to ensure that they are trustworthy and they won't introduce any Cross Site Scripting vulnerability either using the `eval()` function or manipulating the DOM to inject malicious code in your page.
 
+## TypeScript
+Alpine components can be typed as `AlpineComponent<T>`, where `T` describes the properties and methods you add to the component.
+
+Because Alpine adds magic properties to your components behind the scenes, TypeScript needs help to understand that there is no type error when a new object that doesn't have those properties is assigned to `AlpineComponent<T>`.
+
+To bridge the gap, you can spread a special placeholder object--`Alpine._BASE`--into your components.  Alpine's type declarations assert (falsely!) that this object will provide the necessary magic methods.  In reality, though, `Alpine._BASE` is just an empty object, so attempting to access any magic properties on it will result in a runtime error.
+
+Sample usage:
+
+```typescript
+import {AlpineComponent} from "./index";
+
+type MyComponent = {
+    foo: number,
+    logTextContent: () => void,
+}
+
+function makeMyComponent(): AlpineComponent<MyComponent> {
+  return {
+    ...Alpine._BASE,
+    logTextContent() {
+      console.log(this.$el.textContent);
+    }
+  }
+}
+```
+
+### $event and $dispatch
+The `$event` object that is passed to event handlers is a standard `CustomEvent`. The built-in interface for `CustomEvent` can be extended to create your own event types. Alpine also provides two utility types `SimpleEvent` and `SimpleEventWithOptionalDetail` that remove or make optional the `detail` property.
+
+The `$dispatch` magic method is not directly available from Javascript and must be passed as an argument to any Javascript function that requires it.  The type of `$dispatch` is `$Dispatch`.  By default, `$Dispatch` expects a string as the event type and allows a second argument of any type as the event detail. For more precise type-checking, you can also specify the type of event that a method should dispatch. Doing so will allow TypeScript to verify that `$dispatch` is called with appropriate arguments.
+
+```typescript
+import {AlpineComponent} from "./index";
+
+interface MySimpleEvent extends SimpleCustomEvent {
+    type: 'simple'
+}
+
+interface MyOptionalDetailEvent extends CustomEventWithOptionalDetail {
+    type: 'optional',
+    detail: string
+}
+
+interface MyDetailedEvent extends CustomEvent {
+    type: 'detailed',
+    detail: string
+}
+
+type MyComponent = {
+    handleEvents: (simple: MySimpleEvent, opt: MyOptionalDetailEvent, detailed: MyDetailedEvent) => void,
+    dispatchAny: ($dispatch: $Dispatch) => void,
+    dispatchSimple: ($dispatch: $Dispatch<MySimpleEvent>) => void,
+    dispatchOptional: ($dispatch: $Dispatch<MyOptionalDetailEvent>) => void,
+    dispatchDetailed: ($dispatch: $Dispatch<MyDetailedEvent>) => void,
+}
+
+function myComponent(): AlpineComponent<MyComponent> {
+  return {
+    ...Alpine._BASE,
+    handleEvents(simple, opt, detailed) {
+      console.log(simple.detail); // Type error -- detail not present
+      console.log(opt.detail.length); // Type error -- detail may be undefined
+      console.log(detailed.detail.length); // OK
+    },
+    dispatchAny($dispatch) {
+      $dispatch('unspecified'); // OK
+      $dispatch('simple', { foo: 'bar' }); // OK but likely wrong
+      $dispatch('unspecified', 'details', 'more details'); // Type error -- unexpected argument
+    },
+    dispatchSimple($dispatch) {
+      $dispatch('simple'); // OK
+      $dispatch('optional'); // Type error -- wrong name
+      $dispatch('simple', 'TMI'); // Type error -- detail argument not allowed
+    }, 
+    dispatchOptional($dispatch) {
+      $dispatch('optional'); // OK
+      $dispatch('optional', 'details'); // OK
+      $dispatch('optional', 3); // Type error -- wrong type for detail
+    },
+    dispatchDetailed($dispatch) {
+      $dispatch('detailed'); // Type error -- detail argument is required
+      $dispatch('detailed', 'details'); // OK
+    } 
+  }
+}
+```
+
+NOTE: If a method can dispatch multiple events, the correct type is `$Dispatch<Event1> & $Dispatch<Event2>` and NOT `$Dispatch<Event1 | Event2>`.
+
+### Alternatives
+[Alpine-typescript](https://github.com/LeanAdmin/alpine-typescript) provides an alternative class-based syntax for integrating Alpine and TypeScript.  
+
+
 ## V3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity?
 * Add `Alpine.directive()`

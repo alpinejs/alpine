@@ -1,0 +1,6 @@
+{
+    "compilerOptions": {
+        "noImplicitThis": true,
+        "strictNullChecks": true
+    },
+}

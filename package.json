@@ -42,5 +42,6 @@
         "rollup-plugin-terser": "^7.0.2",
         "shim-selected-options": "^1.0.1"
     },
-    "dependencies": {}
+    "dependencies": {},
+    "types": "./src/index.d.ts"
 }

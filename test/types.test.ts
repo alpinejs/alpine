@@ -22,22 +22,13 @@ type TestComponent = {
     dispatchAnyEvent: ($dispatch: $Dispatch) => void,
     dispatchEventWithDetail: ($dispatch: $Dispatch<TestEvent>) => void,
     dispatchEventWithNoDetail: ($dispatch: $Dispatch<TestEventNoDetail>) => void,
-    dispatchMultipleEventTypes: ($dispatch: $Dispatch<TestEvent | TestEventNoDetail>) => void,
+    dispatchMultipleEventTypes: ($dispatch: $Dispatch<TestEvent> & $Dispatch<TestEventNoDetail>) => void,
     typedEventFromGeneric: (ev: CustomEvent, $dispatch: $Dispatch<TestEvent>) => void,
     genericEventFromTyped: (ev: TestEventNoDetail, $dispatch: $Dispatch) => void,
 }
 
 function makeComponent(param: string): AlpineComponent<TestComponent> {
     return {
-        dispatchMultipleEventTypes($dispatch: $Dispatch<TestEvent> & $Dispatch<TestEventNoDetail>): void {
-            $dispatch('test-event-no-detail');
-            // @ts-expect-error
-            $dispatch('test-event');
-            $dispatch('test-event', {value: 42});
-            // @ts-expect-error
-            $dispatch('test-event-no-detail', {value: 42});
-        },
-
         testString: param,
         logTestString() {
             console.log(this.testString);
@@ -95,6 +86,14 @@ function makeComponent(param: string): AlpineComponent<TestComponent> {
             $dispatch('test-event', {value: 42});
             // @ts-expect-error
             $dispatch('test-event-no-detail', "event detail", 42);
+        },
+        dispatchMultipleEventTypes($dispatch: $Dispatch<TestEvent> & $Dispatch<TestEventNoDetail>): void {
+            $dispatch('test-event-no-detail');
+            // @ts-expect-error
+            $dispatch('test-event');
+            $dispatch('test-event', {value: 42});
+            // @ts-expect-error
+            $dispatch('test-event-no-detail', {value: 42});
         },
         typedEventFromGeneric(ev, $dispatch) {
             // @ts-expect-error

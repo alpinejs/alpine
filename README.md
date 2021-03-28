@@ -308,6 +308,27 @@ Boolean attributes are supported as per the [HTML specification](https://html.sp
 
 The `camel` modifier will bind to the camel case equivalent of the attribute name. In the example above, the value of `viewBox` will be bound the `viewBox` attribute as opposed to the `view-box` attribute.
 
+**`x-bind` for tabindex**
+
+Change tabindex value by using Javascript expression.
+
+For example:
+
+```html
+<a href="#" x-bind:tabindex="myVar ? '0': '-1'">
+    ...
+</a>
+
+<!-- When myVar = true -->
+<a href="#" tabindex="0">
+    ...
+</a>
+
+<!-- When myVar = false -->
+<a href="#" tabindex="-1">
+    ...
+</a>
+```
 ---
 
 ### `x-on`

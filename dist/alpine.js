@@ -711,26 +711,36 @@
         el.value = value;
       }
     } else if (attrName === 'class') {
-      if (Array.isArray(value)) {
-        const originalClasses = el.__x_original_classes || [];
-        el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
-      } else if (typeof value === 'object') {
-        // Sorting the keys / class names by their boolean value will ensure that
-        // anything that evaluates to `false` and needs to remove classes is run first.
-        const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
-        keysSortedByBooleanValue.forEach(classNames => {
-          if (value[classNames]) {
-            convertClassStringToArray(classNames).forEach(className => el.classList.add(className));
-          } else {
-            convertClassStringToArray(classNames).forEach(className => el.classList.remove(className));
-          }
-        });
-      } else {
-        const originalClasses = el.__x_original_classes || [];
-        const newClasses = value ? convertClassStringToArray(value) : [];
-        el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
+      // added by zwd@funlang.org @2021-04-06 for :class.class-name=...
+      if (modifiers && modifiers.length > 0) {
+          value = {[modifiers[0]]: !!value}
       }
-    } else {
+      // end of add
+      if (Array.isArray(value)) {
+          const originalClasses = el.__x_original_classes || []
+          el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
+      } else if (typeof value === 'object') {
+          // Sorting the keys / class names by their boolean value will ensure that
+          // anything that evaluates to `false` and needs to remove classes is run first.
+          const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
+
+          keysSortedByBooleanValue.forEach(classNames => {
+              if (value[classNames]) {
+                  convertClassStringToArray(classNames).forEach(className => el.classList.add(className))
+              } else {
+                  convertClassStringToArray(classNames).forEach(className => el.classList.remove(className))
+              }
+          })
+      } else {
+          const originalClasses = el.__x_original_classes || []
+          const newClasses = value ? convertClassStringToArray(value) : []
+          el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
+      }
+  // added by zwd@funlang.org @2021-04-06 for :style.style-name=...
+  } else if (attrName === 'style' && modifiers && modifiers.length > 0) {
+      el.style[modifiers[0]] = value;
+  // end of add
+  } else {
       attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName; // If an attribute's bound value is null, undefined or false, remove the attribute
 
       if ([null, undefined, false].includes(value)) {

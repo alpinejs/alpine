@@ -45,6 +45,11 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             el.value = value
         }
     } else if (attrName === 'class') {
+        // added by zwd@funlang.org @2021-04-06 for :class.class-name=...
+        if (modifiers && modifiers.length > 0) {
+            value = {[modifiers[0]]: !!value}
+        }
+        // end of add
         if (Array.isArray(value)) {
             const originalClasses = el.__x_original_classes || []
             el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
@@ -65,6 +70,10 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             const newClasses = value ? convertClassStringToArray(value) : []
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
+    // added by zwd@funlang.org @2021-04-06 for :style.style-name=...
+    } else if (attrName === 'style' && modifiers && modifiers.length > 0) {
+        el.style[modifiers[0]] = value;
+    // end of add
     } else {
         attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName
 

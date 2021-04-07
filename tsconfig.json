@@ -2,5 +2,7 @@
     "compilerOptions": {
         "strict": true
     },
-    "include": ["test/types.test.ts"]
+    "include": [
+        "test/types._test.ts"
+    ]
 }

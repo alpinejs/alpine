@@ -115,10 +115,7 @@ const Alpine = {
 
     onBeforeComponentInitialized: function (callback) {
         this.onBeforeComponentInitializeds.push(callback)
-    },
-
-    // Used only for TypeScript support
-    _BASE: {}
+    }
 }
 
 if (! isTesting()) {

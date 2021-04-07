@@ -789,12 +789,12 @@ Alpine components can be typed as `AlpineComponent<T>`, where `T` describes the 
 
 Because Alpine adds magic properties to your components behind the scenes, TypeScript needs help to understand that there is no type error when a new object that doesn't have those properties is assigned to `AlpineComponent<T>`.
 
-To bridge the gap, you can spread a special placeholder object--`Alpine._BASE`--into your components.  Alpine's type declarations assert (falsely!) that this object will provide the necessary magic methods.  In reality, though, `Alpine._BASE` is just an empty object, so attempting to access any magic properties on it will result in a runtime error.
+To bridge the gap, you can spread an empty placeholder object into your components after asserting that it has the type `AlpineBase<T>`, which includes the magic properties for a component of type `AlpineComponent<T>`.  
 
 Sample usage:
 
 ```typescript
-import {AlpineComponent} from "./index";
+import {AlpineComponent, AlpineBase} from "./index";
 
 type MyComponent = {
     foo: number,
@@ -803,7 +803,7 @@ type MyComponent = {
 
 function makeMyComponent(): AlpineComponent<MyComponent> {
   return {
-    ...Alpine._BASE,
+    ...({} as AlpineBase<MyComponent>),
     logTextContent() {
       console.log(this.$el.textContent);
     }
@@ -817,7 +817,7 @@ The `$event` object that is passed to event handlers is a standard `CustomEvent`
 The `$dispatch` magic method is not directly available from Javascript and must be passed as an argument to any Javascript function that requires it.  The type of `$dispatch` is `$Dispatch`.  By default, `$Dispatch` expects a string as the event type and allows a second argument of any type as the event detail. For more precise type-checking, you can also specify the type of event that a method should dispatch. Doing so will allow TypeScript to verify that `$dispatch` is called with appropriate arguments.
 
 ```typescript
-import {AlpineComponent} from "./index";
+import {AlpineComponent, AlpineBase} from "./index";
 
 interface MySimpleEvent extends SimpleCustomEvent {
     type: 'simple'
@@ -843,7 +843,7 @@ type MyComponent = {
 
 function myComponent(): AlpineComponent<MyComponent> {
   return {
-    ...Alpine._BASE,
+    ...({} as AlpineBase<MyComponent>),
     handleEvents(simple, opt, detailed) {
       console.log(simple.detail); // Type error -- detail not present
       console.log(opt.detail.length); // Type error -- detail may be undefined

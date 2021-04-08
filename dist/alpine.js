@@ -711,36 +711,36 @@
         el.value = value;
       }
     } else if (attrName === 'class') {
-      // added by zwd@funlang.org @2021-04-06 for :class.class-name=...
+      // @feature :class.class-name=...
       if (modifiers && modifiers.length > 0) {
-          value = {[modifiers[0]]: !!value}
+        var v = !!value;
+        value = {};
+        modifiers.forEach(className => value[className] = v);
       }
-      // end of add
-      if (Array.isArray(value)) {
-          const originalClasses = el.__x_original_classes || []
-          el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
-      } else if (typeof value === 'object') {
-          // Sorting the keys / class names by their boolean value will ensure that
-          // anything that evaluates to `false` and needs to remove classes is run first.
-          const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
 
-          keysSortedByBooleanValue.forEach(classNames => {
-              if (value[classNames]) {
-                  convertClassStringToArray(classNames).forEach(className => el.classList.add(className))
-              } else {
-                  convertClassStringToArray(classNames).forEach(className => el.classList.remove(className))
-              }
-          })
+      if (Array.isArray(value)) {
+        const originalClasses = el.__x_original_classes || [];
+        el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
+      } else if (typeof value === 'object') {
+        // Sorting the keys / class names by their boolean value will ensure that
+        // anything that evaluates to `false` and needs to remove classes is run first.
+        const keysSortedByBooleanValue = Object.keys(value).sort((a, b) => value[a] - value[b]);
+        keysSortedByBooleanValue.forEach(classNames => {
+          if (value[classNames]) {
+            convertClassStringToArray(classNames).forEach(className => el.classList.add(className));
+          } else {
+            convertClassStringToArray(classNames).forEach(className => el.classList.remove(className));
+          }
+        });
       } else {
-          const originalClasses = el.__x_original_classes || []
-          const newClasses = value ? convertClassStringToArray(value) : []
-          el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
+        const originalClasses = el.__x_original_classes || [];
+        const newClasses = value ? convertClassStringToArray(value) : [];
+        el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
       }
-  // added by zwd@funlang.org @2021-04-06 for :style.style-name=...
-  } else if (attrName === 'style' && modifiers && modifiers.length > 0) {
+    } else if (attrName === 'style' && modifiers && modifiers.length > 0) {
+      // @feature :style.style-name=...
       el.style[modifiers[0]] = value;
-  // end of add
-  } else {
+    } else {
       attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName; // If an attribute's bound value is null, undefined or false, remove the attribute
 
       if ([null, undefined, false].includes(value)) {
@@ -1789,19 +1789,14 @@
         subtree: true
       };
       const observer = new MutationObserver(mutations => {
-      // added by zwd@funlang.org @2021-04-08 for performance
-      if (mutations.length > 10) {
-        const rootEls = document.querySelectorAll('[x-data]');
-
-        Array.from(rootEls)
-            .filter(el => el.__x === undefined)
-            .forEach(node => {
-                node.__x = new Component(node)
-                this.initializeElements(node)
-            })
-      } else
-      // end of add
-      for (let i = 0; i < mutations.length; i++) {
+        // @performance
+        if (mutations.length > 10) {
+          const rootEls = document.querySelectorAll('[x-data]');
+          Array.from(rootEls).filter(el => el.__x === undefined).forEach(node => {
+            node.__x = new Component(node);
+            this.initializeElements(node);
+          });
+        } else for (let i = 0; i < mutations.length; i++) {
           // Filter out mutations triggered from child components.
           const closestParentComponent = mutations[i].target.closest('[x-data]');
           if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
@@ -1906,16 +1901,11 @@
         subtree: true
       };
       const observer = new MutationObserver(mutations => {
-        if (this.pauseMutationObserver) return;
+        if (this.pauseMutationObserver) return; // @performance
 
-        // added by zwd@funlang.org @2021-04-08 for performance
-        if (mutations.length > 10) {
-            this.discoverUninitializedComponents((el) => {
-                this.initializeComponent(el)
-            })
-        } else
-        // end of add
-        for (let i = 0; i < mutations.length; i++) {
+        if (mutations.length > 10) this.discoverUninitializedComponents(el => {
+          this.initializeComponent(el);
+        });else for (let i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(node => {
               // Discard non-element nodes (like line-breaks)

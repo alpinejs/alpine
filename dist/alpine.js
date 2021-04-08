@@ -1896,6 +1896,13 @@
       const observer = new MutationObserver(mutations => {
         if (this.pauseMutationObserver) return;
 
+        // added by zwd@funlang.org @2021-04-08 for performance
+        if (mutations.length > 10)
+          this.discoverUninitializedComponents((el) => {
+              this.initializeComponent(el)
+          })
+        else
+        // end of add
         for (let i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(node => {

@@ -1789,7 +1789,19 @@
         subtree: true
       };
       const observer = new MutationObserver(mutations => {
-        for (let i = 0; i < mutations.length; i++) {
+      // added by zwd@funlang.org @2021-04-08 for performance
+      if (mutations.length > 10) {
+        const rootEls = document.querySelectorAll('[x-data]');
+
+        Array.from(rootEls)
+            .filter(el => el.__x === undefined)
+            .forEach(node => {
+                node.__x = new Component(node)
+                this.initializeElements(node)
+            })
+      } else
+      // end of add
+      for (let i = 0; i < mutations.length; i++) {
           // Filter out mutations triggered from child components.
           const closestParentComponent = mutations[i].target.closest('[x-data]');
           if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
@@ -1897,11 +1909,11 @@
         if (this.pauseMutationObserver) return;
 
         // added by zwd@funlang.org @2021-04-08 for performance
-        if (mutations.length > 10)
-          this.discoverUninitializedComponents((el) => {
-              this.initializeComponent(el)
-          })
-        else
+        if (mutations.length > 10) {
+            this.discoverUninitializedComponents((el) => {
+                this.initializeComponent(el)
+            })
+        } else
         // end of add
         for (let i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {

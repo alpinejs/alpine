@@ -64,12 +64,6 @@ const Alpine = {
         const observer = new MutationObserver((mutations) => {
             if (this.pauseMutationObserver) return;
 
-            // @performance
-            if (mutations.length > 10)
-                this.discoverUninitializedComponents((el) => {
-                    this.initializeComponent(el)
-                })
-            else
             for (let i=0; i < mutations.length; i++){
                 if (mutations[i].addedNodes.length > 0) {
                     mutations[i].addedNodes.forEach(node => {

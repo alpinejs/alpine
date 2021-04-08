@@ -385,7 +385,7 @@ export default class Component {
         }
 
         const observer = new MutationObserver((mutations) => {
-            // added by zwd@funlang.org @2021-04-08 for performance
+            // @performance
             if (mutations.length > 10) {
                 const rootEls = document.querySelectorAll('[x-data]');
 
@@ -396,7 +396,6 @@ export default class Component {
                         this.initializeElements(node)
                     })
             } else
-            // end of add
             for (let i=0; i < mutations.length; i++) {
                 // Filter out mutations triggered from child components.
                 const closestParentComponent = mutations[i].target.closest('[x-data]')

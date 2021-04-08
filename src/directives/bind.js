@@ -45,6 +45,13 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             el.value = value
         }
     } else if (attrName === 'class') {
+        // @feature :class.class-name=...
+        if (modifiers && modifiers.length > 0) {
+            var v = !!value
+            value = {}
+            modifiers.forEach(className => value[className] = v)
+        }
+
         if (Array.isArray(value)) {
             const originalClasses = el.__x_original_classes || []
             el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '))
@@ -65,6 +72,8 @@ export function handleAttributeBindingDirective(component, el, attrName, express
             const newClasses = value ? convertClassStringToArray(value) : []
             el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '))
         }
+    } else if (attrName === 'style' && modifiers && modifiers.length > 0) { // @feature :style.style-name=...
+        el.style[modifiers[0]] = value;
     } else {
         attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName
 

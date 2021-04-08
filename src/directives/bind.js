@@ -47,7 +47,9 @@ export function handleAttributeBindingDirective(component, el, attrName, express
     } else if (attrName === 'class') {
         // @feature :class.class-name=...
         if (modifiers && modifiers.length > 0) {
-            value = {[modifiers[0]]: !!value}
+            var v = !!value
+            value = {}
+            modifiers.forEach(className => value[className] = v)
         }
 
         if (Array.isArray(value)) {

@@ -6651,17 +6651,6 @@
         el.value = value;
       }
     } else if (attrName === 'class') {
-      // @feature :class.class-name=...
-      if (modifiers && modifiers.length > 0) {
-        var v = !!value;
-        value = {};
-        modifiers.forEach(function (className) {
-          _newArrowCheck(this, _this);
-
-          return value[className] = v;
-        }.bind(this));
-      }
-
       if (Array.isArray(value)) {
         var originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
@@ -6698,9 +6687,6 @@
         var newClasses = value ? convertClassStringToArray(value) : [];
         el.setAttribute('class', arrayUnique(_originalClasses.concat(newClasses)).join(' '));
       }
-    } else if (attrName === 'style' && modifiers && modifiers.length > 0) {
-      // @feature :style.style-name=...
-      el.style[modifiers[0]] = value;
     } else {
       attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName; // If an attribute's bound value is null, undefined or false, remove the attribute
 
@@ -7786,20 +7772,7 @@
 
           _newArrowCheck(this, _this22);
 
-          // @performance
-          if (mutations.length > 10) {
-            var rootEls = document.querySelectorAll('[x-data]');
-            Array.from(rootEls).filter(function (el) {
-              _newArrowCheck(this, _this23);
-
-              return el.__x === undefined;
-            }.bind(this)).forEach(function (node) {
-              _newArrowCheck(this, _this23);
-
-              node.__x = new Component(node);
-              this.initializeElements(node);
-            }.bind(this));
-          } else for (var i = 0; i < mutations.length; i++) {
+          for (var i = 0; i < mutations.length; i++) {
             // Filter out mutations triggered from child components.
             var closestParentComponent = mutations[i].target.closest('[x-data]');
             if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
@@ -7988,13 +7961,9 @@
 
         _newArrowCheck(this, _this5);
 
-        if (this.pauseMutationObserver) return; // @performance
+        if (this.pauseMutationObserver) return;
 
-        if (mutations.length > 10) this.discoverUninitializedComponents(function (el) {
-          _newArrowCheck(this, _this6);
-
-          this.initializeComponent(el);
-        }.bind(this));else for (var i = 0; i < mutations.length; i++) {
+        for (var i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(function (node) {
               var _this7 = this;

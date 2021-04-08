@@ -711,13 +711,6 @@
         el.value = value;
       }
     } else if (attrName === 'class') {
-      // @feature :class.class-name=...
-      if (modifiers && modifiers.length > 0) {
-        var v = !!value;
-        value = {};
-        modifiers.forEach(className => value[className] = v);
-      }
-
       if (Array.isArray(value)) {
         const originalClasses = el.__x_original_classes || [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(value)).join(' '));
@@ -737,9 +730,6 @@
         const newClasses = value ? convertClassStringToArray(value) : [];
         el.setAttribute('class', arrayUnique(originalClasses.concat(newClasses)).join(' '));
       }
-    } else if (attrName === 'style' && modifiers && modifiers.length > 0) {
-      // @feature :style.style-name=...
-      el.style[modifiers[0]] = value;
     } else {
       attrName = modifiers.includes('camel') ? camelCase(attrName) : attrName; // If an attribute's bound value is null, undefined or false, remove the attribute
 
@@ -1789,14 +1779,7 @@
         subtree: true
       };
       const observer = new MutationObserver(mutations => {
-        // @performance
-        if (mutations.length > 10) {
-          const rootEls = document.querySelectorAll('[x-data]');
-          Array.from(rootEls).filter(el => el.__x === undefined).forEach(node => {
-            node.__x = new Component(node);
-            this.initializeElements(node);
-          });
-        } else for (let i = 0; i < mutations.length; i++) {
+        for (let i = 0; i < mutations.length; i++) {
           // Filter out mutations triggered from child components.
           const closestParentComponent = mutations[i].target.closest('[x-data]');
           if (!(closestParentComponent && closestParentComponent.isSameNode(this.$el))) continue;
@@ -1901,11 +1884,9 @@
         subtree: true
       };
       const observer = new MutationObserver(mutations => {
-        if (this.pauseMutationObserver) return; // @performance
+        if (this.pauseMutationObserver) return;
 
-        if (mutations.length > 10) this.discoverUninitializedComponents(el => {
-          this.initializeComponent(el);
-        });else for (let i = 0; i < mutations.length; i++) {
+        for (let i = 0; i < mutations.length; i++) {
           if (mutations[i].addedNodes.length > 0) {
             mutations[i].addedNodes.forEach(node => {
               // Discard non-element nodes (like line-breaks)

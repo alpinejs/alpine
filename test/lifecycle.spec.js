@@ -103,3 +103,22 @@ test('x-init is capable of dispatching an event', async () => {
         expect(document.querySelector('span').textContent).toEqual('baz')
     })
 })
+
+test('onBeforeComponentInitialized is capable of modifying the element', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ init() { window.foo = 'bar' } }"></div>
+    `
+    
+    Alpine.onBeforeComponentInitialized(component => {
+        if (! component.$el.hasAttribute('x-init') && component.$data.init)
+            component.$el.setAttribute('x-init', 'init()')
+    })
+    
+    Alpine.start()
+    
+    await wait(() => {
+        expect(document.querySelector('div').getAttribute('x-init')).toEqual('init()')
+        
+        expect(window.foo).toEqual('bar')
+    })
+})

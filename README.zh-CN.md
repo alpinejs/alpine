@@ -4,7 +4,7 @@
 ![npm version](https://img.shields.io/npm/v/alpinejs)
 [![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg?sanitize=true)](https://alpinejs.codewithhugo.com/chat/)
 
-Alpine.js 通过很低的成本提供了于 Vue 或 React 这类大型框架相近的响应式和声明式特性。
+Alpine.js 通过很低的成本提供了与 Vue 或 React 这类大型框架相近的响应式和声明式特性。
 
 你可以继续操作 DOM，并在需要的时候使用 Alpine.js。
 

@@ -863,6 +863,7 @@
       event = camelCase(event);
     }
 
+    const node_add_count = el.__x_node_add_count;
     let handler, listenerTarget;
 
     if (modifiers.includes('away')) {
@@ -892,6 +893,11 @@
             listenerTarget.removeEventListener(event, handler, options);
             return;
           }
+        }
+
+        if (el.__x_node_add_count !== node_add_count) {
+          listenerTarget.removeEventListener(event, handler, options);
+          return;
         }
 
         if (isKeyEvent(event)) {
@@ -1805,6 +1811,7 @@
                 return;
               }
 
+              node.__x_node_add_count = (node.__x_node_add_count || 0) + 1;
               this.initializeElements(node);
             });
           }

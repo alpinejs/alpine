@@ -9,6 +9,8 @@ export function registerListener(component, el, event, modifiers, expression, ex
         event = camelCase(event);
     }
 
+    const node_add_count = el.__x_node_add_count
+
     let handler, listenerTarget
 
     if (modifiers.includes('away')) {
@@ -41,6 +43,11 @@ export function registerListener(component, el, event, modifiers, expression, ex
                     listenerTarget.removeEventListener(event, handler, options)
                     return
                 }
+            }
+
+            if (el.__x_node_add_count !== node_add_count) {
+                listenerTarget.removeEventListener(event, handler, options);
+                return
             }
 
             if (isKeyEvent(event)) {

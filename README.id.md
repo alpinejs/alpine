@@ -17,13 +17,17 @@ Anggap saja seperti [Tailwind](https://tailwindcss.com/) untuk JavaScript.
 | Bahasa | Tautan untuk dokumentasi |
 | --- | --- |
 | Arabic | [**التوثيق باللغة العربية**](./README.ar.md) |
+| Chinese Simplified | [**简体中文文档**](./README.zh-CN.md) |
 | Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) |
+| Français | [**Documentation en Français**](./README.fr.md) |
+| German | [**Dokumentation in Deutsch**](./README.de.md) |
 | Indonesian | [**Dokumentasi Bahasa Indonesia**](./README.id.md) |
 | Japanese | [**日本語ドキュメント**](./README.ja.md) |
+| Korean | [**한국어 문서**](./README.ko.md) |
 | Portuguese | [**Documentação em Português**](./README.pt.md) |
 | Russian | [**Документация на русском**](./README.ru.md) |
 | Spanish | [**Documentación en Español**](./README.es.md) |
-| Korean | [**한국어 문서**](./README.ko.md) |
+| Turkish | [**Türkçe Dokümantasyon**](./README.tr.md) |
 
 ## Instalasi
 
@@ -55,7 +59,7 @@ import 'alpinejs'
 <script nomodule src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine-ie11.min.js" defer></script>
 ```
 
-Pola di atas adalah pola modul / nomodule yang akan membuat bundel modern dimuat secara otomatis di browser modern, dan bundel IE11 dimuat secara otomatis di IE11 dan browser lama lainnya.
+Pola di atas adalah pola [module/nomodule pattern](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) yang akan membuat bundel modern dimuat secara otomatis di browser modern, dan bundel IE11 dimuat secara otomatis di IE11 dan browser lama lainnya.
 
 ## Penggunaan
 

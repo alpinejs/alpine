@@ -22,6 +22,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 | German | [**Dokumentation in Deutsch**](./README.de.md) |
 | Indonesian | [**Dokumentasi Bahasa Indonesia**](./README.id.md) |
 | Japanese | [**日本語ドキュメント**](./README.ja.md) |
+| Norwegian | [**Dokumentasjon på norsk**](./README.no.md) |
 | Portuguese | [**Documentação em Português**](./README.pt.md) |
 | Russian | [**Документация на русском**](./README.ru.md) |
 | Spanish | [**Documentación en Español**](./README.es.md) |

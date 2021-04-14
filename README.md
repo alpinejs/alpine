@@ -421,7 +421,7 @@ The `debounce` modifier allows you to add a "debounce" to a value update. In oth
 
 The default debounce "wait" time is 250 milliseconds.
 
-If you wish to customize this, you can specifiy a custom wait time like so:
+If you wish to customize this, you can specify a custom wait time like so:
 
 ```
 <input x-model.debounce.750="search">

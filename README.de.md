@@ -14,15 +14,21 @@ Unsere Philosophie erinnert dich vielleicht an [Tailwind](https://tailwindcss.co
 
 ## Übersetzungen der Dokumentation
 
-| Language | Link for documentation |
+| Sprache | Link zur Dokumentation |
 | --- | --- |
-| Chinese Traditional | [**繁體中文說明文件**](./README.zh-TW.md) |
-| German | [**Dokumentation in Deutsch**](./README.de.md) |
-| Indonesian | [**Dokumentasi Bahasa Indonesia**](./README.id.md) |
-| Japanese | [**日本語ドキュメント**](./README.ja.md) |
-| Portuguese | [**Documentação em Português**](./README.pt.md) |
-| Russian | [**Документация на русском**](./README.ru.md) |
-| Spanish | [**Documentación en Español**](./README.es.md) |
+| Arabic | [**التوثيق باللغة العربية**](./README.ar.md) |
+| Chinesisch Vereinfacht | [**简体中文文档**](./README.zh-CN.md) |
+| Chinesisch Traditionell | [**繁體中文說明文件**](./README.zh-TW.md) |
+| Deutsch | [**Dokumentation in Deutsch**](./README.de.md) |
+| Indonesisch | [**Dokumentasi Bahasa Indonesia**](./README.id.md) |
+| Japanisch | [**日本語ドキュメント**](./README.ja.md) |
+| Norwegisch | [**Dokumentasjon på norsk**](./README.no.md) |
+| Portugiesisch | [**Documentação em Português**](./README.pt.md) |
+| Russisch | [**Документация на русском**](./README.ru.md) |
+| Spanisch | [**Documentación en Español**](./README.es.md) |
+| Türkisch | [**Türkçe Dokümantasyon**](./README.tr.md) |
+| Französisch | [**Documentation en Français**](./README.fr.md) |
+| Koreanisch | [**한국어 문서**](./README.ko.md) |
 
 ## Installation
 
@@ -113,16 +119,16 @@ Es stehen 14 Direktiven zur Verfügung:
 | [`x-init`](#x-init) | Wertet einen Ausdruck aus, sobald die Komponente initialisiert wurde. |
 | [`x-show`](#x-show) | Schaltet anhand des Ausdrucks (true oder false) das Element auf `display: none;`. |
 | [`x-bind`](#x-bind) | Setzt den Wert eines Attributs auf das Ergebnis eines JS-Ausdrucks. |
-| [`x-on`](#x-on) | Verbindet einen EventHandler mit einem HTML-Elemment. Der spezifizierte JS-Code wird nur dann aufgerufen, wenn das jeweilige Ereignis empfangen wird. |
+| [`x-on`](#x-on) | Verbindet einen EventHandler mit einem HTML-Element. Der spezifizierte JS-Code wird nur dann aufgerufen, wenn das jeweilige Ereignis empfangen wird. |
 | [`x-model`](#x-model) | Das Direktive sorgt für das Databinding mit Input-Elementen. Hierbei wird ein Databinding in beide Richtungen ermöglicht ("Two way databinding"). |
 | [`x-text`](#x-text) | Funktioniert ähnlich wie `x-bind`, wobei hier das `innerText` eines Elements aktualisiert wird. |
 | [`x-html`](#x-html) | Funktioniert ähnlich wie `x-bind`, wobei hier das `innerHTML` eines Elements aktualisiert wird. |
 | [`x-ref`](#x-ref) | Ermöglicht es, die Elemente einer Komponente im DOM zu referenzieren. |
 | [`x-if`](#x-if) | Entfernt ein Element aus dem DOM. Kann nur in Kombination mit `<template>`-Tags benutzt werden. |
 | [`x-for`](#x-for) | Erstellt einen neuen DOM-Knoten (node) für jedes Element in einem Array. Kann nur in Kombination mit `<template>`-Tags benutzt werden. |
-| [`x-transition`](#x-transition) | Ein Direktive zur Anwedung von Klassen auf unterschiedliche Phasen der Transition eines Elements. |
+| [`x-transition`](#x-transition) | Ein Direktive zur Anwendung von Klassen auf unterschiedliche Phasen der Transition eines Elements. |
 | [`x-spread`](#x-spread) | Ermöglicht die Bindung von einem Objekt aus Alpine Direktiven an ein Element. Dies erlaubt eine bessere Wiederverwendbarkeit von Direktiven. |
-| [`x-cloak`](#x-cloak) | Dieses Attribut wird entfernt, sobald Alpine initalisiert wird. Das Direktive wird genutzt, um das pre-initalisierte DOM auszublenden. |
+| [`x-cloak`](#x-cloak) | Dieses Attribut wird entfernt, sobald Alpine initialisiert wird. Das Direktive wird genutzt, um das pre-initialisierte DOM auszublenden. |
 
 
 Und 6 magische Eigenschaften (englisch *magic properties*):
@@ -190,7 +196,7 @@ Datenquellen und zugehörige Funktionalität können in wiederverwendbare Funkti
 </script>
 ```
 
-> **Für Nutzer von Modul-Packern**: Alpine.js ruft Funktionen auf, welche sich im globalen Geltungsbereich (`window`) befinden. Um Funktionen mit `x-data` zu benutzen, müssen sie daher explizit dem Geltungsbereich `window` zugewießen werden. Zum Beispiel `window.dropdown = function () {}` (Dieses Verhalten ist auf Webpack, Rollup, Parcel etc. zurückzuführen. Hier leben selbstdefinierte Funktionen defaultmäßig im Geltungsbereich des Moduls, und nicht `window`).
+> **Für Nutzer von Modul-Packern**: Alpine.js ruft Funktionen auf, welche sich im globalen Geltungsbereich (`window`) befinden. Um Funktionen mit `x-data` zu benutzen, müssen sie daher explizit dem Geltungsbereich `window` zugewiesen werden. Zum Beispiel `window.dropdown = function () {}` (Dieses Verhalten ist auf Webpack, Rollup, Parcel etc. zurückzuführen. Hier leben selbstdefinierte Funktionen defaultmäßig im Geltungsbereich des Moduls, und nicht `window`).
 
 Durch Objektdestrukturierung können mehrere Datenobjekte an `x-data` übergeben werden:
 
@@ -352,7 +358,7 @@ Durch das Anhängen von `.stop` an einen EventHandler, wird die Methode `stopPro
 **`.self` Modifikator**
 **Beispiel:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
 
-Durch das Anhängen von `.self` an einen EventHandler, wird das Ergeinis nur dann behandelt, wenn das `$event.target` das Element selbst ist. Klickt ein Nutzer im obigen Beispiel auf das `<button>`-Element, wird das Ereignis "click" somit **NICHT** im übergeordnete Element `<div>` behandelt.
+Durch das Anhängen von `.self` an einen EventHandler, wird das Ereignis nur dann behandelt, wenn das `$event.target` das Element selbst ist. Klickt ein Nutzer im obigen Beispiel auf das `<button>`-Element, wird das Ereignis "click" somit **NICHT** im übergeordnete Element `<div>` behandelt.
 
 **`.window` Modifikator**
 **Beispiel:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
@@ -374,7 +380,7 @@ Durch das Anhängen von `.passive` an einen EventHandler, wird der gegebene List
 **`.debounce` Modifikator**
 **Beispiel:** `<input x-on:input.debounce="fetchSomething()">`
 
-Mithilfe des Modifikators `debounce` kann ein EventHandler "debounced" werden. Hiermit wird sichergestellt, dass das spezifierte Ereignis nur dann behandelt wird, wenn eine gewisse Zeitspanne zum letzten Vorkommnis des Ereignisses vergangen ist. Erst wenn der Handler bereit ist, wird die Ereignisbehandlung ausgeführt.
+Mithilfe des Modifikators `debounce` kann ein EventHandler "debounced" werden. Hiermit wird sichergestellt, dass das spezifizierte Ereignis nur dann behandelt wird, wenn eine gewisse Zeitspanne zum letzten Vorkommnis des Ereignisses vergangen ist. Erst wenn der Handler bereit ist, wird die Ereignisbehandlung ausgeführt.
 
 Die defaultmäßige Wartezeit beträgt 250 Millisekunden.
 
@@ -399,7 +405,7 @@ Mithilfe des Modifikators `camel` kann ein EventHandler an die camel-case Schrei
 
 `x-model` erweitert ein Element um ein "two-way data binding" (d.h. Databinding ist in beide Richtungen möglich). Der Wert des `<input>`-Elements wird mit dem Wert der Komponenten-Datenquelle `item` synchronisiert.
 
-> Hinweis: `x-model` erkennt automatisch Änderungen auf den folgenen Elementen: text inputs, checkboxes, radio buttons, textareas, selects, multiple selects. In den genannten Szenarien sollte die Funktionsweise von `x-model` das [Verhalten von Vue](https://vuejs.org/v2/guide/forms.html) widerspiegeln.
+> Hinweis: `x-model` erkennt automatisch Änderungen auf den folgenden Elementen: text inputs, checkboxes, radio buttons, textareas, selects, multiple selects. In den genannten Szenarien sollte die Funktionsweise von `x-model` das [Verhalten von Vue](https://vuejs.org/v2/guide/forms.html) widerspiegeln.
 
 **`.number` Modifikator**
 **Beispiel:** `<input x-model.number="age">`
@@ -409,7 +415,7 @@ Durch die Nutzung des Modifikators `number` wird der Wert des `<input>`-Elements
 **`.debounce` Modifikator**
 **Beispiel:** `<input x-model.debounce="search">`
 
-Mithilfe des Modifikators `debounce` kann der Aktualisierung eines Wertes ein "debounce" hinzugefügt werden. Hiermit wird sichergestellt, dass das spezifierte Ereignis nur dann behandelt wird, wenn eine gewisse Zeitspanne zum letzten Vorkommnis des Ereignisses vergangen ist. Erst wenn der Handler bereit ist, wird die Ereignisbehandlung ausgeführt.
+Mithilfe des Modifikators `debounce` kann der Aktualisierung eines Wertes ein "debounce" hinzugefügt werden. Hiermit wird sichergestellt, dass das spezifizierte Ereignis nur dann behandelt wird, wenn eine gewisse Zeitspanne zum letzten Vorkommnis des Ereignisses vergangen ist. Erst wenn der Handler bereit ist, wird die Ereignisbehandlung ausgeführt.
 
 Die defaultmäßige Wartezeit beträgt 250 Millisekunden.
 
@@ -449,7 +455,7 @@ Die Wartezeit kann folgendermaßen individualisiert werden:
 
 **Struktur:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
 
-`x-ref` Ermöglicht es, die Elemente einer Komponente im DOM zu referenzieren. Wird das Attribut `x-ref` auf ein Element gesetzt, wird das Element durch das `$refs`-Objekt für alle EventHandler verfügbar geemacht.
+`x-ref` Ermöglicht es, die Elemente einer Komponente im DOM zu referenzieren. Wird das Attribut `x-ref` auf ein Element gesetzt, wird das Element durch das `$refs`-Objekt für alle EventHandler verfügbar gemacht.
 
 Dieses Vorgehen präsentiert sich als hilfreiche Alternative, wenn vermehrt der Befehl `document.querySelector` zur Referenzierung von Elementen eingesetzt werden muss.
 
@@ -498,9 +504,9 @@ Wird Zugriff auf das Array-Ojekt (colletion) des momentanten Schleifendurchgangs
 ```html
 <template x-for="(item, index, collection) in items" :key="index">
     <!-- Bei Bedarf kann "collection" innerhalb der Schleife referenziert werden. -->
-    <!-- Momentantes Element (item). -->
+    <!-- Momentanes Element (item). -->
     <div x-text="item"></div>
-    <!-- Selbiges Elemenet wie oben. -->
+    <!-- Selbiges Element wie oben. -->
     <div x-text="collection[index]"></div>
     <!-- Element an der vorherigen Position. -->
     <div x-text="collection[index - 1]"></div>
@@ -573,10 +579,10 @@ Sieht man über die Differenzen in der Namensgebung hinweg, verhalten sie sich e
 | --- | --- |
 | `:enter` | Wird während der gesamten Eintrittsphase angewendet. |
 | `:enter-start` | Wird hinzugefügt, bevor das Element eingefügt wurde. Wird entfernt, ein Frame nachdem das Element eingefügt wurde. |
-| `:enter-end` | Wird hinzugefügt, ein Frame nachdem das Element eingefügt wurde (zum selben Zeitpunkt, an dem `enter-start` entfernt wird). Wird enfernt, sobald der Übergang/die Animation beendet ist.
+| `:enter-end` | Wird hinzugefügt, ein Frame nachdem das Element eingefügt wurde (zum selben Zeitpunkt, an dem `enter-start` entfernt wird). Wird entfernt, sobald der Übergang/die Animation beendet ist.
 | `:leave` | Wird während der gesamten Austrittsphase angewendet. |
 | `:leave-start` |  Wird sofort hinzugefügt, sobald eine ausgehende Transition ausgelöst wird. Wird nach einem Frame entfernt. |
-| `:leave-end` | Wird hinzugefügt, ein Frame nachdem eine ausgehende Transition ausgelöst wurde (zum selben Zeitpunkt, an dem `leave-start` entfernt wird). Wird enfernt, sobald der Übergang/die Animation beendet ist. |
+| `:leave-end` | Wird hinzugefügt, ein Frame nachdem eine ausgehende Transition ausgelöst wurde (zum selben Zeitpunkt, an dem `leave-start` entfernt wird). Wird entfernt, sobald der Übergang/die Animation beendet ist. |
 
 ---
 
@@ -622,7 +628,7 @@ Die Namen des Objekts sind die Direktiven (jedes mögliche Direktive inklusive M
 ### `x-cloak`
 **Beispiel:** `<div x-data="{}" x-cloak></div>`
 
-`x-cloak`-Attribute werden vom Element entfernt, sobald Alpine initialisiert wird. Das Direktive wird genutzt, um das pre-initalisierte DOM auszublenden. Typischerweise wird das folgende Styling im globalen Geltungsbereich gesetzt, um die Funktionalität von `x-cloak` sicherzustellen:
+`x-cloak`-Attribute werden vom Element entfernt, sobald Alpine initialisiert wird. Das Direktive wird genutzt, um das pre-initialisierte DOM auszublenden. Typischerweise wird das folgende Styling im globalen Geltungsbereich gesetzt, um die Funktionalität von `x-cloak` sicherzustellen:
 
 ```html
 <style>
@@ -769,7 +775,7 @@ Alpine basiert auf einer benutzerdefinierten Implementierung, welche das `Functi
 
 Wenn du Alpine innerhalb einer Website nutzt, welche sensible Daten verarbeitet und auf [CSP](https://csp.withgoogle.com/docs/strict-csp.html) angewiesen ist, muss die Eigenschaft `unsafe-eval` in die policy eingefügt werden. Eine korrekt konfigurierte policy ist ein sinnvoller Mechanismus, um die persönlichen und finanziellen Daten von Nutzern zu schützen.
 
-Da sich die policy auf alle Skripts einer Seite auswirkt, ist es wichtig sicherzustellen, dass alle benutzten externen Bibliotheken und Pakete auf ihre Sicherheit geprüft wurden. Somit soll verhindert werden, dass deine Webiste Opfer von Cross Site Scripting Attacken (durch `eval()` oder DOM-Manipulation) wird.
+Da sich die policy auf alle Skripts einer Seite auswirkt, ist es wichtig sicherzustellen, dass alle benutzten externen Bibliotheken und Pakete auf ihre Sicherheit geprüft wurden. Somit soll verhindert werden, dass deine Website Opfer von Cross Site Scripting Attacken (durch `eval()` oder DOM-Manipulation) wird.
 
 ## V3 Roadmap
 * Move from `x-ref` to `ref` for Vue parity?

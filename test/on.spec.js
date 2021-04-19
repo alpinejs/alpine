@@ -589,3 +589,36 @@ test('event handlers only fire once when nodes have been readded to the document
     })
     expect(document.querySelector('#container').lastChild).toEqual(document.querySelector('#a'))
 })
+
+test('nested event handlers only fire once when nodes have been moved in the document.', async () => {
+    document.body.innerHTML = `
+        <div id="container" x-data="{'x': 0}">
+          <span x-text="x">0</span>
+          <div id="a"><button x-on:click="x += 1; $el.appendChild(document.getElementById('a'))">A</button></div>
+          <div id="b"><button x-on:click="x += 1; $el.appendChild(document.getElementById('b'))">B</button></div>
+          <div id="c"><button x-on:click="x += 1; $el.appendChild(document.getElementById('c'))">C</button></div>
+        </div>
+    `
+    Alpine.start()
+    const span = document.querySelector('span')
+
+    expect(span.textContent).toEqual('0')
+
+    document.querySelector('#a button').click()
+    await wait(() => {
+        expect(span.textContent).toEqual('1')
+    })
+    expect(document.querySelector('#container').lastChild).toEqual(document.querySelector('#a'))
+
+    document.querySelector('#a button').click()
+    await wait(() => {
+        expect(span.textContent).toEqual('2')
+    })
+    expect(document.querySelector('#container').lastChild).toEqual(document.querySelector('#a'))
+
+    document.querySelector('#a button').click()
+    await wait(() => {
+        expect(span.textContent).toEqual('3')
+    })
+    expect(document.querySelector('#container').lastChild).toEqual(document.querySelector('#a'))
+})

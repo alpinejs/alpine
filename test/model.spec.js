@@ -746,3 +746,21 @@ test('x-model sets value before x-on directive expression is processed', async (
         expect(window.selectValueB).toEqual('bar')
     })
 })
+
+test('x-model select falsy values on select dropdown', async () => {
+    document.body.innerHTML = `
+        <div x-data="{ foo: '' }">
+            <select x-model="foo">
+                <option disabled value="">Please select one</option>
+                <option>bar</option>
+                <option>baz</option>
+            </select>
+        </div>
+    `
+
+    Alpine.start()
+
+    expect(document.querySelectorAll('option')[0].selected).toEqual(true)
+    expect(document.querySelectorAll('option')[1].selected).toEqual(false)
+    expect(document.querySelectorAll('option')[2].selected).toEqual(false)
+})

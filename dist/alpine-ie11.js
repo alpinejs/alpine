@@ -6715,7 +6715,7 @@
     Array.from(el.options).forEach(function (option) {
       _newArrowCheck(this, _this3);
 
-      option.selected = arrayWrappedValue.includes(option.value || option.text);
+      option.selected = arrayWrappedValue.includes(option.value);
     }.bind(this));
   }
 

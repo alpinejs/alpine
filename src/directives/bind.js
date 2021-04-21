@@ -87,6 +87,6 @@ function updateSelect(el, value) {
     const arrayWrappedValue = [].concat(value).map(value => { return value + '' })
 
     Array.from(el.options).forEach(option => {
-        option.selected = arrayWrappedValue.includes(option.value || option.text)
+        option.selected = arrayWrappedValue.includes(option.value)
     })
 }

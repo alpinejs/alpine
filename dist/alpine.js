@@ -752,7 +752,7 @@
       return value + '';
     });
     Array.from(el.options).forEach(option => {
-      option.selected = arrayWrappedValue.includes(option.value || option.text);
+      option.selected = arrayWrappedValue.includes(option.value);
     });
   }
 

@@ -1,7 +1,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = global || self, global.Alpine = factory());
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Alpine = factory());
 }(this, (function () { 'use strict';
 
   function _defineProperty(obj, key, value) {
@@ -1067,7 +1067,7 @@
   function registerProxy(proxy, value) {
       proxyToValueMap.set(proxy, value);
   }
-  const unwrap = (replicaOrAny) => proxyToValueMap.get(replicaOrAny) || replicaOrAny;
+  const unwrap$1 = (replicaOrAny) => proxyToValueMap.get(replicaOrAny) || replicaOrAny;
 
   function wrapValue(membrane, value) {
       return membrane.valueIsObservable(value) ? membrane.getProxy(value) : value;
@@ -1079,7 +1079,7 @@
    */
   function unwrapDescriptor(descriptor) {
       if (hasOwnProperty.call(descriptor, 'value')) {
-          descriptor.value = unwrap(descriptor.value);
+          descriptor.value = unwrap$1(descriptor.value);
       }
       return descriptor;
   }
@@ -1340,7 +1340,7 @@
           if (!isUndefined(get)) {
               descriptor.get = function () {
                   // invoking the original getter with the original target
-                  return getValue(membrane, get.call(unwrap(this)));
+                  return getValue(membrane, get.call(unwrap$1(this)));
               };
           }
           if (!isUndefined(set)) {
@@ -1350,7 +1350,7 @@
                   // and we are not sure why and how they are invoking this setter.
                   // Nevertheless we preserve the original semantics by invoking the
                   // original setter with the original target and the unwrapped value
-                  set.call(unwrap(this), membrane.unwrapProxy(value));
+                  set.call(unwrap$1(this), membrane.unwrapProxy(value));
               };
           }
       }
@@ -1372,7 +1372,7 @@
           }
       }
       getProxy(value) {
-          const unwrappedValue = unwrap(value);
+          const unwrappedValue = unwrap$1(value);
           const distorted = this.valueDistortion(unwrappedValue);
           if (this.valueIsObservable(distorted)) {
               const o = this.getReactiveState(unwrappedValue, distorted);
@@ -1383,7 +1383,7 @@
           return distorted;
       }
       getReadOnlyProxy(value) {
-          value = unwrap(value);
+          value = unwrap$1(value);
           const distorted = this.valueDistortion(value);
           if (this.valueIsObservable(distorted)) {
               return this.getReactiveState(value, distorted).readOnly;
@@ -1391,7 +1391,7 @@
           return distorted;
       }
       unwrapProxy(p) {
-          return unwrap(p);
+          return unwrap$1(p);
       }
       getReactiveState(value, distortedValue) {
           const { objectGraph, } = this;
@@ -1437,7 +1437,7 @@
       membrane: membrane
     };
   }
-  function unwrap$1(membrane, observable) {
+  function unwrap(membrane, observable) {
     let unwrappedData = membrane.unwrapProxy(observable);
     let copy = {};
     Object.keys(unwrappedData).forEach(key => {
@@ -1452,7 +1452,6 @@
       this.$el = el;
       const dataAttr = this.$el.getAttribute('x-data');
       const dataExpression = dataAttr === '' ? '{}' : dataAttr;
-      const initExpression = this.$el.getAttribute('x-init');
       let dataExtras = {
         $el: this.$el
       };
@@ -1507,6 +1506,7 @@
       this.showDirectiveStack = [];
       this.showDirectiveLastElement;
       componentForClone || Alpine.onBeforeComponentInitializeds.forEach(callback => callback(this));
+      const initExpression = this.$el.getAttribute('x-init');
       var initReturnedCallback; // If x-init is present AND we aren't cloning (skip x-init on clone)
 
       if (initExpression && !componentForClone) {
@@ -1537,7 +1537,7 @@
     }
 
     getUnobservedData() {
-      return unwrap$1(this.membrane, this.$data);
+      return unwrap(this.membrane, this.$data);
     }
 
     wrapDataInObservable(data) {

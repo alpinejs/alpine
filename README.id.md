@@ -773,7 +773,7 @@ Jika Anda perlu mengakses $dispatch di dalam fungsi JavaScript, Anda dapat mengi
 </div>
 ```
 
-Anda bisa "menonton" properti komponen dengan metode ajaib $watch. Dalam contoh di atas, ketika tombol diklik dan `buka` diubah, callback yang disediakan akan aktif dan `console.log` nilai baru.
+Anda bisa "melihat" properti komponen dengan metode ajaib $watch. Dalam contoh di atas, ketika tombol diklik dan `buka` diubah, callback yang disediakan akan aktif dan `console.log` nilai baru.
 
 ## Keamanan
 Jika Anda menemukan kerentanan keamanan, silakan kirim email ke [calebporzio@gmail.com]()

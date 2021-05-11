@@ -4,6 +4,15 @@
 ![npm version](https://img.shields.io/npm/v/alpinejs)
 [![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg?sanitize=true)](https://alpinejs.codewithhugo.com/chat/)
 
+## Announcement: Alpine V3 Launching Soon!
+Alpine is getting a complete overhaul in almost every way. It's all dropping on Alpine Day, June 10th 2021.
+
+**[Go here for all the details!](https://alpineday.com)**
+
+![](https://alpineday.com/img/twitter_card.jpg)
+
+---
+
 Alpine.js offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.
 
 You get to keep your DOM, and sprinkle in behavior as you see fit.

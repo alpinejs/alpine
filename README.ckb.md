@@ -1,3 +1,4 @@
+<div style="direction:rtl;">
 # Alpine.js
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)
@@ -120,22 +121,22 @@ import 'alpinejs'
 | [`x-show`](#x-show) | دەستەبەری `display: none;` لەسەر توخمەکە پشت دەبەستێت بە دەربڕینی (true or false). |
 | [`x-bind`](#x-bind) | بەهای تایبەتمەندییەک  (attribute) بۆ ئەنجامی دەربڕینی JS دادەنێت. |
 | [`x-on`](#x-on) | گوێگری ڕووداو (event listener) بە توخمەکەوە (element) گرێ دەدات. جێبەجێکردنی دەربڕینی JS کاتێک نێردرا. |
-| [`x-model`](#x-model) | Adds "two-way data binding" to an element. Keeps input element in sync with component data. |
-| [`x-text`](#x-text) | Works similarly to `x-bind`, but will update the `innerText` of an element. |
-| [`x-html`](#x-html) | Works similarly to `x-bind`, but will update the `innerHTML` of an element. |
-| [`x-ref`](#x-ref) | Convenient way to retrieve raw DOM elements out of your component. |
-| [`x-if`](#x-if) | Remove an element completely from the DOM. Needs to be used on a `<template>` tag. |
-| [`x-for`](#x-for) | Create new DOM nodes for each item in an array. Needs to be used on a `<template>` tag. |
-| [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition. |
-| [`x-spread`](#x-spread) | Allows you to bind an object of Alpine directives to an element for better reusability. |
-| [`x-cloak`](#x-cloak) | This attribute is removed when Alpine initializes. Useful for hiding pre-initialized DOM. |
+| [`x-model`](#x-model) | زیادکردنی "two-way data binding" بۆ توخمێک (element). ڕاگرتنی دەرخواردەی توخم لەناو هاوکاتکردن(sync) لەگەڵ داتای پێکهاتە. |
+| [`x-text`](#x-text) | بەهەمانشێوە کاردەکات بۆ `x-bind`, بەڵام دەق نوێ دەکاتەوە بۆ `innerText` لەناو توخمێک. |
+| [`x-html`](#x-html) | بەهەمانشێوە کاردەکات بۆ `x-bind`, بەڵام دەق نوێ دەکاتەوە بۆ `innerHTML` لەناو توخمێک. |
+| [`x-ref`](#x-ref) | ڕێگەیەکی گونجاو بۆ گەڕاندنەوەی توخمە خاوەکانی DOM لە دەرەوەی پێکهاتەکەت. |
+| [`x-if`](#x-if) | توخمێک بە تەواوی لە DOM دەسڕێتەوە. پێویستە لەسەر تاگی '<template>' بەکاربهێنرێت. |
+| [`x-for`](#x-for) | دروستکردنی گرێی نوێی DOM بۆ هەر دانەیەک لە ریزێک. پێویستە لەسەر تاگی '<template>' بەکاربهێنرێت. |
+| [`x-transition`](#x-transition) | رێنیشاندەر بۆ جێبەجێکردنی پۆلەکان بۆ چەند قۆناغی جیاواز لە گواستنەوەی توخمێک |
+| [`x-spread`](#x-spread) | ڕێگەت پێدەدات بۆ ئەوەی ئامانجێک ببەستیت لە Apline بە توخمێک بۆ توانای باشتر. |
+| [`x-cloak`](#x-cloak) | ئەم تایبەتمەندیە لادەبرێت کاتێک Apline دەست پێ دەکات. بەسوودە بۆ شاردنەوەی DOM ی پێش ئامادەکراو. |
 
-And 6 magic properties:
+هەروەها ٦ تایبەتمەندی جادوویی:
 
-| Magic Properties | Description |
+| تایبەتمەندییە جادووییەکان | پێناسە |
 | --- | --- |
-| [`$el`](#el) |  Retrieve the root component DOM node. |
-| [`$refs`](#refs) | Retrieve DOM elements marked with `x-ref` inside the component. |
+| [`$el`](#el) |  گەڕاندنەوەی ڕەگی پێکهاتەی گرێی DOM. |
+| [`$refs`](#refs) | گەڕاندنەوەی توخمە دیاریکراوەکانی DOM لەگەڵ `x-ref` لەناو پێکهاتەیەک. |
 | [`$event`](#event) | Retrieve the native browser "Event" object within an event listener.  |
 | [`$dispatch`](#dispatch) | Create a `CustomEvent` and dispatch it using `.dispatchEvent()` internally. |
 | [`$nextTick`](#nexttick) | Execute a given expression AFTER Alpine has made its reactive DOM updates. |
@@ -801,3 +802,5 @@ Since a policy applies to all scripts in your page, it's important that other ex
 Copyright © 2019-2021 Caleb Porzio and contributors
 
 Licensed under the MIT license, see [LICENSE.md](LICENSE.md) for details.
+
+</div>

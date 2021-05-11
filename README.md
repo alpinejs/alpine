@@ -27,6 +27,7 @@ Think of it like [Tailwind](https://tailwindcss.com/) for JavaScript.
 | Russian | [**Документация на русском**](./README.ru.md) |
 | Spanish | [**Documentación en Español**](./README.es.md) |
 | Turkish | [**Türkçe Dokümantasyon**](./README.tr.md) |
+| Farsi | [**مستندات به فارسی**](./README.fa.md) |
 | Français | [**Documentation en Français**](./README.fr.md) |
 | Korean | [**한국어 문서**](./README.ko.md) |
 

@@ -164,7 +164,7 @@ import 'alpinejs'
 
 ### `x-data`
 
-**Example:** `<div x-data="{ foo: 'bar' }">...</div>`
+**نمونە:** `<div x-data="{ foo: 'bar' }">...</div>`
 
 **Structure:** `<div x-data="[object literal]">...</div>`
 
@@ -209,7 +209,7 @@ You can also mix-in multiple data objects using object destructuring:
 ---
 
 ### `x-init`
-**Example:** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
+**نمونە:** `<div x-data="{ foo: 'bar' }" x-init="foo = 'baz'"></div>`
 
 **Structure:** `<div x-data="..." x-init="[expression]"></div>`
 
@@ -222,7 +222,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 ---
 
 ### `x-show`
-**Example:** `<div x-show="open"></div>`
+**نمونە:** `<div x-show="open"></div>`
 
 **Structure:** `<div x-show="[expression]"></div>`
 
@@ -264,7 +264,7 @@ If you wish to run code AFTER Alpine has made its initial updates to the DOM (so
 
 > Note: You are free to use the shorter ":" syntax: `:type="..."`.
 
-**Example:** `<input x-bind:type="inputType">`
+**نمونە:** `<input x-bind:type="inputType">`
 
 **Structure:** `<input x-bind:[attribute]="[expression]">`
 
@@ -306,7 +306,7 @@ Boolean attributes are supported as per the [HTML specification](https://html.sp
 > Note: If you need a false state to show for your attribute, such as `aria-*`, chain `.toString()` to the value while binding to the attribute. For example: `:aria-expanded="isOpen.toString()"` would persist whether  `isOpen` was `true` or `false`.
 
 **`.camel` modifier**
-**Example:** `<svg x-bind:view-box.camel="viewBox">`
+**نمونە:** `<svg x-bind:view-box.camel="viewBox">`
 
 The `camel` modifier will bind to the camel case equivalent of the attribute name. In the example above, the value of `viewBox` will be bound the `viewBox` attribute as opposed to the `view-box` attribute.
 
@@ -316,7 +316,7 @@ The `camel` modifier will bind to the camel case equivalent of the attribute nam
 
 > Note: You are free to use the shorter "@" syntax: `@click="..."`.
 
-**Example:** `<button x-on:click="foo = 'bar'"></button>`
+**نمونە:** `<button x-on:click="foo = 'bar'"></button>`
 
 **Structure:** `<button x-on:[event]="[expression]"></button>`
 
@@ -326,62 +326,62 @@ If any data is modified in the expression, other element attributes "bound" to t
 
 > Note: You can also specify a JavaScript function name.
 
-**Example:** `<button x-on:click="myFunction"></button>`
+**نمونە:** `<button x-on:click="myFunction"></button>`
 
 This is equivalent to: `<button x-on:click="myFunction($event)"></button>`
 
 **`keydown` modifiers**
 
-**Example:** `<input type="text" x-on:keydown.escape="open = false">`
+**نمونە:** `<input type="text" x-on:keydown.escape="open = false">`
 
 You can specify specific keys to listen for using keydown modifiers appended to the `x-on:keydown` directive. Note that the modifiers are kebab-cased versions of `Event.key` values.
 
-Examples: `enter`, `escape`, `arrow-up`, `arrow-down`
+نمونەکان: `enter`, `escape`, `arrow-up`, `arrow-down`
 
 > Note: You can also listen for system-modifier key combinations like: `x-on:keydown.cmd.enter="foo"`
 
 **`.away` modifier**
 
-**Example:** `<div x-on:click.away="showModal = false"></div>`
+**نمونە:** `<div x-on:click.away="showModal = false"></div>`
 
 When the `.away` modifier is present, the event handler will only be executed when the event originates from a source other than itself, or its children.
 
 This is useful for hiding dropdowns and modals when a user clicks away from them.
 
 **`.prevent` modifier**
-**Example:** `<input type="checkbox" x-on:click.prevent>`
+**نمونە:** `<input type="checkbox" x-on:click.prevent>`
 
 Adding `.prevent` to an event listener will call `preventDefault` on the triggered event. In the above example, this means the checkbox wouldn't actually get checked when a user clicks on it.
 
 **`.stop` modifier**
-**Example:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
+**نمونە:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
 
 Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. In the above example, this means the "click" event won't bubble from the button to the outer `<div>`. Or in other words, when a user clicks the button, `foo` won't be set to `'bar'`.
 
 **`.self` modifier**
-**Example:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
+**نمونە:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
 
 Adding `.self` to an event listener will only trigger the handler if the `$event.target` is the element itself. In the above example, this means the "click" event that bubbles from the button to the outer `<div>` will **not** run the handler.
 
 **`.window` modifier**
-**Example:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
+**نمونە:** `<div x-on:resize.window="isOpen = window.outerWidth > 768 ? false : open"></div>`
 
 Adding `.window` to an event listener will install the listener on the global window object instead of the DOM node on which it is declared. This is useful for when you want to modify component state when something changes with the window, like the resize event. In this example, when the window grows larger than 768 pixels wide, we will close the modal/dropdown, otherwise maintain the same state.
 
 >Note: You can also use the `.document` modifier to attach listeners to `document` instead of `window`
 
 **`.once` modifier**
-**Example:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
+**نمونە:** `<button x-on:mouseenter.once="fetchSomething()"></button>`
 
 Adding the `.once` modifier to an event listener will ensure that the listener will only be handled once. This is useful for things you only want to do once, like fetching HTML partials and such.
 
 **`.passive` modifier**
-**Example:** `<button x-on:mousedown.passive="interactive = true"></button>`
+**نمونە:** `<button x-on:mousedown.passive="interactive = true"></button>`
 
 Adding the `.passive` modifier to an event listener will make the listener a passive one, which means `preventDefault()` will not work on any events being processed, this can help, for example with scroll performance on touch devices.
 
 **`.debounce` modifier**
-**Example:** `<input x-on:input.debounce="fetchSomething()">`
+**نمونە:** `<input x-on:input.debounce="fetchSomething()">`
 
 The `debounce` modifier allows you to "debounce" an event handler. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
 
@@ -395,14 +395,14 @@ If you wish to customize this, you can specify a custom wait time like so:
 ```
 
 **`.camel` modifier**
-**Example:** `<input x-on:event-name.camel="doSomething()">`
+**نمونە:** `<input x-on:event-name.camel="doSomething()">`
 
 The `camel` modifier will attach an event listener for the camel case equivalent event name. In the example above, the expression will be evaluated when the `eventName` event is fired on the element.
 
 ---
 
 ### `x-model`
-**Example:** `<input type="text" x-model="foo">`
+**نمونە:** `<input type="text" x-model="foo">`
 
 **Structure:** `<input type="text" x-model="[data item]">`
 
@@ -411,12 +411,12 @@ The `camel` modifier will attach an event listener for the camel case equivalent
 > Note: `x-model` is smart enough to detect changes on text inputs, checkboxes, radio buttons, textareas, selects, and multiple selects. It should behave [how Vue would](https://vuejs.org/v2/guide/forms.html) in those scenarios.
 
 **`.number` modifier**
-**Example:** `<input x-model.number="age">`
+**نمونە:** `<input x-model.number="age">`
 
 The `number` modifier will convert the input's value to a number. If the value cannot be parsed as a valid number, the original value is returned.
 
 **`.debounce` modifier**
-**Example:** `<input x-model.debounce="search">`
+**نمونە:** `<input x-model.debounce="search">`
 
 The `debounce` modifier allows you to add a "debounce" to a value update. In other words, the event handler will NOT run until a certain amount of time has elapsed since the last event that fired. When the handler is ready to be called, the last handler call will execute.
 
@@ -432,7 +432,7 @@ If you wish to customize this, you can specify a custom wait time like so:
 ---
 
 ### `x-text`
-**Example:** `<span x-text="foo"></span>`
+**نمونە:** `<span x-text="foo"></span>`
 
 **Structure:** `<span x-text="[expression]"`
 
@@ -441,7 +441,7 @@ If you wish to customize this, you can specify a custom wait time like so:
 ---
 
 ### `x-html`
-**Example:** `<span x-html="foo"></span>`
+**نمونە:** `<span x-html="foo"></span>`
 
 **Structure:** `<span x-html="[expression]"`
 
@@ -454,7 +454,7 @@ If you wish to customize this, you can specify a custom wait time like so:
 ---
 
 ### `x-ref`
-**Example:** `<div x-ref="foo"></div><button x-on:click="$refs.foo.innerText = 'bar'"></button>`
+**نمونە:** `<div x-ref="foo"></div><button x-on:click="$refs.foo.innerText = 'bar'"></button>`
 
 **Structure:** `<div x-ref="[ref name]"></div><button x-on:click="$refs.[ref name].innerText = 'bar'"></button>`
 
@@ -467,7 +467,7 @@ This is a helpful alternative to setting ids and using `document.querySelector` 
 ---
 
 ### `x-if`
-**Example:** `<template x-if="true"><div>Some Element</div></template>`
+**نمونە:** `<template x-if="true"><div>Some Element</div></template>`
 
 **Structure:** `<template x-if="[expression]"><div>Some Element</div></template>`
 
@@ -482,7 +482,7 @@ It's important that `x-if` is used on a `<template></template>` tag because Alpi
 ---
 
 ### `x-for`
-**Example:**
+**نمونە:**
 ```html
 <template x-for="item in items" :key="item">
     <div x-text="item"></div>
@@ -548,7 +548,7 @@ Alpine supports the `i in n` syntax, where `n` is an integer, allowing you to it
 ---
 
 ### `x-transition`
-**Example:**
+**نمونە:**
 ```html
 <div
     x-show="open"
@@ -592,7 +592,7 @@ These behave exactly like VueJS's transition directives, except they have differ
 ---
 
 ### `x-spread`
-**Example:**
+**نمونە:**
 ```html
 <div x-data="dropdown()">
     <button x-spread="trigger">Open Dropdown</button>
@@ -633,7 +633,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 ---
 
 ### `x-cloak`
-**Example:** `<div x-data="{}" x-cloak></div>`
+**نمونە:** `<div x-data="{}" x-cloak></div>`
 
 `x-cloak` attributes are removed from elements when Alpine initializes. This is useful for hiding pre-initialized DOM. It's typical to add the following global style for this to work:
 
@@ -652,7 +652,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 ---
 
 ### `$el`
-**Example:**
+**نمونە:**
 ```html
 <div x-data>
     <button @click="$el.innerHTML = 'foo'">Replace me with "foo"</button>
@@ -662,7 +662,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 `$el` is a magic property that can be used to retrieve the root component DOM node.
 
 ### `$refs`
-**Example:**
+**نمونە:**
 ```html
 <span x-ref="foo"></span>
 
@@ -674,7 +674,7 @@ The object keys are the directives (Can be any directive including modifiers), a
 ---
 
 ### `$event`
-**Example:**
+**نمونە:**
 ```html
 <input x-on:input="alert($event.target.value)">
 ```
@@ -690,7 +690,7 @@ If you need to access $event inside of a JavaScript function you can pass it in 
 ---
 
 ### `$dispatch`
-**Example:**
+**نمونە:**
 ```html
 <div @custom-event="console.log($event.detail.foo)">
     <button @click="$dispatch('custom-event', { foo: 'bar' })">
@@ -702,7 +702,7 @@ If you need to access $event inside of a JavaScript function you can pass it in 
 
 Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bubbling), when you need to capture events dispatched from nodes that are under the same nesting hierarchy, you'll need to use the [`.window`](https://github.com/alpinejs/alpine#x-on) modifier:
 
-**Example:**
+**نمونە:**
 
 ```html
 <div x-data>
@@ -717,7 +717,7 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 
 You can also take advantage of the previous technique to make your components talk to each other:
 
-**Example:**
+**نمونە:**
 
 ```html
 <div x-data @custom-event.window="console.log($event.detail)"></div>
@@ -750,7 +750,7 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 ---
 
 ### `$nextTick`
-**Example:**
+**نمونە:**
 ```html
 <div x-data="{ fruit: 'apple' }">
     <button
@@ -768,7 +768,7 @@ If you need to access $dispatch inside of a JavaScript function you can pass it 
 ---
 
 ### `$watch`
-**Example:**
+**نمونە:**
 ```html
 <div x-data="{ open: false }" x-init="$watch('open', value => console.log(value))">
     <button @click="open = ! open">Toggle Open</button>

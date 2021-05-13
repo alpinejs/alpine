@@ -154,7 +154,8 @@ And 6 magic properties:
 
 ## Sponsors
 
-<img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">
+[<img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">](https://tailwindcss.com)
+
 
 **Want your logo here? [DM on Twitter](https://twitter.com/calebporzio)**
 

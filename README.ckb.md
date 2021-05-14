@@ -1,4 +1,4 @@
-<div direction="rtl">
+<div dir="rtl">
 # Alpine.js
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/alpinejs)

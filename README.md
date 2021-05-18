@@ -134,8 +134,8 @@ There are 14 directives available to you:
 | [`x-text`](#x-text) | Works similarly to `x-bind`, but will update the `innerText` of an element. |
 | [`x-html`](#x-html) | Works similarly to `x-bind`, but will update the `innerHTML` of an element. |
 | [`x-ref`](#x-ref) | Convenient way to retrieve raw DOM elements out of your component. |
-| [`x-if`](#x-if) | Remove an element completely from the DOM. Needs to be used on a `<template>` tag. |
-| [`x-for`](#x-for) | Create new DOM nodes for each item in an array. Needs to be used on a `<template>` tag. |
+| [`x-if`](#x-if) | Removes an element completely from the DOM. Needs to be used on a `<template>` tag. |
+| [`x-for`](#x-for) | Creates new DOM nodes for each item in an array. Needs to be used on a `<template>` tag. |
 | [`x-transition`](#x-transition) | Directives for applying classes to various stages of an element's transition. |
 | [`x-spread`](#x-spread) | Allows you to bind an object of Alpine directives to an element for better reusability. |
 | [`x-cloak`](#x-cloak) | This attribute is removed when Alpine initializes. Useful for hiding pre-initialized DOM. |

@@ -201,7 +201,7 @@ You can extract data (and behavior) into reusable functions:
             show: false,
             open() { this.show = true },
             close() { this.show = false },
-            isOpen() { return this.show === true },
+            isOpen() { return this.show },
         }
     }
 </script>

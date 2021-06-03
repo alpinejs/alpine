@@ -191,7 +191,7 @@ You can extract data (and behavior) into reusable functions:
     <button x-on:click="open">Open</button>
 
     <div x-show="isOpen()" x-on:click.away="close">
-        // Dropdown
+        <!-- Dropdown -->
     </div>
 </div>
 

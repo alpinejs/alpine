@@ -12,7 +12,7 @@ Bunu [Tailwind](https://tailwindcss.com/) 'ın JavaScript versiyonu olarak düş
 
 > Not: Bu kütüphanenin sentaksının neredeyse tamamında [Vue](https://vuejs.org/) (ve dolayısıyla [Angular](https://angularjs.org/)) 'dan esinlenilmiştir. Onlara, web' e yaptıkları katkılarından ötürü sonsuza dek minnettarım.
 
-## Translated documentation
+## Çevrilmiş Dökümanlar
 
 | Language | Link for documentation |
 | --- | --- |
@@ -23,7 +23,7 @@ Bunu [Tailwind](https://tailwindcss.com/) 'ın JavaScript versiyonu olarak düş
 | Portuguese | [**Documentação em Português**](./README.pt.md) |
 | Russian | [**Документация на русском**](./README.ru.md) |
 | Spanish | [**Documentación en Español**](./README.es.md) |
-| Turkish | [**Türkçe Dökümantasyon**](./README.tr.md) |
+| Türkçe | [**Türkçe Dökümantasyon**](./README.tr.md) |
 
 ## Kurulum
 
@@ -141,7 +141,7 @@ Ve altı sihirli özellik:
 
 <img width="33%" src="https://refactoringui.nyc3.cdn.digitaloceanspaces.com/tailwind-logo.svg" alt="Tailwind CSS">
 
-**Logonuzun burda olmasını ister misiniz? [DM on Twitter](https://twitter.com/calebporzio)**
+**Logonuzun burada olmasını ister misiniz? [DM on Twitter](https://twitter.com/calebporzio)**
 
 ## Topluluk Projeleri
 
@@ -167,7 +167,7 @@ Bunu Vue bileşenindeki `data` özelliği gibi düşünebilirsiniz.
 
 **Bileşenin Mantığını Ayırmak**
 
-Bileşenin veriyi (ve davranışı) yeniden kullanılabilir fonksiyonlara taşıyablirsiniz:
+Bileşenin veriyi (ve davranışı) yeniden kullanılabilir fonksiyonlara taşıyabilirsiniz:
 
 ```html
 <div x-data="dropdown()">
@@ -210,7 +210,7 @@ Ayrıca nesne parçalama kullanarak birden çok veriyi karıştırabilirsiniz:
 
 Eğer Alpine' ın DOM üzerindeki kendi başlangıç güncellemelerinden sonra bir kod parçası çalıştırmak istiyorsanız (VueJS' deki hayat döngüsü olaylarından biri olan `mounted()` olayı gibi), `x-init` 'dan bir geri çağırma fonksiyonu döndürebilir ve sonrasında çalıştırabilirsiniz:
 
-`x-init="() => { // DOM' un ilk kez yüklendikten sonraki durumuna burda erişebilirsiniz. // }"`
+`x-init="() => { // DOM' un ilk kez yüklendikten sonraki durumuna burada erişebilirsiniz. // }"`
 
 ---
 
@@ -267,7 +267,7 @@ Eğer Alpine' ın DOM üzerindeki kendi başlangıç güncellemelerinden sonra b
 
 **Sınıf özellikleri için `x-bind`**
 
-`x-bind` direktifi `class` özelliğine baplandığında biraz farklı işlev görür.
+`x-bind` direktifi `class` özelliğine bağlandığında biraz farklı işlev görür.
 
 CSS sınıfları için bir veri nesnesi girersiniz. Bu nesnenin anahtarı sınıfın ismi iken, değeri ise sınıfın uygulanıp uygulanmayacağını belirleyen boolean ifadelerdir.
 
@@ -301,7 +301,7 @@ Bu, `myVar` true ya da false olduğunda sırasıyla `disabled` özelliğini ekle
 **`.camel` belirteci**
 **Örnek:** `<svg x-bind:view-box.camel="viewBox">`
 
-`camel` belirteci özelliğnin adının deve notasyonuna karşılık gelen ifadeye bağlama yapar. Yukardaki örnekte, `viewBox` özelliği `view-box` ' a değil  `viewBox` 'a bağlanacak.
+`camel` belirteci özelliğinin adının deve notasyonuna karşılık gelen ifadeye bağlama yapar. Yukardaki örnekte, `viewBox` özelliği `view-box` ' a değil  `viewBox` 'a bağlanacak.
 
 ---
 
@@ -339,7 +339,7 @@ Keydown belirteçlerini `x-on:keydown` direktifine ekleyip daha spesifik dinleme
 
 `.away` belirteci kullanıldığında, olay yakalayıcı sadece kendi ve çocukları dışındaki bir kaynaktan gelen olayda çalıştırılır.
 
-Bu, açılır menü ve diyalog pencelerinin dışına tıklandığında gizlenmesi için kullanışlıdır.
+Bu, açılır menü ve diyalog pencerelerinin dışına tıklandığında gizlenmesi için kullanışlıdır.
 
 **`.prevent` belirteci**
 **Örnek:** `<input type="checkbox" x-on:click.prevent>`
@@ -349,7 +349,7 @@ Bir olay dinleyicisine `.prevent` eklemek tetiklenecek event üzerinde `preventD
 **`.stop` belirteci**
 **Örnek:** `<div x-on:click="foo = 'bar'"><button x-on:click.stop></button></div>`
 
-Bir olay dinleyicisine `.stop` eklemek tetiklenecek event üzerinde `stopPropagation` çağırır. Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. Yukarıdaki örneğe bakıldığında bu, dıştaki `<div>` 'den gelen "click" olayının tetiklenmeyeceiği anlamına gelir. Başka bir deyişle, kullanıcı butona bastığında `foo` özelliğine `'bar'` atanmayacak.
+Bir olay dinleyicisine `.stop` eklemek tetiklenecek event üzerinde `stopPropagation` çağırır. Adding `.stop` to an event listener will call `stopPropagation` on the triggered event. Yukarıdaki örneğe bakıldığında bu, dıştaki `<div>` 'den gelen "click" olayının tetiklenmeyeceği anlamına gelir. Başka bir deyişle, kullanıcı butona bastığında `foo` özelliğine `'bar'` atanmayacak.
 
 **`.self` belirteci**
 **Örnek:** `<div x-on:click.self="foo = 'bar'"><button></button></div>`
@@ -398,14 +398,14 @@ Bunu değiştirmek isterseniz, aşağıdaki gibi özel bir bekleme süresi belir
 
 **Yapı:** `<input type="text" x-model="[data item]">`
 
-`x-model` özelliği elemente "çift yönlü bağlama" ekler. Yani, input elementinin değeri bileşenin veri öğesiyle senkronize tutulur. 
+`x-model` özelliği elemente "çift yönlü bağlama" ekler. Yani, input elementinin değeri bileşenin veri ögesiyle senkronize tutulur. 
 
 > Not: `x-model` metin girişleri, onay kutuları, radyo düğmeleri, metin alanları, seçimler ve çoklu seçimler üzerindeki değişiklikleri tespit edecek kadar zekidir. Bu [how Vue would](https://vuejs.org/v2/guide/forms.html) adresindeki senaryolara uygun çalışması gerekir.
 
 **`.number` belirteci**
 **Örnek:** `<input x-model.number="age">`
 
-`number` belirteci girişin değerini bir numaraya çevirir. Eğer giriş değeri geçerli bir numaraya çevrilemeyecekse, orjinal değer döndürülür.
+`number` belirteci girişin değerini bir numaraya çevirir. Eğer giriş değeri geçerli bir numaraya çevrilemeyecekse, orijinal değer döndürülür.
 
 **`.debounce` belirteci**
 **Example:** `<input x-model.debounce="search">`
@@ -465,7 +465,7 @@ Bu bir elemente "id" ler atayıp `document.querySelector` ile her yerden erişme
 
 `x-show` 'in yetersiz olduğu durumlarda (`x-show` değeri false ise elemente `display: none` özelliği ekler), bir elementi tamamıyla DOM 'dan silmek için `x-if` kullanılabilir.
 
-Alpine sanal DOM mantığını kullanmadığı için `x-if` 'in `<template></template>` etiketiyle kullanıldığına dikkat edin. Bu uygulama Alpine 'nın kararlı kalmasını ve büyüsünü gerçekleştirmek içingerçek DOM 'u kullanmasını sağlar.
+Alpine sanal DOM mantığını kullanmadığı için `x-if` 'in `<template></template>` etiketiyle kullanıldığına dikkat edin. Bu uygulama Alpine 'nın kararlı kalmasını ve büyüsünü gerçekleştirmek için gerçek DOM 'u kullanmasını sağlar.
 
 > Not: `x-if` direktifi `<template></template>` etiketi içindeki tek bir kök element için kullanılması gerekir.
 
@@ -499,11 +499,11 @@ Bir nesne dizisinin (koleksiyon) iterasyonuna erişmek istiyorsanız aşağıdak
 ```html
 <template x-for="(item, index, collection) in items" :key="index">
     <!-- İhtiyacınız olduğunda iterasyon içinde ayrıca "collection" 'a referans gösterebilirsiniz. -->
-    <!-- Geçerli öğe. -->
+    <!-- Geçerli öge. -->
     <div x-text="item"></div>
     <!-- Üsteki ile aynı. -->
     <div x-text="collection[index]"></div>
-    <!-- Bir önceki öğe. -->
+    <!-- Bir önceki öge. -->
     <div x-text="collection[index - 1]"></div>
 </template>
 ```
@@ -525,9 +525,9 @@ Bir nesne dizisinin (koleksiyon) iterasyonuna erişmek istiyorsanız aşağıdak
 </template>
 ```
 
-#### Bir aralık üzerinde iterasyoun
+#### Bir aralık üzerinde iterasyon (yineleme)
 
-Alpine `n` bir tamsayı olduğu durumlar için `i in n` sentaksını destekler. Bu belirlenmiş bir dizi eleman üzerinde dolaşmanızı sağlar.
+Alpine `n` bir tam sayı olduğu durumlar için `i in n` sentaksını destekler. Bu belirlenmiş bir dizi eleman üzerinde dolaşmanızı sağlar.
 
 ```html
 <template x-for="i in 10">
@@ -657,7 +657,7 @@ Bu nesne anahtarları birer direktiflerdir (Belirteçler içeren herhangi bir di
 <button x-on:click="$refs.foo.innerText = 'bar'"></button>
 ```
 
-`$refs` bileşen içinde `x-ref` ile işaretlenmiş DOM elementlerini getirmek için kullanılan shirili bir özelliktir. Bu, DOM elementlerini manuel olarak işlemeniz gerektiğinde kullanışlıdır.
+`$refs` bileşen içinde `x-ref` ile işaretlenmiş DOM elementlerini getirmek için kullanılan sihirli bir özelliktir. Bu, DOM elementlerini manuel olarak işlemeniz gerektiğinde kullanışlıdır.
 
 ---
 
@@ -716,7 +716,7 @@ Bileşenleri birbiriyle konuşturmak için bir önceki teknikten de faydalanabil
 
 `$dispatch`, bir `CustomEvent` oluşturmanın ve dahili olan `dispatchEvent()` fonksiyonunu kullanarak onu iletmenin kısa yoludur. Özel olayları kullanarak bileşenlerde ve birbirleri arasında veri göndermenin birçok yararlı kullanım durumları vardır. Tarayıcılardaki `CustomEvent` sisteminin altında yatan daha fazla bilgi için [Bakınız](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events).
 
-Dikkat edeceğiniz nokta; `$dispatch('some-event', { some: 'data' })` için ikinci parametre olarak verdiğiniz herhangi bir data, yeni bir olayın "detail" özelliğyle erişilebilir hale gelir:`$event.detail.some`. Özel olay verisinin `detail` özelliğine eklenmesi tarayıcılardaki `CustomEvent` 'lar için standart bir uygulamadır. Daha fazla bilgi için [Bakınız](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail)
+Dikkat edeceğiniz nokta; `$dispatch('some-event', { some: 'data' })` için ikinci parametre olarak verdiğiniz herhangi bir data, yeni bir olayın "detail" özelliğiyle erişilebilir hale gelir:`$event.detail.some`. Özel olay verisinin `detail` özelliğine eklenmesi tarayıcılardaki `CustomEvent` 'lar için standart bir uygulamadır. Daha fazla bilgi için [Bakınız](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/detail)
 
 Ayrıca `x-model` bağlamaları için veri güncellemelerini tetiklemekte `$dispatch()` 'i kullanabilirsiniz. Örneğin:
 

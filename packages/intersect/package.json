@@ -1,0 +1,10 @@
+{
+    "name": "@alpinejs/intersect",
+    "version": "3.0.0-alpha.0",
+    "description": "Trigger JavaScript when an element enters or leaves the viewport",
+    "author": "Caleb Porzio",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js",
+    "dependencies": {}
+}

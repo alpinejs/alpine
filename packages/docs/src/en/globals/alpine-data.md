@@ -1,0 +1,120 @@
+---
+order: 1
+title: data()
+---
+
+# `Alpine.data`
+
+`Alpine.data(...)` provides a way to re-use `x-data` contexts within your application.
+
+Here's a contrived `dropdown` component for example:
+
+```html
+<div x-data="dropdown">
+    <button @click="toggle">...</button>
+
+    <div x-show="open">...</div>
+</div>
+
+<script>
+    document.addEventListener('alpine:initializing', () => {
+        Alpine.data('dropdown', () => ({
+            open: false,
+
+            toggle() {
+                this.open = ! this.open
+            }
+        }))
+    })
+</script>
+```
+
+As you can see we've extracted the properties and methods we would usually define directly inside `x-data` into a seperate Alpine component object.
+
+<a name="registering-from-a-bundle"></a>
+## Registering from a bundle
+
+If you've chosen to use a build step for your Alpine code, you should register your components in the following way:
+
+```js
+import Alpine from `alpinejs`
+import dropdown from './dropdown.js'
+
+Alpine.data('dropdown', dropdown)
+
+Alpine.start()
+```
+
+This assumes you have a file called `dropdown.js` with the following contents:
+
+```js
+export default function () => ({
+    open: false,
+
+    toggle() {
+        this.open = ! this.open
+    }
+})
+```
+
+<a name="init-functions"></a>
+## Init functions
+
+If your component contains an `init()` method, Livewire will automatically execute it before it renders the component. For example:
+
+```js
+Alpine.data('dropdown', () => ({
+    init() {
+        // This code will be executed before Alpine
+        // initializes the rest of the component.
+    }
+}))
+```
+
+<a name="using-magic-properties"></a>
+## Using magic properties
+
+If you want to access magic methods or properties from a component object, you can do so using the `this` context:
+
+```js
+Alpine.data('dropdown', () => ({
+    open: false,
+
+    init() {
+        this.$watch('open', () => {...})
+    }
+}))
+```
+
+<a name="encapsulating-directives-with-x-bind"></a>
+## Encapsulating directives with `x-bind`
+
+If you wish to re-use more than just the data object of a component, you can encapsulate entire Alpine template directives using `x-bind`.
+
+The following is an example of extracting the templating details of our previous dropdown component using `x-bind`:
+
+```html
+<div x-data="dropdown">
+    <button x-bind="trigger"></button>
+
+    <div x-bind="dialogue"></div>
+</div>
+```
+
+```js
+Alpine.data('dropdown', () => ({
+    open: false,
+
+    trigger: {
+        ['@click']() {
+            this.open = ! this.open
+        },
+    },
+
+    dialogue: {
+        ['x-show']() {
+            return this.open
+        },
+    },
+}))
+```

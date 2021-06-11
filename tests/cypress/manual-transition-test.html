@@ -1,0 +1,108 @@
+<html>
+    <script src="/../../packages/alpinejs/dist/cdn.js" defer></script>
+
+    <table>
+        <tr>
+            <td><code>x-transition</code></td>
+            <td>
+                <div x-data="{ open: false }">
+                    <button @click="open = ! open">Toggle</button>
+
+                    <div x-show="open" x-transition>
+                        Hello 👋
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td><code>x-transition</code></td>
+            <td>
+                <div x-data="{ open: false }">
+                    <button @click="open = ! open">Toggle</button>
+
+                    <div x-show="open">
+                        <div x-show="open" x-transition.duration.250ms>
+                            <h1>Hello 👋</h1>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td><code>x-transition.opacity</code></td>
+            <td>
+                <div x-data="{ open: false }">
+                    <button @click="open = ! open">Toggle</button>
+
+                    <div x-show="open" x-transition.opacity>
+                        Hello 👋
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td><code>x-transition.scale</code></td>
+            <td>
+                <div x-data="{ open: false }">
+                    <button @click="open = ! open">Toggle</button>
+
+                    <div x-show="open" x-transition.scale>
+                        Hello 👋
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+
+        <tr>
+            <td><code>x-transition.duration.1000ms</code></td>
+            <td>
+                <div x-data="{ open: false }">
+                    <button @click="open = ! open">Toggle</button>
+
+                    <div x-show="open" x-transition.duration.1000ms>
+                        Hello 👋
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <div><code>x-transition:enter.opacity.duration.500ms</code></div>
+                <div><code>x-transition:leave.scale.duration.250ms</code></div>
+            </td>
+            <td>
+                <div x-data="{ open: false }">
+                    <button @click="open = ! open">Toggle</button>
+
+                    <div x-show="open" x-transition:enter.opacity.duration.500ms x-transition:leave.scale.duration.250ms>
+                        Hello 👋
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <div><code>x-transition:enter.delay.0ms x-transition:leave.delay.250ms</code></div>
+                <div><code>x-transition:enter.delay.100ms x-transition:leave.delay.100ms</code></div>
+                <div><code>x-transition:enter.delay.250ms x-transition:leave.delay.0ms</code></div>
+            </td>
+            <td>
+                <div x-data="{ open: false }">
+                    <button @mouseenter="open = true" @mouseleave="open = false">Toggle (mouseover)</button>
+
+                    <div style="display: flex;" x-show="open">
+                        <div x-show="open" x-transition:enter.delay.0ms x-transition:leave.delay.250ms>Hello 👋</div>
+                        <div x-show="open" x-transition:enter.delay.100ms x-transition:leave.delay.100ms>Hello 👋</div>
+                        <div x-show="open" x-transition:enter.delay.250ms x-transition:leave.delay.0ms>Hello 👋</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</html>

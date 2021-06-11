@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Alpine-3-keyed</title>
+    <link href="/css/currentStyle.css" rel="stylesheet" />
+    <script src="http://alpine-next.test/packages/alpinejs/dist/cdn.js" defer></script>
+    <!-- <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script> -->
+  </head>
+  <body>
+    <div class="container" id="main" x-data="{ data: []}">
+      <div class="jumbotron">
+        <div class="row">
+          <div class="col-md-6">
+            <h1>Alpine-3-keyed</h1>
+          </div>
+          <div class="col-md-6">
+            <div class="row">
+              <div class="col-sm-6 smallpad">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-block"
+                  id="run"
+                  @click="run"
+                >
+                  Create 1,000 rows
+                </button>
+              </div>
+              <div class="col-sm-6 smallpad">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-block"
+                  id="runlots"
+                  @click="runLots"
+                >
+                  Create 10,000 rows
+                </button>
+              </div>
+              <div class="col-sm-6 smallpad">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-block"
+                  id="add"
+                  @click="add"
+                >
+                  Append 1,000 rows
+                </button>
+              </div>
+              <div class="col-sm-6 smallpad">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-block"
+                  id="update"
+                  @click="update"
+                >
+                  Update every 10th row
+                </button>
+              </div>
+              <div class="col-sm-6 smallpad">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-block"
+                  id="clear"
+                  @click="clear"
+                >
+                  Clear
+                </button>
+              </div>
+              <div class="col-sm-6 smallpad">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-block"
+                  id="swaprows"
+                  @click="swapRows"
+                >
+                  Swap Rows
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <table class="table table-hover table-striped test-data">
+        <tbody>
+          <template x-for="item in data" :key="item.id">
+            <tr :class="item.id === selected ? 'danger' : ''">
+              <td class="col-md-1" x-text="item.id"></td>
+              <td class="col-md-4">
+                <a @click="select(item.id)" x-text="item.label"></a>
+              </td>
+              <td class="col-md-1">
+                <a @click="remove(item.id)" >x</a>
+              </td>
+              <td class="col-md-6"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+
+      <span
+        class="preloadicon glyphicon glyphicon-remove"
+        aria-hidden="true"
+      ></span>
+    </div>
+
+    <script>
+            let idCounter = 1;
+            const adjectives = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"],
+            colours = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"],
+            nouns = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"];
+
+            function _random (max) { return Math.round(Math.random() * 1000) % max; };
+
+            function buildData(count) {
+            let data = new Array(count);
+            for (let i = 0; i < count; i++) {
+                data[i] = {
+                id: idCounter++,
+                label: `${adjectives[_random(adjectives.length)]} ${colours[_random(colours.length)]} ${nouns[_random(nouns.length)]}`
+                }
+            }
+            return data;
+            }
+
+            function app() {
+                return {
+                    data: [],
+                    selected: undefined,
+
+                    add() {
+                        let start = performance.now()
+                        this.data = this.data.concat(buildData(1000))
+                        setTimeout(() => {
+                            console.log(performance.now() - start);
+                        }, 0)
+                    },
+                    clear() {
+                        let start = performance.now()
+                        this.data = [];
+                        this.selected = undefined;
+                        setTimeout(() => {
+                            console.log(performance.now() - start);
+                        }, 0)
+                    },
+                    update() {
+                        let start = performance.now()
+                        for (let i = 0; i < this.data.length; i += 10) {
+                            this.data[i].label += ' !!!';
+                        }
+                        setTimeout(() => {
+                            console.log(performance.now() - start);
+                        }, 0)
+                    },
+                    remove(id) {
+                        let start = performance.now()
+                        const idx = this.data.findIndex(d => d.id === id);
+                        this.data.splice(idx, 1);
+                        setTimeout(() => {
+                            console.log(performance.now() - start);
+                        }, 0)
+                    },
+                    run() {
+                        let start = performance.now()
+                        this.data = buildData(100);
+                        this.selected = undefined;
+                        setTimeout(() => {
+                            console.log(performance.now() - start);
+                        }, 0)
+                    },
+                    runLots() {
+                        let start = performance.now()
+                        this.data = buildData(10000);
+                        this.selected = undefined;
+                        setTimeout(() => {
+                            console.log(performance.now() - start);
+                        }, 0)
+                    },
+                    select(id) {
+                        let start = performance.now()
+                        this.selected = id
+                        setTimeout(() => {
+                            console.log(performance.now() - start);
+                        }, 0)
+                    },
+                    swapRows() {
+                        let start = performance.now()
+                        const d = this.data;
+                        if (d.length > 998) {
+                            const tmp = d[998];
+                            d[998] = d[1];
+                            d[1] = tmp;
+                        }
+                        setTimeout(() => {
+                            console.log(performance.now() - start);
+                        }, 0)
+                    }
+                }
+            }
+    </script>
+  </body>
+</html>

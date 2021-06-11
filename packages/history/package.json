@@ -1,0 +1,12 @@
+{
+    "name": "@alpinejs/history",
+    "version": "3.0.0-alpha.0",
+    "description": "Sync Alpine data with the browser's query string",
+    "author": "Caleb Porzio",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js",
+    "dependencies": {
+        "@vue/reactivity": "^3.0.2"
+    }
+}

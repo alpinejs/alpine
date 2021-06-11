@@ -1,3 +1,4 @@
-/node_modules/
-SCRATCH.md
-COMMIT_MSG.aim.txt
+node_modules
+scratch.md
+package-lock.json
+dist/

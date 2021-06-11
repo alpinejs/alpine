@@ -1,0 +1,65 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        let mutations = []
+
+        let pauseCollection = false
+
+        function reverseMutation(mutation) {
+            let table = {
+                characterData: () => {
+                    mutation.target.textContent = mutation.oldValue
+                },
+                attributes: () => {
+                    if (! mutation.oldValue) {
+                        mutation.target.removeAttribute(mutation.attributeName)
+                        return
+                    }
+
+                    mutation.target.setAttribute(mutation.attributeName, mutation.oldValue)
+                },
+                childList: () => {
+                    if (mutation.removedNodes) {
+                        let parent = mutation.target
+                    }
+                }
+            }
+
+            console.log(mutation);
+            table[mutation.type]()
+        }
+
+        function reverse() {
+            pauseCollection = true
+
+            while (mutations.length > 0) reverseMutation(mutations.pop())
+
+            pauseCollection = false
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let observer = new MutationObserver(imutations => {
+                if (pauseCollection) return
+
+                imutations.forEach(i => mutations.push(i))
+
+                console.log(imutations);
+            })
+
+            observer.observe(document.body, { characterData: true, attributeOldValue: true, characterDataOldValue: true, childList: true, subtree: true, attributes: true })
+        })
+    </script>
+</head>
+<body>
+    <div>
+        <h1 foo="bar">yo</h1>
+        <h1>there</h1>
+
+        <button>this is cool</button>
+    </div>
+</body>
+</html>

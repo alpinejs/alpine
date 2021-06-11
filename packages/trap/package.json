@@ -1,0 +1,12 @@
+{
+    "name": "@alpinejs/trap",
+    "version": "3.0.0-alpha.0",
+    "description": "Declaratively trap focus",
+    "author": "Caleb Porzio",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js",
+    "dependencies": {
+        "wicg-inert": "^3.1.1"
+    }
+}

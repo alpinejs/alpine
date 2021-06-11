@@ -1,0 +1,44 @@
+<html>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'nonce-iifbjI67iq4HZJUQ54eC' 'self' data:; default-src 'self';">
+
+    <!-- Using a <blockquote> because it's an obscure tag -->
+    <!-- which allows us to use document.querySelector()  -->
+    <!-- with generic tags freely inside Cypress tests.   -->
+    <blockquote id="root">
+        <!-- This is where our test subjects will be injected. -->
+    </blockquote>
+
+    <script nonce="iifbjI67iq4HZJUQ54eC">
+        let root = document.querySelector('#root')
+
+        // We aren't loading Alpine directly because we are expecting
+        // Cypress to inject HTML into "#root", THEN we'll call
+        // this function from Cypress to boot everything up.
+        root.evalScripts = (extraJavaScript) => {
+            // Load bespoke JavaScript.
+            if (extraJavaScript) {
+                let script = document.createElement('script')
+                script.src = `data:text/javascript;base64,${btoa(`
+                    document.addEventListener('alpine:initializing', () => {
+                        ${extraJavaScript}
+                    })
+                `)}`
+                root.after(script)
+            }
+
+            document.addEventListener('alpine:initialized', () => {
+                let readyEl = document.createElement('blockquote')
+                readyEl.setAttribute('alpine-is-ready', true)
+                readyEl.style.width = '1px'
+                readyEl.style.height = '1px'
+
+                document.querySelector('blockquote').after(readyEl)
+            })
+
+            // Load Alpine.
+            let script = document.createElement('script')
+            script.src = '/../../packages/csp/dist/cdn.js'
+            root.after(script)
+        }
+    </script>
+</html>

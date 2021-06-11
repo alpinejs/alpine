@@ -1,0 +1,6 @@
+import './$nextTick'
+import './$dispatch'
+import './$watch'
+import './$store'
+import './$refs'
+import './$el'

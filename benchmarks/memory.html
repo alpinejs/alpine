@@ -1,0 +1,17 @@
+<html>
+    <script src="http://alpine-next.test/packages/alpinejs/dist/cdn.js" defer></script>
+
+    <div x-data="{ items: [] }">
+        <template x-for="item in items">
+            <h1>hi</h1>
+        </template>
+
+        <button @click="items.length === 0 ? items.push('ggoo') : items = []" x-text="'ghjghj'">delete</button>
+    </div>
+
+    <script>
+        function remove() {
+            document.querySelector('span').remove()
+        }
+    </script>
+</html>

@@ -238,7 +238,7 @@ Color: <span x-text="color"></span>
     <option>Yellow</option>
 </select>
 
-Colors: <span x-text="colors"></span>
+Colors: <span x-text="color"></span>
 ```
 
 <!-- START_VERBATIM -->

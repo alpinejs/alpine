@@ -182,7 +182,7 @@ Alpine V2 observes a return value of `false` as a desire to run `preventDefault`
 
 ```html
 <!-- 🚫 Before -->
-<div x-data="{ blockInput() { return false }">
+<div x-data="{ blockInput() { return false } }">
     <input type="text" @input="blockInput()">
 </div>
 

@@ -262,7 +262,7 @@ The next bit I'd like to draw your attention to is the `items` and `filteredItem
 }
 ```
 
-The `items` property should be self-explanitory. Here we are setting the value of `items` to a JavaScript array of 3 different items (foo, bar, and baz).
+The `items` property should be self-explanatory. Here we are setting the value of `items` to a JavaScript array of 3 different items (foo, bar, and baz).
 
 The interesting part of this snippet is the `filteredItems` property.
 

@@ -45,7 +45,7 @@ console.log(reactiveData.count) // 2
 
 What you see here is that because `reactiveData` is a thin wrapper around `data`, any attempts to get or set a property will behave exactly as if you had interacted with `data` directly.
 
-The main difference here is that any time you modify or retreive (get or set) a value from `reactiveData`, Alpine is aware of it and can execute any other logic that depends on this data.
+The main difference here is that any time you modify or retrieve (get or set) a value from `reactiveData`, Alpine is aware of it and can execute any other logic that depends on this data.
 
 `Alpine.reactive` is only the first half of the story. `Alpine.effect` is the other half, let's dig in.
 
@@ -62,7 +62,7 @@ Alpine.effect(() => {
 })
 ```
 
-When this code is firt run, "1" will be logged to the console. Any time `data.count` changes, it's value will be logged to the console again.
+When this code is first run, "1" will be logged to the console. Any time `data.count` changes, it's value will be logged to the console again.
 
 This is the mechanism that unlocks all of the reactivity at the core of Alpine.
 

@@ -168,7 +168,7 @@ Let's walk through the above code, line by line.
 let getThingToLog = evaluateLater(expression)
 ```
 
-Here, instead of immediately evaluating `message` and retreiving the result, we will convert the string expression ("message") into an actual JavaScript function that we can run at any time. If you're going to evaluate a JavaScript expression more than once, it is highly recommended to first generate a JavaScript function and use that rather than calling `evaluate()` directly. The reason being that the process to interpret a plain string as a JavaScript function is expensive and should be avoided when unnecessary.
+Here, instead of immediately evaluating `message` and retrieving the result, we will convert the string expression ("message") into an actual JavaScript function that we can run at any time. If you're going to evaluate a JavaScript expression more than once, it is highly recommended to first generate a JavaScript function and use that rather than calling `evaluate()` directly. The reason being that the process to interpret a plain string as a JavaScript function is expensive and should be avoided when unnecessary.
 
 ```js
 effect(() => {
@@ -176,7 +176,7 @@ effect(() => {
 })
 ```
 
-By passing in a callback to `effect()`, we are telling Alpine to run the callback immediately, then track any dependancies it uses (`x-data` properties like `message` in our case). Now as soon as one of the dependancies changes, this callback will be re-run. This gives us our "reactivity".
+By passing in a callback to `effect()`, we are telling Alpine to run the callback immediately, then track any dependencies it uses (`x-data` properties like `message` in our case). Now as soon as one of the dependencies changes, this callback will be re-run. This gives us our "reactivity".
 
 You may recognize this functionality from `x-effect`. It is the same mechanism under the hood.
 

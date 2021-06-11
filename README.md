@@ -1,10 +1,5 @@
 ## Alpine V3
 
-### Coming From Alpine Day?
-This repo is temporary until V3 is fully published. For now, here is the Alpine V3 file you can drop into a `<script>` tag and test it out!
-
-[→ Alpine V3 JS File](https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js)
-
 ### Quickstart
 
 * clone this repo locally

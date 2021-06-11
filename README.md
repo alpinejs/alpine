@@ -1,5 +1,9 @@
 ## Alpine V3
 
+Go to the Alpine docs for most things: [Alpine Docs](https://alpinejs.dev)
+
+Stay here for contribution-related information.
+
 ### Quickstart
 
 * clone this repo locally

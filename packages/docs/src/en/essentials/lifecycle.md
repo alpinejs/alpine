@@ -47,7 +47,7 @@ As you can see above, `$watch` allows you to hook into data changes using a dot-
 <a name="x-effect"></a>
 ### `x-effect`
 
-`x-effect` uses the same mechanism under the hood as `x-watch` but has very different usage.
+`x-effect` uses the same mechanism under the hood as `$watch` but has very different usage.
 
 Instead of specifying which data key you wish to watch, `x-effect` will call the provided code and intelligently look for any Alpine data used within it. Now when one of those peices of data changes, the `x-effect` expression will be re-run.
 

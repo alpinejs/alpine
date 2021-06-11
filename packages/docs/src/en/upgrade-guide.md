@@ -299,9 +299,9 @@ However, using V3's new custom directive API, it's trivial to reintroduce this f
 </script>
 ```
 
-## Depricated APIs
+## Deprecated APIs
 
-The following 2 APIs will still work in V3, but are considered depricated and are likely to be removed at some point in the future.
+The following 2 APIs will still work in V3, but are considered deprecated and are likely to be removed at some point in the future.
 
 <a name="away-replace-with-outside"></a>
 ### Event listener modifier `.away` should be replaced with `.outside`

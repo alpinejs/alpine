@@ -60,7 +60,7 @@ export default function () => ({
 <a name="init-functions"></a>
 ## Init functions
 
-If your component contains an `init()` method, Livewire will automatically execute it before it renders the component. For example:
+If your component contains an `init()` method, Alpine will automatically execute it before it renders the component. For example:
 
 ```js
 Alpine.data('dropdown', () => ({

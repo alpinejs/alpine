@@ -290,7 +290,9 @@ However, using V3's new custom directive API, it's trivial to reintroduce this f
             let getHtml = evaluateLater(expression)
 
             effect(() => {
-                el.innerHTML = getHTML()
+                getHTML(html => {
+                    el.innerHTML = html
+                })
             })
         })
     })

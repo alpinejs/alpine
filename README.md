@@ -178,7 +178,7 @@ And 6 magic properties:
 
 **Structure:** `<div x-data="[object literal]">...</div>`
 
-`x-data` declares a new component scope. It tells the framework to initialize a new component with the following data object.
+`x-data` declares a new component scope. It tells the framework to initialize a new component with the following data object. It's also possible to leave it empty when you don't have any data in your component.
 
 Think of it like the `data` property of a Vue component.
 

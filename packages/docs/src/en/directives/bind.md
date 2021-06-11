@@ -50,7 +50,7 @@ In cases like these, if you prefer a less verbose syntax you can use JavaScript'
 
 ```html
 <div :class="show ? '' : 'hidden'">
-<!-- Is equivelant to: -->
+<!-- Is equivalant to: -->
 <div :class="show || 'hidden'">
 ```
 
@@ -58,7 +58,7 @@ The inverse is also available to you. Suppose instead of `open`, we use a variab
 
 ```html
 <div :class="closed ? 'hidden' : ''">
-<!-- Is equivelant to: -->
+<!-- Is equivalant to: -->
 <div :class="closed && 'hidden'">
 ```
 

@@ -55,7 +55,7 @@ We can use the same example as above but this time, we'll add a button to change
 
 Now when the `<button>` is clicked, the input element's value will instantly be updated to "changed".
 
-`x-model` works with the following inputy elements:
+`x-model` works with the following input elements:
 
 * `<input type="text">`
 * `<textarea>`

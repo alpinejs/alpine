@@ -15,4 +15,4 @@ Because of this difference in behavior, `x-if` should not be applied directly to
 </template>
 ```
 
-> Unlike `x-show`, `x-if`, does NOT support tansitioning toggles with `x-transition`.
+> Unlike `x-show`, `x-if`, does NOT support transitioning toggles with `x-transition`.

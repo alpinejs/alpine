@@ -5,7 +5,7 @@ title: Reactivity
 
 # Reactivity
 
-Alpine is "reactive" in the sense that when you change a peice of data, everything that depends on that data "reacts" automatically to that change.
+Alpine is "reactive" in the sense that when you change a piece of data, everything that depends on that data "reacts" automatically to that change.
 
 Every bit of reactivity that takes place in Alpine, happens because of two very important reactive functions in Alpine's core: `Alpine.reactive()`, and `Alpine.effect()`.
 
@@ -62,7 +62,7 @@ Alpine.effect(() => {
 })
 ```
 
-When this code is firt run, "1" will be logged to the console. Any time `data.count` changes, it's value will be logged to the console again.
+When this code is first run, "1" will be logged to the console. Any time `data.count` changes, it's value will be logged to the console again.
 
 This is the mechanism that unlocks all of the reactivity at the core of Alpine.
 
@@ -98,4 +98,4 @@ button.addEventListener('click', () => {
 
 As you can see, you can make any data reactive, and you can also wrap any functionality in `Alpine.effect`.
 
-This combination unlocks an incredibly powerful programming paradaigm for web development. Run wild and free.
+This combination unlocks an incredibly powerful programming paradigm for web development. Run wild and free.

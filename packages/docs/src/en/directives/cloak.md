@@ -23,7 +23,7 @@ Now, the following example will hide the `<span>` tag until Alpine has set its t
 
 When Alpine loads on the page, it removes all `x-cloak` property from the element, which also removes the `display: none;` applied by CSS, therefore showing the element.
 
-If you'd like to achieve this same behavior, but avoid having to include a global style, you can use the following cool, but admittadly odd trick:
+If you'd like to achieve this same behavior, but avoid having to include a global style, you can use the following cool, but admittedly odd trick:
 
 ```html
 <template x-if="true">

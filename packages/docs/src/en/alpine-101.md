@@ -22,7 +22,7 @@ Using a text editor, fill the file with these contents:
 
 Open your file in a web browser, if you see `I ❤️ Alpine`, you're ready to rumble!
 
-Now that you're all set up to play around, let's look at three practical examples as a foundation for teaching you the basics of Alpine. By the end of this excercise, you should be more than equipped to start building stuff on your own. Let's goooooo.
+Now that you're all set up to play around, let's look at three practical examples as a foundation for teaching you the basics of Alpine. By the end of this exercise, you should be more than equipped to start building stuff on your own. Let's goooooo.
 
 <!-- START_VERBATIM -->
 <ul class="flex flex-col space-y-2 list-inside !list-decimal">
@@ -153,7 +153,7 @@ The `x-data` and `x-on` directives should be familiar to you from the previous e
 <div ... @click.outside="open = false">Contents...</div>
 ```
 
-You'll notice something new in this example: `.outside`. Many directives in Alpine accept "modifiers" that are chained onto the end of the directive and are seperated by periods.
+You'll notice something new in this example: `.outside`. Many directives in Alpine accept "modifiers" that are chained onto the end of the directive and are separated by periods.
 
 In this case, `.outside` tells Alpine to instead of listening for a click INSIDE the `<div>`, to listen for the click only if it happens OUTSIDE the `<div>`.
 
@@ -262,7 +262,7 @@ The next bit I'd like to draw your attention to is the `items` and `filteredItem
 }
 ```
 
-The `items` property should be self-explanitory. Here we are setting the value of `items` to a JavaScript array of 3 different items (foo, bar, and baz).
+The `items` property should be self-explanatory. Here we are setting the value of `items` to a JavaScript array of 3 different items (foo, bar, and baz).
 
 The interesting part of this snippet is the `filteredItems` property.
 

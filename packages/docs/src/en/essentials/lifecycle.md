@@ -31,7 +31,7 @@ Alpine.data('dropdown', () => ({
 <a name="after-a-state-change"></a>
 ## After a state change
 
-Alpine allows you to execute code when a peice of data (state) changes. It offers two different APIs for such a task: `$watch` and `x-effect`.
+Alpine allows you to execute code when a piece of data (state) changes. It offers two different APIs for such a task: `$watch` and `x-effect`.
 
 <a name="watch"></a>
 ### `$watch`
@@ -40,7 +40,7 @@ Alpine allows you to execute code when a peice of data (state) changes. It offer
 <div x-data="{ open: false }" x-init="$watch('open', value => console.log(value))">
 ```
 
-As you can see above, `$watch` allows you to hook into data changes using a dot-notation key. When that peice of data changes, Alpine will call the passed callback and pass it the new value. along with the old value before the change.
+As you can see above, `$watch` allows you to hook into data changes using a dot-notation key. When that piece of data changes, Alpine will call the passed callback and pass it the new value. along with the old value before the change.
 
 [→ Read more about $watch](/magics/watch)
 
@@ -49,7 +49,7 @@ As you can see above, `$watch` allows you to hook into data changes using a dot-
 
 `x-effect` uses the same mechanism under the hood as `x-watch` but has very different usage.
 
-Instead of specifying which data key you wish to watch, `x-effect` will call the provided code and intelligently look for any Alpine data used within it. Now when one of those peices of data changes, the `x-effect` expression will be re-run.
+Instead of specifying which data key you wish to watch, `x-effect` will call the provided code and intelligently look for any Alpine data used within it. Now when one of those pieces of data changes, the `x-effect` expression will be re-run.
 
 Here's the same bit of code from the `$watch` example rewritten using `x-effect`:
 

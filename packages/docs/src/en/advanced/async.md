@@ -20,7 +20,7 @@ function getLabel() {
 
 Because `getLabel` is synchronous, everything works as expected.
 
-Now let's pretend that `getLabel` makes a network request to retrieve the label and can't return one instantaniously (asynchronous). By making `getLabel` an async function, you can call it from Alpine using JavaScript's `await` syntax.
+Now let's pretend that `getLabel` makes a network request to retrieve the label and can't return one instantaneously (asynchronous). By making `getLabel` an async function, you can call it from Alpine using JavaScript's `await` syntax.
 
 ```js
 async function getLabel() {

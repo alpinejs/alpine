@@ -52,7 +52,7 @@ For example, if you want to listen for a form submission but prevent the browser
 <form @submit.prevent="...">...</form>
 ```
 
-You can also apply `.stop` to achieve the equivalant of `event.stopPropagation()`.
+You can also apply `.stop` to achieve the equivalent of `event.stopPropagation()`.
 
 <a name="accessing-the-event-object"></a>
 ## Accessing the event object

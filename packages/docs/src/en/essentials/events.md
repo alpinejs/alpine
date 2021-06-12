@@ -66,7 +66,7 @@ Sometimes you may want to access the native browser event object inside your own
 <a name="dispatching-custom-events"></a>
 ## Dispatching custom events
 
-In addition to listening for browser events, you can dispatch them as well. This is extremely useful for communicating with other Alpine components or event in tools outside of Alpine itself.
+In addition to listening for browser events, you can dispatch them as well. This is extremely useful for communicating with other Alpine components or triggering event in tools outside of Alpine itself.
 
 Alpine exposes a magic helper called `$dispatch` for this:
 

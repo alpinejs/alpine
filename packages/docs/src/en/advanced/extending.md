@@ -124,7 +124,7 @@ Alpine.directive('log', (el, { expression }, { evaluate }) => {
     // expression === 'message'
 
     console.log(
-        evaluate(el, expression)
+        evaluate(expression)
     )
 })
 ```

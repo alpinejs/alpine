@@ -230,7 +230,7 @@ One of Alpine's stories for re-using functionality is abstracting Alpine directi
             },
         }
     }
-</template>
+</script>
 ```
 
 [→ Read more about binding directives using x-bind](/directives/bind#bind-directives)

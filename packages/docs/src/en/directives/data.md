@@ -155,7 +155,7 @@ Here's a quick example:
 </div>
 
 <script>
-    document.addEventListener('alpine:intializing', () => {
+    document.addEventListener('alpine:initializing', () => {
         Alpine.data('dropdown', () => ({
             open: false,
 

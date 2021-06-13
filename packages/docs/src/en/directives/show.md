@@ -26,7 +26,7 @@ When the "Toggle Dropdown" button is clicked, the dropdown will show and hide ac
 <a name="with-transitions"></a>
 ## With transitions
 
-If you want to apply smooth transitions to the `x-show` behavior, you can use it in conjunction with `x-transition`. You can learn more about that directive [here](https://alpinejs.dev/directives/transition), but here's a quick example of the same component as above, just with transitions applied.
+If you want to apply smooth transitions to the `x-show` behavior, you can use it in conjunction with `x-transition`. You can learn more about that directive [here](/directives/transition), but here's a quick example of the same component as above, just with transitions applied.
 
 ```html
 <div x-data="{ open: false }">

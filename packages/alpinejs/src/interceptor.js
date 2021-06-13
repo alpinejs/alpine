@@ -11,7 +11,7 @@ export function initInterceptors(data) {
                 Object.defineProperty(obj, key, result[0])
             }
 
-            if (isObject(value)) {
+            if (isObject(value) && value !== obj) {
                 recurse(value, path)
             }
         })

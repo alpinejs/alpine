@@ -182,7 +182,7 @@ Alpine V2 observes a return value of `false` as a desire to run `preventDefault`
 
 ```html
 <!-- 🚫 Before -->
-<div x-data="{ blockInput() { return false }">
+<div x-data="{ blockInput() { return false } }">
     <input type="text" @input="blockInput()">
 </div>
 
@@ -230,7 +230,7 @@ One of Alpine's stories for re-using functionality is abstracting Alpine directi
             },
         }
     }
-</template>
+</script>
 ```
 
 [→ Read more about binding directives using x-bind](/directives/bind#bind-directives)
@@ -290,16 +290,18 @@ However, using V3's new custom directive API, it's trivial to reintroduce this f
             let getHtml = evaluateLater(expression)
 
             effect(() => {
-                el.innerHTML = getHTML()
+                getHTML(html => {
+                    el.innerHTML = html
+                })
             })
         })
     })
 </script>
 ```
 
-## Depricated APIs
+## Deprecated APIs
 
-The following 2 APIs will still work in V3, but are considered depricated and are likely to be removed at some point in the future.
+The following 2 APIs will still work in V3, but are considered deprecated and are likely to be removed at some point in the future.
 
 <a name="away-replace-with-outside"></a>
 ### Event listener modifier `.away` should be replaced with `.outside`

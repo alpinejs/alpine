@@ -11,7 +11,7 @@ Alpine has a very open codebase that allows for extension in a number of ways. I
 ## Lifecycle concerns
 Before we dive into each individual API, let's first talk about where in your codebase you should consume these APIs.
 
-Because these APIs have an impact on how Alpine intiailizes the page, they must be registered AFTER Alpine is downloaded and available on the page, but BEFORE it has initialized the page itself.
+Because these APIs have an impact on how Alpine initializes the page, they must be registered AFTER Alpine is downloaded and available on the page, but BEFORE it has initialized the page itself.
 
 There are two different techniques depending on if you are importing Alpine into a bundle, or including it directly via a `<script>` tag. Let's look at them both:
 
@@ -124,7 +124,7 @@ Alpine.directive('log', (el, { expression }, { evaluate }) => {
     // expression === 'message'
 
     console.log(
-        evaluate(el, expression)
+        evaluate(expression)
     )
 })
 ```
@@ -176,7 +176,7 @@ effect(() => {
 })
 ```
 
-By passing in a callback to `effect()`, we are telling Alpine to run the callback immediately, then track any dependancies it uses (`x-data` properties like `message` in our case). Now as soon as one of the dependancies changes, this callback will be re-run. This gives us our "reactivity".
+By passing in a callback to `effect()`, we are telling Alpine to run the callback immediately, then track any dependencies it uses (`x-data` properties like `message` in our case). Now as soon as one of the dependencies changes, this callback will be re-run. This gives us our "reactivity".
 
 You may recognize this functionality from `x-effect`. It is the same mechanism under the hood.
 
@@ -192,7 +192,7 @@ getThingToLog(thingToLog => {
 })
 ```
 
-Now we will call `getThingToLog`, which if you recall is the actual JavaScript function version of the string expression: "message"
+Now we will call `getThingToLog`, which if you recall is the actual JavaScript function version of the string expression: "message".
 
 You might expect `getThingToCall()` to return the result right away, but instead Alpine requires you to pass in a callback to receive the result.
 
@@ -227,7 +227,7 @@ Now if the directive is removed from this element or the element is removed itse
 <a name="custom-magics"></a>
 ## Custom magics
 
-Alpine allows you to register custom "magics" (properties or methods) using `Alpine.magic()`. Any magic you register will be available to all your application's Alpine code with the `$` prefix.
+Alpine allows you to register custom "magic" (properties or methods) using `Alpine.magic()`. Any magic you register will be available to all your application's Alpine code with the `$` prefix.
 
 <a name="method-signature"></a>
 ### Method Signature
@@ -260,12 +260,12 @@ Now the `<span>` tag will contain the current time, resembling something like "1
 
 As you can see `$now` behaves like a static property, but under the hood is actually a getter that evaluates every time the property is accessed.
 
-Because of this, you can impliment magic "functions" by returning a function from the getter.
+Because of this, you can implement magic "functions" by returning a function from the getter.
 
 <a name="magic-functions"></a>
 ### Magic Functions
 
-For example, if we wanted to create a `$clipboard()` magic function that accepts a string to copy to clipboard, we could impliement it like so:
+For example, if we wanted to create a `$clipboard()` magic function that accepts a string to copy to clipboard, we could implement it like so:
 
 ```js
 Alpine.magic('clipboard', () => {
@@ -295,7 +295,7 @@ You can get started quickly with Alpine's official "plugin-blueprint" package. I
 
 Otherwise, let's create a pretend Alpine plugin by hand called `Foo` that includes both a directive (`x-foo`) and a magic (`$foo`).
 
-We'll start with what producing this plugin for consumption as a simple `<script>` tag alongside Alpine, then we'll level it up to a module for importing into a bundle:
+We'll start producing this plugin for consumption as a simple `<script>` tag alongside Alpine, then we'll level it up to a module for importing into a bundle:
 
 <a name="script-include"></a>
 ### Script include

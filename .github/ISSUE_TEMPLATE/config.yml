@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Bug Report
-    url: https://github.com/alpinejs/alpine/issues/new
+    url: https://github.com/alpinejs/alpine/discussions/new
     about: Submit a GitHub issue
   - name: Feature Request
     url: https://github.com/alpinejs/alpine/discussions/new

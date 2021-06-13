@@ -55,7 +55,7 @@ We can use the same example as above but this time, we'll add a button to change
 
 Now when the `<button>` is clicked, the input element's value will instantly be updated to "changed".
 
-`x-model` works with the following inputy elements:
+`x-model` works with the following input elements:
 
 * `<input type="text">`
 * `<textarea>`
@@ -238,7 +238,7 @@ Color: <span x-text="color"></span>
     <option>Yellow</option>
 </select>
 
-Colors: <span x-text="colors"></span>
+Colors: <span x-text="color"></span>
 ```
 
 <!-- START_VERBATIM -->
@@ -267,6 +267,20 @@ Colors: <span x-text="colors"></span>
 
 Color: <span x-text="color"></span>
 ```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <div x-data="{ color: '' }">
+        <select x-model="color">
+            <template x-for="color in ['Red', 'Orange', 'Yellow']">
+                <option x-text="color"></option>
+            </template>
+        </select>
+
+        <div class="pt-4">Color: <span x-text="color"></span></div>
+    </div>
+</div>
+<!-- END_VERBATIM -->
 
 <a name="modifiers"></a>
 ## Modifiers

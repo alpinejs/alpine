@@ -9,7 +9,7 @@ In order for Alpine to be able to execute plain strings from HTML attributes as 
 
 > Under the hood, Alpine doesn't actually use eval() itself because it's slow and problematic. Instead it uses Function declarations, which are much better, but still violate "unsafe-eval".
 
-In order to accomodate environments where this CSP is necessary, Alpine offers an alternate build that doesn't violate "unsafe-eval", but has a more restrictive syntax.
+In order to accommodate environments where this CSP is necessary, Alpine offers an alternate build that doesn't violate "unsafe-eval", but has a more restrictive syntax.
 
 <a name="installation"></a>
 ## Installation
@@ -38,9 +38,9 @@ window.Alpine.start()
 <a name="restrictions"></a>
 ## Restrictions
 
-Because Alpine can no longer interpret strings as plain JavaScript, it has to parse and construct JavaScript functions from them manually.
+Since Alpine can no longer interpret strings as plain JavaScript, it has to parse and construct JavaScript functions from them manually.
 
-Because of this limitation, you must use `Alpine.data` to register your `x-data` objects, and must reference properties and methods from it by key only.
+Due to this limitation, you must use `Alpine.data` to register your `x-data` objects, and must reference properties and methods from it by key only.
 
 For example, an inline component like this will not work.
 

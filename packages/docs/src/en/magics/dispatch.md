@@ -86,7 +86,7 @@ You can also take advantage of the previous technique to make your components ta
 <div x-data>
     <button @click="$dispatch('set-title', 'Hello World!')">...</button>
 </div>
-<!-- When clicked, will console.log "Hello World!". -->
+<!-- When clicked, the content of the h1 will set to "Hello World!". -->
 ```
 
 <a name="dispatching-to-x-model"></a>

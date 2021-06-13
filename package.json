@@ -5,6 +5,7 @@
     ],
     "devDependencies": {
         "brotli-size": "^4.0.0",
+        "chalk": "^4.1.1",
         "cypress": "^5.5.0",
         "cypress-plugin-tab": "^1.0.5",
         "dot-json": "^1.2.2",
@@ -16,6 +17,7 @@
         "watch": "node ./scripts/build.js --watch",
         "test": "jest test && cypress run",
         "cypress": "cypress open",
-        "jest": "jest test"
+        "jest": "jest test",
+        "update-docs": "node ./scripts/update-docs.js"
     }
 }

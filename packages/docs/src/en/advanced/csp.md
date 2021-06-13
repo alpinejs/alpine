@@ -14,7 +14,7 @@ In order to accommodate environments where this CSP is necessary, Alpine offers 
 <a name="installation"></a>
 ## Installation
 
-Like all Alpine extensions, you can use this include this either via `<script>` tag or module import:
+Like all Alpine extensions, you can include this either via `<script>` tag or module import:
 
 <a name="script-tag"></a>
 ### Script tag

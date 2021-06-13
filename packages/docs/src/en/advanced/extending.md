@@ -227,7 +227,7 @@ Now if the directive is removed from this element or the element is removed itse
 <a name="custom-magics"></a>
 ## Custom magics
 
-Alpine allows you to register custom "magic" (properties or methods) using `Alpine.magic()`. Any magic you register will be available to all your application's Alpine code with the `$` prefix.
+Alpine allows you to register custom "magics" (properties or methods) using `Alpine.magic()`. Any magic you register will be available to all your application's Alpine code with the `$` prefix.
 
 <a name="method-signature"></a>
 ### Method Signature

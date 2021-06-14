@@ -22,7 +22,7 @@ This is by far the simplest way to get started with Alpine. Include the followin
   <head>
     ...
 
-    <script defer src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
   ...
 </html>
@@ -33,7 +33,7 @@ This is by far the simplest way to get started with Alpine. Include the followin
 Notice the `@v2.x.x` in the provided CDN link. This will pull the latest version of Alpine version 2. For stability in production, it's recommended that you hardcode the latest version in the CDN link.
 
 ```html
-<script defer src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.4/dist/alpine.min.js"></script>
+<script defer src="https://unpkg.com/alpinejs@3.0.5/dist/cdn.min.js"></script>
 ```
 
 That's it! Alpine is now available for use inside your page.

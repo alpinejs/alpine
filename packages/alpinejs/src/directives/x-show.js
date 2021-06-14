@@ -38,9 +38,19 @@ directive('show', (el, { modifiers, expression }, { effect }) => {
         }
     )
 
+    let oldValue
+    let firstTime = true
+
     effect(() => evaluate(value => {
+        // Let's make sure we only call this effect if the value changed.
+        // This prevents "blip" transitions. (1 tick out, then in)
+        if (! firstTime && value === oldValue) return
+
         if (modifiers.includes('immediate')) value ? clickAwayCompatibleShow() : hide()
 
         toggle(value)
+
+        oldValue = value
+        firstTime = false
     }))
 })

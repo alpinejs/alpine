@@ -8,15 +8,8 @@ test('can register custom interceptors',
     `,
     `
         Alpine.magic('magic', () => {
-            return Alpine.interceptor((key, path) => {
-                return {
-                    init(initialValue, setter) {
-                        setter(key+path)
-                    },
-                    set(value, setter) {
-                        setter(value)
-                    },
-                }
+            return Alpine.interceptor((initialValue, getter, setter, path, key) => {
+                return key+path
             })
         })
     `],
@@ -31,15 +24,8 @@ test('interceptors are nesting aware',
     `,
     `
         Alpine.magic('magic', () => {
-            return Alpine.interceptor((key, path) => {
-                return {
-                    init(initialValue, setter) {
-                        setter(key+path)
-                    },
-                    set(value, setter) {
-                        setter(value)
-                    },
-                }
+            return Alpine.interceptor((initialValue, getter, setter, path, key) => {
+                return key+path
             })
         })
     `],

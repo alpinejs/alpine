@@ -1,4 +1,4 @@
-import { setReactivityEngine, reactive, effect, release, raw } from './reactivity'
+import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw } from './reactivity'
 import { mapAttributes, directive, setPrefix as prefix } from './directives'
 import { setEvaluator, evaluate, evaluateLater } from './evaluator'
 import { start, addRootSelector, closestRoot } from './lifecycle'
@@ -17,12 +17,14 @@ let Alpine = {
     get effect() { return effect },
     get raw() { return raw },
     version: ALPINE_VERSION,
+    disableEffectScheduling,
     setReactivityEngine,
     addRootSelector,
     mapAttributes,
     evaluateLater,
     setEvaluator,
     closestRoot,
+    // Warning: interceptor is not public API and is subject to change without major release.
     interceptor,
     mutateDom,
     directive,

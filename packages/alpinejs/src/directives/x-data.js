@@ -25,11 +25,11 @@ directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
         data = evaluate(el, expression)
     }
 
-    initInterceptors(data)
-
     injectMagics(data, el)
 
     let reactiveData = reactive(data)
+
+    initInterceptors(reactiveData)
 
     let undo = addScopeToNode(el, reactiveData)
 

@@ -1,3 +1,6 @@
+// Warning: The concept of "interceptors" in Alpine is not public API and is subject to change
+// without tagging a major release.
+
 export function initInterceptors(data) {
     let isObject = val => typeof val === 'object' && !Array.isArray(val) && val !== null
 
@@ -5,14 +8,12 @@ export function initInterceptors(data) {
         Object.entries(obj).forEach(([key, value]) => {
             let path = basePath === '' ? key : `${basePath}.${key}`
 
-            if (typeof value === 'function' && value.interceptor) {
-                let result = value(key, path)
-
-                Object.defineProperty(obj, key, result[0])
-            }
-
-            if (isObject(value) && value !== obj) {
-                recurse(value, path)
+            if (typeof value === 'object' && value !== null && value._x_interceptor) {
+                obj[key] = value.initialize(data, path, key)
+            } else {
+                if (isObject(value) && value !== obj) {
+                    recurse(value, path)
+                }
             }
         })
     }
@@ -20,58 +21,54 @@ export function initInterceptors(data) {
     return recurse(data)
 }
 
-export function interceptor(callback, mutateFunc = () => {}) {
+export function interceptor(callback, mutateObj = () => {}) {
+    let obj = {
+        initialValue: undefined,
+
+        _x_interceptor: true,
+
+        initialize(data, path, key) {
+            return callback(this.initialValue, () => get(data, path), (value) => set(data, path, value), path, key)
+        }
+    }
+
+    mutateObj(obj)
+
     return initialValue => {
-        function func(key, path) {
-            let parentFunc = func.parent
-                ? func.parent
-                : (key, path) => ([{}, { initer() {}, setter() {} }])
+        if (typeof initialValue === 'object' && value !== null && initialValue._x_interceptor) {
+            // Support nesting interceptors.
+            let initialize = obj.initialize.bind(obj)
 
-            let [parentNoop, { initer: parentIniter, setter: parentSetter, initialValue: parentInitialValue }] = parentFunc(key, path)
+            obj.initialize = (data, path, key) => {
+                let innerValue = initialValue.initialize(data, path, key)
 
-            let store = parentInitialValue === undefined ? initialValue : parentInitialValue
+                obj.initialValue = innerValue
 
-            let { init: initer, set: setter } = callback(key, path)
-
-            let inited = false
-
-            let setValue = i => store = i
-            let reactiveSetValue = function (i) { this[key] = i }
-
-            let setup = (context) => {
-                if (inited) return
-
-                parentIniter.bind(context)(store, setValue, reactiveSetValue.bind(context))
-                initer.bind(context)(store, setValue, reactiveSetValue.bind(context))
-
-                inited = true
+                return initialize(data, path, key)
             }
-
-            return [{
-                get() {
-                    setup(this)
-
-                    return store
-                },
-                set(value) {
-                    setup(this)
-
-                    parentSetter.bind(this)(value, setValue, reactiveSetValue.bind(this))
-                    setter.bind(this)(value, setValue, reactiveSetValue.bind(this))
-                },
-                enumerable: true,
-                configurable: true,
-            }, { initer, setter, initialValue }]
+        } else {
+            obj.initialValue = initialValue
         }
 
-        func.interceptor = true
+        return obj
+    }
+}
 
-        mutateFunc(func)
+function get(obj, path) {
+    return path.split('.').reduce((carry, segment) => carry[segment], obj)
+}
 
-        if (typeof initialValue === 'function' && initialValue.interceptor) {
-            func.parent = initialValue
-        }
+function set(obj, path, value) {
+    if (typeof path === 'string') path = path.split('.')
 
-        return func
+    if (path.length === 1) obj[path[0]] = value;
+       else if (path.length === 0) throw error;
+    else {
+       if (obj[path[0]])
+          return set(obj[path[0]], path.slice(1), value);
+       else {
+          obj[path[0]] = {};
+          return set(obj[path[0]], path.slice(1), value);
+       }
     }
 }

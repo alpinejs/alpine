@@ -11,7 +11,7 @@ export function initInterceptors(data) {
             if (typeof value === 'object' && value !== null && value._x_interceptor) {
                 obj[key] = value.initialize(data, path, key)
             } else {
-                if (isObject(value) && value !== obj) {
+                if (isObject(value) && value !== obj && ! (value instanceof Element)) {
                     recurse(value, path)
                 }
             }
@@ -35,7 +35,7 @@ export function interceptor(callback, mutateObj = () => {}) {
     mutateObj(obj)
 
     return initialValue => {
-        if (typeof initialValue === 'object' && value !== null && initialValue._x_interceptor) {
+        if (typeof initialValue === 'object' && initialValue !== null && initialValue._x_interceptor) {
             // Support nesting interceptors.
             let initialize = obj.initialize.bind(obj)
 

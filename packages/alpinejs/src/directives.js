@@ -76,7 +76,7 @@ export function getDirectiveHandler(el, directive) {
     onAttributeRemoved(el, directive.original, doCleanup)
 
     let fullHandler = () => {
-        if (el._x_ignore || el._x_ignore_self) return
+        if (el._x_ignore || el._x_ignoreSelf) return
 
         handler.inline && handler.inline(el, directive, utilities)
 

@@ -12,10 +12,10 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     let evaluateItems = evaluateLater(el, iteratorNames.items)
     let evaluateKey = evaluateLater(el,
         // the x-bind:key expression is stored for our use instead of evaluated.
-        el._x_key_expression || 'index'
+        el._x_keyExpression || 'index'
     )
 
-    el._x_prev_keys = []
+    el._x_prevKeys = []
     el._x_lookup = {}
 
     effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
@@ -23,7 +23,7 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     cleanup(() => {
         Object.values(el._x_lookup).forEach(el => el.remove())
 
-        delete el._x_prev_keys
+        delete el._x_prevKeys
         delete el._x_lookup
     })
 })
@@ -45,7 +45,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         }
 
         let lookup = el._x_lookup
-        let prevKeys = el._x_prev_keys
+        let prevKeys = el._x_prevKeys
         let scopes = []
         let keys = []
 
@@ -190,7 +190,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 
         // Now we'll log the keys (and the order they're in) for comparing
         // against next time.
-        templateEl._x_prev_keys = keys
+        templateEl._x_prevKeys = keys
     })
 }
 

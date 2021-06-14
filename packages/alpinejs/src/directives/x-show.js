@@ -9,7 +9,7 @@ directive('show', (el, { modifiers, expression }, { effect }) => {
     let hide = () => mutateDom(() => {
         el.style.display = 'none'
 
-        el._x_is_shown = false
+        el._x_isShown = false
     })
 
     let show = () => mutateDom(() => {
@@ -19,7 +19,7 @@ directive('show', (el, { modifiers, expression }, { effect }) => {
             el.style.removeProperty('display')
         }
 
-        el._x_is_shown = true
+        el._x_isShown = true
     })
 
     // We are wrapping this function in a setTimeout here to prevent

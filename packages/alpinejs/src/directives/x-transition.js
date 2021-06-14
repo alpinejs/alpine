@@ -133,7 +133,8 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
         return
     }
 
-    el._x_hide_promise = el._x_transition
+    // Livewire depends on el._x_hidePromise.
+    el._x_hidePromise = el._x_transition
         ? new Promise((resolve, reject) => {
             el._x_transition.out(() => {}, () => resolve(hide))
 
@@ -145,19 +146,19 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
         let closest = closestHide(el)
 
         if (closest) {
-            if (! closest._x_hide_children) closest._x_hide_children = []
+            if (! closest._x_hideChildren) closest._x_hideChildren = []
 
-            closest._x_hide_children.push(el)
+            closest._x_hideChildren.push(el)
         } else {
             queueMicrotask(() => {
                 let hideAfterChildren = el => {
                     let carry = Promise.all([
-                        el._x_hide_promise,
-                        ...(el._x_hide_children || []).map(hideAfterChildren)
+                        el._x_hidePromise,
+                        ...(el._x_hideChildren || []).map(hideAfterChildren)
                     ]).then(([i]) => i())
 
-                    delete el._x_hide_promise
-                    delete el._x_hide_children
+                    delete el._x_hidePromise
+                    delete el._x_hideChildren
 
                     return carry
                 }
@@ -175,7 +176,7 @@ function closestHide(el) {
 
     if (! parent) return
 
-    return parent._x_hide_promise ? parent : closestHide(parent)
+    return parent._x_hidePromise ? parent : closestHide(parent)
 }
 
 export function transition(el, setFunction, { during, start, end, entering } = {}, before = () => {}, after = () => {}) {

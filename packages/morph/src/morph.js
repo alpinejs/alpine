@@ -94,11 +94,11 @@ function patchNodeValue(dom, to) {
 }
 
 function patchAttributes(dom, to) {
-    if (dom._x_is_shown && ! to._x_is_shown) {
+    if (dom._x_isShown && ! to._x_isShown) {
         return
         // dom._x_hide()
     }
-    if (! dom._x_is_shown && to._x_is_shown) {
+    if (! dom._x_isShown && to._x_isShown) {
         return
         // dom._x_show()
     }
@@ -301,11 +301,11 @@ function initializeAlpineOnTo(from, to, childrenOnly) {
 }
 
 function isHiding(from, to) {
-    return from._x_is_shown && ! to._x_is_shown
+    return from._x_isShown && ! to._x_isShown
 }
 
 function isShowing(from, to) {
-    return ! from._x_is_shown && to._x_is_shown
+    return ! from._x_isShown && to._x_isShown
 }
 
 
@@ -352,7 +352,7 @@ function isShowing(from, to) {
 //         return from.style.display === '' && to.style.display === 'none'
 //     }
 
-//     return from.__x_is_shown && ! to.__x_is_shown
+//     return from._x_isShown && ! to._x_isShown
 // }
 
 // function isShowing(from, to) {
@@ -360,7 +360,7 @@ function isShowing(from, to) {
 //         return from.style.display === 'none' && to.style.display === ''
 //     }
 
-//     return ! from.__x_is_shown && to.__x_is_shown
+//     return ! from._x_isShown && to._x_isShown
 // }
 
 // function beforeAlpineTwoPointSevenPointThree() {

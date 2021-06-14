@@ -39,5 +39,5 @@ function applyBindingsObject(el, expression, original, effect) {
 }
 
 function storeKeyForXFor(el, expression) {
-    el._x_key_expression = expression
+    el._x_keyExpression = expression
 }

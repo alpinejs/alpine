@@ -36,6 +36,7 @@ export function elementBoundEffect(el) {
         if (! el._x_effects) {
             el._x_effects = new Set
 
+            // Livewire depends on el._x_runEffects.
             el._x_runEffects = () => { el._x_effects.forEach(i => i()) }
         }
 

@@ -27,7 +27,7 @@ let reactiveData = Alpine.reactive(data)
 
 Under the hood, when `Alpine.reactive` receives `data`, it wraps it inside a custom JavaScript proxy.
 
-A proxy is a special kind of object in JavaScript that can intercept "get" and "set" calls to a JavaScript objct.
+A proxy is a special kind of object in JavaScript that can intercept "get" and "set" calls to a JavaScript object.
 
 [→ Read more about JavaScript proxies](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy)
 

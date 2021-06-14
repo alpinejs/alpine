@@ -123,7 +123,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         }
 
         // Now that we've done the diffing work, we can apply the mutations
-        // in batches for both seperating types work and optimizing
+        // in batches for both separating types work and optimizing
         // for browser performance.
 
         // We'll remove all the nodes that need to be removed,
@@ -138,7 +138,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             delete lookup[key]
         }
 
-        // Here we'll move elements around, skiping
+        // Here we'll move elements around, skipping
         // mutation observer triggers by using "mutateDom".
         for (let i = 0; i < moves.length; i++) {
             let [keyInSpot, keyForSpot] = moves[i]

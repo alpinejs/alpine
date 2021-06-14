@@ -2,7 +2,6 @@ let fs = require('fs')
 let chalk = require('chalk');
 let log = message => console.log(chalk.green(message))
 
-
 let DotJson = require('dot-json');
 
 let { exec } = require('child_process')

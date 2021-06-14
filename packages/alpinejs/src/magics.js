@@ -12,7 +12,7 @@ export function injectMagics(obj, el) {
         Object.defineProperty(obj, `$${name}`, {
             get() { return callback(el, { Alpine, interceptor }) },
 
-            enumerable: true,
+            enumerable: false,
         })
     })
 

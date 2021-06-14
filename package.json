@@ -18,6 +18,7 @@
         "test": "jest test && cypress run",
         "cypress": "cypress open",
         "jest": "jest test",
-        "update-docs": "node ./scripts/update-docs.js"
+        "update-docs": "node ./scripts/update-docs.js",
+        "release": "node ./scripts/release.js"
     }
 }

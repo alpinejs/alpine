@@ -155,7 +155,7 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
                     let carry = Promise.all([
                         el._x_hidePromise,
                         ...(el._x_hideChildren || []).map(hideAfterChildren)
-                    ]).then(([i]) => i())
+                    ]).then(([i]) => i && i())
 
                     delete el._x_hidePromise
                     delete el._x_hideChildren
@@ -235,7 +235,9 @@ export function performTransition(el, stages, entering) {
     el._x_transitioning = {
         beforeCancels: [],
         beforeCancel(callback) { this.beforeCancels.push(callback) },
-        cancel: once(function () { while (this.beforeCancels.length) { this.beforeCancels.shift()() }; finish(); }),
+        cancel: once(function () {
+            while (this.beforeCancels.length) { this.beforeCancels.shift()() }; finish();
+        }),
         finish,
         entering
     }

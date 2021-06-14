@@ -43,6 +43,8 @@ export function elementBoundEffect(el) {
         el._x_effects.add(effectReference)
 
         cleanup = () => {
+            if (effectReference === undefined) return
+
             el._x_effects.delete(effectReference)
 
             release(effectReference)

@@ -16,3 +16,25 @@ test('can register custom magic properties',
     `,
     ({ get }) => get('span').should(haveText('baz'))
 )
+
+test('magics are lazily accessed',
+    html`
+        <script>
+            window.hasBeenAccessed = false
+
+            document.addEventListener('alpine:initializing', () => {
+                Alpine.magic('foo', (el) => {
+                    window.hasBeenAccessed = true
+                })
+            })
+        </script>
+
+        <div x-data>
+            <button @click="$el.textContent = window.hasBeenAccessed">clickme</button>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('button').should(haveText('false'))
+    }
+)

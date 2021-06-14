@@ -18,7 +18,7 @@ writeToPackageDotJson('docs', 'version', newVersion)
 
 console.log('Publishing on NPM...');
 
-runFromPackage('docs', 'npm publish')
+runFromPackage('docs', 'npm publish --access public')
 
 function runFromPackage(package, command) {
     exec(command, { cwd: __dirname+'/../packages/'+package })

@@ -55,6 +55,8 @@ function dontRegisterReactiveSideEffects(callback) {
         let storedEffect = cache(callback)
 
         release(storedEffect)
+
+        return () => {}
     })
 
     callback()

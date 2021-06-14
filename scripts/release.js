@@ -34,7 +34,7 @@ function writeNewAlpineVersion() {
 }
 
 function writeNewDocsVersion() {
-    let versionWithRevisionSuffix = `${version}.revision.1`
+    let versionWithRevisionSuffix = `${version}-revision.1`
 
     writeToPackageDotJson('docs', 'version', versionWithRevisionSuffix)
     console.log('Bumping @alpinejs/docs package.json: '+version);
@@ -50,7 +50,7 @@ function publish() {
     runFromPackage('alpinejs', 'npm publish')
 
     console.log('Publishing @alpinejs/docs on NPM...');
-    runFromPackage('docs', 'npm publish')
+    runFromPackage('docs', 'npm publish --access public')
 
     log('\n\nFinished!')
 }

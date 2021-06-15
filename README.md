@@ -1,8 +1,12 @@
-## Alpine V3
+# Alpine.js
 
 Go to the Alpine docs for most things: [Alpine Docs](https://alpinejs.dev)
 
 Stay here for contribution-related information.
+
+> Looking for V2 docs? [here they are](https://github.com/alpinejs/alpine/tree/v2.8.2)
+
+## Contribution Guide:
 
 ### Quickstart
 

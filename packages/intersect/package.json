@@ -6,5 +6,9 @@
     "license": "MIT",
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
-    "dependencies": {}
+    "dependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git"
+    }
 }

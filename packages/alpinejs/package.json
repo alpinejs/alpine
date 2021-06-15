@@ -4,6 +4,10 @@
     "description": "The rugged, minimal JavaScript framework",
     "author": "Caleb Porzio",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git"
+    },
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",

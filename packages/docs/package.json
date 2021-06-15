@@ -3,5 +3,9 @@
     "version": "3.0.6-revision.1",
     "description": "The documentation for Alpine",
     "author": "Caleb Porzio",
-    "license": "MIT"
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git"
+    }
 }

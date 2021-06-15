@@ -7,6 +7,8 @@ title: Upgrade From V2
 
 Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING has to be done to your codebase to use V3. Below is an exhaustive list of breaking changes and deprecations in descending order of how likely users are to be affected by them:
 
+> Note if you use Laravel Livewire and Alpine together, to use V3 of Alpine, you will need to upgrade to Livewire v2.5.1 or greater.
+
 <a name="breaking-changes"></a>
 ## Breaking Changes
 * [`$el` is now always the current element](#el-no-longer-root)

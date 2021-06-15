@@ -158,8 +158,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             refreshScope(elForSpot, scopes[keys.indexOf(keyForSpot)])
         }
 
-        // We can now create and add new elements. They will get picked up
-        // by the mutation observer and get initialized by Alpine.
+        // We can now create and add new elements.
         for (let i = 0; i < adds.length; i++) {
             let [lastKey, index] = adds[i]
 

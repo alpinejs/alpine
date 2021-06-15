@@ -207,7 +207,7 @@ export function transition(el, setFunction, { during, start, end, entering } = {
 
 export function performTransition(el, stages, entering) {
     // All transitions need to be truly "cancellable". Meaning we need to
-    // account for interuptions at ALL stages of the transitions and
+    // account for interruptions at ALL stages of the transitions and
     // immediately run the rest of the transition.
     let interrupted, reachedBefore, reachedEnd
 

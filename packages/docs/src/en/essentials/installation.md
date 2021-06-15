@@ -30,7 +30,7 @@ This is by far the simplest way to get started with Alpine. Include the followin
 
 > Don't forget the "defer" attribute in the `<script>` tag.
 
-Notice the `@3.x.x` in the provided CDN link. This will pull the latest version of Alpine version 2. For stability in production, it's recommended that you hardcode the latest version in the CDN link.
+Notice the `@3.x.x` in the provided CDN link. This will pull the latest version of Alpine version 3. For stability in production, it's recommended that you hardcode the latest version in the CDN link.
 
 ```html
 <script defer src="https://unpkg.com/alpinejs@3.0.5/dist/cdn.min.js"></script>

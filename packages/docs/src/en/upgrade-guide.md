@@ -40,6 +40,24 @@ Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING
 </div>
 ```
 
+For a smoother upgrade experience, you can optionally replace all instances of `$el` with a custom magic called `$root`, then add the following code to your site to mimmick the behavior:
+
+```html
+<script>
+    document.addEventListener('alpine:initializing', () => {
+        Alpine.magic('root', el => {
+            let closestRootEl = (node) => {
+                if (node.hasAttribute('x-data')) return node
+
+                return closestRootEl(node.parentNode)
+            }
+
+            return closestRootEl(el)
+        })
+    })
+</script>
+```
+
 [→ Read more about $el in V3](/magics/el)
 
 <a name="auto-init"></a>

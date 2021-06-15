@@ -71,7 +71,7 @@ Everything in Alpine starts with an `x-data` directive. Inside of `x-data`, in p
 
 Every property inside this object will be made available to other directives inside this HTML element. In addition, when one of these properties changes, everything that relies on it will change as well.
 
-[→ Read more about `x-data`](/directives/data)
+[→ Read more about `x-data`](/packages/docs/src/en/directives/data.md)
 
 Let's look at `x-on` and see how it can access and modify the `count` property from above:
 
@@ -90,7 +90,7 @@ When a `click` event happens, Alpine will call the associated JavaScript express
 
 > You will often see `@` instead of `x-on`. This is a shorter, friendlier syntax that many prefer. From now on, this documentation will likely use `@` instead of `x-on`.
 
-[→ Read more about `x-on`](/directives/on)
+[→ Read more about `x-on`](/packages/docs/src/en/directives/on.md)
 
 <a name="reacting-to-changes"></a>
 ### Reacting to changes
@@ -105,7 +105,7 @@ In this case, we're telling Alpine to always make sure that the contents of this
 
 In case it's not clear, `x-text`, like most directives accepts a plain JavaScript expression as an argument. So for example, you could instead set its contents to: `x-text="count * 2"` and the text content of the `h1` will now always be 2 times the value of `count`.
 
-[→ Read more about `x-text`](/directives/text)
+[→ Read more about `x-text`](/packages/docs/src/en/directives/text.md)
 
 <a name="building-a-dropdown"></a>
 ## Building a dropdown
@@ -144,7 +144,7 @@ The `x-data` and `x-on` directives should be familiar to you from the previous e
 
 `x-show` is an extremely powerful directive in Alpine that can be used to show and hide a block of HTML on a page based on the result of a JavaScript expression, in our case: `open`.
 
-[→ Read more about `x-show`](/directives/show)
+[→ Read more about `x-show`](/packages/docs/src/en/directives/show.md)
 
 <a name="listening-for-a-click-outside"></a>
 ### Listening for a click outside
@@ -159,7 +159,7 @@ In this case, `.outside` tells Alpine to instead of listening for a click INSIDE
 
 This is a convenience helper built into Alpine because this is a common need and implementing it by hand is annoying and complex.
 
-[→ Read more about `x-on` modifiers](/directives/on#modifiers)
+[→ Read more about `x-on` modifiers](/packages/docs/src/en/directives/on.md#modifiers)
 
 <a name="building-a-search-input"></a>
 ## Building a search input
@@ -242,7 +242,7 @@ This means that anytime the value of the input changes, the value of "search" wi
 
 `x-model` is capable of much more than this simple example.
 
-[→ Read more about `x-model`](/directives/model)
+[→ Read more about `x-model`](/packages/docs/src/en/directives/model.md)
 
 <a name="computed-properties-using-getters"></a>
 ### Computed properties using getters
@@ -307,7 +307,7 @@ Also notice that `x-for` is declared on a `<template>` element and not directly 
 
 Now any element inside the `<template>` tag will be repeated for every item inside `filteredItems` and all expressions evaluated inside the loop will have direct access to the iteration variable (`item` in this case).
 
-[→ Read more about `x-for`](/directives/for)
+[→ Read more about `x-for`](/packages/docs/src/en/directives/for.md)
 
 <a name="recap"></a>
 ## Recap

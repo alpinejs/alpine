@@ -15,7 +15,7 @@ You can get everything installed with: `npm install` in the root directory of th
 
 This repo is a "mono-repo" using npm workspaces for managing the packages. Each package has its own folder in the `/packages` directory.
 
-Rather than having to run seperate builds for each package, all package bundles are handled with the same command: `npm run build`
+Rather than having to run separate builds for each package, all package bundles are handled with the same command: `npm run build`
 
 Here's a brief look at each package in this repo:
 

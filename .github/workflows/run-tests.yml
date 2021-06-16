@@ -8,11 +8,11 @@ jobs:
       - uses: bahmutov/npm-install@v1
         with:
           working-directory: |
-            alpinejs
-            csp
-            history
-            intersect
-            persist
-            morph
-            trap
+            packages/alpinejs
+            packages/csp
+            packages/history
+            packages/intersect
+            packages/persist
+            packages/morph
+            packages/trap
       - run: npm run build

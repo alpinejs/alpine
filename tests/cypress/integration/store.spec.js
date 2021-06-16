@@ -65,3 +65,27 @@ test('can use number as store',
         get('span').should(haveText('1'))
     }
 )
+
+test('store\'s "this" context is reactive for init function',
+    [html`
+        <div x-data>
+        <span x-text="$store.test.count"></span>
+        <button @click="$store.test.increment()" id="button">increment</button>
+        </div>
+    `,
+    `
+        Alpine.store('test', {
+            init() {
+                document.querySelector('#button').addEventListener('click', () => {
+                    this.count++
+                })
+            },
+            count: 0,
+        })
+    `],
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('button').click()
+        get('span').should(haveText('1'))
+    }
+)

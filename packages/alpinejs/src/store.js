@@ -10,11 +10,11 @@ export function store(name, value) {
         return stores[name]
     }
 
-    if (typeof value === 'object' && value !== null && value.hasOwnProperty('init') && typeof value.init === 'function') {
-        value.init()
-    }
-
     stores[name] = value
+
+    if (typeof value === 'object' && value !== null && value.hasOwnProperty('init') && typeof value.init === 'function') {
+        stores[name].init()
+    }
 }
 
 export function getStores() { return stores }

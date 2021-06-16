@@ -2,3 +2,4 @@ node_modules
 scratch.md
 package-lock.json
 dist/
+.env.json

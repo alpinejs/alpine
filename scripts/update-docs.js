@@ -1,10 +1,4 @@
-let fs = require('fs')
-let chalk = require('chalk');
-let log = message => console.log(chalk.green(message))
-
-let DotJson = require('dot-json');
-
-let { exec } = require('child_process')
+let { runFromPackage, getFromPackageDotJson, writeToPackageDotJson } = require('./utils')
 
 let version = getFromPackageDotJson('docs', 'version')
 
@@ -20,18 +14,24 @@ console.log('Publishing on NPM...');
 
 runFromPackage('docs', 'npm publish --access public')
 
-function runFromPackage(package, command) {
-    exec(command, { cwd: __dirname+'/../packages/'+package })
-}
+let readline = require('readline').createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
-function writeToPackageDotJson(package, key, value) {
-    let dotJson = new DotJson(`./packages/${package}/package.json`)
+setTimeout(() => {
+    readline.question('Do you want to deploy this new version to the docs site?', answer => {
+        if (['y', 'Y', 'yes', 'Yes', 'YES'].includes(answer)) deploy()
 
-    dotJson.set(key, value).save()
-}
+        readline.close();
+    });
+}, 1000)
 
-function getFromPackageDotJson(package, key) {
-    let dotJson = new DotJson(`./packages/${package}/package.json`)
+function deploy() {
+    let https = require('https');
+    let { DOCS_DEPLOY_URL } = require('./.env.json')
 
-    return dotJson.get(key)
+    https.get(DOCS_DEPLOY_URL, (resp) => {
+        resp.on('end', () => console.log('\n\n Successfully deployed!'))
+    }).on("error", err => console.log("Error: " + err.message));
 }

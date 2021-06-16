@@ -6,6 +6,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/alpinejs/alpine.git"
+        "url": "https://github.com/alpinejs/alpine.git",
+        "directory": "packages/docs"
     }
 }

@@ -5,9 +5,9 @@ title: Alpine 101
 
 # Alpine 101
 
-Create a blank HTML file somewhere on you computer with a name like: `i-love-alpine.html`
+Buat file HTML kosong di suatu tempat di komputer Anda dengan nama seperti: `i-love-alpine.html`
 
-Using a text editor, fill the file with these contents:
+Gunakan sebuah editor teks, isi file dengan konten ini:
 
 ```html
 <html>
@@ -20,24 +20,24 @@ Using a text editor, fill the file with these contents:
 </html>
 ```
 
-Open your file in a web browser, if you see `I ❤️ Alpine`, you're ready to rumble!
+Buka file Anda di browser web, jika Anda melihat `I ❤️ Alpine`, Anda siap untuk bergemuruh!
 
-Now that you're all set up to play around, let's look at three practical examples as a foundation for teaching you the basics of Alpine. By the end of this exercise, you should be more than equipped to start building stuff on your own. Let's goooooo.
+Sekarang setelah Anda siap untuk bermain-main, mari kita lihat tiga contoh praktis sebagai dasar untuk mengajari Anda dasar-dasar Alpine. Pada akhir latihan ini, Anda harus lebih dari siap untuk mulai membangun rancangan sendiri. Mari kita mulai.
 
 <!-- START_VERBATIM -->
 <ul class="flex flex-col space-y-2 list-inside !list-decimal">
-    <li><a href="#building-a-counter">Building a counter</a></li>
-    <li><a href="#building-a-dropdown">Building a dropdown</a></li>
-    <li><a href="#building-a-search-input">Building a search Input</a></li>
+    <li><a href="#building-a-counter">Membangun penghitung</a></li>
+    <li><a href="#building-a-dropdown">Membangun dropdown</a></li>
+    <li><a href="#building-a-search-input">Membangun masukan pencarian</a></li>
 </ul>
 <!-- END_VERBATIM -->
 
 <a name="building-a-counter"></a>
-## Building a counter
+## Membangun penghitung
 
-Let's start with a simple "counter" component to demonstrate the basics of state and event listening in Alpine, two core features.
+Mari kita mulai dengan komponen "penghitung" sederhana untuk mendemonstrasikan dasar-dasar keadaan dan mendengarkan peristiwa di Alpine, dua fitur inti.
 
-Insert the following into the `<body>` tag:
+Masukkan yang berikut ini ke dalam tag `<body>`:
 
 ```html
 <div x-data="{ count: 0 }">
@@ -56,63 +56,63 @@ Insert the following into the `<body>` tag:
 </div>
 <!-- END_VERBATIM -->
 
-Now, you can see with 3 bits of Alpine sprinkled into this HTML, we've created an interactive "counter" component.
+Sekarang, Anda dapat melihat dengan 3 bit Alpine yang ditaburkan ke dalam HTML ini, kami telah membuat komponen "penghitung" interaktif.
 
-Let's walk through what's happening briefly:
+Mari kita telusuri apa yang terjadi secara singkat:
 
 <a name="declaring-data"></a>
-### Declaring data
+### Mendeklarasikan data
 
 ```html
 <div x-data="{ count: 0 }">
 ```
 
-Everything in Alpine starts with an `x-data` directive. Inside of `x-data`, in plain JavaScript, you declare an object of data that Alpine will track.
+Segala sesuatu di Alpine dimulai dengan direktif `x-data`. Di dalam `x-data`, dalam JavaScript biasa, Anda mendeklarasikan objek data yang akan dilacak Alpine.
 
-Every property inside this object will be made available to other directives inside this HTML element. In addition, when one of these properties changes, everything that relies on it will change as well.
+Setiap properti di dalam objek ini akan tersedia untuk direktif lain di dalam elemen HTML ini. Selain itu, ketika salah satu properti ini berubah, semua yang bergantung padanya juga akan berubah.
 
-[→ Read more about `x-data`](/directives/data)
+[→ Baca lebih lanjut tentang `x-data`](/directives/data)
 
-Let's look at `x-on` and see how it can access and modify the `count` property from above:
+Mari kita lihat `x-on` dan lihat bagaimana ia dapat mengakses dan memodifikasi properti `count` dari atas:
 
 <a name="listening-for-events"></a>
-### Listening for events
+### Mendengarkan event
 
 ```html
 <button x-on:click="count++">Increment</button>
 ```
 
-`x-on` is a directive you can use to listen for any event on an element. We're listening for a `click` event in this case, so ours looks like `x-on:click`.
+`x-on` adalah direktif yang dapat Anda gunakan untuk mendengarkan avent apa pun pada suatu elemen.  Kami sedang mendengarkan event `klik` dalam kasus ini, jadi event kami terlihat seperti `x-on:click`.
 
-You can listen for other events as you'd imagine. For example, listening for a `mouseenter` event would look like this: `x-on:mouseenter`.
+Anda dapat mendengarkan event lain seperti yang Anda bayangkan. Misalnya, mendengarkan event `mouseenter` akan terlihat seperti ini: `x-on:mouseenter`.
 
-When a `click` event happens, Alpine will call the associated JavaScript expression, `count++` in our case. As you can see, we have direct access to data declared in the `x-data` expression.
+Ketika suatu `click` event terjadi, Alpine akan memanggil ekspresi JavaScript terkait, `count++` dalam kasus kami. Seperti yang Anda lihat, kami memiliki akses langsung ke data yang dideklarasikan dalam ekspresi `x-data`.
 
-> You will often see `@` instead of `x-on`. This is a shorter, friendlier syntax that many prefer. From now on, this documentation will likely use `@` instead of `x-on`.
+> Anda akan sering melihat `@` alih-alih `x-on`. Ini adalah sintaksis yang lebih pendek dan ramah yang disukai banyak orang. Mulai sekarang, dokumentasi ini kemungkinan akan menggunakan `@` alih-alih `x-on`.
 
-[→ Read more about `x-on`](/directives/on)
+[→ Baca lebih lanjut tentang `x-on`](/directives/on)
 
 <a name="reacting-to-changes"></a>
-### Reacting to changes
+### Reaksi terhadap perubahan
 
 ```html
 <h1 x-text="count"></h1>
 ```
 
-`x-text` is an Alpine directive you can use to set the text content of an element to the result of a JavaScript expression.
+`x-text` adalah direktif Alpine yang dapat Anda gunakan untuk mengatur konten teks elemen ke hasil ekspresi JavaScript.
 
-In this case, we're telling Alpine to always make sure that the contents of this `h1` tag reflect the value of the `count` property.
+Dalam hal ini, kami memberi tahu Alpine untuk selalu memastikan bahwa konten tag `h1` ini mencerminkan nilai properti `count`.
 
-In case it's not clear, `x-text`, like most directives accepts a plain JavaScript expression as an argument. So for example, you could instead set its contents to: `x-text="count * 2"` and the text content of the `h1` will now always be 2 times the value of `count`.
+Jika tidak jelas, `x-text`, seperti kebanyakan direktif menerima ekspresi JavaScript biasa sebagai argumen. Jadi misalnya, Anda bisa mengatur isinya ke: `x-text="count * 2"` dan konten teks dari `h1` sekarang akan selalu 2 kali nilai `count`.
 
-[→ Read more about `x-text`](/directives/text)
+[→ Baca lebih lanjut tentang `x-text`](/directives/text)
 
 <a name="building-a-dropdown"></a>
-## Building a dropdown
+## Membangun dropdown
 
-Now that we've seen some basic functionality, let's keep going and look at an important directive in Alpine: `x-show`, by building a contrived "dropdown" component.
+Sekarang kita telah melihat beberapa fungsionalitas dasar, mari kita lanjutkan dan melihat direktif penting di Alpine: `x-show`, dengan membangun komponen "dropdown" yang dibuat.
 
-Insert the following code into the `<body>` tag:
+Masukkan kode berikut ke dalam tag `<body>`:
 
 ```html
 <div x-data="{ open: false }">
@@ -131,42 +131,42 @@ Insert the following code into the `<body>` tag:
 </div>
 <!-- END_VERBATIM -->
 
-If you load this component, you should see that the "Contents..." are hidden by default. You can toggle showing them on the page by clicking the "Toggle" button.
+Jika Anda memuat komponen ini, Anda akan melihat bahwa "Contents..." disembunyikan secara default. Anda dapat beralih menampilkannya di halaman dengan mengklik tombol "Toggle".
 
-The `x-data` and `x-on` directives should be familiar to you from the previous example, so we'll skip those explanations.
+Direktif `x-data` dan `x-on` seharusnya sudah familiar bagi Anda dari contoh sebelumnya, jadi kami akan melewatkan penjelasan tersebut.
 
 <a name="toggling-elements"></a>
-### Toggling elements
+### Beralih elemen
 
 ```html
 <div x-show="open" ...>Contents...</div>
 ```
 
-`x-show` is an extremely powerful directive in Alpine that can be used to show and hide a block of HTML on a page based on the result of a JavaScript expression, in our case: `open`.
+`x-show` adalah direktif yang sangat kuat di Alpine yang dapat digunakan untuk menampilkan dan menyembunyikan blok HTML pada halaman berdasarkan hasil ekspresi JavaScript, dalam kasus kami: `open`.
 
-[→ Read more about `x-show`](/directives/show)
+[→ Baca lebih lanjut tentang `x-show`](/directives/show)
 
 <a name="listening-for-a-click-outside"></a>
-### Listening for a click outside
+### Mendengarkan klik di luar
 
 ```html
 <div ... @click.outside="open = false">Contents...</div>
 ```
 
-You'll notice something new in this example: `.outside`. Many directives in Alpine accept "modifiers" that are chained onto the end of the directive and are separated by periods.
+Anda akan melihat sesuatu yang baru dalam contoh ini: `.outside`. Banyak direktif di Alpine menerima "pengubah" yang dirantai ke akhir arahan dan dipisahkan oleh titik.
 
-In this case, `.outside` tells Alpine to instead of listening for a click INSIDE the `<div>`, to listen for the click only if it happens OUTSIDE the `<div>`.
+Dalam hal ini, `.outside` memberi tahu Alpine untuk alih-alih mendengarkan klik DI DALAM `<div>`, untuk mendengarkan klik hanya jika itu terjadi di LUAR `<div>`.
 
-This is a convenience helper built into Alpine because this is a common need and implementing it by hand is annoying and complex.
+Ini adalah pembantu kenyamanan yang dibangun di Alpine karena ini adalah kebutuhan umum dan menerapkannya dengan tangan menjengkelkan dan rumit.
 
-[→ Read more about `x-on` modifiers](/directives/on#modifiers)
+[→ Baca lebih lanjut tentang `x-on` pengubah](/directives/on#modifiers)
 
 <a name="building-a-search-input"></a>
-## Building a search input
+## Membangun masukan pencarian
 
-Let's now build a more complex component and introduce a handful of other directives and patterns.
+Sekarang mari kita membangun komponen yang lebih kompleks dan memperkenalkan beberapa direktif dan pola lainnya.
 
-Insert the following code into the `<body>` tag:
+Masukkan kode berikut ke dalam tag `<body>`:
 
 ```html
 <div
@@ -218,36 +218,36 @@ Insert the following code into the `<body>` tag:
 </div>
 <!-- END_VERBATIM -->
 
-By default, all of the "items" (foo, bar, and baz) will be shown on the page, but you can filter them by typing into the text input. As you type, the list of items will change to reflect what you're searching for.
+Secara default, semua "item" (foo, bar, dan baz) akan ditampilkan di halaman, tetapi Anda dapat memfilternya dengan mengetik di input teks. Saat Anda mengetik, daftar item akan berubah untuk mencerminkan apa yang Anda cari.
 
-Now there's quite a bit happening here, so let's go through this snippet piece by piece.
+Sekarang ada sedikit yang terjadi di sini, jadi mari kita lihat potongan ini sepotong demi sepotong.
 
 <a name="multi-line-formatting"></a>
-### Multi line formatting
+### Pemformatan multi baris
 
-The first thing I'd like to point out is that `x-data` now has a lot more going on in it than before. To make it easier to write and read, we've split it up into multiple lines in our HTML. This is completely optional and we'll talk more in a bit about how to avoid this problem alltogether, but for now, we'll keep all of this JavaScript directly in the HTML.
+Hal pertama yang ingin saya tunjukkan adalah bahwa `x-data` sekarang ada lebih banyak hal yang terjadi di dalamnya daripada sebelumnya. Untuk membuatnya lebih mudah untuk menulis dan membaca, kami telah membaginya menjadi beberapa baris di HTML kami. Ini sepenuhnya opsional dan kami akan berbicara lebih banyak tentang bagaimana menghindari masalah ini bersama-sama, tetapi untuk saat ini, kami akan menyimpan semua JavaScript ini langsung di HTML.
 
 <a name="binding-to-inputs"></a>
-### Binding to inputs
+### Mengikat ke input
 
 ```html
 <input x-model="search" placeholder="Search...">
 ```
 
-You'll notice a new directive we haven't seen yet: `x-model`.
+Anda akan melihat direktif baru yang belum kita lihat: `x-model`.
 
-`x-model` is used to "bind" the value of an input element with a data property: "search" from `x-data="{ search: '', ... }"` in our case.
+`x-model` digunakan untuk "mengikat" nilai elemen input dengan properti data: "pencarian" dari `x-data="{ search: '', ... }"` dalam kasus kami.
 
-This means that anytime the value of the input changes, the value of "search" will change to reflect that.
+Ini berarti bahwa setiap kali nilai input berubah, nilai "pencarian" akan berubah untuk mencerminkan hal itu.
 
-`x-model` is capable of much more than this simple example.
+`x-model` mampu melakukan lebih dari contoh sederhana ini.
 
-[→ Read more about `x-model`](/directives/model)
+[→ Baca lebih lanjut tentang `x-model`](/directives/model)
 
 <a name="computed-properties-using-getters"></a>
-### Computed properties using getters
+### Properti dihitung menggunakan getters
 
-The next bit I'd like to draw your attention to is the `items` and `filteredItems` properties from the `x-data` directive.
+Bagian berikutnya yang ingin saya tarik perhatian Anda adalah `items` dan properti `filteredItems` dari direktif `x-data`.
 
 ```js
 {
@@ -262,17 +262,17 @@ The next bit I'd like to draw your attention to is the `items` and `filteredItem
 }
 ```
 
-The `items` property should be self-explanatory. Here we are setting the value of `items` to a JavaScript array of 3 different items (foo, bar, and baz).
+Properti `items` harus jelas. Di sini kita mengatur nilai `items` ke array JavaScript dari 3 item berbeda (foo, bar, dan baz).
 
-The interesting part of this snippet is the `filteredItems` property.
+Bagian yang menarik dari cuplikan ini adalah properti `filteredItems`.
 
-Denoted by the `get` prefix for this property, `filteredItems` is a "getter" property in this object. This means we can access `filteredItems` as if it was a normal property in our data object, but when we do, JavaScript will evaluate the provided function under the hood and return the result.
+Dilambangkan dengan `get` awalan untuk properti ini, `filteredItems` adalah properti "pengambil" di objek ini. Ini berarti kita dapat mengakses `filteredItems` seolah-olah itu adalah properti normal di objek data kita, tetapi ketika kita melakukannya, JavaScript akan mengevaluasi fungsi yang disediakan di bawah tenda dan mengembalikan hasilnya.
 
-It's completely acceptable to forgo the `get` and just make this a method that you can call from the template, but some prefer the nicer syntax of the getter.
+Ini benar-benar dapat diterima untuk melupakan `get` dan hanya menjadikan ini metode yang dapat Anda panggil dari template, tetapi beberapa lebih suka sintaks pengambil yang lebih bagus.
 
-[→ Read more about JavaScript getters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get)
+[→ Baca lebih lanjut tentang JavaScript getters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get)
 
-Now let's look inside the `filteredItems` getter and make sure we understand what's going on there:
+Sekarang mari kita lihat ke dalam `filteredItems` pengambil dan pastikan kita memahami apa yang terjadi di sana:
 
 ```js
 return this.items.filter(
@@ -280,18 +280,18 @@ return this.items.filter(
 )
 ```
 
-This is all plain JavaScript. We are first getting the array of items (foo, bar, and baz) and filtering them using the provided callback: `i => i.startsWith(this.search)`.
+Ini semua JavaScript biasa. Kami pertama-tama mendapatkan larik item (foo, bar, dan baz) dan memfilternya menggunakan panggilan balik yang disediakan: `i => i.startsWith(this.search)`.
 
-By passing in this callback to `filter`, we are telling JavaScript to only return the items that start with the string: `this.search`, which like we saw with `x-model` will always reflect the value of the input.
+Dengan meneruskan panggilan balik ini ke `filter`, kita memberi tahu JavaScript untuk hanya mengembalikan item yang dimulai dengan string: `this.search`, yang seperti yang kita lihat `x-model` akan selalu mencerminkan nilai input.
 
-You may notice that up until now, we haven't had to use `this.` to reference properties. However, because we are working directly inside the `x-data` object, we must reference any properties using `this.[property]` instead of simply `[property]`.
+Anda mungkin memperhatikan bahwa sampai sekarang, kami tidak harus menggunakan `this.` properti referensi. Namun, karena kita bekerja langsung di dalam `x-data` objek, kita harus mereferensikan properti apa pun menggunakan `this.[property]` alih-alih hanya `[property]`.
 
-Because Alpine is a "reactive" framework. Any time the value of `this.search` changes, parts of the template that use `filteredItems` will automatically be updated.
+Karena Alpine adalah kerangka kerja "reaktif". Setiap kali nilainya `this.search` berubah, bagian dari template yang digunakan `filteredItems` akan diperbarui secara otomatis.
 
 <a name="looping-elements"></a>
-### Looping elements
+### Elemen perulangan
 
-Now that we understand the data part of our component, let's understand what's happening in the template that allows us to loop through `filteredItems` on the page.
+Sekarang setelah kita memahami bagian data dari komponen kita, mari kita pahami apa yang terjadi di template yang memungkinkan kita untuk mengulang di halaman `filteredItems`.
 
 ```html
 <ul>
@@ -301,18 +301,18 @@ Now that we understand the data part of our component, let's understand what's h
 </ul>
 ```
 
-The first thing to notice here is the `x-for` directive. `x-for` expressions take the following form: `[item] in [items]` where [items] is any array of data, and [item] is the name of the variable that will be assigned to an iteration inside the loop.
+Hal pertama yang harus diperhatikan di sini adalah direktif `x-for`. Ekspresi `x-for` mengambil bentuk berikut: `[item] di [items]` dimana [items] adalah array data apa pun, dan [item] adalah nama variabel yang akan ditetapkan ke iterasi di dalam loop.
 
-Also notice that `x-for` is declared on a `<template>` element and not directly on the `<li>`. This is a requirement of using `x-for`. It allows Alpine to leverage the existing behavior of `<template>` tags in the browser to its advantage.
+Perhatikan juga bahwa `x-for` dideklarasikan pada elemen `<template>` dan tidak langsung pada `<li>`. Ini adalah persyaratan untuk menggunakan `x-for`. Ini memungkinkan Alpine untuk memanfaatkan perilaku tag `<template>` yang ada di browser untuk keuntungannya.
 
-Now any element inside the `<template>` tag will be repeated for every item inside `filteredItems` and all expressions evaluated inside the loop will have direct access to the iteration variable (`item` in this case).
+Sekarang elemen apa pun di dalam tag `<template>` akan diulang untuk setiap item di dalam `filteredItems` dan semua ekspresi yang dievaluasi di dalam loop akan memiliki akses langsung ke variabel iterasi (`item` pada kasus ini).
 
-[→ Read more about `x-for`](/directives/for)
+[→ Baca lebih lanjut tentang `x-for`](/directives/for)
 
 <a name="recap"></a>
-## Recap
+## Rekap
 
-If you've made it this far, you've been exposed to the following directives in Alpine:
+Jika Anda telah sampai sejauh ini, Anda telah dihadapkan pada direktif berikut di Alpine:
 
 * x-data
 * x-on
@@ -321,6 +321,6 @@ If you've made it this far, you've been exposed to the following directives in A
 * x-model
 * x-for
 
-That's a great start, however, there are many more directives to sink your teeth into. The best way to absorb Alpine is to read through this documentation. No need to comb over every word, but if you at least glance through every page you will be MUCH more effective when using Alpine.
+Itu awal yang baik, namun, ada lebih banyak direktif untuk menenggelamkan gigi Anda. Cara terbaik untuk menyerap Alpine adalah dengan membaca dokumentasi ini. Tidak perlu menyisir setiap kata, tetapi jika Anda setidaknya melirik setiap halaman, Anda akan JAUH lebih efektif saat menggunakan Alpine.
 
 Happy Coding!

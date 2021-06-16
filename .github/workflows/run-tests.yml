@@ -3,8 +3,9 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    node-version: 15
     steps:
       - uses: actions/checkout@v1
       - uses: bahmutov/npm-install@v1
+        with:
+          node-version: '15'
       - run: npm -v

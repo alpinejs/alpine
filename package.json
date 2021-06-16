@@ -4,6 +4,7 @@
         "packages/*"
     ],
     "devDependencies": {
+        "axios": "^0.21.1",
         "brotli-size": "^4.0.0",
         "chalk": "^4.1.1",
         "cypress": "^5.5.0",

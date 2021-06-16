@@ -1,4 +1,4 @@
-let { runFromPackage, getFromPackageDotJson, writeToPackageDotJson } = require('./utils')
+let { runFromPackage, getFromPackageDotJson, writeToPackageDotJson, ask } = require('./utils')
 
 let version = getFromPackageDotJson('docs', 'version')
 
@@ -14,17 +14,8 @@ console.log('Publishing on NPM...');
 
 runFromPackage('docs', 'npm publish --access public')
 
-let readline = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
 setTimeout(() => {
-    readline.question('Do you want to deploy this new version to the docs site?', answer => {
-        if (['y', 'Y', 'yes', 'Yes', 'YES'].includes(answer)) deploy()
-
-        readline.close();
-    });
+    ask('Do you want to deploy this new version to the docs site?', () => deploy())
 }, 1000)
 
 function deploy() {

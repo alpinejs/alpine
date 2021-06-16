@@ -5,12 +5,12 @@ let brotliSize = require('brotli-size');
 ([
     // Packages:
     'alpinejs',
-    // 'csp',
-    // 'history',
-    // 'intersect',
-    // 'persist',
-    // 'morph',
-    // 'trap',
+    'csp',
+    'history',
+    'intersect',
+    'persist',
+    'morph',
+    'trap',
 ]).forEach(package => {
     if (! fs.existsSync(`./packages/${package}/dist`)) {
         fs.mkdirSync(`./packages/${package}/dist`, 0744);

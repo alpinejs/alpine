@@ -7,7 +7,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: bahmutov/npm-install@v1
-      - run: /
-          npm run build && npm test
+      - run: npm run build && npm test
     env:
       CI: true

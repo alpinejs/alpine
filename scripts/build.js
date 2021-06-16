@@ -2,6 +2,9 @@ let fs = require('fs');
 let DotJson = require('dot-json');
 let brotliSize = require('brotli-size');
 
+console.log(fs.readdirSync(__dirname+'/../node_modules'));
+
+return
 ([
     // Packages:
     'alpinejs',

@@ -5,14 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: bahmutov/npm-install@v1
+      - uses: actions/setup-node@v2
         with:
-          working-directory: |
-            packages/alpinejs
-            packages/csp
-            packages/history
-            packages/intersect
-            packages/persist
-            packages/morph
-            packages/trap
-      - run: npm run build
+          node-version: '15'
+      - run: npm run install && npm run build

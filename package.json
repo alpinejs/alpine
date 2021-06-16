@@ -3,9 +3,6 @@
     "workspaces": [
         "packages/*"
     ],
-    "engines": {
-        "node": ">=10.0.0"
-    },
     "devDependencies": {
         "axios": "^0.21.1",
         "brotli-size": "^4.0.0",

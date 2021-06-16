@@ -1,7 +1,9 @@
-let { runFromPackage, writeToPackageDotJson, ask, run } = require('./utils')
+let { runFromPackage, writeToPackageDotJson, ask, run, getFromPackageDotJson } = require('./utils')
 let chalk = require('chalk');
 let log = message => console.log(chalk.green(message))
 let version = process.argv[2]
+let prevVersion = getFromPackageDotJson('alpinejs', 'version')
+let fs = require('fs')
 let axios = require('axios').create({
     headers: { Authorization: `Bearer ${require('./.env.json').GITHUB_TOKEN}` }
 })
@@ -27,8 +29,11 @@ setTimeout(() => {
 }, 1000)
 
 function writeNewAlpineVersion() {
-    writeToPackageDotJson('alpinejs', 'version', version)
-    console.log('Bumping alpinejs package.json: '+version);
+    let file = __dirname+'/../packages/docs/src/en/essentials/installation.md'
+    let docs = fs.readFileSync(file, 'utf8')
+    docs = docs.replace(prevVersion, version)
+    fs.writeFileSync(file, docs)
+    console.log('Writing new Alpine version to installation docs: '+version);
 }
 
 function writeNewDocsVersion() {
@@ -65,8 +70,6 @@ async function draftRelease(name, after = () => {}) {
     output += "## Added\n\n## Fixed\n\n"
 
     output += pulls.map(pull => `* ${pull.title} [#${pull.number}](${pull.html_url})`).join('')
-
-    let fs = require('fs')
 
     fs.writeFileSync('./changelog.tmp', output)
 

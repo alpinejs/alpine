@@ -8,4 +8,4 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '15'
-      - run: npm run install && npm run build
+      - run: npm install && npm run build

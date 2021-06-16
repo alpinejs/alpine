@@ -1,26 +1,14 @@
-name: Run Jest Tests
-
+name: Run Tests
 on: [push, pull_request]
-
 jobs:
-  build:
-
+  build-and-test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x]
-
+    name: Build and test
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
-      run: |
-        npm install
-        npm run build --if-present
-        npm run test
-      env:
-        CI: true
+      - uses: actions/checkout@v2
+      - uses: bahmutov/npm-install@v1
+      - run: /
+          npm run build
+          npm test
+    env:
+      CI: true

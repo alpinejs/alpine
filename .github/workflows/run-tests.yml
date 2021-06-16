@@ -6,4 +6,4 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: bahmutov/npm-install@v1
-      - run: npm run build
+      - run: npm -v

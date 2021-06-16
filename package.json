@@ -3,6 +3,9 @@
     "workspaces": [
         "packages/*"
     ],
+    "dependencies": {
+        "@vue/reactivity": "^3.0.2"
+    },
     "devDependencies": {
         "axios": "^0.21.1",
         "brotli-size": "^4.0.0",

@@ -5,6 +5,19 @@ title: Upgrade From V2
 
 # Upgrade from V2
 
+Below is an exhaustive guide on the breaking changes in Alpine V3, but if you'd prefer something more lively, you can review all the changes as well as new features in V3 by watching the Alpine Day 2021 "Future of Alpine" keynote:
+
+<!-- START_VERBATIM -->
+<div class="relative w-full" style="padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;">
+    <iframe
+            class="absolute top-0 left-0 right-0 bottom-0 w-full h-full"
+            src="https://www.youtube.com/embed/WixS4JXMwIQ?modestbranding=1&autoplay=1"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+    ></iframe>
+</div>
+<!-- END_VERBATIM -->
+
 Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING has to be done to your codebase to use V3. Below is an exhaustive list of breaking changes and deprecations in descending order of how likely users are to be affected by them:
 
 > Note if you use Laravel Livewire and Alpine together, to use V3 of Alpine, you will need to upgrade to Livewire v2.5.1 or greater.

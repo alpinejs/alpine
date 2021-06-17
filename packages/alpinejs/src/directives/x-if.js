@@ -1,7 +1,8 @@
 import { evaluateLater } from '../evaluator'
-import { setStyles } from '../utils/styles'
 import { directive } from '../directives'
-import { once } from '../utils/once'
+import {initTree} from "../lifecycle";
+import {addScopeToNode} from "../scope";
+import {reactive} from "../reactivity";
 
 directive('if', (el, { modifiers, expression }, { effect, cleanup }) => {
     let evaluate = evaluateLater(el, expression)
@@ -10,6 +11,10 @@ directive('if', (el, { modifiers, expression }, { effect, cleanup }) => {
         if (el._x_currentIfEl) return el._x_currentIfEl
 
         let clone = el.content.cloneNode(true).firstElementChild
+
+        addScopeToNode(clone, reactive(modifiers), el)
+
+        initTree(clone)
 
         el.after(clone)
 

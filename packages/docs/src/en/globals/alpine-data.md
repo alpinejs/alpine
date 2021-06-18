@@ -29,7 +29,7 @@ Here's a contrived `dropdown` component for example:
 </script>
 ```
 
-As you can see we've extracted the properties and methods we would usually define directly inside `x-data` into a seperate Alpine component object.
+As you can see we've extracted the properties and methods we would usually define directly inside `x-data` into a separate Alpine component object.
 
 <a name="registering-from-a-bundle"></a>
 ## Registering from a bundle

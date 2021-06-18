@@ -35,13 +35,6 @@ function setClassesFromObject(el, classObject) {
     let added = []
     let removed = []
 
-    forAdd.forEach(i => {
-        if (! el.classList.contains(i)) {
-            el.classList.add(i)
-            added.push(i)
-        }
-    })
-
     forRemove.forEach(i => {
         if (el.classList.contains(i)) {
             el.classList.remove(i)
@@ -49,8 +42,15 @@ function setClassesFromObject(el, classObject) {
         }
     })
 
+    forAdd.forEach(i => {
+        if (! el.classList.contains(i)) {
+            el.classList.add(i)
+            added.push(i)
+        }
+    })
+
     return () => {
-        added.forEach(i => el.classList.remove(i))
         removed.forEach(i => el.classList.add(i))
+        added.forEach(i => el.classList.remove(i))
     }
 }

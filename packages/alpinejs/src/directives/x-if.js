@@ -3,6 +3,7 @@ import { directive } from '../directives'
 import {initTree} from "../lifecycle";
 import {addScopeToNode} from "../scope";
 import {reactive} from "../reactivity";
+import {mutateDom} from "../mutation";
 
 directive('if', (el, { modifiers, expression }, { effect, cleanup }) => {
     let evaluate = evaluateLater(el, expression)
@@ -16,7 +17,9 @@ directive('if', (el, { modifiers, expression }, { effect, cleanup }) => {
 
         initTree(clone)
 
-        el.after(clone)
+        mutateDom(() => {
+            el.after(clone)
+        });
 
         el._x_currentIfEl = clone
 

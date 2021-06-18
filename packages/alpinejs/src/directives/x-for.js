@@ -196,7 +196,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 // This was taken from VueJS 2.* core. Thanks Vue!
 function parseForExpression(expression) {
     let forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/
-    let stripParensRE = /^\(|\)$/g
+    let stripParensRE = /^\s*\(|\)\s*$/g
     let forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
     let inMatch = expression.match(forAliasRE)
 
@@ -204,7 +204,7 @@ function parseForExpression(expression) {
 
     let res = {}
     res.items = inMatch[2].trim()
-    let item = inMatch[1].trim().replace(stripParensRE, '')
+    let item = inMatch[1].replace(stripParensRE, '').trim()
     let iteratorMatch = item.match(forIteratorRE)
 
     if (iteratorMatch) {

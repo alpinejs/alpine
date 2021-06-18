@@ -22,7 +22,7 @@
             if (extraJavaScript) {
                 let script = document.createElement('script')
                 script.src = `data:text/javascript;base64,${btoa(`
-                    document.addEventListener('alpine:initializing', () => {
+                    document.addEventListener('alpine:init', () => {
                         ${extraJavaScript}
                     })
                 `)}`

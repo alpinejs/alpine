@@ -19,7 +19,7 @@ You can use `$store` to conveniently access global Alpine stores registered usin
 
 
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         Alpine.store('darkMode', {
             on: false,
 
@@ -51,7 +51,7 @@ Here's the example from above but using it more simply as a boolean value:
 
 
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         Alpine.store('darkMode', false)
     })
 </script>

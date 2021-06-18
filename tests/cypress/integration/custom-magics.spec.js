@@ -3,7 +3,7 @@ import { haveText, html, test } from '../utils'
 test('can register custom magic properties',
     html`
         <script>
-            document.addEventListener('alpine:initializing', () => {
+            document.addEventListener('alpine:init', () => {
                 Alpine.magic('foo', (el) => {
                     return { bar: 'baz' }
                 })
@@ -22,7 +22,7 @@ test('magics are lazily accessed',
         <script>
             window.hasBeenAccessed = false
 
-            document.addEventListener('alpine:initializing', () => {
+            document.addEventListener('alpine:init', () => {
                 Alpine.magic('foo', (el) => {
                     window.hasBeenAccessed = true
                 })

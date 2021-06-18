@@ -3,7 +3,7 @@ import { haveText, html, test } from '../utils'
 test('can set a custom x- prefix',
     html`
         <script>
-            document.addEventListener('alpine:initializing', () => {
+            document.addEventListener('alpine:init', () => {
                 Alpine.prefix('data-x-')
             })
         </script>

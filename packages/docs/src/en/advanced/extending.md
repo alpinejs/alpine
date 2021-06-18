@@ -18,7 +18,7 @@ There are two different techniques depending on if you are importing Alpine into
 <a name="via-script-tag"></a>
 ### Via a script tag
 
-If you are including Alpine via a script tag, you will need to register any custom extension code inside an `alpine:initializing` event listener.
+If you are including Alpine via a script tag, you will need to register any custom extension code inside an `alpine:init` event listener.
 
 Here's an example:
 
@@ -29,7 +29,7 @@ Here's an example:
     <div x-data x-foo></div>
 
     <script>
-        document.addEventListener('alpine:initializing', () => {
+        document.addEventListener('alpine:init', () => {
             Alpine.directive('foo', ...)
         })
     </script>
@@ -318,7 +318,7 @@ Notice how our script is included BEFORE Alpine itself. This is important, other
 Now let's look inside of `/js/foo.js`'s contents:
 
 ```js
-document.addEventListener('alpine:initializing', () => {
+document.addEventListener('alpine:init', () => {
     window.Alpine.directive('foo', ...)
 
     window.Alpine.magic('foo', ...)

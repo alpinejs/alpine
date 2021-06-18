@@ -10,12 +10,12 @@ Alpine offers global state management through the `Alpine.store()` API.
 <a name="registering-a-store"></a>
 ## Registering A Store
 
-You can either define an Alpine store inside of an `alpine:initializing` listener (in the case of including Alpine via a `<script>` tag), OR you can define it before manually calling `Alpine.start()` (in the case of importing Alpine into a build):
+You can either define an Alpine store inside of an `alpine:init` listener (in the case of including Alpine via a `<script>` tag), OR you can define it before manually calling `Alpine.start()` (in the case of importing Alpine into a build):
 
 **From a script tag:**
 ```html
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         Alpine.store('darkMode', {
             on: false,
 
@@ -75,7 +75,7 @@ Here's the example from above but using it more simply as a boolean value:
 
 
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         Alpine.store('darkMode', false)
     })
 </script>

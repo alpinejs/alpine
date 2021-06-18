@@ -161,7 +161,7 @@ The object keys are the directives (can be any directive including modifiers), a
 </div>
 
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         Alpine.data('dropdown', () => ({
             open: false,
 

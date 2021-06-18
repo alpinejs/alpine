@@ -59,7 +59,7 @@ For a smoother upgrade experience, you can optionally replace all instances of `
 
 ```html
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         Alpine.magic('root', el => {
             let closestRootEl = (node) => {
                 if (node.hasAttribute('x-data')) return node
@@ -285,7 +285,7 @@ One of Alpine's stories for re-using functionality is abstracting Alpine directi
 
 <!-- ✅ After -->
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         // Will be executed before initializing Alpine.
     })
 
@@ -318,7 +318,7 @@ However, using V3's new custom directive API, it's trivial to reintroduce this f
 <!-- ✅ After -->
 <!-- The above will now work with the following script added to the page: -->
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         Alpine.directive('html', (el, { expression }, { evaluateLater, effect }) => {
             let getHtml = evaluateLater(expression)
 
@@ -374,7 +374,7 @@ The following 2 APIs will still work in V3, but are considered deprecated and ar
 </div>
 
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         Alpine.data('dropdown', () => ({
             ...
         }))

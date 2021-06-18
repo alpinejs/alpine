@@ -76,10 +76,10 @@ Ensuring a bit of code executes after Alpine is loaded, but BEFORE it initialize
 
 This hook allows you to register custom data, directives, magics, etc. before Alpine does its thing on a page.
 
-You can hook into this point in the lifecycle by listening for an event that Alpine dispatches called: `alpine:initializing`
+You can hook into this point in the lifecycle by listening for an event that Alpine dispatches called: `alpine:init`
 
 ```js
-document.addEventListener('alpine:initializing', () => {
+document.addEventListener('alpine:init', () => {
     Alpine.data(...)
 })
 ```

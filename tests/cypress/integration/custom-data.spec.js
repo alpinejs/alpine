@@ -3,7 +3,7 @@ import { haveText, html, test } from '../utils'
 test('can register custom data providers',
     html`
         <script>
-            document.addEventListener('alpine:initializing', () => {
+            document.addEventListener('alpine:init', () => {
                 Alpine.data('test', () => ({
                     foo: 'bar'
                 }))
@@ -20,7 +20,7 @@ test('can register custom data providers',
 test('init functions inside custom datas are called automatically',
     html`
         <script>
-            document.addEventListener('alpine:initializing', () => {
+            document.addEventListener('alpine:init', () => {
                 Alpine.data('test', () => ({
                     init() {
                         this.foo = 'baz'
@@ -43,7 +43,7 @@ test('init functions inside custom datas are called automatically',
 test('init functions "this" context is reactive',
     html`
         <script>
-            document.addEventListener('alpine:initializing', () => {
+            document.addEventListener('alpine:init', () => {
                 Alpine.data('test', () => ({
                     init() {
                         window.addEventListener('click', () => {

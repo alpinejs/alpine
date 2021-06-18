@@ -1,5 +1,5 @@
 import persist from '../src/index.js'
 
-document.addEventListener('alpine:initializing', () => {
+document.addEventListener('alpine:init', () => {
     window.Alpine.plugin(persist)
 })

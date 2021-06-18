@@ -17,7 +17,7 @@ Here's a contrived `dropdown` component for example:
 </div>
 
 <script>
-    document.addEventListener('alpine:initializing', () => {
+    document.addEventListener('alpine:init', () => {
         Alpine.data('dropdown', () => ({
             open: false,
 

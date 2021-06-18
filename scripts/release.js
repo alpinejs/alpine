@@ -35,6 +35,9 @@ function writeNewAlpineVersion() {
     docs = docs.replace(prevVersion, version)
     fs.writeFileSync(file, docs)
     console.log('Writing new Alpine version to installation docs: '+version);
+
+    writeToPackageDotJson('alpinejs', 'version', version)
+    console.log('Bumping alpinejs package.json: '+version);
 }
 
 function writeNewDocsVersion() {
@@ -81,7 +84,7 @@ async function draftRelease(name, after = () => {}) {
 
         fs.unlinkSync('./changelog.tmp')
 
-        tagNewRelease(name, content).then(() => after)
+        tagNewRelease(name, content, after)
     })
 }
 
@@ -108,12 +111,14 @@ async function getPullRequestsSince(since) {
     return pullsSince
 }
 
-async function tagNewRelease(name, content) {
-    await axios.post('https://api.github.com/repos/alpinejs/alpine/releases', {
+function tagNewRelease(name, content, after = () => {}) {
+    return axios.post('https://api.github.com/repos/alpinejs/alpine/releases', {
         name: 'v'+name,
         tag_name: 'v'+name,
         target_commitish: 'main',
         body: content,
-        draft: true,
+        draft: false,
+    }).then(() => {
+        after()
     })
 }

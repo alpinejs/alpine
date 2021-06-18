@@ -9,13 +9,13 @@ test('sets attribute bindings on initialize',
     ({ get }) => get('span').should(haveAttribute('foo', 'bar'))
 )
 
-test('sets undefined nested keys to empty string',
+test.only('sets undefined nested keys to empty string',
     html`
         <div x-data="{ nested: {} }">
-            <input x-bind:value="nested.field">
+            <span x-bind:foo="nested.field">
         </div>
     `,
-    ({ get }) => get('input').should(haveAttribute('value', ''))
+    ({ get }) => get('span').should(haveAttribute('foo', ''))
 )
 
 test('style attribute bindings are added by string syntax',

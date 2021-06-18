@@ -13,6 +13,9 @@ directive('bind', (el, { value, modifiers, expression, original }, { effect }) =
     let evaluate = evaluateLater(el, expression)
 
     effect(() => evaluate(result => {
+        // If nested object key is undefined, set the default value to empty string.
+        if (result === undefined && expression.match(/\./)) result = ''
+
         mutateDom(() => bind(el, value, result, modifiers))
     }))
 })

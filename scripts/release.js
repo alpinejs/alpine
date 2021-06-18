@@ -19,6 +19,7 @@ if (! /[0-9]+\.[0-9]+\.[0-9]+/.test(version)) {
 writeNewAlpineVersion()
 writeNewDocsVersion()
 buildAssets()
+run(`open https://github.com/alpinejs/alpine/compare/v${prevVersion}...main`)
 
 setTimeout(() => {
     ask('Have you reviewed, committed, and pushed all the files for this release?', () => {
@@ -109,8 +110,8 @@ async function getPullRequestsSince(since) {
 
 async function tagNewRelease(name, content) {
     await axios.post('https://api.github.com/repos/alpinejs/alpine/releases', {
-        name: name,
-        tag_name: name,
+        name: 'v'+name,
+        tag_name: 'v'+name,
         target_commitish: 'main',
         body: content,
         draft: true,

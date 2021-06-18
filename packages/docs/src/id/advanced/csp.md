@@ -3,21 +3,21 @@ order: 5
 title: CSP
 ---
 
-# CSP (Content-Security Policy)
+# CSP (Kebijakan Keamanan Konten)
 
-In order for Alpine to be able to execute plain strings from HTML attributes as JavaScript expressions, for example `x-on:click="console.log()"`, it needs to rely on utilities that violate the "unsafe-eval" content security policy.
+Agar Alpine dapat mengeksekusi string biasa dari atribut HTML sebagai ekspresi JavaScript, misalnya `x-on:click="console.log()"`, Alpine harus bergantung pada utilitas yang melanggar kebijakan keamanan konten "eval tidak aman".
 
-> Under the hood, Alpine doesn't actually use eval() itself because it's slow and problematic. Instead it uses Function declarations, which are much better, but still violate "unsafe-eval".
+> Di bawah tenda, Alpine sebenarnya tidak menggunakan eval() itu sendiri karena lambat dan bermasalah. Alih-alih menggunakan deklarasi Fungsi, yang jauh lebih baik, tetapi masih melanggar "eval tidak aman".
 
-In order to accommodate environments where this CSP is necessary, Alpine offers an alternate build that doesn't violate "unsafe-eval", but has a more restrictive syntax.
+Untuk mengakomodasi lingkungan di mana CSP ini diperlukan, Alpine menawarkan versi alternatif yang tidak melanggar "eval tidak aman", tetapi memiliki sintaks yang lebih ketat.
 
 <a name="installation"></a>
-## Installation
+## Instalasi
 
 Like all Alpine extensions, you can include this either via `<script>` tag or module import:
 
 <a name="script-tag"></a>
-### Script tag
+### Tag Script
 
 ```html
 <html>
@@ -26,7 +26,7 @@ Like all Alpine extensions, you can include this either via `<script>` tag or mo
 ```
 
 <a name="module-import"></a>
-### Module import
+### Impor Modul
 
 ```js
 import Alpine from '@alpinejs/csp'
@@ -36,13 +36,13 @@ window.Alpine.start()
 ```
 
 <a name="restrictions"></a>
-## Restrictions
+## Pembatasan
 
-Since Alpine can no longer interpret strings as plain JavaScript, it has to parse and construct JavaScript functions from them manually.
+Karena Alpine tidak dapat lagi menafsirkan string sebagai JavaScript biasa, ia harus mengurai dan membuat fungsi JavaScript darinya secara manual.
 
-Due to this limitation, you must use `Alpine.data` to register your `x-data` objects, and must reference properties and methods from it by key only.
+Karena keterbatasan ini, Anda harus menggunakan `Alpine.data` untuk mendaftarkan objek `x-data` Anda, dan harus mereferensikan properti dan metode darinya hanya dengan kunci.
 
-For example, an inline component like this will not work.
+Misalnya, komponen sebaris seperti ini tidak akan berfungsi.
 
 ```html
 <!-- Bad -->
@@ -53,7 +53,7 @@ For example, an inline component like this will not work.
 </div>
 ```
 
-However, breaking out the expressions into external APIs, the following is valid with the CSP build:
+Namun, memecah ekspresi menjadi API eksternal, berikut ini valid dibangun dengan CSP:
 
 ```html
 <!-- Good -->

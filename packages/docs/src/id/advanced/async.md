@@ -5,9 +5,9 @@ title: Async
 
 # Async
 
-Alpine is built to support asynchronous functions in most places it supports standard ones.
+Alpine dibangun untuk mendukung fungsi asynchronous di sebagian besar tempat yang mendukung fungsi standar.
 
-For example, let's say you have a simple function called `getLabel()` that you use as the input to an `x-text` directive:
+Contoh, katakanlah Anda memiliki fungsi sederhana yang disebut `getLabel()` yang Anda gunakan sebagai input ke direktif `x-text`:
 
 ```js
 function getLabel() {
@@ -18,9 +18,9 @@ function getLabel() {
 <span x-text="getLabel()"></span>
 ```
 
-Because `getLabel` is synchronous, everything works as expected.
+Karena `getLabel` sinkron, semuanya bekerja seperti yang diharapkan.
 
-Now let's pretend that `getLabel` makes a network request to retrieve the label and can't return one instantaneously (asynchronous). By making `getLabel` an async function, you can call it from Alpine using JavaScript's `await` syntax.
+Sekarang mari kita berpura-pura bahwa `getLabel` membuat permintaan jaringan untuk mengambil label dan tidak dapat mengembalikannya secara instan (asynchronous). Dengan membuat `getLabel` fungsi async, Anda dapat memanggilnya dari Alpine menggunakan sintaks JavaScript `await`.
 
 ```js
 async function getLabel() {
@@ -33,7 +33,7 @@ async function getLabel() {
 <span x-text="await getLabel()"></span>
 ```
 
-Additionally, if you prefer calling methods in Alpine without the trailing parenthesis, you can leave them out and Alpine will detect that the provided function is async and handle it accordingly. For example:
+Selain itu, jika Anda lebih suka memanggil metode di Alpine tanpa tanda kurung, Anda dapat mengabaikannya dan Alpine akan mendeteksi bahwa fungsi yang disediakan adalah async dan menanganinya sesuai dengan itu. Sebagai contoh:
 
 ```html
 <span x-text="getLabel"></span>

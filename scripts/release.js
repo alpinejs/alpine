@@ -70,7 +70,7 @@ async function draftRelease(name, after = () => {}) {
 
     output += "## Added\n\n## Fixed\n\n"
 
-    output += pulls.map(pull => `* ${pull.title} [#${pull.number}](${pull.html_url})`).join('')
+    output += pulls.map(pull => `* ${pull.title} [#${pull.number}](${pull.html_url})`).join('\n')
 
     fs.writeFileSync('./changelog.tmp', output)
 

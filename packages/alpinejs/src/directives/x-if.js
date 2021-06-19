@@ -2,9 +2,9 @@ import { evaluateLater } from '../evaluator'
 import { addScopeToNode } from '../scope'
 import { directive } from '../directives'
 import { initTree } from '../lifecycle'
-import { mutateDom } from '../mutatio'n
+import { mutateDom } from '../mutation'
 
-directive('if', (el, { modifiers, expression }, { effect, cleanup }) => {
+directive('if', (el, { expression }, { effect, cleanup }) => {
     let evaluate = evaluateLater(el, expression)
 
     let show = () => {

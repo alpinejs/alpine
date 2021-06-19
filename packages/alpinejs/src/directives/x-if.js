@@ -1,8 +1,8 @@
 import { evaluateLater } from '../evaluator'
-import { addScopeToNode } from "../scope"
+import { addScopeToNode } from '../scope'
 import { directive } from '../directives'
-import { initTree } from "../lifecycle"
-import { mutateDom } from "../mutation"
+import { initTree } from '../lifecycle'
+import { mutateDom } from '../mutatio'n
 
 directive('if', (el, { modifiers, expression }, { effect, cleanup }) => {
     let evaluate = evaluateLater(el, expression)

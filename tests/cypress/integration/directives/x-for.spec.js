@@ -19,6 +19,45 @@ test('renders loops with x-for',
     }
 )
 
+test('renders loops with x-for that have space or newline',
+    html`
+        <div x-data="{ items: ['foo'] }">
+            <button x-on:click="items = ['foo', 'bar']">click me</button>
+
+            <div x-bind:id="1">
+                <template x-for="
+                    (
+                        item
+                    ) in items
+                ">
+                    <span x-text="item"></span>
+                </template>
+            </div>
+
+            <div x-bind:id="2">
+                <template x-for=" (
+                        item,
+                        index
+                    ) in items
+                ">
+                    <span x-text="item"></span>
+                </template>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('#1 span:nth-of-type(1)').should(haveText('foo'))
+        get('#1 span:nth-of-type(2)').should(notBeVisible())
+        get('#2 span:nth-of-type(1)').should(haveText('foo'))
+        get('#2 span:nth-of-type(2)').should(notBeVisible())
+        get('button').click()
+        get('#1 span:nth-of-type(1)').should(haveText('foo'))
+        get('#1 span:nth-of-type(2)').should(haveText('bar'))
+        get('#2 span:nth-of-type(1)').should(haveText('foo'))
+        get('#2 span:nth-of-type(2)').should(haveText('bar'))
+    }
+)
+
 test('can destructure arrays',
     html`
         <div x-data="{ items: [[1, 'foo'], [2, 'bar']] }">

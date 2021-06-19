@@ -9,7 +9,7 @@ test('sets attribute bindings on initialize',
     ({ get }) => get('span').should(haveAttribute('foo', 'bar'))
 )
 
-test.only('sets undefined nested keys to empty string',
+test('sets undefined nested keys to empty string',
     html`
         <div x-data="{ nested: {} }">
             <span x-bind:foo="nested.field">

@@ -103,7 +103,7 @@ function registerTransitionObject(el, setFunction, defaultValue = {}) {
         leave: { during: defaultValue, start: defaultValue, end: defaultValue },
 
         in(before = () => {}, after = () => {}) {
-            return transition(el, setFunction, {
+            transition(el, setFunction, {
                 during: this.enter.during,
                 start: this.enter.start,
                 end: this.enter.end,
@@ -112,7 +112,7 @@ function registerTransitionObject(el, setFunction, defaultValue = {}) {
         },
 
         out(before = () => {}, after = () => {}) {
-            return transition(el, setFunction, {
+            transition(el, setFunction, {
                 during: this.leave.during,
                 start: this.leave.start,
                 end: this.leave.end,
@@ -181,6 +181,12 @@ function closestHide(el) {
 
 export function transition(el, setFunction, { during, start, end, entering } = {}, before = () => {}, after = () => {}) {
     if (el._x_transitioning) el._x_transitioning.cancel()
+
+    if (Object.keys(during).length === 0 && Object.keys(start).length === 0 && Object.keys(end).length === 0) {
+        // Execute right away if there is no transition.
+        before(); after()
+        return
+    }
 
     let undoStart, undoDuring, undoEnd
 

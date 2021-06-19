@@ -16,6 +16,23 @@
         </tr>
 
         <tr>
+            <td><code>x-transition:enter only (should see no blip)</code></td>
+            <td>
+                <main x-data="{ open: true }">
+                    <button @click="open = ! open">Toggle</button>
+
+                    <div x-show="open" x-transition:enter.duration.500ms>
+                        Hello 👋
+                    </div>
+
+                    <div x-show="!open">
+                        There 👋
+                    </div>
+                </main>
+            </td>
+        </tr>
+
+        <tr>
             <td><code>x-transition</code></td>
             <td>
                 <div x-data="{ open: false }">

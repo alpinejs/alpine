@@ -307,7 +307,21 @@ Alpine will no longer officially support Internet Explorer 11. If you need suppo
 
 `x-html` was a seldom used directive in Alpine V2. In an effort to keep the API slimmed down to only valued features, V3 is removing this directive.
 
-However, using V3's new custom directive API, it's trivial to reintroduce this functionality using the following polyfill:
+You can reproduce this exact functionality using `x-effect` like so:
+
+```html
+<!-- 🚫 Before -->
+<div x-data="{ someHtml: '<h1>...</h1>' }">
+    <div x-html="someHtml">
+</div>
+
+<!-- ✅ After -->
+<div x-data="{ someHtml: '<h1>...</h1>' }">
+    <div x-effect="$el.innerHTML = someHtml">
+</div>
+```
+
+Or, using V3's new custom directive API, it's trivial to polyfill this directive:
 
 ```html
 <!-- 🚫 Before -->

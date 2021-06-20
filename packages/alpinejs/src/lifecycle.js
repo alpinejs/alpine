@@ -1,4 +1,4 @@
-import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved } from "./mutation"
+import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes } from "./mutation"
 import { deferHandlingDirectives, directives } from "./directives"
 import { dispatch } from './utils/dispatch'
 import { nextTick } from "./nextTick"
@@ -61,20 +61,6 @@ export function initTree(el, walker = walk) {
     })
 }
 
-let onDestroys = new WeakMap
-
-export function onDestroy(el, callback) {
-    if (! onDestroys.get(el)) onDestroys.set(el, [])
-
-    onDestroys.get(el).push(callback)
-}
-
 function destroyTree(root) {
-    walk(root, el => {
-        let callbacks = onDestroys.get(el)
-
-        callbacks && callbacks.forEach(callback => callback())
-
-        onDestroys.delete(el)
-    })
+    walk(root, el => cleanupAttributes(el))
 }

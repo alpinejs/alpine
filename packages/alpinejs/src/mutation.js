@@ -1,6 +1,4 @@
-let onAttributeRemoveds = new WeakMap
 let onAttributeAddeds = []
-let onElRemovedByEl = new WeakMap
 let onElRemoveds = []
 let onElAddeds = []
 
@@ -8,14 +6,8 @@ export function onElAdded(callback) {
     onElAddeds.push(callback)
 }
 
-export function onElRemoved(el, callback) {
-    if (typeof el === 'function' && callback === undefined) {
-        onElRemoveds.push(el)
-    } else {
-        if (! onElRemovedByEl.has(el)) onElRemovedByEl.set(el, [])
-
-        onElRemovedByEl.get(el).push(callback)
-    }
+export function onElRemoved(callback) {
+    onElRemoveds.push(callback)
 }
 
 export function onAttributesAdded(callback) {
@@ -23,10 +15,20 @@ export function onAttributesAdded(callback) {
 }
 
 export function onAttributeRemoved(el, name, callback) {
-    if (! onAttributeRemoveds.has(el)) onAttributeRemoveds.set(el, {})
-    if (! onAttributeRemoveds.get(el)[name]) onAttributeRemoveds.get(el)[name] = []
+    if (! el._x_attributeCleanups) el._x_attributeCleanups = {}
+    if (! el._x_attributeCleanups[name]) el._x_attributeCleanups[name] = []
 
-    onAttributeRemoveds.get(el)[name].push(callback)
+    el._x_attributeCleanups[name].push(callback)
+}
+
+export function cleanupAttributes(el, names) {
+    if (! el._x_attributeCleanups) return
+
+    Object.entries(el._x_attributeCleanups).forEach(([name, value]) => {
+        (names === undefined || names.includes(name)) && value.forEach(i => i())
+
+        delete el._x_attributeCleanups[name]
+    })
 }
 
 let observer = new MutationObserver(onMutate)
@@ -128,13 +130,7 @@ function onMutate(mutations) {
     }
 
     removedAttributes.forEach((attrs, el) => {
-        if (onAttributeRemoveds.get(el)) {
-            attrs.forEach(name => {
-                if (onAttributeRemoveds.get(el)[name]) {
-                    onAttributeRemoveds.get(el)[name].forEach(i => i())
-                }
-            })
-        }
+        cleanupAttributes(el, attrs)
     })
 
     addedAttributes.forEach((attrs, el) => {
@@ -153,19 +149,6 @@ function onMutate(mutations) {
         // If an element gets moved on a page, it's registered
         // as both an "add" and "remove", so we want to skip those.
         if (addedNodes.includes(node)) continue
-
-
-        if (onAttributeRemoveds.has(node)) {
-            Object.entries(onAttributeRemoveds.get(node)).forEach(([key, value]) => {
-                value.forEach(i => i())
-            })
-            onAttributeRemoveds.delete(node)
-        }
-
-        if (onElRemovedByEl.has(node)) {
-            onElRemovedByEl.get(node).forEach(i => i())
-            onElRemovedByEl.delete(node)
-        }
 
         onElRemoveds.forEach(i => i(node))
     }

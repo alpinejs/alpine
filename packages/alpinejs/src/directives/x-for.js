@@ -171,10 +171,10 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 
             addScopeToNode(clone, reactive(scope), templateEl)
 
-            initTree(clone)
-
             mutateDom(() => {
                 lastEl.after(clone)
+
+                initTree(clone)
             })
 
             lookup[key] = clone

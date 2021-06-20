@@ -14,9 +14,11 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
 
         addScopeToNode(clone, {}, el)
 
-        initTree(clone)
+        mutateDom(() => {
+            el.after(clone)
 
-        mutateDom(() => el.after(clone))
+            initTree(clone)
+        })
 
         el._x_currentIfEl = clone
 

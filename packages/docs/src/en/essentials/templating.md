@@ -342,3 +342,27 @@ Similar to `x-if`, `x-for` must be applied to a `<template>` tag. Internally, Al
 As you can see the new `status` variable is available in the scope of the iterated templates.
 
 [→ Read more about `x-for`](/directives/for)
+
+<a name="inner-html"></a>
+## Inner HTML
+
+Alpine makes it easy to control the HTML content of an element with the `x-html` directive.
+
+```html
+<div x-data="{ title: '<h1>Start Here</h1>' }">
+    <div x-html="title"></div>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div x-data="{ title: '<h1>Start Here</h1>' }" class="demo">
+    <div x-html="title"></div>
+</div>
+<!-- END_VERBATIM -->
+
+Now, Alpine will set the text content of the `<div>` with the element `<h1>Start Here</h1>`. When `title` changes, so will the contents of `<h1>`.
+
+> ⚠️ Only use on trusted content and never on user-provided content. ⚠️
+> Dynamically rendering HTML from third parties can easily lead to XSS vulnerabilities.
+
+[→ Read more about `x-html`](/directives/html)

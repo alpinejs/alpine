@@ -36,3 +36,18 @@ test('x-if inside x-for allows nested directives',
         get('span').should(haveText('1'))
     }
 )
+
+test('x-if initializes after being added to the DOM to allow x-ref to work',
+    html`
+        <div x-data="{}">
+            <template x-if="true">
+                <ul x-ref="listbox" data-foo="bar">
+                    <li x-text="$refs.listbox.dataset.foo"></li>
+                </ul>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('li').should(haveText('bar'))
+    }
+)

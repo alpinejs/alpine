@@ -35,7 +35,6 @@ Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING
 * [`x-spread` is now `x-bind`](#x-spread-is-now-x-bind)
 * [Use global lifecycle events instead of `Alpine.deferLoadingAlpine()`](#use-global-events-now)
 * [IE11 no longer supported](#no-ie-11)
-* [`x-html` has been removed](#no-x-html)
 
 <a name="el-no-longer-root"></a>
 ### `$el` is now always the current element
@@ -301,50 +300,6 @@ One of Alpine's stories for re-using functionality is abstracting Alpine directi
 ### IE11 no longer supported
 
 Alpine will no longer officially support Internet Explorer 11. If you need support for IE11, we recommend still using Alpine V2.
-
-<a name="no-x-html"></a>
-### `x-html` has been removed
-
-`x-html` was a seldom used directive in Alpine V2. In an effort to keep the API slimmed down to only valued features, V3 is removing this directive.
-
-You can reproduce this exact functionality using `x-effect` like so:
-
-```html
-<!-- 🚫 Before -->
-<div x-data="{ someHtml: '<h1>...</h1>' }">
-    <div x-html="someHtml">
-</div>
-
-<!-- ✅ After -->
-<div x-data="{ someHtml: '<h1>...</h1>' }">
-    <div x-effect="$el.innerHTML = someHtml">
-</div>
-```
-
-Or, using V3's new custom directive API, it's trivial to polyfill this directive:
-
-```html
-<!-- 🚫 Before -->
-<div x-data="{ someHtml: '<h1>...</h1>' }">
-    <div x-html="someHTML">
-</div>
-
-<!-- ✅ After -->
-<!-- The above will now work with the following script added to the page: -->
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.directive('html', (el, { expression }, { evaluateLater, effect }) => {
-            let getHtml = evaluateLater(expression)
-
-            effect(() => {
-                getHtml(html => {
-                    el.innerHTML = html
-                })
-            })
-        })
-    })
-</script>
-```
 
 ## Deprecated APIs
 

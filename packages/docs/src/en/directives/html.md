@@ -5,7 +5,7 @@ title: html
 
 # `x-html`
 
-`x-html` sets the "innerHTML" an element to the result of a given expression.
+`x-html` sets the "innerHTML" property of an element to the result of a given expression.
 
 > ⚠️ Only use on trusted content and never on user-provided content. ⚠️
 > Dynamically rendering HTML from third parties can easily lead to XSS vulnerabilities.

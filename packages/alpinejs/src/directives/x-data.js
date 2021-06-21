@@ -13,14 +13,31 @@ addRootSelector(() => `[${prefix('data')}]`)
 directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
     expression = expression === '' ? '{}' : expression
 
-    let dataProvider = getNamedDataProvider(expression)
+    // This returns everything up until the first `(` in the expression,
+    // returning the name of the data provider in scenarios where arguments
+    // are being passed to the callback.
+    const dataProviderName = expression.substr(0, expression.indexOf('(')) || expression
+
+    let dataProvider = getNamedDataProvider(dataProviderName)
 
     let data = {}
 
     if (dataProvider) {
         let magics = injectMagics({}, el)
+        let args = [];
 
-        data = dataProvider.bind(magics)()
+        // This adds support for passing arguments to `Alpine.data()`
+        // callbacks by evaluating the parts inside of `()` as an `[]`
+        // expression and then spreading that out to the data provider.
+        if (dataProviderName !== '' && expression !== dataProviderName) {
+            // Get everything after the first `(` in expression and remove the final character,
+            // which should be the closing `)`.
+            const argsString = expression.substring(expression.indexOf('(') + 1).slice(0, -1)
+
+            args = evaluate(el, `[${argsString}]`)
+        }
+
+        data = dataProvider.bind(magics)(...args)
     } else {
         data = evaluate(el, expression)
     }

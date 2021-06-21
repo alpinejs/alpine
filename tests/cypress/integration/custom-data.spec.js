@@ -17,6 +17,23 @@ test('can register custom data providers',
     ({ get }) => get('span').should(haveText('bar'))
 )
 
+test('can pass arguments to data provider',
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('test', (value) => ({
+                    foo: value
+                }))
+            })
+        </script>
+
+        <div x-data="test('bar')">
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => get('span').should(haveText('bar'))
+)
+
 test('init functions inside custom datas are called automatically',
     html`
         <script>

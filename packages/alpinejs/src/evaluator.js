@@ -1,5 +1,6 @@
 import { closestDataStack, mergeProxies } from './scope'
 import { injectMagics } from './magics'
+import { debugMode } from './utils/debug'
 
 export function evaluate(el, expression, extras = {}) {
     let result
@@ -30,7 +31,7 @@ export function normalEvaluator(el, expression) {
         return generateEvaluatorFromFunction(dataStack, expression)
     }
 
-    let evaluator = generateEvaluatorFromString(dataStack, expression)
+    let evaluator = generateEvaluatorFromString(dataStack, expression, el)
 
     return tryCatch.bind(null, el, expression, evaluator)
 }
@@ -45,7 +46,7 @@ export function generateEvaluatorFromFunction(dataStack, func) {
 
 let evaluatorMemo = {}
 
-function generateFunctionFromString(expression) {
+function generateFunctionFromString(expression, el) {
     if (evaluatorMemo[expression]) {
         return evaluatorMemo[expression]
     }
@@ -63,15 +64,27 @@ function generateFunctionFromString(expression) {
             ? `(() => { ${expression} })()`
             : expression
 
+    const listener = (error) => {
+        console.error( error, el )
+    };
+
+    if( debugMode ) {
+        window.addEventListener( "error", listener );
+    }
+
     let func = new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`)
+
+    if( debugMode ) {
+        window.removeEventListener( "error", listener );
+    }
 
     evaluatorMemo[expression] = func
 
     return func
 }
 
-function generateEvaluatorFromString(dataStack, expression) {
-    let func = generateFunctionFromString(expression)
+function generateEvaluatorFromString(dataStack, expression, el) {
+    let func = generateFunctionFromString(expression, el)
 
     return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
         func.result = undefined
@@ -86,22 +99,34 @@ function generateEvaluatorFromString(dataStack, expression) {
         // Check if the function ran synchronously,
         if (func.finished) {
             // Return the immediate result.
-            runIfTypeOfFunction(receiver, func.result, completeScope, params)
+            runIfTypeOfFunction(receiver, func.result, completeScope, params, el)
         } else {
             // If not, return the result when the promise resolves.
             promise.then(result => {
-                runIfTypeOfFunction(receiver, result, completeScope, params)
-            })
+                runIfTypeOfFunction(receiver, result, completeScope, params, el)
+            }).catch( error => {
+                if( debugMode ) {
+                    console.error( `Alpine Expression Error: ${error.message}\n\nExpression: "${expression}"\n\n`, el )
+                } else {
+                    throw ( error );
+                }
+            } )
         }
     }
 }
 
-export function runIfTypeOfFunction(receiver, value, scope, params) {
+export function runIfTypeOfFunction(receiver, value, scope, params, el) {
     if (typeof value === 'function') {
         let result = value.apply(scope, params)
 
         if (result instanceof Promise) {
-            result.then(i => runIfTypeOfFunction(receiver, i, scope, params))
+            result.then(i => runIfTypeOfFunction(receiver, i, scope, params)).catch( error => {
+                if( debugMode ) {
+                    console.error( `Alpine Expression Evaluation Error: ${error.message}\n\n`, el )
+                } else {
+                    throw ( error );
+                }
+            } )
         } else {
             receiver(result)
         }

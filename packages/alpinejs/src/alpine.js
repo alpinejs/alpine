@@ -10,12 +10,14 @@ import { magic } from './magics'
 import { store } from './store'
 import { clone } from './clone'
 import { data } from './datas'
+import { debugMode, enableDebugMode } from './utils/debug'
 
 let Alpine = {
     get reactive() { return reactive },
     get release() { return release },
     get effect() { return effect },
     get raw() { return raw },
+    get isDebugMode() { return debugMode },
     version: ALPINE_VERSION,
     disableEffectScheduling,
     setReactivityEngine,
@@ -37,6 +39,7 @@ let Alpine = {
     start,
     clone,
     data,
+    enableDebugMode,
 }
 
 export default Alpine

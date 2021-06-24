@@ -27,7 +27,13 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
         return clone
     }
 
-    let hide = () => el._x_undoIf?.() || delete el._x_undoIf
+    let hide = () => {
+        if (! el._x_undoIf) return
+
+        el._x_undoIf()
+
+        delete el._x_undoIf
+    }
 
     effect(() => evaluate(value => {
         value ? show() : hide()

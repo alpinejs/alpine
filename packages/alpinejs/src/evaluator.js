@@ -1,6 +1,5 @@
 import { closestDataStack, mergeProxies } from './scope'
 import { injectMagics } from './magics'
-import { debugMode } from './utils/debug'
 
 export function evaluate(el, expression, extras = {}) {
     let result
@@ -64,19 +63,16 @@ function generateFunctionFromString(expression, el) {
             ? `(() => { ${expression} })()`
             : expression
 
-    const listener = (error) => {
-        console.error( error, el )
-    };
-
-    if( debugMode ) {
-        window.addEventListener( "error", listener );
+    const safeAsyncFunction = () => {
+        try {
+            return new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`)
+        } catch ( error ) {
+            let message = `Alpine Expression Error: ${error.message}\n\nExpression: "${expression}"\n\n`
+            console.error( message, el )
+            return new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = { toString: function() { return 'Alpine Expression Error -> See console for details' } } }; __self.finished = true; return __self.result;`)
+        }
     }
-
-    let func = new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`)
-
-    if( debugMode ) {
-        window.removeEventListener( "error", listener );
-    }
+    let func = safeAsyncFunction();
 
     evaluatorMemo[expression] = func
 
@@ -105,11 +101,7 @@ function generateEvaluatorFromString(dataStack, expression, el) {
             promise.then(result => {
                 runIfTypeOfFunction(receiver, result, completeScope, params, el)
             }).catch( error => {
-                if( debugMode ) {
-                    console.error( `Alpine Expression Error: ${error.message}\n\nExpression: "${expression}"\n\n`, el )
-                } else {
-                    throw ( error );
-                }
+                console.error( `Alpine Expression Error: ${error.message}\n\nExpression: "${expression}"\n\n`, el )
             } )
         }
     }
@@ -121,11 +113,7 @@ export function runIfTypeOfFunction(receiver, value, scope, params, el) {
 
         if (result instanceof Promise) {
             result.then(i => runIfTypeOfFunction(receiver, i, scope, params)).catch( error => {
-                if( debugMode ) {
-                    console.error( `Alpine Expression Evaluation Error: ${error.message}\n\n`, el )
-                } else {
-                    throw ( error );
-                }
+                console.error( `Alpine Expression Evaluation Error: ${error.message}\n\n`, el )
             } )
         } else {
             receiver(result)

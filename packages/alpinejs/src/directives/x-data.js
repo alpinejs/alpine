@@ -23,6 +23,7 @@ directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
         data = dataProvider.bind(magics)()
     } else {
         data = evaluate(el, expression)
+        console.log( "no provider", data )
     }
 
     injectMagics(data, el)

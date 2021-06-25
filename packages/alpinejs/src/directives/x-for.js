@@ -5,6 +5,7 @@ import { reactive } from '../reactivity'
 import { initTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
 import { flushJobs } from '../scheduler'
+import { warn } from '../utils/warn'
 
 directive('for', (el, { expression }, { effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)
@@ -176,6 +177,10 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 
                 initTree(clone)
             })
+
+            if (typeof key === 'object') {
+                warn('x-for key cannot be an object, it must be a string or an integer', templateEl)
+            }
 
             lookup[key] = clone
         }

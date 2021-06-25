@@ -15,7 +15,7 @@ There are two primary ways to handle transitions in Alpine:
 <a name="the-transition-helper"></a>
 ## The transition helper
 
-The simplest way to achieve a transition using Alpine is by adding `x-transition` to an element with `x-show` or `x-if` on it. For example:
+The simplest way to achieve a transition using Alpine is by adding `x-transition` to an element with `x-show` on it. For example:
 
 ```html
 <div x-data="{ open: false }">

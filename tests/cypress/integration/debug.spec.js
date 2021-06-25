@@ -2,10 +2,21 @@ import { haveText, html, test } from '../utils'
 
 function setupConsoleInterceptor( targetId ) {
     return `
-        console.errlog = console.error.bind( console )
-        console.error = function() {
+        console.warnlog = console.warn.bind( console )
+        console.warn = function() {
             document.getElementById( 'errors' ).innerHTML = arguments[1] === document.getElementById( '${targetId}' )
-            console.errlog.apply( console, arguments )
+            console.warnlog.apply( console, arguments )
+        }
+    `
+}
+
+function setupMultipleConsoleInterceptors( targetIds ) {
+    const mappedTargetIds = targetIds.map( tid => `'${tid}'` ).join( ',' )
+    return `
+        console.warnlog = console.warn.bind( console )
+        console.warn = function() {
+            document.getElementById( 'errors' ).innerHTML = [${mappedTargetIds}].some( target => arguments[1] === document.getElementById( target ) )
+            console.warnlog.apply( console, arguments )
         }
     `
 }
@@ -190,16 +201,33 @@ test('if statement syntax error',
     }
 )
 
-
-test('if statement syntax error',
+test('x-data with reference error and multiple errors',
     [html`
-        <div id="xtext" x-data="{ items : [ {v:'one'},{v:'two'}], replaceItems }">
-            <template x-for="item in items">
+        <div id="xdata" x-data="{ items : [ {v:'one'},{v:'two'}], replaceItems }">
+            <div id="errors">false</div>
+            <template id="xtext" x-for="item in items">
                 <span x-text="item.v"></span>
             </template>
         </div>
     `,
-        setupConsoleInterceptor( "xtext" )
+        setupMultipleConsoleInterceptors( [ "xdata", "xtext" ] )
+    ],
+    ({ get }) => {
+        get( "#errors" ).should(haveText('true'))
+    }
+)
+
+test('evaluation with syntax error',
+    [html`
+        <div x-data="{value: ''}">
+            <div id="errors">false</div>
+
+            <template id="xif" x-if="value ==== ''">
+                <span>Words</span>
+            </template>
+        </div>
+    `,
+        setupConsoleInterceptor( [ "xif" ] )
     ],
     ({ get }) => {
         get( "#errors" ).should(haveText('true'))

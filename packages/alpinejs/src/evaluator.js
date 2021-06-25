@@ -67,8 +67,7 @@ function generateFunctionFromString(expression, el) {
         try {
             return new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`)
         } catch ( error ) {
-            let message = `Alpine Expression Error: ${error.message}\n\nExpression: "${expression}"\n\n`
-            console.error( message, el )
+            handleError( error, el, expression, false )
             return new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = { toString: function() { return 'Alpine Expression Error -> See console for details' } } }; __self.finished = true; return __self.result;`)
         }
     }
@@ -90,7 +89,7 @@ function generateEvaluatorFromString(dataStack, expression, el) {
 
         let completeScope = mergeProxies([ scope, ...dataStack ])
 
-        let promise = func(func, completeScope)
+        let promise = func(func, completeScope).catch((error) => handleError(error, el, expression))
 
         // Check if the function ran synchronously,
         if (func.finished) {
@@ -100,9 +99,7 @@ function generateEvaluatorFromString(dataStack, expression, el) {
             // If not, return the result when the promise resolves.
             promise.then(result => {
                 runIfTypeOfFunction(receiver, result, completeScope, params, el)
-            }).catch( error => {
-                console.error( `Alpine Expression Error: ${error.message}\n\nExpression: "${expression}"\n\n`, el )
-            } )
+            }).catch( error => handleError( error, el, expression ) )
         }
     }
 }
@@ -112,9 +109,7 @@ export function runIfTypeOfFunction(receiver, value, scope, params, el) {
         let result = value.apply(scope, params)
 
         if (result instanceof Promise) {
-            result.then(i => runIfTypeOfFunction(receiver, i, scope, params)).catch( error => {
-                console.error( `Alpine Expression Evaluation Error: ${error.message}\n\n`, el )
-            } )
+            result.then(i => runIfTypeOfFunction(receiver, i, scope, params)).catch( error => handleError( error, el, value ) )
         } else {
             receiver(result)
         }
@@ -127,8 +122,16 @@ export function tryCatch(el, expression, callback, ...args) {
     try {
         return callback(...args)
     } catch (e) {
-        console.warn(`Alpine Expression Error: ${e.message}\n\nExpression: "${expression}"\n\n`, el)
+        handleError( e, el, expression )
+    }
+}
 
-        throw e
+export function handleError(error, el, expression, rethrows = true) {
+    Object.assign( error, { el, expression } )
+
+    console.warn(`Alpine Expression Error: ${error.message}\n\nExpression: "${expression}"\n\n`, el)
+
+    if( rethrows ) {
+        throw error
     }
 }

@@ -8,7 +8,6 @@ export function magic(name, callback) {
 }
 
 export function injectMagics(obj, el) {
-    console.log( obj, el, magics)
     Object.entries(magics).forEach(([name, callback]) => {
         Object.defineProperty(obj, `$${name}`, {
             get() { return callback(el, { Alpine, interceptor }) },

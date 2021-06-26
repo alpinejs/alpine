@@ -21,7 +21,7 @@ test('$watch',
     }
 )
 
-test.only('$watch receives old value',
+test('$watch receives old value',
     html`
         <div
             x-data="{ foo: 'bar', fresh: '', old: '' }"

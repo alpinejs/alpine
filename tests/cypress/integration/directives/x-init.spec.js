@@ -28,6 +28,19 @@ test('A nested x-init doesn\'t create a new component',
     ({ get }) => get('p').should(haveText('lob'))
 )
 
+test('x-init does\'t return as a closestRoot',
+    html`
+        <div x-data>
+            <span x-init="() => {}">
+                <button @click="$el.textContent = Alpine.closestRoot($el).tagName"></button>
+            </span>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('button').should(haveText('DIV'))
+    }
+)
 
 test('changes made in x-init happen before the rest of the component',
     html`

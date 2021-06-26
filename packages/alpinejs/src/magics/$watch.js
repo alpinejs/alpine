@@ -22,6 +22,8 @@ magic('watch', el => (key, callback) => {
 
                 oldValue = value
             })
+        } else {
+            oldValue = value
         }
 
         firstTime = false

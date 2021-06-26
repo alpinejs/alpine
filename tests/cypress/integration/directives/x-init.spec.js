@@ -17,6 +17,17 @@ test('x-init can be used outside of x-data',
     ({ get }) => get('div').should(haveText('foo'))
 )
 
+test('A nested x-init doesn\'t create a new component',
+    html`
+        <div x-data>
+            <!-- A good way to test this is to use x-ref, which is scoped to a component -->
+            <p x-ref="bob"></p>
+            <span x-init="$refs['bob'].textContent = 'lob'"></span>
+        </div>
+    `,
+    ({ get }) => get('p').should(haveText('lob'))
+)
+
 
 test('changes made in x-init happen before the rest of the component',
     html`

@@ -33,14 +33,14 @@ export function start() {
 
 let rootSelectorCallbacks = []
 
-export function rootSelectors() {
-    return rootSelectorCallbacks.map(fn => fn())
+export function rootSelectors(el = undefined) {
+    return rootSelectorCallbacks.map(fn => fn(el))
 }
 
 export function addRootSelector(selectorCallback) { rootSelectorCallbacks.push(selectorCallback) }
 
 export function closestRoot(el) {
-    if (rootSelectors().some(selector => el.matches(selector))) return el
+    if (rootSelectors(el).some(selector => el.matches(selector))) return el
 
     if (! el.parentElement) return
 
@@ -48,7 +48,7 @@ export function closestRoot(el) {
 }
 
 export function isRoot(el) {
-    return rootSelectors().some(selector => el.matches(selector))
+    return rootSelectors(el).some(selector => el.matches(selector))
 }
 
 export function initTree(el, walker = walk) {

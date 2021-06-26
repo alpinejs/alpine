@@ -7,9 +7,7 @@ directive('html', (el, { expression }, { effect, evaluateLater }) => {
 
     effect(() => {
         evaluate(value => {
-            mutateDom(() => {
-                el.innerHTML = value
-            })
+            el.innerHTML = value
         })
     })
 })

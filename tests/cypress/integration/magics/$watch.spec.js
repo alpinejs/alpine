@@ -128,3 +128,23 @@ test('$watch nested arrays',
         get('h2').should(haveText('one,two'))
     }
 )
+
+test('$watch ignores other dependancies',
+    html`
+        <div
+            x-data="{ a: 0, b: 0, c: 0 }"
+            x-init="$watch('a', () => { c = a + b })"
+        >
+            <button @click="a++" id="a">a</button>
+            <button @click="b++" id="b">b</button>
+            <span x-text="c"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('#a').click()
+        get('span').should(haveText('1'))
+        get('#b').click()
+        get('span').should(haveText('1'))
+    }
+)

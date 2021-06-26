@@ -17,10 +17,12 @@ magic('watch', el => (key, callback) => {
         if (! firstTime) {
             // We have to queue this watcher as a microtask so that
             // the watcher doesn't pick up its own dependancies.
-            queueMicrotask(() => callback(value, oldValue))
-        }
+            queueMicrotask(() => {
+                callback(value, oldValue)
 
-        oldValue = value
+                oldValue = value
+            })
+        }
 
         firstTime = false
     }))

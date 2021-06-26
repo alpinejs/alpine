@@ -48,6 +48,8 @@ You can add `x-init` to any elements inside or outside an `x-data` HTML block. F
 <span x-init="console.log('I can initialize too')"></span>
 ```
 
+**Note:** `x-init` creates a new component scope, so any `$refs` created outside of this scope will not be accessible on the DOM tag containing a standalone `x-init` directive, nor will any of its children.
+
 <a name="auto-evaluate-init-method"></a>
 ## Auto-evaluate init() method
 

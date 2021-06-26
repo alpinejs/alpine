@@ -22,3 +22,5 @@ title: ref
     </div>
 </div>
 <!-- END_VERBATIM -->
+
+**Note:** If using `x-ref` in combination with a standalone `x-init` directive, note that `x-init` creates a new component scope, so any `$refs` created outside of this scope will not be accessible on the DOM tag containing a standalone `x-init` attribute, nor will any of its children.

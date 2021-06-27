@@ -22,7 +22,7 @@ export function start() {
 
     let outNestedComponents = el => ! closestRoot(el.parentNode || closestRoot(el))
 
-    Array.from(document.querySelectorAll(rootSelectors()))
+    Array.from(document.querySelectorAll(rootSelectors().join(",")))
         .filter(outNestedComponents)
         .forEach(el => {
             initTree(el)

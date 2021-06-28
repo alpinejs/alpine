@@ -1,7 +1,7 @@
 import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw } from './reactivity'
 import { mapAttributes, directive, setPrefix as prefix } from './directives'
 import { setEvaluator, evaluate, evaluateLater } from './evaluator'
-import { start, addRootSelector, closestRoot } from './lifecycle'
+import { start, addRootSelector, closestRoot, initTree } from './lifecycle'
 import { interceptor } from './interceptor'
 import { mutateDom } from './mutation'
 import { nextTick } from './nextTick'
@@ -29,6 +29,7 @@ let Alpine = {
     mutateDom,
     directive,
     evaluate,
+    initTree,
     nextTick,
     prefix,
     plugin,

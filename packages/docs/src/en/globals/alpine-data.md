@@ -58,7 +58,7 @@ export default function () => ({
 ```
 
 <a name="initial-parameters"></a>
-## Initial Parameters
+## Initial parameters
 
 In addition to referencing `Alpine.data` providers by their name plainly (like `x-data="dropdown"`), you can also reference them as functions (`x-data="dropdown"`). By calling them as functions directly, you can pass in additional parameters to be used when creating the initial data object like so:
 

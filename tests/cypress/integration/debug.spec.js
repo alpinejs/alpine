@@ -101,7 +101,7 @@ test('x-model identifier issue',
         <div x-data="{value: ''}">
             <div id="errors">false</div>
 
-            <input id="xmodel" x-model="data"/>
+            <input id="xmodel" x-model="thething"/>
         </div>
     `,
         setupConsoleInterceptor( "xmodel" )

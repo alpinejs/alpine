@@ -19,7 +19,7 @@ directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
     let dataProviderContext = {}
     injectDataProviders(dataProviderContext, magicContext)
 
-    data = evaluate(el, expression, { scope: dataProviderContext })
+    let data = evaluate(el, expression, { scope: dataProviderContext })
 
     injectMagics(data, el)
 

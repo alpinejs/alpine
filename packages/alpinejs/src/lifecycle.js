@@ -22,7 +22,7 @@ export function start() {
 
     let outNestedComponents = el => ! closestRoot(el.parentNode || closestRoot(el))
 
-    Array.from(document.querySelectorAll(rootSelectors()))
+    Array.from(document.querySelectorAll(allSelectors()))
         .filter(outNestedComponents)
         .forEach(el => {
             initTree(el)
@@ -32,12 +32,18 @@ export function start() {
 }
 
 let rootSelectorCallbacks = []
+let initSelectorCallbacks = []
 
 export function rootSelectors() {
     return rootSelectorCallbacks.map(fn => fn())
 }
 
+export function allSelectors() {
+    return rootSelectorCallbacks.concat(initSelectorCallbacks).map(fn => fn())
+}
+
 export function addRootSelector(selectorCallback) { rootSelectorCallbacks.push(selectorCallback) }
+export function addInitSelector(selectorCallback) { initSelectorCallbacks.push(selectorCallback) }
 
 export function closestRoot(el) {
     if (rootSelectors().some(selector => el.matches(selector))) return el

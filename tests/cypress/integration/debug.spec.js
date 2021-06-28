@@ -227,7 +227,7 @@ test('evaluation with syntax error',
             </template>
         </div>
     `,
-        setupConsoleInterceptor( [ "xif" ] )
+        setupConsoleInterceptor( "xif" )
     ],
     ({ get }) => {
         get( "#errors" ).should(haveText('true'))
@@ -236,11 +236,11 @@ test('evaluation with syntax error',
 
 test('empty x-init',
     [html`
-        <div id="xif" x-data="{a:'b'}" x-init="">
+        <div id="xinit" x-data="{a:'b'}" x-init="">
             <div id="errors">false</div>
         </div>
     `,
-        setupConsoleInterceptor( [ "xif" ] )
+        setupConsoleInterceptor( "xinit" )
     ],
     ({ get }) => {
         get( "#errors" ).should(haveText('true'))

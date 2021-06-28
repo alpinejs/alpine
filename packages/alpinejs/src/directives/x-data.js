@@ -1,10 +1,10 @@
 import { directive, prefix } from '../directives'
 import { initInterceptors } from '../interceptor'
-import { getNamedDataProvider } from '../datas'
+import { injectDataProviders } from '../datas'
 import { addRootSelector } from '../lifecycle'
 import { skipDuringClone } from '../clone'
 import { addScopeToNode } from '../scope'
-import { injectMagics } from '../magics'
+import { injectMagics, magic } from '../magics'
 import { reactive } from '../reactivity'
 import { evaluate } from '../evaluator'
 
@@ -13,22 +13,17 @@ addRootSelector(() => `[${prefix('data')}]`)
 directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
     expression = expression === '' ? '{}' : expression
 
-    let dataProvider = getNamedDataProvider(expression)
+    let magicContext = {}
+    injectMagics(magicContext, el)
 
-    let data = {}
+    let dataProviderContext = {}
+    injectDataProviders(dataProviderContext, magicContext)
 
-    if (dataProvider) {
-        let magics = injectMagics({}, el)
+    data = evaluate(el, expression, { scope: dataProviderContext })
 
-        data = dataProvider.bind(magics)()
-    } else {
-        const evaluatedResult = evaluate(el, expression);
-        if( evaluatedResult === undefined ) {
-            data = {}
-        } else {
-            data = evaluatedResult
-        }
-    }
+    /*if( data === undefined ) {
+        data = {}
+    } */
 
     injectMagics(data, el)
 

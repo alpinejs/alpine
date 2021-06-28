@@ -38,3 +38,16 @@ test('can reference elements from x-init',
         get('span').should(haveText('lob'))
     }
 )
+
+test('can reference elements outside of x-init',
+    html`
+        <div x-data x-ref="foo" data-foo="bar">
+            <div x-init="() => {}">
+                <span x-text="$refs.foo.dataset.foo"></span>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+    }
+)

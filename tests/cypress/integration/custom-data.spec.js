@@ -17,6 +17,53 @@ test('can register custom data providers',
     ({ get }) => get('span').should(haveText('bar'))
 )
 
+test.only('can accept initial params',
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('test', (first, second) => ({
+                    foo: first,
+                    bar: second,
+                }))
+            })
+        </script>
+
+        <div x-data="test('baz', 'bob')">
+            <h1 x-text="foo"></h1>
+            <h2 x-text="bar"></h2>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('baz'))
+        get('h2').should(haveText('bob'))
+    }
+)
+
+test.only('can spread together',
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('test', (first) => ({
+                    foo: first,
+                }))
+
+                Alpine.data('test2', (second) => ({
+                    bar: second,
+                }))
+            })
+        </script>
+
+        <div x-data="{ ...test('baz'), ...test2('bob') }">
+            <h1 x-text="foo"></h1>
+            <h2 x-text="bar"></h2>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('baz'))
+        get('h2').should(haveText('bob'))
+    }
+)
+
 test('init functions inside custom datas are called automatically',
     html`
         <script>

@@ -24,5 +24,14 @@ test('sets html on update',
         get('button').click()
         get('h1').should(haveText('hey'))
     }
+)
+
+test('x-html allows alpine code within',
+    html`
+        <div x-data="{ foo: '<h1  x-text=&quot;bar&quot;></h1>', bar: 'baz' }" x-html="foo"></div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('baz'))
+    }
 
 )

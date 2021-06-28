@@ -14,9 +14,17 @@ magic('watch', el => (key, callback) => {
         let div = document.createElement('div')
         div.dataset.throwAway = value
 
-        if (! firstTime) callback(value, oldValue)
+        if (! firstTime) {
+            // We have to queue this watcher as a microtask so that
+            // the watcher doesn't pick up its own dependancies.
+            queueMicrotask(() => {
+                callback(value, oldValue)
 
-        oldValue = value
+                oldValue = value
+            })
+        } else {
+            oldValue = value
+        }
 
         firstTime = false
     }))

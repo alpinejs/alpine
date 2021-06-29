@@ -31,7 +31,8 @@ test('x-for identifier issue',
     `,
         setupConsoleInterceptor( "xfor" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-text identifier issue',
@@ -44,7 +45,8 @@ test('x-text identifier issue',
     `,
         setupConsoleInterceptor( "xtext" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-init identifier issue',
@@ -54,7 +56,8 @@ test('x-init identifier issue',
     `,
         setupConsoleInterceptor( "xinit" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-show identifier issue',
@@ -64,7 +67,8 @@ test('x-show identifier issue',
     `,
         setupConsoleInterceptor( "xshow" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-bind class object syntax identifier issue',
@@ -75,7 +79,8 @@ test('x-bind class object syntax identifier issue',
     `,
         setupConsoleInterceptor( "xbind" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-model identifier issue',
@@ -86,7 +91,8 @@ test('x-model identifier issue',
     `,
         setupConsoleInterceptor( "xmodel" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-if identifier issue',
@@ -99,7 +105,8 @@ test('x-if identifier issue',
     `,
         setupConsoleInterceptor( "xif" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-if identifier issue ( function )',
@@ -112,7 +119,8 @@ test('x-if identifier issue ( function )',
     `,
         setupConsoleInterceptor( "xif" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-effect identifier issue',
@@ -122,7 +130,8 @@ test('x-effect identifier issue',
     `,
         setupConsoleInterceptor( "xeffect" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-on identifier issue',
@@ -137,7 +146,8 @@ test('x-on identifier issue',
     ({ get }) => {
         get( "#xon" ).click()
         get( "#errors" ).should(haveText('true'))
-    }
+    },
+    true
 )
 
 test('x-data syntax error',
@@ -147,7 +157,8 @@ test('x-data syntax error',
     `,
         setupConsoleInterceptor( "xdata" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('if statement syntax error',
@@ -158,7 +169,8 @@ test('if statement syntax error',
     `,
         setupConsoleInterceptor( "xtext" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('x-data with reference error and multiple errors',
@@ -171,7 +183,8 @@ test('x-data with reference error and multiple errors',
     `,
         setupConsoleInterceptor( "xdata", "xtext" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('evaluation with syntax error',
@@ -184,7 +197,8 @@ test('evaluation with syntax error',
     `,
         setupConsoleInterceptor( "xif" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )
 
 test('empty x-init',
@@ -194,5 +208,6 @@ test('empty x-init',
     `,
         setupConsoleInterceptor( "xinit" )
     ],
-    assertConsoleInterceptorHadErrorWithCorrectElement()
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
 )

@@ -25,7 +25,11 @@ export function start() {
     Array.from(document.querySelectorAll(allSelectors()))
         .filter(outNestedComponents)
         .forEach(el => {
-            initTree(el)
+            try {
+                initTree(el)
+            } catch ( error ) {
+                setTimeout( () => { throw error }, 0 )
+            }
         })
 
     dispatch(document, 'alpine:initialized')

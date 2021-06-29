@@ -17,6 +17,29 @@ test('can register and use a global store',
     }
 )
 
+test('can register multiple stores at once',
+    [html`
+        <div x-data>
+            <span id="foo" x-text="$store.foo.bar"></span>
+            <span id="boo" x-text="$store.boo.car"></span>
+        </div>
+    `,
+    `
+        Alpine.store({
+            foo: {
+                bar: 'baz'
+            },
+            boo: {
+                car: 'caz'
+            }
+        })
+    `],
+    ({ get }) => {
+        get('span#foo').should(haveText('baz'))
+        get('span#boo').should(haveText('caz'))
+    }
+)
+
 test('store init function is called',
     [html`
         <div x-data>

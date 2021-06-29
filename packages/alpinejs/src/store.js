@@ -6,6 +6,14 @@ let isReactive = false
 export function store(name, value) {
     if (! isReactive) { stores = reactive(stores); isReactive = true; }
 
+    if (typeof name === 'object' && value === undefined) {
+        Object.entries(name).forEach(([key, value]) => {
+            store(key, value)
+        })
+
+        return
+    }
+
     if (value === undefined) {
         return stores[name]
     }

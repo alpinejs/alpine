@@ -1,31 +1,29 @@
 import { haveText, html, test } from '../utils'
 
-function setupConsoleInterceptor( targetId ) {
+export function setupConsoleInterceptor( ...targetIds ) {
+    const mappedTargetIds = targetIds.map( tid => `'${tid}'` ).join( ',' )
     return `
-        console.warnlog = console.warn.bind( console )
-        console.warn = function() {
-            document.getElementById( 'errors' ).innerHTML = arguments[1] === document.getElementById( '${targetId}' )
-            console.warnlog.apply( console, arguments )
+        let errorContainer = document.createElement('div');
+        errorContainer.id = 'errors'
+        errorContainer.textContent = 'false'
+        document.querySelector('#root').after(errorContainer)
+        console.warnlog = console.warn.bind(console)
+        console.warn = function () {
+            document.getElementById( 'errors' ).innerHTML = [${mappedTargetIds}].some( target => arguments[1] === document.getElementById( target ) )
+            console.warnlog.apply(console, arguments)
         }
     `
 }
 
-function setupMultipleConsoleInterceptors( targetIds ) {
-    const mappedTargetIds = targetIds.map( tid => `'${tid}'` ).join( ',' )
-    return `
-        console.warnlog = console.warn.bind( console )
-        console.warn = function() {
-            document.getElementById( 'errors' ).innerHTML = [${mappedTargetIds}].some( target => arguments[1] === document.getElementById( target ) )
-            console.warnlog.apply( console, arguments )
-        }
-    `
+export function assertConsoleInterceptorHadErrorWithCorrectElement() {
+    return ({get}) => {
+        get('#errors').should(haveText('true'))
+    };
 }
 
 test('x-for identifier issue',
     [html`
         <div x-data="{ items: ['foo'] }">
-            <div id="errors">false</div>
-
             <template id="xfor" x-for="item in itemzzzz">
                 <span x-text="item"></span>
             </template>
@@ -33,16 +31,12 @@ test('x-for identifier issue',
     `,
         setupConsoleInterceptor( "xfor" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-text identifier issue',
     [html`
         <div x-data="{ items: ['foo'] }">
-            <div id="errors">false</div>
-
             <template x-for="item in items">
                 <span id="xtext" x-text="itemzzz"></span>
             </template>
@@ -50,72 +44,54 @@ test('x-text identifier issue',
     `,
         setupConsoleInterceptor( "xtext" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-init identifier issue',
     [html`
         <div id="xinit" x-data x-init="doesNotExist()">
-            <div id="errors">false</div>
         </div>
     `,
         setupConsoleInterceptor( "xinit" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-show identifier issue',
     [html`
         <div id="xshow" x-data="{isOpen: true}" x-show="isVisible">
-            <div id="errors">false</div>
         </div>
     `,
         setupConsoleInterceptor( "xshow" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-bind class object syntax identifier issue',
     [html`
         <div x-data="{isOpen: true}">
-            <div id="errors">false</div>
-
             <div id="xbind" :class="{ 'block' : isVisible, 'hidden' : !isVisible }"></div>
         </div>
     `,
         setupConsoleInterceptor( "xbind" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-model identifier issue',
     [html`
         <div x-data="{value: ''}">
-            <div id="errors">false</div>
-
             <input id="xmodel" x-model="thething"/>
         </div>
     `,
         setupConsoleInterceptor( "xmodel" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-if identifier issue',
     [html`
         <div x-data="{value: ''}">
-            <div id="errors">false</div>
-
             <template id="xif" x-if="valuez === ''">
                 <span>Words</span>
             </template>
@@ -123,16 +99,12 @@ test('x-if identifier issue',
     `,
         setupConsoleInterceptor( "xif" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-if identifier issue ( function )',
     [html`
         <div x-data="{shouldOpen: function(){}}">
-            <div id="errors">false</div>
-
             <template id="xif" x-if="isOpen()">
                 <span>Words</span>
             </template>
@@ -140,28 +112,22 @@ test('x-if identifier issue ( function )',
     `,
         setupConsoleInterceptor( "xif" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-effect identifier issue',
     [html`
         <div id="xeffect" x-data="{ label: 'Hello' }" x-effect="System.out.println(label)">
-            <div id="errors">false</div>
         </div>
     `,
         setupConsoleInterceptor( "xeffect" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-on identifier issue',
     [html`
         <div x-data="{ label: 'Hello' }">
-            <div id="errors">false</div>
             <div x-text="label"></div>
             <button id="xon" x-on:click="labelz += ' World!'">Change Message</button>
         </div>
@@ -177,51 +143,40 @@ test('x-on identifier issue',
 test('x-data syntax error',
     [html`
         <div id="xdata" x-data="{ label: 'Hello' }aaa">
-            <div id="errors">false</div>
         </div>
     `,
         setupConsoleInterceptor( "xdata" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('if statement syntax error',
     [html`
         <div x-data="{ label: 'Hello' }">
-            <div id="errors">false</div>
             <div id="xtext" x-text="if( false { label } else { 'bye' }"></div>
         </div>
     `,
         setupConsoleInterceptor( "xtext" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('x-data with reference error and multiple errors',
     [html`
         <div id="xdata" x-data="{ items : [ {v:'one'},{v:'two'}], replaceItems }">
-            <div id="errors">false</div>
             <template id="xtext" x-for="item in items">
                 <span x-text="item.v"></span>
             </template>
         </div>
     `,
-        setupMultipleConsoleInterceptors( [ "xdata", "xtext" ] )
+        setupConsoleInterceptor( "xdata", "xtext" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('evaluation with syntax error',
     [html`
         <div x-data="{value: ''}">
-            <div id="errors">false</div>
-
             <template id="xif" x-if="value ==== ''">
                 <span>Words</span>
             </template>
@@ -229,20 +184,15 @@ test('evaluation with syntax error',
     `,
         setupConsoleInterceptor( "xif" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )
 
 test('empty x-init',
     [html`
         <div id="xinit" x-data="{a:'b'}" x-init="">
-            <div id="errors">false</div>
         </div>
     `,
         setupConsoleInterceptor( "xinit" )
     ],
-    ({ get }) => {
-        get( "#errors" ).should(haveText('true'))
-    }
+    assertConsoleInterceptorHadErrorWithCorrectElement()
 )

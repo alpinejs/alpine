@@ -48,7 +48,7 @@ Alpine.start()
 This assumes you have a file called `dropdown.js` with the following contents:
 
 ```js
-export default function () => ({
+export default () => ({
     open: false,
 
     toggle() {

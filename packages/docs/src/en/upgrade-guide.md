@@ -32,7 +32,7 @@ Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING
 * [`x-data` cascading scope](#x-data-scope)
 * [`x-init` no longer accepts a callback return](#x-init-no-callback)
 * [Returning `false` from event handlers no longer implicitly "preventDefault"s](#no-false-return-from-event-handlers)
-* [`x-spread` is now `x-bind`](#x-spread-is-now-x-bind)
+* [`x-spread` is now `x-bind`](#x-spread-now-x-bind)
 * [Use global lifecycle events instead of `Alpine.deferLoadingAlpine()`](#use-global-events-now)
 * [IE11 no longer supported](#no-ie-11)
 

@@ -9,7 +9,7 @@ export function setupConsoleInterceptor( ...targetIds ) {
         document.querySelector('#root').after(errorContainer)
         console.warnlog = console.warn.bind(console)
         console.warn = function () {
-            document.getElementById( 'errors' ).innerHTML = [${mappedTargetIds}].some( target => arguments[1] === document.getElementById( target ) )
+            document.getElementById( 'errors' ).textContent = [${mappedTargetIds}].some( target => arguments[1] === document.getElementById( target ) )
             console.warnlog.apply(console, arguments)
         }
     `

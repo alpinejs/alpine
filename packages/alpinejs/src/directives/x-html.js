@@ -1,13 +1,14 @@
-import { evaluateLater } from '../evaluator'
-import { directive } from '../directives'
-import { mutateDom } from '../mutation'
+import {directive} from '../directives'
+import {nextTick} from "../nextTick";
 
-directive('html', (el, { expression }, { effect, evaluateLater }) => {
+directive('html', (el, {expression}, {effect, evaluateLater}) => {
     let evaluate = evaluateLater(expression)
 
     effect(() => {
         evaluate(value => {
-            el.innerHTML = value
+            nextTick(() => {
+                el.innerHTML = value
+            })
         })
     })
 })

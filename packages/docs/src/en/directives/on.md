@@ -121,7 +121,7 @@ Alpine offers a number of directive modifiers to customize the behavior of your 
 <a name="prevent"></a>
 ### .prevent
 
-`.prevent` is the equivalant of calling `.preventDefault()` inside a listener on the browser event object.
+`.prevent` is the equivalent of calling `.preventDefault()` inside a listener on the browser event object.
 
 ```html
 <form @submit.prevent="console.log('submitted')" action="/foo">
@@ -134,7 +134,7 @@ In the above example, with the `.prevent`, clicking the button will NOT submit t
 <a name="stop"></a>
 ### .stop
 
-Similar to `.prevent`, `.stop` is the equivalant of calling `.stopPropagation()` inside a listener on the browser event object.
+Similar to `.prevent`, `.stop` is the equivalent of calling `.stopPropagation()` inside a listener on the browser event object.
 
 ```html
 <div @click="console.log('I will not get logged')">

@@ -10,8 +10,11 @@ Create a blank HTML file somewhere on you computer with a name like: `i-love-alp
 Using a text editor, fill the file with these contents:
 
 ```html
+<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8" />
+    <title>I ❤️ Alpine</title>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body>

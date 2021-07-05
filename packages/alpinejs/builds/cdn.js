@@ -2,6 +2,9 @@ import Alpine from './../src/index'
 
 window.Alpine = Alpine
 
-queueMicrotask(() => {
-    Alpine.start()
-})
+let s
+if (!((s = document.currentScript) && s.hasAttribute('no-start'))) {
+    queueMicrotask(() => {
+        Alpine.start()
+    })
+}

@@ -142,7 +142,7 @@ Similar to `.prevent`, `.stop` is the equivalant of calling `.stopPropagation()`
 </div>
 ```
 
-In the above example, clicking the button WONT log the message. This is because we are stopping the propagation of the event immediately and not allowing it to "bubble" up to the `<div>` with the `@click` listener on it.
+In the above example, clicking the button WON'T log the message. This is because we are stopping the propagation of the event immediately and not allowing it to "bubble" up to the `<div>` with the `@click` listener on it.
 
 <a name="outside"></a>
 ### .outside

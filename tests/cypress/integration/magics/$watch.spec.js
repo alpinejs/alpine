@@ -129,7 +129,7 @@ test('$watch nested arrays',
     }
 )
 
-test('$watch ignores other dependancies',
+test('$watch ignores other dependencies',
     html`
         <div
             x-data="{ a: 0, b: 0, c: 0 }"

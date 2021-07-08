@@ -48,7 +48,7 @@ Alpine.start()
 This assumes you have a file called `dropdown.js` with the following contents:
 
 ```js
-export default function () => ({
+export default () => ({
     open: false,
 
     toggle() {
@@ -60,7 +60,7 @@ export default function () => ({
 <a name="initial-parameters"></a>
 ## Initial parameters
 
-In addition to referencing `Alpine.data` providers by their name plainly (like `x-data="dropdown"`), you can also reference them as functions (`x-data="dropdown"`). By calling them as functions directly, you can pass in additional parameters to be used when creating the initial data object like so:
+In addition to referencing `Alpine.data` providers by their name plainly (like `x-data="dropdown"`), you can also reference them as functions (`x-data="dropdown()"`). By calling them as functions directly, you can pass in additional parameters to be used when creating the initial data object like so:
 
 ```html
 <div x-data="dropdown(true)">

@@ -133,7 +133,7 @@ Sometimes you may only have a single element inside your Alpine component, like 
 In these cases, you can declare `x-data` directly on that single element:
 
 ```html
-<button x-data="{ open: true }" @click="open = false" x-show="show">
+<button x-data="{ open: true }" @click="open = false" x-show="open">
     Hide Me
 </button>
 ```

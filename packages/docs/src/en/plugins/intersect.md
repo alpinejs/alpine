@@ -1,7 +1,7 @@
 ---
 order: 1
 title: Intersect
-description: Alpine's Intersect plugin is a convenience wrapper for Intersection Observer that allows you to easily react when an element enters or leaves the viewport.
+description: An Alpine convenience wrapper for Intersection Observer that allows you to easily react when an element enters the viewport.
 graph_image: https://alpinejs.dev/social_intersect.jpg
 ---
 

@@ -38,6 +38,8 @@ function writeNewAlpineVersion() {
 
     writeToPackageDotJson('alpinejs', 'version', version)
     console.log('Bumping alpinejs package.json: '+version);
+    writeToPackageDotJson('intersect', 'version', version)
+    console.log('Bumping @alpinejs/intersect package.json: '+version);
 }
 
 function writeNewDocsVersion() {
@@ -57,6 +59,9 @@ function publish() {
     runFromPackage('alpinejs', 'npm publish')
 
     console.log('Publishing @alpinejs/docs on NPM...');
+    runFromPackage('docs', 'npm publish --access public')
+
+    console.log('Publishing @alpinejs/intersect on NPM...');
     runFromPackage('docs', 'npm publish --access public')
 
     log('\n\nFinished!')

@@ -6,6 +6,8 @@ import { mutateDom } from '../mutation'
 import { once } from '../utils/once'
 
 directive('transition', (el, { value, modifiers, expression }) => {
+    if (typeof expression === 'function') expression = expression()
+
     if (! expression) {
         registerTransitionsFromHelper(el, modifiers, value)
     } else {

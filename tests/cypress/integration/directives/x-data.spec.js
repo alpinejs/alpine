@@ -95,3 +95,13 @@ test('functions in x-data have access to proper this context',
         get('span').should(haveText('baz'))
     }
 )
+
+test('x-data works on the html tag',
+    html`
+        <script>document.documentElement.setAttribute('x-data', '')</script>
+        <div>
+            <span x-text="'foo'"></span>
+        </div>
+    `,
+    ({ get }) => get('span').should(haveText('foo'))
+)

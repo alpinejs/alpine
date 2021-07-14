@@ -98,7 +98,7 @@ test('functions in x-data have access to proper this context',
 
 test('x-data works on the html tag',
     [html`
-        <div x-data>
+        <div>
             <span x-text="'foo'"></span>
         </div>
     `,

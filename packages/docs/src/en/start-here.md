@@ -1,9 +1,9 @@
 ---
 order: 1
-title: Alpine 101
+title: Start Here
 ---
 
-# Alpine 101
+# Start Here
 
 Create a blank HTML file somewhere on you computer with a name like: `i-love-alpine.html`
 

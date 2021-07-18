@@ -81,7 +81,7 @@ For easy reference, here is a list of common keys you may want to listen for.
 | `.cmd`                      | Cmd                         |
 | `.meta`                     | Cmd on Mac, Ctrl on Windows |
 | `.alt`                      | Alt                         |
-| `.up` `.down` `.left` `.right` | Up/Down/Left/Right arrows   |
+| `.arrow-up` `.arrow-down` `.arrow-left` `.arrow-right` | Up/Down/Left/Right arrows   |
 | `.escape`                   | Escape                      |
 | `.tab`                      | Tab                         |
 | `.caps-lock`                | Caps Lock                   |

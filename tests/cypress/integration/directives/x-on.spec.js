@@ -263,6 +263,26 @@ test('keydown modifiers',
     }
 )
 
+test('keydown arrow modifiers',
+    html`
+        <div x-data="{ count: 0 }">
+            <input type="text"
+                x-on:keydown.up="count++"
+                x-on:keydown.arrow-down="count++"
+            >
+
+            <span x-text="count"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('input').type('{upArrow}')
+        get('span').should(haveText('0'))
+        get('input').type('{downArrow}')
+        get('span').should(haveText('1'))
+    }
+)
+
 test('keydown combo modifiers',
     html`
         <div x-data="{ count: 0 }">

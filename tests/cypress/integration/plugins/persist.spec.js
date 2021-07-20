@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../../utils'
+import { haveText, html, test, wait } from '../../utils'
 
 test('can perist data',
     [html`
@@ -14,4 +14,14 @@ test('can perist data',
         reload()
         get('span').should(haveText('2'))
     },
+)
+
+test('can alias the localStorage key',
+    [html`
+        <div x-data="{ foo: $persist('bar').as('baz') }"></div>
+    `],
+    () => wait(100).then(() => {
+        expect(localStorage.getItem('foo')).to.be.null
+        expect(localStorage.getItem('baz')).to.eq('bar')
+    }),
 )

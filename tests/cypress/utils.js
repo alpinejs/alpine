@@ -108,3 +108,5 @@ export function root(el) {
 
     return closestRoot(el.parentElement)
 }
+
+export let wait = ms => new Cypress.Promise((resolve) => setTimeout(resolve, ms))

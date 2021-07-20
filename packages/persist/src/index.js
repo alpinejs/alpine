@@ -1,21 +1,26 @@
 
 export default function (Alpine) {
     Alpine.magic('persist', (el, { interceptor }) => {
+        let alias
+
         return interceptor((initialValue, getter, setter, path, key) => {
-            let initial = localStorage.getItem(path)
-                ? localStorage.getItem(path)
+            let storageKey = alias || path
+            let initial = localStorage.getItem(storageKey)
+                ? localStorage.getItem(storageKey)
                 : initialValue
 
             setter(initialValue)
 
             Alpine.effect(() => {
                 let value = getter()
-                localStorage.setItem(path, value)
+                localStorage.setItem(storageKey, value)
 
                 setter(value)
             })
 
             return initial
+        }, func => {
+            func.as = key => { alias = key; return func }
         })
     })
 }

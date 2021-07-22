@@ -1,4 +1,4 @@
-import {beVisible, haveLength, haveText, html, notBeVisible, test} from '../../utils'
+import { beVisible, haveLength, haveText, html, notBeVisible, test } from '../../utils'
 
 test('x-if',
     html`
@@ -10,7 +10,7 @@ test('x-if',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('h1').should(notBeVisible())
         get('button').click()
         get('h1').should(beVisible())
@@ -32,7 +32,7 @@ test('x-if inside x-for allows nested directives',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span').should(haveText('1'))
     }
 )
@@ -47,7 +47,7 @@ test('x-if initializes after being added to the DOM to allow x-ref to work',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('li').should(haveText('bar'))
     }
 )
@@ -66,7 +66,7 @@ test('x-if condition is same as x-for iterator, and is undfined',
 
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span').should(haveLength('3'))
         get('#first').click()
         get('span').should(haveLength('4'))

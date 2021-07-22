@@ -1,4 +1,4 @@
-import {beVisible, haveLength, haveText, html, notBeVisible, test} from '../../utils'
+import { beVisible, haveLength, haveText, html, notBeVisible, test } from '../../utils'
 
 test('renders loops with x-for',
     html`
@@ -10,7 +10,7 @@ test('renders loops with x-for',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span:nth-of-type(1)').should(haveText('foo'))
         get('span:nth-of-type(2)').should(notBeVisible())
         get('button').click()
@@ -45,7 +45,7 @@ test('renders loops with x-for that have space or newline',
             </div>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('#1 span:nth-of-type(1)').should(haveText('foo'))
         get('#1 span:nth-of-type(2)').should(notBeVisible())
         get('#2 span:nth-of-type(1)').should(haveText('foo'))
@@ -69,7 +69,7 @@ test('can destructure arrays',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('#1 span').should(haveText('1'))
         get('#1 h1').should(haveText('foo'))
         get('#2 span').should(haveText('2'))
@@ -87,7 +87,7 @@ test('removes all elements when array is empty and previously had one item',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span').should(beVisible())
         get('button').click()
         get('span').should(notBeVisible())
@@ -104,7 +104,7 @@ test('removes all elements when array is empty and previously had multiple items
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span:nth-of-type(1)').should(beVisible())
         get('span:nth-of-type(2)').should(beVisible())
         get('span:nth-of-type(3)').should(beVisible())
@@ -128,7 +128,7 @@ test('elements inside of loop are reactive',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span').should(beVisible())
         get('h1').should(haveText('first'))
         get('h2').should(haveText('bar'))
@@ -150,7 +150,7 @@ test('components inside of loop are reactive',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span').should(haveText('bar'))
         get('button').click()
         get('span').should(haveText('bob'))
@@ -170,7 +170,7 @@ test('components inside a plain element of loop are reactive',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span').should(haveText('bar'))
         get('button').click()
         get('span').should(haveText('bob'))
@@ -188,7 +188,7 @@ test('adding key attribute moves dom nodes properly',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         let haveOgIndex = index => el => expect(el[0].og_loop_index).to.equal(index)
 
         get('#assign').click()
@@ -213,7 +213,7 @@ test('can key by index',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         let haveOgIndex = index => el => expect(el[0].og_loop_index).to.equal(index)
 
         get('#assign').click()
@@ -237,7 +237,7 @@ test('can use index inside of loop',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('h1').should(haveText(0))
         get('h2').should(haveText(0))
     }
@@ -254,7 +254,7 @@ test('can use third iterator param (collection) inside of loop',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('h1').should(haveText('foo'))
         get('h2').should(haveText('foo'))
     }
@@ -272,7 +272,7 @@ test('listeners in loop get fresh iteration data even though they are only regis
             <h1 x-text="output"></h1>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('h1').should(haveText(''))
         get('span').click()
         get('h1').should(haveText('foo'))
@@ -295,7 +295,7 @@ test('nested x-for',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('h1:nth-of-type(1) h2:nth-of-type(1)').should(beVisible())
         get('h1:nth-of-type(1) h2:nth-of-type(2)').should(beVisible())
         get('h1:nth-of-type(2) h2:nth-of-type(1)').should(notBeVisible())
@@ -316,7 +316,7 @@ test('x-for updates the right elements when new item are inserted at the beginni
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span:nth-of-type(1)').should(haveText('one'))
         get('span:nth-of-type(2)').should(haveText('two'))
         get('button').click()
@@ -338,7 +338,7 @@ test('nested x-for access outer loop variable',
             </template>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('h1:nth-of-type(1) h2:nth-of-type(1)').should(haveText('foo: bob'))
         get('h1:nth-of-type(1) h2:nth-of-type(2)').should(haveText('foo: lob'))
         get('h1:nth-of-type(2) h2:nth-of-type(1)').should(haveText('baz: bab'))
@@ -358,7 +358,7 @@ test('sibling x-for do not interact with each other',
             <button @click="foos = [1, 2];bars = [1, 2, 3]">Change</button>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('h1:nth-of-type(1)').should(haveText('1'))
         get('h2:nth-of-type(1)').should(haveText('1'))
         get('h2:nth-of-type(2)').should(haveText('2'))
@@ -379,7 +379,7 @@ test('x-for over range using i in x syntax',
             </template>
         </div>
     `,
-    ({get}) => get('span').should(haveLength('10'))
+    ({ get }) => get('span').should(haveLength('10'))
 )
 
 test('x-for over range using i in property syntax',
@@ -390,7 +390,7 @@ test('x-for over range using i in property syntax',
             </template>
         </div>
     `,
-    ({get}) => get('span').should(haveLength('10'))
+    ({ get }) => get('span').should(haveLength('10'))
 )
 
 // @flaky
@@ -404,7 +404,7 @@ test.retry(2)('x-for with an array of numbers',
             <button @click="items.push(3)" id="second">click me</button>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span').should(haveLength('0'))
         get('#first').click()
         get('span').should(haveLength('1'))
@@ -423,7 +423,7 @@ test('x-for does not break on undefined iterable',
             <button @click="showitems = 'c'" id="second">Show c (undefined)</button>
         </div>
     `,
-    ({get}) => {
+    ({ get }) => {
         get('span').should(haveLength('3'))
         get('#first').click()
         get('span').should(haveLength('4'))

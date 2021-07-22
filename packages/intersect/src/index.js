@@ -1,4 +1,3 @@
-
 export default function (Alpine) {
     Alpine.directive('intersect', (el, { expression, modifiers }, { evaluateLater, cleanup }) => {
         let evaluate = evaluateLater(expression)

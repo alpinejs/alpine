@@ -66,10 +66,10 @@ function publish() {
     runFromPackage('docs', 'npm publish --access public')
 
     console.log('Publishing @alpinejs/intersect on NPM...');
-    runFromPackage('docs', 'npm publish --access public')
+    runFromPackage('intersect', 'npm publish --access public')
 
     console.log('Publishing @alpinejs/persist on NPM...');
-    runFromPackage('docs', 'npm publish --access public')
+    runFromPackage('persist', 'npm publish --access public')
 
     log('\n\nFinished!')
 }

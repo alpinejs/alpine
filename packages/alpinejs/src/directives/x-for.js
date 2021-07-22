@@ -53,23 +53,28 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         // In order to preserve DOM elements (move instead of replace)
         // we need to generate all the keys for every iteration up
         // front. These will be our source of truth for diffing.
-        if (isObject(items)) {
-            items = Object.entries(items).map(([key, value]) => {
-                let scope = getIterationScopeVariables(iteratorNames, value, key, items)
 
-                evaluateKey(value => keys.push(value), { scope: { index: key, ...scope} })
+        // Do not throw error when iterated variable is deleted/is undefined
+        if (typeof items !== 'undefined'){
+            if (isObject(items)) {
+                items = Object.entries(items).map(([key, value]) => {
+                    let scope = getIterationScopeVariables(iteratorNames, value, key, items)
 
-                scopes.push(scope)
-            })
-        } else {
-            for (let i = 0; i < items.length; i++) {
-                let scope = getIterationScopeVariables(iteratorNames, items[i], i, items)
+                    evaluateKey(value => keys.push(value), { scope: { index: key, ...scope} })
 
-                evaluateKey(value => keys.push(value), { scope: { index: i, ...scope} })
+                    scopes.push(scope)
+                })
+            } else {
+                for (let i = 0; i < items.length; i++) {
+                    let scope = getIterationScopeVariables(iteratorNames, items[i], i, items)
 
-                scopes.push(scope)
+                    evaluateKey(value => keys.push(value), { scope: { index: i, ...scope} })
+
+                    scopes.push(scope)
+                }
             }
         }
+
 
         // Rather than making DOM manipulations inside one large loop, we'll
         // instead track which mutations need to be made in the following

@@ -64,7 +64,7 @@ You can wrap any value inside `x-data` with `$persist` like below to persist its
 
 <!-- START_VERBATIM -->
 <div class="demo">
-    <div x-data="{ count: $persist('0').as('yoyo') }">
+    <div x-data="{ count: $persist('0') }">
         <button x-on:click="count++">Increment</button>
         <span x-text="count"></span>
     </div>

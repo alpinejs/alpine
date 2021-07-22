@@ -1,10 +1,11 @@
 {
     "name": "@alpinejs/persist",
-    "version": "3.0.0-alpha.0",
-    "description": "Persist Alpine data to localStorage or similar client-side stores",
+    "version": "3.2.2",
+    "description": "Persist Alpine data across page loads",
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
+    "unpkg": "dist/cdn.min.js",
     "dependencies": {}
 }

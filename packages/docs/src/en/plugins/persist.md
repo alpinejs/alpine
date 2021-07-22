@@ -1,7 +1,7 @@
 ---
 order: 2
 title: Persist
-description:
+description: Easily persist data across page loads using localStorage
 graph_image: https://alpinejs.dev/social_persist.jpg
 ---
 

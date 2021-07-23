@@ -168,8 +168,12 @@ function keyToModifier(key) {
         case ' ':
         case 'Spacebar':
             return 'space'
-        case 'esc':
-            return 'escape'
+        case 'Escape':
+            return 'esc'
+        case 'Meta':
+            return 'cmd'
+        case 'Control':
+            return 'ctrl'
         default:
             return key && kebabCase(key)
     }

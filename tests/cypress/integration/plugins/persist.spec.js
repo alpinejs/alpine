@@ -50,7 +50,7 @@ test('can persist array',
     },
 )
 
-test('can persist objects',
+test('can persist object',
     [html`
         <div x-data="{ something: $persist({foo: 'bar'}) }">
             <button id="one" @click="something.foo = 'baz'"></button>
@@ -72,7 +72,7 @@ test('can persist objects',
     },
 )
 
-test('can persist booleans',
+test('can persist boolean',
     [html`
         <div x-data="{ show: $persist(false) }">
             <button @click="show = true"></button>
@@ -88,5 +88,26 @@ test('can persist booleans',
         get('span').should(beVisible())
         reload()
         get('span').should(beVisible())
+    },
+)
+
+test('can persist multiple components using the same property',
+    [html`
+        <div x-data="{ duplicate: $persist('foo') }">
+            <button @click="duplicate = 'bar'"></button>
+            <span id="one" x-text="duplicate"></span>
+        </div>
+        <div x-data="{ duplicate: $persist('foo') }">
+            <span id="two" x-text="duplicate"></span>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('span#one').should(haveText('foo'))
+        get('span#two').should(haveText('foo'))
+        get('button').click()
+        get('span#one').should(haveText('bar'))
+        reload()
+        get('span#one').should(haveText('bar'))
+        get('span#two').should(haveText('bar'))
     },
 )

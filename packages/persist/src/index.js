@@ -10,7 +10,7 @@ export default function (Alpine) {
                 ? storageGet(lookup)
                 : initialValue
 
-            setter(initialValue)
+            setter(initial)
 
             Alpine.effect(() => {
                 let value = getter()

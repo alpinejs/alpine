@@ -13,7 +13,7 @@ function setStylesFromObject(el, value) {
     Object.entries(value).forEach(([key, value]) => {
         previousStyles[key] = el.style[key]
 
-        el.style[key] = value
+        el.style.setProperty(key, value)
     })
 
     setTimeout(() => {

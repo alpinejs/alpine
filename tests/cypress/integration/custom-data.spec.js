@@ -17,7 +17,7 @@ test('can register custom data providers',
     ({ get }) => get('span').should(haveText('bar'))
 )
 
-test.only('can accept initial params',
+test('can accept initial params',
     html`
         <script>
             document.addEventListener('alpine:init', () => {
@@ -39,7 +39,7 @@ test.only('can accept initial params',
     }
 )
 
-test.only('can spread together',
+test('can spread together',
     html`
         <script>
             document.addEventListener('alpine:init', () => {
@@ -113,5 +113,56 @@ test('init functions "this" context is reactive',
         get('span').should(haveText('bar'))
         get('button').click()
         get('span').should(haveText('baz'))
+    }
+)
+
+test('init functions have access to the parent scope',
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('parent', () => ({
+                    foo: 'bar',
+                }))
+
+                Alpine.data('child', () => ({
+                    init() {
+                        this.$el.textContent = this.foo
+                    },
+                }))
+            })
+        </script>
+
+        <div x-data="parent">
+            <p x-data="child"></p>
+        </div>
+    `,
+    ({ get }) => {
+        get('p').should(haveText('bar'))
+    }
+)
+
+test('destroy functions inside custom datas are called automatically',
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('test', () => ({
+                    destroy() {
+                        document.querySelector('span').textContent = 'foo'
+                    },
+                    test() {
+                        Alpine.closestRoot(this.$el).remove()
+                    }
+                }))
+            })
+        </script>
+
+        <div x-data="test">
+            <button x-on:click="test()"></button>
+        </div>
+        <span><span>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('span').should(haveText('foo'))
     }
 )

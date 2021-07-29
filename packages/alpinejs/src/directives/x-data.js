@@ -29,11 +29,11 @@ directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
 
     let undo = addScopeToNode(el, reactiveData)
 
-    if (reactiveData['init']) reactiveData['init']()
+    reactiveData['init'] && evaluate(el, reactiveData['init'])
 
     cleanup(() => {
         undo()
 
-        reactiveData['destroy'] && reactiveData['destroy']()
+        reactiveData['destroy'] && evaluate(el, reactiveData['destroy'])
     })
 }))

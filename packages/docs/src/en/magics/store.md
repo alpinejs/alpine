@@ -33,6 +33,30 @@ You can use `$store` to conveniently access global Alpine stores registered usin
 
 Given that we've registered the `darkMode` store and set `on` to "false", when the `<button>` is pressed, `on` will be "true" and the background color of the page will change to black.
 
+If you provide `init()` method in an Alpine store, it will be executed right after the store is registered.
+
+```html
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('preference', {
+            tabSize: null,
+            newline: null,
+            load: false,
+
+            init() {
+                fetch('/url/to/get/preference')
+                .then((resp) => resp.json())
+                .then((preference) => {
+                    this.tabSize = preference.tabSize
+                    this.newline = preference.newline
+                    this.load = true
+                })
+            }
+        })
+    })
+</script>
+```
+
 <a name="single-value-stores"></a>
 ## Single-value stores
 

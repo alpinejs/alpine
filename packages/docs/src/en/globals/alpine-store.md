@@ -42,6 +42,30 @@ Alpine.store('darkMode', {
 Alpine.start()
 ```
 
+If you provide `init()` method in an Alpine store, it will be executed right after the store is registered.
+
+```html
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('preference', {
+            tabSize: null,
+            newline: null,
+            load: false,
+
+            init() {
+                fetch('/url/to/get/preference')
+                .then((resp) => resp.json())
+                .then((preference) => {
+                    this.tabSize = preference.tabSize
+                    this.newline = preference.newline
+                    this.load = true
+                })
+            }
+        })
+    })
+</script>
+```
+
 <a name="accessing stores"></a>
 ## Accessing stores
 
@@ -55,6 +79,15 @@ You can also modify properties within the store and everything that depends on t
 
 ```html
 <button x-data @click="$store.darkMode.toggle()">Toggle Dark Mode</button>
+```
+
+In a `<script>` tag, you can access to Alpine store using `Alpine.store()` API. Just omit the second parameter.
+
+```html
+<script>
+    Alpine.store('darkMode').toggle()
+    console.log(Alpine.store('darkMode').on)
+</script>
 ```
 
 <a name="single-value-stores"></a>

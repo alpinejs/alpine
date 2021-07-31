@@ -1,0 +1,10 @@
+{
+    "name": "@alpinejs/debounce",
+    "version": "3.2.2",
+    "description": "Debounce magic directive",
+    "author": "Tina Hammar",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js",
+    "unpkg": "dist/cdn.min.js"
+}

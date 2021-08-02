@@ -42,30 +42,6 @@ Alpine.store('darkMode', {
 Alpine.start()
 ```
 
-If you provide `init()` method in an Alpine store, it will be executed right after the store is registered.
-
-```html
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.store('preference', {
-            tabSize: null,
-            newline: null,
-            load: false,
-
-            init() {
-                fetch('/url/to/get/preference')
-                .then((resp) => resp.json())
-                .then((preference) => {
-                    this.tabSize = preference.tabSize
-                    this.newline = preference.newline
-                    this.load = true
-                })
-            }
-        })
-    })
-</script>
-```
-
 <a name="accessing stores"></a>
 ## Accessing stores
 

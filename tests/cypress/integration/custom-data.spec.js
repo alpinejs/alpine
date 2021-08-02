@@ -17,7 +17,7 @@ test('can register custom data providers',
     ({ get }) => get('span').should(haveText('bar'))
 )
 
-test.only('can accept initial params',
+test('can accept initial params',
     html`
         <script>
             document.addEventListener('alpine:init', () => {
@@ -39,7 +39,7 @@ test.only('can accept initial params',
     }
 )
 
-test.only('can spread together',
+test('can spread together',
     html`
         <script>
             document.addEventListener('alpine:init', () => {

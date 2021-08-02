@@ -107,10 +107,9 @@ Now change the "count" in the following example and observe the changes made by 
 </div>
 <!-- END_VERBATIM -->
 
-$persist works with primitive values as well as with arrays and objects.
-However, it is worth noting that localStorage must be cleared when the type of the variable changes.
-
-Given the previous example, if we change count to a value of $persist({value: 0}), then localStorage must be cleared or the variable 'count' renamed.
+> `$persist` works with primitive values as well as with arrays and objects.
+However, it is worth noting that localStorage must be cleared when the type of the variable changes.<br>
+> Given the previous example, if we change count to a value of `$persist({ value: 0 })`, then localStorage must be cleared or the variable 'count' renamed.
 
 <a name="custom-key"></a>
 ## Setting a custom key

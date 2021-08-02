@@ -57,6 +57,39 @@ You can also modify properties within the store and everything that depends on t
 <button x-data @click="$store.darkMode.toggle()">Toggle Dark Mode</button>
 ```
 
+Additionally, you can access a store externally using `Alpine.store()` by ommiting the second parameter like so:
+
+```html
+<script>
+    Alpine.store('darkMode').toggle()
+</script>
+```
+
+<a name="initializing-stores"></a>
+## Initializing stores
+
+If you provide `init()` method in an Alpine store, it will be executed right after the store is registered. This is useful for initializing any state inside the store with sensible starting values.
+
+```html
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('darkMode', {
+            init() {
+                this.on = window.matchMedia('(prefers-color-scheme: dark)').matches
+            },
+
+            on: false,
+
+            toggle() {
+                this.on = ! this.on
+            }
+        })
+    })
+</script>
+```
+
+Notice the newly added `init()` method in the example above. With this addition, the `on` store variable will be set to the browser's color scheme preference before Alpine renders anything on the page.
+
 <a name="single-value-stores"></a>
 ## Single-value stores
 

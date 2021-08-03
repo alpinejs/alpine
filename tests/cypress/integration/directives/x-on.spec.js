@@ -422,3 +422,33 @@ test('.camel modifier correctly binds event listener with namespace',
         get('span').should(haveText('baz'))
     }
 )
+
+test('.dot modifier correctly binds event listener',
+    html`
+        <div x-data="{ foo: 'bar' }" x-on:event-name.dot="foo = 'baz'">
+            <button x-on:click="$dispatch('event.name')"></button>
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('button').click()
+        get('span').should(haveText('baz'))
+    }
+)
+
+test('.dot modifier correctly binds event listener with namespace',
+    html`
+        <div x-data="{ foo: 'bar' }" x-on:ns:event-name.dot="foo = 'baz'">
+            <button x-on:click="$dispatch('ns:event.name')"></button>
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('button').click()
+        get('span').should(haveText('baz'))
+    }
+)

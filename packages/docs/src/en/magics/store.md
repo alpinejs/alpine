@@ -56,3 +56,5 @@ Here's the example from above but using it more simply as a boolean value:
     })
 </script>
 ```
+
+[→ Read more about Alpine stores](/globals/alpine-store)

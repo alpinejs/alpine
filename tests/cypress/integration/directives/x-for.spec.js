@@ -393,7 +393,6 @@ test('x-for over range using i in property syntax',
     ({ get }) => get('span').should(haveLength('10'))
 )
 
-// @flaky
 test.retry(2)('x-for with an array of numbers',
     `
         <div x-data="{ items: [] }">
@@ -410,5 +409,21 @@ test.retry(2)('x-for with an array of numbers',
         get('span').should(haveLength('1'))
         get('#second').click()
         get('span').should(haveLength('2'))
+    }
+)
+
+test('x-for works with undefined',
+    `
+        <div x-data="{ items: undefined }">
+            <template x-for="i in items">
+                <span x-text="i"></span>
+            </template>
+            <button @click="items = [2]" id="first">click me</button>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveLength('0'))
+        get('#first').click()
+        get('span').should(haveLength('1'))
     }
 )

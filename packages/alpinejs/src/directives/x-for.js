@@ -45,6 +45,8 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             items = Array.from(Array(items).keys(), i => i + 1)
         }
 
+        if (items === undefined) items = []
+
         let lookup = el._x_lookup
         let prevKeys = el._x_prevKeys
         let scopes = []

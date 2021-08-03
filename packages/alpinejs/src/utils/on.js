@@ -134,7 +134,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     if (keyModifiers.length === 0) return false
 
     // If one is passed, AND it matches the key pressed, we'll call it a press.
-    if (keyModifiers.length === 1 && keyModifiers[0] === keyToModifier(e.key)) return false
+    if (keyModifiers.length === 1 && keyToModifiers(e.key).includes(keyModifiers[0])) return false
 
     // The user is listening for key combinations.
     const systemKeyModifiers = ['ctrl', 'shift', 'alt', 'meta', 'cmd', 'super']
@@ -153,7 +153,7 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
         // If all the modifiers selected are pressed, ...
         if (activelyPressedKeyModifiers.length === selectedSystemKeyModifiers.length) {
             // AND the remaining key is pressed as well. It's a press.
-            if (keyModifiers[0] === keyToModifier(e.key)) return false
+            if (keyToModifiers(e.key).includes(keyModifiers[0])) return false
         }
     }
 
@@ -161,14 +161,27 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     return true
 }
 
-function keyToModifier(key) {
-    switch (key) {
-        case '/':
-            return 'slash'
-        case ' ':
-        case 'Spacebar':
-            return 'space'
-        default:
-            return key && kebabCase(key)
+function keyToModifiers(key) {
+    if (! key) return []
+
+    key = kebabCase(key)
+
+    let modifierToKeyMap = {
+        'ctrl': 'control',
+        'slash': '/',
+        'space': '-',
+        'spacebar': '-',
+        'cmd': 'meta',
+        'esc': 'escape',
+        'up': 'arrow-up',
+        'down': 'arrow-down',
+        'left': 'arrow-left',
+        'right': 'arrow-right',
     }
+
+    modifierToKeyMap[key] = key
+
+    return Object.keys(modifierToKeyMap).map(modifier => {
+        if (modifierToKeyMap[modifier] === key) return modifier
+    }).filter(modifier => modifier)
 }

@@ -247,6 +247,16 @@ test('keydown modifiers',
                 x-on:keydown="count++"
                 x-on:keydown.enter="count++"
                 x-on:keydown.space="count++"
+                x-on:keydown.up="count++"
+                x-on:keydown.down="count++"
+                x-on:keydown.right="count++"
+                x-on:keydown.left="count++"
+                x-on:keydown.cmd="count++"
+                x-on:keydown.meta="count++"
+                x-on:keydown.escape="count++"
+                x-on:keydown.esc="count++"
+                x-on:keydown.ctrl="count++"
+                x-on:keydown.slash="count++"
             >
 
             <span x-text="count"></span>
@@ -260,6 +270,22 @@ test('keydown modifiers',
         get('span').should(haveText('3'))
         get('input').type(' ')
         get('span').should(haveText('5'))
+        get('input').type('{leftarrow}')
+        get('span').should(haveText('7'))
+        get('input').type('{rightarrow}')
+        get('span').should(haveText('9'))
+        get('input').type('{uparrow}')
+        get('span').should(haveText('11'))
+        get('input').type('{downarrow}')
+        get('span').should(haveText('13'))
+        get('input').type('{meta}')
+        get('span').should(haveText('16'))
+        get('input').type('{esc}')
+        get('span').should(haveText('19'))
+        get('input').type('{ctrl}')
+        get('span').should(haveText('21'))
+        get('input').type('/')
+        get('span').should(haveText('23'))
     }
 )
 

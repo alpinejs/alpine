@@ -418,7 +418,7 @@ test('x-for works with undefined',
             <template x-for="i in items">
                 <span x-text="i"></span>
             </template>
-            <button @click="items.push(2)" id="first">click me</button>
+            <button @click="items = [2]" id="first">click me</button>
         </div>
     `,
     ({ get }) => {

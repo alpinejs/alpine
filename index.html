@@ -8,11 +8,11 @@
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
     <!-- Play around. -->
-    <div x-data="{ open: false }">
-        <button @click="open = !open">Toggle</button>
+    <div x-data="{ html: '<span x-text=&quot;foo&quot;></span>', foo: 'bar' }">
+        <template x-if="true">
+            <h1>yoyoyo</h1>
+        </template>
 
-        <span x-show="open">
-            Content...
-        </span>
+        <div x-html="html"></div>
     </div>
 </html>

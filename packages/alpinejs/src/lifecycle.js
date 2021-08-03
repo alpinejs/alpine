@@ -4,6 +4,7 @@ import { dispatch } from './utils/dispatch'
 import { nextTick } from "./nextTick"
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
+import { handleError } from './utils/error'
 
 export function start() {
     if (! document.body) warn('Unable to initialize. Trying to load Alpine before `<body>` is available. Did you forget to add `defer` in Alpine\'s `<script>` tag?')
@@ -24,7 +25,11 @@ export function start() {
     Array.from(document.querySelectorAll(allSelectors()))
         .filter(outNestedComponents)
         .forEach(el => {
-            initTree(el)
+            try {
+                initTree(el)
+            } catch ( error ) {
+                handleError(error, el)
+            }
         })
 
     dispatch(document, 'alpine:initialized')

@@ -12,7 +12,11 @@ directive('bind', (el, { value, modifiers, expression, original }, { effect }) =
 
     let evaluate = evaluateLater(el, expression)
 
+    let skippedFirstTime;
+
     effect(() => evaluate(result => {
+        if (modifiers.includes('ssr') && !skippedFirstTime) return skippedFirstTime = true;
+
         // If nested object key is undefined, set the default value to empty string.
         if (result === undefined && expression.match(/\./)) result = ''
 

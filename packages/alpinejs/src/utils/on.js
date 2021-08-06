@@ -1,5 +1,5 @@
 
-export default function on (el, event, strModifiers, callback) {
+export default function on (el, event, modifiers, callback) {
     let listenerTarget = el
 
     let handler = e => callback(e)
@@ -10,44 +10,43 @@ export default function on (el, event, strModifiers, callback) {
     // handler more flexibly in a "middleware" style.
     let wrapHandler = (callback, wrapper) => (e) => wrapper(callback, e)
 
-    let modifiers = {keyModifiers: []}
-    for (let i = 0; i < strModifiers.length; i++) {
-        let m = strModifiers[i];
-        let nextModifier = strModifiers[i + 1] || 'invalid-wait'
+    let params = {keyModifiers: []}
+    for (let i = 0; i < modifiers.length; i++) {
+        let m = modifiers[i]
+        let nextModifier = modifiers[i + 1] || 'invalid-wait'
 
         let timeArg = () => {
-            let wait = nextModifier.split('ms')[0];
-            if (isNumeric(wait)) {
-                i += 1
-                return Number(wait)
-            } else {
-                return 250;
-            }
+            let wait = nextModifier.split('ms')[0]
+            if (!isNumeric(wait))
+                return 250
+
+            i += 1
+            return Number(wait)
         }
 
         // handle aliases
-        if (m === 'away') m = 'outside';
+        if (m === 'away') m = 'outside'
         if (m === 'cmd' || m === 'super') m = 'meta'
 
         if (['camel', 'dot', 'passive', 'window', 'document', 'prevent', 'stop', 'self', 'outside', 'once'].includes(m))
-            modifiers[m] = true;
+            params[m] = true
         else if (['debounce', 'throttle'].includes(m)) {
-            modifiers[m] = timeArg()
+            params[m] = timeArg()
         } else {
-            modifiers.keyModifiers.push(m)
+            params.keyModifiers.push(m)
         }
     }
 
-    if (modifiers.dot) event = dotSyntax(event);
-    if (modifiers.camel) event = camelCase(event);
-    if (modifiers.passive) options.passive = true
-    if (modifiers.window) listenerTarget = window
-    if (modifiers.document) listenerTarget = document
-    if (modifiers.prevent) handler = wrapHandler(handler, (next, e) => { e.preventDefault(); next(e) })
-    if (modifiers.stop) handler = wrapHandler(handler, (next, e) => { e.stopPropagation(); next(e) })
-    if (modifiers.self) handler = wrapHandler(handler, (next, e) => { e.target === el && next(e) })
+    if (params.dot) event = dotSyntax(event)
+    if (params.camel) event = camelCase(event)
+    if (params.passive) options.passive = true
+    if (params.window) listenerTarget = window
+    if (params.document) listenerTarget = document
+    if (params.prevent) handler = wrapHandler(handler, (next, e) => { e.preventDefault(); next(e) })
+    if (params.stop) handler = wrapHandler(handler, (next, e) => { e.stopPropagation(); next(e) })
+    if (params.self) handler = wrapHandler(handler, (next, e) => { e.target === el && next(e) })
 
-    if (modifiers.outside) {
+    if (params.outside) {
         listenerTarget = document
 
         handler = wrapHandler(handler, (next, e) => {
@@ -62,7 +61,7 @@ export default function on (el, event, strModifiers, callback) {
     // Handle :keydown and :keyup listeners.
     handler = wrapHandler(handler, (next, e) => {
         if (isKeyEvent(event)) {
-            if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers.keyModifiers)) {
+            if (isListeningForASpecificKeyThatHasntBeenPressed(e, params.keyModifiers)) {
                 return
             }
         }
@@ -70,15 +69,13 @@ export default function on (el, event, strModifiers, callback) {
         next(e)
     })
 
-    if (modifiers.debounce) {
-        handler = debounce(handler, modifiers.debounce, this)
-    }
+    if (params.debounce)
+        handler = debounce(handler, params.debounce, this)
 
-    if (modifiers.throttle) {
-        handler = throttle(handler, modifiers.throttle, this)
-    }
+    if (params.throttle)
+        handler = throttle(handler, params.throttle, this)
 
-    if (modifiers.once) {
+    if (params.once) {
         handler = wrapHandler(handler, (next, e) => {
             next(e)
 

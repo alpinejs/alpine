@@ -13,7 +13,10 @@ function setStylesFromObject(el, value) {
     Object.entries(value).forEach(([key, value]) => {
         previousStyles[key] = el.style[key]
 
-        el.style.setProperty(key, value)
+        // When we use javascript object, css properties use the camelCase
+        // syntax but when we use setProperty, we need the css format
+        // so we need to convert camelCase to kebab-case
+        el.style.setProperty(kebabCase(key), value)
     })
 
     setTimeout(() => {
@@ -35,4 +38,8 @@ function setStylesFromString(el, value) {
     return () => {
         el.setAttribute('style', cache)
     }
+}
+
+function kebabCase(subject) {
+    return subject.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
 }

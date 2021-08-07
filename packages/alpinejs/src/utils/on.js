@@ -10,7 +10,7 @@ export default function on (el, event, modifiers, callback) {
     // handler more flexibly in a "middleware" style.
     let wrapHandler = (callback, wrapper) => (e) => wrapper(callback, e)
 
-    if (modifiers.includes("dot")) event = dotSyntax(event);
+    if (modifiers.includes("dot")) event = dotSyntax(event)
     if (modifiers.includes('camel')) event = camelCase(event)
     if (modifiers.includes('passive')) options.passive = true
     if (modifiers.includes('window')) listenerTarget = window
@@ -72,9 +72,9 @@ export default function on (el, event, modifiers, callback) {
 }
 
 function dotSyntax(subject) {
-    return subject.replace(/-/g, ".");
+    return subject.replace(/-/g, ".")
 }
-  
+
 function camelCase(subject) {
     return subject.toLowerCase().replace(/-(\w)/g, (match, char) => char.toUpperCase())
 }

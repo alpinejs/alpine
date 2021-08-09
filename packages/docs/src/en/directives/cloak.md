@@ -7,7 +7,7 @@ title: cloak
 
 Sometimes, when you're using AlpineJS for a part of your template, there is a "blip" where you might see your uninitialized template after the page loads, but before Alpine loads.
 
-`x-cloak` addresses this scenerio by hiding the element it's attached to until Alpine is fully loaded on the page.
+`x-cloak` addresses this scenario by hiding the element it's attached to until Alpine is fully loaded on the page.
 
 For `x-cloak` to work however, you must add the following CSS to the page.
 

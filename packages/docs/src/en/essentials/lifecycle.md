@@ -62,7 +62,7 @@ Now, this expression will be called right away, and re-called every time `open` 
 The two main behavioral differences with this approach are:
 
 1. The provided code will be run right away AND when data changes (`$watch` is "lazy" -- won't run until the first data change)
-2. No knowledge of the previous value. (The callback provided to `$watch` recieves both the new value AND the old one)
+2. No knowledge of the previous value. (The callback provided to `$watch` receives both the new value AND the old one)
 
 [→ Read more about x-effect](/directives/effect)
 

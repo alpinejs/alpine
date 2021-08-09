@@ -168,7 +168,7 @@ Let's take a look at each of these approaches:
 <a name="transition-helpers"></a>
 ### Transition helpers
 
-Let's say you wanted to make the duration of the transition longer, you can manually specificy that using the `.duration` modifier like so:
+Let's say you wanted to make the duration of the transition longer, you can manually specify that using the `.duration` modifier like so:
 
 ```html
 <div x-show="open" x-transition.duration.500ms>

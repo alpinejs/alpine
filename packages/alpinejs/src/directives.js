@@ -1,6 +1,7 @@
 import { onAttributeRemoved, onElRemoved } from './mutation'
 import { evaluate, evaluateLater } from './evaluator'
 import { elementBoundEffect } from './reactivity'
+import { dispatch } from './utils/dispatch'
 import Alpine from './alpine'
 
 let prefixAsString = 'x-'
@@ -76,6 +77,7 @@ export function getDirectiveHandler(el, directive) {
         Alpine,
         effect,
         cleanup,
+        dispatch,
         evaluateLater: evaluateLater.bind(evaluateLater, el),
         evaluate: evaluate.bind(evaluate, el),
     }

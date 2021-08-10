@@ -1,12 +1,13 @@
 export default function (Alpine) {
-    Alpine.directive('intersect', (el, { expression, modifiers }, { evaluateLater, cleanup }) => {
-        let evaluate = evaluateLater(expression)
+    Alpine.directive('intersect', (el, { modifiers }, { cleanup, dispatch }) => {
 
         let observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
-                if (entry.intersectionRatio === 0) return
+                let event = entry.isIntersecting ? 'enter' : 'leave';
+                
+                dispatch(el, 'change', entry)
 
-                evaluate()
+                dispatch(el, event, entry)
 
                 modifiers.includes('once') && observer.disconnect()
             })

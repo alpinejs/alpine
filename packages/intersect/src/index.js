@@ -4,7 +4,6 @@ export default function (Alpine) {
 
         let observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
-
                 dispatch(el, 'change', entry)
 
                 dispatch(el, entry.isIntersecting ? 'enter' : 'leave', entry)

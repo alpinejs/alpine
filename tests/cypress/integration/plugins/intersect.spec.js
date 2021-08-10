@@ -59,6 +59,27 @@ test('It should emit "leave" event when the component is intersected',
     },
 )
 
+test('It should emit "change" event when the component is intersected',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+
+        <div x-intersect @change="count++" style="margin-top: 100vh;" id="1">hi</div>
+    </div>
+    `],
+    ({ get }, reload) => {
+        get('span').should(haveText('1'))
+        get('#1').scrollIntoView({duration: 100})
+        get('span').should(haveText('2'))
+        get('span').scrollIntoView({duration: 100})
+        get('span').should(haveText('3'))
+        get('#1').scrollIntoView({duration: 100})
+        get('span').should(haveText('4'))
+        get('span').scrollIntoView({duration: 100})
+        get('span').should(haveText('5'))
+    },
+)
+
 test('.once',
     [html`
     <div x-data="{ count: 0 }" x-init="setTimeout(() => count++, 300)">

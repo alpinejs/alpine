@@ -19,7 +19,7 @@ test('can intersect',
     },
 )
 
-test('It should emit "enter" event when the component is intersected',
+test('It should evaluate with ":enter" only when the component is intersected',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>
@@ -38,7 +38,7 @@ test('It should emit "enter" event when the component is intersected',
     },
 )
 
-test('It should emit "leave" event when the component is intersected',
+test('It should evaluate with ":leave" only when the component is not intersected',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>

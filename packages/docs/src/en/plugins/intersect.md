@@ -75,28 +75,26 @@ For example, in the following snippet, `shown` will remain `false` until the ele
 </div>
 <!-- END_VERBATIM -->
 
-<a name="events"></a>
-## Events
+<a name="directives"></a>
+## Directives
+
+| Directive      | Description |
+| ---            | --- |
+| `:enter`       | Applied only entering phase. |
+| `:leave`       | Applied only leaving phase. |
 
 <a name="enter"></a>
-### enter
+### :enter
 
 ```html
-<div x-intersect @enter="shown = true">...</div>
+<div x-intersect:enter="shown = true">...</div>
 ```
 
 <a name="leave"></a>
-### leave
+### :leave
 
 ```html
-<div x-intersect @leave="shown = false">...</div>
-```
-
-<a name="changed"></a>
-### changed
-
-```html
-<div x-intersect @changed="shown = true">...</div>
+<div x-intersect:leave="shown = false">...</div>
 ```
 
 <a name="modifiers"></a>

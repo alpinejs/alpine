@@ -8,7 +8,7 @@ test('can intersect',
         <div x-intersect="count++" style="margin-top: 100vh;" id="1">hi</div>
     </div>
     `],
-    ({ get }, reload) => {
+    ({ get }) => {
         get('span').should(haveText('0'))
         get('#1').scrollIntoView({duration: 100})
         get('span').should(haveText('1'))
@@ -27,7 +27,7 @@ test('It should evaluate with ":enter" only when the component is intersected',
         <div x-intersect:enter="count++" style="margin-top: 100vh;" id="1">hi</div>
     </div>
     `],
-    ({ get }, reload) => {
+    ({ get }) => {
         get('span').should(haveText('0'))
         get('#1').scrollIntoView({duration: 100})
         get('span').should(haveText('1'))
@@ -46,7 +46,7 @@ test('It should evaluate with ":leave" only when the component is not intersecte
         <div x-intersect:leave="count++" style="margin-top: 100vh;" id="1">hi</div>
     </div>
     `],
-    ({ get }, reload) => {
+    ({ get }) => {
         get('span').should(haveText('1'))
         get('#1').scrollIntoView({duration: 100})
         get('span').should(haveText('1'))
@@ -67,7 +67,7 @@ test('.once',
         <div x-intersect.once="count++" style="margin-top: 100vh;" id="1">hi</div>
     </div>
     `],
-    ({ get }, reload) => {
+    ({ get }) => {
         get('span').should(haveText('0'))
         get('#1').scrollIntoView({duration: 100})
         get('span').should(haveText('1'))

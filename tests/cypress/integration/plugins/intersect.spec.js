@@ -24,7 +24,7 @@ test('It should emit "enter" event when the component is intersected',
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>
 
-        <div x-intersect @enter="count++" style="margin-top: 100vh;" id="1">hi</div>
+        <div x-intersect:enter="count++" style="margin-top: 100vh;" id="1">hi</div>
     </div>
     `],
     ({ get }, reload) => {
@@ -43,7 +43,7 @@ test('It should emit "leave" event when the component is intersected',
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>
 
-        <div x-intersect @leave="count++" style="margin-top: 100vh;" id="1">hi</div>
+        <div x-intersect:leave="count++" style="margin-top: 100vh;" id="1">hi</div>
     </div>
     `],
     ({ get }, reload) => {
@@ -56,27 +56,6 @@ test('It should emit "leave" event when the component is intersected',
         get('span').should(haveText('2'))
         get('span').scrollIntoView({duration: 100})
         get('span').should(haveText('3'))
-    },
-)
-
-test('It should emit "changed" event when the component is intersected',
-    [html`
-    <div x-data="{ count: 0 }">
-        <span x-text="count"></span>
-
-        <div x-intersect @changed="count++" style="margin-top: 100vh;" id="1">hi</div>
-    </div>
-    `],
-    ({ get }, reload) => {
-        get('span').should(haveText('1'))
-        get('#1').scrollIntoView({duration: 100})
-        get('span').should(haveText('2'))
-        get('span').scrollIntoView({duration: 100})
-        get('span').should(haveText('3'))
-        get('#1').scrollIntoView({duration: 100})
-        get('span').should(haveText('4'))
-        get('span').scrollIntoView({duration: 100})
-        get('span').should(haveText('5'))
     },
 )
 

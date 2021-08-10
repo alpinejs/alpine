@@ -59,12 +59,12 @@ test('It should emit "leave" event when the component is intersected',
     },
 )
 
-test('It should emit "change" event when the component is intersected',
+test('It should emit "changed" event when the component is intersected',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>
 
-        <div x-intersect @change="count++" style="margin-top: 100vh;" id="1">hi</div>
+        <div x-intersect @changed="count++" style="margin-top: 100vh;" id="1">hi</div>
     </div>
     `],
     ({ get }, reload) => {

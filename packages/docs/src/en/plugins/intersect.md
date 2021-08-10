@@ -79,24 +79,24 @@ For example, in the following snippet, `shown` will remain `false` until the ele
 ## Events
 
 <a name="enter"></a>
-### @enter
+### enter
 
 ```html
 <div x-intersect @enter="shown = true">...</div>
 ```
 
 <a name="leave"></a>
-### @leave
+### leave
 
 ```html
 <div x-intersect @leave="shown = false">...</div>
 ```
 
-<a name="change"></a>
-### @change
+<a name="changed"></a>
+### changed
 
 ```html
-<div x-intersect @change="shown = true">...</div>
+<div x-intersect @changed="shown = true">...</div>
 ```
 
 <a name="modifiers"></a>

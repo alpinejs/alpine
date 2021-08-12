@@ -300,7 +300,7 @@ This is handy for things like real-time form-validation where you might not want
 <a name="number"></a>
 ### `.number`
 
-By default, any data stored in a property via `x-model` is stored as a string. To force Alpine to store the value as a JavaScript number, add the `.number` modifer.
+By default, any data stored in a property via `x-model` is stored as a string. To force Alpine to store the value as a JavaScript number, add the `.number` modifier.
 
 ```html
 <input type="text" x-model.number="age">

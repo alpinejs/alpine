@@ -139,7 +139,7 @@ function onMutate(mutations) {
 
     for (let node of addedNodes) {
        // If an element gets moved on a page, it's registered
-        // as both an "add" and "remove", so we wan't to skip those.
+        // as both an "add" and "remove", so we want to skip those.
         if (removedNodes.includes(node)) continue
 
         onElAddeds.forEach(i => i(node))

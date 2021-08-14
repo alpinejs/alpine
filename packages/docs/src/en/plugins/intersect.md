@@ -75,6 +75,28 @@ For example, in the following snippet, `shown` will remain `false` until the ele
 </div>
 <!-- END_VERBATIM -->
 
+<a name="directives"></a>
+## Directives
+
+| Directive      | Description |
+| ---            | --- |
+| `:enter`       | Applied only entering phase. |
+| `:leave`       | Applied only leaving phase. |
+
+<a name="enter"></a>
+### :enter
+
+```html
+<div x-intersect:enter="shown = true">...</div>
+```
+
+<a name="leave"></a>
+### :leave
+
+```html
+<div x-intersect:leave="shown = false">...</div>
+```
+
 <a name="modifiers"></a>
 ## Modifiers
 

@@ -75,26 +75,22 @@ For example, in the following snippet, `shown` will remain `false` until the ele
 </div>
 <!-- END_VERBATIM -->
 
-<a name="directives"></a>
-## Directives
+<a name="x-intersect-enter"></a>
+### x-intersect:enter
 
-| Directive      | Description |
-| ---            | --- |
-| `:enter`       | Applied only entering phase. |
-| `:leave`       | Applied only leaving phase. |
-
-<a name="enter"></a>
-### :enter
+You can opt to only trigger x-intersect when the element ENTERS the viewport by adding the `:enter` suffix to `x-intersect` like so:
 
 ```html
 <div x-intersect:enter="shown = true">...</div>
 ```
 
-<a name="leave"></a>
-### :leave
+<a name="x-intersect-leave"></a>
+### x-intersect:leave
+
+Similarly, you can add `:leave` to only trigger x-intersect when the element LEAVES the viewport:
 
 ```html
-<div x-intersect:leave="shown = false">...</div>
+<div x-intersect:leave="shown = true">...</div>
 ```
 
 <a name="modifiers"></a>

@@ -1,11 +1,12 @@
 {
     "name": "@alpinejs/trap",
-    "version": "3.0.0-alpha.0",
-    "description": "Declaratively trap focus",
+    "version": "3.2.3",
+    "description": "Trap focus on a page within a specific element",
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
+    "unpkg": "dist/cdn.min.js",
     "dependencies": {
         "wicg-inert": "^3.1.1"
     }

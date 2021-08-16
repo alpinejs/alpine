@@ -58,24 +58,123 @@ For example:
 
 ```html
 <div x-data="{ open: false}">
-    <button x-on:click="open = true">Open Dialogue</button>
+    <button @click="open = true">Open Dialogue</button>
 
     <span x-show="open" x-trap="open">
-        <input type="text">
+        <p>...</p>
 
-        <button>foo</button>
+        <input type="text" placeholder="Some input...">
+
+        <input type="text" placeholder="Some other input...">
+
+        <button @click="open = false">Close Dialogue</button>
     </span>
 </div>
 ```
 
 <!-- START_VERBATIM -->
 <div x-data="{ open: false}" class="demo">
-    <button x-on:click="open = true">Open Dialogue</button>
+    <div :class="open && 'opacity-50'">
+        <button x-on:click="open = true">Open Dialogue</button>
+    </div>
+
+    <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border bg-yellow-100" @keyup.escape.window="open = false">
+        <strong>
+            <div>Focus is now "trapped" inside this dialogue, meaning you can only click/focus elements within this yellow dialogue. If you press tab repeatedly, the focus will stay within this dialogue, but also be allowed to cycle to the browser's URL bar.</div>
+        </strong>
+
+        <div>
+            <input type="text" placeholder="Some input...">
+        </div>
+
+        <div>
+            <input type="text" placeholder="Some other input...">
+        </div>
+
+        <div>
+            <button @click="open = false">Close Dialogue</button>
+        </div>
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
+<a name="nesting"></a>
+## Nesting dialogues
+
+Sometimes you may want to nest one dialogue inside another. `x-trap` makes this trivial and handles it automatically.
+
+`x-trap` keeps track of newly "trapped" elements and stores the last actively focused element. Once the element is "untrapped" then the focus will be returned to where it was originally.
+
+This mechanism is recursive, so you can trap focus within an already trapped element infinite times, then "untrap" each element successively.
+
+Here is nesting in action:
+
+```html
+<div x-data="{ open: false}">
+    <button @click="open = true">Open Dialogue</button>
 
     <span x-show="open" x-trap="open">
-        <input type="text">
 
-        <button>foo</button>
+        ...
+
+        <div x-data="{ open: false}">
+            <button @click="open = true">Open Nested Dialogue</button>
+
+            <span x-show="open" x-trap="open">
+
+                ...
+
+                <button @click="open = false">Close Nested Dialogue</button>
+            </span>
+        </div>
+
+        <button @click="open = false">Close Dialogue</button>
     </span>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div x-data="{ open: false}" class="demo">
+    <div :class="open && 'opacity-50'">
+        <button x-on:click="open = true">Open Dialogue</button>
+    </div>
+
+    <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border bg-yellow-100" @keyup.escape.window="open = false">
+        <div>
+            <input type="text" placeholder="Some input...">
+        </div>
+
+        <div>
+            <input type="text" placeholder="Some other input...">
+        </div>
+
+        <div x-data="{ open: false}">
+            <div :class="open && 'opacity-50'">
+                <button x-on:click="open = true">Open Nested Dialogue</button>
+            </div>
+
+            <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border border-gray-500 bg-yellow-200" @keyup.escape.window="open = false">
+                <strong>
+                    <div>Focus is now "trapped" inside this nested dialogue. You cannot focus anything inside the outer dialogue while this is open. If you close this dialogue, focus will be returned to the last known active element.</div>
+                </strong>
+
+                <div>
+                    <input type="text" placeholder="Some input...">
+                </div>
+
+                <div>
+                    <input type="text" placeholder="Some other input...">
+                </div>
+
+                <div>
+                    <button @click="open = false">Close Nested Dialogue</button>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <button @click="open = false">Close Dialogue</button>
+        </div>
+    </div>
 </div>
 <!-- END_VERBATIM -->

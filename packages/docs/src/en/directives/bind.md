@@ -50,7 +50,7 @@ In cases like these, if you prefer a less verbose syntax you can use JavaScript'
 
 ```html
 <div :class="show ? '' : 'hidden'">
-<!-- Is equivalant to: -->
+<!-- Is equivalent to: -->
 <div :class="show || 'hidden'">
 ```
 
@@ -58,7 +58,7 @@ The inverse is also available to you. Suppose instead of `open`, we use a variab
 
 ```html
 <div :class="closed ? 'hidden' : ''">
-<!-- Is equivalant to: -->
+<!-- Is equivalent to: -->
 <div :class="closed && 'hidden'">
 ```
 
@@ -73,7 +73,7 @@ Alpine offers an additional syntax for toggling classes if you prefer. By passin
 
 This technique offers a unique advantage to other methods. When using object-syntax, Alpine will NOT preserve original classes applied to an element's `class` attribute.
 
-For example, if you wanted to apply the "hidden" class to an element before Alpine loads, AND use Alpine to toggle its existance you can only achieve that behavior using object-syntax:
+For example, if you wanted to apply the "hidden" class to an element before Alpine loads, AND use Alpine to toggle its existence you can only achieve that behavior using object-syntax:
 
 ```html
 <div class="hidden" :class="{ 'hidden': ! show }">

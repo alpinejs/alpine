@@ -57,7 +57,7 @@ You can also modify properties within the store and everything that depends on t
 <button x-data @click="$store.darkMode.toggle()">Toggle Dark Mode</button>
 ```
 
-Additionally, you can access a store externally using `Alpine.store()` by ommiting the second parameter like so:
+Additionally, you can access a store externally using `Alpine.store()` by omitting the second parameter like so:
 
 ```html
 <script>

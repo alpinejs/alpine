@@ -78,7 +78,7 @@ You can try this for yourself by incrementing the "count" in the above example, 
 <a name="how-it-works"></a>
 ## How does it work?
 
-If a value is wrapped in `$persist`, on initialization Alpine will register it's own watcher for that value. Now everytime that value changes for any reason, Alpine will store the new value in [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
+If a value is wrapped in `$persist`, on initialization Alpine will register its own watcher for that value. Now everytime that value changes for any reason, Alpine will store the new value in [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
 
 Now when a page is reloaded, Alpine will check localStorage (using the name of the property as the key) for a value. If it finds one, it will set the property value from localStorage immediately.
 

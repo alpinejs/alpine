@@ -5,7 +5,7 @@ title: Start Here
 
 # Start Here
 
-Create a blank HTML file somewhere on you computer with a name like: `i-love-alpine.html`
+Create a blank HTML file somewhere on your computer with a name like: `i-love-alpine.html`
 
 Using a text editor, fill the file with these contents:
 
@@ -225,7 +225,7 @@ Now there's quite a bit happening here, so let's go through this snippet piece b
 <a name="multi-line-formatting"></a>
 ### Multi line formatting
 
-The first thing I'd like to point out is that `x-data` now has a lot more going on in it than before. To make it easier to write and read, we've split it up into multiple lines in our HTML. This is completely optional and we'll talk more in a bit about how to avoid this problem alltogether, but for now, we'll keep all of this JavaScript directly in the HTML.
+The first thing I'd like to point out is that `x-data` now has a lot more going on in it than before. To make it easier to write and read, we've split it up into multiple lines in our HTML. This is completely optional and we'll talk more in a bit about how to avoid this problem altogether, but for now, we'll keep all of this JavaScript directly in the HTML.
 
 <a name="binding-to-inputs"></a>
 ### Binding to inputs

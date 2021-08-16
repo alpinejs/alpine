@@ -54,7 +54,7 @@ You can configure the duration you want for a transition with the `.duration` mo
 
 The above `<div>` will transition for 500 milliseconds when entering, and 250 milliseconds when leaving.
 
-This difference in duration generally desireable default. If you wish to customize the durations specifically for entering and leaving, you can do that like so:
+This difference in duration generally desirable default. If you wish to customize the durations specifically for entering and leaving, you can do that like so:
 
 ```html
 <div ...
@@ -102,7 +102,7 @@ The `.scale` modifier also offers the ability to configure its scale values AND 
 
 The above snippet will scale the element up and down by 80%.
 
-Again, you may customize these values seperately for enter and leaving transitions like so:
+Again, you may customize these values separately for enter and leaving transitions like so:
 
 ```html
 <div ...

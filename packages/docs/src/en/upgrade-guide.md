@@ -54,7 +54,7 @@ Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING
 </div>
 ```
 
-For a smoother upgrade experience, you can optionally replace all instances of `$el` with a custom magic called `$root`, then add the following code to your site to mimmick the behavior:
+For a smoother upgrade experience, you can optionally replace all instances of `$el` with a custom magic called `$root`, then add the following code to your site to mimic the behavior:
 
 ```html
 <script>

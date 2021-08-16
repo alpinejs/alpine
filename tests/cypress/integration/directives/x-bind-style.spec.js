@@ -11,6 +11,28 @@ test('style attribute object binding',
     }
 )
 
+test('style attribute object binding using camelCase syntax',
+    html`
+        <div x-data>
+            <span x-bind:style="{ backgroundColor: 'red' }">I should be red</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveAttribute('style', 'background-color: red;'))
+    }
+)
+
+test('style attribute object binding using kebab-case syntax',
+    html`
+        <div x-data>
+            <span x-bind:style="{ 'background-color': 'red' }">I should be red</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveAttribute('style', 'background-color: red;'))
+    }
+)
+
 test('style attribute object bindings are merged with existing styles',
     html`
         <div x-data>

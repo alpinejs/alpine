@@ -263,7 +263,7 @@ By adding `.camel` in the above example, Alpine is now listening for `customEven
 <a name="passive"></a>
 ### .passive
 
-Browsers optimize scrolling on pages to be fast and smooth even when JavaScript is being executed on the page. However, improperly implemented touch and wheel listeners can block this optimization and cause poor site performace.
+Browsers optimize scrolling on pages to be fast and smooth even when JavaScript is being executed on the page. However, improperly implemented touch and wheel listeners can block this optimization and cause poor site performance.
 
 If you are listening for touch events, it's important to add `.passive` to your listeners to not block scroll performance.
 

@@ -1,7 +1,7 @@
 ---
 order: 3
 title: Trap
-description: Easily persist data across page loads using localStorage
+description: Easily trap page focus within an element. (i.e. modals, dialogues, etc...)
 graph_image: https://alpinejs.dev/social_trap.jpg
 ---
 

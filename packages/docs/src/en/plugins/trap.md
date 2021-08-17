@@ -30,7 +30,7 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 ### Via NPM
 
-You can install Persist from NPM for use inside your bundle like so:
+You can install Trap from NPM for use inside your bundle like so:
 
 ```bash
 npm install @alpinejs/trap

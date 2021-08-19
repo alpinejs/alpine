@@ -136,3 +136,16 @@ Now Alpine will store and retrieve the above "count" value using the key "other-
 Here's a view of Chrome Devtools to see for yourself:
 
 <img src="/img/persist_custom_key_devtools.png" alt="Chrome devtools showing the localStorage view with count set to 0">
+
+<a name="using-persist-with-alpine-data"></a>
+## Using $persist with Alpine.data
+
+If you want to use `$persist` with `Alpine.data`, you need to use a standard function instead of an arrow function so Alpine can bind a custom `this` context when it initially evaluates the component scope.
+
+```js
+Alpine.data('dropdown', function () {
+    return {
+        open: this.$persist(false)
+    }
+})
+```

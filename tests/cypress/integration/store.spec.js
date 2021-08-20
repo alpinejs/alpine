@@ -70,7 +70,7 @@ test('store\'s "this" context is reactive for init function',
     [html`
         <div x-data>
         <span x-text="$store.test.count"></span>
-        <button @click="$store.test.increment()" id="button">increment</button>
+        <button id="button">increment</button>
         </div>
     `,
     `

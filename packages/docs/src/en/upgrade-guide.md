@@ -33,6 +33,7 @@ Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING
 * [`x-init` no longer accepts a callback return](#x-init-no-callback)
 * [Returning `false` from event handlers no longer implicitly "preventDefault"s](#no-false-return-from-event-handlers)
 * [`x-spread` is now `x-bind`](#x-spread-now-x-bind)
+* [`x-ref` no longer supports binding](#x-ref-no-more-dynamic)
 * [Use global lifecycle events instead of `Alpine.deferLoadingAlpine()`](#use-global-events-now)
 * [IE11 no longer supported](#no-ie-11)
 
@@ -293,6 +294,25 @@ One of Alpine's stories for re-using functionality is abstracting Alpine directi
     })
 </script>
 ```
+
+<a name="x-ref-no-more-dynamic"></a>
+### `x-ref` no longer supports binding
+
+In Alpine V2 for below code
+
+```html
+<div x-data="{options: [{value: 1}, {value: 2}, {value: 3}] }">
+    <div x-ref="0">0</div>
+    <template x-for="option in options">
+        <div :x-ref="option.value" x-text="option.value"></div>
+    </template>
+
+    <button @click="console.log($refs[0], $refs[1], $refs[2], $refs[3]);">Display $refs</button>
+</div>
+```
+
+after clicking button all `$refs` were displayed. However in Alpine V3 it's possible to access only `$refs` for elements created statically, so only first ref will be returned as expected.
+
 
 [→ Read more about Alpine lifecycle events](/essentials/lifecycle#alpine-initialization)
 

@@ -295,6 +295,9 @@ One of Alpine's stories for re-using functionality is abstracting Alpine directi
 </script>
 ```
 
+[→ Read more about Alpine lifecycle events](/essentials/lifecycle#alpine-initialization)
+
+
 <a name="x-ref-no-more-dynamic"></a>
 ### `x-ref` no longer supports binding
 
@@ -313,8 +316,6 @@ In Alpine V2 for below code
 
 after clicking button all `$refs` were displayed. However in Alpine V3 it's possible to access only `$refs` for elements created statically, so only first ref will be returned as expected.
 
-
-[→ Read more about Alpine lifecycle events](/essentials/lifecycle#alpine-initialization)
 
 <a name="no-ie-11"></a>
 ### IE11 no longer supported

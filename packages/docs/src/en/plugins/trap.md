@@ -32,7 +32,7 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 You can install Trap from NPM for use inside your bundle like so:
 
-```bash
+```shell
 npm install @alpinejs/trap
 ```
 

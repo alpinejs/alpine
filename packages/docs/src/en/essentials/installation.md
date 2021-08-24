@@ -45,7 +45,7 @@ If you prefer the more robust approach, you can install Alpine via NPM and impor
 
 Run the following command to install it.
 
-```bash
+```shell
 npm install alpinejs
 ```
 

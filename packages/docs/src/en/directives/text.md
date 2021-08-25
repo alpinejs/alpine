@@ -9,7 +9,7 @@ title: text
 
 Here's a basic example of using `x-text` to display a user's username.
 
-```html
+```alpine
 <div x-data="{ username: 'calebporzio' }">
     Username: <strong x-text="username"></strong>
 </div>

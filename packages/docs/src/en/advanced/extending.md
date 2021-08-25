@@ -22,7 +22,7 @@ If you are including Alpine via a script tag, you will need to register any cust
 
 Here's an example:
 
-```html
+```alpine
 <html>
     <script src="/js/alpine.js" defer></script>
 
@@ -38,7 +38,7 @@ Here's an example:
 
 If you want to extract your extension code into an external file, you will need to make sure that file's `<script>` tag is located BEFORE Alpine's like so:
 
-```html
+```alpine
 <html>
     <script src="/js/foo.js" defer></script>
     <script src="/js/alpine.js" defer></script>
@@ -96,7 +96,7 @@ Alpine.directive('uppercase', el => {
     el.textContent = el.textContent.toUpperCase()
 })
 ```
-```html
+```alpine
 <div x-data>
     <span x-uppercase>Hello World!</span>
 </div>
@@ -109,7 +109,7 @@ When registering a custom directive, you may want to evaluate a user-supplied Ja
 
 For example, let's say you wanted to create a custom directive as a shortcut to `console.log()`. Something like:
 
-```html
+```alpine
 <div x-data="{ message: 'Hello World!' }">
     <div x-log="message"></div>
 </div>
@@ -138,7 +138,7 @@ Building on the `x-log` example from before, let's say we wanted `x-log` to log 
 
 Given the following template:
 
-```html
+```alpine
 <div x-data="{ message: 'Hello World!' }">
     <div x-log="message"></div>
 
@@ -252,7 +252,7 @@ Alpine.magic('now', () => {
     return (new Date).toLocaleTimeString()
 })
 ```
-```html
+```alpine
 <span x-text="$now"></span>
 ```
 
@@ -272,7 +272,7 @@ Alpine.magic('clipboard', () => {
     return subject => navigator.clipboard.writeText(subject)
 })
 ```
-```html
+```alpine
 <button @click="$clipboard('hello world')">Copy "Hello World"</button>
 ```
 
@@ -302,7 +302,7 @@ We'll start producing this plugin for consumption as a simple `<script>` tag alo
 
 Let's start in reverse by looking at how our plugin will be included into a project:
 
-```html
+```alpine
 <html>
     <script src="/js/foo.js" defer></script>
     <script src="/js/alpine.js" defer></script>

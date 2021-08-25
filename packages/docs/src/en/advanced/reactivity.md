@@ -68,7 +68,7 @@ This is the mechanism that unlocks all of the reactivity at the core of Alpine.
 
 To connect the dots further, let's look at a simple "counter" component example without using Alpine syntax at all, only using `Alpine.reactive` and `Alpine.effect`:
 
-```html
+```alpine
 <button>Increment</button>
 
 Count: <span></span>

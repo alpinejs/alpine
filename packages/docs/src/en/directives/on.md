@@ -9,7 +9,7 @@ title: on
 
 Here's an example of simple button that shows an alert when clicked.
 
-```html
+```alpine
 <button x-on:click="alert('Hello World!')">Say Hi</button>
 ```
 
@@ -20,7 +20,7 @@ If `x-on:` is too verbose for your tastes, you can use the shorthand syntax: `@`
 
 Here's the same component as above, but using the shorthand syntax instead:
 
-```html
+```alpine
 <button @click="alert('Hello World!')">Say Hi</button>
 ```
 
@@ -29,13 +29,13 @@ Here's the same component as above, but using the shorthand syntax instead:
 
 If you wish to access the native JavaScript event object from your expression, you can use Alpine's magic `$event` property.
 
-```html
+```alpine
 <button @click="alert($event.target.getAttribute('message'))" message="Hello World">Say Hi</button>
 ```
 
 In addition, Alpine also passes the event object to any methods referenced without trailing parenthesis. For example:
 
-```html
+```alpine
 <button @click="handleClick">...</button>
 
 <script>
@@ -52,7 +52,7 @@ Alpine makes it easy to listen for `keydown` and `keyup` events on specific keys
 
 Here's an example of listening for the `Enter` key inside an input element.
 
-```html
+```alpine
 <input type="text" @keyup.enter="alert('Submitted!')">
 ```
 
@@ -60,13 +60,13 @@ You can also chain these key modifiers to achieve more complex listeners.
 
 Here's a listener that runs when the `Shift` key is held and `Enter` is pressed, but not when `Enter` is pressed alone.
 
-```html
+```alpine
 <input type="text" @keyup.shift.enter="alert('Submitted!')">
 ```
 
 You can directly use any valid key names exposed via [`KeyboardEvent.key`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values) as modifiers by converting them to kebab-case.
 
-```html
+```alpine
 <input type="text" @keyup.page-down="alert('Submitted!')">
 ```
 
@@ -93,7 +93,7 @@ Alpine event listeners are a wrapper for native DOM event listeners. Therefore, 
 
 Here's an example of a component that dispatches a custom DOM event and listens for it as well.
 
-```html
+```alpine
 <div x-data @foo="alert('Button Was Clicked!')">
 	<button @click="$event.target.dispatchEvent(new CustomEvent('foo', { bubbles: true }))">...</button>
 </div>
@@ -105,7 +105,7 @@ Because the `.dispatchEvent` API is verbose, Alpine offers a `$dispatch` helper 
 
 Here's the same component re-written with the `$dispatch` magic property.
 
-```html
+```alpine
 <div x-data @foo="alert('Button Was Clicked!')">
   <button @click="$dispatch('foo')">...</button>
 </div>
@@ -123,7 +123,7 @@ Alpine offers a number of directive modifiers to customize the behavior of your 
 
 `.prevent` is the equivalent of calling `.preventDefault()` inside a listener on the browser event object.
 
-```html
+```alpine
 <form @submit.prevent="console.log('submitted')" action="/foo">
     <button>Submit</button>
 </form>
@@ -136,7 +136,7 @@ In the above example, with the `.prevent`, clicking the button will NOT submit t
 
 Similar to `.prevent`, `.stop` is the equivalent of calling `.stopPropagation()` inside a listener on the browser event object.
 
-```html
+```alpine
 <div @click="console.log('I will not get logged')">
     <button @click.stop>Click Me</button>
 </div>
@@ -149,7 +149,7 @@ In the above example, clicking the button WON'T log the message. This is because
 
 `.outside` is a convenience helper for listening for a click outside of the element it is attached to. Here's a simple dropdown component example to demonstrate:
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button @click="open = ! open">Toggle</button>
 
@@ -170,7 +170,7 @@ This is because `.outside` is listening for clicks that DONT originate from the 
 
 When the `.window` modifier is present, Alpine will register the event listener on the root `window` object on the page instead of the element itself.
 
-```html
+```alpine
 <div @keyup.escape.window="...">...</div>
 ```
 
@@ -188,7 +188,7 @@ Adding `.window` to listeners is extremely useful for these sorts of cases where
 
 By adding `.once` to a listener, you are ensuring that the handler is only called ONCE.
 
-```html
+```alpine
 <button @click.once="console.log('I will only log once')">...</button>
 ```
 
@@ -199,7 +199,7 @@ Sometimes it is useful to "debounce" an event handler so that it only is called 
 
 For example if you have a search field that fires network requests as the user types into it, adding a debounce will prevent the network requests from firing on every single keystroke.
 
-```html
+```alpine
 <input @input.debounce="fetchResults">
 ```
 
@@ -207,7 +207,7 @@ Now, instead of calling `fetchResults` after every keystroke, `fetchResults` wil
 
 If you wish to lengthen or shorten the debounce time, you can do so by trailing a duration after the `.debounce` modifier like so:
 
-```html
+```alpine
 <input @input.debounce.500ms="fetchResults">
 ```
 
@@ -222,7 +222,7 @@ This is useful for cases where there may be repeated and prolonged event firing 
 
 For example:
 
-```html
+```alpine
 <div @scroll.window.throttle="handleScroll">...</div>
 ```
 
@@ -235,7 +235,7 @@ The above example is a great use case of throttling. Without `.throttle`, the `h
 
 By adding `.self` to an event listener, you are ensuring that the event originated on the element it is declared on, and not from a child element.
 
-```html
+```alpine
 <button @click.self="handleClick">
     Click Me
 
@@ -250,7 +250,7 @@ However, in this case, because we've added a `.self`, only clicking the button i
 <a name="camel"></a>
 ### .camel
 
-```html
+```alpine
 <div @custom-event.camel="handleCustomEvent">
     ...
 </div>
@@ -267,7 +267,7 @@ Browsers optimize scrolling on pages to be fast and smooth even when JavaScript 
 
 If you are listening for touch events, it's important to add `.passive` to your listeners to not block scroll performance.
 
-```html
+```alpine
 <div @touchstart.passive="...">...</div>
 ```
 

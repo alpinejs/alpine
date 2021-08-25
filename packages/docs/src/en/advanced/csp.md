@@ -19,7 +19,7 @@ Like all Alpine extensions, you can include this either via `<script>` tag or mo
 <a name="script-tag"></a>
 ### Script tag
 
-```html
+```alpine
 <html>
     <script src="alpinejs/alpinejs-csp/cdn.js" defer></script>
 </html>
@@ -44,7 +44,7 @@ Due to this limitation, you must use `Alpine.data` to register your `x-data` obj
 
 For example, an inline component like this will not work.
 
-```html
+```alpine
 <!-- Bad -->
 <div x-data="{ count: 1 }">
     <button @click="count++">Increment</button>
@@ -55,7 +55,7 @@ For example, an inline component like this will not work.
 
 However, breaking out the expressions into external APIs, the following is valid with the CSP build:
 
-```html
+```alpine
 <!-- Good -->
 <div x-data="counter">
     <button @click="increment">Increment</button>

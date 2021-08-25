@@ -17,7 +17,7 @@ For `x-cloak` to work however, you must add the following CSS to the page.
 
 Now, the following example will hide the `<span>` tag until Alpine has set its text content to the `message` property.
 
-```html
+```alpine
 <span x-cloak x-text="message"></span>
 ```
 
@@ -25,7 +25,7 @@ When Alpine loads on the page, it removes all `x-cloak` property from the elemen
 
 If you'd like to achieve this same behavior, but avoid having to include a global style, you can use the following cool, but admittedly odd trick:
 
-```html
+```alpine
 <template x-if="true">
     <span x-text="message"></span>
 </template>

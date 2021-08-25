@@ -9,7 +9,7 @@ title: if
 
 Because of this difference in behavior, `x-if` should not be applied directly to the element, but instead to a `<template>` tag that encloses the element. This way, Alpine can keep a record of the element once it's removed from the page.
 
-```html
+```alpine
 <template x-if="open">
     <div>Contents...</div>
 </template>

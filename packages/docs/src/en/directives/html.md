@@ -12,7 +12,7 @@ title: html
 
 Here's a basic example of using `x-html` to display a user's username.
 
-```html
+```alpine
 <div x-data="{ username: '<strong>calebporzio</strong>' }">
     Username: <span x-html="username"></span>
 </div>

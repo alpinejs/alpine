@@ -14,7 +14,7 @@ Let's cover a few of the basic templating directives here, but be sure to look t
 
 Alpine makes it easy to control the text content of an element with the `x-text` directive.
 
-```html
+```alpine
 <div x-data="{ title: 'Start Here' }">
     <h1 x-text="title"></h1>
 </div>
@@ -30,7 +30,7 @@ Now, Alpine will set the text content of the `<h1>` with the value of `title` ("
 
 Like all directives in Alpine, you can use any JavaScript expression you like. For example:
 
-```html
+```alpine
 <span x-text="1 + 2"></span>
 ```
 
@@ -56,7 +56,7 @@ Alpine offers the `x-show` and `x-if` directives for toggling elements on a page
 
 Here's a simple toggle component using `x-show`.
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button @click="open = ! open">Expand</button>
 
@@ -89,7 +89,7 @@ This works well for most cases, but sometimes you may want to completely add and
 
 Here is the same toggle from before, but this time using `x-if` instead of `x-show`.
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button @click="open = ! open">Expand</button>
 
@@ -128,7 +128,7 @@ Alpine makes it simple to smoothly transition between "shown" and "hidden" state
 
 Here is, again, the simple toggle example, but this time with transitions applied:
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button @click="open = ! open">Expands</button>
 
@@ -152,7 +152,7 @@ Here is, again, the simple toggle example, but this time with transitions applie
 
 Let's zoom in on the portion of the template dealing with transitions:
 
-```html
+```alpine
 <div x-show="open" x-transition>
 ```
 
@@ -170,7 +170,7 @@ Let's take a look at each of these approaches:
 
 Let's say you wanted to make the duration of the transition longer, you can manually specify that using the `.duration` modifier like so:
 
-```html
+```alpine
 <div x-show="open" x-transition.duration.500ms>
 ```
 
@@ -190,7 +190,7 @@ Now the transition will last 500 milliseconds.
 
 If you want to specify different values for in and out transitions, you can use `x-transition:enter` and `x-transition:leave`:
 
-```html
+```alpine
 <div
     x-show="open"
     x-transition:enter.duration.500ms
@@ -212,7 +212,7 @@ If you want to specify different values for in and out transitions, you can use 
 
 Additionally, you can add either `.opacity` or `.scale` to only transition that property. For example:
 
-```html
+```alpine
 <div x-show="open" x-transition.opacity>
 ```
 
@@ -235,7 +235,7 @@ Additionally, you can add either `.opacity` or `.scale` to only transition that 
 
 If you need more fine-grained control over the transitions in your application, you can apply specific CSS classes at specific phases of the transition using the following syntax (this example uses [Tailwind CSS](https://tailwindcss.com/)):
 
-```html
+```alpine
 <div
     x-show="open"
     x-transition:enter="transition ease-out duration-300"
@@ -277,7 +277,7 @@ You can add HTML attributes like `class`, `style`, `disabled`, etc... to element
 
 Here is an example of a dynamically bound `class` attribute:
 
-```html
+```alpine
 <button
     x-data="{ red: false }"
     x-bind:class="red ? 'bg-red' : ''"
@@ -302,13 +302,13 @@ Here is an example of a dynamically bound `class` attribute:
 
 As a shortcut, you can leave out the `x-bind` and use the shorthand `:` syntax directly:
 
-```html
+```alpine
 <button ... :class="red ? 'bg-red' : ''>"
 ```
 
 Toggling classes on and off based on data inside Alpine is a common need. Here's an example of toggling a class using Alpine's `class` binding object syntax: (Note: this syntax is only available for `class` attributes)
 
-```html
+```alpine
 <div x-data="{ open: true }">
     <span :class="{ 'hidden': ! open }">...</span>
 </div>
@@ -321,7 +321,7 @@ Now the `hidden` class will be added to the element if `open` is false, and remo
 
 Alpine allows for iterating parts of your template based on JavaScript data using the `x-for` directive. Here is a simple example:
 
-```html
+```alpine
 <div x-data="{ statuses: ['open', 'closed', 'archived'] }">
     <template x-for="status in statuses">
         <div x-text="status"></div>
@@ -348,7 +348,7 @@ As you can see the new `status` variable is available in the scope of the iterat
 
 Alpine makes it easy to control the HTML content of an element with the `x-html` directive.
 
-```html
+```alpine
 <div x-data="{ title: '<h1>Start Here</h1>' }">
     <div x-html="title"></div>
 </div>

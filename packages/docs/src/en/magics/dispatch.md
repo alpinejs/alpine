@@ -7,7 +7,7 @@ title: dispatch
 
 `$dispatch` is a helpful shortcut for dispatching browser events.
 
-```html
+```alpine
 <div @notify="alert('Hello World!')">
     <button @click="$dispatch('notify')">
         Notify
@@ -27,7 +27,7 @@ title: dispatch
 
 You can also pass data along with the dispatched event if you wish. This data will be accessible as the `.detail` property of the event:
 
-```html
+```alpine
 <div @notify="alert($event.detail.message)">
     <button @click="$dispatch('notify', { message: 'Hello World!' })">
         Notify
@@ -52,7 +52,7 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 
 **Example:**
 
-```html
+```alpine
 <!-- 🚫 Won't work -->
 <div x-data>
     <span @notify="..."></span>
@@ -75,7 +75,7 @@ You can also take advantage of the previous technique to make your components ta
 
 **Example:**
 
-```html
+```alpine
 <div
     x-data="{ title: 'Hello' }"
     @set-title.window="title = $event.detail"
@@ -94,7 +94,7 @@ You can also take advantage of the previous technique to make your components ta
 
 You can also use `$dispatch()` to trigger data updates for `x-model` data bindings. For example:
 
-```html
+```alpine
 <div x-data="{ title: 'Hello' }">
     <span x-model="title">
         <button @click="$dispatch('input', 'Hello World!')">

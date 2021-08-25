@@ -7,7 +7,7 @@ title: init
 
 The `x-init` directive allows you to hook into the initialization phase of any element in Alpine.
 
-```html
+```alpine
 <div x-init="console.log('I\'m being initialized!')"></div>
 ```
 
@@ -15,7 +15,7 @@ In the above example, "I\'m being initialized!" will be output in the console be
 
 Consider another example where `x-init` is used to fetch some JSON and store it in `x-data` before the component is processed.
 
-```html
+```alpine
 <div
     x-data="{ posts: [] }"
     x-init="posts = await (await fetch('/posts')).json()"
@@ -31,7 +31,7 @@ This would be something like `useEffect(..., [])` in react, or `mount` in Vue.
 
 By using Alpine's internal `$nextTick` magic, you can make this happen.
 
-```html
+```alpine
 <div x-init="$nextTick(() => { ... })"></div>
 ```
 
@@ -40,7 +40,7 @@ By using Alpine's internal `$nextTick` magic, you can make this happen.
 
 You can add `x-init` to any elements inside or outside an `x-data` HTML block. For example:
 
-```html
+```alpine
 <div x-data>
     <span x-init="console.log('I can initialize')"></span>
 </div>
@@ -53,7 +53,7 @@ You can add `x-init` to any elements inside or outside an `x-data` HTML block. F
 
 If the `x-data` object of a component contains an `init()` method, it will be called automatically. For example:
 
-```html
+```alpine
 <div x-data="{
     init() {
         console.log('I am called automatically')

@@ -35,3 +35,12 @@ test('can make deferred changes with $nextTick',
     `,
     ({ get }) => get('span').should(haveText('yo'))
 )
+
+test('x-init will not evaluate expression if it is empty',
+    html`
+        <div x-data="{ foo: 'bar' }" x-init=" ">
+            <span x-text="foo" x-ref="foo">baz</span>
+        </div>
+    `,
+    ({ get }) => get('span').should(haveText('bar'))
+)

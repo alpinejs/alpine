@@ -3,7 +3,7 @@ import { mapAttributes, directive, setPrefix as prefix } from './directives'
 import { setEvaluator, evaluate, evaluateLater } from './evaluator'
 import { start, addRootSelector, closestRoot, initTree } from './lifecycle'
 import { interceptor } from './interceptor'
-import { mutateDom } from './mutation'
+import { mutateDom, stopObservingMutations } from './mutation'
 import { nextTick } from './nextTick'
 import { plugin } from './plugin'
 import { magic } from './magics'
@@ -18,6 +18,7 @@ let Alpine = {
     get raw() { return raw },
     version: ALPINE_VERSION,
     disableEffectScheduling,
+    stopObservingMutations,
     setReactivityEngine,
     addRootSelector,
     mapAttributes,

@@ -182,6 +182,8 @@ function keyToModifiers(key) {
         'down': 'arrow-down',
         'left': 'arrow-left',
         'right': 'arrow-right',
+        'period': '.',
+        'equal': '=',
     }
 
     modifierToKeyMap[key] = key

@@ -146,7 +146,7 @@ Consider the scenario where you want to clear the data once the user close the t
 
 
 ```alpine
-<div x-data="{ count: $persist(0).to(sessionStorage') }">
+<div x-data="{ count: $persist(0).to(sessionStorage) }">
     <button x-on:click="count++">Increment</button>
 
     <span x-text="count"></span>
@@ -175,7 +175,7 @@ You can also define your custom storage object exposing a getItem function and a
     }
 </script>
 
-<div x-data="{ count: $persist(0).to(sessionStorage') }">
+<div x-data="{ count: $persist(0).to(cookieStorage) }">
     <button x-on:click="count++">Increment</button>
 
     <span x-text="count"></span>

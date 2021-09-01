@@ -14,13 +14,13 @@ By using `x-on`, you can listen for browser events that are dispatched on or wit
 
 Here's a basic example of listening for a click on a button:
 
-```html
+```alpine
 <button x-on:click="console.log('clicked')">...</button>
 ```
 
 As an alternative, you can use the event shorthand syntax if you prefer: `@`. Here's the same example as before, but using the shorthand syntax (which we'll be using from now on):
 
-```html
+```alpine
 <button @click="...">...</button>
 ```
 
@@ -31,13 +31,13 @@ In addition to `click`, you can listen for any browser event by name. For exampl
 
 Let's say you wanted to listen for the `enter` key to be pressed inside an `<input>` element. Alpine makes this easy by adding the `.enter` like so:
 
-```html
+```alpine
 <input @keyup.enter="...">
 ```
 
 You can even combine key modifiers to listen for key combinations like pressing `enter` while holding `shift`:
 
-```html
+```alpine
 <input @keyup.shift.enter="...">
 ```
 
@@ -48,7 +48,7 @@ When reacting to browser events, it is often necessary to "prevent default" (pre
 
 For example, if you want to listen for a form submission but prevent the browser from submitting a form request, you can use `.prevent`:
 
-```html
+```alpine
 <form @submit.prevent="...">...</form>
 ```
 
@@ -59,7 +59,7 @@ You can also apply `.stop` to achieve the equivalent of `event.stopPropagation()
 
 Sometimes you may want to access the native browser event object inside your own code. To make this easy, Alpine automatically injects an `$event` magic variable:
 
-```html
+```alpine
 <button @click="$event.target.remove()">Remove Me</button>
 ```
 
@@ -70,7 +70,7 @@ In addition to listening for browser events, you can dispatch them as well. This
 
 Alpine exposes a magic helper called `$dispatch` for this:
 
-```html
+```alpine
 <div @foo="console.log('foo was dispatched')">
     <button @click="$dispatch('foo')"></button>
 </div>
@@ -86,7 +86,7 @@ Because of the nature of events in the browser, it is sometimes useful to listen
 This allows you to communicate across components completely like the following example:
 
 
-```html
+```alpine
 <div x-data>
     <button @click="$dispatch('foo')"></button>
 </div>

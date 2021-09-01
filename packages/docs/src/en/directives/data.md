@@ -11,7 +11,7 @@ Everything in Alpine starts with the `x-data` directive.
 
 Here's an example of a contrived dropdown component:
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button @click="open = ! open">Toggle Content</button>
 
@@ -30,7 +30,7 @@ Properties defined in an `x-data` directive are available to all element childre
 
 For example:
 
-```html
+```alpine
 <div x-data="{ foo: 'bar' }">
     <span x-text="foo"><!-- Will output: "bar" --></span>
 
@@ -51,7 +51,7 @@ Because `x-data` is evaluated as a normal JavaScript object, in addition to stat
 
 For example, let's extract the "Toggle Content" behavior into a method on  `x-data`.
 
-```html
+```alpine
 <div x-data="{ open: false, toggle() { this.open = ! this.open } }">
     <button @click="toggle()">Toggle Content</button>
 
@@ -67,7 +67,7 @@ You'll also notice the usage of `this.` to access state on the object itself. Th
 
 If you prefer, you can leave the calling parenthesis off of the `toggle` method completely. For example:
 
-```html
+```alpine
 <!-- Before -->
 <button @click="toggle()">...</button>
 
@@ -84,7 +84,7 @@ Think of them like "computed properties" (although, they are not cached like Vue
 
 Let's refactor our component to use a getter called `isOpen` instead of accessing `open` directly.
 
-```html
+```alpine
 <div x-data="{
   open: false,
   get isOpen() { return this.open },
@@ -109,13 +109,13 @@ Occasionally, you want to create an Alpine component, but you don't need any dat
 
 In these cases, you can always pass in an empty object.
 
-```html
+```alpine
 <div x-data="{}"...
 ```
 
 However, if you wish, you can also eliminate the attribute value entirely if it looks better to you.
 
-```html
+```alpine
 <div x-data...
 ```
 
@@ -124,7 +124,7 @@ However, if you wish, you can also eliminate the attribute value entirely if it 
 
 Sometimes you may only have a single element inside your Alpine component, like the following:
 
-```html
+```alpine
 <div x-data="{ open: true }">
     <button @click="open = false" x-show="open">Hide Me</button>
 </div>
@@ -132,7 +132,7 @@ Sometimes you may only have a single element inside your Alpine component, like 
 
 In these cases, you can declare `x-data` directly on that single element:
 
-```html
+```alpine
 <button x-data="{ open: true }" @click="open = false" x-show="open">
     Hide Me
 </button>
@@ -145,7 +145,7 @@ If you find yourself duplicating the contents of `x-data`, or you find the inlin
 
 Here's a quick example:
 
-```html
+```alpine
 <div x-data="dropdown">
     <button @click="toggle">Toggle Content</button>
 

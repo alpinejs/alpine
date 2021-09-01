@@ -9,7 +9,7 @@ title: effect
 
 If this definition is confusing for you, that's ok. It's better explained through an example:
 
-```html
+```alpine
 <div x-data="{ label: 'Hello' }" x-effect="console.log(label)">
     <button @click="label += ' World!'">Change Message</button>
 </div>

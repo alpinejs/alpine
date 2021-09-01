@@ -14,7 +14,7 @@ Alpine allows you to declare an HTML block's state in a single `x-data` attribut
 
 Here's a basic example:
 
-```html
+```alpine
 <div x-data="{ open: false }">
     ...
 </div>
@@ -29,7 +29,7 @@ Now any other Alpine syntax on or within this element will be able to access `op
 
 Data is nestable in Alpine. For example, if you have two elements with Alpine data attached (one inside the other), you can access the parent's data from inside the child element.
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <div x-data="{ label: 'Content:' }">
         <span x-text="label"></span>
@@ -47,7 +47,7 @@ Like you may have guessed, if the child has a data property matching the name of
 
 Although this may seem obvious to some, it's worth mentioning that Alpine data can be used within the same element. For example:
 
-```html
+```alpine
 <button x-data="{ label: 'Click Here' }" x-text="label"></button>
 ```
 
@@ -56,7 +56,7 @@ Although this may seem obvious to some, it's worth mentioning that Alpine data c
 
 Sometimes you may want to use Alpine functionality, but don't need any reactive data. In these cases, you can opt-out of passing an expression to `x-data` entirely. For example:
 
-```html
+```alpine
 <button x-data @click="alert('I\'ve been clicked!')">Click Me</button>
 ```
 
@@ -81,7 +81,7 @@ Alpine.data('dropdown', () => ({
 
 Now that you've registered the "dropdown" data, you can use it inside your markup in as many places as you like:
 
-```html
+```alpine
 <div x-data="dropdown">
     <button @click="toggle">Expand</button>
 
@@ -116,7 +116,7 @@ Alpine.store('tabs', {
 
 Now we can access or modify its data from anywhere on our page:
 
-```html
+```alpine
 <div x-data>
     <template x-for="tab in $store.tabs.items">
         ...

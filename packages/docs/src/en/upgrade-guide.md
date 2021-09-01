@@ -42,7 +42,7 @@ Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING
 
 `$el` now always represents the element that an expression was executed on, not the root element of the component. This will replace most usages of `x-ref` and in the cases where you still want to access the root of a component, you can do so using `x-ref`. For example:
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <div x-data>
     <button @click="console.log($el)"></button>
@@ -57,7 +57,7 @@ Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING
 
 For a smoother upgrade experience, you can optionally replace all instances of `$el` with a custom magic called `$root`, then add the following code to your site to mimic the behavior:
 
-```html
+```alpine
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.magic('root', el => {
@@ -82,7 +82,7 @@ A common pattern in V2 was to manually call an `init()` (or similarly named meth
 
 In V3, Alpine will automatically call `init()` methods on data objects.
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <div x-data="foo()" x-init="init()"></div>
 
@@ -126,7 +126,7 @@ Alpine.start()
 
 All of the conveniences provided by `x-show.transition...` helpers are still available, but now from a more unified API: `x-transition`:
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <div x-show.transition="open"></div>
 <!-- ✅ After -->
@@ -158,7 +158,7 @@ This was a feature very few people even knew existed let alone used.
 
 Because the transition system is complex, it makes more sense from a maintenance perspective to only support transitioning elements with `x-show`.
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <template x-if.transition="open">
     <div>...</div>
@@ -175,7 +175,7 @@ Because the transition system is complex, it makes more sense from a maintenance
 
 Scope defined in `x-data` is now available to all children unless overwritten by a nested `x-data` expression.
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <div x-data="{ foo: 'bar' }">
     <div x-data="{}">
@@ -198,7 +198,7 @@ Scope defined in `x-data` is now available to all children unless overwritten by
 
 Before V3, if `x-init` received a return value that is `typeof` "function", it would execute the callback after Alpine finished initializing all other directives in the tree. Now, you must manually call `$nextTick()` to achieve that behavior. `x-init` is no longer "return value aware".
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <div x-data x-init="() => { ... }">...</div>
 
@@ -213,7 +213,7 @@ Before V3, if `x-init` received a return value that is `typeof` "function", it w
 
 Alpine V2 observes a return value of `false` as a desire to run `preventDefault` on the event. This conforms to the standard behavior of native, inline listeners: `<... oninput="someFunctionThatReturnsFalse()">`. Alpine V3 no longer supports this API. Most people don't know it exists and therefore is surprising behavior.
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <div x-data="{ blockInput() { return false } }">
     <input type="text" @input="blockInput()">
@@ -232,7 +232,7 @@ Alpine V2 observes a return value of `false` as a desire to run `preventDefault`
 
 One of Alpine's stories for re-using functionality is abstracting Alpine directives into objects and applying them to elements with `x-spread`. This behavior is still the same, except now `x-bind` (with no specified attribute) is the API instead of `x-spread`.
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <div x-data="dropdown()">
     <button x-spread="trigger">Toggle</button>
@@ -271,7 +271,7 @@ One of Alpine's stories for re-using functionality is abstracting Alpine directi
 <a name="use-global-events-now"></a>
 ### Use global lifecycle events instead of `Alpine.deferLoadingAlpine()`
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <script>
     window.deferLoadingAlpine = startAlpine => {
@@ -295,12 +295,15 @@ One of Alpine's stories for re-using functionality is abstracting Alpine directi
 </script>
 ```
 
+[→ Read more about Alpine lifecycle events](/essentials/lifecycle#alpine-initialization)
+
+
 <a name="x-ref-no-more-dynamic"></a>
 ### `x-ref` no longer supports binding
 
 In Alpine V2 for below code
 
-```html
+```alpine
 <div x-data="{options: [{value: 1}, {value: 2}, {value: 3}] }">
     <div x-ref="0">0</div>
     <template x-for="option in options">
@@ -314,8 +317,6 @@ In Alpine V2 for below code
 after clicking button all `$refs` were displayed. However in Alpine V3 it's possible to access only `$refs` for elements created statically, so only first ref will be returned as expected.
 
 
-[→ Read more about Alpine lifecycle events](/essentials/lifecycle#alpine-initialization)
-
 <a name="no-ie-11"></a>
 ### IE11 no longer supported
 
@@ -328,7 +329,7 @@ The following 2 APIs will still work in V3, but are considered deprecated and ar
 <a name="away-replace-with-outside"></a>
 ### Event listener modifier `.away` should be replaced with `.outside`
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <div x-show="open" @click.away="open = false">
     ...
@@ -343,7 +344,7 @@ The following 2 APIs will still work in V3, but are considered deprecated and ar
 <a name="alpine-data-instead-of-global-functions"></a>
 ### Prefer `Alpine.data()` to global Alpine function data providers
 
-```html
+```alpine
 <!-- 🚫 Before -->
 <div x-data="dropdown()">
     ...

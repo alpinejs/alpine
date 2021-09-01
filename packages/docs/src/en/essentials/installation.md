@@ -17,7 +17,7 @@ Either is perfectly valid. It all depends on the project's needs and the develop
 
 This is by far the simplest way to get started with Alpine. Include the following `<script>` tag in the head of your HTML page.
 
-```html
+```alpine
 <html>
   <head>
     ...
@@ -32,7 +32,7 @@ This is by far the simplest way to get started with Alpine. Include the followin
 
 Notice the `@3.x.x` in the provided CDN link. This will pull the latest version of Alpine version 3. For stability in production, it's recommended that you hardcode the latest version in the CDN link.
 
-```html
+```alpine
 <script defer src="https://unpkg.com/alpinejs@3.2.4/dist/cdn.min.js"></script>
 ```
 
@@ -45,7 +45,7 @@ If you prefer the more robust approach, you can install Alpine via NPM and impor
 
 Run the following command to install it.
 
-```bash
+```shell
 npm install alpinejs
 ```
 

@@ -14,7 +14,7 @@ function getLabel() {
     return 'Hello World!'
 }
 ```
-```html
+```alpine
 <span x-text="getLabel()"></span>
 ```
 
@@ -29,12 +29,12 @@ async function getLabel() {
     return await response.text()
 }
 ```
-```html
+```alpine
 <span x-text="await getLabel()"></span>
 ```
 
 Additionally, if you prefer calling methods in Alpine without the trailing parenthesis, you can leave them out and Alpine will detect that the provided function is async and handle it accordingly. For example:
 
-```html
+```alpine
 <span x-text="getLabel"></span>
 ```

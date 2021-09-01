@@ -9,7 +9,7 @@ title: bind
 
 For example, here's a component where we will use `x-bind` to set the placeholder value of an input.
 
-```html
+```alpine
 <div x-data="{ placeholder: 'Type here...' }">
   <input type="text" x-bind:placeholder="placeholder">
 </div>
@@ -20,7 +20,7 @@ For example, here's a component where we will use `x-bind` to set the placeholde
 
 If `x-bind:` is too verbose for your liking, you can use the shorthand: `:`. For example, here is the same input element as above, but refactored to use the shorthand syntax.
 
-```html
+```alpine
 <input type="text" :placeholder="placeholder">
 ```
 
@@ -31,7 +31,7 @@ If `x-bind:` is too verbose for your liking, you can use the shorthand: `:`. For
 
 Here's a simple example of a simple dropdown toggle, but instead of using `x-show`, we'll use a "hidden" class to toggle an element.
 
-```html
+```alpine
 <div x-data="{ open: false }">
   <button x-on:click="open = ! open">Toggle Dropdown</button>
 
@@ -48,7 +48,7 @@ Now, when `open` is `false`, the "hidden" class will be added to the dropdown.
 
 In cases like these, if you prefer a less verbose syntax you can use JavaScript's short-circuit evaluation instead of standard conditionals:
 
-```html
+```alpine
 <div :class="show ? '' : 'hidden'">
 <!-- Is equivalent to: -->
 <div :class="show || 'hidden'">
@@ -56,7 +56,7 @@ In cases like these, if you prefer a less verbose syntax you can use JavaScript'
 
 The inverse is also available to you. Suppose instead of `open`, we use a variable with the opposite value: `closed`.
 
-```html
+```alpine
 <div :class="closed ? 'hidden' : ''">
 <!-- Is equivalent to: -->
 <div :class="closed && 'hidden'">
@@ -67,7 +67,7 @@ The inverse is also available to you. Suppose instead of `open`, we use a variab
 
 Alpine offers an additional syntax for toggling classes if you prefer. By passing a JavaScript object where the classes are the keys and booleans are the values, Alpine will know which classes to apply and which to remove. For example:
 
-```html
+```alpine
 <div :class="{ 'hidden': ! show }">
 ```
 
@@ -75,7 +75,7 @@ This technique offers a unique advantage to other methods. When using object-syn
 
 For example, if you wanted to apply the "hidden" class to an element before Alpine loads, AND use Alpine to toggle its existence you can only achieve that behavior using object-syntax:
 
-```html
+```alpine
 <div class="hidden" :class="{ 'hidden': ! show }">
 ```
 
@@ -88,7 +88,7 @@ In case that confused you, let's dig deeper into how Alpine handles `x-bind:clas
 
 Consider the following case.
 
-```html
+```alpine
 <div class="opacity-50" :class="hide && 'hidden'">
 ```
 
@@ -98,13 +98,13 @@ However, Alpine treats `class` bindings differently. It's smart enough to preser
 
 For example, if `hide` is true, the above example will result in the following DOM element:
 
-```html
+```alpine
 <div class="opacity-50 hidden">
 ```
 
 If `hide` is false, the DOM element will look like:
 
-```html
+```alpine
 <div class="opacity-50">
 ```
 
@@ -117,7 +117,7 @@ Similar to the special syntax for binding classes with JavaScript objects, Alpin
 
 Just like the class objects, this syntax is entirely optional. Only use it if it affords you some advantage.
 
-```html
+```alpine
 <div :style="{ color: 'red', display: 'flex' }">
 
 <!-- Will render: -->
@@ -126,7 +126,7 @@ Just like the class objects, this syntax is entirely optional. Only use it if it
 
 One advantage of this approach is being able to mix it in with existing styles on an element:
 
-```html
+```alpine
 <div style="padding: 1rem;" :style="{ color: 'red', display: 'flex' }">
 
 <!-- Will render: -->
@@ -135,7 +135,7 @@ One advantage of this approach is being able to mix it in with existing styles o
 
 And like most expressions in Alpine, you can always use the result of a JavaScript expression as the reference:
 
-```html
+```alpine
 <div x-data="{ styles: { color: 'red', display: 'flex' }}">
     <div :style="styles">
 </div>
@@ -153,7 +153,7 @@ And like most expressions in Alpine, you can always use the result of a JavaScri
 
 The object keys are the directives (can be any directive including modifiers), and the values are callbacks to be evaluated by Alpine.
 
-```html
+```alpine
 <div x-data="dropdown()">
     <button x-bind="trigger">Open Dropdown</button>
 

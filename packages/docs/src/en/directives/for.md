@@ -7,7 +7,7 @@ title: for
 
 Alpine's `x-for` directive allows you to create DOM elements by iterating through a list. Here's a simple example of using it to create a list of colors based on an array.
 
-```html
+```alpine
 <ul x-data="{ colors: ['Red', 'Orange', 'Yellow'] }">
     <template x-for="color in colors">
         <li x-text="color"></li>
@@ -35,7 +35,7 @@ There are two rules worth noting about `x-for`:
 
 It is important to specify keys for each `x-for` iteration if you are going to be re-ordering items. Without dynamic keys, Alpine may have a hard time keeping track of what re-orders and will cause odd side-effects.
 
-```html
+```alpine
 <ul x-data="{ colors: [
     { id: 1, label: 'Red' },
     { id: 2, label: 'Orange' },
@@ -54,7 +54,7 @@ Now if the colors are added, removed, re-ordered, or their "id"s change, Alpine 
 
 If you need to access the index of each item in the iteration, you can do so using the `([item], [index]) in [items]` syntax like so:
 
-```html
+```alpine
 <ul x-data="{ colors: ['Red', 'Orange', 'Yellow'] }">
     <template x-for="(color, index) in colors">
         <li>
@@ -67,7 +67,7 @@ If you need to access the index of each item in the iteration, you can do so usi
 
 You can also access the index inside a dynamic `:key` expression.
 
-```html
+```alpine
 <template x-for="(color, index) in colors" :key="index">
 ```
 
@@ -76,7 +76,7 @@ You can also access the index inside a dynamic `:key` expression.
 
 If you need to simply loop `n` number of times, rather than iterate through an array, Alpine offers a short syntax.
 
-```html
+```alpine
 <ul>
     <template x-for="i in 10">
         <li x-text="i"></li>

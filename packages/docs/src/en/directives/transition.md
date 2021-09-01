@@ -17,7 +17,7 @@ There are two primary ways to handle transitions in Alpine:
 
 The simplest way to achieve a transition using Alpine is by adding `x-transition` to an element with `x-show` on it. For example:
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button @click="open = ! open">Toggle</button>
 
@@ -48,7 +48,7 @@ You can override these defaults with modifiers attached to `x-transition`. Let's
 
 You can configure the duration you want for a transition with the `.duration` modifier:
 
-```html
+```alpine
 <div ... x-transition.duration.500ms>
 ```
 
@@ -56,7 +56,7 @@ The above `<div>` will transition for 500 milliseconds when entering, and 250 mi
 
 This difference in duration generally desirable default. If you wish to customize the durations specifically for entering and leaving, you can do that like so:
 
-```html
+```alpine
 <div ...
     x-transition:enter.duration.500ms
     x-transition:leave.duration.400ms
@@ -68,7 +68,7 @@ This difference in duration generally desirable default. If you wish to customiz
 
 You can delay a transition using the `.delay` modifier like so:
 
-```html
+```alpine
 <div ... x-transition.delay.50ms>
 ```
 
@@ -81,7 +81,7 @@ By default, Alpine's `x-transition` applies both a scale and opacity transition 
 
 If you wish to only apply the opacity transition (no scale), you can accomplish that like so:
 
-```html
+```alpine
 <div ... x-transition.opacity>
 ```
 
@@ -90,13 +90,13 @@ If you wish to only apply the opacity transition (no scale), you can accomplish 
 
 Similar to the `.opacity` modifier, you can configure `x-transition` to ONLY scale (and not transition opacity as well) like so:
 
-```html
+```alpine
 <div ... x-transition.scale>
 ```
 
 The `.scale` modifier also offers the ability to configure its scale values AND its origin values:
 
-```html
+```alpine
 <div ... x-transition.scale.80>
 ```
 
@@ -104,7 +104,7 @@ The above snippet will scale the element up and down by 80%.
 
 Again, you may customize these values separately for enter and leaving transitions like so:
 
-```html
+```alpine
 <div ...
     x-transition:enter.scale.80
     x-transition:leave.scale.90
@@ -113,7 +113,7 @@ Again, you may customize these values separately for enter and leaving transitio
 
 To customize the origin of the scale transition, you can use the `.origin` modifier:
 
-```html
+```alpine
 <div ... x-transition.scale.origin.top>
 ```
 
@@ -131,7 +131,7 @@ For direct control over exactly what goes into your transitions, you can apply C
 
 > The following examples use [TailwindCSS](https://tailwindcss.com/docs/transition-property) utility classes.
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button @click="open = ! open">Toggle</button>
 

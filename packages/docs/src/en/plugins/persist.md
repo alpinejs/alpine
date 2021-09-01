@@ -20,7 +20,7 @@ You can use this plugin by either including it from a `<script>` tag or installi
 
 You can include the CDN build of this plugin as a `<script>` tag, just make sure to include it BEFORE Alpine's core JS file.
 
-```html
+```alpine
 <!-- Alpine Plugins -->
 <script defer src="https://unpkg.com/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
 
@@ -32,7 +32,7 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 You can install Persist from NPM for use inside your bundle like so:
 
-```bash
+```shell
 npm install @alpinejs/persist
 ```
 
@@ -54,7 +54,7 @@ The primary API for using this plugin is the magic `$persist` method.
 
 You can wrap any value inside `x-data` with `$persist` like below to persist its value across page loads:
 
-```html
+```alpine
 <div x-data="{ count: $persist(0) }">
     <button x-on:click="count++">Increment</button>
 
@@ -90,7 +90,7 @@ You'll observe that by simply visiting this page, Alpine already set the value o
 
 Now change the "count" in the following example and observe the changes made by Alpine to localStorage:
 
-```html
+```alpine
 <div x-data="{ count: $persist(0) }">
     <button x-on:click="count++">Increment</button>
 
@@ -123,7 +123,7 @@ Alpine will have no way of differentiating between these components.
 In these cases, you can set your own custom key for any persisted value using the `.as` modifier like so:
 
 
-```html
+```alpine
 <div x-data="{ count: $persist(0).as('other-count') }">
     <button x-on:click="count++">Increment</button>
 

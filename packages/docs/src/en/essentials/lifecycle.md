@@ -14,7 +14,7 @@ Another extremely useful lifecycle hook in Alpine is the `x-init` directive.
 
 `x-init` can be added to any element on a page and will execute any JavaScript you call inside it when Alpine begins initializing that element.
 
-```html
+```alpine
 <button x-init="console.log('Im initing')">
 ```
 
@@ -36,7 +36,7 @@ Alpine allows you to execute code when a piece of data (state) changes. It offer
 <a name="watch"></a>
 ### `$watch`
 
-```html
+```alpine
 <div x-data="{ open: false }" x-init="$watch('open', value => console.log(value))">
 ```
 
@@ -53,7 +53,7 @@ Instead of specifying which data key you wish to watch, `x-effect` will call the
 
 Here's the same bit of code from the `$watch` example rewritten using `x-effect`:
 
-```html
+```alpine
 <div x-data="{ open: false }" x-effect="console.log(open)">
 ```
 

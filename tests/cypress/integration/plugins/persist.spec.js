@@ -111,3 +111,57 @@ test('can persist multiple components using the same property',
         get('span#two').should(haveText('bar'))
     },
 )
+
+test('can persist using an alias',
+    [html`
+        <div x-data="{ show: $persist(false) }">
+            <template x-if="show">
+                <span id="one">Foo</span>
+            </template>
+        </div>
+        <div x-data="{ show: $persist(false).as('foo') }">
+            <button id="test" @click="show = true"></button>
+
+            <template x-if="show">
+                <span id="two">Foo</span>
+            </template>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('span#one').should(notBeVisible())
+        get('span#two').should(notBeVisible())
+        get('button').click()
+        get('span#one').should(notBeVisible())
+        get('span#two').should(beVisible())
+        reload()
+        get('span#one').should(notBeVisible())
+        get('span#two').should(beVisible())
+    },
+)
+
+test('aliases do not affect other persist in the same page',
+    [html`
+        <div x-data="{ show: $persist(false).as('foo') }">
+            <button id="test" @click="show = true"></button>
+
+            <template x-if="show">
+                <span id="two">Foo</span>
+            </template>
+        </div>
+        <div x-data="{ open: $persist(false) }">
+            <template x-if="open">
+                <span id="one">Foo</span>
+            </template>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('span#one').should(notBeVisible())
+        get('span#two').should(notBeVisible())
+        get('button').click()
+        get('span#one').should(notBeVisible())
+        get('span#two').should(beVisible())
+        reload()
+        get('span#one').should(notBeVisible())
+        get('span#two').should(beVisible())
+    },
+)

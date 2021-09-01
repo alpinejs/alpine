@@ -1,8 +1,8 @@
 
 export default function (Alpine) {
-    let alias
-
     Alpine.magic('persist', (el, { interceptor }) => {
+        let alias
+
         return interceptor((initialValue, getter, setter, path, key) => {
             let lookup = alias || `_x_${path}`
 

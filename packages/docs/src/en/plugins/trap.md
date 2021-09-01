@@ -57,7 +57,7 @@ The primary API for using this plugin is the `x-trap` directive.
 For example:
 
 ```alpine
-<div x-data="{ open: false}">
+<div x-data="{ open: false }">
     <button @click="open = true">Open Dialogue</button>
 
     <span x-show="open" x-trap="open">
@@ -73,7 +73,7 @@ For example:
 ```
 
 <!-- START_VERBATIM -->
-<div x-data="{ open: false}" class="demo">
+<div x-data="{ open: false }" class="demo">
     <div :class="open && 'opacity-50'">
         <button x-on:click="open = true">Open Dialogue</button>
     </div>
@@ -110,14 +110,14 @@ This mechanism is recursive, so you can trap focus within an already trapped ele
 Here is nesting in action:
 
 ```alpine
-<div x-data="{ open: false}">
+<div x-data="{ open: false }">
     <button @click="open = true">Open Dialogue</button>
 
     <span x-show="open" x-trap="open">
 
         ...
 
-        <div x-data="{ open: false}">
+        <div x-data="{ open: false }">
             <button @click="open = true">Open Nested Dialogue</button>
 
             <span x-show="open" x-trap="open">
@@ -134,7 +134,7 @@ Here is nesting in action:
 ```
 
 <!-- START_VERBATIM -->
-<div x-data="{ open: false}" class="demo">
+<div x-data="{ open: false }" class="demo">
     <div :class="open && 'opacity-50'">
         <button x-on:click="open = true">Open Dialogue</button>
     </div>
@@ -148,7 +148,7 @@ Here is nesting in action:
             <input type="text" placeholder="Some other input...">
         </div>
 
-        <div x-data="{ open: false}">
+        <div x-data="{ open: false }">
             <div :class="open && 'opacity-50'">
                 <button x-on:click="open = true">Open Nested Dialogue</button>
             </div>

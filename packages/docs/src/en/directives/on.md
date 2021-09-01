@@ -85,6 +85,8 @@ For easy reference, here is a list of common keys you may want to listen for.
 | `.escape`                   | Escape                      |
 | `.tab`                      | Tab                         |
 | `.caps-lock`                | Caps Lock                   |
+| `.equal`                    | Equal, `=`                  |
+| `.period`                   | Period, `.`                 |
 
 <a name="custom-events"></a>
 ## Custom events

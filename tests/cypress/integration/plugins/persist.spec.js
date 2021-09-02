@@ -1,4 +1,4 @@
-import { beVisible, haveText, html, notBeVisible, test } from '../../utils'
+import { beEqualTo, beVisible, haveText, html, notBeVisible, test } from '../../utils'
 
 test('can persist number',
     [html`
@@ -139,7 +139,7 @@ test('can persist using an alias',
     },
 )
 
-test('aliases do not affect other persist in the same page',
+test('aliases do not affect other $persist calls',
     [html`
         <div x-data="{ show: $persist(false).as('foo') }">
             <button id="test" @click="show = true"></button>
@@ -163,5 +163,39 @@ test('aliases do not affect other persist in the same page',
         reload()
         get('span#one').should(notBeVisible())
         get('span#two').should(beVisible())
+    },
+)
+
+test('can persist to custom storage',
+    [html`
+        <div x-data="{ message: $persist('foo').using(sessionStorage) }">
+            <input x-model="message">
+
+            <span x-text="message"></span>
+        </div>
+    `],
+    ({ get, window }, reload) => {
+        get('span').should(haveText('foo'))
+        get('input').clear().type('bar')
+        get('span').should(haveText('bar'))
+        reload()
+        get('span').should(haveText('bar'))
+        window().its('sessionStorage._x_message').should(beEqualTo(JSON.stringify('bar')))
+    },
+)
+
+test('can persist to custom storage using an alias',
+    [html`
+        <div x-data="{ message: $persist('foo').as('mymessage').using(sessionStorage) }">
+            <input x-model="message">
+
+            <span x-text="message"></span>
+        </div>
+    `],
+    ({ get, window }, reload) => {
+        get('span').should(haveText('foo'))
+        get('input').clear().type('bar')
+        get('span').should(haveText('bar'))
+        window().its('sessionStorage.mymessage').should(beEqualTo(JSON.stringify('bar')))
     },
 )

@@ -2,12 +2,13 @@
 export default function (Alpine) {
     Alpine.magic('persist', (el, { interceptor }) => {
         let alias
+        let storage = localStorage
 
         return interceptor((initialValue, getter, setter, path, key) => {
             let lookup = alias || `_x_${path}`
 
-            let initial = storageHas(lookup)
-                ? storageGet(lookup)
+            let initial = storageHas(lookup, storage)
+                ? storageGet(lookup, storage)
                 : initialValue
 
             setter(initial)
@@ -15,26 +16,27 @@ export default function (Alpine) {
             Alpine.effect(() => {
                 let value = getter()
 
-                storageSet(lookup, value)
+                storageSet(lookup, value, storage)
 
                 setter(value)
             })
 
             return initial
         }, func => {
-            func.as = key => { alias = key; return func }
+            func.as = key => { alias = key; return func },
+            func.using = target => { storage = target; return func }
         })
     })
 }
 
-function storageHas(key) {
-    return localStorage.getItem(key) !== null
+function storageHas(key, storage) {
+    return storage.getItem(key) !== null
 }
 
-function storageGet(key) {
-    return JSON.parse(localStorage.getItem(key))
+function storageGet(key, storage) {
+    return JSON.parse(storage.getItem(key, storage))
 }
 
-function storageSet(key, value) {
-    localStorage.setItem(key, JSON.stringify(value))
+function storageSet(key, value, storage) {
+    storage.setItem(key, JSON.stringify(value))
 }

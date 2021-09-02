@@ -24,7 +24,7 @@ export default function (Alpine) {
             return initial
         }, func => {
             func.as = key => { alias = key; return func },
-            func.to = target => { storage = target; return func }
+            func.using = target => { storage = target; return func }
         })
     })
 }

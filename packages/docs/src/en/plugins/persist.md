@@ -142,11 +142,11 @@ Here's a view of Chrome Devtools to see for yourself:
 
 By default, data is saved to localStorage, it does not have an expiration time and it's kept even when the page is closed.
 
-Consider the scenario where you want to clear the data once the user close the tab. In this case you can persist data to sessionStorage using the `.to` modifier like so:
+Consider the scenario where you want to clear the data once the user close the tab. In this case you can persist data to sessionStorage using the `.using` modifier like so:
 
 
 ```alpine
-<div x-data="{ count: $persist(0).to(sessionStorage) }">
+<div x-data="{ count: $persist(0).using(sessionStorage) }">
     <button x-on:click="count++">Increment</button>
 
     <span x-text="count"></span>
@@ -175,7 +175,7 @@ You can also define your custom storage object exposing a getItem function and a
     }
 </script>
 
-<div x-data="{ count: $persist(0).to(cookieStorage) }">
+<div x-data="{ count: $persist(0).using(cookieStorage) }">
     <button x-on:click="count++">Increment</button>
 
     <span x-text="count"></span>

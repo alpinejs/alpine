@@ -168,7 +168,7 @@ test('aliases do not affect other $persist calls',
 
 test('can persist to custom storage',
     [html`
-        <div x-data="{ message: $persist('foo').to(sessionStorage) }">
+        <div x-data="{ message: $persist('foo').using(sessionStorage) }">
             <input x-model="message">
 
             <span x-text="message"></span>
@@ -186,7 +186,7 @@ test('can persist to custom storage',
 
 test('can persist to custom storage using an alias',
     [html`
-        <div x-data="{ message: $persist('foo').as('mymessage').to(sessionStorage) }">
+        <div x-data="{ message: $persist('foo').as('mymessage').using(sessionStorage) }">
             <input x-model="message">
 
             <span x-text="message"></span>

@@ -1,4 +1,4 @@
-import { beVisible, haveText, html, notBeVisible, test } from '../../utils'
+import { beEqualTo, beVisible, haveText, html, notBeVisible, test } from '../../utils'
 
 test('can persist number',
     [html`
@@ -109,5 +109,93 @@ test('can persist multiple components using the same property',
         reload()
         get('span#one').should(haveText('bar'))
         get('span#two').should(haveText('bar'))
+    },
+)
+
+test('can persist using an alias',
+    [html`
+        <div x-data="{ show: $persist(false) }">
+            <template x-if="show">
+                <span id="one">Foo</span>
+            </template>
+        </div>
+        <div x-data="{ show: $persist(false).as('foo') }">
+            <button id="test" @click="show = true"></button>
+
+            <template x-if="show">
+                <span id="two">Foo</span>
+            </template>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('span#one').should(notBeVisible())
+        get('span#two').should(notBeVisible())
+        get('button').click()
+        get('span#one').should(notBeVisible())
+        get('span#two').should(beVisible())
+        reload()
+        get('span#one').should(notBeVisible())
+        get('span#two').should(beVisible())
+    },
+)
+
+test('aliases do not affect other $persist calls',
+    [html`
+        <div x-data="{ show: $persist(false).as('foo') }">
+            <button id="test" @click="show = true"></button>
+
+            <template x-if="show">
+                <span id="two">Foo</span>
+            </template>
+        </div>
+        <div x-data="{ open: $persist(false) }">
+            <template x-if="open">
+                <span id="one">Foo</span>
+            </template>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('span#one').should(notBeVisible())
+        get('span#two').should(notBeVisible())
+        get('button').click()
+        get('span#one').should(notBeVisible())
+        get('span#two').should(beVisible())
+        reload()
+        get('span#one').should(notBeVisible())
+        get('span#two').should(beVisible())
+    },
+)
+
+test('can persist to custom storage',
+    [html`
+        <div x-data="{ message: $persist('foo').using(sessionStorage) }">
+            <input x-model="message">
+
+            <span x-text="message"></span>
+        </div>
+    `],
+    ({ get, window }, reload) => {
+        get('span').should(haveText('foo'))
+        get('input').clear().type('bar')
+        get('span').should(haveText('bar'))
+        reload()
+        get('span').should(haveText('bar'))
+        window().its('sessionStorage._x_message').should(beEqualTo(JSON.stringify('bar')))
+    },
+)
+
+test('can persist to custom storage using an alias',
+    [html`
+        <div x-data="{ message: $persist('foo').as('mymessage').using(sessionStorage) }">
+            <input x-model="message">
+
+            <span x-text="message"></span>
+        </div>
+    `],
+    ({ get, window }, reload) => {
+        get('span').should(haveText('foo'))
+        get('input').clear().type('bar')
+        get('span').should(haveText('bar'))
+        window().its('sessionStorage.mymessage').should(beEqualTo(JSON.stringify('bar')))
     },
 )

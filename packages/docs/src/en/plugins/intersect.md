@@ -20,7 +20,7 @@ You can use this plugin by either including it from a `<script>` tag or installi
 
 You can include the CDN build of this plugin as a `<script>` tag, just make sure to include it BEFORE Alpine's core JS file.
 
-```html
+```alpine
 <!-- Alpine Plugins -->
 <script defer src="https://unpkg.com/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
 
@@ -32,7 +32,7 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 You can install Intersect from NPM for use inside your bundle like so:
 
-```bash
+```shell
 npm install @alpinejs/intersect
 ```
 
@@ -54,7 +54,7 @@ The primary API for using this plugin is `x-intersect`. You can add `x-intersect
 
 For example, in the following snippet, `shown` will remain `false` until the element is scrolled into view. At that point, the expression will execute and `shown` will become `true`:
 
-```html
+```alpine
 <div x-data="{ shown: false }" x-intersect="shown = true">
     <div x-show="shown" x-transition>
         I'm in the viewport!
@@ -80,7 +80,7 @@ For example, in the following snippet, `shown` will remain `false` until the ele
 
 You can opt to only trigger x-intersect when the element ENTERS the viewport by adding the `:enter` suffix to `x-intersect` like so:
 
-```html
+```alpine
 <div x-intersect:enter="shown = true">...</div>
 ```
 
@@ -89,7 +89,7 @@ You can opt to only trigger x-intersect when the element ENTERS the viewport by 
 
 Similarly, you can add `:leave` to only trigger x-intersect when the element LEAVES the viewport:
 
-```html
+```alpine
 <div x-intersect:leave="shown = true">...</div>
 ```
 
@@ -101,6 +101,6 @@ Similarly, you can add `:leave` to only trigger x-intersect when the element LEA
 
 Sometimes it's useful to evaluate an expression only the first time an element enters the viewport and not subsequent times. For example when triggering "enter" animations. In these cases, you can add the `.once` modifier to `x-intersect` to achieve this.
 
-```html
+```alpine
 <div x-intersect.once="shown = true">...</div>
 ```

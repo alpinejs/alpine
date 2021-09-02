@@ -20,7 +20,7 @@ You can use this plugin by either including it from a `<script>` tag or installi
 
 You can include the CDN build of this plugin as a `<script>` tag, just make sure to include it BEFORE Alpine's core JS file.
 
-```html
+```alpine
 <!-- Alpine Plugins -->
 <script defer src="https://unpkg.com/@alpinejs/trap@3.x.x/dist/cdn.min.js"></script>
 
@@ -32,7 +32,7 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 You can install Trap from NPM for use inside your bundle like so:
 
-```bash
+```shell
 npm install @alpinejs/trap
 ```
 
@@ -56,8 +56,8 @@ The primary API for using this plugin is the `x-trap` directive.
 
 For example:
 
-```html
-<div x-data="{ open: false}">
+```alpine
+<div x-data="{ open: false }">
     <button @click="open = true">Open Dialogue</button>
 
     <span x-show="open" x-trap="open">
@@ -73,7 +73,7 @@ For example:
 ```
 
 <!-- START_VERBATIM -->
-<div x-data="{ open: false}" class="demo">
+<div x-data="{ open: false }" class="demo">
     <div :class="open && 'opacity-50'">
         <button x-on:click="open = true">Open Dialogue</button>
     </div>
@@ -109,15 +109,15 @@ This mechanism is recursive, so you can trap focus within an already trapped ele
 
 Here is nesting in action:
 
-```html
-<div x-data="{ open: false}">
+```alpine
+<div x-data="{ open: false }">
     <button @click="open = true">Open Dialogue</button>
 
     <span x-show="open" x-trap="open">
 
         ...
 
-        <div x-data="{ open: false}">
+        <div x-data="{ open: false }">
             <button @click="open = true">Open Nested Dialogue</button>
 
             <span x-show="open" x-trap="open">
@@ -134,7 +134,7 @@ Here is nesting in action:
 ```
 
 <!-- START_VERBATIM -->
-<div x-data="{ open: false}" class="demo">
+<div x-data="{ open: false }" class="demo">
     <div :class="open && 'opacity-50'">
         <button x-on:click="open = true">Open Dialogue</button>
     </div>
@@ -148,7 +148,7 @@ Here is nesting in action:
             <input type="text" placeholder="Some other input...">
         </div>
 
-        <div x-data="{ open: false}">
+        <div x-data="{ open: false }">
             <div :class="open && 'opacity-50'">
                 <button x-on:click="open = true">Open Nested Dialogue</button>
             </div>

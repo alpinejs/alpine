@@ -9,7 +9,7 @@ title: model
 
 Here's a simple example of using `x-model` to bind the value of a text field to a piece of data in Alpine.
 
-```html
+```alpine
 <div x-data="{ message: '' }">
     <input type="text" x-model="message">
 
@@ -35,7 +35,7 @@ Now as the user types into the text field, the `message` will be reflected in th
 
 We can use the same example as above but this time, we'll add a button to change the value of the `message` property.
 
-```html
+```alpine
 <div x-data="{ message: '' }">
     <input type="text" x-model="message">
 
@@ -66,7 +66,7 @@ Now when the `<button>` is clicked, the input element's value will instantly be 
 <a name="text-inputs"></a>
 ## Text inputs
 
-```html
+```alpine
 <input type="text" x-model="message">
 
 <span x-text="message"></span>
@@ -85,7 +85,7 @@ Now when the `<button>` is clicked, the input element's value will instantly be 
 <a name="textarea-inputs"></a>
 ## Textarea inputs
 
-```html
+```alpine
 <textarea x-model="message"></textarea>
 
 <span x-text="message"></span>
@@ -107,7 +107,7 @@ Now when the `<button>` is clicked, the input element's value will instantly be 
 <a name="single-checkbox-with-boolean"></a>
 ### Single checkbox with boolean
 
-```html
+```alpine
 <input type="checkbox" id="checkbox" x-model="show">
 
 <label for="checkbox" x-text="show"></label>
@@ -126,7 +126,7 @@ Now when the `<button>` is clicked, the input element's value will instantly be 
 <a name="multiple-checkboxes-bound-to-array"></a>
 ### Multiple checkboxes bound to array
 
-```html
+```alpine
 <input type="checkbox" value="red" x-model="colors">
 <input type="checkbox" value="orange" x-model="colors">
 <input type="checkbox" value="yellow" x-model="colors">
@@ -149,7 +149,7 @@ Colors: <span x-text="colors"></span>
 <a name="radio-inputs"></a>
 ## Radio inputs
 
-```html
+```alpine
 <input type="radio" value="yes" x-model="answer">
 <input type="radio" value="no" x-model="answer">
 
@@ -174,7 +174,7 @@ Answer: <span x-text="answer"></span>
 <a name="single-select"></a>
 ### Single select
 
-```html
+```alpine
 <select x-model="color">
     <option>Red</option>
     <option>Orange</option>
@@ -201,7 +201,7 @@ Color: <span x-text="color"></span>
 <a name="single-select-with-placeholder"></a>
 ### Single select with placeholder
 
-```html
+```alpine
 <select x-model="color">
     <option value="" disabled>Select A Color</option>
     <option>Red</option>
@@ -231,7 +231,7 @@ Color: <span x-text="color"></span>
 <a name="multiple-select"></a>
 ### Multiple select
 
-```html
+```alpine
 <select x-model="color" multiple>
     <option>Red</option>
     <option>Orange</option>
@@ -258,7 +258,7 @@ Colors: <span x-text="color"></span>
 <a name="dynamically-populated-select-options"></a>
 ### Dynamically populated Select Options
 
-```html
+```alpine
 <select x-model="color">
     <template x-for="color in ['Red', 'Orange', 'Yellow']">
         <option x-text="color"></option>
@@ -292,7 +292,7 @@ On text inputs, by default, `x-model` updates the property on every key-stroke. 
 
 This is handy for things like real-time form-validation where you might not want to show an input validation error until the user "tabs" away from a field.
 
-```html
+```alpine
 <input type="text" x-model.lazy="username">
 <span x-show="username.length > 20">The username is too long.</span>
 ```
@@ -302,7 +302,7 @@ This is handy for things like real-time form-validation where you might not want
 
 By default, any data stored in a property via `x-model` is stored as a string. To force Alpine to store the value as a JavaScript number, add the `.number` modifier.
 
-```html
+```alpine
 <input type="text" x-model.number="age">
 <span x-text="typeof age"></span>
 ```
@@ -314,13 +314,13 @@ By adding `.debounce` to `x-model`, you can easily debounce the updating of boun
 
 This is useful for things like real-time search inputs that fetch new data from the server every time the search property changes.
 
-```html
+```alpine
 <input type="text" x-model.debounce="search">
 ```
 
 The default debounce time is 250 milliseconds, you can easily customize this by adding a time modifier like so.
 
-```html
+```alpine
 <input type="text" x-model.debounce.500ms="search">
 ```
 
@@ -333,6 +333,6 @@ Similar to `.debounce` you can limit the property update triggered by `x-model` 
 
 The default throttle interval is 250 milliseconds, you can easily customize this by adding a time modifier like so.
 
-```html
+```alpine
 <input type="text" x-model.throttle.500ms="search">
 ```

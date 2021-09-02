@@ -9,7 +9,7 @@ title: show
 
 Here's an example of a simple dropdown component using `x-show`.
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button x-on:click="open = ! open">Toggle Dropdown</button>
 
@@ -28,7 +28,7 @@ When the "Toggle Dropdown" button is clicked, the dropdown will show and hide ac
 
 If you want to apply smooth transitions to the `x-show` behavior, you can use it in conjunction with `x-transition`. You can learn more about that directive [here](/directives/transition), but here's a quick example of the same component as above, just with transitions applied.
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button x-on:click="open = ! open">Toggle Dropdown</button>
 

@@ -20,7 +20,7 @@ You can use this plugin by either including it from a `<script>` tag or installi
 
 You can include the CDN build of this plugin as a `<script>` tag, just make sure to include it BEFORE Alpine's core JS file.
 
-```html
+```alpine
 <!-- Alpine Plugins -->
 <script defer src="https://unpkg.com/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
 
@@ -32,7 +32,7 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 You can install Persist from NPM for use inside your bundle like so:
 
-```bash
+```shell
 npm install @alpinejs/persist
 ```
 
@@ -54,7 +54,7 @@ The primary API for using this plugin is the magic `$persist` method.
 
 You can wrap any value inside `x-data` with `$persist` like below to persist its value across page loads:
 
-```html
+```alpine
 <div x-data="{ count: $persist(0) }">
     <button x-on:click="count++">Increment</button>
 
@@ -90,7 +90,7 @@ You'll observe that by simply visiting this page, Alpine already set the value o
 
 Now change the "count" in the following example and observe the changes made by Alpine to localStorage:
 
-```html
+```alpine
 <div x-data="{ count: $persist(0) }">
     <button x-on:click="count++">Increment</button>
 
@@ -123,7 +123,7 @@ Alpine will have no way of differentiating between these components.
 In these cases, you can set your own custom key for any persisted value using the `.as` modifier like so:
 
 
-```html
+```alpine
 <div x-data="{ count: $persist(0).as('other-count') }">
     <button x-on:click="count++">Increment</button>
 
@@ -136,3 +136,61 @@ Now Alpine will store and retrieve the above "count" value using the key "other-
 Here's a view of Chrome Devtools to see for yourself:
 
 <img src="/img/persist_custom_key_devtools.png" alt="Chrome devtools showing the localStorage view with count set to 0">
+
+<a name="custom-storage"></a>
+## Using a custom storage
+
+By default, data is saved to localStorage, it does not have an expiration time and it's kept even when the page is closed.
+
+Consider the scenario where you want to clear the data once the user close the tab. In this case you can persist data to sessionStorage using the `.using` modifier like so:
+
+
+```alpine
+<div x-data="{ count: $persist(0).using(sessionStorage) }">
+    <button x-on:click="count++">Increment</button>
+
+    <span x-text="count"></span>
+</div>
+```
+
+You can also define your custom storage object exposing a getItem function and a setItem function. For example, you can decide to use a session cookie as storage doing so:
+
+
+```alpine
+<script>
+    window.cookieStorage = {
+        getItem(key) {
+            let cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].split("=");
+                if (key == cookie[0].trim()) {
+                    return decodeURIComponent(cookie[1]);
+                }
+            }
+            return null;
+        },
+        setItem(key, value) {
+            document.cookie = key+' = '+encodeURIComponent(value)
+        }
+    }
+</script>
+
+<div x-data="{ count: $persist(0).using(cookieStorage) }">
+    <button x-on:click="count++">Increment</button>
+
+    <span x-text="count"></span>
+</div>
+```
+
+<a name="using-persist-with-alpine-data"></a>
+## Using $persist with Alpine.data
+
+If you want to use `$persist` with `Alpine.data`, you need to use a standard function instead of an arrow function so Alpine can bind a custom `this` context when it initially evaluates the component scope.
+
+```js
+Alpine.data('dropdown', function () {
+    return {
+        open: this.$persist(false)
+    }
+})
+```

@@ -39,14 +39,12 @@ export default function (Alpine) {
 }
 
 function crawlSiblingsUp(el, callback) {
-    if (el.isSameNode(document.body)) return
+    if (el.isSameNode(document.body) || ! el.parentNode) return
 
     Array.from(el.parentNode.children).forEach(sibling => {
-        if (sibling.isSameNode(el)) return
+        if (! sibling.isSameNode(el)) callback(sibling)
 
-        callback(sibling)
-
-        crawlSiblingsUp(el.parentNode, callback)
+        crawlSiblingsUp(el.parentNode, callback) 
     })
 }
 

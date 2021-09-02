@@ -13,7 +13,7 @@ Alpine offers global state management through the `Alpine.store()` API.
 You can either define an Alpine store inside of an `alpine:init` listener (in the case of including Alpine via a `<script>` tag), OR you can define it before manually calling `Alpine.start()` (in the case of importing Alpine into a build):
 
 **From a script tag:**
-```html
+```alpine
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.store('darkMode', {
@@ -47,19 +47,19 @@ Alpine.start()
 
 You can access data from any store within Alpine expressions using the `$store` magic property:
 
-```html
+```alpine
 <div x-data :class="$store.darkMode.on && 'bg-black'">...</div>
 ```
 
 You can also modify properties within the store and everything that depends on those properties will automatically react. For example:
 
-```html
+```alpine
 <button x-data @click="$store.darkMode.toggle()">Toggle Dark Mode</button>
 ```
 
 Additionally, you can access a store externally using `Alpine.store()` by omitting the second parameter like so:
 
-```html
+```alpine
 <script>
     Alpine.store('darkMode').toggle()
 </script>
@@ -70,7 +70,7 @@ Additionally, you can access a store externally using `Alpine.store()` by omitti
 
 If you provide `init()` method in an Alpine store, it will be executed right after the store is registered. This is useful for initializing any state inside the store with sensible starting values.
 
-```html
+```alpine
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.store('darkMode', {
@@ -97,7 +97,7 @@ If you don't need an entire object for a store, you can set and use any kind of 
 
 Here's the example from above but using it more simply as a boolean value:
 
-```html
+```alpine
 <button x-data @click="$store.darkMode = ! $store.darkMode">Toggle Dark Mode</button>
 
 ...

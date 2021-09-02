@@ -9,7 +9,7 @@ Create a blank HTML file somewhere on your computer with a name like: `i-love-al
 
 Using a text editor, fill the file with these contents:
 
-```html
+```alpine
 <html>
 <head>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -39,7 +39,7 @@ Let's start with a simple "counter" component to demonstrate the basics of state
 
 Insert the following into the `<body>` tag:
 
-```html
+```alpine
 <div x-data="{ count: 0 }">
     <button x-on:click="count++">Increment</button>
 
@@ -63,7 +63,7 @@ Let's walk through what's happening briefly:
 <a name="declaring-data"></a>
 ### Declaring data
 
-```html
+```alpine
 <div x-data="{ count: 0 }">
 ```
 
@@ -78,7 +78,7 @@ Let's look at `x-on` and see how it can access and modify the `count` property f
 <a name="listening-for-events"></a>
 ### Listening for events
 
-```html
+```alpine
 <button x-on:click="count++">Increment</button>
 ```
 
@@ -95,7 +95,7 @@ When a `click` event happens, Alpine will call the associated JavaScript express
 <a name="reacting-to-changes"></a>
 ### Reacting to changes
 
-```html
+```alpine
 <h1 x-text="count"></h1>
 ```
 
@@ -114,7 +114,7 @@ Now that we've seen some basic functionality, let's keep going and look at an im
 
 Insert the following code into the `<body>` tag:
 
-```html
+```alpine
 <div x-data="{ open: false }">
     <button @click="open = ! open">Toggle</button>
 
@@ -138,7 +138,7 @@ The `x-data` and `x-on` directives should be familiar to you from the previous e
 <a name="toggling-elements"></a>
 ### Toggling elements
 
-```html
+```alpine
 <div x-show="open" ...>Contents...</div>
 ```
 
@@ -149,7 +149,7 @@ The `x-data` and `x-on` directives should be familiar to you from the previous e
 <a name="listening-for-a-click-outside"></a>
 ### Listening for a click outside
 
-```html
+```alpine
 <div ... @click.outside="open = false">Contents...</div>
 ```
 
@@ -168,7 +168,7 @@ Let's now build a more complex component and introduce a handful of other direct
 
 Insert the following code into the `<body>` tag:
 
-```html
+```alpine
 <div
     x-data="{
         search: '',
@@ -230,7 +230,7 @@ The first thing I'd like to point out is that `x-data` now has a lot more going 
 <a name="binding-to-inputs"></a>
 ### Binding to inputs
 
-```html
+```alpine
 <input x-model="search" placeholder="Search...">
 ```
 
@@ -293,7 +293,7 @@ Because Alpine is a "reactive" framework. Any time the value of `this.search` ch
 
 Now that we understand the data part of our component, let's understand what's happening in the template that allows us to loop through `filteredItems` on the page.
 
-```html
+```alpine
 <ul>
     <template x-for="item in filteredItems">
         <li x-text="item"></li>

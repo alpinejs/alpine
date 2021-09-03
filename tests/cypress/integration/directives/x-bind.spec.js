@@ -308,6 +308,15 @@ test('can bind an object of directives',
     }
 )
 
+test('x-bind object syntax supports normal HTML attributes',
+    html`
+        <span x-data x-bind="{ foo: 'bar' }"></span>
+    `,
+    ({ get }) => {
+        get('span').should(haveAttribute('foo', 'bar'))
+    }
+)
+
 test('x-bind object syntax supports x-for',
     html`
         <script>

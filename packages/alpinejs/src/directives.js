@@ -33,6 +33,12 @@ export function directives(el, attributes, originalAttributeOverride) {
     })
 }
 
+export function attributesOnly(attributes) {
+    return Array.from(attributes)
+        .map(toTransformedAttributes())
+        .filter(attr => ! outNonAlpineAttributes(attr))
+}
+
 let isDeferringHandlers = false
 let directiveHandlerStacks = new Map
 let currentHandlerStackKey = Symbol()
@@ -107,7 +113,7 @@ export let startingWith = (subject, replacement) => ({ name, value }) => {
 
 export let into = i => i
 
-function toTransformedAttributes(callback) {
+function toTransformedAttributes(callback = () => {}) {
     return ({ name, value }) => {
         let { name: newName, value: newValue } = attributeTransformers.reduce((carry, transform) => {
             return transform(carry)

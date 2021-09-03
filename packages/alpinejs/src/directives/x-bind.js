@@ -1,4 +1,4 @@
-import { directive, directives, into, mapAttributes, prefix, startingWith } from '../directives'
+import { attributesOnly, directive, directives, into, mapAttributes, prefix, startingWith } from '../directives'
 import { evaluateLater } from '../evaluator'
 import { mutateDom } from '../mutation'
 import bind from '../utils/bind'
@@ -30,6 +30,14 @@ function applyBindingsObject(el, expression, original, effect) {
 
         getBindings(bindings => {
             let attributes = Object.entries(bindings).map(([name, value]) => ({ name, value }))
+
+            // Handle binding normal HTML attributes (non-Alpine directives).
+            attributesOnly(attributes).forEach(({ name, value }, index) => {
+                attributes[index] = {
+                    name: `x-bind:${name}`,
+                    value: `"${value}"`,
+                }
+            })
 
             directives(el, attributes, original).map(handle => {
                 cleanupRunners.push(handle.runCleanups)

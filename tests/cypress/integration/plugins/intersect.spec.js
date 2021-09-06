@@ -59,13 +59,13 @@ test('It should evaluate with ":leave" only when the component is not intersecte
     },
 )
 
-test.only('.half thing',
+test('.half',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>
 
         <div id="container" style="height: 400px; overflow-y: scroll;">
-            <div style="height: 401px;">spacer</div>
+            <div style="height: 410px;">spacer</div>
 
             <div style="height: 400px" x-intersect.half="count++">
                 <div style="text-align: center;">content</div>
@@ -82,7 +82,7 @@ test.only('.half thing',
     },
 )
 
-test.only('.full thing',
+test('.full',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>

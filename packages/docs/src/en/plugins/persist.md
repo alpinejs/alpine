@@ -137,6 +137,51 @@ Here's a view of Chrome Devtools to see for yourself:
 
 <img src="/img/persist_custom_key_devtools.png" alt="Chrome devtools showing the localStorage view with count set to 0">
 
+<a name="custom-storage"></a>
+## Using a custom storage
+
+By default, data is saved to localStorage, it does not have an expiration time and it's kept even when the page is closed.
+
+Consider the scenario where you want to clear the data once the user close the tab. In this case you can persist data to sessionStorage using the `.using` modifier like so:
+
+
+```alpine
+<div x-data="{ count: $persist(0).using(sessionStorage) }">
+    <button x-on:click="count++">Increment</button>
+
+    <span x-text="count"></span>
+</div>
+```
+
+You can also define your custom storage object exposing a getItem function and a setItem function. For example, you can decide to use a session cookie as storage doing so:
+
+
+```alpine
+<script>
+    window.cookieStorage = {
+        getItem(key) {
+            let cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].split("=");
+                if (key == cookie[0].trim()) {
+                    return decodeURIComponent(cookie[1]);
+                }
+            }
+            return null;
+        },
+        setItem(key, value) {
+            document.cookie = key+' = '+encodeURIComponent(value)
+        }
+    }
+</script>
+
+<div x-data="{ count: $persist(0).using(cookieStorage) }">
+    <button x-on:click="count++">Increment</button>
+
+    <span x-text="count"></span>
+</div>
+```
+
 <a name="using-persist-with-alpine-data"></a>
 ## Using $persist with Alpine.data
 

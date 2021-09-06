@@ -2,8 +2,10 @@ import { setReactivityEngine, disableEffectScheduling, reactive, effect, release
 import { mapAttributes, directive, setPrefix as prefix } from './directives'
 import { setEvaluator, evaluate, evaluateLater } from './evaluator'
 import { start, addRootSelector, closestRoot, initTree } from './lifecycle'
-import { interceptor } from './interceptor'
 import { mutateDom, stopObservingMutations } from './mutation'
+import { interceptor } from './interceptor'
+import { debounce } from './utils/debounce'
+import { throttle } from './utils/throttle'
 import { nextTick } from './nextTick'
 import { plugin } from './plugin'
 import { magic } from './magics'
@@ -29,6 +31,8 @@ let Alpine = {
     interceptor,
     mutateDom,
     directive,
+    throttle,
+    debounce,
     evaluate,
     initTree,
     nextTick,

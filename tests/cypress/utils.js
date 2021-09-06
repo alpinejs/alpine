@@ -101,6 +101,8 @@ export let haveValue = value => el => expect(el).to.have.value(value)
 
 export let haveLength = length => el => expect(el).to.have.length(length)
 
+export let beEqualTo = value => el => expect(el).to.eq(value)
+
 export function root(el) {
     if (el._x_dataStack) return el
 

@@ -257,6 +257,8 @@ test('keydown modifiers',
                 x-on:keydown.esc="count++"
                 x-on:keydown.ctrl="count++"
                 x-on:keydown.slash="count++"
+                x-on:keydown.period="count++"
+                x-on:keydown.equal="count++"
             >
 
             <span x-text="count"></span>
@@ -286,6 +288,10 @@ test('keydown modifiers',
         get('span').should(haveText('21'))
         get('input').type('/')
         get('span').should(haveText('23'))
+        get('input').type('=')
+        get('span').should(haveText('25'))
+        get('input').type('.')
+        get('span').should(haveText('27'))
     }
 )
 

@@ -77,6 +77,25 @@ test('can destructure arrays',
     }
 )
 
+test.only('can destructure object',
+    html`
+        <div x-data="{ items: [{ foo: 'oof', bar: 'rab' }, { foo: 'ofo', bar: 'arb' }] }">
+            <template x-for="({ foo, bar }, i) in items">
+                <div x-bind:id="i + 1">
+                    <span x-text="foo"></span>
+                    <h1 x-text="bar"></h1>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('#1 span').should(haveText('oof'))
+        get('#1 h1').should(haveText('rab'))
+        get('#2 span').should(haveText('ofo'))
+        get('#2 h1').should(haveText('arb'))
+    }
+)
+
 test('removes all elements when array is empty and previously had one item',
     html`
         <div x-data="{ items: ['foo'] }">

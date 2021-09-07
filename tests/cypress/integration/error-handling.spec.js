@@ -200,14 +200,3 @@ test('evaluation with syntax error',
     assertConsoleInterceptorHadErrorWithCorrectElement(),
     true
 )
-
-test('empty x-init',
-    [html`
-        <div id="xinit" x-data="{a:'b'}" x-init="">
-        </div>
-    `,
-        setupConsoleInterceptor( "xinit" )
-    ],
-    assertConsoleInterceptorHadErrorWithCorrectElement(),
-    true
-)

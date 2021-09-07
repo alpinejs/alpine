@@ -6,11 +6,9 @@ import { evaluate } from "../evaluator";
 addInitSelector(() => `[${prefix('init')}]`)
 
 directive('init', skipDuringClone((el, { expression }) => {
-  const evaluation = evaluate(el, expression, {}, false)
-
   if (typeof expression === 'string') {
-    return !! expression.trim() && evaluation
+    return !! expression.trim() && evaluate(el, expression, {}, false)
   }
 
-  return evaluation
+  return evaluate(el, expression, {}, false)
 }))

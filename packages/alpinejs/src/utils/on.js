@@ -1,3 +1,5 @@
+import { debounce } from './debounce'
+import { throttle } from './throttle'
 
 export default function on (el, event, modifiers, callback) {
     let listenerTarget = el
@@ -46,14 +48,14 @@ export default function on (el, event, modifiers, callback) {
         let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
         let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
 
-        handler = debounce(handler, wait, this)
+        handler = debounce(handler, wait)
     }
 
     if (modifiers.includes('throttle')) {
         let nextModifier = modifiers[modifiers.indexOf('throttle')+1] || 'invalid-wait'
         let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
 
-        handler = throttle(handler, wait, this)
+        handler = throttle(handler, wait)
     }
 
     if (modifiers.includes('once')) {
@@ -77,40 +79,6 @@ function dotSyntax(subject) {
 
 function camelCase(subject) {
     return subject.toLowerCase().replace(/-(\w)/g, (match, char) => char.toUpperCase())
-}
-
-function debounce(func, wait) {
-    var timeout
-
-    return function() {
-        var context = this, args = arguments
-
-        var later = function () {
-            timeout = null
-
-            func.apply(context, args)
-        }
-
-        clearTimeout(timeout)
-
-        timeout = setTimeout(later, wait)
-    }
-}
-
-function throttle(func, limit) {
-    let inThrottle
-
-    return function() {
-        let context = this, args = arguments
-
-        if (! inThrottle) {
-            func.apply(context, args)
-
-            inThrottle = true
-
-            setTimeout(() => inThrottle = false, limit)
-        }
-    }
 }
 
 function isNumeric(subject){

@@ -239,6 +239,13 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
         names.forEach((name, i) => {
             scopeVariables[name] = item[i]
         })
+    // Support object destructuring ({ foo: 'oof', bar: 'rab' }).
+    } else if (/^\{.*\}$/.test(iteratorNames.item) && ! Array.isArray(item) && typeof item === 'object') {
+        let names = iteratorNames.item.replace('{', '').replace('}', '').split(',').map(i => i.trim())
+
+        names.forEach(name => {
+            scopeVariables[name] = item[name]
+        })
     } else {
         scopeVariables[iteratorNames.item] = item
     }

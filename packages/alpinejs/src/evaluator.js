@@ -90,17 +90,19 @@ function generateEvaluatorFromString(dataStack, expression, el) {
 
         let completeScope = mergeProxies([ scope, ...dataStack ])
 
-        let promise = func(func, completeScope).catch((error) => handleError(error, el, expression))
+        if( typeof func === 'function' ) {
+            let promise = func(func, completeScope).catch((error) => handleError(error, el, expression))
 
-        // Check if the function ran synchronously,
-        if (func.finished) {
-            // Return the immediate result.
-            runIfTypeOfFunction(receiver, func.result, completeScope, params, el)
-        } else {
-            // If not, return the result when the promise resolves.
-            promise.then(result => {
-                runIfTypeOfFunction(receiver, result, completeScope, params, el)
-            }).catch( error => handleError( error, el, expression ) )
+            // Check if the function ran synchronously,
+            if (func.finished) {
+                // Return the immediate result.
+                runIfTypeOfFunction(receiver, func.result, completeScope, params, el)
+            } else {
+                // If not, return the result when the promise resolves.
+                promise.then(result => {
+                    runIfTypeOfFunction(receiver, result, completeScope, params, el)
+                }).catch( error => handleError( error, el, expression ) )
+            }
         }
     }
 }

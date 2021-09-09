@@ -6,6 +6,8 @@ Stay here for contribution-related information.
 
 > Looking for V2 docs? [here they are](https://github.com/alpinejs/alpine/tree/v2.8.2)
 
+![/readme_hero.jpg](https://alpinejs.dev/patterns)
+
 ## Contribution Guide:
 
 ### Quickstart

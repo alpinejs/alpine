@@ -77,7 +77,7 @@ test('can destructure arrays',
     }
 )
 
-test.only('can destructure object',
+test('can destructure object',
     html`
         <div x-data="{ items: [{ foo: 'oof', bar: 'rab' }, { foo: 'ofo', bar: 'arb' }] }">
             <template x-for="({ foo, bar }, i) in items">

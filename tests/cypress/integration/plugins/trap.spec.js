@@ -28,3 +28,31 @@ test('can trap focus',
         get('#2').should(haveFocus())
     },
 )
+
+test('works with clone',
+    [html`
+        <div id="foo" x-data="{
+            open: false,
+            triggerClone() {
+                var original = document.getElementById('foo');
+                var copy = original.cloneNode(true);
+                Alpine.clone(original, copy);
+                var p = document.createElement('p');
+                p.textContent = 'bar';
+                copy.appendChild(p);
+                original.parentNode.replaceChild(copy, original);
+            }
+        }">
+            <button id="one" @click="open = true">Trap</button>
+            <div x-trap="open">
+                <input type="text">
+                <button id="two" @click="triggerClone()">Test</button>
+            </div>
+        </div>
+    `],
+    ({ get, wait }, reload) => {
+        get('#one').click()
+        get('#two').click()
+        get('p').should(haveText('bar'))
+    }
+)

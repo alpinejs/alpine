@@ -44,7 +44,7 @@ function crawlSiblingsUp(el, callback) {
     Array.from(el.parentNode.children).forEach(sibling => {
         if (! sibling.isSameNode(el)) callback(sibling)
 
-        crawlSiblingsUp(el.parentNode, callback) 
+        crawlSiblingsUp(el.parentNode, callback)
     })
 }
 

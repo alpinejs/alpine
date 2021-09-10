@@ -16,3 +16,5 @@ Because of this difference in behavior, `x-if` should not be applied directly to
 ```
 
 > Unlike `x-show`, `x-if`, does NOT support transitioning toggles with `x-transition`.
+
+> Remember: `<template>` tags can only contain one root level element.

@@ -1,6 +1,22 @@
 import { debounce } from './debounce'
 import { throttle } from './throttle'
 
+let theListenerAdderFunction = nativeListenerAdder
+let theListenerRemoverFunction = nativeListenerRemover
+
+export function setListenerManipulators(listenerAdder, listenerRemover) {
+    theListenerAdderFunction = listenerAdder
+    theListenerRemoverFunction = listenerRemover
+}
+
+export function nativeListenerAdder(target, event, handler, options, modifiers) {
+    target.addEventListener(event, handler, options)
+}
+
+export function nativeListenerRemover(target, event, handler, options) {
+    target.removeEventListener(event, handler, options)
+}
+
 export default function on (el, event, modifiers, callback) {
     let listenerTarget = el
 
@@ -62,14 +78,14 @@ export default function on (el, event, modifiers, callback) {
         handler = wrapHandler(handler, (next, e) => {
             next(e)
 
-            listenerTarget.removeEventListener(event, handler, options)
+            theListenerRemoverFunction(listenerTarget, event, handler, options)
         })
     }
 
-    listenerTarget.addEventListener(event, handler, options)
+    theListenerAdderFunction(listenerTarget, event, handler, options, modifiers)
 
     return () => {
-        listenerTarget.removeEventListener(event, handler, options)
+        theListenerRemoverFunction(listenerTarget, event, handler, options)
     }
 }
 

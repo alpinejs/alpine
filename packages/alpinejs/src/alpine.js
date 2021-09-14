@@ -5,6 +5,7 @@ import { start, addRootSelector, closestRoot, initTree } from './lifecycle'
 import { interceptor } from './interceptor'
 import { debounce } from './utils/debounce'
 import { throttle } from './utils/throttle'
+import { setListenerManipulators } from './utils/on'
 import { mutateDom } from './mutation'
 import { nextTick } from './nextTick'
 import { plugin } from './plugin'
@@ -26,6 +27,7 @@ let Alpine = {
     evaluateLater,
     setEvaluator,
     closestRoot,
+    setListenerManipulators,
     // Warning: interceptor is not public API and is subject to change without major release.
     interceptor,
     mutateDom,

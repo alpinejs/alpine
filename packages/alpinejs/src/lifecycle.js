@@ -20,7 +20,7 @@ export function start() {
         directives(el, attrs).forEach(handle => handle())
     })
 
-    let outNestedComponents = el => ! closestRoot(el.parentElement)
+    let outNestedComponents = el => ! closestRoot(el.parentElement, true)
     Array.from(document.querySelectorAll(allSelectors()))
         .filter(outNestedComponents)
         .forEach(el => {
@@ -44,14 +44,16 @@ export function allSelectors() {
 export function addRootSelector(selectorCallback) { rootSelectorCallbacks.push(selectorCallback) }
 export function addInitSelector(selectorCallback) { initSelectorCallbacks.push(selectorCallback) }
 
-export function closestRoot(el) {
+export function closestRoot(el, includeInitSelectors = false) {
     if (!el) return
 
-    if (rootSelectors().some(selector => el.matches(selector))) return el
+    const selectors = includeInitSelectors ? allSelectors() : rootSelectors()
+
+    if (selectors.some(selector => el.matches(selector))) return el
 
     if (! el.parentElement) return
 
-    return closestRoot(el.parentElement)
+    return closestRoot(el.parentElement, includeInitSelectors)
 }
 
 export function isRoot(el) {

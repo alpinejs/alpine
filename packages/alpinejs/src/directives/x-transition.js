@@ -125,7 +125,7 @@ function registerTransitionObject(el, setFunction, defaultValue = {}) {
 }
 
 window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, value, show, hide) {
-    let clickAwayCompatibleShow = () => requestAnimationFrame(show)
+    let clickAwayCompatibleShow = show
 
     if (value) {
         el._x_transition

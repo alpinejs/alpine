@@ -24,7 +24,7 @@ module.exports.getFromPackageDotJson = function (package, key) {
 module.exports.ask = async function (message, callback) {
     let readline = require('readline').createInterface({
         input: process.stdin,
-        output: process.stdout
+        output: process.stdout,
     })
 
     readline.question(message, answer => {

@@ -125,7 +125,10 @@ function registerTransitionObject(el, setFunction, defaultValue = {}) {
 }
 
 window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, value, show, hide) {
-    let clickAwayCompatibleShow = show
+    // We are wrapping this function in a setTimeout here to prevent
+    // a race condition from happening where elements that have a
+    // @click.away always view themselves as shown on the page.
+    let clickAwayCompatibleShow = () => setTimeout(show)
 
     if (value) {
         el._x_transition

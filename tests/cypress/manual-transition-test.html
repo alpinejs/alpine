@@ -4,6 +4,20 @@
 
     <table>
         <tr>
+            <td><code>x-on:click.away</code></td>
+            <td>
+                <div x-data="{ show: false }">
+                    <button @click="show = true">Show</button>
+                  
+                    <h1 x-show="show" @click.away="show = false">h1</h1>
+                  
+                    <h2>h2</h2>
+                  </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
             <td><code>x-transition</code></td>
             <td>
                 <div x-data="{ open: false }">

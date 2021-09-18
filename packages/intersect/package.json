@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/intersect",
-    "version": "3.3.4",
+    "version": "3.3.5",
     "description": "Trigger JavaScript when an element enters the viewport",
     "author": "Caleb Porzio",
     "license": "MIT",

@@ -125,7 +125,15 @@ function registerTransitionObject(el, setFunction, defaultValue = {}) {
 }
 
 window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, value, show, hide) {
-    let clickAwayCompatibleShow = () => requestAnimationFrame(show)
+    // We are running this function after one tick to prevent
+    // a race condition from happening where elements that have a
+    // @click.away always view themselves as shown on the page.
+    // If the tab is active, we prioritise requestAnimationFrame which plays
+    // nicely with nested animations otherwise we use setTimeout to make sure
+    // it keeps running in background. setTimeout has a lower priority in the
+    // event loop so it would skip nested transitions but when the tab is
+    // hidden, it's not relevant.
+    let clickAwayCompatibleShow = () => {document.visibilityState === 'visible' ? requestAnimationFrame(show) : setTimeout(show)}
 
     if (value) {
         el._x_transition
@@ -156,7 +164,7 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
                 let hideAfterChildren = el => {
                     let carry = Promise.all([
                         el._x_hidePromise,
-                        ...(el._x_hideChildren || []).map(hideAfterChildren)
+                        ...(el._x_hideChildren || []).map(hideAfterChildren),
                     ]).then(([i]) => i())
 
                     delete el._x_hidePromise
@@ -245,7 +253,7 @@ export function performTransition(el, stages, entering) {
         beforeCancel(callback) { this.beforeCancels.push(callback) },
         cancel: once(function () { while (this.beforeCancels.length) { this.beforeCancels.shift()() }; finish(); }),
         finish,
-        entering
+        entering,
     }
 
     mutateDom(() => {

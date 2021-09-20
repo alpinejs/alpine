@@ -125,10 +125,15 @@ function registerTransitionObject(el, setFunction, defaultValue = {}) {
 }
 
 window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, value, show, hide) {
-    // We are wrapping this function in a setTimeout here to prevent
+    // We are running this function after one tick to prevent
     // a race condition from happening where elements that have a
     // @click.away always view themselves as shown on the page.
-    let clickAwayCompatibleShow = () => setTimeout(show)
+    // If the tab is active, we prioritise requestAnimationFrame which plays
+    // nicely with nested animations otherwise we use setTimeout to make sure
+    // it keeps running in background. setTimeout has a lower priority in the
+    // event loop so it would skip nested transitions but when the tab is
+    // hidden, it's not relevant.
+    let clickAwayCompatibleShow = () => {document.visibilityState === 'visible' ? requestAnimationFrame(show) : setTimeout(show)}
 
     if (value) {
         el._x_transition

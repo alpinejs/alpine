@@ -103,6 +103,16 @@ export let haveLength = length => el => expect(el).to.have.length(length)
 
 export let beEqualTo = value => el => expect(el).to.eq(value)
 
+export let notHaveComputedStyle = (name, value) => el => {
+    const win = el[0].ownerDocument.defaultView
+    expect(win.getComputedStyle(el[0]).getPropertyValue(name)).not.to.eq(value)
+}
+
+export let haveComputedStyle = (name, value) => el => {
+    const win = el[0].ownerDocument.defaultView
+    expect(win.getComputedStyle(el[0]).getPropertyValue(name)).to.eq(value)
+}
+
 export function root(el) {
     if (el._x_dataStack) return el
 

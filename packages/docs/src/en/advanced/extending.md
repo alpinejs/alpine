@@ -293,7 +293,7 @@ By now you should see how friendly and simple it is to register your own custom 
 
 You can get started quickly with Alpine's official "plugin-blueprint" package. It's as simple as cloning the repository and running `npm install && npm run build` to get a plugin authored.
 
-Otherwise, let's create a pretend Alpine plugin by hand called `Foo` that includes both a directive (`x-foo`) and a magic (`$foo`).
+For demonstration purposes, let's create a pretend Alpine plugin from scratch called `Foo` that includes both a directive (`x-foo`) and a magic (`$foo`).
 
 We'll start producing this plugin for consumption as a simple `<script>` tag alongside Alpine, then we'll level it up to a module for importing into a bundle:
 

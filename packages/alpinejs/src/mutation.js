@@ -25,9 +25,11 @@ export function cleanupAttributes(el, names) {
     if (! el._x_attributeCleanups) return
 
     Object.entries(el._x_attributeCleanups).forEach(([name, value]) => {
-        (names === undefined || names.includes(name)) && value.forEach(i => i())
+        if (names === undefined || names.includes(name)) {
+            value.forEach(i => i())
 
-        delete el._x_attributeCleanups[name]
+            delete el._x_attributeCleanups[name]
+        }
     })
 }
 
@@ -42,6 +44,8 @@ export function startObservingMutations() {
 }
 
 export function stopObservingMutations() {
+    flushObserver()
+
     observer.disconnect()
 
     currentlyObserving = false
@@ -73,8 +77,6 @@ function processRecordQueue() {
 export function mutateDom(callback) {
     if (! currentlyObserving) return callback()
 
-    flushObserver()
-
     stopObservingMutations()
 
     let result = callback()
@@ -84,7 +86,28 @@ export function mutateDom(callback) {
     return result
 }
 
+let isCollecting = false
+let deferredMutations = []
+
+export function deferMutations() {
+    isCollecting = true
+}
+
+export function flushAndStopDeferringMutations() {
+    isCollecting = false
+
+    onMutate(deferredMutations)
+
+    deferredMutations = []
+}
+
 function onMutate(mutations) {
+    if (isCollecting) {
+        deferredMutations = deferredMutations.concat(mutations)
+
+        return
+    }
+
     let addedNodes = []
     let removedNodes = []
     let addedAttributes = new Map

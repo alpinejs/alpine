@@ -1,4 +1,4 @@
-import { beHidden, beVisible, haveClasses, html, notBeVisible, notHaveClasses, test } from '../../utils'
+import { beHidden, beVisible, haveClasses, haveComputedStyle, html, notBeVisible, notHaveClasses, notHaveComputedStyle, test } from '../../utils'
 
 test('transition in',
     html`
@@ -52,5 +52,31 @@ test('transition out',
         get('span').should(notHaveClasses(['leave-start']))
         get('span').should(haveClasses(['leave', 'leave-end']))
         get('span').should(beHidden())
+    }
+)
+
+test('transition:enter in nested x-show visually runs',
+    html`
+        <style>
+            .transition { transition: opacity 1s ease; }
+            .opacity-0 {opacity: 0}
+            .opacity-1 {opacity: 1}
+        </style>
+        <div x-data="{ show: false }">
+            <span x-show="show">
+                <h1 x-show="show"
+                    x-transition:enter="transition"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-1">thing</h1>
+            </span>
+
+            <button x-on:click="show = true"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('span').should(beVisible())
+        get('h1').should(notHaveComputedStyle('opacity', '1')) // We expect a value between 0 and 1
+        get('h1').should(haveComputedStyle('opacity', '1')) // Eventually opacity will be 1
     }
 )

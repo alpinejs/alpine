@@ -9,14 +9,12 @@ test('sets text on init',
     ({ get }) => get('span').should(haveText('baz'))
 )
 
-
 test('x-init can be used outside of x-data',
     html`
         <div x-init="$el.textContent = 'foo'"></div>
     `,
     ({ get }) => get('div').should(haveText('foo'))
 )
-
 
 test('changes made in x-init happen before the rest of the component',
     html`
@@ -43,4 +41,13 @@ test('x-init will not evaluate expression if it is empty',
         </div>
     `,
     ({ get }) => get('span').should(haveText('bar'))
+)
+
+test('component nested into x-init without x-data are not initialised twice',
+    html`
+        <div x-init="$el.setAttribute('attribute', 'value')">
+            <p x-data="{foo: 'foo'}" x-init="$el.textContent += foo"></p>
+        </div>
+    `,
+    ({ get }) => get('p').should(haveText('foo'))
 )

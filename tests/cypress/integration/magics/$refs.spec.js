@@ -51,3 +51,29 @@ test('can reference elements outside of x-init',
         get('span').should(haveText('bar'))
     }
 )
+
+test('can reference refs of parent scope',
+    html`
+        <div x-data x-ref="foo" data-foo="bar">
+            <div x-data>
+                <span x-text="$refs.foo.dataset.foo"></span>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+    }
+)
+
+test('when referencing refs from parent scope, the closest ref is used',
+    html`
+        <div x-data x-ref="foo" data-foo="bar">
+            <div x-data x-ref="foo" data-foo="baz">
+                <span x-text="$refs.foo.dataset.foo"></span>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('baz'))
+    }
+)

@@ -82,7 +82,7 @@ test('can add new directive',
     }
 )
 
-test.only('can pause and queue mutations for later resuming/flushing',
+test('can pause and queue mutations for later resuming/flushing',
     html`
         <div x-data="{ foo: 1 }">
             <button x-on:click="setTimeout(() => foo++)" x-ref="btn">foo</button>

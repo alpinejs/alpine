@@ -42,7 +42,7 @@ export function closestDataProxy(el) {
 }
 
 export function mergeProxies(objects) {
-    return new Proxy({}, {
+    let thisProxy = new Proxy({}, {
         ownKeys: () => {
             return Array.from(new Set(objects.flatMap(i => Object.keys(i))))
         },
@@ -52,7 +52,29 @@ export function mergeProxies(objects) {
         },
 
         get: (target, name) => {
-            return (objects.find(obj => obj.hasOwnProperty(name)) || {})[name]
+            return (objects.find(obj => {
+                if (obj.hasOwnProperty(name)) {
+                    let descriptor = Object.getOwnPropertyDescriptor(obj, name)
+                    
+                    // Properly bind getters and setters to this wrapper Proxy.
+                    if ((descriptor.get || descriptor.set) && descriptor.enumerable) {
+                        // Only bind user-defined getters, not our magic properties.
+                        let getter = descriptor.get
+                        let setter = descriptor.set
+                        let property = descriptor
+
+                        Object.defineProperty(obj, name, {
+                            ...property,
+                            get: getter && getter.bind(thisProxy),
+                            set: setter && setter.bind(thisProxy),
+                        })
+                    }
+
+                    return true 
+                }
+
+                return false
+            }) || {})[name]
         },
 
         set: (target, name, value) => {
@@ -67,4 +89,6 @@ export function mergeProxies(objects) {
             return true
         },
     })
+
+    return thisProxy
 }

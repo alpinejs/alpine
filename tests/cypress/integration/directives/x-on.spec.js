@@ -97,6 +97,22 @@ test('.stop modifier',
     }
 )
 
+test.only('.capture modifier',
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <button @click.capture="foo = 'baz'">
+                <h1>h1</h1>
+                <h2 @click="foo = 'bob'">h2</h2>
+            </button>
+        </div>
+    `,
+    ({ get }) => {
+        get('div').should(haveData('foo', 'bar'))
+        get('h2').click()
+        get('div').should(haveData('foo', 'bob'))
+    }
+)
+
 test('.self modifier',
     html`
         <div x-data="{ foo: 'bar' }">

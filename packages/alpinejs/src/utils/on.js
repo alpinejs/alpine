@@ -15,6 +15,7 @@ export default function on (el, event, modifiers, callback) {
     if (modifiers.includes("dot")) event = dotSyntax(event)
     if (modifiers.includes('camel')) event = camelCase(event)
     if (modifiers.includes('passive')) options.passive = true
+    if (modifiers.includes('capture')) options.capture = true
     if (modifiers.includes('window')) listenerTarget = window
     if (modifiers.includes('document')) listenerTarget = document
     if (modifiers.includes('prevent')) handler = wrapHandler(handler, (next, e) => { e.preventDefault(); next(e) })

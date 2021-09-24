@@ -109,3 +109,18 @@ test('x-data works on the html tag',
         get('span').should(haveText('foo'))
     }
 )
+
+test('x-data getters have access to parent scope',
+    html`
+    <div x-data="{ foo: 'bar' }">
+        <div x-data="{
+            get bob() {
+                return this.foo
+            }
+        }">
+            <h1 x-text="bob"></h1>
+        </div>
+    </div>
+    `,
+    ({ get }) => get('h1').should(haveText('bar'))
+)

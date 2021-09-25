@@ -55,6 +55,11 @@ export function mergeProxies(objects) {
             return (objects.find(obj => {
                 if (obj.hasOwnProperty(name)) {
                     let descriptor = Object.getOwnPropertyDescriptor(obj, name)
+
+                    // If we already bound this getter, don't rebind.
+                    if ((descriptor.get && descriptor.get._x_alreadyBound) || (descriptor.set && descriptor.set._x_alreadyBound)) {
+                        return true
+                    }
                     
                     // Properly bind getters and setters to this wrapper Proxy.
                     if ((descriptor.get || descriptor.set) && descriptor.enumerable) {
@@ -63,10 +68,16 @@ export function mergeProxies(objects) {
                         let setter = descriptor.set
                         let property = descriptor
 
+                        getter = getter && getter.bind(thisProxy)
+                        setter = setter && setter.bind(thisProxy)
+
+                        if (getter) getter._x_alreadyBound = true
+                        if (setter) setter._x_alreadyBound = true
+
                         Object.defineProperty(obj, name, {
                             ...property,
-                            get: getter && getter.bind(thisProxy),
-                            set: setter && setter.bind(thisProxy),
+                            get: getter,
+                            set: setter,
                         })
                     }
 

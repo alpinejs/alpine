@@ -1,5 +1,5 @@
 export function walk(el, callback) {
-    if (el instanceof ShadowRoot) {
+    if (typeof ShadowRoot === 'function' && el instanceof ShadowRoot) {
         Array.from(el.children).forEach(el => walk(el, callback))
 
         return

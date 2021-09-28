@@ -371,3 +371,5 @@ The following 2 APIs will still work in V3, but are considered deprecated and ar
     })
 </script>
 ```
+
+> Note that you need to define `Alpine.data()` extensions BEFORE you call `Alpine.start()`. For more information, refer to the [Lifecycle Concerns](https://alpinejs.dev/advanced/extending#lifecycle-concerns) and [Installation as a Module](https://alpinejs.dev/essentials/installation#as-a-module) documentation pages. 

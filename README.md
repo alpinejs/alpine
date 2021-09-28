@@ -2,9 +2,13 @@
 
 Go to the Alpine docs for most things: [Alpine Docs](https://alpinejs.dev)
 
+You are welcome to submit updates to the docs by submitting a PR to this repo. Docs are located in the [`/packages/docs`](/packages/docs) directory.
+
 Stay here for contribution-related information.
 
 > Looking for V2 docs? [here they are](https://github.com/alpinejs/alpine/tree/v2.8.2)
+
+<p align="center"><a href="https://alpinejs.dev/patterns"><img src="/hero.jpg" alt="Alpine Compoenent Patterns"></a></p>
 
 ## Contribution Guide:
 

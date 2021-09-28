@@ -35,7 +35,7 @@ test('x-html allows alpine code within',
     }
 )
 
-test.only('x-html runs even after x-if or x-for',
+test('x-html runs even after x-if or x-for',
     html`
         <div x-data="{ html: '<span x-text=&quot;foo&quot;></span>', foo: 'bar' }">
             <template x-if="true">

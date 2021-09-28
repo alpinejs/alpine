@@ -1,13 +1,11 @@
 {
-    "name": "@alpinejs/trap",
+    "name": "@alpinejs/collapse",
     "version": "3.4.2",
-    "description": "Trap focus on a page within a specific element",
+    "description": "Collapse and expand elements with robust animations",
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
-    "dependencies": {
-        "focus-trap": "^6.6.1"
-    }
+    "dependencies": {}
 }

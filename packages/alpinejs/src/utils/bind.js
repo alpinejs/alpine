@@ -125,5 +125,5 @@ function isBooleanAttr(attrName) {
 }
 
 function attributeShouldntBePreservedIfFalsy(name) {
-    return ! ['aria-pressed', 'aria-checked'].includes(name)
+    return ! ['aria-pressed', 'aria-checked', 'aria-expanded'].includes(name)
 }

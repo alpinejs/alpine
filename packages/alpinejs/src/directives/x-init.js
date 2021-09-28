@@ -5,4 +5,10 @@ import { evaluate } from "../evaluator";
 
 addInitSelector(() => `[${prefix('init')}]`)
 
-directive('init', skipDuringClone((el, { expression }) => !! expression.trim() && evaluate(el, expression, {}, false)))
+directive('init', skipDuringClone((el, { expression }) => {
+  if (typeof expression === 'string') {
+    return !! expression.trim() && evaluate(el, expression, {}, false)
+  }
+
+  return evaluate(el, expression, {}, false)
+}))

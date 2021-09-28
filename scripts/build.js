@@ -9,6 +9,7 @@ let brotliSize = require('brotli-size');
     'history',
     'intersect',
     'persist',
+    'collapse',
     'morph',
     'trap',
 ]).forEach(package => {

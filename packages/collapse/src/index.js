@@ -53,3 +53,21 @@ export default function (Alpine) {
         }
     })
 }
+
+function modifierValue(modifiers, key, fallback) {
+    // If the modifier isn't present, use the default.
+    if (modifiers.indexOf(key) === -1) return fallback
+
+    // If it IS present, grab the value after it: x-show.transition.duration.500ms
+    const rawValue = modifiers[modifiers.indexOf(key) + 1]
+
+    if (! rawValue) return fallback
+
+    if (key === 'duration') {
+        // Support x-collapse.duration.500ms && duration.500
+        let match = rawValue.match(/([0-9]+)ms/)
+        if (match) return match[1]
+    }
+
+    return rawValue
+}

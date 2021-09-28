@@ -47,6 +47,9 @@ function writeNewAlpineVersion() {
 
     writeToPackageDotJson('trap', 'version', version)
     console.log('Bumping @alpinejs/trap package.json: '+version)
+
+    writeToPackageDotJson('collapse', 'version', version)
+    console.log('Bumping @alpinejs/collapse package.json: '+version)
 }
 
 function writeNewDocsVersion() {
@@ -76,6 +79,9 @@ function publish() {
 
     console.log('Publishing @alpinejs/trap on NPM...');
     runFromPackage('trap', 'npm publish --access public')
+
+    console.log('Publishing @alpinejs/collapse on NPM...');
+    runFromPackage('collapse', 'npm publish --access public')
 
     log('\n\nFinished!')
 }

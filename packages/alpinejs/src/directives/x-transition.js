@@ -109,7 +109,6 @@ function registerTransitionObject(el, setFunction, defaultValue = {}) {
                 during: this.enter.during,
                 start: this.enter.start,
                 end: this.enter.end,
-                entering: true,
             }, before, after)
         },
 
@@ -118,7 +117,6 @@ function registerTransitionObject(el, setFunction, defaultValue = {}) {
                 during: this.leave.during,
                 start: this.leave.start,
                 end: this.leave.end,
-                entering: false,
             }, before, after)
         },
     }
@@ -189,7 +187,7 @@ function closestHide(el) {
     return parent._x_hidePromise ? parent : closestHide(parent)
 }
 
-export function transition(el, setFunction, { during, start, end, entering } = {}, before = () => {}, after = () => {}) {
+export function transition(el, setFunction, { during, start, end } = {}, before = () => {}, after = () => {}) {
     if (el._x_transitioning) el._x_transitioning.cancel()
 
     if (Object.keys(during).length === 0 && Object.keys(start).length === 0 && Object.keys(end).length === 0) {
@@ -218,10 +216,10 @@ export function transition(el, setFunction, { during, start, end, entering } = {
             undoDuring()
             undoEnd()
         },
-    }, entering)
+    })
 }
 
-export function performTransition(el, stages, entering) {
+export function performTransition(el, stages) {
     // All transitions need to be truly "cancellable". Meaning we need to
     // account for interruptions at ALL stages of the transitions and
     // immediately run the rest of the transition.
@@ -253,7 +251,6 @@ export function performTransition(el, stages, entering) {
         beforeCancel(callback) { this.beforeCancels.push(callback) },
         cancel: once(function () { while (this.beforeCancels.length) { this.beforeCancels.shift()() }; finish(); }),
         finish,
-        entering,
     }
 
     mutateDom(() => {
@@ -295,7 +292,7 @@ export function performTransition(el, stages, entering) {
     })
 }
 
-function modifierValue(modifiers, key, fallback) {
+export function modifierValue(modifiers, key, fallback) {
     // If the modifier isn't present, use the default.
     if (modifiers.indexOf(key) === -1) return fallback
 
@@ -312,7 +309,7 @@ function modifierValue(modifiers, key, fallback) {
     }
 
     if (key === 'duration') {
-        // Support x-show.transition.duration.500ms && duration.500
+        // Support x-transition.duration.500ms && duration.500
         let match = rawValue.match(/([0-9]+)ms/)
         if (match) return match[1]
     }

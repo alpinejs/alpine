@@ -1,10 +1,11 @@
 
+
 export default function (Alpine) {
-    Alpine.magic('persist', (el, { interceptor }) => {
+    let thing = () => {
         let alias
         let storage = localStorage
 
-        return interceptor((initialValue, getter, setter, path, key) => {
+        return Alpine.interceptor((initialValue, getter, setter, path, key) => {
             let lookup = alias || `_x_${path}`
 
             let initial = storageHas(lookup, storage)
@@ -26,7 +27,14 @@ export default function (Alpine) {
             func.as = key => { alias = key; return func },
             func.using = target => { storage = target; return func }
         })
+    }
+
+    Object.defineProperty(Alpine, '$persist', {
+        get: thing,
+        enumerable: true,
     })
+
+    Alpine.magic('$persist', thing)
 }
 
 function storageHas(key, storage) {

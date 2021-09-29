@@ -1,3 +1,4 @@
+import { initInterceptors } from "./interceptor";
 import { reactive } from "./reactivity"
 
 let stores = {}
@@ -15,6 +16,8 @@ export function store(name, value) {
     if (typeof value === 'object' && value !== null && value.hasOwnProperty('init') && typeof value.init === 'function') {
         stores[name].init()
     }
+
+    initInterceptors(stores[name])
 }
 
 export function getStores() { return stores }

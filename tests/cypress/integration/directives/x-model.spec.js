@@ -28,6 +28,24 @@ test('x-model updates value when updated via input event',
     }
 )
 
+test.csp('csp x-model updates value when updated via input event',
+    [html`
+    <div x-data="test">
+        <input x-model="foo"></input>
+        <span x-text="foo"></span>
+    </div>
+    `, `
+        Alpine.data('test', () => ({
+            foo: 'bar',
+        }))
+    `],
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('input').type('baz')
+        get('span').should(haveText('barbaz'))
+    }
+)
+
 test('x-model has value binding when updated',
     html`
     <div x-data="{ foo: 'bar' }">

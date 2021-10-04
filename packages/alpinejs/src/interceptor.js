@@ -5,7 +5,10 @@ export function initInterceptors(data) {
     let isObject = val => typeof val === 'object' && !Array.isArray(val) && val !== null
 
     let recurse = (obj, basePath = '') => {
-        Object.entries(obj).forEach(([key, value]) => {
+        Object.entries(Object.getOwnPropertyDescriptors(obj)).forEach(([key, { value, enumerable }]) => {
+            if (enumerable === false) return
+            if (value === undefined) return
+
             let path = basePath === '' ? key : `${basePath}.${key}`
 
             if (typeof value === 'object' && value !== null && value._x_interceptor) {

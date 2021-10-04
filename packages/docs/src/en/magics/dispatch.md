@@ -103,4 +103,4 @@ You can also use `$dispatch()` to trigger data updates for `x-model` data bindin
 </div>
 ```
 
-This opens up the door for making custom input components whos value can be set via `x-model`.
+This opens up the door for making custom input components whose value can be set via `x-model`.

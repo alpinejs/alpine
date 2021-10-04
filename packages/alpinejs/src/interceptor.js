@@ -6,8 +6,8 @@ export function initInterceptors(data) {
 
     let recurse = (obj, basePath = '') => {
         Object.entries(Object.getOwnPropertyDescriptors(obj)).forEach(([key, { value, enumerable }]) => {
-            if (enumerable === false) return
-            if (value === undefined) return
+            // Skip getters.
+            if (enumerable === false || value === undefined) return
 
             let path = basePath === '' ? key : `${basePath}.${key}`
 

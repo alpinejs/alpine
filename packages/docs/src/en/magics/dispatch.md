@@ -66,7 +66,7 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 <div>
 ```
 
-> The first example won't work because when `custom-event` is dispatched, it'll propagate to its common ancestor, the `div`, not it's sibling, the `<span>`. The second example will work because the sibling is listening for `notify` at the `window` level, which the custom event will eventually bubble up to.
+> The first example won't work because when `custom-event` is dispatched, it'll propagate to its common ancestor, the `div`, not its sibling, the `<span>`. The second example will work because the sibling is listening for `notify` at the `window` level, which the custom event will eventually bubble up to.
 
 <a name="dispatching-to-components"></a>
 ## Dispatching to other components
@@ -103,4 +103,4 @@ You can also use `$dispatch()` to trigger data updates for `x-model` data bindin
 </div>
 ```
 
-This opens up the door for making custom input components who's value can be set via `x-model`.
+This opens up the door for making custom input components whose value can be set via `x-model`.

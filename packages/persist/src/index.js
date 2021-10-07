@@ -1,7 +1,8 @@
 
 
 export default function (Alpine) {
-    let thing = () => {
+
+    let persist = () => {
         let alias
         let storage = localStorage
 
@@ -28,13 +29,8 @@ export default function (Alpine) {
             func.using = target => { storage = target; return func }
         })
     }
-
-    Object.defineProperty(Alpine, '$persist', {
-        get: thing,
-        enumerable: true,
-    })
-
-    Alpine.magic('$persist', thing)
+    Alpine.$persist = persist()
+    Alpine.magic('persist', persist)
 }
 
 function storageHas(key, storage) {

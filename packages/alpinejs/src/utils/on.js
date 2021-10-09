@@ -28,7 +28,7 @@ export default function on (el, event, modifiers, callback) {
         handler = wrapHandler(handler, (next, e) => {
             if (el.contains(e.target)) return
 
-            if (el.offsetWidth < 1 && el.offsetHeight < 1) return
+            if (el.offsetWidth < 1 || el.offsetHeight < 1) return
 
             next(e)
         })

@@ -27,34 +27,36 @@ export default function (Alpine) {
                 let current = el.getBoundingClientRect().height
 
                 Alpine.setStyles(el, {
-                    height: 'auto'
+                    height: 'auto',
                 })
 
                 let full = el.getBoundingClientRect().height
 
+                Alpine.setStyles(el, {
+                    overflow: null
+                })
+
                 if (current === full) { current = floor }
-                
+
                 Alpine.transition(el, Alpine.setStyles, {
                     during: transitionStyles,
                     start: { height: current+'px' },
                     end: { height: full+'px' },
-                }, () => {
-                    el._x_isShown = true
-                    el.removeProperty('overflow')
-                }, () => {})
+                }, () => el._x_isShown = true, () => {})
             },
-    
+
             out(before = () => {}, after = () => {}) {
+                Alpine.setStyles(el, {
+                    overflow: 'hidden'
+                })
+
                 let full = el.getBoundingClientRect().height
 
                 Alpine.transition(el, setFunction, {
                     during: transitionStyles,
                     start: { height: full+'px' },
                     end: { height: floor+'px' },
-                }, () => {}, () => {
-                    el._x_isShown = false
-                    el.style.overflow = 'hidden'
-                })
+                }, () => {}, () => el._x_isShown = false)
             },
         }
     })

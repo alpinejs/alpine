@@ -56,14 +56,14 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 <!-- 🚫 Won't work -->
 <div x-data>
     <span @notify="..."></span>
-    <button @click="$dispatch('notify')">
-<div>
+    <button @click="$dispatch('notify')">Notify</button>
+</div>
 
 <!-- ✅ Will work (because of .window) -->
 <div x-data>
     <span @notify.window="..."></span>
-    <button @click="$dispatch('notify')">
-<div>
+    <button @click="$dispatch('notify')">Notify</button>
+</div>
 ```
 
 > The first example won't work because when `custom-event` is dispatched, it'll propagate to its common ancestor, the `div`, not its sibling, the `<span>`. The second example will work because the sibling is listening for `notify` at the `window` level, which the custom event will eventually bubble up to.
@@ -84,7 +84,7 @@ You can also take advantage of the previous technique to make your components ta
 </div>
 
 <div x-data>
-    <button @click="$dispatch('set-title', 'Hello World!')">...</button>
+    <button @click="$dispatch('set-title', 'Hello World!')">Click me</button>
 </div>
 <!-- When clicked, the content of the h1 will set to "Hello World!". -->
 ```
@@ -97,7 +97,7 @@ You can also use `$dispatch()` to trigger data updates for `x-model` data bindin
 ```alpine
 <div x-data="{ title: 'Hello' }">
     <span x-model="title">
-        <button @click="$dispatch('input', 'Hello World!')">
+        <button @click="$dispatch('input', 'Hello World!')">Click me</button>
         <!-- After the button is pressed, `x-model` will catch the bubbling "input" event, and update title. -->
     </span>
 </div>

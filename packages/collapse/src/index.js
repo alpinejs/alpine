@@ -3,9 +3,9 @@ export default function (Alpine) {
         let duration = modifierValue(modifiers, 'duration', 250) / 1000
         let floor = 0
 
-        el.style.overflow = 'hidden'
         if (! el._x_isShown) el.style.height = `${floor}px`
         if (! el._x_isShown) el.style.removeProperty('display')
+        if (! el._x_isShown) el.style.overflow = 'hidden'
 
         // Override the setStyles function with one that won't
         // revert updates to the height style.
@@ -38,7 +38,10 @@ export default function (Alpine) {
                     during: transitionStyles,
                     start: { height: current+'px' },
                     end: { height: full+'px' },
-                }, () => el._x_isShown = true, () => {})
+                }, () => {
+                    el._x_isShown = true
+                    el.removeProperty('overflow')
+                }, () => {})
             },
     
             out(before = () => {}, after = () => {}) {
@@ -48,7 +51,10 @@ export default function (Alpine) {
                     during: transitionStyles,
                     start: { height: full+'px' },
                     end: { height: floor+'px' },
-                }, () => {}, () => el._x_isShown = false)
+                }, () => {}, () => {
+                    el._x_isShown = false
+                    el.style.overflow = 'hidden'
+                })
             },
         }
     })

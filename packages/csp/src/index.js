@@ -10,7 +10,8 @@ import 'alpinejs/src/directives/index'
 
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { injectMagics } from 'alpinejs/src/magics'
-import { generateEvaluatorFromFunction, runIfTypeOfFunction, tryCatch } from 'alpinejs/src/evaluator'
+import { generateEvaluatorFromFunction, runIfTypeOfFunction } from 'alpinejs/src/evaluator'
+import { tryCatch } from 'alpinejs/src/utils/error'
 
 function cspCompliantEvaluator(el, expression) {
     let overriddenMagics = {}

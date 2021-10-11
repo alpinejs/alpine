@@ -1,5 +1,6 @@
 import { closestDataStack, mergeProxies } from './scope'
 import { injectMagics } from './magics'
+import { tryCatch, handleError } from './utils/error'
 
 export function evaluate(el, expression, extras = {}) {
     let result
@@ -30,7 +31,7 @@ export function normalEvaluator(el, expression) {
         return generateEvaluatorFromFunction(dataStack, expression)
     }
 
-    let evaluator = generateEvaluatorFromString(dataStack, expression)
+    let evaluator = generateEvaluatorFromString(dataStack, expression, el)
 
     return tryCatch.bind(null, el, expression, evaluator)
 }
@@ -45,7 +46,7 @@ export function generateEvaluatorFromFunction(dataStack, func) {
 
 let evaluatorMemo = {}
 
-function generateFunctionFromString(expression) {
+function generateFunctionFromString(expression, el) {
     if (evaluatorMemo[expression]) {
         return evaluatorMemo[expression]
     }
@@ -63,15 +64,23 @@ function generateFunctionFromString(expression) {
             ? `(() => { ${expression} })()`
             : expression
 
-    let func = new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`)
+    const safeAsyncFunction = () => {
+        try {
+            return new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`)
+        } catch ( error ) {
+            handleError( error, el, expression )
+            return Promise.resolve()
+        }
+    }
+    let func = safeAsyncFunction()
 
     evaluatorMemo[expression] = func
 
     return func
 }
 
-function generateEvaluatorFromString(dataStack, expression) {
-    let func = generateFunctionFromString(expression)
+function generateEvaluatorFromString(dataStack, expression, el) {
+    let func = generateFunctionFromString(expression, el)
 
     return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
         func.result = undefined
@@ -81,41 +90,33 @@ function generateEvaluatorFromString(dataStack, expression) {
 
         let completeScope = mergeProxies([ scope, ...dataStack ])
 
-        let promise = func(func, completeScope)
+        if( typeof func === 'function' ) {
+            let promise = func(func, completeScope).catch((error) => handleError(error, el, expression))
 
-        // Check if the function ran synchronously,
-        if (func.finished) {
-            // Return the immediate result.
-            runIfTypeOfFunction(receiver, func.result, completeScope, params)
-        } else {
-            // If not, return the result when the promise resolves.
-            promise.then(result => {
-                runIfTypeOfFunction(receiver, result, completeScope, params)
-            })
+            // Check if the function ran synchronously,
+            if (func.finished) {
+                // Return the immediate result.
+                runIfTypeOfFunction(receiver, func.result, completeScope, params, el)
+            } else {
+                // If not, return the result when the promise resolves.
+                promise.then(result => {
+                    runIfTypeOfFunction(receiver, result, completeScope, params, el)
+                }).catch( error => handleError( error, el, expression ) )
+            }
         }
     }
 }
 
-export function runIfTypeOfFunction(receiver, value, scope, params) {
+export function runIfTypeOfFunction(receiver, value, scope, params, el) {
     if (typeof value === 'function') {
         let result = value.apply(scope, params)
 
         if (result instanceof Promise) {
-            result.then(i => runIfTypeOfFunction(receiver, i, scope, params))
+            result.then(i => runIfTypeOfFunction(receiver, i, scope, params)).catch( error => handleError( error, el, value ) )
         } else {
             receiver(result)
         }
     } else {
         receiver(value)
-    }
-}
-
-export function tryCatch(el, expression, callback, ...args) {
-    try {
-        return callback(...args)
-    } catch (e) {
-        console.warn(`Alpine Expression Error: ${e.message}\n\nExpression: "${expression}"\n\n`, el)
-
-        throw e
     }
 }

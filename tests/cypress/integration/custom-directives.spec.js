@@ -26,7 +26,6 @@ test('directives are auto cleaned up',
     `,
     `
         Alpine.directive('foo', (el, {}, { effect, cleanup, evaluateLater }) => {
-            let evaluate = evaluateLater('foo')
             let incCount = evaluateLater('count++')
 
             cleanup(() => {
@@ -36,7 +35,6 @@ test('directives are auto cleaned up',
 
             effect(() => {
                 incCount()
-                evaluate(value => el.textContent = value)
             })
         })
     `],

@@ -5,19 +5,19 @@ export function html(strings) {
     return strings.raw[0]
 }
 
-export let test = function (name, template, callback) {
+export let test = function (name, template, callback, handleExpectedErrors = false) {
     it(name, () => {
-        injectHtmlAndBootAlpine(cy, template, callback)
+        injectHtmlAndBootAlpine(cy, template, callback, undefined, handleExpectedErrors)
     })
 }
 
-test.only = (name, template, callback) => {
+test.only = (name, template, callback, handleExpectedErrors = false) => {
     it.only(name, () => {
-        injectHtmlAndBootAlpine(cy, template, callback)
+        injectHtmlAndBootAlpine(cy, template, callback, undefined, handleExpectedErrors)
     })
 }
 
-test.retry = (count) => (name, template, callback) => {
+test.retry = (count) => (name, template, callback, handleExpectedErrors = false) => {
     it(name, {
         retries: {
             // During "cypress run"
@@ -26,22 +26,32 @@ test.retry = (count) => (name, template, callback) => {
             openMode: count - 1,
         }
     }, () => {
-        injectHtmlAndBootAlpine(cy, template, callback)
+        injectHtmlAndBootAlpine(cy, template, callback, undefined, handleExpectedErrors)
     })
 }
 
-test.csp = (name, template, callback) => {
+test.csp = (name, template, callback, handleExpectedErrors = false) => {
     it(name, () => {
-        injectHtmlAndBootAlpine(cy, template, callback, __dirname+'/spec-csp.html')
+        injectHtmlAndBootAlpine(cy, template, callback, __dirname+'/spec-csp.html', handleExpectedErrors)
     })
 }
 
-function injectHtmlAndBootAlpine(cy, templateAndPotentiallyScripts, callback, page) {
+function injectHtmlAndBootAlpine(cy, templateAndPotentiallyScripts, callback, page, handleExpectedErrors = false) {
     let [template, scripts] = Array.isArray(templateAndPotentiallyScripts)
         ? templateAndPotentiallyScripts
         : [templateAndPotentiallyScripts]
 
     cy.visit(page || __dirname+'/spec.html')
+
+    if( handleExpectedErrors ) {
+        cy.on( 'uncaught:exception', ( error ) => {
+            if( error.el === undefined && error.expression === undefined ) {
+                console.warn( 'Expected all errors originating from Alpine to have el and expression.  Letting cypress fail the test.', error )
+                return true
+            }
+            return false
+        } );
+    }
 
     cy.get('#root').then(([el]) => {
         el.innerHTML = template

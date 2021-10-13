@@ -1,7 +1,4 @@
-
-
 export default function (Alpine) {
-
     let persist = () => {
         let alias
         let storage = localStorage
@@ -29,6 +26,7 @@ export default function (Alpine) {
             func.using = target => { storage = target; return func }
         })
     }
+
     Alpine.$persist = persist()
     Alpine.magic('persist', persist)
 }

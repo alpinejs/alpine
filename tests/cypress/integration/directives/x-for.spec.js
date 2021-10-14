@@ -461,3 +461,18 @@ test('x-for works with variables that start with let',
         get('li:nth-of-type(3)').should(haveText('c'))
     }
 )
+
+test('x-for works with variables that start with const',
+    `
+        <ul x-data="{ constants: ['a','b','c'] }">
+          <template x-for="constant in constants">
+            <li x-text="constant"></li>
+          </template>
+        </ul>
+    `,
+    ({ get }) => {
+        get('li:nth-of-type(1)').should(haveText('a'))
+        get('li:nth-of-type(2)').should(haveText('b'))
+        get('li:nth-of-type(3)').should(haveText('c'))
+    }
+)

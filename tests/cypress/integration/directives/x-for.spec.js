@@ -456,8 +456,8 @@ test('x-for works with variables that start with let',
         </ul>
     `,
     ({ get }) => {
-        get('li:nth-of-type(0)').should(haveText('a'))
-        get('li:nth-of-type(1)').should(haveText('b'))
-        get('li:nth-of-type(2)').should(haveText('c'))
+        get('li:nth-of-type(1)').should(haveText('a'))
+        get('li:nth-of-type(2)').should(haveText('b'))
+        get('li:nth-of-type(3)').should(haveText('c'))
     }
 )

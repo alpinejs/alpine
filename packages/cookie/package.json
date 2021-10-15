@@ -1,0 +1,11 @@
+{
+    "name": "@alpinejs/persist",
+    "version": "3.4.2",
+    "description": "Manage browser Cookies across page loads",
+    "author": "Caneco",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js",
+    "unpkg": "dist/cdn.min.js",
+    "dependencies": {}
+}

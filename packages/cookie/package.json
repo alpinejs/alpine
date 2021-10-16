@@ -1,5 +1,5 @@
 {
-    "name": "@alpinejs/persist",
+    "name": "@alpinejs/cookie",
     "version": "3.4.2",
     "description": "Manage browser Cookies across page loads",
     "author": "Caneco",

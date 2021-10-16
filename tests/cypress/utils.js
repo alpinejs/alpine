@@ -58,6 +58,8 @@ function injectHtmlAndBootAlpine(cy, templateAndPotentiallyScripts, callback, pa
 
         el.evalScripts(scripts)
 
+        console.info(scripts)
+
         cy.get('[alpine-is-ready]', { timeout: 5000 }).should('be.visible');
 
         // We can't just simply reload a page from a test, because we need to

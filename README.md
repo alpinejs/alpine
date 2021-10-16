@@ -30,6 +30,7 @@ Here's a brief look at each package in this repo:
 Package | Description
 --- | ---
 [alpinejs](packages/alpinejs) | The main Alpine repo with all of Alpine's core
+[cookie](packages/cookie) | Manage browser Cookies across page loads
 [csp](packages/csp) | A repo to provide a "CSP safe" build of Alpine
 [history](packages/history) | A plugin for binding data to query string parameters using the history API (name is likely to change)
 [intersect](packages/intersect) | A plugin for triggering JS expressions based on elements intersecting with the viewport

@@ -181,6 +181,9 @@ test('can persist to custom storage',
         reload()
         get('span').should(haveText('bar'))
         window().its('sessionStorage._x_message').should(beEqualTo(JSON.stringify('bar')))
+        window().then((win) => {
+            win.sessionStorage.clear()
+        });
     },
 )
 
@@ -197,5 +200,29 @@ test('can persist to custom storage using an alias',
         get('input').clear().type('bar')
         get('span').should(haveText('bar'))
         window().its('sessionStorage.mymessage').should(beEqualTo(JSON.stringify('bar')))
+        window().then((win) => {
+            win.sessionStorage.clear()
+        });
+    },
+)
+
+test('can persist using global Alpine.$persist within Alpine.store',
+    [html`
+        <div x-data>
+            <input x-model="$store.name.firstName">
+
+            <span x-text="$store.name.firstName"></span>
+        </div>
+    `, `
+        Alpine.store('name', {
+            firstName: Alpine.$persist('Daniel').as('dev-name')
+        })
+    `],
+    ({ get, window }, reload) => {
+        get('span').should(haveText('Daniel'))
+        get('input').clear().type('Malcolm')
+        get('span').should(haveText('Malcolm'))
+        reload()
+        get('span').should(haveText('Malcolm'))
     },
 )

@@ -60,7 +60,7 @@ function generateFunctionFromString(expression, el) {
         // Support expressions starting with "if" statements like: "if (...) doSomething()"
         || /^[\n\s]*if.*\(.*\)/.test(expression)
         // Support expressions starting with "let/const" like: "let foo = 'bar'"
-        || /^(let|const)/.test(expression)
+        || /^(let|const)\s/.test(expression)
             ? `(() => { ${expression} })()`
             : expression
 

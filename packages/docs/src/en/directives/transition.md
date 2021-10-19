@@ -9,8 +9,8 @@ Alpine provides a robust transitions utility out of the box. With a few `x-trans
 
 There are two primary ways to handle transitions in Alpine:
 
-* [The Transition Helper]()
-* [Applying CSS Classes]()
+* [The Transition Helper](#the-transition-helper)
+* [Applying CSS Classes](#applying-css-classes)
 
 <a name="the-transition-helper"></a>
 ## The transition helper

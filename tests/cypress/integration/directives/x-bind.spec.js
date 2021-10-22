@@ -409,27 +409,3 @@ test('x-bind object syntax event handlers defined as functions receive the event
         get('span').should(haveText('bar'))
     }
 )
-
-test('x-bind object syntax ',
-    html`
-        <script>
-            window.data = () => { return {
-                button: {
-                    ['@click']() {
-                        this.$refs.span.innerText = this.$el.id
-                    }
-                }
-            }}
-        </script>
-        <div x-data="window.data()">
-            <button x-bind="button" id="bar">click me</button>
-
-            <span x-ref="span">foo</span>
-        </div>
-    `,
-    ({ get }) => {
-        get('span').should(haveText('foo'))
-        get('button').click()
-        get('span').should(haveText('bar'))
-    }
-)

@@ -317,6 +317,17 @@ test('x-bind object syntax supports normal HTML attributes',
     }
 )
 
+test('x-bind object syntax supports normal HTML attributes mixed in with dynamic ones',
+    html`
+        <span x-data x-bind="{ 'x-bind:bob'() { return 'lob'; }, foo: 'bar', 'x-bind:bab'() { return 'lab' } }"></span>
+    `,
+    ({ get }) => {
+        get('span').should(haveAttribute('foo', 'bar'))
+        get('span').should(haveAttribute('bob', 'lob'))
+        get('span').should(haveAttribute('bab', 'lab'))
+    }
+)
+
 test('x-bind object syntax supports x-for',
     html`
         <script>
@@ -376,6 +387,30 @@ test('x-bind object syntax syntax supports x-transition',
 )
 
 test('x-bind object syntax event handlers defined as functions receive the event object as their first argument',
+    html`
+        <script>
+            window.data = () => { return {
+                button: {
+                    ['@click']() {
+                        this.$refs.span.innerText = this.$el.id
+                    }
+                }
+            }}
+        </script>
+        <div x-data="window.data()">
+            <button x-bind="button" id="bar">click me</button>
+
+            <span x-ref="span">foo</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('foo'))
+        get('button').click()
+        get('span').should(haveText('bar'))
+    }
+)
+
+test('x-bind object syntax ',
     html`
         <script>
             window.data = () => { return {

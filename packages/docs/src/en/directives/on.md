@@ -13,7 +13,7 @@ Here's an example of simple button that shows an alert when clicked.
 <button x-on:click="alert('Hello World!')">Say Hi</button>
 ```
 
-> `x-on` can only listen for events with lower case names, as HTML attribtes are case-insensitive. Writing `x-on:CLICK` will listen for an event named `click`.
+> `x-on` can only listen for events with lower case names, as HTML attribtes are case-insensitive. Writing `x-on:CLICK` will listen for an event named `click`. If you need to listen for an event with upper case characters in its name, see the [`x-bind` documentation](/directives/bind.md#bind-directives) on how to bind Alpine directives to elements in code.
 
 <a name="shorthand-syntax"></a>
 ## Shorthand syntax

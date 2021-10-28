@@ -194,3 +194,14 @@ Alpine.data('dropdown', function () {
     }
 })
 ```
+
+<a name="using-alpine-persist-global"></a>
+## Using the Alpine.$persist global
+
+`Alpine.$persist` is exposed globally so it can be used outside of `x-data` contexts. This is useful to persist data from other sources such as `Alpine.store`.
+
+```js
+Alpine.store('darkMode', {
+    on: Alpine.$persist(true).as('darkMode_on')
+});
+```

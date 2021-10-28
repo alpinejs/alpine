@@ -104,3 +104,25 @@ Sometimes it's useful to evaluate an expression only the first time an element e
 ```alpine
 <div x-intersect.once="shown = true">...</div>
 ```
+
+<a name="half"></a>
+### .half
+
+Evaluates the expression once the intersection threshold exceeds `0.5`. 
+
+Useful for elements where it's important to show at least part of the element.
+
+```alpine
+<div x-intersect.half="shown = true">...</div> // when `0.5` of the element is in the viewport
+```
+
+<a name="full"></a>
+### .full
+
+Evaluates the expression once the intersection threshold exceeds `0.99`. 
+
+Useful for elements where it's important to show the whole element.
+
+```alpine
+<div x-intersect.full="shown = true">...</div> // when `0.99` of the element is in the viewport
+```

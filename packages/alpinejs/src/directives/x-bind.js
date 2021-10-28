@@ -31,12 +31,18 @@ function applyBindingsObject(el, expression, original, effect) {
         getBindings(bindings => {
             let attributes = Object.entries(bindings).map(([name, value]) => ({ name, value }))
 
+            let staticAttributes = attributesOnly(attributes)
+            
             // Handle binding normal HTML attributes (non-Alpine directives).
-            attributesOnly(attributes).forEach(({ name, value }, index) => {
-                attributes[index] = {
-                    name: `x-bind:${name}`,
-                    value: `"${value}"`,
+            attributes = attributes.map(attribute => {
+                if (staticAttributes.find(attr => attr.name === attribute.name)) {
+                    return {
+                        name: `x-bind:${attribute.name}`,
+                        value: `"${attribute.value}"`,
+                    }
                 }
+
+                return attribute
             })
 
             directives(el, attributes, original).map(handle => {

@@ -446,3 +446,33 @@ test('x-for works with undefined',
         get('span').should(haveLength('1'))
     }
 )
+
+test('x-for works with variables that start with let',
+    `
+        <ul x-data="{ letters: ['a','b','c'] }">
+          <template x-for="letter in letters">
+            <li x-text="letter"></li>
+          </template>
+        </ul>
+    `,
+    ({ get }) => {
+        get('li:nth-of-type(1)').should(haveText('a'))
+        get('li:nth-of-type(2)').should(haveText('b'))
+        get('li:nth-of-type(3)').should(haveText('c'))
+    }
+)
+
+test('x-for works with variables that start with const',
+    `
+        <ul x-data="{ constants: ['a','b','c'] }">
+          <template x-for="constant in constants">
+            <li x-text="constant"></li>
+          </template>
+        </ul>
+    `,
+    ({ get }) => {
+        get('li:nth-of-type(1)').should(haveText('a'))
+        get('li:nth-of-type(2)').should(haveText('b'))
+        get('li:nth-of-type(3)').should(haveText('c'))
+    }
+)

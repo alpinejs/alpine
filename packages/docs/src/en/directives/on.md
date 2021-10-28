@@ -262,6 +262,19 @@ Sometimes you may want to listen for camelCased events such as `customEvent` in 
 
 By adding `.camel` in the above example, Alpine is now listening for `customEvent` instead of `custom-event`.
 
+<a name="dot"></a>
+### .dot
+
+```alpine
+<div @custom-event.dot="handleCustomEvent">
+    ...
+</div>
+```
+
+Similar to the `.camelCase` modifier there may be situations where you want to listen for events that have dots in their name (like `custom.event`). Since dots within the event name are reserved by Alpine you need to write them with dashes and add the `.dot` modifier.
+
+In the code example above `custom-event.dot` will correspond to the event name `custom.event`.
+
 <a name="passive"></a>
 ### .passive
 

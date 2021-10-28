@@ -317,6 +317,17 @@ test('x-bind object syntax supports normal HTML attributes',
     }
 )
 
+test('x-bind object syntax supports normal HTML attributes mixed in with dynamic ones',
+    html`
+        <span x-data x-bind="{ 'x-bind:bob'() { return 'lob'; }, foo: 'bar', 'x-bind:bab'() { return 'lab' } }"></span>
+    `,
+    ({ get }) => {
+        get('span').should(haveAttribute('foo', 'bar'))
+        get('span').should(haveAttribute('bob', 'lob'))
+        get('span').should(haveAttribute('bab', 'lab'))
+    }
+)
+
 test('x-bind object syntax supports x-for',
     html`
         <script>

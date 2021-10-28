@@ -30,6 +30,10 @@ export default function on (el, event, modifiers, callback) {
 
             if (el.offsetWidth < 1 && el.offsetHeight < 1) return
 
+            // Additional check for special implementations like x-collapse
+            // where the element doesn't have display: none
+            if (el._x_isShown === false) return
+
             next(e)
         })
     }

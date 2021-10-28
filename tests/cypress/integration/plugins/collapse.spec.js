@@ -28,7 +28,7 @@ test('@click.away with x-collapse (prevent race condition)',
     ({ get }) => {
         get('h1').should(haveComputedStyle('height', '0px'))
         get('button').click()
-        get('h1').should(haveAttribute('style', 'overflow: hidden; height: auto;'))
+        get('h1').should(haveAttribute('style', 'height: 0px; overflow: hidden;'))
     }
 )
 
@@ -44,6 +44,6 @@ test('@click.away with x-collapse and borders (prevent race condition)',
     ({ get }) => {
         get('h1').should(haveComputedStyle('height', '0px'))
         get('button').click()
-        get('h1').should(haveAttribute('style', 'overflow: hidden; height: auto;'))
+        get('h1').should(haveAttribute('style', 'height: 0px; overflow: hidden;'))
     }
 )

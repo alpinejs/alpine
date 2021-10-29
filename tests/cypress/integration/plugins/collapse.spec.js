@@ -28,7 +28,7 @@ test('@click.away with x-collapse (prevent race condition)',
     ({ get }) => {
         get('h1').should(haveComputedStyle('height', '0px'))
         get('button').click()
-        get('h1').should(haveAttribute('style', 'height: 0px; overflow: hidden;'))
+        get('h1').should(haveAttribute('style', 'height: auto;'))
     }
 )
 

@@ -3,7 +3,7 @@ order: 7
 title: model
 ---
 
-# `x-model`
+# x-model
 
 `x-model` allows you to bind the value of an input element to Alpine data.
 
@@ -336,3 +336,39 @@ The default throttle interval is 250 milliseconds, you can easily customize this
 ```alpine
 <input type="text" x-model.throttle.500ms="search">
 ```
+
+<a name="programmatic access"></a>
+## Programmatic access
+
+Alpine exposes under-the-hood utilities for getting and setting properties bound with `x-model`. This is useful for complex Alpine utilities that may want to override the default x-model behavior, or instances where you want to allow `x-model` on a non-input element.
+
+You can access these utilities through a property called `_x_model` on the `x-model`ed element. `_x_model` has two methods to get and set the bound property:
+
+* `el._x_model.get()` (returns the value of the bound property)
+* `el._x_model.set()` (sets the value of the bound property)
+
+```alpine
+<div x-data="{ username: 'calebporzio' }">
+    <div x-ref="div" x-model="username"></div>
+
+    <button @click="$refs.div._x_model.set('phantomatrix')">
+        Change username to: 'phantomatrix'
+    </button>
+
+    <span x-text="$refs.div._x_model.get()"></span>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <div x-data="{ username: 'calebporzio' }">
+        <div x-ref="div" x-model="username"></div>
+
+        <button @click="$refs.div._x_model.set('phantomatrix')">
+            Change username to: 'phantomatrix'
+        </button>
+
+        <span x-text="$refs.div._x_model.get()"></span>
+    </div>
+</div>
+<!-- END_VERBATIM -->

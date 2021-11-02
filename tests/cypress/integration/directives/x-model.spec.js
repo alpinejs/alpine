@@ -92,3 +92,21 @@ test('x-model trims value if trim modifier is present',
         get('div').should(haveData('foo', 'bar'))
     }
 )
+
+test('x-model can be accessed programmatically',
+    html`
+    <div x-data="{ foo: 'bar' }" x-model="foo">
+        <input x-model="foo">
+
+        <span x-text="$root._x_model.get()"></span>
+        <button @click="$root._x_model.set('bob')">Set foo to bob</button>
+    </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('input').type('baz')
+        get('span').should(haveText('barbaz'))
+        get('button').click()
+        get('span').should(haveText('bob'))
+    }
+)

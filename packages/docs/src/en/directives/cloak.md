@@ -3,7 +3,7 @@ order: 12
 title: cloak
 ---
 
-# `x-cloak`
+# x-cloak
 
 Sometimes, when you're using AlpineJS for a part of your template, there is a "blip" where you might see your uninitialized template after the page loads, but before Alpine loads.
 

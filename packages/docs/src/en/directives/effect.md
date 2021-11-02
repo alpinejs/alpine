@@ -3,7 +3,7 @@ order: 11
 title: effect
 ---
 
-# `x-effect`
+# x-effect
 
 `x-effect` is a useful directive for re-evaluating an expression when one of its dependencies change. You can think of it as a watcher where you don't have to specify what property to watch, it will watch all properties used within it.
 

@@ -3,7 +3,7 @@ order: 2
 title: init
 ---
 
-# `x-init`
+# x-init
 
 The `x-init` directive allows you to hook into the initialization phase of any element in Alpine.
 

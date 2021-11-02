@@ -3,7 +3,7 @@ order: 11
 title: ref
 ---
 
-# `x-ref`
+# x-ref
 
 `x-ref` in combination with `$refs` is a useful utility for easily accessing DOM elements directly. It's most useful as a replacement for APIs like `getElementById` and `querySelector`.
 

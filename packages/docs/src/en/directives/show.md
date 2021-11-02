@@ -3,7 +3,7 @@ order: 3
 title: show
 ---
 
-# `x-show`
+# x-show
 
 `x-show` is one of the most useful and powerful directives in Alpine. It provides an expressive way to show and hide DOM elements.
 

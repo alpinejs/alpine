@@ -3,7 +3,7 @@ order: 16
 title: if
 ---
 
-# `x-if`
+# x-if
 
 `x-if` is used for toggling elements on the page, similarly to `x-show`, however it completely adds and removes the element it's applied to rather than just changing its CSS display property to "none".
 

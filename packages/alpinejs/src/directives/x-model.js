@@ -27,6 +27,19 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
 
     cleanup(() => removeListener())
 
+    // Allow programmatic overiding of x-model.
+    let evaluateSetModel = evaluateLater(el, `${expression} = __placeholder`)
+    el._x_model = {
+        get() { 
+            let result
+            evaluate(value => result = value)
+            return result
+        },
+        set(value) {
+            evaluateSetModel(() => {}, { scope: { '__placeholder': value }})
+        },
+    }
+
     el._x_forceModelUpdate = () => {
         evaluate(value => {
             // If nested model key is undefined, set the default value to empty string.

@@ -3,7 +3,7 @@ order: 6
 title: text
 ---
 
-# `x-text`
+# x-text
 
 `x-text` sets the text content of an element to the result of a given expression.
 

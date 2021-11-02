@@ -3,7 +3,7 @@ order: 5
 title: dispatch
 ---
 
-# `$dispatch`
+# $dispatch
 
 `$dispatch` is a helpful shortcut for dispatching browser events.
 

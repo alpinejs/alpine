@@ -4,7 +4,7 @@ prefix: $
 title: el
 ---
 
-# `$el`
+# $el
 
 `$el` is a magic property that can be used to retrieve the current DOM node.
 

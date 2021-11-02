@@ -4,7 +4,7 @@ prefix: $
 title: store
 ---
 
-# `$store`
+# $store
 
 You can use `$store` to conveniently access global Alpine stores registered using [`Alpine.store(...)`](#). For example:
 

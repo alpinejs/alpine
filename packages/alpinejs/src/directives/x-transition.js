@@ -134,9 +134,18 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
     let clickAwayCompatibleShow = () => {document.visibilityState === 'visible' ? requestAnimationFrame(show) : setTimeout(show)}
 
     if (value) {
-        el._x_transition
-            ? el._x_transition.in(show)
-            : clickAwayCompatibleShow()
+        if (el._x_transition && (el._x_transition.enter || el._x_transition.leave)) {
+            // This fixes a bug where if you are only transitioning OUT and you are also using @click.outside
+            // the element when shown immediately starts transitioning out. There is a test in the manual
+            // transition test file for this: /tests/cypress/manual-transition-test.html
+            (el._x_transition.enter && (Object.entries(el._x_transition.enter.during).length || Object.entries(el._x_transition.enter.start).length || Object.entries(el._x_transition.enter.end).length))
+                ? el._x_transition.in(show)
+                : clickAwayCompatibleShow()
+        } else {
+            el._x_transition
+                ? el._x_transition.in(show)
+                : clickAwayCompatibleShow()
+        }
 
         return
     }

@@ -1,4 +1,5 @@
 <html>
+    <script src="/../../packages/collapse/dist/cdn.js" defer></script>
     <script src="/../../packages/alpinejs/dist/cdn.js" defer></script>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
 
@@ -8,9 +9,9 @@
             <td>
                 <div x-data="{ show: false }">
                     <button @click="show = true">Show</button>
-                  
+
                     <h1 x-show="show" @click.away="show = false">h1</h1>
-                  
+
                     <h2>h2</h2>
                   </div>
                 </div>
@@ -150,6 +151,20 @@
                         <div x-show="open" x-transition:enter.delay.100ms x-transition:leave.delay.100ms>Hello 👋</div>
                         <div x-show="open" x-transition:enter.delay.250ms x-transition:leave.delay.0ms>Hello 👋</div>
                     </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td><code>x-collapse with no overflow hidden when expanded</code></td>
+            <td>
+                <div x-data="{ show: false }">
+                    <button @click="show = !show">Show</button>
+
+                    <div x-show="show" x-collapse>
+                        <div class="ring-2 ring-offset-2 ring-red-400">my red ring should be fully visible</div>
+                    </div>
+                  </div>
                 </div>
             </td>
         </tr>

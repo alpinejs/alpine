@@ -3,9 +3,9 @@ export default function (Alpine) {
         let duration = modifierValue(modifiers, 'duration', 250) / 1000
         let floor = 0
 
-        el.style.overflow = 'hidden'
         if (! el._x_isShown) el.style.height = `${floor}px`
         if (! el._x_isShown) el.style.removeProperty('display')
+        if (! el._x_isShown) el.style.overflow = 'hidden'
 
         // Override the setStyles function with one that won't
         // revert updates to the height style.
@@ -27,21 +27,29 @@ export default function (Alpine) {
                 let current = el.getBoundingClientRect().height
 
                 Alpine.setStyles(el, {
-                    height: 'auto'
+                    height: 'auto',
                 })
 
                 let full = el.getBoundingClientRect().height
 
+                Alpine.setStyles(el, {
+                    overflow: null
+                })
+
                 if (current === full) { current = floor }
-                
+
                 Alpine.transition(el, Alpine.setStyles, {
                     during: transitionStyles,
                     start: { height: current+'px' },
                     end: { height: full+'px' },
                 }, () => el._x_isShown = true, () => {})
             },
-    
+
             out(before = () => {}, after = () => {}) {
+                Alpine.setStyles(el, {
+                    overflow: 'hidden'
+                })
+
                 let full = el.getBoundingClientRect().height
 
                 Alpine.transition(el, setFunction, {

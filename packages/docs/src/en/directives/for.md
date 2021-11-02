@@ -3,7 +3,7 @@ order: 8
 title: for
 ---
 
-# `x-for`
+# x-for
 
 Alpine's `x-for` directive allows you to create DOM elements by iterating through a list. Here's a simple example of using it to create a list of colors based on an array.
 

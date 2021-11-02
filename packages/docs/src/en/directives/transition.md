@@ -3,7 +3,7 @@ order: 10
 title: transition
 ---
 
-# `x-transition`
+# x-transition
 
 Alpine provides a robust transitions utility out of the box. With a few `x-transition` directives, you can create smooth transitions between when an element is shown or hidden.
 

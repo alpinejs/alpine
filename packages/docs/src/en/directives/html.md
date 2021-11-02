@@ -3,7 +3,7 @@ order: 7
 title: html
 ---
 
-# `x-html`
+# x-html
 
 `x-html` sets the "innerHTML" property of an element to the result of a given expression.
 

@@ -3,7 +3,7 @@ order: 11
 title: ignore
 ---
 
-# `x-ignore`
+# x-ignore
 
 By default, Alpine will crawl and initialize the entire DOM tree of an element containing `x-init` or `x-data`.
 

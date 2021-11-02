@@ -3,7 +3,7 @@ order: 1
 title: data
 ---
 
-# `x-data`
+# x-data
 
 Everything in Alpine starts with the `x-data` directive.
 

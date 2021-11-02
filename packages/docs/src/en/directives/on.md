@@ -3,7 +3,7 @@ order: 5
 title: on
 ---
 
-# `x-on`
+# x-on
 
 `x-on` allows you to easily run code on dispatched DOM events.
 

@@ -21,9 +21,7 @@ directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
 
     let data = evaluate(el, expression, { scope: dataProviderContext })
 
-    if( data === undefined ) {
-        data = {}
-    }
+    if (data === undefined) data = {}
 
     injectMagics(data, el)
 

@@ -3,7 +3,7 @@ order: 4
 title: bind
 ---
 
-# `x-bind`
+# x-bind
 
 `x-bind` allows you to set HTML attributes on elements based on the result of JavaScript expressions.
 

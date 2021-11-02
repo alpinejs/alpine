@@ -8,6 +8,7 @@ import { interceptor } from './interceptor'
 import { setStyles } from './utils/styles'
 import { debounce } from './utils/debounce'
 import { throttle } from './utils/throttle'
+import { mergeProxies } from './scope'
 import { nextTick } from './nextTick'
 import { plugin } from './plugin'
 import { magic } from './magics'
@@ -29,6 +30,7 @@ let Alpine = {
     mapAttributes,
     evaluateLater,
     setEvaluator,
+    mergeProxies,
     closestRoot,
     interceptor, // INTERNAL: not public API and is subject to change without major release.
     transition, // INTERNAL

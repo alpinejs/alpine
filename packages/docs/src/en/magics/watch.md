@@ -3,7 +3,7 @@ order: 4
 title: watch
 ---
 
-# `$watch`
+# $watch
 
 You can "watch" a component property using the `$watch` magic method. For example:
 

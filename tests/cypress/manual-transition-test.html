@@ -120,6 +120,19 @@
             </td>
         </tr>
 
+        <tr style="border-bottom: 1px solid black;">
+            <td><code>x-transition.leave only with @click.outside</code></td>
+            <td>
+                <div x-data="{ open: false }">
+                    <button @click="open = ! open">Toggle</button>
+
+                    <div x-show="open" @click.outside="open = false" x-transition.out.duration.1000ms>
+                        Hello 👋
+                    </div>
+                </div>
+            </td>
+        </tr>
+
         <tr>
             <td>
                 <div><code>x-transition:enter.opacity.duration.500ms</code></div>

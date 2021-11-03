@@ -1,4 +1,4 @@
-import { haveText, test, html, haveFocus } from '../../utils'
+import { haveText, test, html, haveFocus, notHaveAttribute, haveAttribute } from '../../utils'
 
 test('can trap focus',
     [html`
@@ -55,4 +55,45 @@ test('works with clone',
         get('#two').click()
         get('p').should(haveText('bar'))
     }
+)
+
+test('can trap focus with inert',
+    [html`
+        <div x-data="{ open: false }">
+            <h1>I should have aria-hidden when outside trap</h1>
+
+            <button id="open" @click="open = true">open</button>
+
+            <div x-trap.inert="open">
+                <button @click="open = false" id="close">close</button>
+            </div>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('#open').should(notHaveAttribute('aria-hidden', 'true'))
+        get('#open').click()
+        get('#open').should(haveAttribute('aria-hidden', 'true'))
+        get('#close').click()
+        get('#open').should(notHaveAttribute('aria-hidden', 'true'))
+    },
+)
+
+test('can trap focus with noscroll',
+    [html`
+        <div x-data="{ open: false }">
+            <button id="open" @click="open = true">open</button>
+
+            <div x-trap.noscroll="open">
+                <button @click="open = false" id="close">close</button>
+            </div>
+
+            <div style="height: 100vh">&nbsp;</div>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('#open').click()
+        get('html').should(haveAttribute('style', 'overflow: hidden; padding-right: 0px;'))
+        get('#close').click()
+        get('html').should(notHaveAttribute('style', 'overflow: hidden; padding-right: 0px;'))
+    },
 )

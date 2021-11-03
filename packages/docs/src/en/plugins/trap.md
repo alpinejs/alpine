@@ -178,3 +178,76 @@ Here is nesting in action:
     </div>
 </div>
 <!-- END_VERBATIM -->
+
+<a name="modifiers"></a>
+## Modifiers
+
+<a name="inert"></a>
+### .inert
+
+When building things like dialogs/modals, it's recommended to hide all the other elements on the page from screenreaders when trapping focus.
+
+By adding `.inert` to `x-trap`, when focus is trapped, all other elements on the page will receive `aria-hidden="true"` attributes, and when focus trapping is disabled, those attributes will also be removed.
+
+```alpine
+<!-- When `open` is `false`: -->
+<body>
+    <div x-trap="open" ...>
+        ...
+    </div>
+
+    <div>
+        ...
+    </div>
+</body>
+
+<!-- When `open` is `true`: -->
+<body>
+    <div x-trap="open" ...>
+        ...
+    </div>
+
+    <div aria-hidden="true">
+        ...
+    </div>
+</body>
+```
+
+<a name="noscroll"></a>
+### .noscroll
+
+When building dialogs/modals with Alpine, it's recommended that you disable scrollling for the surrounding content when the dialog is open.
+
+`x-trap` allows you to do this automatically with the `.noscroll` modifiers.
+
+By adding `.noscroll`, Alpine will remove the scrollbar from the page and block users from scrolling down the page while a dialog is open.
+
+For example:
+
+```alpine
+<div x-data="{ open: false }">
+    <button>Open Dialog</button>
+
+    <div x-show="open" x-trap.noscroll="open">
+        Dialog Contents
+
+        <button @click="open = false">Close Dialog</button>
+    </div>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <div x-data="{ open: false }">
+        <button @click="open = true">Open Dialog</button>
+
+        <div x-show="open" x-trap.noscroll="open" class="border mt-4 p-4">
+            <div class="mb-4 text-bold">Dialog Contents</div>
+
+            <p class="mb-4 text-gray-600 text-sm">Notice how you can no longer scroll on this page while this dialog is open.</p>
+
+            <button class="mt-4" @click="open = false">Close Dialog</button>
+        </div>
+    </div>
+</div>
+<!-- END_VERBATIM -->

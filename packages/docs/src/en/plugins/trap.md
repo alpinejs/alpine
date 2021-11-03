@@ -192,7 +192,7 @@ By adding `.inert` to `x-trap`, when focus is trapped, all other elements on the
 ```alpine
 <!-- When `open` is `false`: -->
 <body>
-    <div x-trap="open" ...>
+    <div x-trap.inert="open" ...>
         ...
     </div>
 
@@ -203,7 +203,7 @@ By adding `.inert` to `x-trap`, when focus is trapped, all other elements on the
 
 <!-- When `open` is `true`: -->
 <body>
-    <div x-trap="open" ...>
+    <div x-trap.inert="open" ...>
         ...
     </div>
 

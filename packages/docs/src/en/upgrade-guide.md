@@ -40,7 +40,7 @@ Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING
 <a name="el-no-longer-root"></a>
 ### `$el` is now always the current element
 
-`$el` now always represents the element that an expression was executed on, not the root element of the component. This will replace most usages of `x-ref` and in the cases where you still want to access the root of a component, you can do so using `x-ref`. For example:
+`$el` now always represents the element that an expression was executed on, not the root element of the component. This will replace most usages of `x-ref` and in the cases where you still want to access the root of a component, you can do so using `$root`. For example:
 
 ```alpine
 <!-- 🚫 Before -->
@@ -50,30 +50,15 @@ Upgrading from Alpine V2 to V3 should be fairly painless. In many cases, NOTHING
 </div>
 
 <!-- ✅ After -->
-<div x-data x-ref="root">
-    <button @click="console.log($refs.root)"></button>
+<div x-data>
+    <button @click="console.log($root)"></button>
 </div>
 ```
 
-For a smoother upgrade experience, you can optionally replace all instances of `$el` with a custom magic called `$root`, then add the following code to your site to mimic the behavior:
+For a smoother upgrade experience, you can replace all instances of `$el` with a custom magic called `$root`.
 
-```alpine
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.magic('root', el => {
-            let closestRootEl = (node) => {
-                if (node.hasAttribute('x-data')) return node
-
-                return closestRootEl(node.parentNode)
-            }
-
-            return closestRootEl(el)
-        })
-    })
-</script>
-```
-
-[→ Read more about $el in V3](/magics/el)
+[→ Read more about $el in V3](/magics/el)  
+[→ Read more about $root in V3](/magics/root)
 
 <a name="auto-init"></a>
 ### Automatically evaluate `init()` functions defined on data object

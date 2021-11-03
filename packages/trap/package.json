@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/trap",
-    "version": "3.4.2",
+    "version": "3.5.0",
     "description": "Trap focus on a page within a specific element",
     "author": "Caleb Porzio",
     "license": "MIT",

@@ -27,7 +27,6 @@ export default function (Alpine) {
         })
     }
 
-    //Alpine.$persist = persist()
     Object.defineProperty(Alpine, '$persist', { get: () => persist() })
     Alpine.magic('persist', persist)
 }

@@ -70,7 +70,7 @@ The two main behavioral differences with this approach are:
 ## Alpine initialization
 
 <a name="alpine-initializing"></a>
-### `Alpine.initializing`
+### `alpine:init`
 
 Ensuring a bit of code executes after Alpine is loaded, but BEFORE it initializes itself on the page is a necessary task.
 
@@ -85,7 +85,7 @@ document.addEventListener('alpine:init', () => {
 ```
 
 <a name="alpine-initialized"></a>
-### `Alpine.initialized`
+### `alpine:initialized`
 
 Alpine also offers a hook that you can use to execute code After it's done initializing called `alpine:initialized`:
 

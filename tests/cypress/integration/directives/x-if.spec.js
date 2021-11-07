@@ -51,3 +51,19 @@ test('x-if initializes after being added to the DOM to allow x-ref to work',
         get('li').should(haveText('bar'))
     }
 )
+
+// Bugfix for https://github.com/alpinejs/alpine/issues/2210
+test('x-if preserves iteration order when combined with x-for',
+    html`
+        <div x-data="{numbers: [1,2,3,4,5]}">
+            <template x-for="(num, idx) in numbers">
+                <template x-if="true">
+                    <li :id="idx" x-text="num + ' '"></li>
+                </template>
+            </ul>
+        </div>
+    `,
+    ({ get }) => {
+        get('li').should(haveText('1 2 3 4 5 '))
+    }
+)

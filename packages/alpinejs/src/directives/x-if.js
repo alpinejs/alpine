@@ -15,7 +15,7 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
         addScopeToNode(clone, {}, el)
 
         mutateDom(() => {
-            el.after(clone)
+            el.before(clone)
 
             initTree(clone)
         })

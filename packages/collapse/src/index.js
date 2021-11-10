@@ -5,8 +5,14 @@ export default function (Alpine) {
 
         if (! el._x_isShown) el.style.height = `${floor}px`
         if (! el._x_isShown) el.style.removeProperty('display')
-        if (! el._x_isShown) el.style.overflow = 'hidden'
+        // We use the hidden attribute for the benefit of Tailwind
+        // users as the .space utility will ignore [hidden] elements.
         if (! el._x_isShown) el.hidden = true
+        // We use display:none as the hidden attribute has very low
+        // CSS specificity and could be accidentally overriden by a
+        // user.
+        if (! el._x_isShown) el.style.display = 'none'
+        if (! el._x_isShown) el.style.overflow = 'hidden'
 
         // Override the setStyles function with one that won't
         // revert updates to the height style.
@@ -30,6 +36,7 @@ export default function (Alpine) {
                 let current = el.getBoundingClientRect().height
 
                 Alpine.setStyles(el, {
+                    display: null,
                     height: 'auto',
                 })
 
@@ -64,6 +71,7 @@ export default function (Alpine) {
                     if (el.style.height == `${floor}px`) {
                         Alpine.nextTick(() => {
                             Alpine.setStyles(el, {
+                                display: 'none',
                                 overflow: 'hidden'
                             })
                             el.hidden = true;

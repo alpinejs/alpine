@@ -1,19 +1,22 @@
-import { haveAttribute, haveComputedStyle, html, test } from '../../utils'
+import { haveAttribute, haveComputedStyle, html, notHaveAttribute, notHaveFocus, test } from '../../utils'
 
 test('can collapse and expand element',
     [html`
         <div x-data="{ expanded: false }">
             <button @click="expanded = ! expanded">toggle</button>
-            <h1 x-show="expanded" x-collapse>contents</h1>
+            <h1 x-show="expanded" x-collapse>contents <a href="#">focusable content</a></a></h1>
         </div>
     `],
     ({ get }, reload) => {
         get('h1').should(haveComputedStyle('height', '0px'))
         get('h1').should(haveAttribute('style', 'height: 0px; overflow: hidden;'))
+        get('h1').should(haveAttribute('hidden', 'hidden'))
         get('button').click()
         get('h1').should(haveAttribute('style', 'height: auto;'))
+        get('h1').should(notHaveAttribute('hidden'))
         get('button').click()
         get('h1').should(haveComputedStyle('height', '0px'))
+        get('h1').should(haveAttribute('hidden', 'hidden'))
     },
 )
 

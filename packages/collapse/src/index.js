@@ -6,6 +6,7 @@ export default function (Alpine) {
         if (! el._x_isShown) el.style.height = `${floor}px`
         if (! el._x_isShown) el.style.removeProperty('display')
         if (! el._x_isShown) el.style.overflow = 'hidden'
+        if (! el._x_isShown) el.hidden = true
 
         // Override the setStyles function with one that won't
         // revert updates to the height style.
@@ -42,7 +43,10 @@ export default function (Alpine) {
                     during: transitionStyles,
                     start: { height: current+'px' },
                     end: { height: full+'px' },
-                }, () => el._x_isShown = true, () => {})
+                }, () => {
+                    el.hidden = false
+                    el._x_isShown = true
+                }, () => {})
             },
 
             out(before = () => {}, after = () => {}) {
@@ -61,6 +65,8 @@ export default function (Alpine) {
                             overflow: 'hidden'
                         }))
                     }
+
+                    el.hidden = true
                 })
             },
         }

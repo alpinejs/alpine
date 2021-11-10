@@ -52,9 +52,7 @@ export default function (Alpine) {
                     during: transitionStyles,
                     start: { height: current+'px' },
                     end: { height: full+'px' },
-                }, () => {
-                    el._x_isShown = true
-                }, () => {})
+                }, () => el._x_isShown = true, () => {})
             },
 
             out(before = () => {}, after = () => {}) {

@@ -1,47 +1,55 @@
 import { createFocusTrap } from 'focus-trap';
 
 export default function (Alpine) {
-    Alpine.directive('trap', (el, { expression, modifiers }, { effect, evaluateLater }) => {
-        let evaluator = evaluateLater(expression)
+    Alpine.directive('trap', Alpine.skipDuringClone(
+        (el, { expression, modifiers }, { effect, evaluateLater }) => {
+            let evaluator = evaluateLater(expression)
 
-        let oldValue = false
+            let oldValue = false
 
-        let trap = createFocusTrap(el, { 
-            escapeDeactivates: false,
-            allowOutsideClick: true,
-            fallbackFocus: () => el,
-        })
+            let trap = createFocusTrap(el, { 
+                escapeDeactivates: false,
+                allowOutsideClick: true,
+                fallbackFocus: () => el,
+            })
 
-        let undoInert = () => {}
-        let undoDisableScrolling = () => {}
+            let undoInert = () => {}
+            let undoDisableScrolling = () => {}
 
-        effect(() => evaluator(value => {
-            if (oldValue === value) return
+            effect(() => evaluator(value => {
+                if (oldValue === value) return
 
-            // Start trapping.
-            if (value && ! oldValue) {
-                setTimeout(() => {
-                    if (modifiers.includes('inert')) undoInert = setInert(el)
-                    if (modifiers.includes('noscroll')) undoDisableScrolling = disableScrolling()
+                // Start trapping.
+                if (value && ! oldValue) {
+                    setTimeout(() => {
+                        if (modifiers.includes('inert')) undoInert = setInert(el)
+                        if (modifiers.includes('noscroll')) undoDisableScrolling = disableScrolling()
 
-                    trap.activate()
-                });
-            }
+                        trap.activate()
+                    });
+                }
 
-            // Stop trapping.
-            if (! value && oldValue) {
-                undoInert()
-                undoInert = () => {}
+                // Stop trapping.
+                if (! value && oldValue) {
+                    undoInert()
+                    undoInert = () => {}
 
-                undoDisableScrolling()
-                undoDisableScrolling = () => {}
+                    undoDisableScrolling()
+                    undoDisableScrolling = () => {}
 
-                trap.deactivate()
-            }
+                    trap.deactivate()
+                }
 
-            oldValue = !! value
-        }))
-    })
+                oldValue = !! value
+            }))
+        },
+        // When cloning, we only want to add aria-hidden attributes to the
+        // DOM and not try to actually trap, as trapping can mess with the
+        // live DOM and isn't just isolated to the cloned DOM.
+        (el, { expression, modifiers }, { evaluate }) => {
+            if (modifiers.includes('inert') && evaluate(expression)) setInert(el)
+        },
+    ))
 }
 
 function setInert(el) {

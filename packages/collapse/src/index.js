@@ -25,6 +25,8 @@ export default function (Alpine) {
 
         el._x_transition = {
             in(before = () => {}, after = () => {}) {
+                el.hidden = false;
+
                 let current = el.getBoundingClientRect().height
 
                 Alpine.setStyles(el, {
@@ -44,7 +46,6 @@ export default function (Alpine) {
                     start: { height: current+'px' },
                     end: { height: full+'px' },
                 }, () => {
-                    el.hidden = false
                     el._x_isShown = true
                 }, () => {})
             },
@@ -61,12 +62,13 @@ export default function (Alpine) {
 
                     // check if element is fully collapsed
                     if (el.style.height == `${floor}px`) {
-                        Alpine.nextTick(() => Alpine.setStyles(el, {
-                            overflow: 'hidden'
-                        }))
+                        Alpine.nextTick(() => {
+                            Alpine.setStyles(el, {
+                                overflow: 'hidden'
+                            })
+                            el.hidden = true;
+                        })
                     }
-
-                    el.hidden = true
                 })
             },
         }

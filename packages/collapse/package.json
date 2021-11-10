@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/collapse",
-    "version": "3.5.0",
+    "version": "3.5.1",
     "description": "Collapse and expand elements with robust animations",
     "author": "Caleb Porzio",
     "license": "MIT",

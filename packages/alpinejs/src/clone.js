@@ -4,8 +4,8 @@ import { walk } from "./utils/walk"
 
 let isCloning = false
 
-export function skipDuringClone(callback) {
-    return (...args) => isCloning || callback(...args)
+export function skipDuringClone(callback, fallback = () => {}) {
+    return (...args) => isCloning ? fallback(...args) : callback(...args)
 }
 
 export function onlyDuringClone(callback) {

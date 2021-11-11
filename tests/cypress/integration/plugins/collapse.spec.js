@@ -4,7 +4,7 @@ test('can collapse and expand element',
     [html`
         <div x-data="{ expanded: false }">
             <button @click="expanded = ! expanded">toggle</button>
-            <h1 x-show="expanded" x-collapse>contents <a href="#">focusable content</a></a></h1>
+            <h1 x-show="expanded" x-collapse>contents <a href="#">focusable content</a></h1>
         </div>
     `],
     ({ get }, reload) => {

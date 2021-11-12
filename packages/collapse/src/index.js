@@ -58,7 +58,8 @@ export default function (Alpine) {
                     // check if element is fully collapsed
                     if (el.style.height == `${floor}px`) {
                         Alpine.nextTick(() => Alpine.setStyles(el, {
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            display: 'none'
                         }))
                     }
                 })

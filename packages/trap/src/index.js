@@ -1,5 +1,5 @@
 import { createFocusTrap } from 'focus-trap';
-import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 
 export default function (Alpine) {
     Alpine.directive('trap', Alpine.skipDuringClone(

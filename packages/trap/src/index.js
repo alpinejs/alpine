@@ -1,4 +1,5 @@
 import { createFocusTrap } from 'focus-trap';
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 
 export default function (Alpine) {
     Alpine.directive('trap', Alpine.skipDuringClone(
@@ -7,7 +8,7 @@ export default function (Alpine) {
 
             let oldValue = false
 
-            let trap = createFocusTrap(el, { 
+            let trap = createFocusTrap(el, {
                 escapeDeactivates: false,
                 allowOutsideClick: true,
                 fallbackFocus: () => el,
@@ -23,7 +24,7 @@ export default function (Alpine) {
                 if (value && ! oldValue) {
                     setTimeout(() => {
                         if (modifiers.includes('inert')) undoInert = setInert(el)
-                        if (modifiers.includes('noscroll')) undoDisableScrolling = disableScrolling()
+                        if (modifiers.includes('noscroll')) undoDisableScrolling = disableScrolling(el)
 
                         trap.activate()
                     });
@@ -78,17 +79,10 @@ function crawlSiblingsUp(el, callback) {
     })
 }
 
-function disableScrolling() {
-    let overflow = document.documentElement.style.overflow
-    let paddingRight = document.documentElement.style.paddingRight
-
-    let scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-
-    document.documentElement.style.overflow = 'hidden'
-    document.documentElement.style.paddingRight = `${scrollbarWidth}px`
+function disableScrolling(el) {
+    disableBodyScroll(el, { reserveScrollBarGap: true })
 
     return () => {
-        document.documentElement.style.overflow = overflow
-        document.documentElement.style.paddingRight = paddingRight
+        enableBodyScroll(el)
     }
 }

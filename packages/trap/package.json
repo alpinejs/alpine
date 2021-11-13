@@ -8,6 +8,7 @@
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
     "dependencies": {
+        "body-scroll-lock": "^4.0.0-beta.0",
         "focus-trap": "^6.6.1"
     }
 }

@@ -94,9 +94,9 @@ test('can trap focus with noscroll',
         window().then((win) => {
             let scrollbarWidth = win.innerWidth - win.document.documentElement.clientWidth
             get('#open').click()
-            get('html').should(haveAttribute('style', `overflow: hidden; padding-right: ${scrollbarWidth}px;`))
+            get('body').should(haveAttribute('style', `padding-right: ${scrollbarWidth}px; overflow: hidden;`))
             get('#close').click()
-            get('html').should(notHaveAttribute('style', `overflow: hidden; padding-right: ${scrollbarWidth}px;`))
+            get('body').should(notHaveAttribute('style', `padding-right: ${scrollbarWidth}px; overflow: hidden;`))
         })
     },
 )

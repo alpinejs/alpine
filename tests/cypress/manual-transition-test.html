@@ -174,8 +174,8 @@
                 <div x-data="{ show: false }">
                     <button @click="show = !show">Show</button>
 
-                    <div x-show="show" x-collapse>
-                        <div class="ring-2 ring-offset-2 ring-red-400">my red ring should be fully visible</div>
+                    <div x-show="show" x-collapse.duration.2000ms>
+                        <div class="ring-2 ring-offset-2 ring-red-400 py-10 bg-gray-200">my red ring should be fully visible</div>
                     </div>
                   </div>
                 </div>

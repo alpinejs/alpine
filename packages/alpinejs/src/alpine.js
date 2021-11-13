@@ -13,7 +13,7 @@ import { nextTick } from './nextTick'
 import { plugin } from './plugin'
 import { magic } from './magics'
 import { store } from './store'
-import { clone } from './clone'
+import { clone, skipDuringClone } from './clone'
 import { data } from './datas'
 
 let Alpine = {
@@ -25,6 +25,7 @@ let Alpine = {
     flushAndStopDeferringMutations,
     disableEffectScheduling,
     setReactivityEngine,
+    skipDuringClone,
     addRootSelector,
     deferMutations,
     mapAttributes,

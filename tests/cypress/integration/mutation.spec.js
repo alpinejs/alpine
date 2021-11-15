@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../utils'
+import { beVisible, haveText, html, test } from '../utils'
 
 test('element side effects are cleaned up after the elements are removed',
     html`
@@ -108,5 +108,34 @@ test('can pause and queue mutations for later resuming/flushing',
         get('#flush').click()
         get('button').click()
         get('h1').should(haveText('3'))
+    }
+)
+
+test('can handle complex mutations',
+    html`
+        <div x-data="{
+            foo: 0,
+            mutate() {
+                let button = document.getElementById('one')
+                button.remove()
+                let container = document.createElement('p')
+                container.appendChild(button)
+                this.$root.appendChild(container)
+            }
+        }">
+            <button id="one" @click="foo++">increment</button>
+            <button id="two" @click="mutate()">Mutate</button>
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('button#one').click()
+        get('span').should(haveText('1'))
+        get('button#two').click()
+        get('p').should(beVisible())
+        get('button#one').click()
+        get('span').should(haveText('2'))
     }
 )

@@ -1,8 +1,18 @@
 
 export function morph(dom, toHtml, options) {
     assignOptions(options)
+    
+    let toEl = createElement(toHtml)
 
-    patch(dom, createElement(toHtml))
+    // If there is no x-data on the element we're morphing,
+    // let's seed it with the outer Alpine scope on the page.
+    if (window.Alpine && ! dom._x_dataStack) {
+        toEl._x_dataStack = window.Alpine.closestDataStack(dom)
+        
+        toEl._x_dataStack && window.Alpine.clone(dom, toEl)
+    }
+
+    patch(dom, toEl)
 
     return dom
 }
@@ -36,7 +46,7 @@ function createElement(html) {
 }
 
 function patch(dom, to) {
-    if (dom.isEqualNode(to)) return
+   if (dom.isEqualNode(to)) return
 
     if (differentElementNamesTypesOrKeys(dom, to)) {
         return patchElement(dom, to)
@@ -46,7 +56,7 @@ function patch(dom, to) {
 
     if (shouldSkip(updating, dom, to, () => updateChildrenOnly = true)) return
 
-    // window.Alpine && initializeAlpineOnTo(dom, to, () => updateChildrenOnly = true)
+    window.Alpine && initializeAlpineOnTo(dom, to, () => updateChildrenOnly = true)
 
     if (textOrComment(to)) {
         patchNodeValue(dom, to)

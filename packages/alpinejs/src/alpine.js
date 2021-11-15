@@ -3,17 +3,17 @@ import { mutateDom, deferMutations, flushAndStopDeferringMutations } from './mut
 import { mapAttributes, directive, setPrefix as prefix } from './directives'
 import { start, addRootSelector, closestRoot, initTree } from './lifecycle'
 import { setEvaluator, evaluate, evaluateLater } from './evaluator'
+import { mergeProxies, closestDataStack } from './scope'
 import { transition } from './directives/x-transition'
+import { clone, skipDuringClone } from './clone'
 import { interceptor } from './interceptor'
-import { setStyles } from './utils/styles'
 import { debounce } from './utils/debounce'
 import { throttle } from './utils/throttle'
-import { mergeProxies } from './scope'
+import { setStyles } from './utils/styles'
 import { nextTick } from './nextTick'
 import { plugin } from './plugin'
 import { magic } from './magics'
 import { store } from './store'
-import { clone, skipDuringClone } from './clone'
 import { data } from './datas'
 
 let Alpine = {
@@ -25,6 +25,7 @@ let Alpine = {
     flushAndStopDeferringMutations,
     disableEffectScheduling,
     setReactivityEngine,
+    closestDataStack,
     skipDuringClone,
     addRootSelector,
     deferMutations,

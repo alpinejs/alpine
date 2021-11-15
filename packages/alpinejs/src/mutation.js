@@ -160,20 +160,20 @@ function onMutate(mutations) {
         onAttributeAddeds.forEach(i => i(el, attrs))
     })
 
-    for (let node of addedNodes) {
-       // If an element gets moved on a page, it's registered
-        // as both an "add" and "remove", so we want to skip those.
-        if (removedNodes.includes(node)) continue
-
-        onElAddeds.forEach(i => i(node))
-    }
-
     for (let node of removedNodes) {
         // If an element gets moved on a page, it's registered
         // as both an "add" and "remove", so we want to skip those.
         if (addedNodes.includes(node)) continue
 
         onElRemoveds.forEach(i => i(node))
+    }
+
+    for (let node of addedNodes) {
+       // If an element gets moved on a page, it's registered
+        // as both an "add" and "remove", so we want to skip those.
+        if (removedNodes.includes(node)) continue
+
+        onElAddeds.forEach(i => i(node))
     }
 
     addedNodes = null

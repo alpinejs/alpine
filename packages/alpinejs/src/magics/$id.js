@@ -1,40 +1,55 @@
-import { closestDataStack, mergeProxies } from '../scope'
 import { magic } from '../magics'
-import { closestRoot } from '../lifecycle'
+import { directive } from '../directives'
+import { findClosest, closestRoot } from '../lifecycle'
 
-let memo = {}
+let globalIdMemo = {}
 
-magic('id', el => (name, key = null) => {
-    if (! memo[name]) memo[name] = 0
-
-    let root = closestRoot(el)
-    let id = getId(root, el, name)
-
-    if (key) {
-        return `${name}-${id}-${key}`
+function generateIdMagicFunction(el) {
+    function idMagic(name, key = null) {
+        if (! globalIdMemo[name]) globalIdMemo[name] = 0
+    
+        let id = getId(el, name)
+    
+        return key
+            ? new HtmlId(el, `${name}-${id}-${key}`)
+            : new HtmlId(el, `${name}-${id}`)
     }
 
-    return `${name}-${id}`
-})
-
-function getId(root, el, name) {
-    if (! root._x_ids) root._x_ids = []
-
-    if (root._x_ids.includes(name)) {
-        return memo[name]
-    } else {
-        root._x_ids.push(name) 
-        
-        return ++memo[name]
+    idMagic.scope = function () {
+        el._x_new_scope = true
     }
+
+    return idMagic
 }
 
-export function closestIdRoot(el) {
-    if (! el) return
+magic('id', el => generateIdMagicFunction(el))
 
-    if (el._x_ids) return el
+function getId(el, name) {
+    let root = closestIdRoot(el, name) || closestRoot(el)
 
-    if (! el.parentElement) return
+    initRoot(root, name)
+        
+    return root._x_ids[name]
+}
 
-    return closestIdRoot(el.parentElement)
+class HtmlId {
+    constructor(el, id) { this.id = id }
+    toString() { return this.id }
+}
+
+export function closestIdRoot(el, name) {
+    return findClosest(el, element => {
+        if (element._x_new_scope) {
+            initRoot(element, name)
+
+            return true
+        }
+
+        if (element._x_ids && element._x_ids[name]) return true
+    })
+}
+
+function initRoot(el, name) {
+    if (! el._x_ids) el._x_ids = {}
+    if (! el._x_ids[name]) el._x_ids[name] = ++globalIdMemo[name]
 }

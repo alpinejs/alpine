@@ -7,31 +7,14 @@
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
+    <div x-data>
+        <label :for="$id('text-input')">...</label>
+    
+        <input type="text" :id="$id('text-input')">
+    </div>
 
-    <!-- Add aria-hidden="true" to all other elements. -->
-    <div x-trap.inert="open">...</div>
-
-    <!-- Disabled scrolling when a dialog is open. -->
-    <div x-trap.noscroll="open">...</div>
-
-    <!-- Easily perist global store data in localStorage. -->
-    <script>
-        Alpine.store('config', {
-            darkMode: Alpine.$persist(false),
-        })
-    </script>
-
-    <!-- You can now pass around Alpine scope as an object with the new $data magic. -->
-    <div @click="doSomething($data)"></div>
-
-    <!-- x-model data can now be programmatically "get" and "set" (with reactivity). -->
-    <div
-        x-model="open"
-        x-text="$el._x_model.get()"
-        @click="$el._x_model.set('...')"
-    >...</div>
-     
-
+    <div :id="$id('modal-title').refreshScope()"></div>
+    
 
     <!-- Play around. -->
     <div x-data="{ open: false }">

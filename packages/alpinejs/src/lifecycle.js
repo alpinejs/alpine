@@ -14,7 +14,7 @@ export function start() {
     startObservingMutations()
 
     onElAdded(el => initTree(el, walk))
-    onElRemoved(el => destroyTree(el))
+    onElRemoved(el => nextTick(() => destroyTree(el)))
 
     onAttributesAdded((el, attrs) => {
         directives(el, attrs).forEach(handle => handle())

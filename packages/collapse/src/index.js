@@ -4,7 +4,12 @@ export default function (Alpine) {
         let floor = 0
 
         if (! el._x_isShown) el.style.height = `${floor}px`
-        if (! el._x_isShown) el.style.removeProperty('display')
+        // We use the hidden attribute for the benefit of Tailwind
+        // users as the .space utility will ignore [hidden] elements.
+        // We also use display:none as the hidden attribute has very
+        // low CSS specificity and could be accidentally overriden
+        // by a user.
+        if (! el._x_isShown) el.hidden = true
         if (! el._x_isShown) el.style.overflow = 'hidden'
 
         // Override the setStyles function with one that won't
@@ -24,9 +29,12 @@ export default function (Alpine) {
 
         el._x_transition = {
             in(before = () => {}, after = () => {}) {
+                el.hidden = false;
+
                 let current = el.getBoundingClientRect().height
 
                 Alpine.setStyles(el, {
+                    display: null,
                     height: 'auto',
                 })
 
@@ -57,9 +65,13 @@ export default function (Alpine) {
 
                     // check if element is fully collapsed
                     if (el.style.height == `${floor}px`) {
-                        Alpine.nextTick(() => Alpine.setStyles(el, {
-                            overflow: 'hidden'
-                        }))
+                        Alpine.nextTick(() => {
+                            Alpine.setStyles(el, {
+                                display: 'none',
+                                overflow: 'hidden'
+                            })
+                            el.hidden = true;
+                        })
                     }
                 })
             },

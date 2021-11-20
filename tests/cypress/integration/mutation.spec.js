@@ -111,7 +111,35 @@ test('can pause and queue mutations for later resuming/flushing',
     }
 )
 
-test('can handle complex mutations',
+test('does not initialise components twice when contained in multiple mutations',
+    html`
+        <div x-data="{
+            foo: 0,
+            bar: 0,
+            test() {
+                container = document.createElement('div')
+                this.$root.appendChild(container)
+                alpineElement = document.createElement('span')
+                alpineElement.setAttribute('x-data', '{init() {this.bar++}}')
+                alpineElement.setAttribute('x-init', 'foo++')
+                container.appendChild(alpineElement)
+            }
+        }">
+            <span id="one" x-text="foo"></span>
+            <span id="two" x-text="bar"></span>
+            <button @click="test">Test</button>
+        </div>
+    `,
+    ({ get }) => {
+        get('span#one').should(haveText('0'))
+        get('span#two').should(haveText('0'))
+        get('button').click()
+        get('span#one').should(haveText('1'))
+        get('span#two').should(haveText('1'))
+    }
+)
+
+test('directories keep working when node is moved into a different one',
     html`
         <div x-data="{
             foo: 0,

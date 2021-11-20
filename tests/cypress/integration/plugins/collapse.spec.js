@@ -61,10 +61,10 @@ test('double-click on x-collapse does not mix styles up',
     `],
     ({ get }, reload) => {
         get('h1').should(haveComputedStyle('height', '0px'))
-        get('h1').should(haveAttribute('style', 'height: 0px; overflow: hidden;'))
+        get('h1').should(haveAttribute('style', 'display: none; height: 0px; overflow: hidden;'))
         get('button').click()
         get('button').click()
-        get('h1').should(haveAttribute('style', 'height: 0px; overflow: hidden;'))
+        get('h1').should(haveAttribute('style', 'height: 0px; display: none; overflow: hidden;'))
         get('button').click()
         get('h1').should(haveAttribute('style', 'height: auto;'))
         get('button').click()

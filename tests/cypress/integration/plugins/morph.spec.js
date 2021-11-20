@@ -1,65 +1,94 @@
 import { haveText, html, test } from '../../utils'
 
-test('can morph components',
+test('can morph components and preserve Alpine state',
     [html`
-        <div x-data="{ frame: 0 }">
-            <template x-ref="0">
-                <h1><div></div>foo</h1>
-            </template>
-
-            <template x-ref="1">
-                <h1><div x-data="{ text: 'yo' }" x-text="text"></div> foo</h1>
-            </template>
-
-            <template x-ref="2">
-                <h1><div x-data="{ text: 'yo' }" x-text="text + 'yo'"></div> foo</h1>
-            </template>
-
-            <button @click="frame++">morph</button>
-
-            <article x-morph="$refs[frame % 3].innerHTML"></article>
+        <div x-data="{ foo: 'bar' }">
+            <button @click="foo = 'baz'">Change Foo</button>
+            <span x-text="foo"></span>
         </div>
     `],
-    ({ get }) => {
-        get('article h1').should(haveText('foo'))
+    ({ get }, reload, window, document) => {
+        let toHtml = document.querySelector('div').outerHTML
+
+        get('span').should(haveText('bar'))
         get('button').click()
-        get('article h1').should(haveText('yo foo'))
-        get('button').click()
-        get('article h1').should(haveText('yoyo foo'))
+        get('span').should(haveText('baz'))
+        
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('span').should(haveText('baz'))
     },
 )
 
-test('components within morph retain state between',
+test('morphing target uses outer Alpine scope',
     [html`
-        <div x-data="{ frame: 0 }">
-            <template x-ref="0">
-                <div x-data="{ count: 1 }">
-                    <button @click="count++">inc</button>
+        <article x-data="{ foo: 'bar' }">
+            <div>
+                <button @click="foo = 'baz'">Change Foo</button>
+                <span x-text="foo"></span>
+            </div>
+        </article>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = document.querySelector('div').outerHTML
 
-                    <span x-text="String(frame) + count"></span>
-                </div>
-            </template>
+        get('span').should(haveText('bar'))
+        get('button').click()
+        get('span').should(haveText('baz'))
+        
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
 
-            <template x-ref="1">
-                <div x-data="{ count: 1 }">
-                    <button @click="count++">inc</button>
+        get('span').should(haveText('baz'))
+    },
+)
 
-                    <span x-text="String(frame) + 'foo' + count"></span>
-                </div>
-            </template>
-
-            <button @click="frame++" id="morph">morph</button>
-
-            <article x-morph="$refs[frame % 2].innerHTML"></article>
+test('can morph with HTML change and preserve Alpine state',
+    [html`
+        <div x-data="{ foo: 'bar' }">
+            <button @click="foo = 'baz'">Change Foo</button>
+            <span x-text="foo"></span>
         </div>
     `],
-    ({ get }) => {
-        get('article span').should(haveText('01'))
-        get('article button').click()
-        get('article span').should(haveText('02'))
-        get('#morph').click()
-        get('article span').should(haveText('1foo2'))
-        get('article button').click()
-        get('article span').should(haveText('1foo3'))
+    ({ get }, reload, window, document) => {
+        let toHtml = document.querySelector('div').outerHTML.replace('Change Foo', 'Changed Foo')
+
+        get('span').should(haveText('bar'))
+        get('button').click()
+        get('span').should(haveText('baz'))
+        get('button').should(haveText('Change Foo'))
+
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+        
+        get('span').should(haveText('baz'))
+        get('button').should(haveText('Changed Foo'))
+    },
+)
+
+test('morphing an element with multiple nested Alpine components preserves scope',
+    [html`
+        <div x-data="{ foo: 'bar' }">
+            <button @click="foo = 'baz'">Change Foo</button>
+            <span x-text="foo"></span>
+
+            <div x-data="{ bob: 'lob' }">
+                <a href="#" @click.prevent="bob = 'law'">Change Bob</a>
+                <h1 x-text="bob"></h1>
+            </div>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = document.querySelector('div').outerHTML
+
+        get('span').should(haveText('bar'))
+        get('h1').should(haveText('lob'))
+        get('button').click()
+        get('a').click()
+        get('span').should(haveText('baz'))
+        get('h1').should(haveText('law'))
+
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+        
+        get('span').should(haveText('baz'))
+        get('h1').should(haveText('law'))
     },
 )

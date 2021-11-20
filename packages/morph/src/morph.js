@@ -1,10 +1,38 @@
+let resolveStep = () => {}
 
-export function morph(dom, toHtml, options) {
+let logger = () => {}
+
+function breakpoint(message) {
+    if (! debug) return
+
+    message && logger(message.replace('\n', '\\n'))
+   
+    return new Promise(resolve => resolveStep = () => resolve())
+}
+
+export async function morph(dom, toHtml, options) {
     assignOptions(options)
+    
+    let toEl = createElement(toHtml)
 
-    patch(dom, createElement(toHtml))
+    // If there is no x-data on the element we're morphing,
+    // let's seed it with the outer Alpine scope on the page.
+    if (window.Alpine && ! dom._x_dataStack) {
+        toEl._x_dataStack = window.Alpine.closestDataStack(dom)
+        
+        toEl._x_dataStack && window.Alpine.clone(dom, toEl)
+    }
+    
+    await breakpoint()
+
+    patch(dom, toEl)
 
     return dom
+}
+
+morph.step = () => resolveStep()
+morph.log = (theLogger) => {
+    logger = theLogger
 }
 
 let key
@@ -15,52 +43,59 @@ let key
 ,removed
 ,adding
 ,added
+,debug
 
 let noop = () => {}
 
 function assignOptions(options = {}) {
     let defaultGetKey = el => el.getAttribute('key')
 
-    key = options.key || defaultGetKey
-    lookahead = options.lookahead || false
     updating = options.updating || noop
     updated = options.updated || noop
     removing = options.removing || noop
     removed = options.removed || noop
     adding = options.adding || noop
     added = options.added || noop
+    key = options.key || defaultGetKey
+    lookahead = options.lookahead || true 
+    debug = options.debug || false
 }
 
 function createElement(html) {
     return document.createRange().createContextualFragment(html).firstElementChild
 }
 
-function patch(dom, to) {
+async function patch(dom, to) {
     if (dom.isEqualNode(to)) return
-
+   
     if (differentElementNamesTypesOrKeys(dom, to)) {
-        return patchElement(dom, to)
+        let result = patchElement(dom, to)
+        
+        await breakpoint('Swap elements')
+       
+        return result
     }
 
     let updateChildrenOnly = false
 
     if (shouldSkip(updating, dom, to, () => updateChildrenOnly = true)) return
 
-    // window.Alpine && initializeAlpineOnTo(dom, to, () => updateChildrenOnly = true)
+    window.Alpine && initializeAlpineOnTo(dom, to, () => updateChildrenOnly = true)
 
     if (textOrComment(to)) {
-        patchNodeValue(dom, to)
+        await patchNodeValue(dom, to)
         updated(dom, to)
+        
         return
     }
 
     if (! updateChildrenOnly) {
-        patchAttributes(dom, to)
+        await patchAttributes(dom, to)
     }
 
     updated(dom, to)
 
-    patchChildren(dom, to)
+    await patchChildren(dom, to)
 }
 
 function differentElementNamesTypesOrKeys(dom, to) {
@@ -75,11 +110,11 @@ function textOrComment(el) {
 }
 
 function patchElement(dom, to) {
-    if(shouldSkip(removing, dom)) return
+    if (shouldSkip(removing, dom)) return
 
     let toCloned = to.cloneNode(true)
 
-    if(shouldSkip(adding, toCloned)) return
+    if (shouldSkip(adding, toCloned)) return
 
     dom.parentNode.replaceChild(toCloned, dom)
 
@@ -87,20 +122,22 @@ function patchElement(dom, to) {
     added(toCloned)
 }
 
-function patchNodeValue(dom, to) {
+async function patchNodeValue(dom, to) {
     let value = to.nodeValue
 
-    if (dom.nodeValue !== value) dom.nodeValue = value
+    if (dom.nodeValue !== value) {
+        dom.nodeValue = value
+
+        await breakpoint('Change text node to: ' + value)
+    }
 }
 
-function patchAttributes(dom, to) {
+async function patchAttributes(dom, to) {
     if (dom._x_isShown && ! to._x_isShown) {
         return
-        // dom._x_hide()
     }
     if (! dom._x_isShown && to._x_isShown) {
         return
-        // dom._x_show()
     }
 
     let domAttributes = Array.from(dom.attributes)
@@ -109,18 +146,26 @@ function patchAttributes(dom, to) {
     for (let i = domAttributes.length - 1; i >= 0; i--) {
         let name = domAttributes[i].name;
 
-        if (! to.hasAttribute(name)) dom.removeAttribute(name)
+        if (! to.hasAttribute(name)) {
+            dom.removeAttribute(name)
+           
+            await breakpoint('Remove attribute')
+        }
     }
 
     for (let i = toAttributes.length - 1; i >= 0; i--) {
         let name = toAttributes[i].name
         let value = toAttributes[i].value
 
-        if (dom.getAttribute(name) !== value) dom.setAttribute(name, value)
+        if (dom.getAttribute(name) !== value) {
+            dom.setAttribute(name, value)
+
+            await breakpoint(`Set [${name}] attribute to: "${value}"`)
+        }
     }
 }
 
-function patchChildren(dom, to) {
+async function patchChildren(dom, to) {
     let domChildren = dom.childNodes
     let toChildren = to.childNodes
 
@@ -143,9 +188,15 @@ function patchChildren(dom, to) {
 
                 dom.appendChild(holdover)
                 currentFrom = holdover
+
+                await breakpoint('Add element (from key)')
             } else {
-                addNodeTo(currentTo, dom)
+                let added = addNodeTo(currentTo, dom)
+
+                await breakpoint('Add element: ' + added.outerHTML || added.nodeValue)
+
                 currentTo = currentTo.nextSibling
+
                 continue
             }
         }
@@ -157,6 +208,8 @@ function patchChildren(dom, to) {
                 currentFrom = addNodeBefore(currentTo, currentFrom)
 
                 domKey = getKey(currentFrom)
+                
+                await breakpoint('Move element (lookahead)')
             }
         }
 
@@ -167,6 +220,9 @@ function patchChildren(dom, to) {
                 domKeyHoldovers[domKey].remove()
                 currentFrom = currentFrom.nextSibling
                 currentTo = currentTo.nextSibling
+
+                await breakpoint('No "to" key')
+
                 continue
             }
 
@@ -174,6 +230,8 @@ function patchChildren(dom, to) {
                 if (domKeyDomNodeMap[toKey]) {
                     currentFrom.parentElement.replaceChild(domKeyDomNodeMap[toKey], currentFrom)
                     currentFrom = domKeyDomNodeMap[toKey]
+                    
+                    await breakpoint('No "from" key')
                 }
             }
 
@@ -184,19 +242,24 @@ function patchChildren(dom, to) {
                 if (domKeyNode) {
                     currentFrom.parentElement.replaceChild(domKeyNode, currentFrom)
                     currentFrom = domKeyNode
+                    
+                    await breakpoint('Move "from" key')
                 } else {
                     domKeyHoldovers[domKey] = currentFrom
                     currentFrom = addNodeBefore(currentTo, currentFrom)
                     domKeyHoldovers[domKey].remove()
                     currentFrom = currentFrom.nextSibling
                     currentTo = currentTo.nextSibling
+                   
+                    await breakpoint('I dont even know what this does')
+                    
                     continue
                 }
             }
         }
 
         // Patch elements
-        patch(currentFrom, currentTo)
+        await patch(currentFrom, currentTo)
 
         currentTo = currentTo && currentTo.nextSibling
         currentFrom = currentFrom && currentFrom.nextSibling
@@ -208,6 +271,8 @@ function patchChildren(dom, to) {
             let domForRemoval = currentFrom
 
             dom.removeChild(domForRemoval)
+
+            await breakpoint('remove el')
 
             removed(domForRemoval)
         }
@@ -249,6 +314,8 @@ function addNodeTo(node, parent) {
         parent.appendChild(clone);
 
         added(clone)
+
+        return clone
     }
 }
 
@@ -275,96 +342,4 @@ function initializeAlpineOnTo(from, to, childrenOnly) {
         // This should simulate backend Livewire being aware of Alpine changes.
         window.Alpine.clone(from, to)
     }
-
-    // x-show elements require care because of transitions.
-    if (
-        Array.from(from.attributes)
-            .map(attr => attr.name)
-            .some(name => /x-show/.test(name))
-    ) {
-        if (from._x_transition) {
-            // This covers @entangle('something')
-            // childrenOnly()
-        } else {
-            // This covers x-show="$wire.something"
-            //
-            // If the element has x-show, we need to "reverse" the damage done by "clone",
-            // so that if/when the element has a transition on it, it will occur naturally.
-            // if (isHiding(from, to)) {
-            //     let style = to.getAttribute('style')
-            //     to.setAttribute('style', style.replace('display: none;', ''))
-            // } else if (isShowing(from, to)) {
-            //     to.style.display = from.style.display
-            // }
-        }
-    }
 }
-
-function isHiding(from, to) {
-    return from._x_isShown && ! to._x_isShown
-}
-
-function isShowing(from, to) {
-    return ! from._x_isShown && to._x_isShown
-}
-
-
-// This is from Livewire:
-
-
-// function alpinifyElementsForMorphdom(from, to) {
-//     // If the element we are updating is an Alpine component...
-//     if (from.__x) {
-//         // Then temporarily clone it (with it's data) to the "to" element.
-//         // This should simulate backend Livewire being aware of Alpine changes.
-//         window.Alpine.clone(from.__x, to)
-//     }
-
-//     // x-show elements require care because of transitions.
-//     if (
-//         Array.from(from.attributes)
-//             .map(attr => attr.name)
-//             .some(name => /x-show/.test(name))
-//     ) {
-//         if (from.__x_transition) {
-//             // This covers @entangle('something')
-//             from.skipElUpdatingButStillUpdateChildren = true
-//         } else {
-//             // This covers x-show="$wire.something"
-//             //
-//             // If the element has x-show, we need to "reverse" the damage done by "clone",
-//             // so that if/when the element has a transition on it, it will occur naturally.
-//             if (isHiding(from, to)) {
-//                 let style = to.getAttribute('style')
-
-//                 if (style) {
-//                     to.setAttribute('style', style.replace('display: none;', ''))
-//                 }
-//             } else if (isShowing(from, to)) {
-//                 to.style.display = from.style.display
-//             }
-//         }
-//     }
-// }
-
-// function isHiding(from, to) {
-//     if (beforeAlpineTwoPointSevenPointThree()) {
-//         return from.style.display === '' && to.style.display === 'none'
-//     }
-
-//     return from._x_isShown && ! to._x_isShown
-// }
-
-// function isShowing(from, to) {
-//     if (beforeAlpineTwoPointSevenPointThree()) {
-//         return from.style.display === 'none' && to.style.display === ''
-//     }
-
-//     return ! from._x_isShown && to._x_isShown
-// }
-
-// function beforeAlpineTwoPointSevenPointThree() {
-//     let [major, minor, patch] = window.Alpine.version.split('.').map(i => Number(i))
-
-//     return major <= 2 && minor <= 7 && patch <= 2
-// }

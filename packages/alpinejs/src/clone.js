@@ -12,16 +12,12 @@ export function onlyDuringClone(callback) {
     return (...args) => isCloning && callback(...args)
 }
 
-export function skipWalkingSubClone(callback) {
-    return (...args) => isCloning || callback(...args)
-}
-
 export function interuptCrawl(callback) {
     return (...args) => isCloning || callback(...args)
 }
 
 export function clone(oldEl, newEl) {
-    newEl._x_dataStack = oldEl._x_dataStack
+    if (! newEl._x_dataStack) newEl._x_dataStack = oldEl._x_dataStack
 
     isCloning = true
 

@@ -168,7 +168,7 @@ function onMutate(mutations) {
         onElRemoveds.forEach(i => i(node))
     }
 
-    // Mutations are bundled together by the browser but sometime
+    // Mutations are bundled together by the browser but sometimes
     // for complex cases, there may be javascript code adding a wrapper
     // and then an alpine component as a child of that wrapper in the same
     // function and the mutation observer will receive 2 different mutations.
@@ -184,6 +184,10 @@ function onMutate(mutations) {
         // If an element gets moved on a page, it's registered
         // as both an "add" and "remove", so we want to skip those.
         if (removedNodes.includes(node)) continue
+
+        // If the node was eventually removed as part of one of his
+        // parent mutations, skip it
+        if (! node.isConnected) continue
 
         delete node._x_ignoreSelf
         delete node._x_ignore

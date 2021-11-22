@@ -168,7 +168,7 @@ test('directives keep working when node is moved into a different one',
     }
 )
 
-test('no side effects when directives are added to an element that is removed afterward',
+test('no side effects when directives are added to an element that is removed afterwards',
     html`
         <div x-data="{
             foo: 0,

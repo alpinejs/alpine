@@ -160,13 +160,33 @@ function onMutate(mutations) {
         onAttributeAddeds.forEach(i => i(el, attrs))
     })
 
+    // Mutations are bundled together by the browser but sometimes
+    // for complex cases, there may be javascript code adding a wrapper
+    // and then an alpine component as a child of that wrapper in the same
+    // function and the mutation observer will receive 2 different mutations.
+    // when it comes time to run them, the dom contains both changes so the child
+    // element would be processed twice as Alpine calls initTree on
+    // both mutations. We mark all nodes as _x_ignored and only remove the flag
+    // when processing the node to avoid those duplicates.
+    addedNodes.forEach((node) => {
+        node._x_ignoreSelf = true
+        node._x_ignore = true
+    })
     for (let node of addedNodes) {
-       // If an element gets moved on a page, it's registered
+        // If an element gets moved on a page, it's registered
         // as both an "add" and "remove", so we want to skip those.
         if (removedNodes.includes(node)) continue
 
+        delete node._x_ignoreSelf
+        delete node._x_ignore
         onElAddeds.forEach(i => i(node))
+        node._x_ignore = true
+        node._x_ignoreSelf = true
     }
+    addedNodes.forEach((node) => {
+        delete node._x_ignoreSelf
+        delete node._x_ignore
+    })
 
     for (let node of removedNodes) {
         // If an element gets moved on a page, it's registered

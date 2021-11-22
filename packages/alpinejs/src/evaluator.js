@@ -97,11 +97,17 @@ function generateEvaluatorFromString(dataStack, expression, el) {
             if (func.finished) {
                 // Return the immediate result.
                 runIfTypeOfFunction(receiver, func.result, completeScope, params, el)
+                // Once the function has run, we clear func.result so we don't create
+                // memory leaks. func is stored in the evaluatorMemo and every time
+                // it runs, it assigns the evaluated expression to result which could
+                // potentially store a reference to the DOM element that will be removed later on.
+                func.result = undefined
             } else {
                 // If not, return the result when the promise resolves.
                 promise.then(result => {
                     runIfTypeOfFunction(receiver, result, completeScope, params, el)
                 }).catch( error => handleError( error, el, expression ) )
+                .finally( () => func.result = undefined )
             }
         }
     }

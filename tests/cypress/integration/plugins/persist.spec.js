@@ -226,3 +226,29 @@ test('can persist using global Alpine.$persist within Alpine.store',
         get('span').should(haveText('Malcolm'))
     },
 )
+
+test('multiple aliases work when using global Alpine.$persist',
+    [html`
+        <div x-data>
+            <input x-model="$store.name.firstName">
+
+            <span x-text="$store.name.firstName"></span>
+            <p x-text="$store.name.lastName"></p>
+        </div>
+    `, `
+        Alpine.store('name', {
+            firstName: Alpine.$persist('John').as('first-name'),
+            lastName: Alpine.$persist('Doe').as('name-name')
+        })
+    `],
+    ({ get, window }, reload) => {
+        get('span').should(haveText('John'))
+        get('p').should(haveText('Doe'))
+        get('input').clear().type('Joe')
+        get('span').should(haveText('Joe'))
+        get('p').should(haveText('Doe'))
+        reload()
+        get('span').should(haveText('Joe'))
+        get('p').should(haveText('Doe'))
+    },
+)

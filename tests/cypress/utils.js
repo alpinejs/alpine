@@ -75,7 +75,9 @@ function injectHtmlAndBootAlpine(cy, templateAndPotentiallyScripts, callback, pa
             })
         }
 
-        callback(cy, reload)
+        cy.window().then(window => {
+            callback(cy, reload, window, window.document)
+        }) 
     })
 }
 

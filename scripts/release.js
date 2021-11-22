@@ -50,6 +50,9 @@ function writeNewAlpineVersion() {
 
     writeToPackageDotJson('collapse', 'version', version)
     console.log('Bumping @alpinejs/collapse package.json: '+version)
+
+    writeToPackageDotJson('morph', 'version', version)
+    console.log('Bumping @alpinejs/morph package.json: '+version)
 }
 
 function writeNewDocsVersion() {
@@ -82,6 +85,9 @@ function publish() {
 
     console.log('Publishing @alpinejs/collapse on NPM...');
     runFromPackage('collapse', 'npm publish --access public')
+
+    console.log('Publishing @alpinejs/morph on NPM...');
+    runFromPackage('morph', 'npm publish --access public')
 
     log('\n\nFinished!')
 }

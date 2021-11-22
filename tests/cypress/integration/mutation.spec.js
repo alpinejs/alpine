@@ -139,7 +139,7 @@ test('does not initialise components twice when contained in multiple mutations'
     }
 )
 
-test('directories keep working when node is moved into a different one',
+test('directives keep working when node is moved into a different one',
     html`
         <div x-data="{
             foo: 0,
@@ -165,5 +165,32 @@ test('directories keep working when node is moved into a different one',
         get('p').should(beVisible())
         get('button#one').click()
         get('span').should(haveText('2'))
+    }
+)
+
+test('no side effects when directives are added to an element that is removed afterward',
+    html`
+        <div x-data="{
+            foo: 0,
+            mutate() {
+                let span = document.createElement('span')
+                span.setAttribute('x-on:keydown.a.window', 'foo = foo+1')
+                let container = document.getElementById('container')
+                container.appendChild(span)
+                container.remove()
+            }
+        }">
+            <button @click="mutate()">Mutate</button>
+            <p id="container"></p>
+            <input type="text">
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('button').click()
+        get('input').type('a')
+        get('span').should(haveText('0'))
     }
 )

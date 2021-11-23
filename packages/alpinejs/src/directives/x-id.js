@@ -1,5 +1,5 @@
 import { directive } from "../directives"
-import { findAndIncrementId, setIdRoot } from '../ids'
+import { setIdRoot } from '../ids'
 
 directive('id', (el, { expression }, { evaluate }) => {
     let names = evaluate(expression)

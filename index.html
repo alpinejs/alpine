@@ -7,15 +7,6 @@
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
-    <div x-data>
-        <label :for="$id('text-input')">...</label>
-    
-        <input type="text" :id="$id('text-input')">
-    </div>
-
-    <div :id="$id('modal-title').refreshScope()"></div>
-    
-
     <!-- Play around. -->
     <div x-data="{ open: false }">
         <button @click="open = !open">Toggle</button>

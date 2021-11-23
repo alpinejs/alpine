@@ -2,7 +2,7 @@ import { haveAttribute, haveText, html, test } from '../../utils'
 
 test('$id generates a unique id',
     html`
-        <div x-data id="1">
+        <div x-data x-id="['foo']" id="1">
             <div>
                 <h1 :id="$id('foo')"></h1>
             </div>
@@ -10,7 +10,7 @@ test('$id generates a unique id',
             <span :aria-labelledby="$id('foo')"></span>
         </div>
 
-        <div x-data id="2">
+        <div x-data x-id="['foo']" id="2">
             <div>
                 <h1 :id="$id('foo')"></h1>
             </div>
@@ -28,7 +28,7 @@ test('$id generates a unique id',
 
 test('$id works with keys and nested data scopes',
     html`
-        <div x-data id="1">
+        <div x-data x-id="['foo']" id="1">
             <!-- foo-1-3 -->
             <span :aria-activedescendant="$id('foo', 3)"></span>
 
@@ -39,7 +39,7 @@ test('$id works with keys and nested data scopes',
             </ul>
         </div>
 
-        <div x-data id="2">
+        <div x-data x-id="['foo']" id="2">
             <!-- foo-2-3 -->
             <span :aria-activedescendant="$id('foo', 3)"></span>
 
@@ -64,13 +64,13 @@ test('$id works with keys and nested data scopes',
 
 test('$id scopes are grouped by name',
     html`
-        <div x-data>
+        <div x-data x-id="['foo']">
             <!-- foo-1 -->
             <span :aria-activedescendant="$id('foo')"></span>
 
             <ul>
-                <li x-data :id="$id('bar')"></li> <!-- bar-1 -->
-                <li x-data :id="$id('bar')"></li> <!-- bar-2 -->
+                <li x-data x-id="['bar']" :id="$id('bar')"></li> <!-- bar-1 -->
+                <li x-data x-id="['bar']" :id="$id('bar')"></li> <!-- bar-2 -->
             </ul>
         </div>
     `,
@@ -81,9 +81,22 @@ test('$id scopes are grouped by name',
     }
 )
 
-test('$id scopes can be reset',
+test('$ids are globally unique when outside x-id',
     html`
         <div x-data>
+            <h1 :id="$id('foo')"></h1>
+            <h2 :id="$id('foo')"></h2>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveAttribute('id', 'foo-1'))
+        get('h2').should(haveAttribute('id', 'foo-2'))
+    }
+)
+
+test('$id scopes can be reset',
+    html`
+        <div x-data x-id="['foo', 'bar']">
             <!-- foo-1 -->
             <span :aria-labelledby="$id('foo')"></span>
 
@@ -91,7 +104,7 @@ test('$id scopes can be reset',
                 <h1 :id="$id('foo')"></h1>
                 <h5 :id="$id('bar')"></h5>
                 
-                <div x-init="$id.scope('foo')">
+                <div x-id="['foo']">
                     <h2 :aria-labelledby="$id('foo')"></h2>
                     <h6 :aria-labelledby="$id('bar')"></h6>
 

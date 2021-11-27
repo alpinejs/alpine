@@ -160,6 +160,14 @@ function onMutate(mutations) {
         onAttributeAddeds.forEach(i => i(el, attrs))
     })
 
+    for (let node of removedNodes) {
+        // If an element gets moved on a page, it's registered
+        // as both an "add" and "remove", so we want to skip those.
+        if (addedNodes.includes(node)) continue
+
+        onElRemoveds.forEach(i => i(node))
+    }
+
     // Mutations are bundled together by the browser but sometimes
     // for complex cases, there may be javascript code adding a wrapper
     // and then an alpine component as a child of that wrapper in the same
@@ -177,6 +185,10 @@ function onMutate(mutations) {
         // as both an "add" and "remove", so we want to skip those.
         if (removedNodes.includes(node)) continue
 
+        // If the node was eventually removed as part of one of his
+        // parent mutations, skip it
+        if (! node.isConnected) continue
+
         delete node._x_ignoreSelf
         delete node._x_ignore
         onElAddeds.forEach(i => i(node))
@@ -187,14 +199,6 @@ function onMutate(mutations) {
         delete node._x_ignoreSelf
         delete node._x_ignore
     })
-
-    for (let node of removedNodes) {
-        // If an element gets moved on a page, it's registered
-        // as both an "add" and "remove", so we want to skip those.
-        if (addedNodes.includes(node)) continue
-
-        onElRemoveds.forEach(i => i(node))
-    }
 
     addedNodes = null
     removedNodes = null

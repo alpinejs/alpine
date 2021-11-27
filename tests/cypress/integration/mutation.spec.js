@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../utils'
+import { beVisible, haveText, html, test } from '../utils'
 
 test('element side effects are cleaned up after the elements are removed',
     html`
@@ -136,5 +136,61 @@ test('does not initialise components twice when contained in multiple mutations'
         get('button').click()
         get('span#one').should(haveText('1'))
         get('span#two').should(haveText('1'))
+    }
+)
+
+test('directives keep working when node is moved into a different one',
+    html`
+        <div x-data="{
+            foo: 0,
+            mutate() {
+                let button = document.getElementById('one')
+                button.remove()
+                let container = document.createElement('p')
+                container.appendChild(button)
+                this.$root.appendChild(container)
+            }
+        }">
+            <button id="one" @click="foo++">increment</button>
+            <button id="two" @click="mutate()">Mutate</button>
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('button#one').click()
+        get('span').should(haveText('1'))
+        get('button#two').click()
+        get('p').should(beVisible())
+        get('button#one').click()
+        get('span').should(haveText('2'))
+    }
+)
+
+test('no side effects when directives are added to an element that is removed afterwards',
+    html`
+        <div x-data="{
+            foo: 0,
+            mutate() {
+                let span = document.createElement('span')
+                span.setAttribute('x-on:keydown.a.window', 'foo = foo+1')
+                let container = document.getElementById('container')
+                container.appendChild(span)
+                container.remove()
+            }
+        }">
+            <button @click="mutate()">Mutate</button>
+            <p id="container"></p>
+            <input type="text">
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('button').click()
+        get('input').type('a')
+        get('span').should(haveText('0'))
     }
 )

@@ -476,3 +476,19 @@ test('x-for works with variables that start with const',
         get('li:nth-of-type(3)').should(haveText('c'))
     }
 )
+
+test('renders children in the right order when combined with x-if',
+    html`
+        <div x-data="{ items: ['foo', 'bar'] }">
+            <template x-for="item in items">
+                <template x-if="true">
+                    <span x-text="item"></span>
+                </template>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(2)').should(haveText('bar'))
+    }
+)

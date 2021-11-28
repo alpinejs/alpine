@@ -154,7 +154,9 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             mutateDom(() => {
                 elForSpot.after(marker)
                 elInSpot.after(elForSpot)
+                elForSpot._x_currentIfEl && elForSpot.after(elForSpot._x_currentIfEl)
                 marker.before(elInSpot)
+                elInSpot._x_currentIfEl && elInSpot.after(elInSpot._x_currentIfEl)
                 marker.remove()
             })
 

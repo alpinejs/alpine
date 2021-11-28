@@ -166,6 +166,9 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             let [lastKey, index] = adds[i]
 
             let lastEl = (lastKey === 'template') ? templateEl : lookup[lastKey]
+            // If the element is a x-if template evaluated to true,
+            // point lastEl to the if-generated node
+            if (lastEl._x_currentIfEl) lastEl = lastEl._x_currentIfEl
 
             let scope = scopes[index]
             let key = keys[index]

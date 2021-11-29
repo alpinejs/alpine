@@ -24,9 +24,12 @@ class MapSet {
 let portals = new MapSet
 
 directive('portal', (el, { expression }, { effect, cleanup }) => {
-    let init = (target) => {
-        let clone = el.content.cloneNode(true).firstElementChild
+    let clone = el.content.cloneNode(true).firstElementChild
+    // Add reference to element on <template x-portal, and visa versa.
+    el._x_portal = clone
+    clone._x_portal_back = el
 
+    let init = (target) => {
         // Forward event listeners:
         if (el._x_forwardEvents) {
             el._x_forwardEvents.forEach(eventName => {
@@ -41,7 +44,7 @@ directive('portal', (el, { expression }, { effect, cleanup }) => {
         addScopeToNode(clone, {}, el)
 
         mutateDom(() => {
-            target.after(clone)
+            target.before(clone)
 
             initTree(clone)
         })

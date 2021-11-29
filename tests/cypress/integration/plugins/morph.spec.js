@@ -92,3 +92,46 @@ test('morphing an element with multiple nested Alpine components preserves scope
         get('h1').should(haveText('law'))
     },
 )
+
+test('can morph portals',
+    [html`
+        <div x-data="{ count: 1 }" id="a">
+            <button @click="count++">Inc</button>
+
+            <template x-portal="foo">
+                <div>
+                    <h1 x-text="count"></h1>
+                    <h2>hey</h2>
+                </div>
+            </template>
+        </div>
+
+        <div id="b">
+            <template x-portal-target="foo"></template>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <div x-data="{ count: 1 }" id="a">
+            <button @click="count++">Inc</button>
+
+            <template x-portal="foo">
+                <div>
+                    <h1 x-text="count"></h1>
+                    <h2>there</h2>
+                </div>
+            </template>
+        </div>
+        `
+        get('h1').should(haveText('1'))
+        get('h2').should(haveText('hey'))
+        get('button').click()
+        get('h1').should(haveText('2'))
+        get('h2').should(haveText('hey'))
+        
+        get('div#a').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('h1').should(haveText('2'))
+        get('h2').should(haveText('there'))
+    },
+)

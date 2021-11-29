@@ -20,7 +20,7 @@ export function start() {
         directives(el, attrs).forEach(handle => handle())
     })
 
-    let outNestedComponents = el => ! closestRoot(el.parentElement, true)
+    let outNestedComponents = el => ! Root(el.parentElement, true)
     Array.from(document.querySelectorAll(allSelectors()))
         .filter(outNestedComponents)
         .forEach(el => {

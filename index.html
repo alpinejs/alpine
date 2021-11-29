@@ -9,29 +9,28 @@
     <!-- <script src="https://cdn-tailwindcss.vercel.app/"></script> -->
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
-    <!-- Play around. -->
-    <div x-data="{ show: false }">
-        <button @click="show = ! show">toggle modal</button>
-    
-        <template x-portal="modals">
-            <div x-show="show" x-trap="show">
-                Hi! I'm a modal!
+    <div x-data="{ count: 1 }" id="a">
+        <button @click="count++">Inc</button>
 
-                <div x-data="{ show: false }">
-                    <button @click="show = ! show">toggle modal</button>
-                
-                    <template x-portal="modals">
-                        <div x-show="show">
-                            Hi! I'm a modal!
-                        </div>
-                    </template>
-                </div>
+        <template x-portal="foo">
+            <div>
+                <h1 x-text="count"></h1>
+                <h2>hey</h2>
             </div>
         </template>
     </div>
 
-    <div>---</div>
-    <div>---</div>
+    <div id="b">
+        <template x-portal-target="foo"></template>
+    </div>
 
-    <template x-portal-target="modals"></template>
+    <footer id="morph" onclick="window.morph()">Morph</footer>
+
+    <script>
+        window.morph = function () {
+            let from = document.querySelector('#a')
+            toHtml = from.outerHTML.replace('hey', 'there')
+            window.Alpine.morph(from, toHtml)
+        }
+    </script>
 </html>

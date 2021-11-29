@@ -14,7 +14,7 @@ export function start() {
     startObservingMutations()
 
     onElAdded(el => initTree(el, walk))
-    onElRemoved(el => nextTick(() => destroyTree(el)))
+    onElRemoved(el => destroyTree(el))
 
     onAttributesAdded((el, attrs) => {
         directives(el, attrs).forEach(handle => handle())
@@ -45,15 +45,21 @@ export function addRootSelector(selectorCallback) { rootSelectorCallbacks.push(s
 export function addInitSelector(selectorCallback) { initSelectorCallbacks.push(selectorCallback) }
 
 export function closestRoot(el, includeInitSelectors = false) {
-    if (!el) return
+    return findClosest(el, element => {
+        const selectors = includeInitSelectors ? allSelectors() : rootSelectors()
 
-    const selectors = includeInitSelectors ? allSelectors() : rootSelectors()
+        if (selectors.some(selector => element.matches(selector))) return true
+    }) 
+}
 
-    if (selectors.some(selector => el.matches(selector))) return el
+export function findClosest(el, callback) {
+    if (! el) return
+
+    if (callback(el)) return el
 
     if (! el.parentElement) return
 
-    return closestRoot(el.parentElement, includeInitSelectors)
+    return findClosest(el.parentElement, callback)
 }
 
 export function isRoot(el) {

@@ -160,6 +160,7 @@ let directiveOrder = [
     'ignore',
     'ref',
     'data',
+    'id',
     'bind',
     'init',
     'for',

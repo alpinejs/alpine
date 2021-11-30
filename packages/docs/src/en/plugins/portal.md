@@ -79,7 +79,7 @@ Here's a contrived modal example using portals:
     <div x-data="{ open: false }">
         <button @click="open = ! open">Toggle Modal</button>
 
-        <template x-portal="modals">
+        <template x-portal="modals1">
             <div x-show="open">
                 Modal contents...
             </div>
@@ -88,7 +88,7 @@ Here's a contrived modal example using portals:
         <div class="py-4">Some other content...</div>
     </div>
 
-    <template x-portal-target="modals"></template>
+    <template x-portal-target="modals1"></template>
 </div>
 <!-- END_VERBATIM -->
 
@@ -123,7 +123,7 @@ To make this experience more seemless, you can "forward" events by simply regist
     <div x-data="{ open: false }">
         <button @click="open = ! open">Toggle Modal</button>
 
-        <template x-portal="modals" @click="open = false">
+        <template x-portal="modals2" @click="open = false">
             <div x-show="open">
                 Modal contents...<br>
                 (click to close)
@@ -131,7 +131,7 @@ To make this experience more seemless, you can "forward" events by simply regist
         </template>
     </div>
 
-    <template x-portal-target="modals"></template>
+    <template x-portal-target="modals2"></template>
 </div>
 <!-- END_VERBATIM -->
 
@@ -173,14 +173,14 @@ Portals are especially helpful if you are trying to nest one modal within anothe
     <div x-data="{ open: false }">
         <button @click="open = ! open">Toggle Modal</button>
 
-        <template x-portal="modals">
+        <template x-portal="modals3">
             <div x-show="open">
                 <div class="py-4">Modal contents...</div>
                 
                 <div x-data="{ open: false }">
                     <button @click="open = ! open">Toggle Nested Modal</button>
 
-                    <template x-portal="modals">
+                    <template x-portal="modals3">
                         <div class="pt-4" x-show="open">
                             Nested modal contents...
                         </div>
@@ -190,7 +190,7 @@ Portals are especially helpful if you are trying to nest one modal within anothe
         </template>
     </div>
 
-    <template x-portal-target="modals"></template>
+    <template x-portal-target="modals3"></template>
 </div>
 <!-- END_VERBATIM -->
 

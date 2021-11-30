@@ -58,7 +58,7 @@ For example:
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = true">Open dialog</button>
+    <button @click="open = true">Open Dialog</button>
 
     <span x-show="open" x-trap="open">
         <p>...</p>
@@ -67,7 +67,7 @@ For example:
 
         <input type="text" placeholder="Some other input...">
 
-        <button @click="open = false">Close dialog</button>
+        <button @click="open = false">Close Dialog</button>
     </span>
 </div>
 ```
@@ -75,7 +75,7 @@ For example:
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
     <div :class="open && 'opacity-50'">
-        <button x-on:click="open = true">Open dialog</button>
+        <button x-on:click="open = true">Open Dialog</button>
     </div>
 
     <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border bg-yellow-100" @keyup.escape.window="open = false">
@@ -92,7 +92,7 @@ For example:
         </div>
 
         <div>
-            <button @click="open = false">Close dialog</button>
+            <button @click="open = false">Close Dialog</button>
         </div>
     </div>
 </div>
@@ -111,24 +111,24 @@ Here is nesting in action:
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = true">Open dialog</button>
+    <button @click="open = true">Open Dialog</button>
 
     <span x-show="open" x-trap="open">
 
         ...
 
         <div x-data="{ open: false }">
-            <button @click="open = true">Open Nested dialog</button>
+            <button @click="open = true">Open Nested Dialog</button>
 
             <span x-show="open" x-trap="open">
 
                 ...
 
-                <button @click="open = false">Close Nested dialog</button>
+                <button @click="open = false">Close Nested Dialog</button>
             </span>
         </div>
 
-        <button @click="open = false">Close dialog</button>
+        <button @click="open = false">Close Dialog</button>
     </span>
 </div>
 ```
@@ -136,7 +136,7 @@ Here is nesting in action:
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
     <div :class="open && 'opacity-50'">
-        <button x-on:click="open = true">Open dialog</button>
+        <button x-on:click="open = true">Open Dialog</button>
     </div>
 
     <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border bg-yellow-100" @keyup.escape.window="open = false">
@@ -150,7 +150,7 @@ Here is nesting in action:
 
         <div x-data="{ open: false }">
             <div :class="open && 'opacity-50'">
-                <button x-on:click="open = true">Open Nested dialog</button>
+                <button x-on:click="open = true">Open Nested Dialog</button>
             </div>
 
             <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border border-gray-500 bg-yellow-200" @keyup.escape.window="open = false">
@@ -167,13 +167,13 @@ Here is nesting in action:
                 </div>
 
                 <div>
-                    <button @click="open = false">Close Nested dialog</button>
+                    <button @click="open = false">Close Nested Dialog</button>
                 </div>
             </div>
         </div>
 
         <div>
-            <button @click="open = false">Close dialog</button>
+            <button @click="open = false">Close Dialog</button>
         </div>
     </div>
 </div>

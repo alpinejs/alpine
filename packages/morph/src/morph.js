@@ -279,7 +279,7 @@ async function patchChildren(from, to) {
             removed(domForRemoval)
         }
 
-        currentFrom = dom(currentFrom).next()
+        currentFrom = dom(currentFrom).nodes().next()
     }
 }
 

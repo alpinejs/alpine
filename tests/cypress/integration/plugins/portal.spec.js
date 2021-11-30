@@ -113,8 +113,39 @@ test('$refs inside portal can be accessed outside',
     },
 )
 
-// Portal can only have one root.
-// works with transition groups
-// works with $ids
-// works with refs
-// works with root
+test('$root is accessed outside portal',
+    [html`
+        <div x-data="{ count: 1 }" id="a">
+            <template x-portal="foo">
+                <h1 x-text="$root.id"></h1>
+            </template>
+        </div>
+
+        <div id="b">
+            <template x-portal-target="foo"></template>
+        </div>
+    `],
+    ({ get }) => {
+        get('#b h1').should(beVisible())
+        get('#b h1').should(haveText('a'))
+    },
+)
+
+test('$id honors x-id outside portal',
+    [html`
+        <div x-data="{ count: 1 }" id="a" x-id="['foo']">
+            <h1 x-text="$id('foo')"></h1>
+
+            <template x-portal="foo">
+                <h1 x-text="$id('foo')"></h1>
+            </template>
+        </div>
+
+        <div id="b">
+            <template x-portal-target="foo"></template>
+        </div>
+    `],
+    ({ get }) => {
+        get('#b h1').should(haveText('foo-1'))
+    },
+)

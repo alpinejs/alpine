@@ -20,7 +20,7 @@ export function start() {
         directives(el, attrs).forEach(handle => handle())
     })
 
-    let outNestedComponents = el => ! Root(el.parentElement, true)
+    let outNestedComponents = el => ! isRoot(el.parentElement, true)
     Array.from(document.querySelectorAll(allSelectors()))
         .filter(outNestedComponents)
         .forEach(el => {
@@ -57,6 +57,8 @@ export function findClosest(el, callback) {
 
     if (callback(el)) return el
 
+    if (el._x_portal_back) el = el._x_portal_back
+    
     if (! el.parentElement) return
 
     return findClosest(el.parentElement, callback)

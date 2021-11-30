@@ -5,32 +5,20 @@
     <script src="./packages/persist/dist/cdn.js"></script>
     <script src="./packages/trap/dist/cdn.js" defer></script>
     <script src="./packages/collapse/dist/cdn.js" defer></script>
+    <script src="./packages/portal/dist/cdn.js" defer></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="https://cdn-tailwindcss.vercel.app/"></script> -->
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
+    
+    <div x-data="{ open: false }">
+        <button @click="open = ! open">Open</button>
 
-    <div x-data="{ count: 1 }" id="a">
-        <button @click="count++">Inc</button>
-
-        <template x-portal="foo">
-            <div>
-                <h1 x-text="count"></h1>
-                <h2>hey</h2>
+        <template x-portal="modals">
+            <div x-show="open" x-transition>
+                ...
             </div>
         </template>
     </div>
 
-    <div id="b">
-        <template x-portal-target="foo"></template>
-    </div>
-
-    <footer id="morph" onclick="window.morph()">Morph</footer>
-
-    <script>
-        window.morph = function () {
-            let from = document.querySelector('#a')
-            toHtml = from.outerHTML.replace('hey', 'there')
-            window.Alpine.morph(from, toHtml)
-        }
-    </script>
+    <template x-portal-target="modals"></template>
 </html>

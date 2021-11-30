@@ -1,0 +1,11 @@
+{
+    "name": "@alpinejs/portal",
+    "version": "3.6.0-beta.0",
+    "description": "Send Alpine templates to other parts of the DOM",
+    "author": "Caleb Porzio",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js",
+    "unpkg": "dist/cdn.min.js",
+    "dependencies": {}
+}

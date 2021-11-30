@@ -10,24 +10,24 @@ function breakpoint(message) {
     return new Promise(resolve => resolveStep = () => resolve())
 }
 
-export async function morph(dom, toHtml, options) {
+export async function morph(from, toHtml, options) {
     assignOptions(options)
     
     let toEl = createElement(toHtml)
 
     // If there is no x-data on the element we're morphing,
     // let's seed it with the outer Alpine scope on the page.
-    if (window.Alpine && ! dom._x_dataStack) {
-        toEl._x_dataStack = window.Alpine.closestDataStack(dom)
+    if (window.Alpine && ! from._x_dataStack) {
+        toEl._x_dataStack = window.Alpine.closestDataStack(from)
         
-        toEl._x_dataStack && window.Alpine.clone(dom, toEl)
+        toEl._x_dataStack && window.Alpine.clone(from, toEl)
     }
     
     await breakpoint()
 
-    patch(dom, toEl)
+    patch(from, toEl)
 
-    return dom
+    return from
 }
 
 morph.step = () => resolveStep()
@@ -65,11 +65,15 @@ function createElement(html) {
     return document.createRange().createContextualFragment(html).firstElementChild
 }
 
-async function patch(dom, to) {
-    if (dom.isEqualNode(to)) return
+async function patch(from, to) {
+    // This is a time saver, however, it won't catch differences in nested <template> tags.
+    // I'm leaving this here as I believe it's an important speed improvement, I just
+    // don't see a way to enable it currently:
+    //
+    // if (from.isEqualNode(to)) return
    
-    if (differentElementNamesTypesOrKeys(dom, to)) {
-        let result = patchElement(dom, to)
+    if (differentElementNamesTypesOrKeys(from, to)) {
+        let result = patchElement(from, to)
         
         await breakpoint('Swap elements')
        
@@ -78,30 +82,30 @@ async function patch(dom, to) {
 
     let updateChildrenOnly = false
 
-    if (shouldSkip(updating, dom, to, () => updateChildrenOnly = true)) return
+    if (shouldSkip(updating, from, to, () => updateChildrenOnly = true)) return
 
-    window.Alpine && initializeAlpineOnTo(dom, to, () => updateChildrenOnly = true)
+    window.Alpine && initializeAlpineOnTo(from, to, () => updateChildrenOnly = true)
 
     if (textOrComment(to)) {
-        await patchNodeValue(dom, to)
-        updated(dom, to)
+        await patchNodeValue(from, to)
+        updated(from, to)
         
         return
     }
 
     if (! updateChildrenOnly) {
-        await patchAttributes(dom, to)
+        await patchAttributes(from, to)
     }
 
-    updated(dom, to)
+    updated(from, to)
 
-    await patchChildren(dom, to)
+    await patchChildren(from, to)
 }
 
-function differentElementNamesTypesOrKeys(dom, to) {
-    return dom.nodeType != to.nodeType
-        || dom.nodeName != to.nodeName
-        || getKey(dom) != getKey(to)
+function differentElementNamesTypesOrKeys(from, to) {
+    return from.nodeType != to.nodeType
+        || from.nodeName != to.nodeName
+        || getKey(from) != getKey(to)
 }
 
 function textOrComment(el) {
@@ -109,45 +113,45 @@ function textOrComment(el) {
         || el.nodeType === 8
 }
 
-function patchElement(dom, to) {
-    if (shouldSkip(removing, dom)) return
+function patchElement(from, to) {
+    if (shouldSkip(removing, from)) return
 
     let toCloned = to.cloneNode(true)
 
     if (shouldSkip(adding, toCloned)) return
 
-    dom.parentNode.replaceChild(toCloned, dom)
+    dom(from).replace(toCloned)
 
-    removed(dom)
+    removed(from)
     added(toCloned)
 }
 
-async function patchNodeValue(dom, to) {
+async function patchNodeValue(from, to) {
     let value = to.nodeValue
 
-    if (dom.nodeValue !== value) {
-        dom.nodeValue = value
+    if (from.nodeValue !== value) {
+        from.nodeValue = value
 
         await breakpoint('Change text node to: ' + value)
     }
 }
 
-async function patchAttributes(dom, to) {
-    if (dom._x_isShown && ! to._x_isShown) {
+async function patchAttributes(from, to) {
+    if (from._x_isShown && ! to._x_isShown) {
         return
     }
-    if (! dom._x_isShown && to._x_isShown) {
+    if (! from._x_isShown && to._x_isShown) {
         return
     }
 
-    let domAttributes = Array.from(dom.attributes)
+    let domAttributes = Array.from(from.attributes)
     let toAttributes = Array.from(to.attributes)
 
     for (let i = domAttributes.length - 1; i >= 0; i--) {
         let name = domAttributes[i].name;
 
         if (! to.hasAttribute(name)) {
-            dom.removeAttribute(name)
+            from.removeAttribute(name)
            
             await breakpoint('Remove attribute')
         }
@@ -157,23 +161,23 @@ async function patchAttributes(dom, to) {
         let name = toAttributes[i].name
         let value = toAttributes[i].value
 
-        if (dom.getAttribute(name) !== value) {
-            dom.setAttribute(name, value)
+        if (from.getAttribute(name) !== value) {
+            from.setAttribute(name, value)
 
             await breakpoint(`Set [${name}] attribute to: "${value}"`)
         }
     }
 }
 
-async function patchChildren(dom, to) {
-    let domChildren = dom.childNodes
+async function patchChildren(from, to) {
+    let domChildren = from.childNodes
     let toChildren = to.childNodes
 
     let toKeyToNodeMap = keyToMap(toChildren)
     let domKeyDomNodeMap = keyToMap(domChildren)
 
-    let currentTo = to.firstChild
-    let currentFrom = dom.firstChild
+    let currentTo = dom(to).nodes().first()
+    let currentFrom = dom(from).nodes().first()
 
     let domKeyHoldovers = {}
 
@@ -186,23 +190,23 @@ async function patchChildren(dom, to) {
             if (toKey && domKeyHoldovers[toKey]) {
                 let holdover = domKeyHoldovers[toKey]
 
-                dom.appendChild(holdover)
+                dom.append(from, holdover)
                 currentFrom = holdover
 
                 await breakpoint('Add element (from key)')
             } else {
-                let added = addNodeTo(currentTo, dom)
+                let added = addNodeTo(currentTo, from)
 
                 await breakpoint('Add element: ' + added.outerHTML || added.nodeValue)
 
-                currentTo = currentTo.nextSibling
+                currentTo = dom(currentTo).nodes().next()
 
                 continue
             }
         }
 
         if (lookahead) {
-            let nextToElementSibling = currentTo.nextElementSibling
+            let nextToElementSibling = dom(currentTo).next()
 
             if (nextToElementSibling && currentFrom.isEqualNode(nextToElementSibling)) {
                 currentFrom = addNodeBefore(currentTo, currentFrom)
@@ -218,8 +222,8 @@ async function patchChildren(dom, to) {
                 domKeyHoldovers[domKey] = currentFrom
                 currentFrom = addNodeBefore(currentTo, currentFrom)
                 domKeyHoldovers[domKey].remove()
-                currentFrom = currentFrom.nextSibling
-                currentTo = currentTo.nextSibling
+                currentFrom = dom(currentFrom).nodes.next()
+                currentTo = dom(currentTo).nodes.next()
 
                 await breakpoint('No "to" key')
 
@@ -228,8 +232,7 @@ async function patchChildren(dom, to) {
 
             if (toKey && ! domKey) {
                 if (domKeyDomNodeMap[toKey]) {
-                    currentFrom.parentElement.replaceChild(domKeyDomNodeMap[toKey], currentFrom)
-                    currentFrom = domKeyDomNodeMap[toKey]
+                    currentFrom = dom(currentFrom).replace(domKeyDomNodeMap[toKey])
                     
                     await breakpoint('No "from" key')
                 }
@@ -240,16 +243,15 @@ async function patchChildren(dom, to) {
                 let domKeyNode = domKeyDomNodeMap[toKey]
 
                 if (domKeyNode) {
-                    currentFrom.parentElement.replaceChild(domKeyNode, currentFrom)
-                    currentFrom = domKeyNode
+                    currentFrom = dom(currentFrom).replace(domKeyNode)
                     
                     await breakpoint('Move "from" key')
                 } else {
                     domKeyHoldovers[domKey] = currentFrom
                     currentFrom = addNodeBefore(currentTo, currentFrom)
                     domKeyHoldovers[domKey].remove()
-                    currentFrom = currentFrom.nextSibling
-                    currentTo = currentTo.nextSibling
+                    currentFrom = dom(currentFrom).next()
+                    currentTo = dom(currentTo).next()
                    
                     await breakpoint('I dont even know what this does')
                     
@@ -261,8 +263,8 @@ async function patchChildren(dom, to) {
         // Patch elements
         await patch(currentFrom, currentTo)
 
-        currentTo = currentTo && currentTo.nextSibling
-        currentFrom = currentFrom && currentFrom.nextSibling
+        currentTo = currentTo && dom(currentTo).next()
+        currentFrom = currentFrom && dom(currentFrom).next()
     }
 
     // Cleanup extra froms
@@ -270,14 +272,14 @@ async function patchChildren(dom, to) {
         if(! shouldSkip(removing, currentFrom)) {
             let domForRemoval = currentFrom
 
-            dom.removeChild(domForRemoval)
+            domForRemoval.remove()
 
             await breakpoint('remove el')
 
             removed(domForRemoval)
         }
 
-        currentFrom = currentFrom.nextSibling
+        currentFrom = dom(currentFrom).nodes().next()
     }
 }
 
@@ -311,7 +313,7 @@ function addNodeTo(node, parent) {
     if(! shouldSkip(adding, node)) {
         let clone = node.cloneNode(true)
 
-        parent.appendChild(clone);
+        dom(parent).append(clone)
 
         added(clone)
 
@@ -323,7 +325,7 @@ function addNodeBefore(node, beforeMe) {
     if(! shouldSkip(adding, node)) {
         let clone = node.cloneNode(true)
 
-        beforeMe.parentElement.insertBefore(clone, beforeMe);
+        dom(beforeMe).before(clone)
 
         added(clone)
 
@@ -341,5 +343,63 @@ function initializeAlpineOnTo(from, to, childrenOnly) {
         // Then temporarily clone it (with it's data) to the "to" element.
         // This should simulate backend Livewire being aware of Alpine changes.
         window.Alpine.clone(from, to)
+    }
+}
+
+function dom(el) {
+    return new DomManager(el)
+}
+
+class DomManager {
+    el = undefined
+
+    constructor(el) {
+        this.el = el
+    }
+
+    traversals = {
+        'first': 'firstElementChild',
+        'next': 'nextElementSibling',
+        'parent': 'parentElement',
+    }
+
+    nodes() {
+        this.traversals = {
+            'first': 'firstChild',
+            'next': 'nextSibling',
+            'parent': 'parentNode', 
+        }; return this
+    }
+
+    first() {
+        return this.portalTo(this.el[this.traversals['first']])
+    }
+
+    next() {
+        return this.portalTo(this.portalBack(this.el[this.traversals['next']]))
+    }
+
+    before(insertee) {
+        this.el[this.traversals['parent']].insertBefore(insertee, this.el); return insertee
+    }
+
+    replace(replacement) {
+        this.el[this.traversals['parent']].replaceChild(replacement, this.el); return replacement
+    }
+    
+    append(appendee) {
+        this.el.appendChild(appendee); return appendee
+    }
+
+    portalTo(el) {
+        if (! el) return el
+        if (el._x_portal) return el._x_portal
+        return el
+    }
+
+    portalBack(el) {
+        if (! el) return el
+        if (el._x_portal_back) return el._x_portal_back
+        return el
     }
 }

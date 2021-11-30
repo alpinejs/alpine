@@ -169,6 +169,8 @@ let directiveOrder = [
     'show',
     'if',
     DEFAULT,
+    'portal',
+    'portal-target',
     'element',
 ]
 

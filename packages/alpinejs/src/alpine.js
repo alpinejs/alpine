@@ -1,9 +1,9 @@
 import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw } from './reactivity'
+import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } from './directives'
+import { start, addRootSelector, addInitSelector, closestRoot, initTree } from './lifecycle'
 import { mutateDom, deferMutations, flushAndStopDeferringMutations } from './mutation'
-import { mapAttributes, directive, setPrefix as prefix } from './directives'
-import { start, addRootSelector, closestRoot, initTree } from './lifecycle'
+import { mergeProxies, closestDataStack, addScopeToNode } from './scope'
 import { setEvaluator, evaluate, evaluateLater } from './evaluator'
-import { mergeProxies, closestDataStack } from './scope'
 import { transition } from './directives/x-transition'
 import { clone, skipDuringClone } from './clone'
 import { interceptor } from './interceptor'
@@ -28,6 +28,8 @@ let Alpine = {
     closestDataStack,
     skipDuringClone,
     addRootSelector,
+    addInitSelector,
+    addScopeToNode,
     deferMutations,
     mapAttributes,
     evaluateLater,
@@ -44,6 +46,7 @@ let Alpine = {
     evaluate,
     initTree,
     nextTick,
+    prefixed,
     prefix,
     plugin,
     magic,

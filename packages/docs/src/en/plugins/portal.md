@@ -24,7 +24,7 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 ```alpine
 <!-- Alpine Plugins -->
-<script defer src="https://unpkg.com/@alpinejs/portal@3.6.0-beta.0/dist/cdn.min.js"></script>
+<script defer src="https://unpkg.com/@alpinejs/portal@3.6.1-beta.0/dist/cdn.min.js"></script>
 
 <!-- Alpine Core -->
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>

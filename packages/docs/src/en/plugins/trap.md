@@ -80,7 +80,7 @@ For example:
 
     <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border bg-yellow-100" @keyup.escape.window="open = false">
         <strong>
-            <div>Focus is now "trapped" inside this dialogue, meaning you can only click/focus elements within this yellow dialogue. If you press tab repeatedly, the focus will stay within this dialogue, but also be allowed to cycle to the browser's URL bar.</div>
+            <div>Focus is now "trapped" inside this dialogue, meaning you can only click/focus elements within this yellow dialogue. If you press tab repeatedly, the focus will stay within this dialogue.</div>
         </strong>
 
         <div>

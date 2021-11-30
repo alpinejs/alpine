@@ -3,22 +3,17 @@
     <script src="./packages/morph/dist/cdn.js" defer></script>
     <script src="./packages/history/dist/cdn.js"></script>
     <script src="./packages/persist/dist/cdn.js"></script>
-    <script src="./packages/trap/dist/cdn.js" defer></script>
-    <script src="./packages/collapse/dist/cdn.js" defer></script>
-    <script src="./packages/portal/dist/cdn.js" defer></script>
+    <script src="./packages/trap/dist/cdn.js"></script>
+    <script src="./packages/portal/dist/cdn.js"></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
-    <!-- <script src="https://cdn-tailwindcss.vercel.app/"></script> -->
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
-    
+
+    <!-- Play around. -->
     <div x-data="{ open: false }">
-        <button @click="open = ! open">Open</button>
+        <button @click="open = !open">Toggle</button>
 
-        <template x-portal="modals">
-            <div x-show="open" x-transition>
-                ...
-            </div>
-        </template>
+        <span x-show="open">
+            Content...
+        </span>
     </div>
-
-    <template x-portal-target="modals"></template>
 </html>

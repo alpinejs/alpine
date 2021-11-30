@@ -476,3 +476,51 @@ test('x-for works with variables that start with const',
         get('li:nth-of-type(3)').should(haveText('c'))
     }
 )
+
+test('renders children in the right order when combined with x-if',
+    html`
+        <div x-data="{ items: ['foo', 'bar'] }">
+            <template x-for="item in items">
+                <template x-if="true">
+                    <span x-text="item"></span>
+                </template>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(2)').should(haveText('bar'))
+    }
+)
+
+test('correctly renders x-if children when reordered',
+    html`
+        <div x-data="{ items: ['foo', 'bar'] }">
+            <button @click="items = ['bar', 'foo']">click me</button>
+            <button @click="items = ['bar', 'baz', 'foo']">click me</button>
+            <button @click="items = ['baz', 'foo']">click me</button>
+            <template x-for="item in items" :key="item">
+                <template x-if="true">
+                    <span x-text="item"></span>
+                </template>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(2)').should(haveText('bar'))
+        get('button:nth-of-type(1)').click()
+        get('span').should(haveLength('2'))
+        get('span:nth-of-type(1)').should(haveText('bar'))
+        get('span:nth-of-type(2)').should(haveText('foo'))
+        get('button:nth-of-type(2)').click()
+        get('span').should(haveLength('3'))
+        get('span:nth-of-type(1)').should(haveText('bar'))
+        get('span:nth-of-type(2)').should(haveText('baz'))
+        get('span:nth-of-type(3)').should(haveText('foo'))
+        get('button:nth-of-type(3)').click()
+        get('span').should(haveLength('2'))
+        get('span:nth-of-type(1)').should(haveText('baz'))
+        get('span:nth-of-type(2)').should(haveText('foo'))
+    }
+)

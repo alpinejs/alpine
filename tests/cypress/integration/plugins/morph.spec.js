@@ -98,7 +98,7 @@ test('can morph portals',
         <div x-data="{ count: 1 }" id="a">
             <button @click="count++">Inc</button>
 
-            <template x-portal="foo">
+            <template x-teleport="#b">
                 <div>
                     <h1 x-text="count"></h1>
                     <h2>hey</h2>
@@ -106,16 +106,14 @@ test('can morph portals',
             </template>
         </div>
 
-        <div id="b">
-            <template x-portal-target="foo"></template>
-        </div>
+        <div id="b"></div>
     `],
     ({ get }, reload, window, document) => {
         let toHtml = html`
         <div x-data="{ count: 1 }" id="a">
             <button @click="count++">Inc</button>
 
-            <template x-portal="foo">
+            <template x-teleport="#b">
                 <div>
                     <h1 x-text="count"></h1>
                     <h2>there</h2>

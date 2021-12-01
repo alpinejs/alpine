@@ -84,7 +84,7 @@ test('removing teleport source removes teleported target',
     },
 )
 
-test('$refs inside telport can be accessed outside',
+test('$refs inside teleport can be accessed outside',
     [html`
         <div x-data="{ count: 1 }" id="a">
             <button @click="$refs.count.remove()">Remove</button>
@@ -119,7 +119,7 @@ test('$root is accessed outside teleport',
     },
 )
 
-test('$id honors x-id outside telport',
+test('$id honors x-id outside teleport',
     [html`
         <div x-data="{ count: 1 }" id="a" x-id="['foo']">
             <h1 x-text="$id('foo')"></h1>

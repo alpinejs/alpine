@@ -6,8 +6,8 @@ import { addScopeToNode } from "../scope"
 directive('teleport', (el, { expression }, { cleanup }) => {
     let target = document.querySelector(expression)
     let clone = el.content.cloneNode(true).firstElementChild
-    
-    // Add reference to element on <template x-portal, and visa versa.
+
+    // Add reference to element on <template x-teleport, and visa versa.
     el._x_teleport = clone
     clone._x_teleportBack = el
 
@@ -16,7 +16,7 @@ directive('teleport', (el, { expression }, { cleanup }) => {
         el._x_forwardEvents.forEach(eventName => {
             clone.addEventListener(eventName, e => {
                 e.stopPropagation()
-                
+
                 el.dispatchEvent(new e.constructor(e.type, e))
             })
         })

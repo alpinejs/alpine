@@ -61,11 +61,11 @@ Notice how when toggling the modal, the actual modal contents show up AFTER the 
 <a name="forwarding-events"></a>
 ## Forwarding events
 
-Alpine tries it's best to make the experience of telporting seemless. Anything you would normally do in a template, you should be able to do inside an `x-teleport` template. Teleported content can access the normal Alpine scope of the component as well as other features like `$refs`, `$root`, etc...
+Alpine tries it's best to make the experience of teleporting seamless. Anything you would normally do in a template, you should be able to do inside an `x-teleport` template. Teleported content can access the normal Alpine scope of the component as well as other features like `$refs`, `$root`, etc...
 
 However, native DOM events have no concept of teleportation, so if, for example, you trigger a "click" event from inside a teleported element, that event will bubble up the DOM tree as it normally would.
 
-To make this experience more seemless, you can "forward" events by simply registering event listeners on the `<template x-teleport...>` element itself like so:
+To make this experience more seamless, you can "forward" events by simply registering event listeners on the `<template x-teleport...>` element itself like so:
 
 ```alpine
 <div x-data="{ open: false }">

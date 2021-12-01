@@ -372,11 +372,11 @@ class DomManager {
     }
 
     first() {
-        return this.portalTo(this.el[this.traversals['first']])
+        return this.teleportTo(this.el[this.traversals['first']])
     }
 
     next() {
-        return this.portalTo(this.portalBack(this.el[this.traversals['next']]))
+        return this.teleportTo(this.teleportBack(this.el[this.traversals['next']]))
     }
 
     before(insertee) {
@@ -391,15 +391,15 @@ class DomManager {
         this.el.appendChild(appendee); return appendee
     }
 
-    portalTo(el) {
+    teleportTo(el) {
         if (! el) return el
-        if (el._x_portal) return el._x_portal
+        if (el._x_teleport) return el._x_teleport
         return el
     }
 
-    portalBack(el) {
+    teleportBack(el) {
         if (! el) return el
-        if (el._x_portal_back) return el._x_portal_back
+        if (el._x_teleportBack) return el._x_teleportBack
         return el
     }
 }

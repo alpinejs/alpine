@@ -58,7 +58,7 @@ export function findClosest(el, callback) {
     if (callback(el)) return el
 
     // Support crawling up portals.
-    if (el._x_portal_back) el = el._x_portal_back
+    if (el._x_teleportBack) el = el._x_teleportBack
     
     if (! el.parentElement) return
 

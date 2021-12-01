@@ -1,18 +1,16 @@
 import { beEqualTo, beVisible, haveText, html, notBeVisible, test } from '../../utils'
 
-test('can use a portal',
+test('can use a x-teleport',
     [html`
         <div x-data="{ count: 1 }" id="a">
             <button @click="count++">Inc</button>
 
-            <template x-portal="foo">
+            <template x-teleport="#b">
                 <span x-text="count"></span>
             </template>
         </div>
 
-        <div id="b">
-            <template x-portal-target="foo"></template>
-        </div>
+        <div id="b"></div>
     `],
     ({ get }) => {
         get('#b span').should(haveText('1'))
@@ -21,23 +19,21 @@ test('can use a portal',
     },
 )
 
-test('can send multiple to a portal',
+test('can teleport multiple',
     [html`
         <div x-data="{ count: 1 }" id="a">
             <button @click="count++">Inc</button>
 
-            <template x-portal="foo">
+            <template x-teleport="#b">
                 <h1 x-text="count"></h1>
             </template>
 
-            <template x-portal="foo">
+            <template x-teleport="#b">
                 <h2 x-text="count + 1"></h2>
             </template>
         </div>
 
-        <div id="b">
-            <template x-portal-target="foo"></template>
-        </div>
+        <div id="b"></div>
     `],
     ({ get }) => {
         get('#b h1').should(haveText('1'))
@@ -48,19 +44,17 @@ test('can send multiple to a portal',
     },
 )
 
-test('portal targets forward events to portal source if listeners are attached',
+test('teleported targets forward events to teleport source if listeners are attached',
     [html`
         <div x-data="{ count: 1 }" id="a">
             <button @click="count++">Inc</button>
 
-            <template x-portal="foo" @click="count++">
+            <template x-teleport="#b" @click="count++">
                 <h1 x-text="count"></h1>
             </template>
         </div>
 
-        <div id="b">
-            <template x-portal-target="foo"></template>
-        </div>
+        <div id="b"></div>
     `],
     ({ get }) => {
         get('#b h1').should(haveText('1'))
@@ -71,19 +65,17 @@ test('portal targets forward events to portal source if listeners are attached',
     },
 )
 
-test('removing portal source removes portal target',
+test('removing teleport source removes teleported target',
     [html`
         <div x-data="{ count: 1 }" id="a">
             <button @click="$refs.template.remove()">Remove</button>
 
-            <template x-portal="foo" @click="count++" x-ref="template">
+            <template x-teleport="#b" @click="count++" x-ref="template">
                 <h1 x-text="count"></h1>
             </template>
         </div>
 
-        <div id="b">
-            <template x-portal-target="foo"></template>
-        </div>
+        <div id="b"></div>
     `],
     ({ get }) => {
         get('#b h1').should(beVisible())
@@ -92,19 +84,17 @@ test('removing portal source removes portal target',
     },
 )
 
-test('$refs inside portal can be accessed outside',
+test('$refs inside telport can be accessed outside',
     [html`
         <div x-data="{ count: 1 }" id="a">
             <button @click="$refs.count.remove()">Remove</button>
 
-            <template x-portal="foo">
+            <template x-teleport="#b">
                 <h1 x-text="count" x-ref="count"></h1>
             </template>
         </div>
 
-        <div id="b">
-            <template x-portal-target="foo"></template>
-        </div>
+        <div id="b"></div>
     `],
     ({ get }) => {
         get('#b h1').should(beVisible())
@@ -113,17 +103,15 @@ test('$refs inside portal can be accessed outside',
     },
 )
 
-test('$root is accessed outside portal',
+test('$root is accessed outside teleport',
     [html`
         <div x-data="{ count: 1 }" id="a">
-            <template x-portal="foo">
+            <template x-teleport="#b">
                 <h1 x-text="$root.id"></h1>
             </template>
         </div>
 
-        <div id="b">
-            <template x-portal-target="foo"></template>
-        </div>
+        <div id="b"></div>
     `],
     ({ get }) => {
         get('#b h1').should(beVisible())
@@ -131,19 +119,17 @@ test('$root is accessed outside portal',
     },
 )
 
-test('$id honors x-id outside portal',
+test('$id honors x-id outside telport',
     [html`
         <div x-data="{ count: 1 }" id="a" x-id="['foo']">
             <h1 x-text="$id('foo')"></h1>
 
-            <template x-portal="foo">
+            <template x-teleport="#b">
                 <h1 x-text="$id('foo')"></h1>
             </template>
         </div>
 
-        <div id="b">
-            <template x-portal-target="foo"></template>
-        </div>
+        <div id="b"></div>
     `],
     ({ get }) => {
         get('#b h1').should(haveText('foo-1'))

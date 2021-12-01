@@ -11,7 +11,6 @@ let brotliSize = require('brotli-size');
     'persist',
     'collapse',
     'morph',
-    'portal',
     'trap',
 ]).forEach(package => {
     if (! fs.existsSync(`./packages/${package}/dist`)) {

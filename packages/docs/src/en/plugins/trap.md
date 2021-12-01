@@ -1,7 +1,7 @@
 ---
 order: 3
 title: Trap
-description: Easily trap page focus within an element (modals, dialogues, etc...)
+description: Easily trap page focus within an element (modals, dialogs, etc...)
 graph_image: https://alpinejs.dev/social_trap.jpg
 ---
 
@@ -9,7 +9,7 @@ graph_image: https://alpinejs.dev/social_trap.jpg
 
 Alpine's Trap plugin allows you to conditionally trap focus inside an element.
 
-This is useful for modals and other dialogue elements.
+This is useful for modals and other dialog elements.
 
 <a name="installation"></a>
 ## Installation
@@ -58,7 +58,7 @@ For example:
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = true">Open Dialogue</button>
+    <button @click="open = true">Open Dialog</button>
 
     <span x-show="open" x-trap="open">
         <p>...</p>
@@ -67,7 +67,7 @@ For example:
 
         <input type="text" placeholder="Some other input...">
 
-        <button @click="open = false">Close Dialogue</button>
+        <button @click="open = false">Close Dialog</button>
     </span>
 </div>
 ```
@@ -75,12 +75,12 @@ For example:
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
     <div :class="open && 'opacity-50'">
-        <button x-on:click="open = true">Open Dialogue</button>
+        <button x-on:click="open = true">Open Dialog</button>
     </div>
 
     <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border bg-yellow-100" @keyup.escape.window="open = false">
         <strong>
-            <div>Focus is now "trapped" inside this dialogue, meaning you can only click/focus elements within this yellow dialogue. If you press tab repeatedly, the focus will stay within this dialogue, but also be allowed to cycle to the browser's URL bar.</div>
+            <div>Focus is now "trapped" inside this dialog, meaning you can only click/focus elements within this yellow dialog. If you press tab repeatedly, the focus will stay within this dialog.</div>
         </strong>
 
         <div>
@@ -92,16 +92,16 @@ For example:
         </div>
 
         <div>
-            <button @click="open = false">Close Dialogue</button>
+            <button @click="open = false">Close Dialog</button>
         </div>
     </div>
 </div>
 <!-- END_VERBATIM -->
 
 <a name="nesting"></a>
-## Nesting dialogues
+## Nesting dialogs
 
-Sometimes you may want to nest one dialogue inside another. `x-trap` makes this trivial and handles it automatically.
+Sometimes you may want to nest one dialog inside another. `x-trap` makes this trivial and handles it automatically.
 
 `x-trap` keeps track of newly "trapped" elements and stores the last actively focused element. Once the element is "untrapped" then the focus will be returned to where it was originally.
 
@@ -111,24 +111,24 @@ Here is nesting in action:
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = true">Open Dialogue</button>
+    <button @click="open = true">Open Dialog</button>
 
     <span x-show="open" x-trap="open">
 
         ...
 
         <div x-data="{ open: false }">
-            <button @click="open = true">Open Nested Dialogue</button>
+            <button @click="open = true">Open Nested Dialog</button>
 
             <span x-show="open" x-trap="open">
 
                 ...
 
-                <button @click="open = false">Close Nested Dialogue</button>
+                <button @click="open = false">Close Nested Dialog</button>
             </span>
         </div>
 
-        <button @click="open = false">Close Dialogue</button>
+        <button @click="open = false">Close Dialog</button>
     </span>
 </div>
 ```
@@ -136,7 +136,7 @@ Here is nesting in action:
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
     <div :class="open && 'opacity-50'">
-        <button x-on:click="open = true">Open Dialogue</button>
+        <button x-on:click="open = true">Open Dialog</button>
     </div>
 
     <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border bg-yellow-100" @keyup.escape.window="open = false">
@@ -150,12 +150,12 @@ Here is nesting in action:
 
         <div x-data="{ open: false }">
             <div :class="open && 'opacity-50'">
-                <button x-on:click="open = true">Open Nested Dialogue</button>
+                <button x-on:click="open = true">Open Nested Dialog</button>
             </div>
 
             <div x-show="open" x-trap="open" class="mt-4 space-y-4 p-4 border border-gray-500 bg-yellow-200" @keyup.escape.window="open = false">
                 <strong>
-                    <div>Focus is now "trapped" inside this nested dialogue. You cannot focus anything inside the outer dialogue while this is open. If you close this dialogue, focus will be returned to the last known active element.</div>
+                    <div>Focus is now "trapped" inside this nested dialog. You cannot focus anything inside the outer dialog while this is open. If you close this dialog, focus will be returned to the last known active element.</div>
                 </strong>
 
                 <div>
@@ -167,13 +167,13 @@ Here is nesting in action:
                 </div>
 
                 <div>
-                    <button @click="open = false">Close Nested Dialogue</button>
+                    <button @click="open = false">Close Nested Dialog</button>
                 </div>
             </div>
         </div>
 
         <div>
-            <button @click="open = false">Close Dialogue</button>
+            <button @click="open = false">Close Dialog</button>
         </div>
     </div>
 </div>

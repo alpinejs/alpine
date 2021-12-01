@@ -88,7 +88,7 @@ You can listen for other events as you'd imagine. For example, listening for a `
 
 When a `click` event happens, Alpine will call the associated JavaScript expression, `count++` in our case. As you can see, we have direct access to data declared in the `x-data` expression.
 
-> You will often see `@` instead of `x-on`. This is a shorter, friendlier syntax that many prefer. From now on, this documentation will likely use `@` instead of `x-on`.
+> You will often see `@` instead of `x-on:`. This is a shorter, friendlier syntax that many prefer. From now on, this documentation will likely use `@` instead of `x-on:`.
 
 [→ Read more about `x-on`](/directives/on)
 

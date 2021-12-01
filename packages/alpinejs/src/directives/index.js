@@ -1,4 +1,5 @@
 import './x-transition'
+import './x-teleport'
 import './x-ignore'
 import './x-effect'
 import './x-model'

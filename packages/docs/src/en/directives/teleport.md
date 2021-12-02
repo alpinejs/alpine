@@ -5,7 +5,7 @@ description: Send Alpine templates to other parts of the DOM
 graph_image: https://alpinejs.dev/social_teleport.jpg
 ---
 
-# Teleport Plugin
+# Teleport Directive
 
 The `x-teleport` directive allows you to transport part of your Alpine template to another part of the DOM on the page entirely.
 

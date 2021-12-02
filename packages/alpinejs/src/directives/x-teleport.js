@@ -2,9 +2,15 @@ import { directive } from "../directives"
 import { addInitSelector, initTree } from "../lifecycle"
 import { mutateDom } from "../mutation"
 import { addScopeToNode } from "../scope"
+import { warn } from "../utils/warn"
 
 directive('teleport', (el, { expression }, { cleanup }) => {
+    if (el.tagName.toLowerCase() !== 'template') warn('x-teleport can only be used on a <template> tag', el)
+
     let target = document.querySelector(expression)
+
+    if (! target) warn(`Cannot find x-teleport element for selector: "${expression}"`)
+
     let clone = el.content.cloneNode(true).firstElementChild
 
     // Add reference to element on <template x-teleport, and visa versa.

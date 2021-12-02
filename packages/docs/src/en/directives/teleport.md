@@ -16,7 +16,9 @@ This is useful for things like modals (especially nesting them), where it's help
 
 By attaching `x-teleport` to a `<template>` element, you are telling Alpine to "append" that element to the provided selector.
 
-> The `x-template` selector can be any string you would normally pass into something like `document.querySelector`
+> The `x-template` selector can be any string you would normally pass into something like `document.querySelector`. It will find the first element that matches, be it a tag name (`body`), class name (`.my-class`), ID (`#my-id`), or any other valid CSS selector.
+
+[→ Read more about `document.querySelector`](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector)
 
 Here's a contrived modal example:
 
@@ -68,15 +70,17 @@ However, native DOM events have no concept of teleportation, so if, for example,
 To make this experience more seamless, you can "forward" events by simply registering event listeners on the `<template x-teleport...>` element itself like so:
 
 ```alpine
-<div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle Modal</button>
+<div id="modal">
+    <div x-data="{ open: false }">
+        <button @click="open = ! open">Toggle Modal</button>
 
-    <template x-teleport="body" @click="open = false">
-        <div x-show="open">
-            Modal contents...
-            (click to close)
-        </div>
-    </template>
+        <template x-teleport="#modal" @click="open = false">
+            <div x-show="open">
+                Modal contents...
+                (click to close)
+            </div>
+        </template>
+    </div>
 </div>
 ```
 
@@ -105,24 +109,26 @@ Alpine does this by looking for event listeners registered on `<template x-telep
 Teleporting is especially helpful if you are trying to nest one modal within another. Alpine makes it simple to do so:
 
 ```alpine
-<div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle Modal</button>
+<div class="modals">
+    <div x-data="{ open: false }">
+        <button @click="open = ! open">Toggle Modal</button>
 
-    <template x-teleport="body">
-        <div x-show="open">
-            Modal contents...
-            
-            <div x-data="{ open: false }">
-                <button @click="open = ! open">Toggle Nested Modal</button>
+        <template x-teleport=".modals">
+            <div x-show="open">
+                <div class="py-4">Modal contents...</div>
 
-                <template x-teleport="body">
-                    <div x-show="open">
-                        Nested modal contents...
-                    </div>
-                </template>
+                <div x-data="{ open: false }">
+                    <button @click="open = ! open">Toggle Nested Modal</button>
+
+                    <template x-teleport=".modals">
+                        <div class="pt-4" x-show="open">
+                            Nested modal contents...
+                        </div>
+                    </template>
+                </div>
             </div>
-        </div>
-    </template>
+        </template>
+    </div>
 </div>
 ```
 
@@ -147,8 +153,6 @@ Teleporting is especially helpful if you are trying to nest one modal within ano
             </div>
         </template>
     </div>
-
-    <template x-teleport-target="modals3"></template>
 </div>
 <!-- END_VERBATIM -->
 

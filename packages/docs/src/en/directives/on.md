@@ -234,6 +234,14 @@ The above example is a great use case of throttling. Without `.throttle`, the `h
 
 > Fun Fact: This exact strategy is used on this very documentation site to update the currently highlighted section in the right sidebar.
 
+Just like with `.debounce`, you can add a custom duration to your throttled event:
+
+```alpine
+<div @scroll.window.throttle.750ms="handleScroll">...</div>
+```
+
+Now, `handleScroll` will only be called every 750 milliseconds.
+
 <a name="self"></a>
 ### .self
 

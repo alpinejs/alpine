@@ -124,3 +124,18 @@ test('x-data getters have access to parent scope',
     `,
     ({ get }) => get('h1').should(haveText('bar'))
 )
+
+test('.isolate modifiers prevent parent scope from being used',
+    html`
+    <div x-data="{ foo: 'bar' }">
+        <div x-data.isolate="{
+            get bob() {
+                return this.foo ?? 'baz'
+            }
+        }">
+            <h1 x-text="bob"></h1>
+        </div>
+    </div>
+    `,
+    ({ get }) => get('h1').should(haveText('baz'))
+)

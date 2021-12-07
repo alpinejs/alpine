@@ -35,3 +35,25 @@ When the `<button>` is pressed, `foo.bar` will be set to "bob", and "bob" will b
     <button @click="open = ! open">Toggle Open</button>
 </div>
 ```
+
+<a name="deep-watching"></a>
+### Deep watching
+
+`$watch` will automatically watches from changes at any level but you should keep in mind that, when a change is detected, the watcher will return the value of the observed property, not the value of the subproperty that has changed.
+
+```alpine
+<div x-data="{ foo: { bar: 'baz' }}" x-init="$watch('foo', (value, oldValue) => console.log(value, oldValue))">
+    <button @click="foo.bar = 'bob'">Update</button>
+</div>
+```
+
+When the `<button>` is pressed, `foo.bar` will be set to "bob", and "{bar: 'bob'} {bar: 'baz'}" will be logged to the console (new and old value).
+
+> ⚠️ Changing a property of a "watched" object as a side effect of the `$watch` callback will generate an infinite loop and eventually error. 
+
+```alpine
+<!-- 🚫 Infinite loop -->
+<div x-data="{ foo: { bar: 'baz', bob: 'lob' }}" x-init="$watch('foo', value => foo.bob = foo.bar">
+    <button @click="foo.bar = 'bob'">Update</button>
+</div>
+```

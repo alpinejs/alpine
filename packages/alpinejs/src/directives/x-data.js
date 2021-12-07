@@ -10,7 +10,7 @@ import { evaluate } from '../evaluator'
 
 addRootSelector(() => `[${prefix('data')}]`)
 
-directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
+directive('data', skipDuringClone((el, { expression, modifiers }, { cleanup }) => {
     expression = expression === '' ? '{}' : expression
 
     let magicContext = {}
@@ -29,7 +29,7 @@ directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
 
     initInterceptors(reactiveData)
 
-    let undo = addScopeToNode(el, reactiveData)
+    let undo = addScopeToNode(el, reactiveData, el, modifiers.includes('isolate'))
 
     reactiveData['init'] && evaluate(el, reactiveData['init'])
 

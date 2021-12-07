@@ -3,8 +3,8 @@ export function scope(node) {
     return mergeProxies(closestDataStack(node))
 }
 
-export function addScopeToNode(node, data, referenceNode) {
-    node._x_dataStack = [data, ...closestDataStack(referenceNode || node)]
+export function addScopeToNode(node, data, referenceNode, isolate = false) {
+    node._x_dataStack = isolate ? [data] : [data, ...closestDataStack(referenceNode || node)]
 
     return () => {
         node._x_dataStack = node._x_dataStack.filter(i => i !== data)
@@ -60,7 +60,7 @@ export function mergeProxies(objects) {
                     if ((descriptor.get && descriptor.get._x_alreadyBound) || (descriptor.set && descriptor.set._x_alreadyBound)) {
                         return true
                     }
-                    
+
                     // Properly bind getters and setters to this wrapper Proxy.
                     if ((descriptor.get || descriptor.set) && descriptor.enumerable) {
                         // Only bind user-defined getters, not our magic properties.
@@ -81,7 +81,7 @@ export function mergeProxies(objects) {
                         })
                     }
 
-                    return true 
+                    return true
                 }
 
                 return false

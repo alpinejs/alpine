@@ -3,8 +3,8 @@ export function scope(node) {
     return mergeProxies(closestDataStack(node))
 }
 
-export function addScopeToNode(node, data, referenceNode, isolate = false) {
-    node._x_dataStack = isolate ? [data] : [data, ...closestDataStack(referenceNode || node)]
+export function addScopeToNode(node, data, referenceNode) {
+    node._x_dataStack = [data, ...closestDataStack(referenceNode || node)]
 
     return () => {
         node._x_dataStack = node._x_dataStack.filter(i => i !== data)

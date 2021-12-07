@@ -29,7 +29,7 @@ directive('data', skipDuringClone((el, { expression, modifiers }, { cleanup }) =
 
     initInterceptors(reactiveData)
 
-    let undo = addScopeToNode(el, reactiveData, el, modifiers.includes('isolate'))
+    let undo = addScopeToNode(el, reactiveData, modifiers.includes('isolate') ? document : null)
 
     reactiveData['init'] && evaluate(el, reactiveData['init'])
 

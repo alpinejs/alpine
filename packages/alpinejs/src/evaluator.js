@@ -51,7 +51,8 @@ function generateFunctionFromString(expression, el) {
         return evaluatorMemo[expression]
     }
 
-    let AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
+    // Use `eval` to protect AsyncFunction constructor from possible third-party ES5 transpilation
+    let AsyncFunction = Object.getPrototypeOf((0, eval)('(async function(){})')).constructor
 
     // Some expressions that are useful in Alpine are not valid as the right side of an expression.
     // Here we'll detect if the expression isn't valid for an assignement and wrap it in a self-

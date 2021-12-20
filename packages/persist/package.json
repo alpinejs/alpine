@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/persist",
-    "version": "3.7.0",
+    "version": "3.7.1",
     "description": "Persist Alpine data across page loads",
     "author": "Caleb Porzio",
     "license": "MIT",

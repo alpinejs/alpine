@@ -7,6 +7,8 @@ export default function bind(el, name, value, modifiers = []) {
     if (! el._x_bindings) el._x_bindings = reactive({})
 
     el._x_bindings[name] = value
+   
+    if (el._x_omit_attributes && el._x_omit_attributes.includes(name)) return
 
     name = modifiers.includes('camel') ? camelCase(name) : name
 
@@ -126,4 +128,24 @@ function isBooleanAttr(attrName) {
 
 function attributeShouldntBePreservedIfFalsy(name) {
     return ! ['aria-pressed', 'aria-checked', 'aria-expanded'].includes(name)
+}
+
+export function getBinding(el, name, fallback) {
+    // First let's get it out of Alpine bound data. 
+    if (el._x_bindings && el._x_bindings[name]) return el._x_bindings[name]
+
+    // If not, we'll return the literal attribute. 
+    let attr = el.getAttribute(name)
+
+    // Nothing bound:
+    if (attr === null) return fallback
+   
+    if (isBooleanAttr(name)) {
+        return !! [name, 'true'].includes(attr)
+    }
+
+    // The case of a custom attribute with no value. Ex: <div manual> 
+    if (attr === '') return true
+   
+    return attr
 }

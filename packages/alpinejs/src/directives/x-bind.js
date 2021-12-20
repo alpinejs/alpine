@@ -1,12 +1,16 @@
 import { attributesOnly, directive, directives, into, mapAttributes, prefix, startingWith } from '../directives'
+import { addInitSelector } from '../lifecycle'
 import { evaluateLater } from '../evaluator'
 import { mutateDom } from '../mutation'
 import bind from '../utils/bind'
+import { injectBindingProviders } from '../binds'
 
 mapAttributes(startingWith(':', into(prefix('bind:'))))
 
 directive('bind', (el, { value, modifiers, expression, original }, { effect }) => {
-    if (! value) return applyBindingsObject(el, expression, original, effect)
+    if (! value) {
+        return applyBindingsObject(el, expression, original, effect)
+    }
 
     if (value === 'key') return storeKeyForXFor(el, expression)
 
@@ -21,6 +25,9 @@ directive('bind', (el, { value, modifiers, expression, original }, { effect }) =
 })
 
 function applyBindingsObject(el, expression, original, effect) {
+    let bindingProviders = {}
+    injectBindingProviders(bindingProviders)
+   
     let getBindings = evaluateLater(el, expression)
 
     let cleanupRunners = []
@@ -50,8 +57,7 @@ function applyBindingsObject(el, expression, original, effect) {
 
                 handle()
             })
-        })
-
+        }, { scope: bindingProviders } )
     })
 }
 

@@ -36,7 +36,7 @@ function setStylesFromString(el, value) {
     el.setAttribute('style', value)
 
     return () => {
-        el.setAttribute('style', cache)
+        el.setAttribute('style', cache || '')
     }
 }
 

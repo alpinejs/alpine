@@ -31,12 +31,6 @@ function applyBindingsObject(el, expression, original, effect) {
         getBindings(bindings => {
             let attributes = Object.entries(bindings).map(([name, value]) => ({ name, value }))
 
-            // Ignore nested objects in bindings, as they are generally used for
-            // namespaced sub-bindings like: "Dropdown.Button".
-            attributes = attributes.filter((attr) => {
-                return ! (typeof attr.value === 'object' && ! Array.isArray(attr.value) && attr.value !== null)
-            })
-
             let staticAttributes = attributesOnly(attributes)
             
             // Handle binding normal HTML attributes (non-Alpine directives).

@@ -5,18 +5,22 @@ description: Send Alpine templates to other parts of the DOM
 graph_image: https://alpinejs.dev/social_teleport.jpg
 ---
 
-# Teleport Directive
+# x-teleport
 
 The `x-teleport` directive allows you to transport part of your Alpine template to another part of the DOM on the page entirely.
 
 This is useful for things like modals (especially nesting them), where it's helpful to break out of the z-index of the current Alpine component.
+
+> Warning: if you are a [Livewire](https://laravel-livewire.com) user, this functionality does not currently work inside Livewire components. Support for this is on the roadmap.
 
 <a name="x-teleport"></a>
 ## x-teleport
 
 By attaching `x-teleport` to a `<template>` element, you are telling Alpine to "append" that element to the provided selector.
 
-> The `x-template` selector can be any string you would normally pass into something like `document.querySelector`
+> The `x-template` selector can be any string you would normally pass into something like `document.querySelector`. It will find the first element that matches, be it a tag name (`body`), class name (`.my-class`), ID (`#my-id`), or any other valid CSS selector.
+
+[→ Read more about `document.querySelector`](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector)
 
 Here's a contrived modal example:
 

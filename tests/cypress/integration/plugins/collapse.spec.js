@@ -16,7 +16,7 @@ test('can collapse and expand element',
         get('h1').should(notHaveAttribute('hidden'))
         get('button').click()
         get('h1').should(haveComputedStyle('height', '0px'))
-        get('h1').should(haveAttribute('style', 'height: 0px; display: none; overflow: hidden;'))
+        get('h1').should(haveAttribute('style', 'height: 0px; overflow: hidden; display: none;'))
         get('h1').should(haveAttribute('hidden', 'hidden'))
     },
 )
@@ -64,7 +64,7 @@ test('double-click on x-collapse does not mix styles up',
         get('h1').should(haveAttribute('style', 'display: none; height: 0px; overflow: hidden;'))
         get('button').click()
         get('button').click()
-        get('h1').should(haveAttribute('style', 'height: 0px; display: none; overflow: hidden;'))
+        get('h1').should(haveAttribute('style', 'height: 0px; overflow: hidden; display: none;'))
         get('button').click()
         get('h1').should(haveAttribute('style', 'height: auto;'))
         get('button').click()

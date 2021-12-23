@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../../utils'
+import { haveText, haveHtml, html, test } from '../../utils'
 
 test('can morph components and preserve Alpine state',
     [html`
@@ -131,5 +131,14 @@ test('can morph teleports',
 
         get('h1').should(haveText('2'))
         get('h2').should(haveText('there'))
+    },
+)
+
+test('can morph text nodes',
+    [html`<h2>Foo <br> Bar</h2>`],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`<h2>Foo <br> Baz</h2>`
+        get('h2').then(([el]) => window.Alpine.morph(el, toHtml))
+        get('h2').should(haveHtml('Foo <br> Baz'))
     },
 )

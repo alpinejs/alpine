@@ -18,7 +18,7 @@ This is useful for things like modals (especially nesting them), where it's help
 
 By attaching `x-teleport` to a `<template>` element, you are telling Alpine to "append" that element to the provided selector.
 
-> The `x-template` selector can be any string you would normally pass into something like `document.querySelector`. It will find the first element that matches, be it a tag name (`body`), class name (`.my-class`), ID (`#my-id`), or any other valid CSS selector.
+> The `x-teleport` selector can be any string you would normally pass into something like `document.querySelector`. It will find the first element that matches, be it a tag name (`body`), class name (`.my-class`), ID (`#my-id`), or any other valid CSS selector.
 
 [→ Read more about `document.querySelector`](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector)
 

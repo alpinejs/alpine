@@ -36,6 +36,34 @@ test('change attribute', () => assertPatch(
     `<div foo="baz">foo</div>`
 ))
 
-function assertPatch(before, after) {
-    expect(morph(createElement(before), after).outerHTML).toEqual(after)
+test('handle full HTML page', () => assertPatch(
+    `
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Page 1</title>
+        </head>
+        <body>
+            <p>Page 1</p>
+        </body>
+        </html>
+    `,
+    `
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Hello</title>
+        </head>
+        <body>
+            <p>Page 2</p>
+        </body>
+        </html>
+    `,
+    document
+))
+
+async function assertPatch(before, after, beforeTargetHtml = null) {
+    const morphed = await morph(createElement(before, beforeTargetHtml), after)
+
+    expect(morphed.outerHTML.replace(/\s/g, '')).toEqual(after.replace(/\s/g, ''))
 }

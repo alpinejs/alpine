@@ -13,7 +13,7 @@ function breakpoint(message) {
 export async function morph(from, toHtml, options) {
     assignOptions(options)
     
-    let toEl = createElement(toHtml)
+    let toEl = createElement(toHtml, from)
 
     // If there is no x-data on the element we're morphing,
     // let's seed it with the outer Alpine scope on the page.
@@ -25,7 +25,7 @@ export async function morph(from, toHtml, options) {
     
     await breakpoint()
 
-    patch(from, toEl)
+    await patch(from, toEl)
 
     return from
 }
@@ -61,8 +61,30 @@ function assignOptions(options = {}) {
     debug = options.debug || false
 }
 
-function createElement(html) {
-    return document.createRange().createContextualFragment(html).firstElementChild
+function createElement(to, from = null) {
+    const DOCUMENT_FRAGMENT_NODE = 11
+
+    if (from && typeof to === 'string' && ['#document', 'HTML', 'BODY'].includes(from.nodeName)) {
+        const html = document.createElement('html')
+
+        html.innerHTML = to
+
+        return html
+    }
+
+    if (typeof to === 'string') {
+        const template = document.createElement('template')
+
+        template.innerHTML = to
+
+        return template.content.firstElementChild
+    }
+
+    if (to.nodeType === DOCUMENT_FRAGMENT_NODE) {
+        return to.firstElementChild
+    }
+
+    return to
 }
 
 async function patch(from, to) {

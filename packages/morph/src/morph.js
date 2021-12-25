@@ -25,7 +25,7 @@ export async function morph(from, toHtml, options) {
     
     await breakpoint()
 
-    patch(from, toEl)
+    await patch(from, toEl)
 
     return from
 }
@@ -319,6 +319,8 @@ function addNodeTo(node, parent) {
 
         return clone
     }
+
+    return parent;
 }
 
 function addNodeBefore(node, beforeMe) {

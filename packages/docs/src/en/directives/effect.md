@@ -17,4 +17,4 @@ If this definition is confusing for you, that's ok. It's better explained throug
 
 When this component is loaded, the `x-effect` expression will be run and "Hello" will be logged into the console.
 
-Because Alpine knows about any property references contained within `x-effect`, when the button is clicked and `label` is changed", the effect will be re-triggered and "Hello World!" will be logged to the console.
+Because Alpine knows about any property references contained within `x-effect`, when the button is clicked and `label` is changed, the effect will be re-triggered and "Hello World!" will be logged to the console.

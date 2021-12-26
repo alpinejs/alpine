@@ -17,11 +17,10 @@ export default function (Alpine) {
         let setFunction = (el, styles) => {
             let revertFunction = Alpine.setStyles(el, styles);
 
-           return styles.height ? () => {} : revertFunction
+            return styles.height ? () => {} : revertFunction
         }
 
         let transitionStyles = {
-            overflow: 'hidden',
             transitionProperty: 'height',
             transitionDuration: `${duration}s`,
             transitionTimingFunction: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
@@ -30,19 +29,13 @@ export default function (Alpine) {
         el._x_transition = {
             in(before = () => {}, after = () => {}) {
                 el.hidden = false;
+                el.style.display = null
 
                 let current = el.getBoundingClientRect().height
 
-                Alpine.setStyles(el, {
-                    display: null,
-                    height: 'auto',
-                })
+                el.style.height = 'auto'
 
                 let full = el.getBoundingClientRect().height
-
-                Alpine.setStyles(el, {
-                    overflow: null
-                })
 
                 if (current === full) { current = floor }
 
@@ -50,7 +43,11 @@ export default function (Alpine) {
                     during: transitionStyles,
                     start: { height: current+'px' },
                     end: { height: full+'px' },
-                }, () => el._x_isShown = true, () => {})
+                }, () => el._x_isShown = true, () => {
+                    if (el.style.height == `${full}px`) {
+                        el.style.overflow = null
+                    }
+                })
             },
 
             out(before = () => {}, after = () => {}) {
@@ -60,18 +57,13 @@ export default function (Alpine) {
                     during: transitionStyles,
                     start: { height: full+'px' },
                     end: { height: floor+'px' },
-                }, () => {}, () => {
+                }, () => el.style.overflow = 'hidden', () => {
                     el._x_isShown = false
 
                     // check if element is fully collapsed
                     if (el.style.height == `${floor}px`) {
-                        Alpine.nextTick(() => {
-                            Alpine.setStyles(el, {
-                                display: 'none',
-                                overflow: 'hidden'
-                            })
-                            el.hidden = true;
-                        })
+                        el.style.display = 'none'
+                        el.hidden = true
                     }
                 })
             },

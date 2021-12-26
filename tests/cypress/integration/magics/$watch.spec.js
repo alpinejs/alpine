@@ -148,3 +148,25 @@ test('$watch ignores other dependencies',
         get('span').should(haveText('1'))
     }
 )
+
+
+test('deep $watch',
+    html`
+        <div x-data="{ foo: { bar: 'baz'}, bob: 'lob' }" x-init="
+            $watch('foo', value => { bob = value.bar }, {deep: true});
+        ">
+            <h1 x-text="foo.bar"></h1>
+            <h2 x-text="bob"></h2>
+
+            <button x-on:click="foo.bar = 'law'"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('baz'))
+        get('h2').should(haveText('lob'))
+        get('button').click()
+        get('h1').should(haveText('law'))
+        get('h2').should(haveText('law'))
+    }
+)
+

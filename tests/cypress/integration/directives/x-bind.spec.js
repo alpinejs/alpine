@@ -317,16 +317,6 @@ test('x-bind object syntax supports normal HTML attributes',
     }
 )
 
-test('x-bind object syntax ignores nested objects',
-    html`
-        <span x-data x-bind="{ foo: 'bar', bar: { baz: undefined, bob: undefined } }"></span>
-    `,
-    ({ get }) => {
-        get('span').should(haveAttribute('foo', 'bar'))
-        get('span').should(notHaveAttribute('bar', '[object Object]'))
-    }
-)
-
 test('x-bind object syntax supports normal HTML attributes mixed in with dynamic ones',
     html`
         <span x-data x-bind="{ 'x-bind:bob'() { return 'lob'; }, foo: 'bar', 'x-bind:bab'() { return 'lab' } }"></span>

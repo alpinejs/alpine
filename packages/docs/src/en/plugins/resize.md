@@ -1,6 +1,6 @@
 ---
 order: 6
-title: Intersect
+title: Resize
 description: An Alpine convenience wrapper for Resize Observer that allows you to easily react when an element is resized.
 
 ---
@@ -40,9 +40,9 @@ Then initialize it from your bundle:
 
 ```js
 import Alpine from 'alpinejs'
-import intersect from '@alpinejs/resize'
+import resize from '@alpinejs/resize'
 
-Alpine.plugin(intersect)
+Alpine.plugin(resize)
 
 ...
 ```
@@ -62,12 +62,12 @@ For example, in the following snippet, `shown` will remain `false` until the ele
 
 
 
-<a name="x-intersect-debounce"></a>
-### x-intersect:200
+<a name="x-resize-debounce"></a>
+### x-resize:200
 
 You can debounce the resize function execution, so the code below will be executed just one time, after 200ms
 
 ```alpine
-<div x-intersect:200="console.log($el.innerWidth)">...</div>
+<div x-resize:200="console.log($el.innerWidth)">...</div>
 ```
 

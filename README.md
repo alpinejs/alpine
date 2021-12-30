@@ -33,6 +33,7 @@ Package | Description
 [csp](packages/csp) | A repo to provide a "CSP safe" build of Alpine
 [history](packages/history) | A plugin for binding data to query string parameters using the history API (name is likely to change)
 [intersect](packages/intersect) | A plugin for triggering JS expressions based on elements intersecting with the viewport
+[resize](packages/resize) | A plugin for triggering JS expressions based on elements resize observers
 [morph](packages/morph) | A plugin for morphing HTML (like morphdom) inside the page intelligently
 [trap](packages/trap) | A plugin that allows you to conditionally trap focus inside an element
 

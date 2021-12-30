@@ -1,0 +1,11 @@
+{
+    "name": "@alpinejs/resize",
+    "version": "3.7.1",
+    "description": "Trigger JavaScript when an element is resized",
+    "author": "Marek Algoud",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js",
+    "unpkg": "dist/cdn.min.js",
+    "dependencies": {}
+}

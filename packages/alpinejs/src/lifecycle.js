@@ -8,6 +8,7 @@ import { warn } from './utils/warn'
 export function start() {
     if (! document.body) warn('Unable to initialize. Trying to load Alpine before `<body>` is available. Did you forget to add `defer` in Alpine\'s `<script>` tag?')
 
+    dispatch(document, 'alpine:plugin-init')
     dispatch(document, 'alpine:init')
     dispatch(document, 'alpine:initializing')
 

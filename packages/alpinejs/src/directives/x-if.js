@@ -3,6 +3,8 @@ import { addScopeToNode } from '../scope'
 import { directive } from '../directives'
 import { initTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
+import { walk } from "../utils/walk"
+import {dequeueJob} from '../scheduler'
 
 directive('if', (el, { expression }, { effect, cleanup }) => {
     let evaluate = evaluateLater(el, expression)
@@ -22,7 +24,18 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
 
         el._x_currentIfEl = clone
 
-        el._x_undoIf = () => { clone.remove(); delete el._x_currentIfEl }
+        el._x_undoIf = () => {
+            walk(clone, (node) => {
+                if (!!node._x_effects) {
+                    node._x_effects.forEach((effect) => {
+                        dequeueJob(effect)
+                    })
+                }
+            })
+            clone.remove();
+            delete el._x_currentIfEl
+            
+        }
 
         return clone
     }

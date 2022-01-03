@@ -10,6 +10,13 @@ function queueJob(job) {
 
     queueFlush()
 }
+export function dequeueJob(job)
+{
+    var index = queue.indexOf(job);
+    if (index !== -1) {
+        queue.splice(index, 1);
+    }
+}
 
 function queueFlush() {
     if (! flushing && ! flushPending) {

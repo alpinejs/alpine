@@ -263,8 +263,8 @@ async function patchChildren(from, to) {
         // Patch elements
         await patch(currentFrom, currentTo)
 
-        currentTo = currentTo && dom(currentTo).next()
-        currentFrom = currentFrom && dom(currentFrom).next()
+        currentTo = currentTo && dom(currentTo).nodes().next()
+        currentFrom = currentFrom && dom(currentFrom).nodes().next()
     }
 
     // Cleanup extra froms
@@ -358,8 +358,8 @@ class DomManager {
     }
 
     traversals = {
-        'first': 'firstChild',
-        'next': 'nextSibling',
+        'first': 'firstElementChild',
+        'next': 'nextElementSibling',
         'parent': 'parentElement',
     }
 

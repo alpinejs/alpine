@@ -53,7 +53,7 @@ When the `<button>` is pressed, `foo.bar` will be set to "bob", and "{bar: 'bob'
 
 ```alpine
 <!-- 🚫 Infinite loop -->
-<div x-data="{ foo: { bar: 'baz', bob: 'lob' }}" x-init="$watch('foo', value => foo.bob = foo.bar">
+<div x-data="{ foo: { bar: 'baz', bob: 'lob' }}" x-init="$watch('foo', value => foo.bob = foo.bar)">
     <button @click="foo.bar = 'bob'">Update</button>
 </div>
 ```

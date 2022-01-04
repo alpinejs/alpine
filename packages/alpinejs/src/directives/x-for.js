@@ -6,6 +6,7 @@ import { initTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
 import { flushJobs } from '../scheduler'
 import { warn } from '../utils/warn'
+import {dequeueJob} from '../scheduler'
 
 directive('for', (el, { expression }, { effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)
@@ -135,6 +136,12 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         for (let i = 0; i < removes.length; i++) {
             let key = removes[i]
 
+            //Remove any queued effects that might run after the DOM node has been removed.
+            if (!!lookup[key]._x_effects) {
+                lookup[key]._x_effects.forEach((effect) => {
+                    dequeueJob(effect)
+                })
+            }
             lookup[key].remove()
 
             lookup[key] = null

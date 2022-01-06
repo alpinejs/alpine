@@ -5,6 +5,8 @@ export function initInterceptors(data) {
     let isObject = val => typeof val === 'object' && !Array.isArray(val) && val !== null
 
     let recurse = (obj, basePath = '') => {
+        if (obj === undefined || obj === null)
+          return
         Object.entries(Object.getOwnPropertyDescriptors(obj)).forEach(([key, { value, enumerable }]) => {
             // Skip getters.
             if (enumerable === false || value === undefined) return

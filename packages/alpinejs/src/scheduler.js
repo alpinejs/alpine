@@ -10,11 +10,10 @@ function queueJob(job) {
 
     queueFlush()
 }
-export function dequeueJob(job)
-{
-    var index = queue.indexOf(job);
+export function dequeueJob(job) {
+    const index = queue.indexOf(job)
     if (index !== -1) {
-        queue.splice(index, 1);
+        queue.splice(index, 1)
     }
 }
 

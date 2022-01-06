@@ -20,4 +20,13 @@ export function store(name, value) {
     initInterceptors(stores[name])
 }
 
+export function unstore(name) {
+    if (! isReactive) { stores = reactive(stores); isReactive = true; }
+
+    const value = stores[name]
+    delete stores[name]
+
+    return value
+}
+
 export function getStores() { return stores }

@@ -8,8 +8,6 @@ export default function bind(el, name, value, modifiers = []) {
 
     el._x_bindings[name] = value
    
-    if (el._x_omit_attributes && el._x_omit_attributes.includes(name)) return
-
     name = modifiers.includes('camel') ? camelCase(name) : name
 
     switch (name) {

@@ -132,13 +132,13 @@ function attributeShouldntBePreservedIfFalsy(name) {
 
 export function getBinding(el, name, fallback) {
     // First let's get it out of Alpine bound data. 
-    if (el._x_bindings && el._x_bindings[name]) return el._x_bindings[name]
+    if (el._x_bindings && el._x_bindings[name] !== undefined) return el._x_bindings[name]
 
     // If not, we'll return the literal attribute. 
     let attr = el.getAttribute(name)
 
     // Nothing bound:
-    if (attr === null) return fallback
+    if (attr === null) return typeof fallback === 'function' ? fallback() : fallback
    
     if (isBooleanAttr(name)) {
         return !! [name, 'true'].includes(attr)

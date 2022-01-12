@@ -97,7 +97,7 @@ test('.stop modifier',
     }
 )
 
-test.only('.capture modifier',
+test('.capture modifier',
     html`
         <div x-data="{ foo: 'bar' }">
             <button @click.capture="foo = 'baz'">

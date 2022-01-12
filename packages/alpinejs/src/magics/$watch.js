@@ -10,9 +10,8 @@ magic('watch', el => (key, callback) => {
     let oldValue
 
     effect(() => evaluate(value => {
-        // This is a hack to force deep reactivity for things like "items.push()".
-        let div = document.createElement('div')
-        div.dataset.throwAway = value
+        // JSON.stringify touches every single property at any level enabling deep watching
+        JSON.stringify(value)
 
         if (! firstTime) {
             // We have to queue this watcher as a microtask so that

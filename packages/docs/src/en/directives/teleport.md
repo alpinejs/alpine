@@ -18,7 +18,9 @@ This is useful for things like modals (especially nesting them), where it's help
 
 By attaching `x-teleport` to a `<template>` element, you are telling Alpine to "append" that element to the provided selector.
 
-> The `x-template` selector can be any string you would normally pass into something like `document.querySelector`
+> The `x-template` selector can be any string you would normally pass into something like `document.querySelector`. It will find the first element that matches, be it a tag name (`body`), class name (`.my-class`), ID (`#my-id`), or any other valid CSS selector.
+
+[→ Read more about `document.querySelector`](https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector)
 
 Here's a contrived modal example:
 
@@ -63,7 +65,7 @@ Notice how when toggling the modal, the actual modal contents show up AFTER the 
 <a name="forwarding-events"></a>
 ## Forwarding events
 
-Alpine tries it's best to make the experience of teleporting seamless. Anything you would normally do in a template, you should be able to do inside an `x-teleport` template. Teleported content can access the normal Alpine scope of the component as well as other features like `$refs`, `$root`, etc...
+Alpine tries its best to make the experience of teleporting seamless. Anything you would normally do in a template, you should be able to do inside an `x-teleport` template. Teleported content can access the normal Alpine scope of the component as well as other features like `$refs`, `$root`, etc...
 
 However, native DOM events have no concept of teleportation, so if, for example, you trigger a "click" event from inside a teleported element, that event will bubble up the DOM tree as it normally would.
 

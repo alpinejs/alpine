@@ -9,17 +9,6 @@ magic('id', el => (name, key = null) => {
         : findAndIncrementId(name)
 
     return key
-        ? new AlpineId(`${name}-${id}-${key}`)
-        : new AlpineId(`${name}-${id}`)
+        ? `${name}-${id}-${key}`
+        : `${name}-${id}`
 })
-
-class AlpineId {
-    constructor(id) {
-        this.id = id
-    }
-
-    toString() {
-        return this.id
-    }
-}
-

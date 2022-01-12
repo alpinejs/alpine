@@ -1,23 +1,18 @@
 <html>
-<script src="./packages/intersect/dist/cdn.js" defer></script>
-<script src="./packages/morph/dist/cdn.js" defer></script>
-<script src="./packages/history/dist/cdn.js"></script>
-<script src="./packages/persist/dist/cdn.js"></script>
-<script src="./packages/trap/dist/cdn.js"></script>
-<script src="./packages/alpinejs/dist/cdn.js" defer></script>
-<!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
-<script src="https://cdn.tailwindcss.com"></script>
+    <script src="./packages/intersect/dist/cdn.js" defer></script>
+    <script src="./packages/morph/dist/cdn.js" defer></script>
+    <script src="./packages/history/dist/cdn.js"></script>
+    <script src="./packages/persist/dist/cdn.js"></script>
+    <script src="./packages/trap/dist/cdn.js"></script>
+    <script src="./packages/alpinejs/dist/cdn.js" defer></script>
+    <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
-<div x-data="{ yo: true, }">
-    <button :class="['bg-blue-500', 'font-bold', yo && 'tracking-wide']" @click="yo = ! yo">first</button> 
-    
-    <template x-teleport="#portal">
-        <button>second</button> 
-    </template>
+    <!-- Play around. -->
+    <div x-data="{ open: false }">
+        <button @click="open = !open">Toggle</button>
 
-    <button>third</button> 
-</div>
-
-<div id="portal"></div>
-
+        <span x-show="open">
+            Content...
+        </span>
+    </div>
 </html>

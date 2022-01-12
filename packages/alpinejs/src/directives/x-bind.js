@@ -1,5 +1,4 @@
 import { attributesOnly, directive, directives, into, mapAttributes, prefix, startingWith } from '../directives'
-import { addInitSelector } from '../lifecycle'
 import { evaluateLater } from '../evaluator'
 import { mutateDom } from '../mutation'
 import bind from '../utils/bind'

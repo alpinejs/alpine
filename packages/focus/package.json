@@ -1,7 +1,7 @@
 {
-    "name": "@alpinejs/trap",
+    "name": "@alpinejs/focus",
     "version": "3.7.1",
-    "description": "Trap focus on a page within a specific element",
+    "description": "Manage focus within a page",
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",

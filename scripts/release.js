@@ -45,8 +45,8 @@ function writeNewAlpineVersion() {
     writeToPackageDotJson('persist', 'version', version)
     console.log('Bumping @alpinejs/persist package.json: '+version)
 
-    writeToPackageDotJson('trap', 'version', version)
-    console.log('Bumping @alpinejs/trap package.json: '+version)
+    writeToPackageDotJson('focus', 'version', version)
+    console.log('Bumping @alpinejs/focus package.json: '+version)
 
     writeToPackageDotJson('collapse', 'version', version)
     console.log('Bumping @alpinejs/collapse package.json: '+version)
@@ -80,8 +80,8 @@ function publish() {
     console.log('Publishing @alpinejs/persist on NPM...');
     runFromPackage('persist', 'npm publish --access public')
 
-    console.log('Publishing @alpinejs/trap on NPM...');
-    runFromPackage('trap', 'npm publish --access public')
+    console.log('Publishing @alpinejs/focus on NPM...');
+    runFromPackage('focus', 'npm publish --access public')
 
     console.log('Publishing @alpinejs/collapse on NPM...');
     runFromPackage('collapse', 'npm publish --access public')

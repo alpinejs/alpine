@@ -18,6 +18,7 @@ export default function (Alpine) {
             __wrapAround: false, 
             within(el) { within = el; return this },
             withoutScrolling() { this.__noscroll = true; return this },
+            noscroll() { this.__noscroll = true; return this },
             withWrapAround() { this.__wrapAround = true; return this },
             wrap() { return this.withWrapAround() },
             focusable(el) {
@@ -26,11 +27,18 @@ export default function (Alpine) {
             previouslyFocused() {
                 return lastFocused
             },
-            all() {
+            lastFocused() {
+                return lastFocused
+            },
+            focused() {
+                return currentFocused
+            },
+            focusables() {
                 if (Array.isArray(within)) return within 
 
                 return focusable(within, { displayCheck: 'none' })
             },
+            all() { return this.focusables() },
             isFirst(el) {
                 let els = this.all() 
                 
@@ -42,7 +50,7 @@ export default function (Alpine) {
                 return els.length && els.slice(-1)[0].isSameNode(el)
             },
             getFirst() { return this.all()[0] },
-            getLast() { return this.all(f).slice(-1)[0] },
+            getLast() { return this.all().slice(-1)[0] },
             getNext() {
                 let list = this.all()
                 let current = document.activeElement

@@ -5,6 +5,8 @@ description: Easily manage focus within the page
 graph_image: https://alpinejs.dev/social_focus.jpg
 ---
 
+> Notice: This Plugin was previously called "Trap". Trap's functionality has been absorbed into this plugin along with additional functionality. You can swap Trap for Focus without any breaking changes.
+
 # Focus Plugin
 
 Alpine's Focus plugin allows you to manage focus on a page.

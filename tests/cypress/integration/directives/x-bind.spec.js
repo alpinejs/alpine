@@ -409,3 +409,44 @@ test('x-bind object syntax event handlers defined as functions receive the event
         get('span').should(haveText('bar'))
     }
 )
+
+test('x-bind object syntax event handlers defined as functions receive the event object as their first argument',
+    html`
+        <script>
+            window.data = () => { return {
+                button: {
+                    ['@click']() {
+                        this.$refs.span.innerText = this.$el.id
+                    }
+                }
+            }}
+        </script>
+        <div x-data="window.data()">
+            <button x-bind="button" id="bar">click me</button>
+
+            <span x-ref="span">foo</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('foo'))
+        get('button').click()
+        get('span').should(haveText('bar'))
+    }
+)
+
+test('Can retrieve Alpine bound data with global bound method',
+    html`
+        <div id="1" x-data foo="bar" x-text="Alpine.bound($el, 'foo')"></div>
+        <div id="2" x-data :foo="'bar'" x-text="Alpine.bound($el, 'foo')"></div>
+        <div id="3" x-data foo x-text="Alpine.bound($el, 'foo')"></div>
+        <div id="4" x-data x-text="Alpine.bound($el, 'foo')"></div>
+        <div id="5" x-data x-text="Alpine.bound($el, 'foo', 'bar')"></div>
+    `,
+    ({ get }) => {
+        get('#1').should(haveText('bar'))
+        get('#2').should(haveText('bar'))
+        get('#3').should(haveText('true'))
+        get('#4').should(haveText(''))
+        get('#5').should(haveText('bar'))
+    }
+)

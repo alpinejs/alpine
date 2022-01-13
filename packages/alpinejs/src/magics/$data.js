@@ -1,6 +1,4 @@
-import { closestDataStack, mergeProxies } from '../scope'
+import { scope } from '../scope'
 import { magic } from '../magics'
 
-magic('data', el => {
-    return mergeProxies(closestDataStack(el))
-})
+magic('data', el => scope(el))

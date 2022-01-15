@@ -125,7 +125,7 @@ function isBooleanAttr(attrName) {
 }
 
 function attributeShouldntBePreservedIfFalsy(name) {
-    return ! ['aria-pressed', 'aria-checked', 'aria-expanded'].includes(name)
+    return ! ['aria-pressed', 'aria-checked', 'aria-expanded', 'aria-selected'].includes(name)
 }
 
 export function getBinding(el, name, fallback) {

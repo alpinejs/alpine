@@ -15,8 +15,13 @@ function setStylesFromObject(el, value) {
 
         // When we use javascript object, css properties use the camelCase
         // syntax but when we use setProperty, we need the css format
-        // so we need to convert camelCase to kebab-case
-        el.style.setProperty(kebabCase(key), value)
+        // so we need to convert camelCase to kebab-case.
+        // In case key is a CSS variable, leave it as it is.
+        if (! key.startsWith('--')) {
+            key = kebabCase(key);
+        }
+
+        el.style.setProperty(key, value)
     })
 
     setTimeout(() => {

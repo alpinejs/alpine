@@ -524,3 +524,24 @@ test('correctly renders x-if children when reordered',
         get('span:nth-of-type(2)').should(haveText('foo'))
     }
 )
+//If an x-for element is removed from DOM, expectation is that the removed DOM element will not have any of its reactive expressions evaluated after removal.
+test('x-for removed dom node does not evaluate child expressions after being removed',
+    html`
+        <div x-data="{ users: [{ name: 'lebowski' }] }">
+            <template x-for="(user, idx) in users">
+                <span x-text="users[idx].name"></span>
+            </template>
+            <button @click="users = []">Reset</button>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('lebowski'))
+
+        /** Clicking button sets users=[] and thus x-for loop will remove all children.
+            If the sub-expression x-text="users[idx].name" is evaluated, the button click  
+            will produce an error because users[idx] is no longer defined and the test will fail
+        **/
+        get('button').click()
+        get('span').should('not.exist')
+    }
+)

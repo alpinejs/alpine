@@ -21,10 +21,10 @@ The best way to understand its purpose is with the following interactive visuali
 
     <div class="flex w-full justify-between" style="padding-bottom: 1rem">
         <div class="w-1/2 px-4">
-            <button @click="slide = (slide === 1) ? 13 : slide - 1" class="w-full bg-brand rounded-full text-center py-3 font-bold text-white">Previous</button>
+            <button @click="slide = (slide === 1) ? 13 : slide - 1" class="w-full bg-aqua-400 rounded-full text-center py-3 font-bold text-white">Previous</button>
         </div>
         <div class="w-1/2 px-4">
-            <button @click="slide = (slide % 13) + 1" class="w-full bg-brand rounded-full text-center py-3 font-bold text-white">Next</button>
+            <button @click="slide = (slide % 13) + 1" class="w-full bg-aqua-400 rounded-full text-center py-3 font-bold text-white">Next</button>
         </div>
     </div>
 </div>

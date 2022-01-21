@@ -1,15 +1,17 @@
 ---
 order: 3
-title: Trap
-description: Easily trap page focus within an element (modals, dialogs, etc...)
-graph_image: https://alpinejs.dev/social_trap.jpg
+title: Focus
+description: Easily manage focus within the page
+graph_image: https://alpinejs.dev/social_focus.jpg
 ---
 
-# Trap Plugin
+> Notice: This Plugin was previously called "Trap". Trap's functionality has been absorbed into this plugin along with additional functionality. You can swap Trap for Focus without any breaking changes.
 
-Alpine's Trap plugin allows you to conditionally trap focus inside an element.
+# Focus Plugin
 
-This is useful for modals and other dialog elements.
+Alpine's Focus plugin allows you to manage focus on a page.
+
+> This plugin internally makes heavy use of the open source tool: [Tabbable](https://github.com/focus-trap/tabbable). Big thanks to that team for providing a much needed solution to this problem.
 
 <a name="installation"></a>
 ## Installation
@@ -22,7 +24,7 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 ```alpine
 <!-- Alpine Plugins -->
-<script defer src="https://unpkg.com/@alpinejs/trap@3.x.x/dist/cdn.min.js"></script>
+<script defer src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
 
 <!-- Alpine Core -->
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -30,19 +32,19 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 ### Via NPM
 
-You can install Trap from NPM for use inside your bundle like so:
+You can install Focus from NPM for use inside your bundle like so:
 
 ```shell
-npm install @alpinejs/trap
+npm install @alpinejs/focus
 ```
 
 Then initialize it from your bundle:
 
 ```js
 import Alpine from 'alpinejs'
-import trap from '@alpinejs/trap'
+import focus from '@alpinejs/focus'
 
-Alpine.plugin(trap)
+Alpine.plugin(focus)
 
 ...
 ```
@@ -50,7 +52,7 @@ Alpine.plugin(trap)
 <a name="x-trap"></a>
 ## x-trap
 
-The primary API for using this plugin is the `x-trap` directive.
+Focus offers a dedicated API for trapping focus within an element: the `x-trap` directive.
 
 `x-trap` accepts a JS expression. If the result of that expression is true, then the focus will be trapped inside that element until the expression becomes false, then at that point, focus will be returned to where it was previously.
 
@@ -99,7 +101,7 @@ For example:
 <!-- END_VERBATIM -->
 
 <a name="nesting"></a>
-## Nesting dialogs
+### Nesting dialogs
 
 Sometimes you may want to nest one dialog inside another. `x-trap` makes this trivial and handles it automatically.
 
@@ -180,10 +182,10 @@ Here is nesting in action:
 <!-- END_VERBATIM -->
 
 <a name="modifiers"></a>
-## Modifiers
+### Modifiers
 
 <a name="inert"></a>
-### .inert
+#### .inert
 
 When building things like dialogs/modals, it's recommended to hide all the other elements on the page from screenreaders when trapping focus.
 
@@ -214,7 +216,7 @@ By adding `.inert` to `x-trap`, when focus is trapped, all other elements on the
 ```
 
 <a name="noscroll"></a>
-### .noscroll
+#### .noscroll
 
 When building dialogs/modals with Alpine, it's recommended that you disable scrollling for the surrounding content when the dialog is open.
 
@@ -251,3 +253,121 @@ For example:
     </div>
 </div>
 <!-- END_VERBATIM -->
+
+<a name="focus-magic"></a>
+## $focus
+
+This plugin offers many smaller utilities for managing focus within a page. These utilities are exposed via the `$focus` magic.
+
+| Property | Description |
+| ---       | --- |
+| `focus(el)`   | Focus the passed element (handling annoyances internally: using nextTick, etc.) |
+| `focusable(el)`   | Detect weather or not an element is focusable |
+| `focusables()`   | Get all "focusable" elements within the current element |
+| `focused()`   | Get the currently focused element on the page |
+| `lastFocused()`   | Get the last focused element on the page |
+| `within(el)`   | Specify an element to scope the `$focus` magic to (the current element by default) |
+| `first()`   | Focus the first focusable element |
+| `last()`   | Focus the last focusable element |
+| `next()`   | Focus the next focusable element |
+| `previous()`   | Focus the previous focusable element |
+| `noscroll()`   | Prevent scrolling to the element about to be focused |
+| `wrap()`   | When retrieving "next" or "previous" use "wrap around" (ex. returning the first element if getting the "next" element of the last element) |
+| `getFirst()`   | Retrieve the first focusable element |
+| `getLast()`   | Retrieve the last focusable element |
+| `getNext()`   | Retrieve the next focusable element |
+| `getPrevious()`   | Retrieve the previous focusable element |
+
+Let's walk through a few examples of these utilities in use. The example below allows the user to control focus within the group of buttons using the arrow keys. You can test this by clicking on a button, then using the arrow keys to move focus around:
+
+```alpine
+<div
+    @keydown.right="$focus.next()"
+    @keydown.left="$focus.previous()"
+>
+    <button>First</button>
+    <button>Second</button>
+    <button>Third</button>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+<div
+    x-data
+    @keydown.right="$focus.next()"
+    @keydown.left="$focus.previous()"
+>
+    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">First</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Second</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Third</button>
+</div>
+(Click a button, then use the arrow keys to move left and right)
+</div>
+<!-- END_VERBATIM -->
+
+Notice how if the last button is focused, pressing "right arrow" won't do anything. Let's add the `.wrap()` method so that focus "wraps around":
+
+```alpine
+<div
+    @keydown.right="$focus.wrap().next()"
+    @keydown.left="$focus.wrap().previous()"
+>
+    <button>First</button>
+    <button>Second</button>
+    <button>Third</button>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+<div
+    x-data
+    @keydown.right="$focus.wrap().next()"
+    @keydown.left="$focus.wrap().previous()"
+>
+    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">First</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Second</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Third</button>
+</div>
+(Click a button, then use the arrow keys to move left and right)
+</div>
+<!-- END_VERBATIM -->
+
+Now, let's add two buttons, one to focus the first element in the button group, and another focus the last element:
+
+```alpine
+<button @click="$focus.within($refs.buttons).first()">Focus "First"</button>
+<button @click="$focus.within($refs.buttons).last()">Focus "Last"</button>
+
+<div
+    x-ref="buttons"
+    @keydown.right="$focus.wrap().next()"
+    @keydown.left="$focus.wrap().previous()"
+>
+    <button>First</button>
+    <button>Second</button>
+    <button>Third</button>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo" x-data>
+<button @click="$focus.within($refs.buttons).first()">Focus "First"</button>
+<button @click="$focus.within($refs.buttons).last()">Focus "Last"</button>
+
+<hr class="mt-2 mb-2"/>
+
+<div
+    x-ref="buttons"
+    @keydown.right="$focus.wrap().next()"
+    @keydown.left="$focus.wrap().previous()"
+>
+    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">First</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Second</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Third</button>
+</div>
+</div>
+<!-- END_VERBATIM -->
+
+Notice that we needed to add a `.within()` method for each button so that `$focus` knows to scope itself to a different element (the `div` wrapping the buttons).

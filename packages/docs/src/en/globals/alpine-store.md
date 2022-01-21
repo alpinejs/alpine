@@ -3,7 +3,7 @@ order: 2
 title: store()
 ---
 
-# `Alpine.store`
+# Alpine.store
 
 Alpine offers global state management through the `Alpine.store()` API.
 

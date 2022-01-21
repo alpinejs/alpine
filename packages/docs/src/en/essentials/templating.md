@@ -303,7 +303,7 @@ Here is an example of a dynamically bound `class` attribute:
 As a shortcut, you can leave out the `x-bind` and use the shorthand `:` syntax directly:
 
 ```alpine
-<button ... :class="red ? 'bg-red' : ''>"
+<button ... :class="red ? 'bg-red' : ''">
 ```
 
 Toggling classes on and off based on data inside Alpine is a common need. Here's an example of toggling a class using Alpine's `class` binding object syntax: (Note: this syntax is only available for `class` attributes)

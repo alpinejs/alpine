@@ -34,7 +34,7 @@ Package | Description
 [history](packages/history) | A plugin for binding data to query string parameters using the history API (name is likely to change)
 [intersect](packages/intersect) | A plugin for triggering JS expressions based on elements intersecting with the viewport
 [morph](packages/morph) | A plugin for morphing HTML (like morphdom) inside the page intelligently
-[trap](packages/trap) | A plugin that allows you to conditionally trap focus inside an element
+[focus](packages/focus) | A plugin that allows you to manage focus inside an element
 
 The compiled JS files (as a result of running `npm run [build/watch]`) to be included as a `<script>` tag for example are stored in each package's `packages/[package]/dist` directory.
 

@@ -230,8 +230,8 @@ async function patchChildren(from, to) {
                 domKeyHoldovers[domKey] = currentFrom
                 currentFrom = addNodeBefore(currentTo, currentFrom)
                 domKeyHoldovers[domKey].remove()
-                currentFrom = dom(currentFrom).nodes.next()
-                currentTo = dom(currentTo).nodes.next()
+                currentFrom = dom(currentFrom).nodes().next()
+                currentTo = dom(currentTo).nodes().next()
 
                 await breakpoint('No "to" key')
 
@@ -271,8 +271,8 @@ async function patchChildren(from, to) {
         // Patch elements
         await patch(currentFrom, currentTo)
 
-        currentTo = currentTo && dom(currentTo).next()
-        currentFrom = currentFrom && dom(currentFrom).next()
+        currentTo = currentTo && dom(currentTo).nodes().next()
+        currentFrom = currentFrom && dom(currentFrom).nodes().next()
     }
 
     // Cleanup extra froms

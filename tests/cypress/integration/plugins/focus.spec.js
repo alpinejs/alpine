@@ -101,6 +101,24 @@ test('can trap focus with noscroll',
     },
 )
 
+test('can trap focus with noreturn',
+    [html`
+        <div x-data="{ open: false }" x-trap.noreturn="open">
+            <input id="input" @focus="open = true" />
+
+            <div x-show="open">
+                <button @click="open = false" id="close">close</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('#input').focus()
+        get('#close')
+        get('#close').click()
+        get('#input').should(notHaveFocus())
+    },
+)
+
 test('$focus.focus',
     [html`
         <div x-data>

@@ -3,14 +3,19 @@ import { interceptor } from './interceptor'
 
 let magics = {}
 
-export function magic(name, callback) {
-    magics[name] = callback
+export function magic(name, get, set) {
+    magics[name] = { get, set }
 }
 
 export function injectMagics(obj, el) {
-    Object.entries(magics).forEach(([name, callback]) => {
+    Object.entries(magics).forEach(([name, { get, set }]) => {
         Object.defineProperty(obj, `$${name}`, {
-            get() { return callback(el, { Alpine, interceptor }) },
+            get() { return get(el, { Alpine, interceptor }) },
+            
+            set(value) {
+                if (! set) throw `You cannot mutate $${name}`
+                return set(value, el, { Alpine, interceptor })
+            },
 
             enumerable: false,
         })

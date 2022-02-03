@@ -1,5 +1,6 @@
 import './$nextTick'
 import './$dispatch'
+import './$model'
 import './$watch'
 import './$store'
 import './$data'

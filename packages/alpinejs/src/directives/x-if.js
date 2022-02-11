@@ -30,9 +30,10 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
                     node._x_effects.forEach(dequeueJob)
                 }
             })
-            clone.remove();
-            delete el._x_currentIfEl
             
+            clone.remove();
+
+            delete el._x_currentIfEl
         }
 
         return clone

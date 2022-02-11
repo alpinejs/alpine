@@ -136,10 +136,11 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         for (let i = 0; i < removes.length; i++) {
             let key = removes[i]
 
-            //Remove any queued effects that might run after the DOM node has been removed.
-            if (!!lookup[key]._x_effects) {
+            // Remove any queued effects that might run after the DOM node has been removed.
+            if (!! lookup[key]._x_effects) {
                 lookup[key]._x_effects.forEach(dequeueJob)
             }
+            
             lookup[key].remove()
 
             lookup[key] = null

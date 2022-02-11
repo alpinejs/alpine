@@ -165,6 +165,7 @@ let directiveOrder = [
     'init',
     'for',
     'model',
+    'modelable',
     'transition',
     'show',
     'if',

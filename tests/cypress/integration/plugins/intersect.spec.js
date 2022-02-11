@@ -123,3 +123,27 @@ test('.once',
         get('span').should(haveText('2'))
     },
 )
+
+test('.margin.100px',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+        <div id="buffer-top" style="height: calc(100vh - 50px); margin-top: 100vh; background: pink"></div>
+        <div id="buffer-bottom" style="height: 50px; background: green"></div>
+        <div x-intersect.margin.100px="count++;$nextTick(() => console.log(count))" id="1">hi</div>
+    </div>
+    `],
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('#buffer-top').scrollIntoView({duration: 100})
+        get('span').should(haveText('1'))
+        get('#1').scrollIntoView({duration: 100})
+        get('span').should(haveText('1'))
+        get('span').scrollIntoView({duration: 100})
+        get('span').should(haveText('1'))
+        get('#buffer-top').scrollIntoView({duration: 100})
+        get('span').should(haveText('2'))
+        get('#1').scrollIntoView({duration: 100})
+        get('span').should(haveText('2'))
+    },
+)

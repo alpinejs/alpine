@@ -1,9 +1,9 @@
-
 export default function (Alpine) {
     Alpine.directive('intersect', (el, { value, expression, modifiers }, { evaluateLater, cleanup }) => {
         let evaluate = evaluateLater(expression)
 
         let options = {
+            rootMargin: getRootMargin(modifiers),
             threshold: getThreshhold(modifiers),
         }
 
@@ -31,4 +31,30 @@ function getThreshhold(modifiers) {
     if (modifiers.includes('half')) return 0.5
 
     return 0
+}
+
+export function getLengthValue(rawValue) {
+    // Supported: -10px, -20 (implied px), 30 (implied px), 40px, 50%
+    let match = rawValue.match(/^(-?[0-9]+)(px|%)?$/)
+    return match ? match[1] + (match[2] || 'px') : undefined
+}
+
+export function getRootMargin(modifiers) {
+    const key = 'margin'
+    const fallback = '0px 0px 0px 0px'
+    const index = modifiers.indexOf(key)
+
+    // If the modifier isn't present, use the default.
+    if (index === -1) return fallback
+
+    // Grab the 4 subsequent length values after it: x-intersect.margin.300px.0.50%.0
+    let values = []
+        for (let i = 1; i < 5; i++) {
+            values.push(getLengthValue(modifiers[index + i] || ''))
+        }
+
+    // Filter out undefined values (not a valid length)
+    values = values.filter((v) => v !== undefined)
+
+    return values.length ? values.join(' ').trim() : fallback
 }

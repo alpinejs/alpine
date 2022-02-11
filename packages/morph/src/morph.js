@@ -6,23 +6,23 @@ function breakpoint(message) {
     if (! debug) return
 
     message && logger(message.replace('\n', '\\n'))
-   
+
     return new Promise(resolve => resolveStep = () => resolve())
 }
 
 export async function morph(from, toHtml, options) {
     assignOptions(options)
-    
+
     let toEl = createElement(toHtml)
 
     // If there is no x-data on the element we're morphing,
     // let's seed it with the outer Alpine scope on the page.
     if (window.Alpine && ! from._x_dataStack) {
         toEl._x_dataStack = window.Alpine.closestDataStack(from)
-        
+
         toEl._x_dataStack && window.Alpine.clone(from, toEl)
     }
-    
+
     await breakpoint()
 
     patch(from, toEl)
@@ -57,7 +57,7 @@ function assignOptions(options = {}) {
     adding = options.adding || noop
     added = options.added || noop
     key = options.key || defaultGetKey
-    lookahead = options.lookahead || true 
+    lookahead = options.lookahead || false
     debug = options.debug || false
 }
 
@@ -71,12 +71,12 @@ async function patch(from, to) {
     // don't see a way to enable it currently:
     //
     // if (from.isEqualNode(to)) return
-   
+
     if (differentElementNamesTypesOrKeys(from, to)) {
         let result = patchElement(from, to)
-        
+
         await breakpoint('Swap elements')
-       
+
         return result
     }
 
@@ -89,7 +89,7 @@ async function patch(from, to) {
     if (textOrComment(to)) {
         await patchNodeValue(from, to)
         updated(from, to)
-        
+
         return
     }
 
@@ -152,7 +152,7 @@ async function patchAttributes(from, to) {
 
         if (! to.hasAttribute(name)) {
             from.removeAttribute(name)
-           
+
             await breakpoint('Remove attribute')
         }
     }
@@ -190,7 +190,7 @@ async function patchChildren(from, to) {
             if (toKey && domKeyHoldovers[toKey]) {
                 let holdover = domKeyHoldovers[toKey]
 
-                dom.append(from, holdover)
+                dom(from).append(holdover)
                 currentFrom = holdover
 
                 await breakpoint('Add element (from key)')
@@ -208,12 +208,20 @@ async function patchChildren(from, to) {
         if (lookahead) {
             let nextToElementSibling = dom(currentTo).next()
 
-            if (nextToElementSibling && currentFrom.isEqualNode(nextToElementSibling)) {
-                currentFrom = addNodeBefore(currentTo, currentFrom)
+            let found = false
 
-                domKey = getKey(currentFrom)
-                
-                await breakpoint('Move element (lookahead)')
+            while (!found && nextToElementSibling) {
+                if (currentFrom.isEqualNode(nextToElementSibling)) {
+                    found = true
+
+                    currentFrom = addNodeBefore(currentTo, currentFrom)
+
+                    domKey = getKey(currentFrom)
+
+                    await breakpoint('Move element (lookahead)')
+                }
+
+                nextToElementSibling = dom(nextToElementSibling).next()
             }
         }
 
@@ -222,8 +230,8 @@ async function patchChildren(from, to) {
                 domKeyHoldovers[domKey] = currentFrom
                 currentFrom = addNodeBefore(currentTo, currentFrom)
                 domKeyHoldovers[domKey].remove()
-                currentFrom = dom(currentFrom).nodes.next()
-                currentTo = dom(currentTo).nodes.next()
+                currentFrom = dom(currentFrom).nodes().next()
+                currentTo = dom(currentTo).nodes().next()
 
                 await breakpoint('No "to" key')
 
@@ -233,7 +241,7 @@ async function patchChildren(from, to) {
             if (toKey && ! domKey) {
                 if (domKeyDomNodeMap[toKey]) {
                     currentFrom = dom(currentFrom).replace(domKeyDomNodeMap[toKey])
-                    
+
                     await breakpoint('No "from" key')
                 }
             }
@@ -244,7 +252,7 @@ async function patchChildren(from, to) {
 
                 if (domKeyNode) {
                     currentFrom = dom(currentFrom).replace(domKeyNode)
-                    
+
                     await breakpoint('Move "from" key')
                 } else {
                     domKeyHoldovers[domKey] = currentFrom
@@ -252,9 +260,9 @@ async function patchChildren(from, to) {
                     domKeyHoldovers[domKey].remove()
                     currentFrom = dom(currentFrom).next()
                     currentTo = dom(currentTo).next()
-                   
+
                     await breakpoint('I dont even know what this does')
-                    
+
                     continue
                 }
             }
@@ -263,8 +271,8 @@ async function patchChildren(from, to) {
         // Patch elements
         await patch(currentFrom, currentTo)
 
-        currentTo = currentTo && dom(currentTo).next()
-        currentFrom = currentFrom && dom(currentFrom).next()
+        currentTo = currentTo && dom(currentTo).nodes().next()
+        currentFrom = currentFrom && dom(currentFrom).nodes().next()
     }
 
     // Cleanup extra froms
@@ -367,7 +375,7 @@ class DomManager {
         this.traversals = {
             'first': 'firstChild',
             'next': 'nextSibling',
-            'parent': 'parentNode', 
+            'parent': 'parentNode',
         }; return this
     }
 
@@ -386,7 +394,7 @@ class DomManager {
     replace(replacement) {
         this.el[this.traversals['parent']].replaceChild(replacement, this.el); return replacement
     }
-    
+
     append(appendee) {
         this.el.appendChild(appendee); return appendee
     }

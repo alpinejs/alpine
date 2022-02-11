@@ -3,7 +3,7 @@ order: 1
 title: data()
 ---
 
-# `Alpine.data`
+# Alpine.data
 
 `Alpine.data(...)` provides a way to re-use `x-data` contexts within your application.
 

@@ -33,6 +33,17 @@ test('style attribute object binding using kebab-case syntax',
     }
 )
 
+test('style attribute object binding with CSS variable',
+    html`
+        <div x-data x-bind:style="{ '--MyCSS-Variable': 0.25 }">
+            <span style="opacity: var(--MyCSS-Variable);">I should be hardly visible</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('div').should(haveAttribute('style', '--MyCSS-Variable:0.25;'))
+    }
+)
+
 test('style attribute object bindings are merged with existing styles',
     html`
         <div x-data>

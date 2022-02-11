@@ -78,16 +78,18 @@ For example, in the following snippet, `shown` will remain `false` until the ele
 <a name="x-intersect-enter"></a>
 ### x-intersect:enter
 
-You can opt to only trigger x-intersect when the element ENTERS the viewport by adding the `:enter` suffix to `x-intersect` like so:
+The `:enter` suffix is an alias of `x-intersect`, and works the same way:
 
 ```alpine
 <div x-intersect:enter="shown = true">...</div>
 ```
 
+You may choose to use this for clarity when also using the `:leave` suffix.
+
 <a name="x-intersect-leave"></a>
 ### x-intersect:leave
 
-Similarly, you can add `:leave` to only trigger x-intersect when the element LEAVES the viewport:
+Appending `:leave` runs your expression when the element leaves the viewport:
 
 ```alpine
 <div x-intersect:leave="shown = true">...</div>

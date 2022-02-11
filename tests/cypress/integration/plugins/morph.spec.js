@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../../utils'
+import { haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
 
 test('can morph components and preserve Alpine state',
     [html`
@@ -131,5 +131,127 @@ test('can morph teleports',
 
         get('h1').should(haveText('2'))
         get('h2').should(haveText('there'))
+    },
+)
+
+test('can morph',
+    [html`
+        <ul>
+            <li>foo<input></li>
+        </ul>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <ul>
+                <li>bar<input></li>
+                <li>foo<input></li>
+            </ul>
+        `
+
+        get('input').type('foo')
+
+        get('ul').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('li').should(haveLength(2))
+        get('li:nth-of-type(1)').should(haveText('bar'))
+        get('li:nth-of-type(2)').should(haveText('foo'))
+        get('li:nth-of-type(1) input').should(haveValue('foo'))
+        get('li:nth-of-type(2) input').should(haveValue(''))
+    },
+)
+
+test('can morph using lookahead',
+    [html`
+        <ul>
+            <li>foo<input></li>
+        </ul>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <ul>
+                <li>bar<input></li>
+                <li>baz<input></li>
+                <li>foo<input></li>
+            </ul>
+        `
+
+        get('input').type('foo')
+
+        get('ul').then(([el]) => window.Alpine.morph(el, toHtml, {lookahead: true}))
+
+        get('li').should(haveLength(3))
+        get('li:nth-of-type(1)').should(haveText('bar'))
+        get('li:nth-of-type(2)').should(haveText('baz'))
+        get('li:nth-of-type(3)').should(haveText('foo'))
+        get('li:nth-of-type(1) input').should(haveValue(''))
+        get('li:nth-of-type(2) input').should(haveValue(''))
+        get('li:nth-of-type(3) input').should(haveValue('foo'))
+    },
+)
+
+test('can morph using keys',
+    [html`
+        <ul>
+            <li key="1">foo<input></li>
+        </ul>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <ul>
+                <li key="2">bar<input></li>
+                <li key="3">baz<input></li>
+                <li key="1">foo<input></li>
+            </ul>
+        `
+
+        get('input').type('foo')
+
+        get('ul').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('li').should(haveLength(3))
+        get('li:nth-of-type(1)').should(haveText('bar'))
+        get('li:nth-of-type(2)').should(haveText('baz'))
+        get('li:nth-of-type(3)').should(haveText('foo'))
+        get('li:nth-of-type(1) input').should(haveValue(''))
+        get('li:nth-of-type(2) input').should(haveValue(''))
+        get('li:nth-of-type(3) input').should(haveValue('foo'))
+    },
+)
+
+test('can morph using a custom key function',
+    [html`
+        <ul>
+            <li data-key="1">foo<input></li>
+        </ul>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <ul>
+                <li data-key="2">bar<input></li>
+                <li data-key="3">baz<input></li>
+                <li data-key="1">foo<input></li>
+            </ul>
+        `
+
+        get('input').type('foo')
+
+        get('ul').then(([el]) => window.Alpine.morph(el, toHtml, {key(el) {return el.dataset.key}}))
+
+        get('li').should(haveLength(3))
+        get('li:nth-of-type(1)').should(haveText('bar'))
+        get('li:nth-of-type(2)').should(haveText('baz'))
+        get('li:nth-of-type(3)').should(haveText('foo'))
+        get('li:nth-of-type(1) input').should(haveValue(''))
+        get('li:nth-of-type(2) input').should(haveValue(''))
+        get('li:nth-of-type(3) input').should(haveValue('foo'))
+    },
+)
+
+test('can morph text nodes',
+    [html`<h2>Foo <br> Bar</h2>`],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`<h2>Foo <br> Baz</h2>`
+        get('h2').then(([el]) => window.Alpine.morph(el, toHtml))
+        get('h2').should(haveHtml('Foo <br> Baz'))
     },
 )

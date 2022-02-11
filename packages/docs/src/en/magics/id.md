@@ -6,7 +6,7 @@ title: id
 
 # $id
 
-`$id` is a magic property that can be used to generate an element's ID and ensure that it is within on the page and won't conflict with other IDs of the same name.
+`$id` is a magic property that can be used to generate an element's ID and ensure that it won't conflict with other IDs of the same name on the same page.
 
 This utility is extremely helpful when building re-usable components (presumably in a back-end template) that might occur multiple times on a page, and make use of ID attributes.
 

@@ -9,11 +9,8 @@ export default function (Alpine) {
 
         let observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
-                if (
-                    ! entry.isIntersecting && value === 'enter'
-                    || entry.isIntersecting && value === 'leave'
-                    || entry.intersectionRatio === 0 && ! value
-                ) return
+                // Ignore entry if intersecting in leave mode, or not intersecting in enter mode
+                if (entry.isIntersecting === (value === 'leave')) return
 
                 evaluate()
 

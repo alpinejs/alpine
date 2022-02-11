@@ -254,6 +254,53 @@ For example:
 </div>
 <!-- END_VERBATIM -->
 
+<a name="noreturn"></a>
+#### .noreturn
+
+Sometimes you may not want focus to be returned to where it was previously. Consider a dropdown that's triggered upon focusing an input, returning focus to the input on close will just trigger the dropdown to open again.
+
+`x-trap` allows you to disable this behavior with the `.noreturn` modifier.
+
+By adding `.noreturn`, Alpine will not return focus upon x-trap evaluating to false.
+
+For example:
+
+```alpine
+<div x-data="{ open: false }" x-trap.noreturn="open">
+    <input type="search" placeholder="search for something" />
+
+    <div x-show="open">
+        Search results
+
+        <button @click="open = false">Close</button>
+    </div>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <div
+        x-data="{ open: false }" 
+        x-trap.noreturn="open"
+        @click.outside="open = false"
+        @keyup.escape.prevent.stop="open = false"
+    >
+        <input type="search" placeholder="search for something"
+            @focus="open = true"
+            @keyup.escape.prevent="$el.blur()"
+        />
+
+        <div x-show="open">
+            <div class="mb-4 text-bold">Search results</div>
+
+            <p class="mb-4 text-gray-600 text-sm">Notice when closing this dropdown, focus is not returned to the input.</p>
+
+            <button class="mt-4" @click="open = false">Close Dialog</button>
+        </div>
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
 <a name="focus-magic"></a>
 ## $focus
 

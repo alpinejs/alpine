@@ -102,7 +102,7 @@ export default function (Alpine) {
 
             let oldValue = false
 
-            let trap = createFocusTrap(el, { 
+            let trap = createFocusTrap(el, {
                 escapeDeactivates: false,
                 allowOutsideClick: true,
                 fallbackFocus: () => el,
@@ -132,7 +132,9 @@ export default function (Alpine) {
                     undoDisableScrolling()
                     undoDisableScrolling = () => {}
 
-                    trap.deactivate()
+                    trap.deactivate({
+                        returnFocus: !modifiers.includes('noreturn')
+                    })
                 }
 
                 oldValue = !! value

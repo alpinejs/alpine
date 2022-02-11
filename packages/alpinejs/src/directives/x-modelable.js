@@ -17,8 +17,6 @@ directive('modelable', (el, { expression }, { effect, evaluate, evaluateLater })
     queueMicrotask(() => {
         if (! el._x_model) return
     
-        // let outerGetter = el._x_model.get
-        // let outerSetter = el._x_model.set
         let outerGet = el._x_model.get
         let outerSet = el._x_model.set
     

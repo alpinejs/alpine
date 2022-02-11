@@ -110,13 +110,13 @@ Occasionally, you want to create an Alpine component, but you don't need any dat
 In these cases, you can always pass in an empty object.
 
 ```alpine
-<div x-data="{}"...
+<div x-data="{}">
 ```
 
 However, if you wish, you can also eliminate the attribute value entirely if it looks better to you.
 
 ```alpine
-<div x-data...
+<div x-data>
 ```
 
 <a name="single-element-components"></a>

@@ -158,7 +158,7 @@ Here are the available lifecycle hooks (passed in as the third parameter to `Alp
 | `updated(el, toEl)` | Called after Morph has patched `el`. |
 | `removing(el, skip)` | Called before Morph removes an element from the live DOM. |
 | `removed(el)` | Called after Morph has removed an element from the live DOM. |
-| `adding(el, sip)` | Called before adding a new element. |
+| `adding(el, skip)` | Called before adding a new element. |
 | `added(el)` | Called after adding a new element to the live DOM tree. |
 | `key(el)` | A re-usable function to determine how Morph "keys" elements in the tree before comparing/patching. [More on that here](#keys) |
 | `lookahead` | A boolean value telling Morph to enable an extra feature in its algorithm that "looks ahead" to make sure a DOM element that's about to be removed should instead just be "moved" to a later sibling. |

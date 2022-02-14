@@ -57,7 +57,7 @@ function assignOptions(options = {}) {
     adding = options.adding || noop
     added = options.added || noop
     key = options.key || defaultGetKey
-    lookahead = options.lookahead || true 
+    lookahead = options.lookahead || false
     debug = options.debug || false
 }
 
@@ -190,12 +190,12 @@ async function patchChildren(from, to) {
             if (toKey && domKeyHoldovers[toKey]) {
                 let holdover = domKeyHoldovers[toKey]
 
-                dom.append(from, holdover)
+                dom(from).append(holdover)
                 currentFrom = holdover
 
                 await breakpoint('Add element (from key)')
             } else {
-                let added = addNodeTo(currentTo, from)
+                let added = addNodeTo(currentTo, from) || {}
 
                 await breakpoint('Add element: ' + added.outerHTML || added.nodeValue)
 
@@ -320,7 +320,7 @@ function addNodeTo(node, parent) {
         return clone
     }
 
-    return parent;
+    return null;
 }
 
 function addNodeBefore(node, beforeMe) {

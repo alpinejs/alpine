@@ -57,6 +57,25 @@ test('works with clone',
     }
 )
 
+test('releases focus when x-if is destroyed',
+    [html`
+        <div x-data="{ open: false }">
+            <button id="1" @click="open = true">open</button>
+            <template x-if="open">
+                <div x-trap="open">
+                    <button @click="open = false" id="2">close</button>
+                </div>
+            </template>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('#1').click()
+        get('#2').should(haveFocus())
+        get('#2').click()
+        get('#1').should(haveFocus())
+    },
+)
+
 test('can trap focus with inert',
     [html`
         <div x-data="{ open: false }">
@@ -104,8 +123,7 @@ test('can trap focus with noscroll',
 test('can trap focus with noreturn',
     [html`
         <div x-data="{ open: false }" x-trap.noreturn="open">
-            <input id="input" @focus="open = true" />
-
+            <input id="input" @focus="open = true">
             <div x-show="open">
                 <button @click="open = false" id="close">close</button>
             </div>

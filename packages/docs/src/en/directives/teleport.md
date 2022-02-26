@@ -56,7 +56,7 @@ Here's a contrived modal example:
 
     </div>
 
-    <div class="py-4">Some other content...</div>
+    <div class="py-4">Some other content placed AFTER the modal markup.</div>
 </div>
 <!-- END_VERBATIM -->
 

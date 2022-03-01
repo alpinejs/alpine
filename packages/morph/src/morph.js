@@ -25,7 +25,7 @@ export async function morph(from, toHtml, options) {
 
     await breakpoint()
 
-    patch(from, toEl)
+    await patch(from, toEl)
 
     return from
 }
@@ -195,7 +195,7 @@ async function patchChildren(from, to) {
 
                 await breakpoint('Add element (from key)')
             } else {
-                let added = addNodeTo(currentTo, from)
+                let added = addNodeTo(currentTo, from) || {}
 
                 await breakpoint('Add element: ' + added.outerHTML || added.nodeValue)
 
@@ -327,6 +327,8 @@ function addNodeTo(node, parent) {
 
         return clone
     }
+
+    return null;
 }
 
 function addNodeBefore(node, beforeMe) {

@@ -36,6 +36,6 @@ test('change attribute', () => assertPatch(
     `<div foo="baz">foo</div>`
 ))
 
-function assertPatch(before, after) {
-    expect(morph(createElement(before), after).outerHTML).toEqual(after)
+async function assertPatch(before, after) {
+    expect((await morph(createElement(before), after)).outerHTML).toEqual(after)
 }

@@ -65,11 +65,7 @@ export function deferHandlingDirectives(callback) {
     stopDeferring()
 }
 
-export function getDirectiveHandler(el, directive) {
-    let noop = () => {}
-
-    let handler = directiveHandlers[directive.type] || noop
-
+export function getElementBoundUtilities(el) {
     let cleanups = []
 
     let cleanup = callback => cleanups.push(callback)
@@ -88,7 +84,17 @@ export function getDirectiveHandler(el, directive) {
 
     let doCleanup = () => cleanups.forEach(i => i())
 
-    onAttributeRemoved(el, directive.original, doCleanup)
+    return [utilities, doCleanup]
+}
+
+export function getDirectiveHandler(el, directive) {
+    let noop = () => {}
+
+    let handler = directiveHandlers[directive.type] || noop
+
+    let [utilities, cleanup] = getElementBoundUtilities(el)
+
+    onAttributeRemoved(el, directive.original, cleanup)
 
     let fullHandler = () => {
         if (el._x_ignore || el._x_ignoreSelf) return
@@ -100,7 +106,7 @@ export function getDirectiveHandler(el, directive) {
         isDeferringHandlers ? directiveHandlerStacks.get(currentHandlerStackKey).push(handler) : handler()
     }
 
-    fullHandler.runCleanups = doCleanup
+    fullHandler.runCleanups = cleanup
 
     return fullHandler
 }

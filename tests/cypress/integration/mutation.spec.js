@@ -52,6 +52,31 @@ test('nested element side effects are cleaned up after the parent is removed',
     }
 )
 
+test('element magic-based side effects are cleaned up after the element is removed',
+    html`
+        <div x-data="{ foo: 1, bar: 1 }">
+            <button @click="foo++">foo</button>
+            <a href="#" @click.prevent="$refs.span.remove()">remove</a>
+
+            <span x-init="$watch('foo', () => bar++)" x-ref="span"></span>
+
+            <h1 x-text="foo"></h1>
+            <h2 x-text="bar"></h2>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('1'))
+        get('h2').should(haveText('1'))
+        get('button').click()
+        get('h1').should(haveText('2'))
+        get('h2').should(haveText('2'))
+        get('a').click()
+        get('button').click()
+        get('h1').should(haveText('3'))
+        get('h2').should(haveText('2'))
+    }
+)
+
 test('can mutate directive value',
     html`
         <div x-data="{ foo: 'bar', bar: 'baz' }">

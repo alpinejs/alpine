@@ -1,9 +1,7 @@
-import { evaluateLater } from '../evaluator'
-import { effect } from '../reactivity'
 import { magic } from '../magics'
 
-magic('watch', el => (key, callback) => {
-    let evaluate = evaluateLater(el, key)
+magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
+    let evaluate = evaluateLater(key)
 
     let firstTime = true
 

@@ -6,8 +6,14 @@ export function onElAdded(callback) {
     onElAddeds.push(callback)
 }
 
-export function onElRemoved(callback) {
-    onElRemoveds.push(callback)
+export function onElRemoved(el, callback) {
+    if (typeof callback === 'function') {
+        if (! el._x_cleanups) el._x_cleanups = []
+        el._x_cleanups.push(callback)
+    } else {
+        callback = el
+        onElRemoveds.push(callback)
+    }
 }
 
 export function onAttributesAdded(callback) {
@@ -166,6 +172,10 @@ function onMutate(mutations) {
         if (addedNodes.includes(node)) continue
 
         onElRemoveds.forEach(i => i(node))
+        
+        if (node._x_cleanups) {
+            while (node._x_cleanups.length) node._x_cleanups.pop()()
+        }
     }
 
     // Mutations are bundled together by the browser but sometimes

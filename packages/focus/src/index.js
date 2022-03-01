@@ -3,7 +3,7 @@ import { focusable, tabbable, isFocusable } from 'tabbable'
 
 export default function (Alpine) {
     let lastFocused
-    let currentFocused 
+    let currentFocused
 
     window.addEventListener('focusin', () => {
         lastFocused = currentFocused
@@ -12,10 +12,10 @@ export default function (Alpine) {
 
     Alpine.magic('focus', el => {
         let within = el
-       
+
         return {
-            __noscroll: false, 
-            __wrapAround: false, 
+            __noscroll: false,
+            __wrapAround: false,
             within(el) { within = el; return this },
             withoutScrolling() { this.__noscroll = true; return this },
             noscroll() { this.__noscroll = true; return this },
@@ -34,19 +34,19 @@ export default function (Alpine) {
                 return currentFocused
             },
             focusables() {
-                if (Array.isArray(within)) return within 
+                if (Array.isArray(within)) return within
 
                 return focusable(within, { displayCheck: 'none' })
             },
             all() { return this.focusables() },
             isFirst(el) {
-                let els = this.all() 
-                
+                let els = this.all()
+
                 return els[0] && els[0].isSameNode(el)
             },
             isLast(el) {
-                let els = this.all() 
-                
+                let els = this.all()
+
                 return els.length && els.slice(-1)[0].isSameNode(el)
             },
             getFirst() { return this.all()[0] },
@@ -85,7 +85,7 @@ export default function (Alpine) {
             previous() { this.focus(this.getPrevious()) },
             prev() { return this.previous() },
             focus(el) {
-                if (! el) return 
+                if (! el) return
 
                 setTimeout(() => {
                     if (! el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0')
@@ -97,7 +97,7 @@ export default function (Alpine) {
     })
 
     Alpine.directive('trap', Alpine.skipDuringClone(
-        (el, { expression, modifiers }, { effect, evaluateLater }) => {
+        (el, { expression, modifiers }, { effect, evaluateLater, cleanup }) => {
             let evaluator = evaluateLater(expression)
 
             let oldValue = false
@@ -110,6 +110,18 @@ export default function (Alpine) {
 
             let undoInert = () => {}
             let undoDisableScrolling = () => {}
+
+            const releaseFocus = () => {
+                undoInert()
+                undoInert = () => {}
+
+                undoDisableScrolling()
+                undoDisableScrolling = () => {}
+
+                trap.deactivate({
+                    returnFocus: !modifiers.includes('noreturn')
+                })
+            }
 
             effect(() => evaluator(value => {
                 if (oldValue === value) return
@@ -126,19 +138,13 @@ export default function (Alpine) {
 
                 // Stop trapping.
                 if (! value && oldValue) {
-                    undoInert()
-                    undoInert = () => {}
-
-                    undoDisableScrolling()
-                    undoDisableScrolling = () => {}
-
-                    trap.deactivate({
-                        returnFocus: !modifiers.includes('noreturn')
-                    })
+                    releaseFocus()
                 }
 
                 oldValue = !! value
             }))
+
+            cleanup(releaseFocus)
         },
         // When cloning, we only want to add aria-hidden attributes to the
         // DOM and not try to actually trap, as trapping can mess with the

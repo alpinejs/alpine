@@ -255,3 +255,34 @@ test('can morph text nodes',
         get('h2').should(haveHtml('Foo <br> Baz'))
     },
 )
+
+test.only('can morph with added element before and siblings are different',
+    [html`
+        <button>
+            <div>
+                <div>second</div>
+                <div data="false">third</div>
+            </div>
+        </button>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <button>
+            <div>first</div>
+            <div>
+                <div>second</div>
+                <div data="true">third</div>
+            </div>
+        </button>
+        `
+
+        get('button').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('button > div').should(haveLength(2))
+        get('button > div:nth-of-type(1)').should(haveText('first'))
+        get('button > div:nth-of-type(2)').should(haveHtml(`
+                <div>second</div>
+                <div data="true">third</div>
+            `))
+    },
+)

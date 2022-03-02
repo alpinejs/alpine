@@ -2,18 +2,24 @@ let resolveStep = () => {}
 
 let logger = () => {}
 
+// Keep these global so that we can access them
+// from hooks while debugging.
+let fromEl 
+let toEl
+
 function breakpoint(message) {
     if (! debug) return
 
-    message && logger(message.replace('\n', '\\n'))
+    logger((message || '').replace('\n', '\\n'), fromEl, toEl)
 
     return new Promise(resolve => resolveStep = () => resolve())
 }
 
 export async function morph(from, toHtml, options) {
     assignOptions(options)
-
-    let toEl = createElement(toHtml)
+    
+    fromEl = from
+    toEl = createElement(toHtml)
 
     // If there is no x-data on the element we're morphing,
     // let's seed it with the outer Alpine scope on the page.
@@ -26,6 +32,10 @@ export async function morph(from, toHtml, options) {
     await breakpoint()
 
     await patch(from, toEl)
+
+    // Release these for the garbage collector.
+    fromEl = undefined
+    toEl = undefined
 
     return from
 }
@@ -275,19 +285,26 @@ async function patchChildren(from, to) {
         currentFrom = currentFrom && dom(currentFrom).nodes().next()
     }
 
-    // Cleanup extra froms
+    // Cleanup extra froms.
+    let removals = []
+    
+    // We need to collect the "removals" first before actually
+    // removing them so we don't mess with the order of things.
     while (currentFrom) {
-        if(! shouldSkip(removing, currentFrom)) {
-            let domForRemoval = currentFrom
-
-            domForRemoval.remove()
-
-            await breakpoint('remove el')
-
-            removed(domForRemoval)
-        }
+        if(! shouldSkip(removing, currentFrom)) removals.push(currentFrom)
 
         currentFrom = dom(currentFrom).nodes().next()
+    }
+
+    // Now we can do the actual removals.
+    while (removals.length) {
+        let domForRemoval = removals.pop()
+
+        domForRemoval.remove()
+
+        await breakpoint('remove el')
+
+        removed(domForRemoval)
     }
 }
 

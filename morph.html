@@ -1,0 +1,70 @@
+<html>
+    <script src="./packages/morph/dist/cdn.js" defer></script>
+    <script src="./packages/alpinejs/dist/cdn.js" defer></script>
+    <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
+
+<div id="before">
+<!-- Before markup goes here: -->
+<button>
+    <div>
+        <div>second</div>
+        <div>third</div>
+    </div>
+</button>
+</div>
+
+<div id="after" style="display: none;">
+<!-- After markup goes here: -->
+<button>
+    <div>first</div>
+    <div>
+        <div>second</div>
+        <div>third</div>
+    </div>
+</button>
+</div>
+
+    <div style="display: flex;">
+        <pre id="log-from"></pre>
+        <pre id="log-to"></pre>
+        <ul id="log-message"></ul>
+    </div>
+
+    <div style="position: absolute; bottom: 0; left: 0; padding: 1rem; width: 100vw; background: gray; box-sizing: border-box;">
+        <button onclick="start()">Start</button>
+        <button onclick="next()">Next Step</button>
+    </div>
+
+    <script>
+        function start() {
+            Alpine.morph.log((message, from, to) => {
+                document.querySelector('#log-from').innerHTML = escape(from.outerHTML)
+                document.querySelector('#log-to').innerHTML = escape(to.outerHTML)
+                let li = document.createElement('li')
+                li.textContent = message
+                message && document.querySelector('#log-message').appendChild(li)
+            })
+
+            Alpine.morph(
+                document.querySelector('#before').firstElementChild,
+                document.querySelector('#after').firstElementChild.outerHTML,
+                { debug: true }
+            )
+        }
+
+        function next() {
+            Alpine.morph.step()
+            setTimeout(() => window.dispatchEvent(new CustomEvent('refresh', { bubbles: true })))
+        }
+
+        function escape(unsafe) {
+            return unsafe
+                .replace(/\n/g, "⬎\n")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</html>

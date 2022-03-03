@@ -87,6 +87,44 @@ Alpine.data('dropdown', () => ({
 }))
 ```
 
+<a name="destroy-functions"></a>
+## Destroy functions
+
+Like `init()`, Alpine will automatically discover and execute your component's `destroy()` method after cleaning up other reactive properties. This is useful for unbinding anything registered against the global scope, or outside Alpine's own reactivity engine.
+
+```js
+Alpine.data('dropdown', () => ({
+    destroy() {
+        // This code will be executed once Alpine
+        // has finished cleaning up the component.
+        // As a result, reactive data will no
+        // longer be available!
+    }
+}))
+```
+
+If you need to maintain a reference to something throughout the entire life of your component, you can declare a variable within the factory function's scope:
+
+```js
+Alpine.data('blinker', () => {
+    let tick
+
+    return {
+        open: false,
+        init () {
+            tick = window.setInterval(() => {
+                this.open = !this.open
+            }, 1000)
+        },
+        destroy() {
+            window.clearInterval(tick)
+        }
+    }
+})
+```
+
+> Note the difference in the first line of this component definition—we're opening a function body, rather than the arrow function’s [implicit return](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions#function_body) feature, as in previous examples. Your component's final definition still takes the same shape, but must be explicitly returned by the factory function.
+
 <a name="using-magic-properties"></a>
 ## Using magic properties
 

@@ -123,7 +123,7 @@ Alpine.data('blinker', () => {
 })
 ```
 
-> Note the difference in the first line of this component definition—we're opening a function body, rather than the arrow function’s [implicit return](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions#function_body) feature, as in previous examples. Your component's final definition still takes the same shape, but must be explicitly returned by the factory function.
+> Note the difference in the first line of this component definition—we're opening a function body, rather than using the arrow function’s [implicit return](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions#function_body) feature, as in previous examples. Your component's final definition still takes the same shape, but must be explicitly returned by the factory function.
 
 <a name="using-magic-properties"></a>
 ## Using magic properties

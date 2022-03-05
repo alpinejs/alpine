@@ -38,6 +38,14 @@ export default function on (el, event, modifiers, callback) {
         })
     }
 
+    if (modifiers.includes('once')) {
+        handler = wrapHandler(handler, (next, e) => {
+            next(e)
+
+            listenerTarget.removeEventListener(event, handler, options)
+        })
+    }
+
     // Handle :keydown and :keyup listeners.
     handler = wrapHandler(handler, (next, e) => {
         if (isKeyEvent(event)) {
@@ -61,14 +69,6 @@ export default function on (el, event, modifiers, callback) {
         let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
 
         handler = throttle(handler, wait)
-    }
-
-    if (modifiers.includes('once')) {
-        handler = wrapHandler(handler, (next, e) => {
-            next(e)
-
-            listenerTarget.removeEventListener(event, handler, options)
-        })
     }
 
     listenerTarget.addEventListener(event, handler, options)

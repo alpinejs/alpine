@@ -298,7 +298,7 @@ async function patchChildren(from, to) {
 
     // Now we can do the actual removals.
     while (removals.length) {
-        let domForRemoval = removals.pop()
+        let domForRemoval = removals.shift()
 
         domForRemoval.remove()
 

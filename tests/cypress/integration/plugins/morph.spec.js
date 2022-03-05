@@ -256,7 +256,7 @@ test('can morph text nodes',
     },
 )
 
-test.only('can morph with added element before and siblings are different',
+test('can morph with added element before and siblings are different',
     [html`
         <button>
             <div>

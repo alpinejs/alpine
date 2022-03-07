@@ -23,7 +23,7 @@ export async function morph(from, toHtml, options) {
 
     // If there is no x-data on the element we're morphing,
     // let's seed it with the outer Alpine scope on the page.
-    if (window.Alpine && ! from._x_dataStack) {
+    if (window.Alpine && window.Alpine.closestDataStack && ! from._x_dataStack) {
         toEl._x_dataStack = window.Alpine.closestDataStack(from)
 
         toEl._x_dataStack && window.Alpine.clone(from, toEl)

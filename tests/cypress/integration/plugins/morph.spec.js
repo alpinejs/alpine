@@ -256,7 +256,7 @@ test('can morph text nodes',
     },
 )
 
-test.only('can morph with added element before and siblings are different',
+test('can morph with added element before and siblings are different',
     [html`
         <button>
             <div>
@@ -305,5 +305,24 @@ test('can morph using different keys',
         get('li').should(haveLength(1))
         get('li:nth-of-type(1)').should(haveText('bar'))
         get('li:nth-of-type(1)').should(haveAttribute('key', '2'))
+    },
+)
+
+test('can morph different inline nodes',
+    [html`
+    <div id="from">
+        Hello <span>World</span>
+    </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <div id="to">
+            Welcome <b>Person</b>!
+        </div>
+        `
+
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('div').should(haveHtml('\n            Welcome <b>Person</b>!\n        '))
     },
 )

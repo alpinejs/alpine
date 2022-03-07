@@ -278,11 +278,14 @@ async function patchChildren(from, to) {
             }
         }
 
+        // Get next from sibling before patching in case the node is replaced
+        let currentFromNext = currentFrom && dom(currentFrom).nodes().next()
+
         // Patch elements
         await patch(currentFrom, currentTo)
 
         currentTo = currentTo && dom(currentTo).nodes().next()
-        currentFrom = currentFrom && dom(currentFrom).nodes().next()
+        currentFrom = currentFromNext
     }
 
     // Cleanup extra froms.

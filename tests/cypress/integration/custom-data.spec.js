@@ -159,10 +159,38 @@ test('destroy functions inside custom datas are called automatically',
         <div x-data="test">
             <button x-on:click="test()"></button>
         </div>
-        <span><span>
+        <span></span>
     `,
     ({ get }) => {
         get('button').click()
         get('span').should(haveText('foo'))
+    }
+)
+
+test('destroy have access to the current scope',
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('test', () => ({
+                    destroy() {
+                        document.querySelector('span').textContent = this.foo
+                    },
+                    test() {
+                        Alpine.closestRoot(this.$el).remove()
+                    },
+                    foo: 'bar'
+                }))
+            })
+        </script>
+
+        <div x-data="test">
+            <button x-on:click="test()"></button>
+        </div>
+        <span>baz</span>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('baz'))
+        get('button').click()
+        get('span').should(haveText('bar'))
     }
 )

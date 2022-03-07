@@ -207,7 +207,7 @@ async function patchChildren(from, to) {
             } else {
                 let added = addNodeTo(currentTo, from) || {}
 
-                await breakpoint('Add element: ' + added.outerHTML || added.nodeValue)
+                await breakpoint('Add element: ' + (added.outerHTML || added.nodeValue))
 
                 currentTo = dom(currentTo).nodes().next()
 

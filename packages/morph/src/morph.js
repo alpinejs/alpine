@@ -271,7 +271,7 @@ async function patchChildren(from, to) {
                     currentFrom = dom(currentFrom).next()
                     currentTo = dom(currentTo).next()
 
-                    await breakpoint('I dont even know what this does')
+                    await breakpoint('Swap elements with keys')
 
                     continue
                 }

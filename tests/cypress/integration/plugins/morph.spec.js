@@ -1,4 +1,4 @@
-import { haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
+import { haveAttribute, haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
 
 test('can morph components and preserve Alpine state',
     [html`
@@ -284,6 +284,27 @@ test('can morph with added element before and siblings are different',
                 <div>second</div>
                 <div data="true">third</div>
             `))
+    },
+)
+
+test('can morph using different keys',
+    [html`
+        <ul>
+            <li key="1">foo</li>
+        </ul>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <ul>
+                <li key="2">bar</li>
+            </ul>
+        `
+
+        get('ul').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('li').should(haveLength(1))
+        get('li:nth-of-type(1)').should(haveText('bar'))
+        get('li:nth-of-type(1)').should(haveAttribute('key', '2'))
     },
 )
 

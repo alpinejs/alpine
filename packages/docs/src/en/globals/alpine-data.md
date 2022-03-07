@@ -90,34 +90,39 @@ Alpine.data('dropdown', () => ({
 <a name="destroy-functions"></a>
 ## Destroy functions
 
-Like `init()`, Alpine will automatically discover and execute your component's `destroy()` method after cleaning up other reactive properties. This is useful for unbinding anything registered against the global scope, or outside Alpine's own reactivity engine.
+Like `init()`, Alpine will automatically discover and execute your component's `destroy()` method just prior to cleaning up other reactive properties.
 
 ```js
-Alpine.data('dropdown', () => ({
+Alpine.data('timer', (delay = 5000) => ({
+    countdown: null,
+    init () {
+        this.countdown = window.setTimeout(() => {
+            console.log('Time’s up!')
+        }, delay)
+    },
     destroy() {
-        // This code will be executed once Alpine
-        // has finished cleaning up the component.
-        // As a result, reactive data will no
-        // longer be available!
-    }
+        window.clearTimeout(this.countdown)
+    },
 }))
 ```
 
-If you need to maintain a reference to something throughout the entire life of your component, you can declare a variable within the factory function's scope:
+<a name="non-reactive-data">
+## Non-reactive Data
+
+If you need to maintain a reference to something that is a dependency of your component (but not necessarily tracked by or compatible with Alpine’s reactivity engine), you can declare a variable within the factory function’s scope:
 
 ```js
-Alpine.data('blinker', () => {
-    let tick
+Alpine.data('super-dropdown', () => {
+    let superSelectInstance
 
     return {
-        open: false,
         init () {
-            tick = window.setInterval(() => {
-                this.open = !this.open
-            }, 1000)
+            superSelectInstance = new SuperSelect(this.$el)
         },
         destroy() {
-            window.clearInterval(tick)
+            // Supposing the library has its own global
+            // event listeners that need cleanup:
+            superSelectInstance.teardown()
         }
     }
 })

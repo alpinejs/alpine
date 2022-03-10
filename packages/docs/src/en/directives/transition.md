@@ -52,9 +52,9 @@ You can configure the duration you want for a transition with the `.duration` mo
 <div ... x-transition.duration.500ms>
 ```
 
-The above `<div>` will transition for 500 milliseconds when entering, and 250 milliseconds when leaving.
+The above `<div>` will transition for 500 milliseconds when entering, and 500 milliseconds when leaving.
 
-This difference in duration generally desirable default. If you wish to customize the durations specifically for entering and leaving, you can do that like so:
+If you wish to customize the durations specifically for entering and leaving, you can do that like so:
 
 ```alpine
 <div ...

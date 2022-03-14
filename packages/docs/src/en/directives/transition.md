@@ -46,6 +46,8 @@ You can override these defaults with modifiers attached to `x-transition`. Let's
 <a name="customizing-duration"></a>
 ### Customizing duration
 
+Initially, the duration is set to be 150 milliseconds when entering, and 75 milliseconds when leaving.
+
 You can configure the duration you want for a transition with the `.duration` modifier:
 
 ```alpine

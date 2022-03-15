@@ -59,7 +59,7 @@ function bundleFile(package, file) {
                 outfile: `packages/${package}/dist/${file.replace('.js', '.esm.js')}`,
                 bundle: true,
                 platform: 'neutral',
-                mainFields: ['main', 'module'],
+                mainFields: ['module', 'main'],
             })
 
             build({

@@ -18,9 +18,11 @@ directive('modelable', (el, { value, expression }, { effect, evaluate, evaluateL
         if (! el._x_model && ! el._x_models) return
 
         // Remove native event listeners as these are now bound with x-modelable.
+        // The reason for this is that it's often useful to wrap <input> elements
+        // in x-modelable/model, but the input events from the native input
+        // override any functionality added by x-modelable causing confusion.
         el._x_removeModelListeners[value || 'default']()
     
-        console.log(value)
         let outerGet = value ? el._x_models[value].get : el._x_model.get
         let outerSet = value ? el._x_models[value].set : el._x_model.set
     

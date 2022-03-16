@@ -44,7 +44,7 @@ export default function (Alpine) {
                     start: { height: current+'px' },
                     end: { height: full+'px' },
                 }, () => el._x_isShown = true, () => {
-                    if (el.style.height == `${full}px`) {
+                    if (el.offsetHeight >= full) {
                         el.style.overflow = null
                     }
                 })
@@ -61,7 +61,7 @@ export default function (Alpine) {
                     el._x_isShown = false
 
                     // check if element is fully collapsed
-                    if (el.style.height == `${floor}px`) {
+                    if (el.offsetHeight == floor) {
                         el.style.display = 'none'
                         el.hidden = true
                     }

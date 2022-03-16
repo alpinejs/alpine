@@ -24,7 +24,7 @@ export default function on (el, event, modifiers, callback) {
 
     if (modifiers.includes('away') || modifiers.includes('outside')) {
         listenerTarget = document
-        
+
         handler = wrapHandler(handler, (next, e) => {
             if (el.contains(e.target)) return
 

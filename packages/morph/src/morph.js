@@ -23,7 +23,7 @@ export async function morph(from, toHtml, options) {
 
     // If there is no x-data on the element we're morphing,
     // let's seed it with the outer Alpine scope on the page.
-    if (window.Alpine && ! from._x_dataStack) {
+    if (window.Alpine && window.Alpine.closestDataStack && ! from._x_dataStack) {
         toEl._x_dataStack = window.Alpine.closestDataStack(from)
 
         toEl._x_dataStack && window.Alpine.clone(from, toEl)
@@ -207,7 +207,7 @@ async function patchChildren(from, to) {
             } else {
                 let added = addNodeTo(currentTo, from) || {}
 
-                await breakpoint('Add element: ' + added.outerHTML || added.nodeValue)
+                await breakpoint('Add element: ' + (added.outerHTML || added.nodeValue))
 
                 currentTo = dom(currentTo).nodes().next()
 
@@ -271,18 +271,21 @@ async function patchChildren(from, to) {
                     currentFrom = dom(currentFrom).next()
                     currentTo = dom(currentTo).next()
 
-                    await breakpoint('I dont even know what this does')
+                    await breakpoint('Swap elements with keys')
 
                     continue
                 }
             }
         }
 
+        // Get next from sibling before patching in case the node is replaced
+        let currentFromNext = currentFrom && dom(currentFrom).nodes().next()
+
         // Patch elements
         await patch(currentFrom, currentTo)
 
         currentTo = currentTo && dom(currentTo).nodes().next()
-        currentFrom = currentFrom && dom(currentFrom).nodes().next()
+        currentFrom = currentFromNext
     }
 
     // Cleanup extra froms.
@@ -298,7 +301,7 @@ async function patchChildren(from, to) {
 
     // Now we can do the actual removals.
     while (removals.length) {
-        let domForRemoval = removals.pop()
+        let domForRemoval = removals.shift()
 
         domForRemoval.remove()
 

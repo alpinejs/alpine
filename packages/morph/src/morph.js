@@ -5,11 +5,9 @@ let resolveStep = () => {}
 let logger = () => {}
 
 export async function morph(from, toHtml, options) {
-    // We define a few private helper functions and variables in
-    // the scope of this function. We don't want them on the global
-    // namespace because, being async, multiple calls one after the
-    // other would run in a pseudo concurrent way and the last call
-    // would override the variables and setting of the first one.
+    // We're defining these globals and methods inside this function (instead of outside)
+    // because it's an async function and if run twice, they would overwrite
+    // each other.
 
     let fromEl
     let toEl
@@ -373,7 +371,3 @@ function initializeAlpineOnTo(from, to, childrenOnly) {
         window.Alpine.clone(from, to)
     }
 }
-
-
-
-

@@ -1,4 +1,3 @@
-import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 import { initTree } from '../lifecycle'
 import { mutateDom } from '../mutation'

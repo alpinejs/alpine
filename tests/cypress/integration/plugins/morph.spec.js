@@ -326,3 +326,19 @@ test('can morph different inline nodes',
         get('div').should(haveHtml('\n            Welcome <b>Person</b>!\n        '))
     },
 )
+
+test('can morph multiple nodes',
+    [html`
+        <div x-data>
+            <p></p>
+            <p></p>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let paragraphs = document.querySelectorAll('p')
+        window.Alpine.morph(paragraphs[0], '<p>1</p')
+        window.Alpine.morph(paragraphs[1], '<p>2</p')
+        get('p:nth-of-type(1)').should(haveText('1'))
+        get('p:nth-of-type(2)').should(haveText('2'))
+    },
+)

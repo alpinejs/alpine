@@ -49,6 +49,8 @@ export function elementBoundEffect(el) {
 
             release(effectReference)
         }
+
+        return effectReference
     }
 
     return [wrappedEffect, () => { cleanup() }]

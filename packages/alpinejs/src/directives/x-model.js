@@ -25,7 +25,14 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         }})
     })
 
-    cleanup(() => removeListener())
+    // Register the listener removal callback on the element, so that
+    // in addition to the cleanup function, x-modelable may call it.
+    // Also, make this a keyed object if we decide to reintroduce
+    // "named modelables" some time in a future Alpine version.
+    if (! el._x_removeModelListeners) el._x_removeModelListeners = {}
+    el._x_removeModelListeners['default'] = removeListener
+
+    cleanup(() => el._x_removeModelListeners['default']())
 
     // Allow programmatic overiding of x-model.
     let evaluateSetModel = evaluateLater(el, `${expression} = __placeholder`)

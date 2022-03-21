@@ -7,7 +7,7 @@ magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
 
     let oldValue
 
-    effect(() => evaluate(value => {
+    let effectReference = effect(() => evaluate(value => {
         // JSON.stringify touches every single property at any level enabling deep watching
         JSON.stringify(value)
 
@@ -25,4 +25,10 @@ magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
 
         firstTime = false
     }))
+
+    // We want to remove this effect from the list of effects
+    // stored on an element. Livewire uses that list to
+    // "re-run" Alpine effects after a page load. A "watcher"
+    // shuldn't be re-run like that. It will cause infinite loops.
+    el._x_effects.delete(effectReference)
 })

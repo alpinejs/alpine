@@ -1,7 +1,7 @@
 import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 
-directive('modelable', (el, { value, expression }, { effect, evaluate, evaluateLater }) => {
+directive('modelable', (el, { expression }, { effect, evaluate, evaluateLater }) => {
     let func = evaluateLater(expression)
     let innerGet = () => { let result; func(i => result = i); return result; }
     let evaluateInnerSet = evaluateLater(`${expression} = __placeholder`)
@@ -15,14 +15,10 @@ directive('modelable', (el, { value, expression }, { effect, evaluate, evaluateL
     innerSet(initialValue)
 
     queueMicrotask(() => {
-        if (! el._x_model && ! el._x_models) return
-
-        // Remove native event listeners as these are now bound with x-modelable.
-        el._x_removeModelListeners[value || 'default']()
+        if (! el._x_model) return
     
-        console.log(value)
-        let outerGet = value ? el._x_models[value].get : el._x_model.get
-        let outerSet = value ? el._x_models[value].set : el._x_model.set
+        let outerGet = el._x_model.get
+        let outerSet = el._x_model.set
     
         effect(() => innerSet(outerGet()))
         effect(() => outerSet(innerGet()))

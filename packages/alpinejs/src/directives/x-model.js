@@ -4,7 +4,7 @@ import { mutateDom } from '../mutation'
 import bind from '../utils/bind'
 import on from '../utils/on'
 
-directive('model', (el, { value, modifiers, expression }, { effect, cleanup }) => {
+directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let evaluate = evaluateLater(el, expression)
     let assignmentExpression = `${expression} = rightSideOfExpression($event, ${expression})`
     let evaluateAssignment = evaluateLater(el, assignmentExpression)
@@ -27,16 +27,16 @@ directive('model', (el, { value, modifiers, expression }, { effect, cleanup }) =
 
     // Register the listener removal callback on the element, so that
     // in addition to the cleanup function, x-modelable may call it.
+    // Also, make this a keyed object if we decide to reintroduce
+    // "named modelables" some time in a future Alpine version.
     if (! el._x_removeModelListeners) el._x_removeModelListeners = {}
+    el._x_removeModelListeners['default'] = removeListener
 
-    el._x_removeModelListeners[value || 'default'] = removeListener
-    
-    cleanup(() => el._x_removeModelListeners[value || 'default']())
+    cleanup(() => el._x_removeModelListeners['default']())
 
     // Allow programmatic overiding of x-model.
     let evaluateSetModel = evaluateLater(el, `${expression} = __placeholder`)
-
-    let modelObject = {
+    el._x_model = {
         get() { 
             let result
             evaluate(value => result = value)
@@ -45,15 +45,6 @@ directive('model', (el, { value, modifiers, expression }, { effect, cleanup }) =
         set(value) {
             evaluateSetModel(() => {}, { scope: { '__placeholder': value }})
         },
-    }
-
-    if (value) {
-        // This is a "named" binding (x-model:name).
-        if (! el._x_models) el._x_models = {}
-        el._x_models[value] = modelObject
-    } else {
-        // This is a "normal" binding (x-model).
-        el._x_model = modelObject
     }
 
     el._x_forceModelUpdate = () => {

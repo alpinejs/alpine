@@ -24,21 +24,6 @@ test('can expose data for x-model binding',
     }
 )
 
-test('Something like Livewire can hook into x-modelable',
-    html`
-        <h1 x-data="{ value: 'bar' }" x-modelable="value" x-init="
-            () => {}; $el._x_modelable_hook = (val) => {
-                return val.toUpperCase()
-            }
-        ">
-            <span x-text="value"></span>
-        </h1>
-    `,
-    ({ get }) => {
-        get('span').should(haveText('BAR'))
-    }
-)
-
 test('x-modelable works when inside x-bind and x-model is outside',
     html`
         <div x-data="{ outer: 'foo', thing: {

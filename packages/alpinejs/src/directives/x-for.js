@@ -187,9 +187,9 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 
             mutateDom(() => {
                 lastEl.after(clone)
-            })
 
-            initTree(clone)
+                initTree(clone)
+            })
 
             if (typeof key === 'object') {
                 warn('x-for key cannot be an object, it must be a string or an integer', templateEl)

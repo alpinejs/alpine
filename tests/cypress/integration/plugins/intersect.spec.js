@@ -124,7 +124,7 @@ test('.once',
     },
 )
 
-test('.margin.100px',
+test('.margin',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>
@@ -145,5 +145,26 @@ test('.margin.100px',
         get('span').should(haveText('2'))
         get('#1').scrollIntoView({duration: 100})
         get('span').should(haveText('2'))
+    },
+)
+
+test('.threshold',
+    [html`
+    <div x-data="{ count: 0 }">
+        <div x-ref="foo" style="width: 250px; overflow: scroll; display: flex; justify-content: start">
+            <div style="min-width: 250px;">first</div>
+            <div style="min-width: 250px" x-intersect.threshold.50="count++;">second</div>
+        </div>
+        <button @click="$refs.foo.scrollTo({ left: 15 })" id="1">first</button>
+        <button @click="$refs.foo.scrollTo({ left: 250 })" id="2">second</button>
+        <span x-text="count"></span>
+    </div>
+    `],
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('#1').click()
+        get('span').should(haveText('0'))
+        get('#2').click()
+        get('span').should(haveText('1'))
     },
 )

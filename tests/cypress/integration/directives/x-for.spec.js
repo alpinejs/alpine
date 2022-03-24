@@ -545,3 +545,17 @@ test('x-for removed dom node does not evaluate child expressions after being rem
         get('span').should('not.exist')
     }
 )
+
+test('renders children using directives injected by x-html correctly',
+    html`
+        <div x-data="{foo: 'bar'}">
+            <template x-for="i in 2">
+                <p x-html="'<span x-text=&quot;foo&quot;></span>'"></p>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('p:nth-of-type(1) span').should(haveText('bar'))
+        get('p:nth-of-type(2) span').should(haveText('bar'))
+    }
+)

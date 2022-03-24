@@ -129,6 +129,23 @@ Useful for elements where it's important to show the whole element.
 <div x-intersect.full="shown = true">...</div> // when `0.99` of the element is in the viewport
 ```
 
+<a name="threshold"></a>
+### .threshold
+
+Allows you to control the `threshold` property of the underlying `IntersectionObserver`:
+
+This value should be a decimal in the range "0-1". A value of "0" means: trigger an "intersection" if ANY part of the element enters the viewport (the default behavior). While a value of "1" means: don't trigger an "intersection" unless the entire element has entered the viewport.
+
+Any value in between is a "ratio" of those two extremes.
+
+For example if you want to trigger an intersection after half of the element has entered the page, you can use `.threshold.50`:
+
+```alpine
+<div x-intersect.threshold.50="shown = true">...</div> // when 50% of the element is in the viewport
+```
+
+If you wanted to trigger only when 5% of the element has entered the viewport, you could use: `.threshold.05`, and so on and so forth.
+
 <a name="margin"></a>
 ### .margin
 

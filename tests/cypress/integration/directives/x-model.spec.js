@@ -110,3 +110,21 @@ test('x-model can be accessed programmatically',
         get('span').should(haveText('bob'))
     }
 )
+
+test('x-model text modifier for `text` should set x-data to the inner text of an option list',
+    html`
+    <div x-data="{select: $el.querySelector('option').text}">
+        <select name="user[role]" x-model.text="select">
+          <option value="role1" selected="">Admin</option>
+          <option value="role2">User</option>
+        </select>
+
+        <span x-text="select"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('Admin'))
+        get('select').select('User')
+        get('span').should(haveText('User'))
+    }
+)

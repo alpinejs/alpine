@@ -100,7 +100,13 @@ function generateAssignmentFunction(el, modifiers, expression) {
                         return safeParseNumber(rawValue)
                     })
                     : Array.from(event.target.selectedOptions).map(option => {
-                        return option.value || option.text
+                        if(modifiers.includes('text')) {
+                            return option.text
+                        } else if (modifiers.includes('prefer-text')) {
+                            return option.text || option.value
+                        } else {
+                            return option.value || option.text
+                        }
                     })
             } else {
                 let rawValue = event.target.value

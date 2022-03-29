@@ -337,6 +337,19 @@ The default throttle interval is 250 milliseconds, you can easily customize this
 <input type="text" x-model.throttle.500ms="search">
 ```
 
+<a name="text"></a>
+### `.text`
+
+The HTML element `select` will return the value of the currently selected option when queried, and the inner text only when `value` is missing. To override this default behaviour add `.text` modifier.
+
+```alpine
+<select x-model.text="select">
+  <option value="role1" selected>Admin</option>
+  <option value="role2">User</option>
+</select>
+```
+
+
 <a name="programmatic access"></a>
 ## Programmatic access
 

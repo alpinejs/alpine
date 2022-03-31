@@ -77,7 +77,7 @@ You can also access the index inside a dynamic `:key` expression.
 If you need to simply loop `n` number of times, rather than iterate through an array, Alpine offers a short syntax.
 
 ```alpine
-<ul>
+<ul x-data>
     <template x-for="i in 10">
         <li x-text="i"></li>
     </template>

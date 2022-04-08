@@ -1,3 +1,6 @@
+import { directive } from '../directives'
+import { warn } from '../utils/warn'
+
 import './x-transition'
 import './x-modelable'
 import './x-teleport'
@@ -16,3 +19,12 @@ import './x-ref'
 import './x-if'
 import './x-id'
 import './x-on'
+
+// Register warnings for people using plugin syntaxes and not loading the plugin itself:
+warnMissingPluginDirective('Collapse', 'collapse', 'collapse')
+warnMissingPluginDirective('Intersect', 'intersect', 'intersect')
+warnMissingPluginDirective('Focus', 'trap', 'focus')
+
+function warnMissingPluginDirective(name, directiveName, slug) {
+    directive(directiveName, (el) => warn(`You can't use [x-${directiveName}] without first installing the "${name}" plugin here: https://alpine.dev/plugins/${slug}`, el))
+}

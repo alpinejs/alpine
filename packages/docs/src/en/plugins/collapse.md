@@ -107,3 +107,32 @@ You can customize the duration of the collapse/expand transition by appending th
     </div>
 </div>
 <!-- END_VERBATIM -->
+
+<a name="dot-min"></a>
+### .min
+
+By default, `x-collapse`'s "collapsed" state sets the height of the element to `0px` and also sets `display: none;`.
+
+Sometimes, it's helpful to "cut-off" an element rather than fully hide it. By using the `.min` modifier, you can set a minimum height for `x-collapse`'s "collapsed" state. For example:
+
+```alpine
+<div x-data="{ expanded: false }">
+    <button @click="expanded = ! expanded">Toggle Content</button>
+
+    <p x-show="expanded" x-collapse.min.50px>
+        ...
+    </p>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div x-data="{ expanded: false }" class="demo">
+    <button @click="expanded = ! expanded">Toggle Content</button>
+
+    <div x-show="expanded" x-collapse.min.50px>
+        <div class="pt-4">
+            Reprehenderit eu excepteur ullamco esse cillum reprehenderit exercitation labore non. Dolore dolore ea dolore veniam sint in sint ex Lorem ipsum. Sint laborum deserunt deserunt amet voluptate cillum deserunt. Amet nisi pariatur sit ut id. Ipsum est minim est commodo id dolor sint id quis sint Lorem.
+        </div>
+    </div>
+</div>
+<!-- END_VERBATIM -->

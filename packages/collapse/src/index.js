@@ -1,7 +1,19 @@
 export default function (Alpine) {
-    Alpine.directive('collapse', (el, { expression, modifiers }, { effect, evaluateLater }) => {
+    Alpine.directive('collapse', collapse)
+
+    // If we're using a "minimum height", we'll need to disable
+    // x-show's default behavior of setting display: 'none'.
+    collapse.inline = (el, { modifiers }) => {
+        if (! modifiers.includes('min')) return
+
+        el._x_doShow = () => {}
+        el._x_doHide = () => {}
+    }
+
+    function collapse(el, { modifiers }) {
         let duration = modifierValue(modifiers, 'duration', 250) / 1000
-        let floor = 0
+        let floor = modifierValue(modifiers, 'min', 0)
+        let fullyHide = ! modifiers.includes('min')
 
         if (! el._x_isShown) el.style.height = `${floor}px`
         // We use the hidden attribute for the benefit of Tailwind
@@ -9,7 +21,7 @@ export default function (Alpine) {
         // We also use display:none as the hidden attribute has very
         // low CSS specificity and could be accidentally overriden
         // by a user.
-        if (! el._x_isShown) el.hidden = true
+        if (! el._x_isShown && fullyHide) el.hidden = true
         if (! el._x_isShown) el.style.overflow = 'hidden'
 
         // Override the setStyles function with one that won't
@@ -28,8 +40,8 @@ export default function (Alpine) {
 
         el._x_transition = {
             in(before = () => {}, after = () => {}) {
-                el.hidden = false;
-                el.style.display = null
+                if (fullyHide) el.hidden = false;
+                if (fullyHide) el.style.display = null
 
                 let current = el.getBoundingClientRect().height
 
@@ -61,14 +73,14 @@ export default function (Alpine) {
                     el._x_isShown = false
 
                     // check if element is fully collapsed
-                    if (el.style.height == `${floor}px`) {
+                    if (el.style.height == `${floor}px` && fullyHide) {
                         el.style.display = 'none'
                         el.hidden = true
                     }
                 })
             },
         }
-    })
+    }
 }
 
 function modifierValue(modifiers, key, fallback) {
@@ -83,6 +95,12 @@ function modifierValue(modifiers, key, fallback) {
     if (key === 'duration') {
         // Support x-collapse.duration.500ms && duration.500
         let match = rawValue.match(/([0-9]+)ms/)
+        if (match) return match[1]
+    }
+
+    if (key === 'min') {
+        // Support x-collapse.min.100px && min.100
+        let match = rawValue.match(/([0-9]+)px/)
         if (match) return match[1]
     }
 

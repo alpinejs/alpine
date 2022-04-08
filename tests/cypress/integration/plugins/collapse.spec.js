@@ -21,6 +21,25 @@ test('can collapse and expand element',
     },
 )
 
+test('can collapse and expand with a minimum height instead of "display: none"',
+    [html`
+        <div x-data="{ expanded: false }">
+            <button @click="expanded = ! expanded">toggle</button>
+            <h1 x-show="expanded" x-collapse.min.25px>contents <a href="#">focusable content</a></h1>
+        </div>
+    `],
+    ({ get }) => {
+        get('h1').should(haveComputedStyle('height', '25px'))
+        get('h1').should(haveAttribute('style', 'height: 25px; overflow: hidden;'))
+        get('h1').should(notHaveAttribute('hidden', 'hidden'))
+        get('button').click()
+        get('h1').should(haveAttribute('style', 'height: auto;'))
+        get('button').click()
+        get('h1').should(haveComputedStyle('height', '25px'))
+        get('h1').should(haveAttribute('style', 'height: 25px; overflow: hidden;'))
+    },
+)
+
 test('@click.away with x-collapse (prevent race condition)',
     html`
         <div x-data="{ show: false }">

@@ -1,6 +1,5 @@
 import { directive } from '../directives'
 import { warn } from '../utils/warn'
-import { magic } from '../magics'
 
 import './x-transition'
 import './x-modelable'

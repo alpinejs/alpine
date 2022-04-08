@@ -1,3 +1,6 @@
+import { warn } from '../utils/warn'
+import { magic } from '../magics'
+
 import './$nextTick'
 import './$dispatch'
 import './$watch'

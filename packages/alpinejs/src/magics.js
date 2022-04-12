@@ -19,9 +19,12 @@ export function injectMagics(obj, el) {
                 
                 onElRemoved(el, cleanup)
 
-                return callback(el, utilities)
-            },
+                const value = callback(el, utilities)
+                Object.defineProperty(this, `$${name}`, { value: value });
 
+                return value
+            },
+            configurable: true,
             enumerable: false,
         })
     })

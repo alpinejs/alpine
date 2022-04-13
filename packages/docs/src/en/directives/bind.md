@@ -159,7 +159,7 @@ And like most expressions in Alpine, you can always use the result of a JavaScri
 
 `x-bind` allows you to bind an object of different directives and attributes to an element.
 
-The object keys can be anything you would normally write as an attribute name in Alpine. This includes Alpine directives and modifiers, but also plain HTML attributes. The object values are either plain strings, or in the case of dynamic Alpine directoves, callbacks to be evaluated by Alpine.
+The object keys can be anything you would normally write as an attribute name in Alpine. This includes Alpine directives and modifiers, but also plain HTML attributes. The object values are either plain strings, or in the case of dynamic Alpine directives, callbacks to be evaluated by Alpine.
 
 ```alpine
 <div x-data="dropdown()">

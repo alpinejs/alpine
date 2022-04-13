@@ -299,7 +299,7 @@ In Alpine V2 for below code
 </div>
 ```
 
-after clicking button all `$refs` were displayed. However in Alpine V3 it's possible to access only `$refs` for elements created statically, so only first ref will be returned as expected.
+after clicking button all `$refs` were displayed. However, in Alpine V3 it's possible to access only `$refs` for elements created statically, so only first ref will be returned as expected.
 
 
 <a name="no-ie-11"></a>

@@ -54,7 +54,7 @@ Although this may seem obvious to some, it's worth mentioning that Alpine data c
 <a name="data-less-alpine"></a>
 ### Data-less Alpine
 
-Sometimes you may want to use Alpine functionality, but don't need any reactive data. In these cases, you can opt-out of passing an expression to `x-data` entirely. For example:
+Sometimes you may want to use Alpine functionality, but don't need any reactive data. In these cases, you can opt out of passing an expression to `x-data` entirely. For example:
 
 ```alpine
 <button x-data @click="alert('I\'ve been clicked!')">Click Me</button>

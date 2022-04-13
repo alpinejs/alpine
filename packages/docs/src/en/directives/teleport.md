@@ -101,7 +101,7 @@ To make this experience more seamless, you can "forward" events by simply regist
 
 Notice how we are now able to listen for events dispatched from within the teleported element from outside the `<template>` element itself?
 
-Alpine does this by looking for event listeners registered on `<template x-teleport...>` and stops those events from propogating past the live, teleported, DOM element. Then, it creates a copy of that event and re-dispatches it from `<template x-teleport...>`.
+Alpine does this by looking for event listeners registered on `<template x-teleport...>` and stops those events from propagating past the live, teleported, DOM element. Then, it creates a copy of that event and re-dispatches it from `<template x-teleport...>`.
 
 <a name="nesting"></a>
 ## Nesting

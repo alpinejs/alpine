@@ -16,5 +16,5 @@ warnMissingPluginMagic('Focus', 'focus', 'focus')
 warnMissingPluginMagic('Persist', 'persist', 'persist')
 
 function warnMissingPluginMagic(name, magicName, slug) {
-    magic(magicName, (el) => warn(`You can't use [$${directiveName}] without first installing the "${name}" plugin here: https://alpine.dev/plugins/${slug}`, el))
+    magic(magicName, (el) => warn(`You can't use [$${directiveName}] without first installing the "${name}" plugin here: https://alpinejs.dev/plugins/${slug}`, el))
 }

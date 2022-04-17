@@ -159,6 +159,7 @@ function keyToModifiers(key) {
         'right': 'arrow-right',
         'period': '.',
         'equal': '=',
+        'forward-slash': '/',
     }
 
     modifierToKeyMap[key] = key

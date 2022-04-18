@@ -33,7 +33,7 @@ There are two rules worth noting about `x-for`:
 <a name="keys"></a>
 ## Keys
 
-It is important to specify keys for each `x-for` iteration if you are going to be re-ordering items. Without dynamic keys, Alpine may have a hard time keeping track of what re-orders and will cause odd side-effects.
+It is important to specify unique keys for each `x-for` iteration if you are going to be re-ordering items. Without dynamic keys, Alpine may have a hard time keeping track of what re-orders and will cause odd side-effects.
 
 ```alpine
 <ul x-data="{ colors: [

@@ -1,5 +1,5 @@
 ---
-order: 1
+order: 2
 title: Intersect
 description: An Alpine convenience wrapper for Intersection Observer that allows you to easily react when an element enters the viewport.
 graph_image: https://alpinejs.dev/social_intersect.jpg

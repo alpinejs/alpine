@@ -1,0 +1,9 @@
+{
+    "name": "@alpinejs/mask",
+    "version": "3.9.6",
+    "description": "An Alpine plugin for input masking",
+    "author": "Caleb Porzio",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js"
+}

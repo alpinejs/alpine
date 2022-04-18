@@ -11,20 +11,24 @@ export function magic(name, callback) {
 
 export function injectMagics(obj, el) {
     Object.entries(magics).forEach(([name, callback]) => {
-        Object.defineProperty(obj, `$${name}`, {
-            get() {
+        let memoizedUtilities = null;
+        function getUtilities() {
+            if (memoizedUtilities) {
+                return memoizedUtilities;
+            } else {
                 let [utilities, cleanup] = getElementBoundUtilities(el)
                 
-                utilities = {interceptor, ...utilities}
+                memoizedUtilities = {interceptor, ...utilities}
                 
                 onElRemoved(el, cleanup)
-
-                const value = callback(el, utilities)
-                Object.defineProperty(this, `$${name}`, { value: value });
-
-                return value
+                return memoizedUtilities;
+            }
+        }
+        
+        Object.defineProperty(obj, `$${name}`, {
+            get() {
+                return callback(el, getUtilities());
             },
-            configurable: true,
             enumerable: false,
         })
     })

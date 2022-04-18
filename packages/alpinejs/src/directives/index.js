@@ -24,6 +24,7 @@ import './x-on'
 warnMissingPluginDirective('Collapse', 'collapse', 'collapse')
 warnMissingPluginDirective('Intersect', 'intersect', 'intersect')
 warnMissingPluginDirective('Focus', 'trap', 'focus')
+warnMissingPluginDirective('Mask', 'mask', 'mask')
 
 function warnMissingPluginDirective(name, directiveName, slug) {
     directive(directiveName, (el) => warn(`You can't use [x-${directiveName}] without first installing the "${name}" plugin here: https://alpine.dev/plugins/${slug}`, el))

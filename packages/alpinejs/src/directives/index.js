@@ -27,5 +27,5 @@ warnMissingPluginDirective('Focus', 'trap', 'focus')
 warnMissingPluginDirective('Mask', 'mask', 'mask')
 
 function warnMissingPluginDirective(name, directiveName, slug) {
-    directive(directiveName, (el) => warn(`You can't use [x-${directiveName}] without first installing the "${name}" plugin here: https://alpine.dev/plugins/${slug}`, el))
+    directive(directiveName, (el) => warn(`You can't use [x-${directiveName}] without first installing the "${name}" plugin here: https://alpinejs.dev/plugins/${slug}`, el))
 }

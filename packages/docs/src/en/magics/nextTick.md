@@ -21,3 +21,22 @@ title: nextTick
 ```
 
 In the above example, rather than logging "Hello" to the console, "Hello World!" will be logged because `$nextTick` was used to wait until Alpine was finished updating the DOM.
+
+<a name="promises"></a>
+
+## Promises
+
+`$nextTick` returns a promise, allowing the use of `$nextTick` to pause an async function until after pending dom updates. When used like this, `$nextTick` also does not require an argument to be passed.
+
+```alpine
+<div x-data="{ title: 'Hello' }">
+    <button
+        @click="
+            title = 'Hello World!';
+            await $nextTick();
+            console.log($el.innerText);
+        "
+        x-text="title"
+    ></button>
+</div>
+```

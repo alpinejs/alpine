@@ -187,7 +187,7 @@ Here is nesting in action:
 <a name="inert"></a>
 #### .inert
 
-When building things like dialogs/modals, it's recommended to hide all the other elements on the page from screenreaders when trapping focus.
+When building things like dialogs/modals, it's recommended to hide all the other elements on the page from screen readers when trapping focus.
 
 By adding `.inert` to `x-trap`, when focus is trapped, all other elements on the page will receive `aria-hidden="true"` attributes, and when focus trapping is disabled, those attributes will also be removed.
 
@@ -218,7 +218,7 @@ By adding `.inert` to `x-trap`, when focus is trapped, all other elements on the
 <a name="noscroll"></a>
 #### .noscroll
 
-When building dialogs/modals with Alpine, it's recommended that you disable scrollling for the surrounding content when the dialog is open.
+When building dialogs/modals with Alpine, it's recommended that you disable scrolling for the surrounding content when the dialog is open.
 
 `x-trap` allows you to do this automatically with the `.noscroll` modifiers.
 

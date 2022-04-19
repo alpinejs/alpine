@@ -166,7 +166,7 @@ In the above example, clicking the button WON'T log the message. This is because
 
 In the above example, after showing the dropdown contents by clicking the "Toggle" button, you can close the dropdown by clicking anywhere on the page outside the content.
 
-This is because `.outside` is listening for clicks that DONT originate from the element it's registered on.
+This is because `.outside` is listening for clicks that DON'T originate from the element it's registered on.
 
 > It's worth noting that the `.outside` expression will only be evaluated when the element it's registered on is visible on the page. Otherwise, there would be nasty race conditions where clicking the "Toggle" button would also fire the `@click.outside` handler when it is not visible.
 

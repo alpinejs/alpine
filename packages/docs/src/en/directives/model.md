@@ -288,7 +288,7 @@ Color: <span x-text="color"></span>
 <a name="lazy"></a>
 ### `.lazy`
 
-On text inputs, by default, `x-model` updates the property on every key-stroke. By adding the `.lazy` modifier, you can force an `x-model` input to only update the property when user focuses away from the input element.
+On text inputs, by default, `x-model` updates the property on every keystroke. By adding the `.lazy` modifier, you can force an `x-model` input to only update the property when user focuses away from the input element.
 
 This is handy for things like real-time form-validation where you might not want to show an input validation error until the user "tabs" away from a field.
 

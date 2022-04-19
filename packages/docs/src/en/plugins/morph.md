@@ -137,7 +137,7 @@ Here's an example of using `Alpine.morph()` to update an Alpine component with n
 
 The "Morph" plugin works by comparing two DOM trees, the live element, and the passed in HTML.
 
-Morph walks both trees simultaneusly and compares each node and its children. If it finds differences, it "patches" (changes) the current DOM tree to match the passed in HTML's tree.
+Morph walks both trees simultaneously and compares each node and its children. If it finds differences, it "patches" (changes) the current DOM tree to match the passed in HTML's tree.
 
 While the default algorithm is very capable, there are cases where you may want to hook into its lifecycle and observe or change its behavior as it's happening.
 
@@ -249,4 +249,4 @@ By adding keys to each node, we can accomplish this like so:
 
 Now that there are "keys" on the `<li>`s, Morph will match them in both trees and move them accordingly.
 
-You can configure what Morph considers a "key" with the `key:` configutation option. [More on that here](#lifecycle-hooks)
+You can configure what Morph considers a "key" with the `key:` configuration option. [More on that here](#lifecycle-hooks)

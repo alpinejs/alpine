@@ -34,7 +34,7 @@ Now let's say you want to have those same two input elements, but this time you 
 
 This presents a problem, you now need to be able to reference the same ID twice. One for the `<label>`'s `for` attribute, and the other for the `id` on the input.
 
-Here's is a way that you might think to accomplish this and is totally valid:
+Here is a way that you might think to accomplish this and is totally valid:
 
 ```alpine
 <div x-data="{ id: $id('text-input') }">

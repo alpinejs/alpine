@@ -174,6 +174,7 @@ The object keys can be anything you would normally write as an attribute name in
             open: false,
 
             trigger: {
+                ['x-ref']: 'trigger',
                 ['@click']() {
                     this.open = true
                 },

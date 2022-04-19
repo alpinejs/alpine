@@ -39,9 +39,11 @@ export default function (Alpine) {
         }
 
         el.addEventListener('input', () => processInputValue(el))
-        el.addEventListener('blur', () => processInputValue(el))
+        // Don't "restoreCursorPosition" on "blur", because Safari
+        // will re-focus the input and cause a focus trap.
+        el.addEventListener('blur', () => processInputValue(el, false))
 
-        function processInputValue (el) {
+        function processInputValue (el, shouldRestoreCursor = true) {
             let input = el.value
 
             let template = templateFn(input)
@@ -51,12 +53,18 @@ export default function (Alpine) {
                 return lastInputValue = el.value
             }
 
-            // When an input element's value is set, it moves the cursor to the end
-            // therefore we need to track, estimate, and restore the cursor after
-            // a change was made.
-            restoreCursorPosition(el, template, () => {
-                lastInputValue = el.value = formatInput(input, template)
-            })
+            let setInput = () => { lastInputValque = el.value = formatInput(input, template) }
+
+            if (shouldRestoreCursor) {
+                // When an input element's value is set, it moves the cursor to the end
+                // therefore we need to track, estimate, and restore the cursor after
+                // a change was made.
+                restoreCursorPosition(el, template, () => {
+                    setInput()
+                })
+            } else {
+                setInput()
+            }
         }
 
         function formatInput(input, template) {

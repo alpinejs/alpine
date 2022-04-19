@@ -14,8 +14,10 @@ This is useful for many different types of inputs: phone numbers, credit cards, 
 <a name="installation"></a>
 ## Installation
 
-<div class=" relative" x-data="{ expanded: false }">
-<div x-show="expanded" x-collapse class="markdown">
+<div x-data="{ expanded: false }">
+<div class=" relative">
+<div x-show="! expanded" class="absolute inset-0 flex justify-start items-end bg-gradient-to-t from-white to-[#ffffff66]"></div>
+<div x-show="expanded" x-collapse.min.80px class="markdown">
 
 You can use this plugin by either including it from a `<script>` tag or installing it via NPM:
 
@@ -51,10 +53,11 @@ Alpine.plugin(mask)
 ```
 
 </div>
+</div>
 <button :aria-expanded="expanded" @click="expanded = ! expanded" class="text-aqua-600 font-medium underline">
     <span x-text="expanded ? 'Hide' : 'Show more'">Show</span> <span x-text="expanded ? '↑' : '↓'">↓</span>
 </button>
-</div>
+ </div>
 
 <a name="x-mask"></a>
 ## x-mask

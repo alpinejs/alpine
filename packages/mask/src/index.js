@@ -53,7 +53,7 @@ export default function (Alpine) {
                 return lastInputValue = el.value
             }
 
-            let setInput = () => { lastInputValque = el.value = formatInput(input, template) }
+            let setInput = () => { lastInputValue = el.value = formatInput(input, template) }
 
             if (shouldRestoreCursor) {
                 // When an input element's value is set, it moves the cursor to the end

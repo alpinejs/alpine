@@ -53,6 +53,9 @@ function writeNewAlpineVersion() {
 
     writeToPackageDotJson('morph', 'version', version)
     console.log('Bumping @alpinejs/morph package.json: '+version)
+
+    writeToPackageDotJson('mask', 'version', version)
+    console.log('Bumping @alpinejs/mask package.json: '+version)
 }
 
 function writeNewDocsVersion() {
@@ -88,6 +91,9 @@ function publish() {
 
     console.log('Publishing @alpinejs/morph on NPM...');
     runFromPackage('morph', 'npm publish --access public')
+
+    console.log('Publishing @alpinejs/mask on NPM...');
+    runFromPackage('mask', 'npm publish --access public')
 
     log('\n\nFinished!')
 }

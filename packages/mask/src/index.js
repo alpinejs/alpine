@@ -4,7 +4,7 @@ export default function (Alpine) {
         let templateFn = () => expression
         let lastInputValue = ''
 
-        if (['function'].includes(value)) {
+        if (['function', 'dynamic'].includes(value)) {
             // This is an x-mask:function directive.
 
             let evaluator = evaluateLater(expression)

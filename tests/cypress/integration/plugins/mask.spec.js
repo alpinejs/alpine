@@ -32,6 +32,34 @@ test('x-mask',
     },
 )
 
+test('x-mask with x-model',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask="(999) 999-9999" x-model="value" id="1">
+            <input id="2" x-model="value">
+        </div>
+    `],
+    ({ get }) => {
+        // Type a phone number:
+        get('#1').type('12').should(haveValue('(12'))
+        get('#2').should(haveValue('(12'))
+        get('#1').type('3').should(haveValue('(123) '))
+        get('#2').should(haveValue('(123) '))
+        get('#1').type('4567890').should(haveValue('(123) 456-7890'))
+        get('#2').should(haveValue('(123) 456-7890'))
+        // Clear it & paste formatted version in:
+        get('#1').type('{selectAll}{backspace}')
+        get('#1').invoke('val', '(123) 456-7890').trigger('input')
+        get('#1').should(haveValue('(123) 456-7890'))
+        get('#2').should(haveValue('(123) 456-7890'))
+        // Clear it & paste un-formatted version in:
+        get('#1').type('{selectAll}{backspace}')
+        get('#1').invoke('val', '1234567890').trigger('input')
+        get('#1').should(haveValue('(123) 456-7890'))
+        get('#2').should(haveValue('(123) 456-7890'))
+    },
+)
+
 test('x-mask with non wildcard alpha-numeric characters (b)',
     [html`<input x-data x-mask="ba9*b">`],
     ({ get }) => {
@@ -41,6 +69,13 @@ test('x-mask with non wildcard alpha-numeric characters (b)',
         get('input').type('z').should(haveValue('ba3zb'))
         get('input').type('{backspace}{backspace}4').should(haveValue('ba34b'))
     },
+)
+
+test('x-mask:dynamic',
+    [html`<input x-data x-mask:dynamic="'(999)'">`],
+    ({ get }) => {
+        get('input').type('123').should(haveValue('(123)'))
+    }
 )
 
 test('$money',

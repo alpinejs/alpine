@@ -87,57 +87,71 @@ The following wildcard characters are supported in masks:
 | `9` | Only numeric characters (0-9) |
 
 <a name="mask-functions"></a>
-## Custom Mask Functions
+## Dynamic Masks
 
-Sometimes simple mask literals (i.e. `(999) 999-9999`) are not sufficient. In these cases, `x-mask:function` allows you to dynamically generate masks on the fly based on user input.
+Sometimes simple mask literals (i.e. `(999) 999-9999`) are not sufficient. In these cases, `x-mask:dynamic` allows you to dynamically generate masks on the fly based on user input.
 
 Here's an example of a credit card input that needs to change it's mask based on if the number starts with the numbers "34" or "37" (which means it's an Amex card and therefore has a different format).
 
 ```alpine
-<input x-mask:function="
+<input x-mask:dynamic="
     $input.startsWith('34') || $input.startsWith('37')
         ? '9999 999999 99999' : '9999 9999 9999 9999'
 ">
 ```
 
-As you can see in the above example, every time a user types in the input, that value is passed to the function as `$input`. Based on the `$input`, a different mask is utilized in the field.
+As you can see in the above example, every time a user types in the input, that value is passed to the expression as `$input`. Based on the `$input`, a different mask is utilized in the field.
 
 Try it for yourself by typing a number that starts with "34" and one that doesn't.
 
 <!-- START_VERBATIM -->
 <div class="demo">
-    <input x-data x-mask:function="
+    <input x-data x-mask:dynamic="
         $input.startsWith('34') || $input.startsWith('37')
             ? '9999 999999 99999' : '9999 9999 9999 9999'
     ">
 </div>
 <!-- END_VERBATIM -->
 
+`x-mask:dynamic` also accepts a function as a result of the expression and will automatically pass it the `$input` as the the first paramter. For example:
+
+```alpine
+<input x-mask:dynamic="creditCardMask">
+
+<script>
+function creditCardMask(input) {
+    return input.startsWith('34') || input.startsWith('37')
+        ? '9999 999999 99999'
+        : '9999 9999 9999 9999'
+}
+</script>
+```
+
 <a name="money-inputs"></a>
 ## Money Inputs
 
-Because writing your own custom mask function for money inputs is fairly complex, Alpine offers a prebuilt one and makes it available as `$money()`.
+Because writing your own dynamic mask expression for money inputs is fairly complex, Alpine offers a prebuilt one and makes it available as `$money()`.
 
 Here is a fully functioning money input mask:
 
 ```alpine
-<input x-mask:function="$money($input)">
+<input x-mask:dynamic="$money($input)">
 ```
 
 <!-- START_VERBATIM -->
 <div class="demo" x-data>
-    <input type="text" x-mask:function="$money($input)" placeholder="0.00">
+    <input type="text" x-mask:dynamic="$money($input)" placeholder="0.00">
 </div>
 <!-- END_VERBATIM -->
 
 If you wish to swap the periods for commas and vice versa (as is required in certain currencies), you can do so using the second optional parameter:
 
 ```alpine
-<input x-mask:function="$money($input, ',')">
+<input x-mask:dynamic="$money($input, ',')">
 ```
 
 <!-- START_VERBATIM -->
 <div class="demo" x-data>
-    <input type="text" x-mask:function="$money($input, ',')"  placeholder="0.00">
+    <input type="text" x-mask:dynamic="$money($input, ',')"  placeholder="0,00">
 </div>
 <!-- END_VERBATIM -->

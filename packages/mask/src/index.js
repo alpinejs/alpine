@@ -160,9 +160,9 @@ export function buildUp(template, input) {
     return output
 }
 
-function formatMoney(input, delimeter = '.', thousands) {
-    thousands = (delimeter === ',' && thousands === undefined)
-        ? '.' : ','
+function formatMoney(input, delimeter = '.', thousands = ',') {
+    thousands = (delimeter === ',' && thousands === ',')
+        ? '.' : thousands
 
     let addThousands = (input, thousands) => {
         let output = ''

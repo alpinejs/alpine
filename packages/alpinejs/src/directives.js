@@ -170,6 +170,7 @@ let directiveOrder = [
     'bind',
     'init',
     'for',
+    'mask',
     'model',
     'modelable',
     'transition',

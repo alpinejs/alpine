@@ -119,3 +119,18 @@ test('$money swapping commas and periods',
         get('input').type(',89').should(haveValue('1.234.567,89'))
     },
 )
+
+test('$money adding custom thousands separator',
+    [html`<input x-data x-mask:function="$money($input, ',', ' ')">`],
+    ({ get }) => {
+        get('input').type('30,00').should(haveValue('30,00'))
+        get('input').type('5').should(haveValue('30,00'))
+        get('input').type('{backspace}').should(haveValue('30,0'))
+        get('input').type('5').should(haveValue('30,05'))
+        get('input').type('{selectAll}{backspace}').should(haveValue(''))
+        get('input').type('123').should(haveValue('123'))
+        get('input').type('4').should(haveValue('1 234'))
+        get('input').type('567').should(haveValue('1 234 567'))
+        get('input').type(',89').should(haveValue('1 234 567,89'))
+    },
+)

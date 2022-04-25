@@ -6,7 +6,7 @@ title: store
 
 # $store
 
-You can use `$store` to conveniently access global Alpine stores registered using [`Alpine.store(...)`](/magics/store). For example:
+You can use `$store` to conveniently access global Alpine stores registered using [`Alpine.store(...)`](/globals/alpine-store). For example:
 
 ```alpine
 <button x-data @click="$store.darkMode.toggle()">Toggle Dark Mode</button>

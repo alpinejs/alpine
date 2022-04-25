@@ -119,3 +119,13 @@ test('$money swapping commas and periods',
         get('input').type(',89').should(haveValue('1.234.567,89'))
     },
 )
+
+test('$money works with permenant inserted at beginning',
+    [html`<input x-data x-mask:dynamic="$money">`],
+    ({ get }) => {
+        get('input').type('40.00').should(haveValue('40.00'))
+        get('input').type('{leftArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}')
+        get('input').type('$')
+        get('input').should(haveValue('40.00'))
+    }
+)

@@ -183,8 +183,8 @@ function formatMoney(input, delimeter = '.', thousands) {
         return output
     }
 
-    let nothousands = input.replaceAll(thousands, '')
-    let template = Array.from({ length: nothousands.split(delimeter)[0].length }).fill('9').join('')
+    let strippedInput = input.replaceAll(new RegExp(`[^0-9\\${delimeter}]`, 'g'), '')
+    let template = Array.from({ length: strippedInput.split(delimeter)[0].length }).fill('9').join('')
 
     template = addThousands(template, thousands)
 

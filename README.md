@@ -30,11 +30,15 @@ Here's a brief look at each package in this repo:
 Package | Description
 --- | ---
 [alpinejs](packages/alpinejs) | The main Alpine repo with all of Alpine's core
+[collapse](packages/collpase) | A plugin for expanding and collapsing elements using smooth animations
 [csp](packages/csp) | A repo to provide a "CSP safe" build of Alpine
+[docs](packages/docs) | The Alpine documentation
+[focus](packages/focus) | A plugin that allows you to manage focus inside an element
 [history](packages/history) | A plugin for binding data to query string parameters using the history API (name is likely to change)
 [intersect](packages/intersect) | A plugin for triggering JS expressions based on elements intersecting with the viewport
+[mask](packages/mask) | A plugin for automatically formatting a text input field as a user types
 [morph](packages/morph) | A plugin for morphing HTML (like morphdom) inside the page intelligently
-[focus](packages/focus) | A plugin that allows you to manage focus inside an element
+[persist](packages/persist) | A plugin for persisting Alpine state across page loads
 
 The compiled JS files (as a result of running `npm run [build/watch]`) to be included as a `<script>` tag for example are stored in each package's `packages/[package]/dist` directory.
 

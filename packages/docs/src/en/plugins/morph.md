@@ -21,10 +21,10 @@ The best way to understand its purpose is with the following interactive visuali
 
     <div class="flex w-full justify-between" style="padding-bottom: 1rem">
         <div class="w-1/2 px-4">
-            <button @click="slide = (slide === 1) ? 13 : slide - 1" class="w-full bg-aqua-400 rounded-full text-center py-3 font-bold text-white">Previous</button>
+            <button @click="slide = (slide === 1) ? 13 : slide - 1" class="w-full bg-cyan-400 rounded-full text-center py-3 font-bold text-white">Previous</button>
         </div>
         <div class="w-1/2 px-4">
-            <button @click="slide = (slide % 13) + 1" class="w-full bg-aqua-400 rounded-full text-center py-3 font-bold text-white">Next</button>
+            <button @click="slide = (slide % 13) + 1" class="w-full bg-cyan-400 rounded-full text-center py-3 font-bold text-white">Next</button>
         </div>
     </div>
 </div>
@@ -82,8 +82,8 @@ Here's an example of using `Alpine.morph()` to update an Alpine component with n
 
 ```alpine
 <div x-data="{ message: 'Change me, then press the button!' }">
-    <input type="text" x-model="message"> 
-    <span x-text="message"></span> 
+    <input type="text" x-model="message">
+    <span x-text="message"></span>
 </div>
 
 <button>Run Morph</button>
@@ -95,9 +95,9 @@ Here's an example of using `Alpine.morph()` to update an Alpine component with n
         Alpine.morph(el, `
             <div x-data="{ message: 'Change me, then press the button!' }">
                 <h2>See how new elements have been added</h2>
-                
-                <input type="text" x-model="message"> 
-                <span x-text="message"></span> 
+
+                <input type="text" x-model="message">
+                <span x-text="message"></span>
 
                 <h2>but the state of this component hasn't changed? Magical.</h2>
             </div>
@@ -110,9 +110,9 @@ Here's an example of using `Alpine.morph()` to update an Alpine component with n
 <div class="demo">
     <div x-data="{ message: 'Change me, then press the button!' }" id="morph-demo-1" class="space-y-2">
         <input type="text" x-model="message" class="w-full">
-        <span x-text="message"></span> 
+        <span x-text="message"></span>
     </div>
-    
+
     <button id="morph-button-1" class="mt-4">Run Morph</button>
 </div>
 
@@ -123,8 +123,8 @@ Here's an example of using `Alpine.morph()` to update an Alpine component with n
         Alpine.morph(el, `
             <div x-data="{ message: 'Change me, then press the button!' }" id="morph-demo-1" class="space-y-2">
                 <h4>See how new elements have been added</h4>
-                <input type="text" x-model="message" class="w-full"> 
-                <span x-text="message"></span> 
+                <input type="text" x-model="message" class="w-full">
+                <span x-text="message"></span>
                 <h4>but the state of this component hasn't changed? Magical.</h4>
             </div>
         `)

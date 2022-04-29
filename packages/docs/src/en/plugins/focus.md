@@ -280,7 +280,7 @@ For example:
 <!-- START_VERBATIM -->
 <div class="demo">
     <div
-        x-data="{ open: false }" 
+        x-data="{ open: false }"
         x-trap.noreturn="open"
         @click.outside="open = false"
         @keyup.escape.prevent.stop="open = false"
@@ -345,9 +345,9 @@ Let's walk through a few examples of these utilities in use. The example below a
     @keydown.right="$focus.next()"
     @keydown.left="$focus.previous()"
 >
-    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">First</button>
-    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Second</button>
-    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Third</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-cyan-400">First</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-cyan-400">Second</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-cyan-400">Third</button>
 </div>
 (Click a button, then use the arrow keys to move left and right)
 </div>
@@ -373,9 +373,9 @@ Notice how if the last button is focused, pressing "right arrow" won't do anythi
     @keydown.right="$focus.wrap().next()"
     @keydown.left="$focus.wrap().previous()"
 >
-    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">First</button>
-    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Second</button>
-    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Third</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-cyan-400">First</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-cyan-400">Second</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-cyan-400">Third</button>
 </div>
 (Click a button, then use the arrow keys to move left and right)
 </div>
@@ -410,9 +410,9 @@ Now, let's add two buttons, one to focus the first element in the button group, 
     @keydown.right="$focus.wrap().next()"
     @keydown.left="$focus.wrap().previous()"
 >
-    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">First</button>
-    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Second</button>
-    <button class="focus:outline-none focus:ring-2 focus:ring-aqua-400">Third</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-cyan-400">First</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-cyan-400">Second</button>
+    <button class="focus:outline-none focus:ring-2 focus:ring-cyan-400">Third</button>
 </div>
 </div>
 <!-- END_VERBATIM -->

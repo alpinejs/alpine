@@ -172,7 +172,7 @@ function onMutate(mutations) {
         if (addedNodes.includes(node)) continue
 
         onElRemoveds.forEach(i => i(node))
-        
+
         if (node._x_cleanups) {
             while (node._x_cleanups.length) node._x_cleanups.pop()()
         }

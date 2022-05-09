@@ -1,0 +1,16 @@
+<html>
+    <script src="./packages/navigate/dist/cdn.js" defer></script>
+    <script src="./packages/alpinejs/dist/cdn.js" defer></script>
+
+    <hr>
+    <a href="/index.html">Previous</a>
+    <hr>
+
+    Second page:
+
+    <div x-data="{ count: 1 }" x-navigate:persist="foo">
+        <span x-text="count"></span>
+
+        <button @click="count++">+</button>
+    </div>
+</html>

@@ -58,7 +58,7 @@ Here's a simple toggle component using `x-show`.
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Expand</button>
+    <button @click="open = !open">Expand</button>
 
     <div x-show="open">
         Content...
@@ -68,7 +68,7 @@ Here's a simple toggle component using `x-show`.
 
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
-    <button @click="open = ! open" :aria-pressed="open">Expand</button>
+    <button @click="open = !open" :aria-pressed="open">Expand</button>
 
     <div x-show="open">
         Content...
@@ -91,7 +91,7 @@ Here is the same toggle from before, but this time using `x-if` instead of `x-sh
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Expand</button>
+    <button @click="open = !open">Expand</button>
 
     <template x-if="open">
         <div>
@@ -103,7 +103,7 @@ Here is the same toggle from before, but this time using `x-if` instead of `x-sh
 
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
-    <button @click="open = ! open" :aria-pressed="open">Expand</button>
+    <button @click="open = !open" :aria-pressed="open">Expand</button>
 
     <template x-if="open">
         <div>
@@ -130,7 +130,7 @@ Here is, again, the simple toggle example, but this time with transitions applie
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Expands</button>
+    <button @click="open = !open">Expands</button>
 
     <div x-show="open" x-transition>
         Content...
@@ -140,7 +140,7 @@ Here is, again, the simple toggle example, but this time with transitions applie
 
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
-    <button @click="open = ! open">Expands</button>
+    <button @click="open = !open">Expands</button>
 
     <div class="flex">
         <div x-show="open" x-transition style="will-change: transform;">
@@ -176,7 +176,7 @@ Let's say you wanted to make the duration of the transition longer, you can manu
 
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
-    <button @click="open = ! open">Expands</button>
+    <button @click="open = !open">Expands</button>
 
     <div class="flex">
         <div x-show="open" x-transition.duration.500ms style="will-change: transform;">
@@ -200,7 +200,7 @@ If you want to specify different values for in and out transitions, you can use 
 
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
-    <button @click="open = ! open">Expands</button>
+    <button @click="open = !open">Expands</button>
 
     <div class="flex">
         <div x-show="open" x-transition:enter.duration.500ms x-transition:leave.duration.1000ms style="will-change: transform;">
@@ -218,7 +218,7 @@ Additionally, you can add either `.opacity` or `.scale` to only transition that 
 
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
-    <button @click="open = ! open">Expands</button>
+    <button @click="open = !open">Expands</button>
 
     <div class="flex">
         <div x-show="open" x-transition:enter.opacity.duration.500 x-transition:leave.opacity.duration.250>
@@ -249,7 +249,7 @@ If you need more fine-grained control over the transitions in your application, 
 
 <!-- START_VERBATIM -->
 <div x-data="{ open: false }" class="demo">
-    <button @click="open = ! open">Expands</button>
+    <button @click="open = !open">Expands</button>
 
     <div class="flex">
         <div
@@ -281,7 +281,7 @@ Here is an example of a dynamically bound `class` attribute:
 <button
     x-data="{ red: false }"
     x-bind:class="red ? 'bg-red' : ''"
-    @click="red = ! red"
+    @click="red = !red"
 >
     Toggle Red
 </button>
@@ -292,7 +292,7 @@ Here is an example of a dynamically bound `class` attribute:
     <button
         x-data="{ red: false }"
         x-bind:style="red && 'background: red'"
-        @click="red = ! red"
+        @click="red = !red"
     >
         Toggle Red
     </button>
@@ -310,7 +310,7 @@ Toggling classes on and off based on data inside Alpine is a common need. Here's
 
 ```alpine
 <div x-data="{ open: true }">
-    <span :class="{ 'hidden': ! open }">...</span>
+    <span :class="{ 'hidden': !open }">...</span>
 </div>
 ```
 

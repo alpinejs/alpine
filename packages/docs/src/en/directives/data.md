@@ -13,7 +13,7 @@ Here's an example of a contrived dropdown component:
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle Content</button>
+    <button @click="open = !open">Toggle Content</button>
 
     <div x-show="open">
         Content...
@@ -52,7 +52,7 @@ Because `x-data` is evaluated as a normal JavaScript object, in addition to stat
 For example, let's extract the "Toggle Content" behavior into a method on  `x-data`.
 
 ```alpine
-<div x-data="{ open: false, toggle() { this.open = ! this.open } }">
+<div x-data="{ open: false, toggle() { this.open = !this.open } }">
     <button @click="toggle()">Toggle Content</button>
 
     <div x-show="open">
@@ -61,7 +61,7 @@ For example, let's extract the "Toggle Content" behavior into a method on  `x-da
 </div>
 ```
 
-Notice the added `toggle() { this.open = ! this.open }` method on `x-data`. This method can now be called from anywhere inside the component.
+Notice the added `toggle() { this.open = !this.open }` method on `x-data`. This method can now be called from anywhere inside the component.
 
 You'll also notice the usage of `this.` to access state on the object itself. This is because Alpine evaluates this data object like any standard JavaScript object with a `this` context.
 
@@ -88,7 +88,7 @@ Let's refactor our component to use a getter called `isOpen` instead of accessin
 <div x-data="{
   open: false,
   get isOpen() { return this.open },
-  toggle() { this.open = ! this.open },
+  toggle() { this.open = !this.open },
 }">
     <button @click="toggle()">Toggle Content</button>
 
@@ -160,7 +160,7 @@ Here's a quick example:
             open: false,
 
             toggle() {
-                this.open = ! this.open
+                this.open = !this.open
             },
         }))
     })

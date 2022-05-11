@@ -33,7 +33,7 @@ Here's a simple example of a simple dropdown toggle, but instead of using `x-sho
 
 ```alpine
 <div x-data="{ open: false }">
-  <button x-on:click="open = ! open">Toggle Dropdown</button>
+  <button x-on:click="open = !open">Toggle Dropdown</button>
 
   <div :class="open ? '' : 'hidden'">
     Dropdown Contents...
@@ -68,7 +68,7 @@ The inverse is also available to you. Suppose instead of `open`, we use a variab
 Alpine offers an additional syntax for toggling classes if you prefer. By passing a JavaScript object where the classes are the keys and booleans are the values, Alpine will know which classes to apply and which to remove. For example:
 
 ```alpine
-<div :class="{ 'hidden': ! show }">
+<div :class="{ 'hidden': !show }">
 ```
 
 This technique offers a unique advantage to other methods. When using object-syntax, Alpine will NOT preserve original classes applied to an element's `class` attribute.
@@ -76,7 +76,7 @@ This technique offers a unique advantage to other methods. When using object-syn
 For example, if you wanted to apply the "hidden" class to an element before Alpine loads, AND use Alpine to toggle its existence you can only achieve that behavior using object-syntax:
 
 ```alpine
-<div class="hidden" :class="{ 'hidden': ! show }">
+<div class="hidden" :class="{ 'hidden': !show }">
 ```
 
 In case that confused you, let's dig deeper into how Alpine handles `x-bind:class` differently than other attributes.

@@ -239,7 +239,7 @@ One of Alpine's stories for re-using functionality is abstracting Alpine directi
             open: false,
 
             trigger: {
-                'x-on:click'() { this.open = ! this.open },
+                'x-on:click'() { this.open = !this.open },
             },
 
             dialogue: {

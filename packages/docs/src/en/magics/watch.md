@@ -9,7 +9,7 @@ You can "watch" a component property using the `$watch` magic method. For exampl
 
 ```alpine
 <div x-data="{ open: false }" x-init="$watch('open', value => console.log(value))">
-    <button @click="open = ! open">Toggle Open</button>
+    <button @click="open = !open">Toggle Open</button>
 </div>
 ```
 
@@ -32,7 +32,7 @@ When the `<button>` is pressed, `foo.bar` will be set to "bob", and "bob" will b
 
 ```alpine
 <div x-data="{ open: false }" x-init="$watch('open', (value, oldValue) => console.log(value, oldValue))">
-    <button @click="open = ! open">Toggle Open</button>
+    <button @click="open = !open">Toggle Open</button>
 </div>
 ```
 

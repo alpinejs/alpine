@@ -58,7 +58,7 @@ For example:
 
 ```alpine
 <div x-data="{ expanded: false }">
-    <button @click="expanded = ! expanded">Toggle Content</button>
+    <button @click="expanded = !expanded">Toggle Content</button>
 
     <p x-show="expanded" x-collapse>
         ...
@@ -68,7 +68,7 @@ For example:
 
 <!-- START_VERBATIM -->
 <div x-data="{ expanded: false }" class="demo">
-    <button @click="expanded = ! expanded">Toggle Content</button>
+    <button @click="expanded = !expanded">Toggle Content</button>
 
     <div x-show="expanded" x-collapse>
         <div class="pt-4">
@@ -88,7 +88,7 @@ You can customize the duration of the collapse/expand transition by appending th
 
 ```alpine
 <div x-data="{ expanded: false }">
-    <button @click="expanded = ! expanded">Toggle Content</button>
+    <button @click="expanded = !expanded">Toggle Content</button>
 
     <p x-show="expanded" x-collapse.duration.1000ms>
         ...
@@ -98,7 +98,7 @@ You can customize the duration of the collapse/expand transition by appending th
 
 <!-- START_VERBATIM -->
 <div x-data="{ expanded: false }" class="demo">
-    <button @click="expanded = ! expanded">Toggle Content</button>
+    <button @click="expanded = !expanded">Toggle Content</button>
 
     <div x-show="expanded" x-collapse.duration.1000ms>
         <div class="pt-4">
@@ -117,7 +117,7 @@ Sometimes, it's helpful to "cut-off" an element rather than fully hide it. By us
 
 ```alpine
 <div x-data="{ expanded: false }">
-    <button @click="expanded = ! expanded">Toggle Content</button>
+    <button @click="expanded = !expanded">Toggle Content</button>
 
     <p x-show="expanded" x-collapse.min.50px>
         ...
@@ -127,7 +127,7 @@ Sometimes, it's helpful to "cut-off" an element rather than fully hide it. By us
 
 <!-- START_VERBATIM -->
 <div x-data="{ expanded: false }" class="demo">
-    <button @click="expanded = ! expanded">Toggle Content</button>
+    <button @click="expanded = !expanded">Toggle Content</button>
 
     <div x-show="expanded" x-collapse.min.50px>
         <div class="pt-4">

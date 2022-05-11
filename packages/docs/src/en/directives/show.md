@@ -11,7 +11,7 @@ Here's an example of a simple dropdown component using `x-show`.
 
 ```alpine
 <div x-data="{ open: false }">
-    <button x-on:click="open = ! open">Toggle Dropdown</button>
+    <button x-on:click="open = !open">Toggle Dropdown</button>
 
     <div x-show="open">
         Dropdown Contents...
@@ -30,7 +30,7 @@ If you want to apply smooth transitions to the `x-show` behavior, you can use it
 
 ```alpine
 <div x-data="{ open: false }">
-    <button x-on:click="open = ! open">Toggle Dropdown</button>
+    <button x-on:click="open = !open">Toggle Dropdown</button>
 
     <div x-show="open" x-transition>
         Dropdown Contents...

@@ -156,7 +156,7 @@ In the above example, clicking the button WON'T log the message. This is because
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle</button>
+    <button @click="open = !open">Toggle</button>
 
     <div x-show="open" @click.outside="open = false">
         Contents...

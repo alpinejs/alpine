@@ -19,7 +19,7 @@ The simplest way to achieve a transition using Alpine is by adding `x-transition
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle</button>
+    <button @click="open = !open">Toggle</button>
 
     <span x-show="open" x-transition>
         Hello 👋
@@ -30,7 +30,7 @@ The simplest way to achieve a transition using Alpine is by adding `x-transition
 <!-- START_VERBATIM -->
 <div class="demo">
     <div x-data="{ open: false }">
-        <button @click="open = ! open">Toggle</button>
+        <button @click="open = !open">Toggle</button>
 
         <span x-show="open" x-transition>
             Hello 👋
@@ -135,7 +135,7 @@ For direct control over exactly what goes into your transitions, you can apply C
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle</button>
+    <button @click="open = !open">Toggle</button>
 
     <div
         x-show="open"
@@ -152,7 +152,7 @@ For direct control over exactly what goes into your transitions, you can apply C
 <!-- START_VERBATIM -->
 <div class="demo">
     <div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle</button>
+    <button @click="open = !open">Toggle</button>
 
     <div
         x-show="open"

@@ -116,7 +116,7 @@ Insert the following code into the `<body>` tag:
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle</button>
+    <button @click="open = !open">Toggle</button>
 
     <div x-show="open" @click.outside="open = false">Contents...</div>
 </div>
@@ -125,7 +125,7 @@ Insert the following code into the `<body>` tag:
 <!-- START_VERBATIM -->
 <div class="demo">
     <div x-data="{ open: false }">
-        <button @click="open = ! open">Toggle</button>
+        <button @click="open = !open">Toggle</button>
         <div x-show="open" @click.outside="open = false">Contents...</div>
     </div>
 </div>

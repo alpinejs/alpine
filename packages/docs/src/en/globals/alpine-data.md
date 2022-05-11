@@ -22,7 +22,7 @@ Here's a contrived `dropdown` component for example:
             open: false,
 
             toggle() {
-                this.open = ! this.open
+                this.open = !this.open
             }
         }))
     })
@@ -52,7 +52,7 @@ export default () => ({
     open: false,
 
     toggle() {
-        this.open = ! this.open
+        this.open = !this.open
     }
 })
 ```
@@ -123,7 +123,7 @@ Alpine.data('dropdown', () => ({
 
     trigger: {
         ['@click']() {
-            this.open = ! this.open
+            this.open = !this.open
         },
     },
 

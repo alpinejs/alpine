@@ -27,7 +27,7 @@ Here's a contrived modal example:
 ```alpine
 <body>
     <div x-data="{ open: false }">
-        <button @click="open = ! open">Toggle Modal</button>
+        <button @click="open = !open">Toggle Modal</button>
 
         <template x-teleport="body">
             <div x-show="open">
@@ -46,7 +46,7 @@ Here's a contrived modal example:
 <!-- START_VERBATIM -->
 <div class="demo" x-ref="root" id="modal2">
     <div x-data="{ open: false }">
-        <button @click="open = ! open">Toggle Modal</button>
+        <button @click="open = !open">Toggle Modal</button>
 
         <template x-teleport="#modal2">
             <div x-show="open">
@@ -73,7 +73,7 @@ To make this experience more seamless, you can "forward" events by simply regist
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle Modal</button>
+    <button @click="open = !open">Toggle Modal</button>
 
     <template x-teleport="body" @click="open = false">
         <div x-show="open">
@@ -87,7 +87,7 @@ To make this experience more seamless, you can "forward" events by simply regist
 <!-- START_VERBATIM -->
 <div class="demo" x-ref="root" id="modal3">
     <div x-data="{ open: false }">
-        <button @click="open = ! open">Toggle Modal</button>
+        <button @click="open = !open">Toggle Modal</button>
 
         <template x-teleport="#modal3" @click="open = false">
             <div x-show="open">
@@ -110,14 +110,14 @@ Teleporting is especially helpful if you are trying to nest one modal within ano
 
 ```alpine
 <div x-data="{ open: false }">
-    <button @click="open = ! open">Toggle Modal</button>
+    <button @click="open = !open">Toggle Modal</button>
 
     <template x-teleport="body">
         <div x-show="open">
             Modal contents...
             
             <div x-data="{ open: false }">
-                <button @click="open = ! open">Toggle Nested Modal</button>
+                <button @click="open = !open">Toggle Nested Modal</button>
 
                 <template x-teleport="body">
                     <div x-show="open">
@@ -133,14 +133,14 @@ Teleporting is especially helpful if you are trying to nest one modal within ano
 <!-- START_VERBATIM -->
 <div class="demo" x-ref="root" id="modal4">
     <div x-data="{ open: false }">
-        <button @click="open = ! open">Toggle Modal</button>
+        <button @click="open = !open">Toggle Modal</button>
 
         <template x-teleport="#modal4">
             <div x-show="open">
                 <div class="py-4">Modal contents...</div>
                 
                 <div x-data="{ open: false }">
-                    <button @click="open = ! open">Toggle Nested Modal</button>
+                    <button @click="open = !open">Toggle Nested Modal</button>
 
                     <template x-teleport="#modal4">
                         <div class="pt-4" x-show="open">

@@ -24,7 +24,7 @@ You can use `$store` to conveniently access global Alpine stores registered usin
             on: false,
 
             toggle() {
-                this.on = ! this.on
+                this.on = !this.on
             }
         })
     })
@@ -41,7 +41,7 @@ If you don't need an entire object for a store, you can set and use any kind of 
 Here's the example from above but using it more simply as a boolean value:
 
 ```alpine
-<button x-data @click="$store.darkMode = ! $store.darkMode">Toggle Dark Mode</button>
+<button x-data @click="$store.darkMode = !$store.darkMode">Toggle Dark Mode</button>
 
 ...
 

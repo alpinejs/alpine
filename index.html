@@ -5,15 +5,91 @@
     <script src="./packages/persist/dist/cdn.js"></script>
     <script src="./packages/focus/dist/cdn.js"></script>
     <script src="./packages/mask/dist/cdn.js"></script>
+    <script src="./packages/ui/dist/cdn.js"></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
+    <script src="//cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
 
-    <!-- Play around. -->
-    <div x-data="{ open: false }">
-        <button @click="open = !open">Toggle</button>
+    <main class="flex-1 overflow-auto bg-gray-50 h-screen">
+        <div class="flex justify-center items-center space-x-12 p-12">
+            <button>Previous</button>
+            <nav
+                x-data="{ links: ['First', 'Second', 'Third', 'Fourth'] }"
+                x-popover:group
+                aria-label="Mythical University"
+                class="flex space-x-3"
+            >
+                <div x-popover class="relative">
+                    <div
+                        x-popover:overlay
+                        x-transition:enter="transition ease-out duration-300 transform"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-300 transform"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0"
+                        class="bg-opacity-75 bg-gray-500 fixed inset-0 z-20"
+                    ></div>
+                    <button
+                        x-popover:button
+                        class="px-3 py-2 bg-gray-300 border-2 border-transparent focus:outline-none focus:border-blue-900 relative z-30"
+                    >Normal</button>
+                    <div x-popover:panel class="absolute flex flex-col w-64 bg-gray-100 border-2 border-blue-900 z-30">
+                        <template x-for="(link, i) of links">
+                            <a :hidden="i === 2" href="/" class="px-3 py-2 border-2 border-transparent hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:border-blue-900">
+                                Normal - <span x-text="link"></span>
+                            </a>
+                        </template>
+                    </div>
+                </div>
+                <div x-popover class="relative">
+                    <button x-popover:button class="px-3 py-2 bg-gray-300 border-2 border-transparent focus:outline-none focus:border-blue-900">Focus</button>
+                    <div x-popover:panel :focus="true" class="absolute flex flex-col w-64 bg-gray-100 border-2 border-blue-900">
+                        <template x-for="(link, i) of links">
+                            <a href="/" class="px-3 py-2 border-2 border-transparent hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:border-blue-900">
+                                Focus - <span x-text="link"></span>
+                            </a>
+                        </template>
+                    </div>
+                </div>
 
-        <span x-show="open">
-            Content...
-        </span>
-    </div>
+                <div
+                    x-popover
+                    class="relative"
+                    x-init="$nextTick(() => Popper.createPopper($refs.trigger1, $refs.container1, { placement: 'bottom-start', strategy: 'fixed' }))"
+                >
+                    <button x-popover:button x-ref="trigger1" class="px-3 py-2 bg-gray-300 border-2 border-transparent focus:outline-none focus:border-blue-900">Portal</button>
+                    <template x-teleport="body">
+                        <div x-popover:panel x-ref="container1" class="flex flex-col w-64 bg-gray-100 border-2 border-blue-900">
+                            <template x-for="(link, i) of links">
+                                <a href="/" class="px-3 py-2 border-2 border-transparent hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:border-blue-900">
+                                    Portal - <span x-text="link"></span>
+                                </a>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
+                <div
+                    x-popover
+                    class="relative"
+                    x-init="$nextTick(() => Popper.createPopper($refs.trigger2, $refs.container2, { placement: 'bottom-start', strategy: 'fixed' }))"
+                >
+                    <button x-popover:button x-ref="trigger2" class="px-3 py-2 bg-gray-300 border-2 border-transparent focus:outline-none focus:border-blue-900">Focus in portal</button>
+
+                    <template x-teleport="body">
+                        <div x-popover:panel :focus="true" x-ref="container2" class="flex flex-col w-64 bg-gray-100 border-2 border-blue-900">
+                            <template x-for="(link, i) of links">
+                                <a href="/" class="px-3 py-2 border-2 border-transparent hover:bg-gray-200 focus:bg-gray-200 focus:outline-none focus:border-blue-900">
+                                    Focus in Portal - <span x-text="link"></span>
+                                </a>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </nav>
+            <button>Next</button>
+        </div>
+    </main>
 </html>

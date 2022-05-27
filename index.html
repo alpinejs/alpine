@@ -11,7 +11,17 @@
     <script src="//cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
 
-    <main class="flex-1 overflow-auto bg-gray-50 h-screen">
+    <div x-data x-popover>
+        <button x-popover:button>Open</button>
+
+        <ul x-popover:panel>
+            <li><a href="#">First</a></li>
+            <li><a href="#">Second</a></li>
+            <li><a href="#">Third</a></li>
+        </ul>
+    </div>
+
+    <!-- <main class="flex-1 overflow-auto bg-gray-50 h-screen">
         <div class="flex justify-center items-center space-x-12 p-12">
             <button>Previous</button>
             <nav
@@ -91,5 +101,5 @@
             </nav>
             <button>Next</button>
         </div>
-    </main>
+    </main> -->
 </html>

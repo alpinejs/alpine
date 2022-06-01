@@ -148,7 +148,7 @@ test('x-show executes consecutive state changes in correct order',
     html`
         <div
             x-data="{ isEnabled: false }"
-            x-init="$watch('isEnabled', () => if (this.isEnabled) this.isEnabled = false)"
+            x-init="$watch('isEnabled', () => { if (isEnabled) isEnabled = false })"
         >
             <button id="enable" x-show="!isEnabled" @click="isEnabled = true"></button>
             <button id="disable" x-show="isEnabled" @click="isEnabled = false"></button>

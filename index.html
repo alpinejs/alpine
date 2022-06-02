@@ -2,6 +2,8 @@
 <script src="./packages/navigate/dist/cdn.js" defer></script>
 <script src="./packages/alpinejs/dist/cdn.js" defer></script>
 
+
+
 <hr>
 <a href="/index2.html">Next</a>
 <hr>
@@ -46,11 +48,11 @@ First page:
     </div>
 </div>
 
-<div x-data="{ count: $history(1) }" x-navigate:persist="foo">
+<!-- <div x-data="{ count: $history(1) }" x-navigate:persist="foo">
     <span x-text="count"></span>
 
     <button @click="count++">+</button>
-</div>
+</div> -->
 
 <div x-data="{ count: 1 }">
     <span x-text="count"></span>

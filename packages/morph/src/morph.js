@@ -327,7 +327,7 @@ export async function morph(from, toHtml, options) {
     assignOptions(options)
 
     fromEl = from
-    toEl = createElement(toHtml)
+    toEl = typeof toHtml === 'string' ? createElement(toHtml) : toHtml
 
     // If there is no x-data on the element we're morphing,
     // let's seed it with the outer Alpine scope on the page.

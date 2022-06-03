@@ -16,6 +16,7 @@ import { plugin } from './plugin'
 import { magic } from './magics'
 import { store } from './store'
 import { bind } from './binds'
+import { registerElement as element } from './elements'
 import { data } from './datas'
 
 let Alpine = {
@@ -51,6 +52,7 @@ let Alpine = {
     initTree,
     nextTick,
     prefixed,
+    element,
     prefix,
     plugin,
     magic,

@@ -11,14 +11,47 @@
     <script src="//cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
 
-    <div x-data x-popover>
-        <button x-popover:button>Open</button>
+    <script src="//unpkg.com/@ungap/custom-elements"></script>
 
-        <ul x-popover:panel>
+    <x-button style="background: black">Hey</x-button>
+
+    <template id="template">
+        <button>
+            <slot></slot>
+        </button>
+    </template>
+
+    <script>
+        customElements.define('x-button', class extends HTMLElement {
+            constructor() {
+                super()
+                let template = document.getElementById('template')
+                let templateContent = template.content
+                let shadowRoot = this.attachShadow({mode: 'closed'})
+                shadowRoot.appendChild(templateContent.cloneNode(true))
+            }
+        })
+    </script>
+
+    <div x-data="{ open: false }">
+        <button @click="open = ! open">Open</button>
+
+        <x-dialog x-model="open">
+            <x-dialog.panel>
+                Hey!
+            </x-dialog.panel>
+        </x-dialog>
+    </div>
+
+
+    <x-popover>
+        <x-popover.button>Open</x-popover.button>
+
+        <x-popover.panel as="ul">
             <li><a href="#">First</a></li>
             <li><a href="#">Second</a></li>
             <li><a href="#">Third</a></li>
-        </ul>
+        </x-popover.panel>
     </div>
 
     <!-- <main class="flex-1 overflow-auto bg-gray-50 h-screen">

@@ -1,26 +1,10 @@
 
 export default function (Alpine) {
-    Alpine.directive('dialog', (el, directive) => {
-        if      (directive.value === 'overlay')     handleOverlay(el, Alpine)
-        else if (directive.value === 'panel')       handlePanel(el, Alpine)
-        else if (directive.value === 'title')       handleTitle(el, Alpine)
-        else if (directive.value === 'description') handleDescription(el, Alpine)
-        else                                        handleRoot(el, Alpine)
-    })
+    Alpine.element('dialog.panel', () => ({
+        '@click.outside'() { this.$data.__close() },
+    }))
 
-    Alpine.magic('dialog', el => {
-        let $data = Alpine.$data(el)
-
-        return {
-            get open() {
-                return $data.__isOpen
-            }
-        }
-    })
-}
-
-function handleRoot(el, Alpine) {
-    Alpine.bind(el, {
+    Alpine.element('dialog', el => ({
         'x-data'() {
             return {
                 init() {
@@ -56,6 +40,30 @@ function handleRoot(el, Alpine) {
         ':aria-describedby'() { return this.$id('alpine-dialog-description') },
         'role': 'dialog',
         'aria-modal': 'true',
+    }))
+
+    Alpine.directive('dialog', (el, directive) => {
+        if      (directive.value === 'overlay')     handleOverlay(el, Alpine)
+        else if (directive.value === 'panel')       handlePanel(el, Alpine)
+        else if (directive.value === 'title')       handleTitle(el, Alpine)
+        else if (directive.value === 'description') handleDescription(el, Alpine)
+        else                                        handleRoot(el, Alpine)
+    })
+
+    Alpine.magic('dialog', el => {
+        let $data = Alpine.$data(el)
+
+        return {
+            get open() {
+                return $data.__isOpen
+            }
+        }
+    })
+}
+
+function handleRoot(el, Alpine) {
+    Alpine.bind(el, {
+
     })
 }
 

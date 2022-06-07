@@ -30,7 +30,7 @@ Here's a brief look at each package in this repo:
 Package | Description
 --- | ---
 [alpinejs](packages/alpinejs) | The main Alpine repo with all of Alpine's core
-[collapse](packages/collpase) | A plugin for expanding and collapsing elements using smooth animations
+[collapse](packages/collapse) | A plugin for expanding and collapsing elements using smooth animations
 [csp](packages/csp) | A repo to provide a "CSP safe" build of Alpine
 [docs](packages/docs) | The Alpine documentation
 [focus](packages/focus) | A plugin that allows you to manage focus inside an element

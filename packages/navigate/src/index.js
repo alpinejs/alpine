@@ -1,25 +1,136 @@
-import { replaceUrl, pushUrl, fromSessionStorage } from './history'
-import { swapPage } from './page'
-import { endProgressBar, startProgressBar } from './progressBar'
+import { transition } from "alpinejs/src/directives/x-transition"
+import { finishAndHideProgressBar, showAndStartProgressBar } from "./bar"
+import { fetchHtml } from "./fetch"
+import { updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks, updateUrlAndStoreLatestHtmlForFutureBackButtons, whenTheBackOrForwardButtonIsClicked } from "./history"
+import { extractDestinationFromLink, hijackNewLinksOnThePage, whenALinkIsClicked, whenALinkIsHovered } from "./links"
+import { swapCurrentPageWithNewHtml } from "./page"
+import { putPersistantElementsBack, storePersistantElementsForLater } from "./persist"
+import { getPretchedHtmlOr, prefetchHtml, storeThePrefetchedHtmlForWhenALinkIsClicked } from "./prefetch"
+import { restoreScrollPosition, storeScrollInformationInHtmlBeforeNavigatingAway } from "./scroll"
+
+let enablePrefetch = true
+let enablePersist = false
+let showProgressBar = false
+let restoreScroll = false
+let autofocus = false
 
 export default function (Alpine) {
-    setInitialPageUsingHistoryReplaceStateForFutureBackButtons()
+    updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
 
-    // Listen for back button presses...
-    window.addEventListener('popstate', e => handleBackButtonPress(e, Alpine))
+    enablePrefetch && whenALinkIsHovered((el) => {
+        let forDestination = extractDestinationFromLink(el)
 
-    // Listen for any <a> tag click...
-    Array.from(document.links).forEach(el => {
-        el.addEventListener('mouseenter', () => handleLinkHover(el))
-        el.addEventListener('click', e => handleLinkClick(el, e))
-    })
-
-    document.addEventListener('alpine:navigated', () => {
-        Array.from(document.links).forEach(el => {
-            el.addEventListener('mouseenter', () => handleLinkHover(el))
-            el.addEventListener('click', e => handleLinkClick(el, e))
+        prefetchHtml(forDestination, html => {
+            storeThePrefetchedHtmlForWhenALinkIsClicked(html, forDestination)
         })
     })
+
+    whenALinkIsClicked((el) => {
+        showProgressBar && showAndStartProgressBar()
+
+        let fromDestination = extractDestinationFromLink(el)
+
+        fetchHtmlOrUsePrefetchedHtml(fromDestination, html => {
+            restoreScroll && storeScrollInformationInHtmlBeforeNavigatingAway()
+
+            updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
+
+            showProgressBar && finishAndHideProgressBar()
+
+            preventAlpineFromPickingUpDomChanges(Alpine, andAfterAllThis => {
+                enablePersist && storePersistantElementsForLater()
+
+                swapCurrentPageWithNewHtml(html, () => {
+                    enablePersist && putPersistantElementsBack()
+
+                    hijackNewLinksOnThePage()
+
+                    restoreScroll && restoreScrollPosition()
+
+                    fireEventForOtherLibariesToHookInto()
+
+                    updateUrlAndStoreLatestHtmlForFutureBackButtons(html, fromDestination)
+
+                    andAfterAllThis(() => {
+                        autofocus && autofocusElementsWithTheAutofocusAttribute()
+
+                        nowInitializeAlpineOnTheNewPage(Alpine)
+                    })
+                })
+
+            })
+        })
+    })
+
+    whenTheBackOrForwardButtonIsClicked((html) => {
+        // @todo: see if there's a way to update the current HTML BEFORE
+        // the back button is hit, and not AFTER:
+        // storeScrollInformationInHtmlBeforeNavigatingAway()
+        // updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
+
+        preventAlpineFromPickingUpDomChanges(Alpine, andAfterAllThis => {
+            swapCurrentPageWithNewHtml(html)
+
+            hijackNewLinksOnThePage()
+
+            restoreScroll && restoreScrollPosition()
+
+            fireEventForOtherLibariesToHookInto()
+
+            andAfterAllThis(() => {
+                autofocus && autofocusElementsWithTheAutofocusAttribute()
+
+                nowInitializeAlpineOnTheNewPage(Alpine)
+            })
+        })
+
+    })
+}
+
+function fetchHtmlOrUsePrefetchedHtml(fromDestination, callback) {
+    getPretchedHtmlOr(fromDestination, callback, () => {
+        fetchHtml(fromDestination, callback)
+    })
+}
+
+function preventAlpineFromPickingUpDomChanges(Alpine, callback) {
+    Alpine.stopObservingMutations()
+
+    callback((afterAllThis) => {
+        Alpine.startObservingMutations()
+
+        setTimeout(() => {
+            afterAllThis()
+        })
+    })
+}
+
+function fireEventForOtherLibariesToHookInto() {
+    document.dispatchEvent(new CustomEvent('alpine:navigated', { bubbles: true }))
+}
+
+function nowInitializeAlpineOnTheNewPage(Alpine) {
+    Alpine.initTree(document.body)
+}
+
+function autofocusElementsWithTheAutofocusAttribute() {
+    document.querySelector('[autofocus]') && document.querySelector('[autofocus]').focus()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Alpine.magic('history', (el, { interceptor }) =>  {
     //     let alias
@@ -79,127 +190,22 @@ export default function (Alpine) {
     //         func.as = key => { alias = key; return func }
     //     })
     // })
-}
+// }
 
-function setInitialPageUsingHistoryReplaceStateForFutureBackButtons() {
-    // Create a history state entry for the initial page load.
-    // (This is so later hitting back can restore this page).
-    let url = new URL(window.location.href, document.baseURI)
 
-    replaceUrl(url, document.documentElement.outerHTML)
-}
 
-function handleBackButtonPress(e, Alpine) {
-    let { html } = fromSessionStorage(e)
+// function replace(url, key, object) {
+//     let state = window.history.state || {}
 
-    document.dispatchEvent(new CustomEvent('alpine:navigating', { bubbles: true }))
+//     if (! state.alpine) state.alpine = {}
 
-    html && swapPage(Alpine, html, () => {
-        document.dispatchEvent(new CustomEvent('alpine:navigated', { bubbles: true }))
-    })
+//     state.alpine[key] = object
 
-    restoreScroll()
-}
+//     window.history.replaceState(state, '', url)
+// }
 
-// Warning: this could cause some memory leaks
-let prefetches = new Map
+// function push(url, key, object) {
+//     let state = { alpine: {...window.history.state.alpine, ...{[key]: object}} }
 
-function handleLinkHover(el) {
-    if (prefetches.has(el)) return
-
-    let destination = new URL(el.getAttribute('href'), document.baseURI)
-
-    prefetches.set(el, { finished: false, html: null, whenFinished: () => {} })
-
-    fetch(destination.pathname).then(i => i.text()).then(html => {
-        let state = prefetches.get(el)
-        state.html = html
-        state.finished = true
-        state.whenFinished()
-    })
-}
-
-function handleLinkClick(el, e) {
-    let destination = new URL(el.getAttribute('href'), document.baseURI)
-
-    let handleHtml = html => {
-        let url = new URL(window.location.href, document.baseURI)
-
-        storeScrollRestorationDataInHTML()
-
-        replaceUrl(url, document.documentElement.outerHTML)
-
-        swapPage(Alpine, html, () => {
-            pushUrl(destination, html)
-
-            document.dispatchEvent(new CustomEvent('alpine:navigated', { bubbles: true }))
-        })
-    }
-
-    document.dispatchEvent(new CustomEvent('alpine:navigating', { bubbles: true }))
-
-    if (prefetches.has(el)) {
-        let state = prefetches.get(el)
-        if (! state.finished) {
-            startProgressBar()
-
-            state.whenFinished = () => {
-                endProgressBar(() => {
-                    handleHtml(state.html)
-                    prefetches.delete(el)
-                })
-            }
-        } else {
-            handleHtml(state.html)
-            prefetches.delete(el)
-        }
-    } else {
-        startProgressBar()
-
-        fetch(destination.pathname).then(i => i.text()).then(html => {
-            endProgressBar(() => {
-                handleHtml(html)
-            })
-        })
-    }
-
-    e.preventDefault()
-}
-
-function storeScrollRestorationDataInHTML() {
-    document.body.setAttribute('data-scroll-x', document.body.scrollLeft)
-    document.body.setAttribute('data-scroll-y', document.body.scrollTop)
-
-    document.querySelectorAll('[x-navigate\\:scroll]').forEach(el => {
-        el.setAttribute('data-scroll-x', el.scrollLeft)
-        el.setAttribute('data-scroll-y', el.scrollTop)
-    })
-}
-
-function restoreScroll() {
-    let scroll = el => {
-        el.scrollTo(Number(el.getAttribute('data-scroll-x')), Number(el.getAttribute('data-scroll-y')))
-        el.removeAttribute('data-scroll-x')
-        el.removeAttribute('data-scroll-y')
-    }
-
-    scroll(document.body)
-
-    document.querySelectorAll('[x-navigate\\:scroll]').forEach(scroll)
-}
-
-function replace(url, key, object) {
-    let state = window.history.state || {}
-
-    if (! state.alpine) state.alpine = {}
-
-    state.alpine[key] = object
-
-    window.history.replaceState(state, '', url)
-}
-
-function push(url, key, object) {
-    let state = { alpine: {...window.history.state.alpine, ...{[key]: object}} }
-
-    window.history.pushState(state, '', url)
-}
+//     window.history.pushState(state, '', url)
+// }

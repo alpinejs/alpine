@@ -1,12 +1,12 @@
 
-export function startProgressBar() {
+export function showAndStartProgressBar() {
     createBar()
 
     incrementBar()
 }
 
-export function endProgressBar(callback) {
-    finishProgressBar(() => { destroyBar(); callback() })
+export function finishAndHideProgressBar() {
+    finishProgressBar(); destroyBar()
 }
 
 function createBar() {
@@ -51,7 +51,6 @@ function incrementBar(goal = .1) {
 function finishProgressBar(callback) {
     let bar = document.getElementById('alpine-progress-bar')
     bar.style.transform = 'scaleX(1)'
-    setTimeout(callback, 500)
 }
 
 function destroyBar() {

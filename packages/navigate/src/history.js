@@ -1,3 +1,24 @@
+
+export function updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks() {
+    // Create a history state entry for the initial page load.
+    // (This is so later hitting back can restore this page).
+    let url = new URL(window.location.href, document.baseURI)
+
+    replaceUrl(url, document.documentElement.outerHTML)
+}
+
+export function whenTheBackOrForwardButtonIsClicked(callback) {
+    window.addEventListener('popstate', e => {
+        let { html } = fromSessionStorage(e)
+
+        callback(html)
+    })
+}
+
+export function updateUrlAndStoreLatestHtmlForFutureBackButtons(html, destination) {
+    pushUrl(destination, html)
+}
+
 export function pushUrl(url, html) {
     updateUrl('pushState', url, html)
 }

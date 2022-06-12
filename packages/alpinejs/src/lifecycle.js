@@ -69,9 +69,15 @@ export function isRoot(el) {
     return rootSelectors().some(selector => el.matches(selector))
 }
 
+let initInterceptors = []
+
+export function interceptInit(callback) { initInterceptors.push(callback) }
+
 export function initTree(el, walker = walk) {
     deferHandlingDirectives(() => {
         walker(el, (el, skip) => {
+            initInterceptors.forEach(i => i(el))
+
             directives(el, el.attributes).forEach(handle => handle())
 
             el._x_ignore && skip()

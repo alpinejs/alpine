@@ -1,44 +1,33 @@
 
-export function swapPage(Alpine, html, beforeInit = () => {}) {
+export function swapCurrentPageWithNewHtml(html, andThen) {
     let newDocument = (new DOMParser()).parseFromString(html, "text/html")
     let newBody = document.adoptNode(newDocument.body)
     let newHead = document.adoptNode(newDocument.head)
 
-    Alpine.stopObservingMutations()
+    mergeNewHead(newHead)
+    prepNewScriptTagsToRun(newBody)
 
-    persistElements(() => {
-        mergeNewHead(newHead)
-        prepNewScriptTagsToRun(newBody)
-
-        document.body.replaceWith(newBody)
-    })
-
-    // For some reason this is triggering an error with one of my chrome extensions.
-    // autofocusEl()
-
-    beforeInit()
+    transitionOut(document.body)
 
     setTimeout(() => {
-        Alpine.startObservingMutations()
+        document.body.replaceWith(newBody)
+        transitionIn(newBody)
 
-        Alpine.initTree(document.body)
-    })
+        andThen()
+    }, 500)
 }
 
-function persistElements(callback) {
-    let els = {}
+function transitionOut(body) {
+    body.style.transition = 'all .5s ease'
+    body.style.opacity = '0'
+}
 
-    document.querySelectorAll('[x-navigate\\:persist]').forEach(i => {
-        console.log(i)
-        els[i.getAttribute('x-navigate:persist')] = i
-    })
+function transitionIn(body) {
+    body.style.opacity = '0'
+    body.style.transition = 'all .5s ease'
 
-    callback()
-
-    document.querySelectorAll('[x-navigate\\:persist]').forEach(i => {
-        let old = els[i.getAttribute('x-navigate:persist')]
-
-        i.replaceWith(old)
+    requestAnimationFrame(() => {
+        body.style.opacity = '1'
     })
 }
 
@@ -106,6 +95,3 @@ function isScript (el)   {
     return el.tagName.toLowerCase() === 'script'
 }
 
-function autofocusEl() {
-    document.querySelector('[autofocus]') && document.querySelector('[autofocus]').focus()
-}

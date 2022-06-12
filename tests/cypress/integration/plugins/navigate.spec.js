@@ -1,8 +1,11 @@
 import { beEqualTo, beVisible, haveAttribute, haveFocus, haveText, html, notBeVisible, test } from '../../utils'
 
 // Test persistant peice of layout
-// Handle 404
 // Handle non-origin links and such
+// Handle 404
+// Middle/command click link in new tab works?
+// Infinite scroll scenario, back button works
+//
 
 it('navigates pages without reload',
     () => {

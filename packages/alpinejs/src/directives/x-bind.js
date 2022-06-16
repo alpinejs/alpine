@@ -26,7 +26,7 @@ directive('bind', (el, { value, modifiers, expression, original }, { effect }) =
 function applyBindingsObject(el, expression, original, effect) {
     let bindingProviders = {}
     injectBindingProviders(bindingProviders)
-   
+
     let getBindings = evaluateLater(el, expression)
 
     let cleanupRunners = []
@@ -37,7 +37,7 @@ function applyBindingsObject(el, expression, original, effect) {
         let attributes = Object.entries(bindings).map(([name, value]) => ({ name, value }))
 
         let staticAttributes = attributesOnly(attributes)
-        
+
         // Handle binding normal HTML attributes (non-Alpine directives).
         attributes = attributes.map(attribute => {
             if (staticAttributes.find(attr => attr.name === attribute.name)) {

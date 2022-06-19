@@ -9,50 +9,80 @@
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
     <script src="//cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <!-- <script src="https://unpkg.com/@popperjs/core@2"></script> -->
 
-    <script src="//unpkg.com/@ungap/custom-elements"></script>
+    <div x-data x-tabs>
+        <div x-tabs:list>
+            <div><button x-tabs:tab>Hey!</button></div>
+            <div><button x-tabs:tab>There!</button></div>
+            <div><button x-tabs:tab>You!</button></div>
+        </div>
 
-    <x-button style="background: black">Hey</x-button>
-
-    <template id="template">
-        <button>
-            <slot></slot>
-        </button>
-    </template>
-
-    <script>
-        customElements.define('x-button', class extends HTMLElement {
-            constructor() {
-                super()
-                let template = document.getElementById('template')
-                let templateContent = template.content
-                let shadowRoot = this.attachShadow({mode: 'closed'})
-                shadowRoot.appendChild(templateContent.cloneNode(true))
-            }
-        })
-    </script>
+        <div x-tabs:panels>
+            <div x-tabs:panel>
+                <h1>Hey!</h1>
+            </div>
+            <div x-tabs:panel>
+                <h1>There!</h1>
+            </div>
+            <div x-tabs:panel>
+                <h1>You!</h1>
+            </div>
+        </div>
+    </div>
 
     <div x-data="{ open: false }">
         <button @click="open = ! open">Open</button>
 
-        <x-dialog x-model="open">
-            <x-dialog.panel>
+        <div x-dialog x-model="open">
+            <div x-dialog:panel>
                 Hey!
-            </x-dialog.panel>
-        </x-dialog>
+            </div>
+        </div>
     </div>
 
-
-    <x-popover>
-        <x-popover.button>Open</x-popover.button>
-
-        <x-popover.panel as="ul">
-            <li><a href="#">First</a></li>
-            <li><a href="#">Second</a></li>
-            <li><a href="#">Third</a></li>
-        </x-popover.panel>
+    <div x-data x-popover:group>
+        <div x-data x-popover>
+            <button x-popover:button>Open</button>
+            <ul x-popover:panel>
+                <li><button>yo</button></li>
+                <li><button>there</button></li>
+                <li><button>you</button></li>
+            </ul>
+        </div>
+        <div x-data x-popover>
+            <button x-popover:button>Open 2</button>
+            <ul x-popover:panel>
+                <li><button>yo</button></li>
+                <li><button>yins</button></li>
+                <li><button>yack</button></li>
+            </ul>
+        </div>
     </div>
+
+    <div></div>
+
+    <!-- <div x-data x-tabs>
+        <button x-tabs:button>Open</button>
+
+        <ul x-tabs:panel>
+            hey
+        </ul>
+    </div> -->
+
+    <button>focus away</button>
+
+    <button id="hey">
+        hey
+    </button>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.bind(document.querySelector('#hey'), {
+                '@keyup.esc'() { console.log(this.$el); return 'there' }
+            })
+        })
+    </script>
 
     <!-- <main class="flex-1 overflow-auto bg-gray-50 h-screen">
         <div class="flex justify-center items-center space-x-12 p-12">

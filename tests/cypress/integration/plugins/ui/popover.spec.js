@@ -1,4 +1,4 @@
-import { beVisible, haveAttribute, haveText, html, notBeVisible, notHaveAttribute, test } from '../../../utils'
+import { beVisible, haveAttribute, html, notBeVisible, notHaveAttribute, test } from '../../../utils'
 
 test('button toggles panel',
     [html`
@@ -80,29 +80,6 @@ test('clicking outside closes panel',
     },
 )
 
-test('clicking outside closes panel',
-    [html`
-        <div>
-            <div x-data x-popover>
-                <button x-popover:button>Toggle</button>
-
-                <ul x-popover:panel>
-                    Dialog Contents!
-                </ul>
-            </div>
-
-            <h1>Click away to me</h1>
-        </div>
-    `],
-    ({ get }) => {
-        get('ul').should(notBeVisible())
-        get('button').click()
-        get('ul').should(beVisible())
-        get('h1').click()
-        get('ul').should(notBeVisible())
-    },
-)
-
 test('focusing away closes panel',
     [html`
         <div>
@@ -114,7 +91,7 @@ test('focusing away closes panel',
                 </ul>
             </div>
 
-            <button>Focus Me</button>
+            <a href="#">Focus Me</a>
         </div>
     `],
     ({ get }) => {
@@ -123,5 +100,41 @@ test('focusing away closes panel',
         get('ul').should(beVisible())
         cy.focused().tab()
         get('ul').should(notBeVisible())
+    },
+)
+
+test('focusing away doesnt close panel if focusing inside a group',
+    [html`
+        <div x-data>
+            <div x-popover:group>
+                <div x-data x-popover id="1">
+                    <button x-popover:button>Toggle 1</button>
+                    <ul x-popover:panel>
+                        Dialog 1 Contents!
+                    </ul>
+                </div>
+                <div x-data x-popover id="2">
+                    <button x-popover:button>Toggle 2</button>
+                    <ul x-popover:panel>
+                        Dialog 2 Contents!
+                    </ul>
+                </div>
+            </div>
+
+            <a href="#">Focus Me</a>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1 ul').should(notBeVisible())
+        get('#2 ul').should(notBeVisible())
+        get('#1 button').click()
+        get('#1 ul').should(beVisible())
+        get('#2 ul').should(notBeVisible())
+        cy.focused().tab()
+        get('#1 ul').should(beVisible())
+        get('#2 ul').should(notBeVisible())
+        cy.focused().tab()
+        get('#1 ul').should(notBeVisible())
+        get('#2 ul').should(notBeVisible())
     },
 )

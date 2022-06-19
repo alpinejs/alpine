@@ -93,9 +93,14 @@ function handleButton(el, Alpine) {
         '@click'() { this.$data.__toggle() },
         '@keydown.tab'(e) {
             if (! e.shiftKey && this.$data.__isOpen) {
-                e.preventDefault()
-                e.stopPropagation()
-                this.$focus.within(this.$data.__panelEl).first()
+                let firstFocusableEl = this.$focus.within(this.$data.__panelEl).getFirst()
+
+                if (firstFocusableEl) {
+                    e.preventDefault()
+                    e.stopPropagation()
+
+                    this.$focus.focus(firstFocusableEl)
+                }
             }
         },
         '@keyup.tab'(e) {
@@ -103,11 +108,13 @@ function handleButton(el, Alpine) {
                 // Check if the last focused element was "after" this one
                 let lastEl = this.$focus.previouslyFocused()
 
+                if (! lastEl) return
+
                 if (
                     // Make sure the last focused wasn't part of this popover.
                     (! this.$data.__buttonEl.contains(lastEl) && ! this.$data.__panelEl.contains(lastEl))
                     // Also make sure it appeared "after" this button in the DOM.
-                    && this.$el.compareDocumentPosition(lastEl) & Node.DOCUMENT_POSITION_FOLLOWING
+                    && (lastEl && (this.$el.compareDocumentPosition(lastEl) & Node.DOCUMENT_POSITION_FOLLOWING))
                 ) {
                     e.preventDefault()
                     e.stopPropagation()

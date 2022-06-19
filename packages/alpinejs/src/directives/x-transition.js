@@ -131,7 +131,8 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
     // it keeps running in background. setTimeout has a lower priority in the
     // event loop so it would skip nested transitions but when the tab is
     // hidden, it's not relevant.
-    let clickAwayCompatibleShow = () => {document.visibilityState === 'visible' ? requestAnimationFrame(show) : setTimeout(show)}
+    const nextTick = document.visibilityState === 'visible' ? requestAnimationFrame : setTimeout;
+    let clickAwayCompatibleShow = () => nextTick(show);
 
     if (value) {
         if (el._x_transition && (el._x_transition.enter || el._x_transition.leave)) {
@@ -167,7 +168,7 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
 
             closest._x_hideChildren.push(el)
         } else {
-            queueMicrotask(() => {
+            nextTick(() => {
                 let hideAfterChildren = el => {
                     let carry = Promise.all([
                         el._x_hidePromise,

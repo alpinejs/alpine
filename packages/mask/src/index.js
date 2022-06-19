@@ -48,6 +48,9 @@ export default function (Alpine) {
 
             let template = templateFn(input)
 
+            // If a template value is `falsy`, then don't process the input value
+            if(!template || template === 'false') return false
+
             // If they hit backspace, don't process input.
             if (lastInputValue.length - el.value.length === 1) {
                 return lastInputValue = el.value

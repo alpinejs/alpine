@@ -307,3 +307,29 @@ test('$focus.last',
         get('#1').should(haveText('3'))
     },
 )
+
+test('focuses element with autofocus',
+    [html`
+        <div x-data="{ open: false }">
+            <input type="text" id="1">
+            <button id="2" @click="open = true">open</button>
+            <div>
+                <div x-trap="open">
+                    <input type="text" id="3">
+                    <input autofocus type="text" id="4">
+                    <button @click="open = false" id="5">close</button>
+                </div>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').click()
+        get('#1').should(haveFocus())
+        get('#2').click()
+        get('#4').should(haveFocus())
+        cy.focused().tab()
+        get('#5').should(haveFocus())
+        cy.focused().tab()
+        get('#3').should(haveFocus())
+    }
+)

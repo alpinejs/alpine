@@ -159,3 +159,20 @@ test('x-show executes consecutive state changes in correct order',
         get('button#disable').should(beHidden())
     }
 )
+
+test('x-show toggles display: none; with the !important property when using the .important modifier while respecting other style attributes',
+    html`
+        <div x-data="{ show: true }">
+            <span x-show.important="show" style="color: blue;">thing</span>
+
+            <button x-on:click="show = false"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(beVisible())
+        get('span').should(haveAttribute('style', 'color: blue;'))
+        get('button').click()
+        get('span').should(beHidden())
+        get('span').should(haveAttribute('style', 'color: blue; display: none !important;'))
+    }
+)

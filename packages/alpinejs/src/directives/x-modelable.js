@@ -11,17 +11,18 @@ directive('modelable', (el, { expression }, { effect, evaluateLater }) => {
     innerSet(initialValue)
 
     queueMicrotask(() => {
-        if (! el._x_model) return
+        const modelEl = el.closest('[x-model]');
+        if (modelEl === null) return
 
         // Remove native event listeners as these are now bound with x-modelable.
         // The reason for this is that it's often useful to wrap <input> elements
         // in x-modelable/model, but the input events from the native input
         // override any functionality added by x-modelable causing confusion.
-        el._x_removeModelListeners['default']()
-    
-        let outerGet = el._x_model.get
-        let outerSet = el._x_model.set
-    
+        modelEl._x_removeModelListeners['default']()
+
+        let outerGet = modelEl._x_model.get
+        let outerSet = modelEl._x_model.set
+
         effect(() => innerSet(outerGet()))
         effect(() => outerSet(innerGet()))
     })

@@ -68,3 +68,29 @@ test('x-modelable removes the event listener used by corresponding x-model',
         get('h2').should(haveText('foo'))
     }
 )
+
+test('x-modelable works as a descendant of an x-model',
+    html`
+        <div x-data="{ outer: 'foo' }">
+            <div x-data="{ inner: 'bar' }" x-model="outer">
+                <div x-modelable="inner">
+                    <h1 x-text="outer"></h1>
+                    <h2 x-text="inner"></h2>
+
+                    <button @click="inner = 'bob'" id="1">change inner</button>
+                    <button @click="outer = 'lob'" id="2">change outer</button>
+                </div>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('foo'))
+        get('h2').should(haveText('foo'))
+        get('#1').click()
+        get('h1').should(haveText('bob'))
+        get('h2').should(haveText('bob'))
+        get('#2').click()
+        get('h1').should(haveText('lob'))
+        get('h2').should(haveText('lob'))
+    }
+)

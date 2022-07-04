@@ -342,3 +342,16 @@ test('can morph multiple nodes',
         get('p:nth-of-type(2)').should(haveText('2'))
     },
 )
+
+test('can morph table tr',
+    [html`
+        <table>
+            <tr><td>1</td></tr>
+        </table>
+    `],
+    ({ get }, reload, window, document) => {
+        let tr = document.querySelector('tr')
+        window.Alpine.morph(tr, '<tr><td>2</td></tr>')
+        get('td').should(haveText('2'))
+    },
+)

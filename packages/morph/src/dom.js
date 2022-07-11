@@ -57,7 +57,9 @@ export function dom(el) {
 }
 
 export function createElement(html) {
-    return document.createRange().createContextualFragment(html).firstElementChild
+    const template = document.createElement('template')
+    template.innerHTML = html
+    return template.content.firstElementChild
 }
 
 export function textOrComment(el) {

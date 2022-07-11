@@ -37,3 +37,20 @@ If you want to apply smooth transitions to the `x-show` behavior, you can use it
     </div>
 </div>
 ```
+
+<a name="using-the-important-modifier"></a>
+## Using the important modifier
+
+Sometimes you need to apply a little more force to actually hide an element. In cases where a CSS selector applies the `display` property with the `!important` flag, it will take precedence over the inline style set by Alpine.
+
+In these cases you may use the `.important` modifier to set the inline style to `display: none !important`.
+
+```alpine
+<div x-data="{ open: false }">
+    <button x-on:click="open = ! open">Toggle Dropdown</button>
+
+    <div x-show.important="open">
+        Dropdown Contents...
+    </div>
+</div>
+```

@@ -17,10 +17,10 @@ magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
             queueMicrotask(() => {
                 callback(value, oldValue)
 
-                oldValue = value
+                oldValue = JSON.parse(JSON.stringify(value))
             })
         } else {
-            oldValue = value
+            oldValue = JSON.parse(JSON.stringify(value))
         }
 
         firstTime = false

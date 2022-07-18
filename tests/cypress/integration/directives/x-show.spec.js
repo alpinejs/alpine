@@ -143,3 +143,19 @@ test('x-show takes precedence over style bindings for display property',
         get('span:nth-of-type(2)').should(haveAttribute('style', 'color: red; display: none;'))
     }
 )
+
+test('x-show executes consecutive state changes in correct order',
+    html`
+        <div
+            x-data="{ isEnabled: false }"
+            x-init="$watch('isEnabled', () => { if (isEnabled) isEnabled = false })"
+        >
+            <button id="enable" x-show="!isEnabled" @click="isEnabled = true"></button>
+            <button id="disable" x-show="isEnabled" @click="isEnabled = false"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('button#enable').should(beVisible())
+        get('button#disable').should(beHidden())
+    }
+)

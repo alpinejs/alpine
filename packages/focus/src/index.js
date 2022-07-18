@@ -106,6 +106,7 @@ export default function (Alpine) {
                 escapeDeactivates: false,
                 allowOutsideClick: true,
                 fallbackFocus: () => el,
+                initialFocus: el.querySelector('[autofocus]')
             })
 
             let undoInert = () => {}

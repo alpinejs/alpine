@@ -60,6 +60,30 @@ test('x-mask with x-model',
     },
 )
 
+test('x-mask with a falsy input',
+    [html`<input x-data x-mask="">`],
+    ({ get }) => {
+	    get('input').type('1').should(haveValue('1'))
+	    get('input').type('2').should(haveValue('12'))
+	    get('input').type('ua').should(haveValue('12ua'))
+	    get('input').type('/').should(haveValue('12ua/'))
+	    get('input').type('cs').should(haveValue('12ua/cs'))
+	    get('input').type('  3').should(haveValue('12ua/cs  3'))
+    }
+)
+
+test('x-mask with a falsy string input',
+    [html`<input x-data x-mask="false">`],
+    ({ get }) => {
+	    get('input').type('1').should(haveValue('1'))
+	    get('input').type('2').should(haveValue('12'))
+	    get('input').type('ua').should(haveValue('12ua'))
+	    get('input').type('/').should(haveValue('12ua/'))
+	    get('input').type('cs').should(haveValue('12ua/cs'))
+	    get('input').type('  3').should(haveValue('12ua/cs  3'))
+    }
+)
+
 test('x-mask with non wildcard alpha-numeric characters (b)',
     [html`<input x-data x-mask="ba9*b">`],
     ({ get }) => {
@@ -68,7 +92,7 @@ test('x-mask with non wildcard alpha-numeric characters (b)',
         get('input').type('3').should(haveValue('ba3'))
         get('input').type('z').should(haveValue('ba3zb'))
         get('input').type('{backspace}{backspace}4').should(haveValue('ba34b'))
-    },
+    }
 )
 
 test('x-mask:dynamic',

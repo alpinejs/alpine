@@ -7,15 +7,15 @@ graph_image: https://alpinejs.dev/social_modal.jpg
 
 # Dialog (Modal)
 
-Building a modal with Alpine might appear as simple as putting `x-show` on an element styled as a modal. Unfortunately, much more goes into building a robust, accessible modal such as:
+Building a modal with Alpine might appear as simple as putting `x-show` on an element styled as a modal. Unfortunately, much more goes into building a robust, accessible modal. The following functionality is considered essential:
 
-* Close on escape
-* Close when you click outside the modal onto the overlay
-* Trap focus within the modal when it's open
+* Close the modal on escape
+* Close when you click outside the modal onto the background overlay
+* Trap focus within the modal to prevent focusing the page behind it
 * Disable scrolling the background when modal is active
-* Proper accessibility attributes
+* Proper accessibility HTML attributes such as `role="dialog"`
 
-...
+For these cases, the `x-dialog` family of directives exists. Take a look:
 
 ## A Basic Example
 
@@ -40,7 +40,7 @@ Building a modal with Alpine might appear as simple as putting `x-show` on an el
 <div x-data="{ open: false }">
     <button @click="open = true">Open Modal</button>
 
-    <div x-dialog x-model="open" class="relative z-50">
+    <div x-dialog x-model="open" class="relative z-50" style="display: none;">
         <div x-dialog:overlay x-transition.opacity class="fixed inset-0 bg-black bg-opacity-25"></div>
 
         <div class="fixed inset-0 overflow-y-auto">

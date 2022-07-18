@@ -1,9 +1,9 @@
 export function tryCatch(el, expression, callback, ...args) {
-    try {
+    // try {
         return callback(...args)
-    } catch (e) {
-        handleError( e, el, expression )
-    }
+    // } catch (e) {
+    //     handleError( e, el, expression )
+    // }
 }
 
 export function handleError(error, el, expression = undefined) {

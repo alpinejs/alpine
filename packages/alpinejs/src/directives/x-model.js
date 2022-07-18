@@ -78,8 +78,9 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         },
     }
 
-    el._x_forceModelUpdate = () => {
-        let value = getValue()
+    el._x_forceModelUpdate = (value) => {
+        value = value === undefined ? getValue() : value
+
         // If nested model key is undefined, set the default value to empty string.
         if (value === undefined && typeof expression === 'string' && expression.match(/\./)) value = ''
 
@@ -90,10 +91,15 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     }
 
     effect(() => {
+        // We need to make sure we're always "getting" the value up front,
+        // so that we don't run into a situation where because of the early
+        // the reactive value isn't gotten and therefore disables future reactions.
+        let value = getValue()
+
         // Don't modify the value of the input if it's focused.
         if (modifiers.includes('unintrusive') && document.activeElement.isSameNode(el)) return
 
-        el._x_forceModelUpdate()
+        el._x_forceModelUpdate(value)
     })
 })
 

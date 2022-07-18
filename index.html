@@ -17,6 +17,23 @@
         </template>
     </div>
 
+    <div>
+        <button wire:click="increment">inc</button>
+    </div>
+
+    <div x-data="{ open: @entangle('open') }">
+
+        <input wire:model.defer="count">
+
+        <div wire:dirty wire:target="count">dirty...</div>
+
+        <div x-show="$wire.dirty('count')">dirty...</div>
+        <div x-show="$wire.loading('count')">dirty...</div>
+        <div wire:loading="">dirty...</div>
+        <div wire:loading="">dirty...</div>
+
+    </div>
+
     <main x-data x-ignore style="display: none">
         <div x-data>
             <h1>there!</h1>

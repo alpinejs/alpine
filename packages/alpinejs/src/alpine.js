@@ -12,6 +12,7 @@ import { debounce } from './utils/debounce'
 import { throttle } from './utils/throttle'
 import { setStyles } from './utils/styles'
 import { nextTick } from './nextTick'
+import { walk } from './utils/walk'
 import { plugin } from './plugin'
 import { magic } from './magics'
 import { store } from './store'
@@ -62,6 +63,7 @@ let Alpine = {
     clone,
     bound,
     $data,
+    walk,
     data,
     bind,
 }

@@ -6,9 +6,10 @@ let queue = []
 export function scheduler (callback) { queueJob(callback) }
 
 function queueJob(job) {
-    if (! queue.includes(job)) queue.push(job)
+    // if (! queue.includes(job)) queue.push(job)
+    job()
 
-    queueFlush()
+    // queueFlush()
 }
 export function dequeueJob(job) {
     let index = queue.indexOf(job)

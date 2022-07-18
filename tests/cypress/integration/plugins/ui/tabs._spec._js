@@ -55,7 +55,7 @@ test('can use arrow keys to cycle through tabs',
     },
 )
 
-test.only('cant tab through tabs, can only use arrows',
+test('cant tab through tabs, can only use arrows',
     [html`
         <div>
             <button button-1>first focusable</button>

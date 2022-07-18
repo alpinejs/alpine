@@ -1,4 +1,4 @@
-import { beVisible, haveAttribute, haveText, html, notBeVisible, test } from '../../../utils'
+import { beVisible, haveAttribute, haveText, html, notBeVisible, notExist, test } from '../../../utils'
 
 test('has accessibility attributes',
     [html`
@@ -65,7 +65,7 @@ test('works with static prop',
         </div>
     `],
     ({ get }) => {
-        get('article').should(notBeVisible())
+        get('article').should(notExist())
         get('button').click()
         get('article').should(beVisible())
     },

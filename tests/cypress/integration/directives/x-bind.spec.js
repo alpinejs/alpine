@@ -49,12 +49,12 @@ test('non-boolean attributes set to null/undefined/false are removed from the el
         </div>
     `,
     ({ get }) => {
-        get('a:nth-child(1)').should(notHaveAttribute('href'))
-        get('a:nth-child(2)').should(notHaveAttribute('href'))
-        get('a:nth-child(3)').should(notHaveAttribute('href'))
-        get('span:nth-child(1)').should(notHaveAttribute('visible'))
-        get('span:nth-child(2)').should(notHaveAttribute('visible'))
-        get('span:nth-child(3)').should(notHaveAttribute('visible'))
+        get('a:nth-of-type(1)').should(notHaveAttribute('href'))
+        get('a:nth-of-type(2)').should(notHaveAttribute('href'))
+        get('a:nth-of-type(3)').should(notHaveAttribute('href'))
+        get('span:nth-of-type(1)').should(notHaveAttribute('visible'))
+        get('span:nth-of-type(2)').should(notHaveAttribute('visible'))
+        get('span:nth-of-type(3)').should(notHaveAttribute('visible'))
     }
 )
 

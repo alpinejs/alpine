@@ -28,34 +28,35 @@ function applyBindingsObject(el, expression, original, effect) {
     injectBindingProviders(bindingProviders)
    
     let getBindings = evaluateLater(el, expression)
+    effect(()=> {
+        let cleanupRunners = []
 
-    let cleanupRunners = []
+        while (cleanupRunners.length) cleanupRunners.pop()()
 
-    while (cleanupRunners.length) cleanupRunners.pop()()
+        getBindings(bindings => {
+            let attributes = Object.entries(bindings).map(([name, value]) => ({ name, value }))
 
-    getBindings(bindings => {
-        let attributes = Object.entries(bindings).map(([name, value]) => ({ name, value }))
-
-        let staticAttributes = attributesOnly(attributes)
-        
-        // Handle binding normal HTML attributes (non-Alpine directives).
-        attributes = attributes.map(attribute => {
-            if (staticAttributes.find(attr => attr.name === attribute.name)) {
-                return {
-                    name: `x-bind:${attribute.name}`,
-                    value: `"${attribute.value}"`,
+            let staticAttributes = attributesOnly(attributes)
+            
+            // Handle binding normal HTML attributes (non-Alpine directives).
+            attributes = attributes.map(attribute => {
+                if (staticAttributes.find(attr => attr.name === attribute.name)) {
+                    return {
+                        name: `x-bind:${attribute.name}`,
+                        value: `"${attribute.value}"`,
+                    }
                 }
-            }
 
-            return attribute
-        })
+                return attribute
+            })
 
-        directives(el, attributes, original).map(handle => {
-            cleanupRunners.push(handle.runCleanups)
+            directives(el, attributes, original).map(handle => {
+                cleanupRunners.push(handle.runCleanups)
 
-            handle()
-        })
-    }, { scope: bindingProviders } )
+                handle()
+            })
+        }, { scope: bindingProviders } )
+    })
 }
 
 function storeKeyForXFor(el, expression) {

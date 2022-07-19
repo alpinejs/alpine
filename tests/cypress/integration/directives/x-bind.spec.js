@@ -386,6 +386,49 @@ test('x-bind object syntax syntax supports x-transition',
     }
 )
 
+test('x-bind supports x-transition with re-evaluation',
+    html`
+        <style>
+            .transition { transition-property: background-color, border-color, color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+            .duration-100 { transition-duration: 100ms; }
+        </style>
+        <script>
+            window.transitions = () => { return {
+                direction: 'left',
+                show: true,
+                directionButton: {
+                    ['@click']() {
+                        this.direction = (this.direction == 'left') ? 'right' : 'left'
+                    },
+                    ['x-text']() { return this.direction },
+                },
+                outputTransitionExpression: {
+                    ['x-show']() { return this.show },
+                    ['x-transition:enter-start']: function() {
+                        this.$el.removeAttribute('data-binding');
+                        if (this.direction === 'left')  {
+                            this.$el.setAttribute('data-binding','foo')
+                            return '-translate-x-full'
+                        } else {
+                            this.$el.setAttribute('data-binding','bar')
+                            return 'translate-x-full'
+                        }
+                    }
+                },
+            }}
+        </script>
+        <div x-data="transitions()">
+            <button x-bind="directionButton"></button>
+            <span x-bind="outputTransitionExpression">thing</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveAttribute('data-binding','foo'))
+        get('button').click()
+        get('span').should(haveAttribute('data-binding','bar'))
+    }
+)
+
 test('x-bind object syntax event handlers defined as functions receive the event object as their first argument',
     html`
         <script>

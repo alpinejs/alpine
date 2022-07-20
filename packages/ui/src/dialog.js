@@ -46,7 +46,6 @@ function handleRoot(el, Alpine) {
                     else this.__isOpenState = false
                 },
                 get __isOpen() {
-                    console.log('foo', Alpine.bound(el, 'static', this.__isOpenState))
                     return Alpine.bound(el, 'static', this.__isOpenState)
                 },
             }

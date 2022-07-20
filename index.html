@@ -1,56 +1,19 @@
 <html>
-<script src="./packages/intersect/dist/cdn.js" defer></script>
-<script src="./packages/morph/dist/cdn.js" defer></script>
-<script src="./packages/history/dist/cdn.js"></script>
-<script src="./packages/persist/dist/cdn.js"></script>
-<script src="./packages/focus/dist/cdn.js"></script>
-<script src="./packages/ui/dist/cdn.js"></script>
-<script src="./packages/alpinejs/dist/cdn.js" defer></script>
-<!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
+    <script src="./packages/intersect/dist/cdn.js" defer></script>
+    <script src="./packages/morph/dist/cdn.js" defer></script>
+    <script src="./packages/history/dist/cdn.js"></script>
+    <script src="./packages/persist/dist/cdn.js"></script>
+    <script src="./packages/focus/dist/cdn.js"></script>
+    <script src="./packages/mask/dist/cdn.js"></script>
+    <script src="./packages/alpinejs/dist/cdn.js" defer></script>
+    <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
-<div x-data="{
-    query: '',
-    selected: null,
-    people: [
-        { id: 1, name: 'Kevin' },
-        { id: 2, name: 'Caleb' },
-    ],
-    get filteredPeople() {
-        return this.people.filter(i => {
-            return i.name.toLowerCase().includes(this.query.toLowerCase())
-        })
-    }
-}">
-    <div class="fixed top-16 w-72">
-        <div x-combobox x-model="selected">
-            <div class="relative mt-1">
-                <div class="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
-                    <input type="text" class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0" x-model="query">
-                    <!-- <input x-combobox:input class="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0" xtodo-displayValue="(person) => person.name" @change="query = $event.target.value" /> -->
-                    <button x-combobox:button class="absolute inset-y-0 right-0 flex items-center pr-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-5 w-5 text-gray-400"><path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    </button>
-                </div>
-                <ul x-combobox:options class="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    <div x-show="filteredPeople.length === 0 && query !== ''" class="relative cursor-default select-none py-2 px-4 text-gray-700">
-                        Nothing found.
-                    </div>
+    <!-- Play around. -->
+    <div x-data="{ open: false }">
+        <button @click="open = !open">Toggle</button>
 
-                    <template x-for="person in filteredPeople" :key="person.id">
-                        <li x-combobox:option :value="person" class="relative cursor-default select-none py-2 pl-10 pr-4" :class="{ 'bg-teal-600 text-white': $comboboxOption.active, 'text-gray-900': !$comboboxOption.active, }">
-                            <span x-text="person.name" class="block truncate" :class="{ 'font-medium': $comboboxOption.selected, 'font-normal': ! $comboboxOption.selected }"></span>
-
-                            <template x-if="$comboboxOption.selected">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3" :class="{ 'text-white': $comboboxOption.active, 'text-teal-600': !$comboboxOption.active }">
-                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                </span>
-                            </template>
-                        </li>
-                    </template>
-                </ul>
-            </div>
-        </div>
+        <span x-show="open">
+            Content...
+        </span>
     </div>
-</div>
-
 </html>

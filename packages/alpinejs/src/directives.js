@@ -180,7 +180,6 @@ let directiveOrder = [
     'if',
     DEFAULT,
     'teleport',
-    'element',
 ]
 
 function byPriority(a, b) {

@@ -1,4 +1,4 @@
-import { beVisible, haveLength, haveText, html, notBeVisible, test } from '../../utils'
+import { exist, haveLength, haveText, html, notExist, test } from '../../utils'
 
 test('renders loops with x-for',
     html`
@@ -12,7 +12,7 @@ test('renders loops with x-for',
     `,
     ({ get }) => {
         get('span:nth-of-type(1)').should(haveText('foo'))
-        get('span:nth-of-type(2)').should(notBeVisible())
+        get('span:nth-of-type(2)').should(notExist())
         get('button').click()
         get('span:nth-of-type(1)').should(haveText('foo'))
         get('span:nth-of-type(2)').should(haveText('bar'))
@@ -47,9 +47,9 @@ test('renders loops with x-for that have space or newline',
     `,
     ({ get }) => {
         get('#1 span:nth-of-type(1)').should(haveText('foo'))
-        get('#1 span:nth-of-type(2)').should(notBeVisible())
+        get('#1 span:nth-of-type(2)').should(notExist())
         get('#2 span:nth-of-type(1)').should(haveText('foo'))
-        get('#2 span:nth-of-type(2)').should(notBeVisible())
+        get('#2 span:nth-of-type(2)').should(notExist())
         get('button').click()
         get('#1 span:nth-of-type(1)').should(haveText('foo'))
         get('#1 span:nth-of-type(2)').should(haveText('bar'))
@@ -107,9 +107,9 @@ test('removes all elements when array is empty and previously had one item',
         </div>
     `,
     ({ get }) => {
-        get('span').should(beVisible())
+        get('span').should(exist())
         get('button').click()
-        get('span').should(notBeVisible())
+        get('span').should(notExist())
     }
 )
 
@@ -124,13 +124,13 @@ test('removes all elements when array is empty and previously had multiple items
         </div>
     `,
     ({ get }) => {
-        get('span:nth-of-type(1)').should(beVisible())
-        get('span:nth-of-type(2)').should(beVisible())
-        get('span:nth-of-type(3)').should(beVisible())
+        get('span:nth-of-type(1)').should(exist())
+        get('span:nth-of-type(2)').should(exist())
+        get('span:nth-of-type(3)').should(exist())
         get('button').click()
-        get('span:nth-of-type(1)').should(notBeVisible())
-        get('span:nth-of-type(2)').should(notBeVisible())
-        get('span:nth-of-type(3)').should(notBeVisible())
+        get('span:nth-of-type(1)').should(notExist())
+        get('span:nth-of-type(2)').should(notExist())
+        get('span:nth-of-type(3)').should(notExist())
     }
 )
 
@@ -148,11 +148,11 @@ test('elements inside of loop are reactive',
         </div>
     `,
     ({ get }) => {
-        get('span').should(beVisible())
+        get('span').should(exist())
         get('h1').should(haveText('first'))
         get('h2').should(haveText('bar'))
         get('button').click()
-        get('span').should(beVisible())
+        get('span').should(exist())
         get('h1').should(haveText('first'))
         get('h2').should(haveText('baz'))
     }
@@ -315,13 +315,13 @@ test('nested x-for',
         </div>
     `,
     ({ get }) => {
-        get('h1:nth-of-type(1) h2:nth-of-type(1)').should(beVisible())
-        get('h1:nth-of-type(1) h2:nth-of-type(2)').should(beVisible())
-        get('h1:nth-of-type(2) h2:nth-of-type(1)').should(notBeVisible())
+        get('h1:nth-of-type(1) h2:nth-of-type(1)').should(exist())
+        get('h1:nth-of-type(1) h2:nth-of-type(2)').should(exist())
+        get('h1:nth-of-type(2) h2:nth-of-type(1)').should(notExist())
         get('button').click()
-        get('h1:nth-of-type(1) h2:nth-of-type(1)').should(beVisible())
-        get('h1:nth-of-type(1) h2:nth-of-type(2)').should(beVisible())
-        get('h1:nth-of-type(2) h2:nth-of-type(1)').should(beVisible())
+        get('h1:nth-of-type(1) h2:nth-of-type(1)').should(exist())
+        get('h1:nth-of-type(1) h2:nth-of-type(2)').should(exist())
+        get('h1:nth-of-type(2) h2:nth-of-type(1)').should(exist())
     }
 )
 
@@ -538,7 +538,7 @@ test('x-for removed dom node does not evaluate child expressions after being rem
         get('span').should(haveText('lebowski'))
 
         /** Clicking button sets users=[] and thus x-for loop will remove all children.
-            If the sub-expression x-text="users[idx].name" is evaluated, the button click  
+            If the sub-expression x-text="users[idx].name" is evaluated, the button click
             will produce an error because users[idx] is no longer defined and the test will fail
         **/
         get('button').click()

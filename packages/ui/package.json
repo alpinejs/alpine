@@ -1,7 +1,7 @@
 {
-    "name": "@alpinejs/portal",
-    "version": "3.6.1-beta.0",
-    "description": "Send Alpine templates to other parts of the DOM",
+    "name": "@alpinejs/ui",
+    "version": "3.10.2-beta.1",
+    "description": "Headless UI components for Alpine",
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",

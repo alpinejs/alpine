@@ -17,6 +17,12 @@ test.only = (name, template, callback, handleExpectedErrors = false) => {
     })
 }
 
+test.skip = (name, template, callback, handleExpectedErrors = false) => {
+    it.skip(name, () => {
+        injectHtmlAndBootAlpine(cy, template, callback, undefined, handleExpectedErrors)
+    })
+}
+
 test.retry = (count) => (name, template, callback, handleExpectedErrors = false) => {
     it(name, {
         retries: {

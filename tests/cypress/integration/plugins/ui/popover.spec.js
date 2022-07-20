@@ -1,6 +1,6 @@
 import { beVisible, haveAttribute, html, notBeVisible, notHaveAttribute, test } from '../../../utils'
 
-test('button toggles panel',
+test.skip('button toggles panel',
     [html`
         <div x-data x-popover>
             <button x-popover:button>Toggle</button>
@@ -19,7 +19,7 @@ test('button toggles panel',
     },
 )
 
-test('has accessibility attributes',
+test.skip('has accessibility attributes',
     [html`
         <div x-data x-popover>
             <button x-popover:button>Toggle</button>
@@ -38,7 +38,7 @@ test('has accessibility attributes',
     },
 )
 
-test('escape closes panel',
+test.skip('escape closes panel',
     [html`
         <div x-data x-popover>
             <button x-popover:button>Toggle</button>
@@ -57,7 +57,7 @@ test('escape closes panel',
     },
 )
 
-test('clicking outside closes panel',
+test.skip('clicking outside closes panel',
     [html`
         <div>
             <div x-data x-popover>
@@ -80,7 +80,7 @@ test('clicking outside closes panel',
     },
 )
 
-test('focusing away closes panel',
+test.skip('focusing away closes panel',
     [html`
         <div>
             <div x-data x-popover>
@@ -103,7 +103,7 @@ test('focusing away closes panel',
     },
 )
 
-test('focusing away doesnt close panel if focusing inside a group',
+test.skip('focusing away doesnt close panel if focusing inside a group',
     [html`
         <div x-data>
             <div x-popover:group>

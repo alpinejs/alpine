@@ -1,6 +1,6 @@
 import { beVisible, haveFocus, html, notBeVisible, test } from '../../../utils'
 
-test('can use tabs to toggle panels',
+test.skip('can use tabs to toggle panels',
     [html`
         <div x-data x-tabs>
             <div x-tabs:list>
@@ -23,7 +23,7 @@ test('can use tabs to toggle panels',
     },
 )
 
-test('can use arrow keys to cycle through tabs',
+test.skip('can use arrow keys to cycle through tabs',
     [html`
         <div x-data x-tabs>
             <div x-tabs:list>
@@ -55,7 +55,7 @@ test('can use arrow keys to cycle through tabs',
     },
 )
 
-test('cant tab through tabs, can only use arrows',
+test.skip('cant tab through tabs, can only use arrows',
     [html`
         <div>
             <button button-1>first focusable</button>

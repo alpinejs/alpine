@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/mask",
-    "version": "3.10.2",
+    "version": "3.10.3",
     "description": "An Alpine plugin for input masking",
     "author": "Caleb Porzio",
     "license": "MIT",

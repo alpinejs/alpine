@@ -1,4 +1,4 @@
-import { beVisible, haveText, html, notBeVisible, test } from '../../utils'
+import { exist, haveText, html, notExist, test } from '../../utils'
 
 test('x-if',
     html`
@@ -11,11 +11,11 @@ test('x-if',
         </div>
     `,
     ({ get }) => {
-        get('h1').should(notBeVisible())
+        get('h1').should(notExist())
         get('button').click()
-        get('h1').should(beVisible())
+        get('h1').should(exist())
         get('button').click()
-        get('h1').should(notBeVisible())
+        get('h1').should(notExist())
     }
 )
 
@@ -65,11 +65,11 @@ test('x-if removed dom does not evaluate reactive expressions in dom tree',
     `,
     ({ get }) => {
         get('span').should(haveText('lebowski'))
-        
-        // Clicking button sets user=null and thus x-if="user" will evaluate to false. 
-        // If the sub-expression x-text="user.name" is evaluated, the button click  
+
+        // Clicking button sets user=null and thus x-if="user" will evaluate to false.
+        // If the sub-expression x-text="user.name" is evaluated, the button click
         // will produce an error because user is no longer defined and the test will fail
         get('button').click()
-        get('span').should('not.exist')
+        get('span').should(notExist())
     }
 )

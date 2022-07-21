@@ -1,5 +1,5 @@
 import { createFocusTrap } from 'focus-trap'
-import { focusable, tabbable, isFocusable } from 'tabbable'
+import { focusable, isFocusable } from 'tabbable'
 
 export default function (Alpine) {
     let lastFocused

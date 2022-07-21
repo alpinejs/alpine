@@ -44,3 +44,18 @@ test('can consume custom bind as function',
     `,
     ({ get }) => get('div').should(haveText('bar'))
 )
+
+test('can bind directives individually to an element',
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.bind(document.querySelector('#one'), () => ({
+                    'x-text'() { return 'foo' },
+                }))
+            })
+        </script>
+
+        <div x-data id="one"></div>
+    `,
+    ({ get }) => get('div').should(haveText('foo'))
+)

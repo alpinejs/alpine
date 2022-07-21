@@ -17,6 +17,12 @@ test.only = (name, template, callback, handleExpectedErrors = false) => {
     })
 }
 
+test.skip = (name, template, callback, handleExpectedErrors = false) => {
+    it.skip(name, () => {
+        injectHtmlAndBootAlpine(cy, template, callback, undefined, handleExpectedErrors)
+    })
+}
+
 test.retry = (count) => (name, template, callback, handleExpectedErrors = false) => {
     it(name, {
         retries: {
@@ -77,7 +83,7 @@ function injectHtmlAndBootAlpine(cy, templateAndPotentiallyScripts, callback, pa
 
         cy.window().then(window => {
             callback(cy, reload, window, window.document)
-        }) 
+        })
     })
 }
 
@@ -104,6 +110,10 @@ export let notBeChecked = () => el => expect(el).not.to.be.checked
 export let beVisible = () => el => expect(el).to.be.visible
 
 export let notBeVisible = () => el => expect(el).not.to.be.visible
+
+export let exist = () => el => expect(el).to.exist
+
+export let notExist = () => el => expect(el).not.to.exist
 
 export let beHidden = () => el => expect(el).to.be.hidden
 

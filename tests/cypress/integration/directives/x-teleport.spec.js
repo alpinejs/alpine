@@ -1,4 +1,4 @@
-import { beEqualTo, beVisible, haveText, html, notBeVisible, test } from '../../utils'
+import { exist, haveText, html, notExist, test } from '../../utils'
 
 test('can use a x-teleport',
     [html`
@@ -78,9 +78,9 @@ test('removing teleport source removes teleported target',
         <div id="b"></div>
     `],
     ({ get }) => {
-        get('#b h1').should(beVisible())
+        get('#b h1').should(exist())
         get('button').click()
-        get('#b h1').should(notBeVisible())
+        get('#b h1').should(notExist())
     },
 )
 
@@ -97,9 +97,9 @@ test('$refs inside teleport can be accessed outside',
         <div id="b"></div>
     `],
     ({ get }) => {
-        get('#b h1').should(beVisible())
+        get('#b h1').should(exist())
         get('button').click()
-        get('#b h1').should(notBeVisible())
+        get('#b h1').should(notExist())
     },
 )
 
@@ -114,7 +114,7 @@ test('$root is accessed outside teleport',
         <div id="b"></div>
     `],
     ({ get }) => {
-        get('#b h1').should(beVisible())
+        get('#b h1').should(exist())
         get('#b h1').should(haveText('a'))
     },
 )

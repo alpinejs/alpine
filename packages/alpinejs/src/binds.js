@@ -26,6 +26,12 @@ export function injectBindingProviders(obj) {
     return obj
 }
 
+export function addVirtualBindings(el, bindings) {
+    let getBindings = typeof bindings !== 'function' ? () => bindings : bindings
+
+    el._x_virtualDirectives = getBindings()
+}
+
 export function applyBindingsObject(el, obj, original) {
     let cleanupRunners = []
 

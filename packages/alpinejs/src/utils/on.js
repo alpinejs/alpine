@@ -66,6 +66,8 @@ export default function on (el, event, modifiers, callback) {
         handler = debounce(handler, wait)
     }
 
+    
+
     if (modifiers.includes('throttle')) {
         let nextModifier = modifiers[modifiers.indexOf('throttle')+1] || 'invalid-wait'
         let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
@@ -107,6 +109,11 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
 
     if (keyModifiers.includes('debounce')) {
         let debounceIndex = keyModifiers.indexOf('debounce')
+        keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex+1] || 'invalid-wait').split('ms')[0]) ? 2 : 1)
+    }
+
+    if (keyModifiers.includes('throttle')) {
+        let debounceIndex = keyModifiers.indexOf('throttle')
         keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex+1] || 'invalid-wait').split('ms')[0]) ? 2 : 1)
     }
 

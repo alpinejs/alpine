@@ -66,8 +66,6 @@ export default function on (el, event, modifiers, callback) {
         handler = debounce(handler, wait)
     }
 
-    
-
     if (modifiers.includes('throttle')) {
         let nextModifier = modifiers[modifiers.indexOf('throttle')+1] || 'invalid-wait'
         let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250

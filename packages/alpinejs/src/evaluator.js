@@ -134,6 +134,8 @@ export function runIfTypeOfFunction(receiver, value, scope, params, el) {
         } else {
             receiver(result)
         }
+    } else if (typeof value === 'object' && value instanceof Promise) {
+        value.then(i => receiver(i))
     } else {
         receiver(value)
     }

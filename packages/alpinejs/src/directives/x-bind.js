@@ -12,13 +12,13 @@ directive('bind', (el, { value, modifiers, expression, original }, { effect }) =
         injectBindingProviders(bindingProviders)
 
         let getBindings = evaluateLater(el, expression)
-        
-        effect(() => {
-            getBindings(bindings => {
-                applyBindingsObject(el, bindings, original)
-            }, { scope: bindingProviders } )
-        })
-        
+
+        el._x_bindExpression = expression;
+
+        getBindings(bindings => {
+            applyBindingsObject(el, bindings, original)
+        }, { scope: bindingProviders } )
+
         return
     }
 
@@ -33,6 +33,7 @@ directive('bind', (el, { value, modifiers, expression, original }, { effect }) =
         mutateDom(() => bind(el, value, result, modifiers))
     }))
 })
+
 
 function storeKeyForXFor(el, expression) {
     el._x_keyExpression = expression

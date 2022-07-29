@@ -1,18 +1,40 @@
 import { releaseNextTicks, holdNextTicks } from '../nextTick'
 import { setClasses } from '../utils/classes'
 import { setStyles } from '../utils/styles'
-import { directive } from '../directives'
+import { prefix, directive } from '../directives'
 import { mutateDom } from '../mutation'
 import { once } from '../utils/once'
 
-directive('transition', (el, { value, modifiers, expression }, { evaluate }) => {
-    if (typeof expression === 'function') expression = evaluate(expression)
-
+directive('transition', (el, { value, modifiers, expression }, { effect, evaluateLater, evaluate }) => {
+  
+    if (typeof expression === 'function') expression = evaluate(expression);
     if (! expression) {
         registerTransitionsFromHelper(el, modifiers, value)
     } else {
         registerTransitionsFromClassString(el, expression, value)
     }
+    
+    if (!el._x_bindExpression) return;
+    
+    let later = evaluateLater(el._x_bindExpression)
+    effect(() => {
+        later(boundExpression => {
+            /* check if stage is in boundExpression */
+            let expressionAtStage = boundExpression[prefix('transition') + ':' + value];
+            
+            /* stage can be a non-binded expression, so return if undefined */
+            if (typeof expressionAtStage === 'undefined') return;
+
+            if (typeof expressionAtStage === 'function') expressionAtStage = evaluate(expressionAtStage);
+            
+            if (! expressionAtStage) {
+                registerTransitionsFromHelper(el, modifiers, value)
+            } else {
+                registerTransitionsFromClassString(el, expressionAtStage, value)
+            }
+        })
+          
+    })
 })
 
 function registerTransitionsFromClassString(el, classString, stage) {

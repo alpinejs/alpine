@@ -7,31 +7,10 @@ title: Events
 
 Alpine makes it simple to listen for browser events and react to them.
 
-<a name="listening-for-simple-events"></a>
+<a name="a-note-about-naming-events"></a>
 ## A note about naming events
-It is recommended that you avoid using camel casing when naming events. Instead name events using single words divided by a - character.  Let's take this example below.
 
-```php
-$this->dispatchBrowserEvent(event: 'myAwesomeEvent');
-```
-
-```alpine
-@myAwesomeEvent="alert('Hello world');"
-```
-
-Although you might think otherwise, this doesn't actually work. In order to pickup on camel case named events you will have to use [EventTarget.addEventListener()](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
- either in the your init method or outside of your Alpine component.
-
-Taking the same example again with the preferred naming convention, everything works as expected.
-
-
-```php
-$this->dispatchBrowserEvent('my-awesome-event');
-```
-
-```alpine
-@my-awesome-event="alert('Hello world');"
-```
+[Camel casing](https://alpinejs.dev/directives/on#camel)
 
 <a name="listening-for-simple-events"></a>
 ## Listening for simple events

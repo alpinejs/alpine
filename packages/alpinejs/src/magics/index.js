@@ -10,6 +10,7 @@ import './$root'
 import './$refs'
 import './$id'
 import './$el'
+import './$fetch'
 
 // Register warnings for people using plugin syntaxes and not loading the plugin itself:
 warnMissingPluginMagic('Focus', 'focus', 'focus')

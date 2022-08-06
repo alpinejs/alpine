@@ -85,10 +85,10 @@ export default function (Alpine) {
             previous() { this.focus(this.getPrevious()) },
             prev() { return this.previous() },
             focus(el) {
-                if (! el) return
+                if (!el) return
 
                 setTimeout(() => {
-                    if (! el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0')
+                    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0')
 
                     el.focus({ preventScroll: this._noscroll })
                 })
@@ -106,18 +106,26 @@ export default function (Alpine) {
                 escapeDeactivates: false,
                 allowOutsideClick: true,
                 fallbackFocus: () => el,
-                initialFocus: el.querySelector('[autofocus]')
+                initialFocus: () => {
+                    const node = el.querySelector('[autofocus]');
+
+                    if (node) {
+                        return node;
+                    } else {
+                        return false;
+                    }
+                }
             })
 
-            let undoInert = () => {}
-            let undoDisableScrolling = () => {}
+            let undoInert = () => { }
+            let undoDisableScrolling = () => { }
 
             const releaseFocus = () => {
                 undoInert()
-                undoInert = () => {}
+                undoInert = () => { }
 
                 undoDisableScrolling()
-                undoDisableScrolling = () => {}
+                undoDisableScrolling = () => { }
 
                 trap.deactivate({
                     returnFocus: !modifiers.includes('noreturn')
@@ -128,7 +136,7 @@ export default function (Alpine) {
                 if (oldValue === value) return
 
                 // Start trapping.
-                if (value && ! oldValue) {
+                if (value && !oldValue) {
                     setTimeout(() => {
                         if (modifiers.includes('inert')) undoInert = setInert(el)
                         if (modifiers.includes('noscroll')) undoDisableScrolling = disableScrolling()
@@ -138,11 +146,11 @@ export default function (Alpine) {
                 }
 
                 // Stop trapping.
-                if (! value && oldValue) {
+                if (!value && oldValue) {
                     releaseFocus()
                 }
 
-                oldValue = !! value
+                oldValue = !!value
             }))
 
             cleanup(releaseFocus)
@@ -168,15 +176,15 @@ function setInert(el) {
     })
 
     return () => {
-        while(undos.length) undos.pop()()
+        while (undos.length) undos.pop()()
     }
 }
 
 function crawlSiblingsUp(el, callback) {
-    if (el.isSameNode(document.body) || ! el.parentNode) return
+    if (el.isSameNode(document.body) || !el.parentNode) return
 
     Array.from(el.parentNode.children).forEach(sibling => {
-        if (! sibling.isSameNode(el)) callback(sibling)
+        if (!sibling.isSameNode(el)) callback(sibling)
 
         crawlSiblingsUp(el.parentNode, callback)
     })

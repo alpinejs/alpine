@@ -1,6 +1,10 @@
 import { magic } from '../magics'
 
 magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
+    if (window.structuredClone === undefined) {
+        console.warn('structuredClone not available on Window object. A polyfill is needed for full watch functionality.')
+    }
+    
     let evaluate = evaluateLater(key)
 
     let firstTime = true

@@ -1,4 +1,4 @@
-import { beEqualTo, beVisible, haveText, html, notBeVisible, test } from '../../utils'
+import { beEqualTo, exist, haveText, html, notExist, test } from '../../utils'
 
 test('can persist number',
     [html`
@@ -83,11 +83,11 @@ test('can persist boolean',
         </div>
     `],
     ({ get }, reload) => {
-        get('span').should(notBeVisible())
+        get('span').should(notExist())
         get('button').click()
-        get('span').should(beVisible())
+        get('span').should(exist())
         reload()
-        get('span').should(beVisible())
+        get('span').should(exist())
     },
 )
 
@@ -128,14 +128,14 @@ test('can persist using an alias',
         </div>
     `],
     ({ get }, reload) => {
-        get('span#one').should(notBeVisible())
-        get('span#two').should(notBeVisible())
+        get('span#one').should(notExist())
+        get('span#two').should(notExist())
         get('button').click()
-        get('span#one').should(notBeVisible())
-        get('span#two').should(beVisible())
+        get('span#one').should(notExist())
+        get('span#two').should(exist())
         reload()
-        get('span#one').should(notBeVisible())
-        get('span#two').should(beVisible())
+        get('span#one').should(notExist())
+        get('span#two').should(exist())
     },
 )
 
@@ -155,14 +155,14 @@ test('aliases do not affect other $persist calls',
         </div>
     `],
     ({ get }, reload) => {
-        get('span#one').should(notBeVisible())
-        get('span#two').should(notBeVisible())
+        get('span#one').should(notExist())
+        get('span#two').should(notExist())
         get('button').click()
-        get('span#one').should(notBeVisible())
-        get('span#two').should(beVisible())
+        get('span#one').should(notExist())
+        get('span#two').should(exist())
         reload()
-        get('span#one').should(notBeVisible())
-        get('span#two').should(beVisible())
+        get('span#one').should(notExist())
+        get('span#two').should(exist())
     },
 )
 

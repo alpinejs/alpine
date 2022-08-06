@@ -112,7 +112,11 @@ export default function (Alpine) {
                     if (node) {
                         return node;
                     } else {
-                        return el;
+                        if (el.children && el.children.length > 0) {
+                            return el.children[0];
+                        } else {
+                            return el;
+                        }
                     }
                 }
             })

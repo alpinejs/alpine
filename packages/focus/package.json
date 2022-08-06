@@ -8,6 +8,6 @@
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
     "dependencies": {
-        "focus-trap": "^6.6.1"
+        "focus-trap": "^6.9.4"
     }
 }

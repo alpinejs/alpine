@@ -110,12 +110,15 @@ export default function (Alpine) {
                     const node = el.querySelector('[autofocus]');
 
                     if (node) {
+                        // Select the first node explicitly marked as autofocus
                         return node;
                     } else {
                         if (el.children && el.children.length > 0) {
+                            // Initial focus is the first element inside the node
                             return el.children[0];
                         } else {
-                            return el;
+                            // We trap focus for elements inside of the node, not the node itself 
+                            return false;
                         }
                     }
                 }

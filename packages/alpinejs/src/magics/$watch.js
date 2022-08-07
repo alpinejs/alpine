@@ -1,7 +1,7 @@
 import { magic } from '../magics'
 
 magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
-    if (window.structuredClone === undefined) {
+    if (!window.structuredClone) {
         console.warn('structuredClone not available on Window object. A polyfill is needed for full watch functionality.')
     }
     

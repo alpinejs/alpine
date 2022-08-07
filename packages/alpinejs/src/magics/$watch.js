@@ -27,6 +27,16 @@ magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
         return clonedArr;
     };
 
+    const cloneValue = (value) => {
+        if (Array.isArray(value)) {
+            return cloneArray(value);
+        } else if (value === Object(value)) {
+            return structuredClone({ ...value });
+        } else {
+            return value;
+        }
+    };
+
     let effectReference = effect(() => evaluate(value => {
         // JSON.stringify touches every single property at any level enabling deep watching
         JSON.stringify(value)
@@ -37,22 +47,10 @@ magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
             queueMicrotask(() => {
                 callback(value, oldValue)
 
-                if (Array.isArray(value)) {
-                    oldValue = cloneArray(value);
-                } else if (value === Object(value)) {
-                    oldValue = structuredClone({ ...value });
-                } else {
-                    oldValue = value
-                }
+                oldValue = cloneValue(value);
             })
         } else {
-            if (Array.isArray(value)) {
-                oldValue = cloneArray(value);
-            } else if (value === Object(value)) {
-                oldValue = structuredClone({ ...value });
-            } else {
-                oldValue = value
-            }
+            oldValue = cloneValue(value);
         }
 
         firstTime = false

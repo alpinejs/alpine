@@ -198,3 +198,23 @@ test('$watch nested arrays',
         get('h1').should(haveText('3'))
     }
 )
+
+test('$watch nested objects with arrays',
+    html`
+    <div x-data="{ foo: { bar: { quzzy: [ {arr: 'baz'} ] } }, bob: { bar: { quzzy: [ {arr: 'lob'} ] } } }" x-init="
+        $watch('foo', value => { bob = value }, {deep: true});">
+      <h1 x-text="foo.bar.quzzy[0].arr"></h1>
+      <h2 x-text="bob.bar.quzzy[0].arr"></h2>
+
+      <button id="assign" x-on:click="foo.bar.quzzy[0].arr = 'law'">Assign</button>
+    </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('baz'))
+        get('h2').should(haveText('lob'))
+
+        get('button#assign').click()
+        get('h1').should(haveText('law'))
+        get('h2').should(haveText('law'))
+    }
+)

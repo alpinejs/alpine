@@ -3,7 +3,7 @@ let tickStack = []
 
 let isHolding = false
 
-export function nextTick(callback = () => {}) {
+export function nextTick(callback = () => {}, condition = true) {
   queueMicrotask(() => {
     isHolding || setTimeout(() => {
       releaseNextTicks()
@@ -12,7 +12,7 @@ export function nextTick(callback = () => {}) {
 
   return new Promise((res) => {
     tickStack.push(() => {
-        callback();
+        if (condition) callback();
         res();
     });
   })

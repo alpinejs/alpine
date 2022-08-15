@@ -19,6 +19,23 @@ test('button toggles panel',
     },
 )
 
+test('popover can be rendered statically',
+    [html`
+        <div x-data x-popover>
+            <button x-popover:button>Toggle</button>
+
+            <ul x-popover:panel static>
+                Dialog Contents!
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('ul').should(beVisible())
+        get('button').click()
+        get('ul').should(beVisible())
+    },
+)
+
 test('has accessibility attributes',
     [html`
         <div x-data x-popover>
@@ -110,6 +127,42 @@ test('focusing away doesnt close panel if focusing inside a group',
                 <div x-data x-popover id="1">
                     <button x-popover:button>Toggle 1</button>
                     <ul x-popover:panel>
+                        Dialog 1 Contents!
+                    </ul>
+                </div>
+                <div x-data x-popover id="2">
+                    <button x-popover:button>Toggle 2</button>
+                    <ul x-popover:panel>
+                        Dialog 2 Contents!
+                    </ul>
+                </div>
+            </div>
+
+            <a href="#">Focus Me</a>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1 ul').should(notBeVisible())
+        get('#2 ul').should(notBeVisible())
+        get('#1 button').click()
+        get('#1 ul').should(beVisible())
+        get('#2 ul').should(notBeVisible())
+        cy.focused().tab()
+        get('#1 ul').should(beVisible())
+        get('#2 ul').should(notBeVisible())
+        cy.focused().tab()
+        get('#1 ul').should(notBeVisible())
+        get('#2 ul').should(notBeVisible())
+    },
+)
+
+test('focusing away still closes panel inside a group if the focus attribute is present',
+    [html`
+        <div x-data>
+            <div x-popover:group>
+                <div x-data x-popover id="1">
+                    <button x-popover:button>Toggle 1</button>
+                    <ul x-popover:panel focus>
                         Dialog 1 Contents!
                     </ul>
                 </div>

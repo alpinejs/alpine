@@ -13,7 +13,7 @@ export default function (Alpine) {
 
         return {
             get open() {
-                return $data.__isOpen
+                return $data.__isOpenState
             }
         }
     })
@@ -22,6 +22,7 @@ export default function (Alpine) {
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
         'x-id'() { return ['alpine-popover-button', 'alpine-popover-panel'] },
+        'x-modelable': '__isOpenState',
         'x-data'() {
             return {
                 init() {
@@ -35,17 +36,17 @@ function handleRoot(el, Alpine) {
                 },
                 __buttonEl: undefined,
                 __panelEl: undefined,
-                __isOpen: false,
+                __isOpenState: false,
                 __open() {
-                    this.__isOpen = true
+                    this.__isOpenState = true
 
                     this.$dispatch('__close-others', { el: this.$el })
                 },
                 __toggle() {
-                    this.__isOpen ? this.__close() : this.__open()
+                    this.__isOpenState ? this.__close() : this.__open()
                 },
                 __close(el) {
-                    this.__isOpen = false
+                    this.__isOpenState = false
 
                     if (el === false) return
 
@@ -83,8 +84,8 @@ function handleButton(el, Alpine) {
     Alpine.bind(el, {
         'x-ref': 'button',
         ':id'() { return this.$id('alpine-popover-button') },
-        ':aria-expanded'() { return this.$data.__isOpen },
-        ':aria-controls'() { return this.$data.__isOpen && this.$id('alpine-popover-panel') },
+        ':aria-expanded'() { return this.$data.__isOpenState },
+        ':aria-controls'() { return this.$data.__isOpenState && this.$id('alpine-popover-panel') },
         'x-init'() {
             if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button'
 
@@ -92,7 +93,7 @@ function handleButton(el, Alpine) {
         },
         '@click'() { this.$data.__toggle() },
         '@keydown.tab'(e) {
-            if (! e.shiftKey && this.$data.__isOpen) {
+            if (! e.shiftKey && this.$data.__isOpenState) {
                 let firstFocusableEl = this.$focus.within(this.$data.__panelEl).getFirst()
 
                 if (firstFocusableEl) {
@@ -104,7 +105,7 @@ function handleButton(el, Alpine) {
             }
         },
         '@keyup.tab'(e) {
-            if (this.$data.__isOpen) {
+            if (this.$data.__isOpenState) {
                 // Check if the last focused element was "after" this one
                 let lastEl = this.$focus.previouslyFocused()
 
@@ -134,13 +135,13 @@ function handlePanel(el, Alpine) {
     Alpine.bind(el, {
         'x-init'() { this.$data.__panelEl = this.$el },
         'x-effect'() {
-            this.$data.__isOpen && Alpine.bound(el, 'focus') && this.$focus.first()
+            this.$data.__isOpenState && Alpine.bound(el, 'focus') && this.$focus.first()
         },
         'x-ref': 'panel',
         ':id'() { return this.$id('alpine-popover-panel') },
-        'x-show'() { return this.$data.__isOpen },
+        'x-show'() { return this.$data.__isOpenState },
         '@mousedown.window'($event) {
-            if (! this.$data.__isOpen) return
+            if (! this.$data.__isOpenState) return
             if (this.$data.__contains(this.$data.__buttonEl, $event.target)) return
             if (this.$data.__contains(this.$el, $event.target)) return
 
@@ -186,6 +187,6 @@ function handleGroup(el, Alpine) {
 
 function handleOverlay(el, Alpine) {
     Alpine.bind(el, {
-        'x-show'() { return this.$data.__isOpen }
+        'x-show'() { return this.$data.__isOpenState }
     })
 }

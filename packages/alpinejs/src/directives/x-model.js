@@ -6,13 +6,19 @@ import on from '../utils/on'
 import { warn } from '../utils/warn'
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
-    let evaluateGet = evaluateLater(el, expression)
+    let scopeTarget = el
+
+    if (modifiers.includes('parent')) {
+        scopeTarget = el.parentNode
+    }
+
+    let evaluateGet = evaluateLater(scopeTarget, expression)
     let evaluateSet
 
     if (typeof expression === 'string') {
-        evaluateSet = evaluateLater(el, `${expression} = __placeholder`)
+        evaluateSet = evaluateLater(scopeTarget, `${expression} = __placeholder`)
     } else if (typeof expression === 'function' && typeof expression() === 'string') {
-        evaluateSet = evaluateLater(el, `${expression()} = __placeholder`)
+        evaluateSet = evaluateLater(scopeTarget, `${expression()} = __placeholder`)
     } else {
         evaluateSet = () => {}
     }

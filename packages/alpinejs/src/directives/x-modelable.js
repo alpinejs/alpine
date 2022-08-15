@@ -18,10 +18,10 @@ directive('modelable', (el, { expression }, { effect, evaluateLater }) => {
         // in x-modelable/model, but the input events from the native input
         // override any functionality added by x-modelable causing confusion.
         el._x_removeModelListeners['default']()
-    
+
         let outerGet = el._x_model.get
         let outerSet = el._x_model.set
-    
+
         effect(() => innerSet(outerGet()))
         effect(() => outerSet(innerGet()))
     })

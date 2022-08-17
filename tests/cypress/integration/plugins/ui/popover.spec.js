@@ -163,13 +163,13 @@ test('focusing away still closes panel inside a group if the focus attribute is 
                 <div x-data x-popover id="1">
                     <button x-popover:button>Toggle 1</button>
                     <ul x-popover:panel focus>
-                        Dialog 1 Contents!
+                        <a href="#">Dialog 1 Contents!</a>
                     </ul>
                 </div>
                 <div x-data x-popover id="2">
                     <button x-popover:button>Toggle 2</button>
                     <ul x-popover:panel>
-                        Dialog 2 Contents!
+                        <a href="#">Dialog 2 Contents!</a>
                     </ul>
                 </div>
             </div>
@@ -181,9 +181,6 @@ test('focusing away still closes panel inside a group if the focus attribute is 
         get('#1 ul').should(notBeVisible())
         get('#2 ul').should(notBeVisible())
         get('#1 button').click()
-        get('#1 ul').should(beVisible())
-        get('#2 ul').should(notBeVisible())
-        cy.focused().tab()
         get('#1 ul').should(beVisible())
         get('#2 ul').should(notBeVisible())
         cy.focused().tab()

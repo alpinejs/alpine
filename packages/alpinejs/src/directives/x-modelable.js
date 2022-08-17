@@ -22,7 +22,18 @@ directive('modelable', (el, { expression }, { effect, evaluateLater }) => {
         let outerGet = el._x_model.get
         let outerSet = el._x_model.set
 
-        effect(() => innerSet(outerGet()))
-        effect(() => outerSet(innerGet()))
+        effect(() => {
+            // Putting this operation in a microtask so that
+            // it doesn't get tracked in the effect:
+            let value = outerGet()
+            queueMicrotask(() => innerSet(value))
+        })
+
+        effect(() => {
+            // Putting this operation in a microtask so that
+            // it doesn't get tracked in the effect:
+            let value = innerGet()
+            queueMicrotask(() => outerSet(value))
+        })
     })
 })

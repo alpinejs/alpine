@@ -218,3 +218,43 @@ test('$watch nested objects with arrays',
         get('h2').should(haveText('law'))
     }
 )
+
+test('$watch should not error on null object',
+    html`
+    <div x-data="{ foo: null, bob: 'lob' }" x-init="
+        $watch('foo', value => { bob = value }, {deep: true});">
+      <h1 x-text="foo"></h1>
+      <h2 x-text="bob"></h2>
+
+      <button id="assign" x-on:click="foo = 'law'">Assign</button>
+    </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText(''))
+        get('h2').should(haveText('lob'))
+
+        get('button#assign').click()
+        get('h1').should(haveText('law'))
+        get('h2').should(haveText('law'))
+    }
+)
+
+test('$watch should not error on assignment to null object',
+    html`
+    <div x-data="{ foo: 'law', bob: 'lob' }" x-init="
+        $watch('foo', value => { bob = value }, {deep: true});">
+      <h1 x-text="foo"></h1>
+      <h2 x-text="bob"></h2>
+
+      <button id="assign" x-on:click="foo = null">Assign</button>
+    </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('law'))
+        get('h2').should(haveText('lob'))
+
+        get('button#assign').click()
+        get('h1').should(haveText(''))
+        get('h2').should(haveText(''))
+    }
+)

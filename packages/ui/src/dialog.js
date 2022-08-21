@@ -12,7 +12,11 @@ export default function (Alpine) {
         let $data = Alpine.$data(el)
 
         return {
+            // Kept here for legacy. Remove after out of beta.
             get open() {
+                return $data.__isOpen
+            },
+            get isOpen() {
                 return $data.__isOpen
             },
             close() {

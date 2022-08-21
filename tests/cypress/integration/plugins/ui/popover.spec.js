@@ -1,6 +1,6 @@
 import { beVisible, haveAttribute, html, notBeVisible, notHaveAttribute, test } from '../../../utils'
 
-test.skip('button toggles panel',
+test('button toggles panel',
     [html`
         <div x-data x-popover>
             <button x-popover:button>Toggle</button>
@@ -19,7 +19,24 @@ test.skip('button toggles panel',
     },
 )
 
-test.skip('has accessibility attributes',
+test('popover can be rendered statically',
+    [html`
+        <div x-data x-popover>
+            <button x-popover:button>Toggle</button>
+
+            <ul x-popover:panel static>
+                Dialog Contents!
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('ul').should(beVisible())
+        get('button').click()
+        get('ul').should(beVisible())
+    },
+)
+
+test('has accessibility attributes',
     [html`
         <div x-data x-popover>
             <button x-popover:button>Toggle</button>
@@ -38,7 +55,7 @@ test.skip('has accessibility attributes',
     },
 )
 
-test.skip('escape closes panel',
+test('escape closes panel',
     [html`
         <div x-data x-popover>
             <button x-popover:button>Toggle</button>
@@ -57,7 +74,7 @@ test.skip('escape closes panel',
     },
 )
 
-test.skip('clicking outside closes panel',
+test('clicking outside closes panel',
     [html`
         <div>
             <div x-data x-popover>
@@ -80,7 +97,7 @@ test.skip('clicking outside closes panel',
     },
 )
 
-test.skip('focusing away closes panel',
+test('focusing away closes panel',
     [html`
         <div>
             <div x-data x-popover>
@@ -103,7 +120,7 @@ test.skip('focusing away closes panel',
     },
 )
 
-test.skip('focusing away doesnt close panel if focusing inside a group',
+test('focusing away doesnt close panel if focusing inside a group',
     [html`
         <div x-data>
             <div x-popover:group>
@@ -131,6 +148,39 @@ test.skip('focusing away doesnt close panel if focusing inside a group',
         get('#1 ul').should(beVisible())
         get('#2 ul').should(notBeVisible())
         cy.focused().tab()
+        get('#1 ul').should(beVisible())
+        get('#2 ul').should(notBeVisible())
+        cy.focused().tab()
+        get('#1 ul').should(notBeVisible())
+        get('#2 ul').should(notBeVisible())
+    },
+)
+
+test('focusing away still closes panel inside a group if the focus attribute is present',
+    [html`
+        <div x-data>
+            <div x-popover:group>
+                <div x-data x-popover id="1">
+                    <button x-popover:button>Toggle 1</button>
+                    <ul x-popover:panel focus>
+                        <a href="#">Dialog 1 Contents!</a>
+                    </ul>
+                </div>
+                <div x-data x-popover id="2">
+                    <button x-popover:button>Toggle 2</button>
+                    <ul x-popover:panel>
+                        <a href="#">Dialog 2 Contents!</a>
+                    </ul>
+                </div>
+            </div>
+
+            <a href="#">Focus Me</a>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1 ul').should(notBeVisible())
+        get('#2 ul').should(notBeVisible())
+        get('#1 button').click()
         get('#1 ul').should(beVisible())
         get('#2 ul').should(notBeVisible())
         cy.focused().tab()

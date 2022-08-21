@@ -12,9 +12,15 @@ export default function (Alpine) {
         let $data = Alpine.$data(el)
 
         return {
-            get open() {
-                return $data.__isOpen
-            }
+            get isOpen() {
+                return $data.__isOpenState
+            },
+            open() {
+                $data.__open()
+            },
+            close() {
+                $data.__close()
+            },
         }
     })
 }
@@ -22,6 +28,7 @@ export default function (Alpine) {
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
         'x-id'() { return ['alpine-popover-button', 'alpine-popover-panel'] },
+        'x-modelable': '__isOpenState',
         'x-data'() {
             return {
                 init() {
@@ -35,17 +42,25 @@ function handleRoot(el, Alpine) {
                 },
                 __buttonEl: undefined,
                 __panelEl: undefined,
-                __isOpen: false,
+                __isStatic: false,
+                get __isOpen() {
+                    if (this.__isStatic) return true
+
+                    return this.__isOpenState
+                },
+                __isOpenState: false,
                 __open() {
-                    this.__isOpen = true
+                    this.__isOpenState = true
 
                     this.$dispatch('__close-others', { el: this.$el })
                 },
                 __toggle() {
-                    this.__isOpen ? this.__close() : this.__open()
+                    this.__isOpenState ? this.__close() : this.__open()
                 },
                 __close(el) {
-                    this.__isOpen = false
+                    if (this.__isStatic) return
+
+                    this.__isOpenState = false
 
                     if (el === false) return
 
@@ -132,7 +147,10 @@ function handleButton(el, Alpine) {
 
 function handlePanel(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() { this.$data.__panelEl = this.$el },
+        'x-init'() {
+            this.$data.__isStatic = Alpine.bound(this.$el, 'static', false)
+            this.$data.__panelEl = this.$el
+        },
         'x-effect'() {
             this.$data.__isOpen && Alpine.bound(el, 'focus') && this.$focus.first()
         },

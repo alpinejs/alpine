@@ -172,9 +172,10 @@ test('deep $watch',
 
 test('$watch nested arrays',
     html`
-        <div x-data="{ foo: [['one', 'two'], ['three']], bob: 'lob' }"
+        <div x-data="{ foo: [['one', 'two'], ['three']], bob: [['four', 'five'], ['six']] }"
             x-init="$watch('foo', value => { bob = value })">
             <h1 x-text="foo[0][0]"></h1>
+            <h2 x-text="bob[0][0]"></h1>
 
             <button id="unshift" x-on:click="foo.unshift(['zero'])"></button>
             <button id="assign" x-on:click="foo = [[2],[1],[3]]"></button>
@@ -184,18 +185,23 @@ test('$watch nested arrays',
     `,
     ({ get }) => {
         get('h1').should(haveText('one'))
+        get('h2').should(haveText('four'))
 
         get('button#unshift').click()
         get('h1').should(haveText('zero'))
+        get('h2').should(haveText('zero'))
 
         get('button#assign').click()
         get('h1').should(haveText('2'))
+        get('h2').should(haveText('2'))
 
         get('button#sort').click()
         get('h1').should(haveText('1'))
+        get('h2').should(haveText('1'))
 
         get('button#reverse').click()
         get('h1').should(haveText('3'))
+        get('h2').should(haveText('3'))
     }
 )
 

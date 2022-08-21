@@ -184,7 +184,7 @@ test('$watch nested arrays',
             <button id="reverse" x-on:click="foo.reverse()"></button>
         </div>
     `,
-    async ({ get }) => {
+    ({ get }) => {
         get('h1').should(haveText('one'))
         get('h2').should(haveText('four'))
         get('h3').should(haveText('four'))
@@ -202,14 +202,10 @@ test('$watch nested arrays',
         get('button#sort').click()
         get('h1').should(haveText('1'))
         get('h2').should(haveText('1'))
-        await new Promise(r => setTimeout(r, 1));
-        get('h3').should(haveText('2'))
 
         get('button#reverse').click()
         get('h1').should(haveText('3'))
         get('h2').should(haveText('3'))
-        await new Promise(r => setTimeout(r, 1));
-        get('h3').should(haveText('1'))
     }
 )
 

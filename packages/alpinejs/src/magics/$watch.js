@@ -75,10 +75,11 @@ magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
         if (!firstTime) {
             // We have to queue this watcher as a microtask so that
             // the watcher doesn't pick up its own dependencies.
+            const valueClone = cloneValue(value);
             queueMicrotask(() => {
                 callback(value, oldValue)
 
-                oldValue = cloneValue(value);
+                oldValue = valueClone;
             })
         } else {
             oldValue = cloneValue(value);

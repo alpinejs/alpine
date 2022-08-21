@@ -202,10 +202,12 @@ test('$watch nested arrays',
         get('button#sort').click()
         get('h1').should(haveText('1'))
         get('h2').should(haveText('1'))
+        get('h3').should(haveText('2'))
 
         get('button#reverse').click()
         get('h1').should(haveText('3'))
         get('h2').should(haveText('3'))
+        get('h3').should(haveText('1'))
     }
 )
 

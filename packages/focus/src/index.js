@@ -117,8 +117,8 @@ export default function (Alpine) {
                             // Initial focus is the first element inside the node
                             return el.children[0];
                         } else {
-                            // We trap focus for the node itself 
-                            return el;
+                            // We trap focus for elements inside of the node, not the node itself 
+                            return false;
                         }
                     }
                 }

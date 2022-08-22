@@ -2,6 +2,7 @@
     "name": "@alpinejs/history",
     "version": "3.0.0-alpha.0",
     "description": "Sync Alpine data with the browser's query string",
+    "homepage": "https://alpinejs.dev/",
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",

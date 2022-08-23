@@ -7,6 +7,11 @@ title: Events
 
 Alpine makes it simple to listen for browser events and react to them.
 
+<a name="a-note-about-naming-events"></a>
+## A note about naming events
+
+[Camel casing](https://alpinejs.dev/directives/on#camel)
+
 <a name="listening-for-simple-events"></a>
 ## Listening for simple events
 

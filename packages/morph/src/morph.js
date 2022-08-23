@@ -156,11 +156,31 @@ export async function morph(from, toHtml, options) {
 
         let domKeyHoldovers = {}
 
+        let isInsideWall = false
+
         while (currentTo) {
+            // If "<!-- end -->"
+            if (
+                currentTo.nodeType === 8
+                && currentTo.textContent === ' end '
+            ) {
+                isInsideWall = false
+                currentTo = dom(currentTo).nodes().next()
+                currentFrom = dom(currentFrom).nodes().next()
+                continue
+            }
+
+            if (insideWall) {
+
+            }
+
+            if (isInsideWall) {
+                console.log(currentFrom, currentTo)
+            }
+
             let toKey = getKey(currentTo)
             let domKey = getKey(currentFrom)
 
-            debugger
             // Add new elements
             if (! currentFrom) {
                 if (toKey && domKeyHoldovers[toKey]) {
@@ -179,6 +199,19 @@ export async function morph(from, toHtml, options) {
 
                     continue
                 }
+            }
+
+            // If "<!-- if -->"
+            if (
+                currentTo.nodeType === 8
+                && currentTo.textContent === ' if '
+                && currentFrom.nodeType === 8
+                && currentFrom.textContent === ' if '
+            ) {
+                isInsideWall = true
+                currentTo = dom(currentTo).nodes().next()
+                currentFrom = dom(currentFrom).nodes().next()
+                continue
             }
 
             if (lookahead) {

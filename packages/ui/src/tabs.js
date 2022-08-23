@@ -12,7 +12,7 @@ export default function (Alpine) {
         let $data = Alpine.$data(el)
 
         return {
-            get selected() {
+            get isSelected() {
                 return $data.__selectedIndex === $data.__tabs.indexOf($data.__tabEl)
             }
         }
@@ -22,7 +22,7 @@ export default function (Alpine) {
         let $data = Alpine.$data(el)
 
         return {
-            get selected() {
+            get isSelected() {
                 return $data.__selectedIndex === $data.__panels.indexOf($data.__panelEl)
             }
         }
@@ -99,7 +99,7 @@ function handleTab(el, Alpine) {
         '@keydown.right.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().next() },
         '@keydown.up.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().prev() },
         '@keydown.left.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().prev() },
-        ':tabindex'() { return this.$tab.selected ? 0 : -1 },
+        ':tabindex'() { return this.$tab.isSelected ? 0 : -1 },
         '@focus'() {
             if (this.$data.__manualActivation) {
                 this.$el.focus()
@@ -122,7 +122,7 @@ function handlePanels(el, Alpine) {
 
 function handlePanel(el, Alpine) {
     Alpine.bind(el, {
-        ':tabindex'() { return this.$tabPanel.selected ? 0 : -1 },
+        ':tabindex'() { return this.$tabPanel.isSelected ? 0 : -1 },
         'x-data'() { return {
             init() {
                 this.__panelEl = this.$el
@@ -130,7 +130,7 @@ function handlePanel(el, Alpine) {
             },
             __panelEl: undefined,
         }},
-        'x-show'() { return this.$tabPanel.selected },
+        'x-show'() { return this.$tabPanel.isSelected },
     })
 }
 

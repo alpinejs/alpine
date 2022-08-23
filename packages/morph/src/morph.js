@@ -160,6 +160,7 @@ export async function morph(from, toHtml, options) {
             let toKey = getKey(currentTo)
             let domKey = getKey(currentFrom)
 
+            debugger
             // Add new elements
             if (! currentFrom) {
                 if (toKey && domKeyHoldovers[toKey]) {

@@ -56,7 +56,7 @@ export default function (Alpine) {
                     start: { height: current+'px' },
                     end: { height: full+'px' },
                 }, () => el._x_isShown = true, () => {
-                    if (el.style.height == `${full}px`) {
+                    if (Math.floor(el.style.height.replace('px', '')) == Math.floor(full)) {
                         el.style.overflow = null
                     }
                 })

@@ -355,3 +355,69 @@ test('can morph table tr',
         get('td').should(haveText('2'))
     },
 )
+
+test.only('can morph with conditional markers',
+    [html`
+        <main>
+            <!-- __IF__ -->
+            <div>foo<input></div>
+            <!-- __ENDIF__ -->
+            <div>bar<input></div>
+        </main>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <main>
+            <!-- __IF__ -->
+            <div>foo<input></div>
+            <div>baz<input></div>
+            <!-- __ENDIF__ -->
+            <div>bar<input></div>
+        </main>
+        `
+
+        get('div:nth-of-type(1) input').type('foo')
+        get('div:nth-of-type(2) input').type('bar')
+
+        get('main').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('div:nth-of-type(1) input').should(haveValue('foo'))
+        get('div:nth-of-type(2) input').should(haveValue(''))
+        get('div:nth-of-type(3) input').should(haveValue('bar'))
+    },
+)
+
+test.only('can morph with flat-nested conditional markers',
+    [html`
+        <main>
+            <!-- __IF__ -->
+            <div>foo<input></div>
+            <!-- __IF__ -->
+            <!-- __ENDIF__ -->
+            <!-- __ENDIF__ -->
+            <div>bar<input></div>
+        </main>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <main>
+            <!-- __IF__ -->
+            <div>foo<input></div>
+            <!-- __IF__ -->
+            <!-- __ENDIF__ -->
+            <div>baz<input></div>
+            <!-- __ENDIF__ -->
+            <div>bar<input></div>
+        </main>
+        `
+
+        get('div:nth-of-type(1) input').type('foo')
+        get('div:nth-of-type(2) input').type('bar')
+
+        get('main').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('div:nth-of-type(1) input').should(haveValue('foo'))
+        get('div:nth-of-type(2) input').should(haveValue(''))
+        get('div:nth-of-type(3) input').should(haveValue('bar'))
+    },
+)

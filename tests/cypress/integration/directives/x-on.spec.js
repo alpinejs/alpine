@@ -330,6 +330,30 @@ test('keydown modifiers',
     }
 )
 
+test('discerns between space minus underscore',
+    html`
+        <div x-data="{ count: 0 }">
+            <input id="space" type="text" x-on:keydown.space="count++" />
+            <input id="minus" type="text" x-on:keydown.-="count++" />
+            <input id="underscore" type="text" x-on:keydown._="count++" />
+            <span x-text="count"></span>
+        </div>
+    `,
+    ({get}) => {
+        get('span').should(haveText('0'))
+        get('#space').type(' ')
+        get('span').should(haveText('1'))
+        get('#space').type('-')
+        get('span').should(haveText('1'))
+        get('#minus').type('-')
+        get('span').should(haveText('2'))
+        get('#minus').type(' ')
+        get('span').should(haveText('2'))
+        get('#underscore').type('_')
+        get('span').should(haveText('3'))
+        get('#underscore').type(' ')
+    })
+
 test('keydown combo modifiers',
     html`
         <div x-data="{ count: 0 }">

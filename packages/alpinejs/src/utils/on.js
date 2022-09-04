@@ -93,6 +93,8 @@ function isNumeric(subject){
 }
 
 function kebabCase(subject) {
+    if ([' ','_'].includes(subject
+    )) return subject
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase()
 }
 
@@ -149,8 +151,8 @@ function keyToModifiers(key) {
     let modifierToKeyMap = {
         'ctrl': 'control',
         'slash': '/',
-        'space': '-',
-        'spacebar': '-',
+        'space': ' ',
+        'spacebar': ' ',
         'cmd': 'meta',
         'esc': 'escape',
         'up': 'arrow-up',
@@ -159,6 +161,8 @@ function keyToModifiers(key) {
         'right': 'arrow-right',
         'period': '.',
         'equal': '=',
+        'minus': '-',
+        'underscore': '_',
     }
 
     modifierToKeyMap[key] = key

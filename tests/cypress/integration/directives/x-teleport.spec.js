@@ -19,6 +19,44 @@ test('can use a x-teleport',
     },
 )
 
+test('can use a x-teleport.before',
+    [html`
+        <div x-data="{ count: 1 }" id="a">
+            <button @click="count++">Inc</button>
+
+            <template x-teleport.before="#b">
+                <span x-text="count"></span>
+            </template>
+        </div>
+
+        <div id="b"></div>
+    `],
+    ({ get }) => {
+        get('#b').prev().should(haveText('1'))
+        get('button').click()
+        get('#b').prev().should(haveText('2'))
+    },
+)
+
+test('can use a x-teleport.after',
+    [html`
+        <div x-data="{ count: 1 }" id="a">
+            <button @click="count++">Inc</button>
+
+            <template x-teleport.after="#b">
+                <span x-text="count"></span>
+            </template>
+        </div>
+
+        <div id="b"></div>
+    `],
+    ({ get }) => {
+        get('#b').next().should(haveText('1'))
+        get('button').click()
+        get('#b').next().should(haveText('2'))
+    },
+)
+
 test('can teleport multiple',
     [html`
         <div x-data="{ count: 1 }" id="a">

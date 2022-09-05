@@ -4,7 +4,7 @@ import { mutateDom } from "../mutation"
 import { addScopeToNode } from "../scope"
 import { warn } from "../utils/warn"
 
-directive('teleport', (el, { expression }, { cleanup }) => {
+directive('teleport', (el, { expression, modifiers }, { cleanup }) => {
     if (el.tagName.toLowerCase() !== 'template') warn('x-teleport can only be used on a <template> tag', el)
 
     let target = document.querySelector(expression)
@@ -31,7 +31,13 @@ directive('teleport', (el, { expression }, { cleanup }) => {
     addScopeToNode(clone, {}, el)
 
     mutateDom(() => {
-        target.appendChild(clone)
+        if (modifiers.includes('before')) {
+            target.parentNode.insertBefore(clone, target)
+        } else if (modifiers.includes('after')) {
+            target.parentNode.insertBefore(clone, target.nextSibling)
+        } else {
+            target.appendChild(clone)
+        }
 
         initTree(clone)
 

@@ -352,6 +352,7 @@ test('discerns between space minus underscore',
         get('#underscore').type('_')
         get('span').should(haveText('3'))
         get('#underscore').type(' ')
+        get('span').should(haveText('3'))
     })
 
 test('keydown combo modifiers',

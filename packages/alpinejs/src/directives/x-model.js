@@ -1,6 +1,7 @@
 import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 import { mutateDom } from '../mutation'
+import { nextTick } from '../nextTick'
 import bind from '../utils/bind'
 import on from '../utils/on'
 

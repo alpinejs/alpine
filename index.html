@@ -9,13 +9,11 @@
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
     <!-- Play around. -->
-    <div x-data="{ open: false, foo: '' }">
+    <div x-data="{ open: false }">
+        <button @click="open = !open">Toggle</button>
 
-        <span x-text="foo"></span>
-        <form>
-            <input x-model="foo" />
-            <button type="reset">Reset</button>
-        </form>
-        <a href="https://www.google.com">link</a>
+        <span x-show="open">
+            Content...
+        </span>
     </div>
 </html>

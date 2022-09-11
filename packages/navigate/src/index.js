@@ -9,9 +9,9 @@ import { getPretchedHtmlOr, prefetchHtml, storeThePrefetchedHtmlForWhenALinkIsCl
 import { restoreScrollPosition, storeScrollInformationInHtmlBeforeNavigatingAway } from "./scroll"
 
 let enablePrefetch = true
-let enablePersist = false
+let enablePersist = true
 let showProgressBar = false
-let restoreScroll = false
+let restoreScroll = true
 let autofocus = false
 
 export default function (Alpine) {
@@ -65,25 +65,29 @@ export default function (Alpine) {
     whenTheBackOrForwardButtonIsClicked((html) => {
         // @todo: see if there's a way to update the current HTML BEFORE
         // the back button is hit, and not AFTER:
-        // storeScrollInformationInHtmlBeforeNavigatingAway()
+        storeScrollInformationInHtmlBeforeNavigatingAway()
         // updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
 
         preventAlpineFromPickingUpDomChanges(Alpine, andAfterAllThis => {
-            swapCurrentPageWithNewHtml(html)
+            enablePersist && storePersistantElementsForLater()
 
-            hijackNewLinksOnThePage()
+            swapCurrentPageWithNewHtml(html, andThen => {
+                enablePersist && putPersistantElementsBack()
 
-            restoreScroll && restoreScrollPosition()
+                hijackNewLinksOnThePage()
 
-            fireEventForOtherLibariesToHookInto()
+                restoreScroll && restoreScrollPosition()
 
-            andAfterAllThis(() => {
-                autofocus && autofocusElementsWithTheAutofocusAttribute()
+                fireEventForOtherLibariesToHookInto()
 
-                nowInitializeAlpineOnTheNewPage(Alpine)
+                andAfterAllThis(() => {
+                    autofocus && autofocusElementsWithTheAutofocusAttribute()
+
+                    nowInitializeAlpineOnTheNewPage(Alpine)
+                })
             })
-        })
 
+        })
     })
 }
 
@@ -110,7 +114,9 @@ function fireEventForOtherLibariesToHookInto() {
 }
 
 function nowInitializeAlpineOnTheNewPage(Alpine) {
-    Alpine.initTree(document.body)
+    Alpine.initTree(document.body, undefined, (el, skip) => {
+        if (el._x_wasPersisted) skip()
+    })
 }
 
 function autofocusElementsWithTheAutofocusAttribute() {

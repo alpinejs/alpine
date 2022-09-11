@@ -1,3 +1,4 @@
+import Alpine from "alpinejs/src/alpine"
 
 export function swapCurrentPageWithNewHtml(html, andThen) {
     let newDocument = (new DOMParser()).parseFromString(html, "text/html")
@@ -9,20 +10,28 @@ export function swapCurrentPageWithNewHtml(html, andThen) {
 
     transitionOut(document.body)
 
-    setTimeout(() => {
+    // @todo: only setTimeout when applying transitions
+    // setTimeout(() => {
+        let oldBody = document.body
+
         document.body.replaceWith(newBody)
+
+        Alpine.destroyTree(oldBody)
+
         transitionIn(newBody)
 
         andThen()
-    }, 500)
+    // }, 0)
 }
 
 function transitionOut(body) {
+    return;
     body.style.transition = 'all .5s ease'
     body.style.opacity = '0'
 }
 
 function transitionIn(body) {
+    return;
     body.style.opacity = '0'
     body.style.transition = 'all .5s ease'
 

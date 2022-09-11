@@ -1,11 +1,11 @@
 import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw } from './reactivity'
 import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } from './directives'
-import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, interceptInit } from './lifecycle'
+import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle'
 import { mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation'
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope'
 import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from './evaluator'
 import { transition } from './directives/x-transition'
-import { clone, skipDuringClone } from './clone'
+import { clone, skipDuringClone, onlyDuringClone } from './clone'
 import { interceptor } from './interceptor'
 import { getBinding as bound } from './utils/bind'
 import { debounce } from './utils/debounce'
@@ -33,6 +33,7 @@ let Alpine = {
     setReactivityEngine,
     closestDataStack,
     skipDuringClone,
+    onlyDuringClone,
     addRootSelector,
     addInitSelector,
     addScopeToNode,
@@ -44,6 +45,7 @@ let Alpine = {
     mergeProxies,
     findClosest,
     closestRoot,
+    destroyTree,
     interceptor, // INTERNAL: not public API and is subject to change without major release.
     transition, // INTERNAL
     setStyles, // INTERNAL

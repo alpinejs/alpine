@@ -73,10 +73,12 @@ let initInterceptors = []
 
 export function interceptInit(callback) { initInterceptors.push(callback) }
 
-export function initTree(el, walker = walk) {
+export function initTree(el, walker = walk, intercept = () => {}) {
     deferHandlingDirectives(() => {
         walker(el, (el, skip) => {
-            initInterceptors.forEach(i => i(el))
+            intercept(el, skip)
+
+            initInterceptors.forEach(i => i(el, skip))
 
             directives(el, el.attributes).forEach(handle => handle())
 
@@ -85,6 +87,6 @@ export function initTree(el, walker = walk) {
     })
 }
 
-function destroyTree(root) {
+export function destroyTree(root) {
     walk(root, el => cleanupAttributes(el))
 }

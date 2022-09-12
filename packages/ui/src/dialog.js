@@ -5,6 +5,7 @@ export default function (Alpine) {
         else if (directive.value === 'panel')       handlePanel(el, Alpine)
         else if (directive.value === 'title')       handleTitle(el, Alpine)
         else if (directive.value === 'description') handleDescription(el, Alpine)
+        else if (directive.value === 'focus')       handleFocus(el, Alpine)
         else                                        handleRoot(el, Alpine)
     })
 
@@ -34,14 +35,6 @@ function handleRoot(el, Alpine) {
                     // If the user chose to use :open and @close instead of x-model.
                     (Alpine.bound(el, 'open') !== undefined) && Alpine.effect(() => {
                         this.__isOpenState = Alpine.bound(el, 'open')
-                    })
-
-                    if (Alpine.bound(el, 'initial-focus') !== undefined) this.$watch('__isOpenState', () => {
-                        if (! this.__isOpenState) return
-
-                        setTimeout(() => {
-                            Alpine.bound(el, 'initial-focus').focus()
-                        }, 0);
                     })
                 },
                 __isOpenState: false,
@@ -94,3 +87,14 @@ function handleDescription(el, Alpine) {
     })
 }
 
+function handleFocus(el, Alpine) {
+    Alpine.bind(el, {
+        'x-effect'() {
+            if (! this.__isOpenState) return
+
+            setTimeout(() => {
+                el.focus();
+            }, 0);
+        },
+    });
+}

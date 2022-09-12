@@ -34,13 +34,18 @@ function initializeLinksForClicking() {
 }
 
 function initializeLinksForHovering() {
-    getLinks().forEach(el => {
-        el.addEventListener('mouseenter', e => {
-            handleLinkHover(el)
+    getLinks()
+        .filter(i => i.hasAttribute('wire:navigate.prefetch'))
+        .forEach(el => {
+            el.addEventListener('mouseenter', e => {
+                handleLinkHover(el)
+            })
         })
-    })
 }
 
 function getLinks() {
     return Array.from(document.links)
+        .filter(i => i.hasAttribute('wire:navigate')
+        || i.hasAttribute('wire:navigate.prefetch'))
 }
+

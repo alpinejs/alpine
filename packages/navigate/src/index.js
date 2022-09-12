@@ -10,7 +10,7 @@ import { restoreScrollPosition, storeScrollInformationInHtmlBeforeNavigatingAway
 
 let enablePrefetch = true
 let enablePersist = true
-let showProgressBar = false
+let showProgressBar = true
 let restoreScroll = true
 let autofocus = false
 
@@ -33,9 +33,9 @@ export default function (Alpine) {
         fetchHtmlOrUsePrefetchedHtml(fromDestination, html => {
             restoreScroll && storeScrollInformationInHtmlBeforeNavigatingAway()
 
-            updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
-
             showProgressBar && finishAndHideProgressBar()
+
+            updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
 
             preventAlpineFromPickingUpDomChanges(Alpine, andAfterAllThis => {
                 enablePersist && storePersistantElementsForLater()
@@ -43,7 +43,9 @@ export default function (Alpine) {
                 swapCurrentPageWithNewHtml(html, () => {
                     enablePersist && putPersistantElementsBack()
 
-                    hijackNewLinksOnThePage()
+                    // Added setTimeout here to detect a currently hovered prefetch link...
+                    // (hack for laracon)
+                    setTimeout(() => hijackNewLinksOnThePage())
 
                     restoreScroll && restoreScrollPosition()
 

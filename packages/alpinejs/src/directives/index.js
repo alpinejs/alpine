@@ -2,7 +2,6 @@ import { directive } from '../directives'
 import { warn } from '../utils/warn'
 
 import './x-transition'
-import './x-modelable'
 import './x-teleport'
 import './x-destroy'
 import './x-ignore'
@@ -20,6 +19,7 @@ import './x-ref'
 import './x-if'
 import './x-id'
 import './x-on'
+import './x-modelable'
 
 // Register warnings for people using plugin syntaxes and not loading the plugin itself:
 warnMissingPluginDirective('Collapse', 'collapse', 'collapse')

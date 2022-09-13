@@ -94,7 +94,7 @@ function handleFocus(el, Alpine) {
 
             setTimeout(() => {
                 el.focus();
-            }, 0);
+            }, 50);
         },
     });
 }

@@ -164,6 +164,8 @@ export function buildUp(template, input) {
 }
 
 function formatMoney(input, delimeter = '.', thousands) {
+    if (!input.replace(/\D+/g, '')) return '9'
+
     thousands = (delimeter === ',' && thousands === undefined)
         ? '.' : ','
 

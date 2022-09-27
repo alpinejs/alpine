@@ -115,7 +115,7 @@ test('can detect the selected tab & panel',
     },
 )
 
-test.only('can disable a tab',
+test('can disable a tab',
     [html`
         <div x-data x-tabs>
             <div x-tabs:list>
@@ -140,8 +140,86 @@ test.only('can disable a tab',
         get('[button-1]').type('{rightArrow}')
         get('[panel-1]').should(notBeVisible())
         get('[panel-3]').should(beVisible())
-        get('[button-1]').type('{rightArrow}')
+        get('[button-3]').type('{rightArrow}')
         get('[panel-3]').should(notBeVisible())
         get('[panel-1]').should(beVisible())
+    },
+)
+
+test('can traverse tabs manually',
+    [html`
+        <div x-data x-tabs manual>
+            <div x-tabs:list>
+                <button x-tabs:tab button-1>First</button>
+                <button x-tabs:tab button-2>Second</button>
+            </div>
+
+            <div x-tabs:panels>
+                <div x-tabs:panel panel-1>First Panel</div>
+                <div x-tabs:panel panel-2>Second Panel</div>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('[button-1]').click()
+        get('[button-1]').should(haveFocus())
+        get('[panel-1]').should(beVisible())
+        get('[panel-2]').should(notBeVisible())
+        get('[button-1]').type('{rightArrow}')
+        get('[button-2]').should(haveFocus())
+        get('[panel-1]').should(beVisible())
+        get('[panel-2]').should(notBeVisible())
+        get('[button-2]').click()
+        get('[panel-1]').should(notBeVisible())
+        get('[panel-2]').should(beVisible())
+    },
+)
+
+test('can set a default index',
+    [html`
+        <div x-data x-tabs default-index="1">
+            <div x-tabs:list>
+                <button x-tabs:tab button-1>First</button>
+                <button x-tabs:tab button-2>Second</button>
+            </div>
+
+            <div x-tabs:panels>
+                <div x-tabs:panel panel-1>First Panel</div>
+                <div x-tabs:panel panel-2>Second Panel</div>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('[panel-1]').should(notBeVisible())
+        get('[panel-2]').should(beVisible())
+    },
+)
+
+test('can programmatically control the selected tab',
+    [html`
+        <div x-data="{ selectedIndex: 1 }">
+            <button @click="selectedIndex = selectedIndex ? 0 : 1" button-toggle>Toggle tabs</button>
+
+            <div x-tabs x-model="selectedIndex">
+                <div x-tabs:list>
+                    <button x-tabs:tab button-1>First</button>
+                    <button x-tabs:tab button-2>Second</button>
+                </div>
+                <div x-tabs:panels>
+                    <div x-tabs:panel panel-1>First Panel</div>
+                    <div x-tabs:panel panel-2>Second Panel</div>
+                </div>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('[panel-1]').should(notBeVisible())
+        get('[panel-2]').should(beVisible())
+        get('[button-toggle]').click()
+        get('[panel-2]').should(notBeVisible())
+        get('[panel-1]').should(beVisible())
+        get('[button-toggle]').click()
+        get('[panel-1]').should(notBeVisible())
+        get('[panel-2]').should(beVisible())
     },
 )

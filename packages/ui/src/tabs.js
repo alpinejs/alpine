@@ -16,12 +16,6 @@ export default function (Alpine) {
                 return $data.__selectedIndex === $data.__tabs.indexOf($data.__tabEl)
             },
             get isDisabled() {
-                console.log($data.__isDisabled)
-                return true
-                return 'ey'
-                setTimeout(() => {
-                    console.log(($data.__isDisabled))
-                })
                 return $data.__isDisabled
             }
         }
@@ -40,6 +34,7 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
+        'x-modelable': '__selectedIndex',
         'x-data'() {
             return {
                 init() {
@@ -86,10 +81,11 @@ function handleTab(el, Alpine) {
             init() {
                 this.__tabEl = this.$el
                 this.$data.__addTab(this.$el)
-                // this.__tabEl.__disabled = this.__isDisabled = Alpine.bound(this.$el, 'disabled', false)
+                this.__tabEl.__disabled = Alpine.bound(this.$el, 'disabled', false)
+                this.__isDisabled = this.__tabEl.__disabled
             },
             __tabEl: undefined,
-            __isDisabled: 'hey',
+            __isDisabled: false,
         }},
         '@click'() {
             if (this.$el.__disabled) return

@@ -14,11 +14,20 @@ export default function (Alpine) {
         return {
             get isSelected() {
                 return $data.__selectedIndex === $data.__tabs.indexOf($data.__tabEl)
+            },
+            get isDisabled() {
+                console.log($data.__isDisabled)
+                return true
+                return 'ey'
+                setTimeout(() => {
+                    console.log(($data.__isDisabled))
+                })
+                return $data.__isDisabled
             }
         }
     })
 
-    Alpine.magic('tabPanel', el => {
+    Alpine.magic('panel', el => {
         let $data = Alpine.$data(el)
 
         return {
@@ -71,16 +80,16 @@ function handleList(el, Alpine) {
 }
 
 function handleTab(el, Alpine) {
-    let options = {}
     Alpine.bind(el, {
         'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button' },
         'x-data'() { return {
             init() {
                 this.__tabEl = this.$el
                 this.$data.__addTab(this.$el)
-                this.$el.__disabled = options.disabled
+                // this.__tabEl.__disabled = this.__isDisabled = Alpine.bound(this.$el, 'disabled', false)
             },
             __tabEl: undefined,
+            __isDisabled: 'hey',
         }},
         '@click'() {
             if (this.$el.__disabled) return
@@ -122,7 +131,7 @@ function handlePanels(el, Alpine) {
 
 function handlePanel(el, Alpine) {
     Alpine.bind(el, {
-        ':tabindex'() { return this.$tabPanel.isSelected ? 0 : -1 },
+        ':tabindex'() { return this.$panel.isSelected ? 0 : -1 },
         'x-data'() { return {
             init() {
                 this.__panelEl = this.$el
@@ -130,7 +139,7 @@ function handlePanel(el, Alpine) {
             },
             __panelEl: undefined,
         }},
-        'x-show'() { return this.$tabPanel.isSelected },
+        'x-show'() { return this.$panel.isSelected },
     })
 }
 

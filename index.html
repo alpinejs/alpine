@@ -5,15 +5,22 @@
     <script src="./packages/persist/dist/cdn.js"></script>
     <script src="./packages/focus/dist/cdn.js"></script>
     <script src="./packages/mask/dist/cdn.js"></script>
+    <script src="./packages/ui/dist/cdn.js" defer></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
     <!-- Play around. -->
-    <div x-data="{ open: false }">
-        <button @click="open = !open">Toggle</button>
+    <div x-data x-tabs>
+        <div x-tabs:list>
+            <button x-tabs:tab button-1>First</button>
+            <button x-tabs:tab button-2 disabled :class="$tab.isDisabled && 'disabled'">Second</button>
+            <button x-tabs:tab button-3>Third</button>
+        </div>
 
-        <span x-show="open">
-            Content...
-        </span>
+        <div x-tabs:panels>
+            <div x-tabs:panel panel-1>First Panel</div>
+            <div x-tabs:panel panel-2>Second Panel</div>
+            <div x-tabs:panel panel-3>Third Panel</div>
+        </div>
     </div>
 </html>

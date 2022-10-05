@@ -4,7 +4,7 @@ export default function (Alpine) {
         if      (directive.value === 'group')       handleGroup(el, Alpine)
         else if (directive.value === 'label')       handleLabel(el, Alpine)
         else if (directive.value === 'description') handleDescription(el, Alpine)
-        else                                        handleSwitch(el, Alpine)
+        else                                        handleRoot(el, Alpine)
     })
 
     Alpine.magic('switch', el => {
@@ -49,8 +49,8 @@ function handleDescription(el, Alpine) {
     })
 }
 
-function handleSwitch(el, Alpine) {
-    Alpine.bind(el, (options = {}) => ({
+function handleRoot(el, Alpine) {
+    Alpine.bind(el, {
         'x-data'() {
             return {
                 init() {
@@ -84,5 +84,5 @@ function handleSwitch(el, Alpine) {
         },
         // This is needed so that we can "cancel" the click event when we use the `Enter` key on a button.
         '@keypress.prevent'() { },
-    }))
+    })
 }

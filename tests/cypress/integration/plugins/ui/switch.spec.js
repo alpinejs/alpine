@@ -5,7 +5,7 @@ test('has accessibility attributes',
         <div x-data="{ checked: false }">
             <article x-switch:group>
                 <label x-switch:label>Enable notifications</label>
-                <span cypress-id="description" x-switch:description>A description of the switch.</span>
+                <span description" x-switch:description>A description of the switch.</span>
 
                 <button x-switch x-model="checked">Enable Notifications</button>
             </article>
@@ -13,7 +13,7 @@ test('has accessibility attributes',
     `],
     ({ get }) => {
         get('label').should(haveAttribute('id', 'alpine-switch-label-1'))
-        get('[cypress-id="description"]').should(haveAttribute('id', 'alpine-switch-description-1'))
+        get('[description"]').should(haveAttribute('id', 'alpine-switch-description-1'))
         get('button').should(haveAttribute('type', 'button'))
         get('button').should(haveAttribute('aria-labelledby', 'alpine-switch-label-1'))
         get('button').should(haveAttribute('aria-describedby', 'alpine-switch-description-1'))

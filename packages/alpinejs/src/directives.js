@@ -193,6 +193,7 @@ let directiveOrder = [
     // that I don't have to manually add things like "tabs"
     // to the order list...
     'tabs',
+    'disclosure',
     'bind',
     'init',
     'for',

@@ -7,7 +7,7 @@ export default function (Alpine) {
     })
 
     Alpine.magic('disclosure', el => {
-        let $data = Alpine.mergeProxies(Alpine.closestDataStack(el))
+        let $data = Alpine.$data(el)
 
         return {
             get isOpen() {
@@ -22,14 +22,22 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
+        'x-modelable': '__isOpen',
         'x-data'() {
             return {
-                __isOpen: Boolean(Alpine.bound(this.$el, 'default-open', false)),
+                init() {
+                    queueMicrotask(() => {
+                         let defaultIsOpen = Boolean(Alpine.bound(this.$el, 'default-open', false))
+
+                         if (defaultIsOpen) this.__isOpen = defaultIsOpen
+                    })
+                },
+                __isOpen: false,
                 __close() {
                     this.__isOpen = false
                 },
                 __toggle() {
-                    this.__isOpen = !this.__isOpen
+                    this.__isOpen = ! this.__isOpen
                 },
             }
         },
@@ -43,7 +51,7 @@ function handleButton(el, Alpine) {
             if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button'
         },
         '@click'() {
-            this.$data.__isOpen = !this.$data.__isOpen
+            this.$data.__isOpen = ! this.$data.__isOpen
         },
         ':aria-expanded'() {
             return this.$data.__isOpen

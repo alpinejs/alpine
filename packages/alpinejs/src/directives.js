@@ -192,6 +192,7 @@ let directiveOrder = [
     // @todo: provide better directive ordering mechanisms so
     // that I don't have to manually add things like "tabs"
     // to the order list...
+    'radio-group',
     'tabs',
     'bind',
     'init',

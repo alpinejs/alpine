@@ -1,13 +1,13 @@
 
 export default function (Alpine) {
-    Alpine.directive('radio-group', (el, directive) => {
+    Alpine.directive('radio', (el, directive) => {
         if      (!directive.value)                  handleRoot(el, Alpine)
         else if (directive.value === 'option')      handleOption(el, Alpine)
         else if (directive.value === 'label')       handleLabel(el, Alpine)
         else if (directive.value === 'description') handleDescription(el, Alpine)
     })
 
-    Alpine.magic('radioGroupOption', el => {
+    Alpine.magic('radioOption', el => {
         let $data = Alpine.$data(el)
 
         return {

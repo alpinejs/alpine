@@ -1,11 +1,11 @@
-import { beVisible, haveAttribute, haveText, html, notBeVisible, notExist, test } from '../../../utils'
+import { beVisible, haveAttribute, haveClasses, haveText, html, notBeVisible, notExist, test } from '../../../utils'
 
 test('has accessibility attributes',
     [html`
         <div x-data="{ checked: false }">
             <article x-switch:group>
                 <label x-switch:label>Enable notifications</label>
-                <span description" x-switch:description>A description of the switch.</span>
+                <span description x-switch:description>A description of the switch.</span>
 
                 <button x-switch x-model="checked">Enable Notifications</button>
             </article>
@@ -13,7 +13,7 @@ test('has accessibility attributes',
     `],
     ({ get }) => {
         get('label').should(haveAttribute('id', 'alpine-switch-label-1'))
-        get('[description"]').should(haveAttribute('id', 'alpine-switch-description-1'))
+        get('[description]').should(haveAttribute('id', 'alpine-switch-description-1'))
         get('button').should(haveAttribute('type', 'button'))
         get('button').should(haveAttribute('aria-labelledby', 'alpine-switch-label-1'))
         get('button').should(haveAttribute('aria-describedby', 'alpine-switch-description-1'))
@@ -44,23 +44,20 @@ test('works with x-model',
     },
 )
 
-
 test('works with internal state/$switch.isChecked',
     [html`
-        <div>
-            <button x-switch>Enable notifications</button>
-
-            <article x-show="$switch.isChecked">
-                Notifications are enabled.
-            </article>
+        <div x-data>
+            <button x-switch x-bind:class="$switch.isChecked ? 'foo' : 'bar'">
+                Enable notifications
+            </button>
         </div>
     `],
     ({ get }) => {
-        get('article').should(notBeVisible())
+        get('button').should(haveClasses(['bar']))
         get('button').click()
-        get('article').should(beVisible())
+        get('button').should(haveClasses(['foo']))
         get('button').click()
-        get('article').should(notBeVisible())
+        get('button').should(haveClasses(['bar']))
     },
 )
 
@@ -85,3 +82,6 @@ test('pressing space toggles the switch',
         get('article').should(notBeVisible())
     },
 )
+
+// @todo: add test for default-checked
+// @todo: add test for hidden input

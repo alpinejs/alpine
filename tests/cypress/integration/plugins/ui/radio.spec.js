@@ -273,10 +273,10 @@ test('has accessibility attributes',
     `],
     ({ get }) => {
         get('[group]').should(haveAttribute('role', 'radiogroup'))
-            .should(haveAttribute('aria-labelledby', 'alpine-radiogroup-label-1'))
-            .should(haveAttribute('aria-describedby', 'alpine-radiogroup-description-1'))
-        get('h2').should(haveAttribute('id', 'alpine-radiogroup-label-1'))
-        get('p').should(haveAttribute('id', 'alpine-radiogroup-description-1'))
+            .should(haveAttribute('aria-labelledby', 'alpine-radio-label-1'))
+            .should(haveAttribute('aria-describedby', 'alpine-radio-description-1'))
+        get('h2').should(haveAttribute('id', 'alpine-radio-label-1'))
+        get('p').should(haveAttribute('id', 'alpine-radio-description-1'))
 
         get('[option="access-1"]')
             .should(haveAttribute('tabindex', 0))
@@ -285,12 +285,12 @@ test('has accessibility attributes',
             get(`[option="access-${i}"]`)
                 .should(haveAttribute('role', 'radio'))
                 .should(haveAttribute('aria-disabled', 'false'))
-                .should(haveAttribute('aria-labelledby', `alpine-radiogroup-label-${i + 1}`))
-                .should(haveAttribute('aria-describedby', `alpine-radiogroup-description-${i + 1}`))
+                .should(haveAttribute('aria-labelledby', `alpine-radio-label-${i + 1}`))
+                .should(haveAttribute('aria-describedby', `alpine-radio-description-${i + 1}`))
             get(`[label="access-${i}"]`)
-                .should(haveAttribute('id', `alpine-radiogroup-label-${i + 1}`))
+                .should(haveAttribute('id', `alpine-radio-label-${i + 1}`))
             get(`[description="access-${i}"]`)
-                .should(haveAttribute('id', `alpine-radiogroup-description-${i + 1}`))
+                .should(haveAttribute('id', `alpine-radio-description-${i + 1}`))
         }
 
         get('[option="access-1"]')
@@ -298,3 +298,7 @@ test('has accessibility attributes',
             .should(haveAttribute('aria-checked', 'true'))
     },
 )
+
+// @todo: test $radioOption.isChecked state
+// @todo: test $radioOption.isActive state
+// @todo: test $radioOption.isDisabled state

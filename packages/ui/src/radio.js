@@ -11,13 +11,13 @@ export default function (Alpine) {
         let $data = Alpine.$data(el)
 
         return {
-            get active() {
+            get isActive() {
                 return $data.__option === $data.__active
             },
-            get checked() {
+            get isChecked() {
                 return $data.__option === $data.__value
             },
-            get disabled() {
+            get isDisabled() {
                 if ($data.__rootDisabled) return true
 
                 return $data.__disabledOptions.has($data.__option)
@@ -122,9 +122,9 @@ function handleRoot(el, Alpine) {
             }
         },
         'role': 'radiogroup',
-        'x-id'() { return ['alpine-radiogroup-label', 'alpine-radiogroup-description'] },
-        ':aria-labelledby'() { return this.__hasLabel && this.$id('alpine-radiogroup-label') },
-        ':aria-describedby'() { return this.__hasDescription && this.$id('alpine-radiogroup-description') },
+        'x-id'() { return ['alpine-radio-label', 'alpine-radio-description'] },
+        ':aria-labelledby'() { return this.__hasLabel && this.$id('alpine-radio-label') },
+        ':aria-describedby'() { return this.__hasDescription && this.$id('alpine-radio-description') },
         '@keydown.up.prevent.stop'() { this.__focusOptionPrev() },
         '@keydown.left.prevent.stop'() { this.__focusOptionPrev() },
         '@keydown.down.prevent.stop'() { this.__focusOptionNext() },
@@ -148,25 +148,25 @@ function handleOption(el, Alpine) {
                 __hasDescription: false,
             }
         },
-        'x-id'() { return ['alpine-radiogroup-label', 'alpine-radiogroup-description'] },
+        'x-id'() { return ['alpine-radio-label', 'alpine-radio-description'] },
         'role': 'radio',
-        ':aria-checked'() { return this.$radioOption.checked },
-        ':aria-disabled'() { return this.$radioOption.disabled },
-        ':aria-labelledby'() { return this.__hasLabel && this.$id('alpine-radiogroup-label') },
-        ':aria-describedby'() { return this.__hasDescription && this.$id('alpine-radiogroup-description') },
+        ':aria-checked'() { return this.$radioOption.isChecked },
+        ':aria-disabled'() { return this.$radioOption.isDisabled },
+        ':aria-labelledby'() { return this.__hasLabel && this.$id('alpine-radio-label') },
+        ':aria-describedby'() { return this.__hasDescription && this.$id('alpine-radio-description') },
         ':tabindex'() {
-            if (this.$radioOption.disabled || disabled) return -1
-            if (this.$radioOption.checked) return 0
+            if (this.$radioOption.isDisabled || disabled) return -1
+            if (this.$radioOption.isChecked) return 0
             if (!this.$data.__value && this.$data.__isFirstOption(value)) return 0
             return -1
         },
         '@click'() {
-            if (this.$radioOption.disabled) return
+            if (this.$radioOption.isDisabled) return
             this.$data.__change(value)
             this.$el.focus()
         },
         '@focus'() {
-            if (this.$radioOption.disabled) return
+            if (this.$radioOption.isDisabled) return
             this.$data.__setActive(value)
         },
         '@blur'() {
@@ -179,13 +179,13 @@ function handleOption(el, Alpine) {
 function handleLabel(el, Alpine) {
     Alpine.bind(el, {
         'x-init'() { this.$data.__hasLabel = true },
-        ':id'() { return this.$id('alpine-radiogroup-label') },
+        ':id'() { return this.$id('alpine-radio-label') },
     })
 }
 
 function handleDescription(el, Alpine) {
     Alpine.bind(el, {
         'x-init'() { this.$data.__hasDescription = true },
-        ':id'() { return this.$id('alpine-radiogroup-description') },
+        ':id'() { return this.$id('alpine-radio-description') },
     })
 }

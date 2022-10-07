@@ -1,7 +1,7 @@
 
 export default function (Alpine) {
     Alpine.directive('radio', (el, directive) => {
-        if      (!directive.value)                  handleRoot(el, Alpine)
+        if      (! directive.value)                 handleRoot(el, Alpine)
         else if (directive.value === 'option')      handleOption(el, Alpine)
         else if (directive.value === 'label')       handleLabel(el, Alpine)
         else if (directive.value === 'description') handleDescription(el, Alpine)
@@ -18,27 +18,24 @@ export default function (Alpine) {
                 return $data.__option === $data.__value
             },
             get isDisabled() {
+                let disabled = $data.__disabled
+
                 if ($data.__rootDisabled) return true
 
-                return $data.__disabledOptions.has($data.__option)
+                return disabled
             },
         }
     })
 }
 
 function handleRoot(el, Alpine) {
-    let disabled = Alpine.bound(el, 'disabled');
-
     Alpine.bind(el, {
+        'x-modelable': '__value',
         'x-data'() {
             return {
                 init() {
-                    // Need the "microtask" here so that x-model has a chance to initialize.
                     queueMicrotask(() => {
-                        // Set our internal "selected" every time the x-modeled value changes.
-                        Alpine.effect(() => {
-                            this.__value = this.$el._x_model.get()
-                        })
+                        this.__rootDisabled = Alpine.bound(el, 'disabled', false);
                     })
 
                     // Add `role="none"` to all non role elements.
@@ -67,11 +64,11 @@ function handleRoot(el, Alpine) {
                 __optionElsByValue: new Map,
                 __hasLabel: false,
                 __hasDescription: false,
-                __rootDisabled: disabled,
+                __rootDisabled: false,
                 __change(value) {
                     if (this.__rootDisabled) return
 
-                    this.__rootEl._x_model.set(value)
+                    this.__value = value
                 },
                 __addOption(option, el, disabled) {
                     // Add current element to element list for navigating.
@@ -133,17 +130,18 @@ function handleRoot(el, Alpine) {
 }
 
 function handleOption(el, Alpine) {
-    let value = Alpine.bound(el, 'value');
-    let disabled = Alpine.bound(el, 'disabled');
-
     Alpine.bind(el, {
-        'x-init'() {
-            this.$data.__addOption(value, this.$el, disabled)
-        },
         'x-data'() {
             return {
-                init() { },
-                __option: value,
+                init() {
+                    queueMicrotask(() => {
+                        this.__disabled = Alpine.bound(el, 'disabled', false)
+                        this.__option = Alpine.bound(el, 'value')
+                        this.$data.__addOption(this.__option, this.$el, this.__disabled)
+                    })
+                },
+                __option: undefined,
+                __disabled: false,
                 __hasLabel: false,
                 __hasDescription: false,
             }
@@ -154,25 +152,26 @@ function handleOption(el, Alpine) {
         ':aria-disabled'() { return this.$radioOption.isDisabled },
         ':aria-labelledby'() { return this.__hasLabel && this.$id('alpine-radio-label') },
         ':aria-describedby'() { return this.__hasDescription && this.$id('alpine-radio-description') },
-        ':tabindex'() {
-            if (this.$radioOption.isDisabled || disabled) return -1
+        ':tabindex'()   {
+            if (this.$radioOption.isDisabled) return -1
             if (this.$radioOption.isChecked) return 0
-            if (!this.$data.__value && this.$data.__isFirstOption(value)) return 0
+            if (! this.$data.__value && this.$data.__isFirstOption(this.$data.__option)) return 0
+
             return -1
         },
         '@click'() {
             if (this.$radioOption.isDisabled) return
-            this.$data.__change(value)
+            this.$data.__change(this.$data.__option)
             this.$el.focus()
         },
         '@focus'() {
             if (this.$radioOption.isDisabled) return
-            this.$data.__setActive(value)
+            this.$data.__setActive(this.$data.__option)
         },
         '@blur'() {
-            if (this.$data.__active === value) this.$data.__setActive(undefined)
+            if (this.$data.__active === this.$data.__option) this.$data.__setActive(undefined)
         },
-        '@keydown.space.stop.prevent'() { this.$data.__change(value) },
+        '@keydown.space.stop.prevent'() { this.$data.__change(this.$data.__option) },
     })
 }
 

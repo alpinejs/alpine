@@ -1,4 +1,4 @@
-import { beVisible, haveAttribute, haveClasses, haveText, html, notBeVisible, notExist, test } from '../../../utils'
+import { beHidden, beVisible, haveAttribute, haveClasses, haveText, html, notBeVisible, notExist, test } from '../../../utils'
 
 test('has accessibility attributes',
     [html`
@@ -83,5 +83,69 @@ test('pressing space toggles the switch',
     },
 )
 
-// @todo: add test for default-checked
-// @todo: add test for hidden input
+test('default-checked',
+    [html`
+        <div x-data>
+            <div>
+                <button
+                    x-switch
+                    default-checked
+                    :class="$switch.isChecked ? 'checked' : 'not-checked'"
+                >Enable notifications</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('button').should(haveClasses(['checked']))
+        get('button').click()
+        get('button').should(haveClasses(['not-checked']))
+    },
+)
+
+test('name and value props',
+    [html`
+        <div x-data>
+            <div>
+                <button
+                    x-switch
+                    name="notifications"
+                    value="yes"
+                >Enable notifications</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('input').should(notExist())
+        get('button').click()
+        get('input').should(beHidden())
+            .should(haveAttribute('name', 'notifications'))
+            .should(haveAttribute('value', 'yes'))
+            .should(haveAttribute('type', 'hidden'))
+        get('button').click()
+        get('input').should(notExist())
+    },
+)
+
+
+test('value defaults to "on"',
+    [html`
+        <div x-data>
+            <div>
+                <button
+                    x-switch
+                    name="notifications"
+                >Enable notifications</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('input').should(notExist())
+        get('button').click()
+        get('input').should(beHidden())
+            .should(haveAttribute('name', 'notifications'))
+            .should(haveAttribute('value', 'on'))
+            .should(haveAttribute('type', 'hidden'))
+        get('button').click()
+        get('input').should(notExist())
+    },
+)

@@ -86,7 +86,7 @@ function handleRoot(el, Alpine) {
         'tabindex': "0",
         ':aria-checked'() { return !!this.__value },
         ':aria-labelledby'() { return this.$data.__hasLabel && this.$id('alpine-switch-label') },
-        ':aria-describedby'() { return this.$data.true__hasDescription && this.$id('alpine-switch-description') },
+        ':aria-describedby'() { return this.$data.__hasDescription && this.$id('alpine-switch-description') },
         '@click.prevent'() { this.__toggle() },
         '@keyup'(e) {
             if (e.key !== 'Tab') e.preventDefault()
@@ -114,4 +114,3 @@ function handleDescription(el, Alpine) {
         ':id'() { return this.$id('alpine-switch-description') },
     })
 }
-

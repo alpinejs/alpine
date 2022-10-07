@@ -261,7 +261,7 @@ test('has accessibility attributes',
 
                     <div>
                         <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
-                            <div :option="id" x-radio:option="({ value: id, disabled: disabled })">
+                            <div :option="id" x-radio:option :value="id" :disabled="disabled">
                                 <span :label="id" x-radio:label x-text="name"></span>
                                 <span :description="id" x-radio:description x-text="description"></span>
                             </div>

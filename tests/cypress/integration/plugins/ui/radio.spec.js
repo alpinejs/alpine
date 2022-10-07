@@ -28,17 +28,17 @@ test('it works using x-model',
                 disabled: false,
             },
         ]}">
-            <div x-radio-group x-model="active">
+            <div x-radio x-model="active">
                 <fieldset>
                     <legend>
-                        <h2 x-radio-group:label>Privacy setting</h2>
+                        <h2 x-radio:label>Privacy setting</h2>
                     </legend>
 
                     <div>
                         <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
-                            <div :option="id" x-radio-group:option :value="id" :disabled="disabled">
-                                <span x-radio-group:label x-text="name"></span>
-                                <span x-radio-group:description x-text="description"></span>
+                            <div :option="id" x-radio:option :value="id" :disabled="disabled">
+                                <span x-radio:label x-text="name"></span>
+                                <span x-radio:description x-text="description"></span>
                             </div>
                         </template>
                     </div>
@@ -85,17 +85,17 @@ test('cannot select any option when the group is disabled',
                 disabled: false,
             },
         ]}">
-            <div x-radio-group x-model="active" :disabled="true">
+            <div x-radio x-model="active" :disabled="true">
                 <fieldset>
                     <legend>
-                        <h2 x-radio-group:label>Privacy setting</h2>
+                        <h2 x-radio:label>Privacy setting</h2>
                     </legend>
 
                     <div>
                         <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
-                            <div :option="id" x-radio-group:option :value="id" :disabled="disabled">
-                                <span x-radio-group:label x-text="name"></span>
-                                <span x-radio-group:description x-text="description"></span>
+                            <div :option="id" x-radio:option :value="id" :disabled="disabled">
+                                <span x-radio:label x-text="name"></span>
+                                <span x-radio:description x-text="description"></span>
                             </div>
                         </template>
                     </div>
@@ -140,17 +140,17 @@ test('cannot select a disabled option',
                 disabled: false,
             },
         ]}">
-            <div x-radio-group x-model="active">
+            <div x-radio x-model="active">
                 <fieldset>
                     <legend>
-                        <h2 x-radio-group:label>Privacy setting</h2>
+                        <h2 x-radio:label>Privacy setting</h2>
                     </legend>
 
                     <div>
                         <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
-                            <div :option="id" x-radio-group:option :value="id" :disabled="disabled">
-                                <span x-radio-group:label x-text="name"></span>
-                                <span x-radio-group:description x-text="description"></span>
+                            <div :option="id" x-radio:option :value="id" :disabled="disabled">
+                                <span x-radio:label x-text="name"></span>
+                                <span x-radio:description x-text="description"></span>
                             </div>
                         </template>
                     </div>
@@ -195,17 +195,17 @@ test('keyboard navigation works',
                 disabled: false,
             },
         ]}">
-            <div x-radio-group x-model="active">
+            <div x-radio x-model="active">
                 <fieldset>
                     <legend>
-                        <h2 x-radio-group:label>Privacy setting</h2>
+                        <h2 x-radio:label>Privacy setting</h2>
                     </legend>
 
                     <div>
                         <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
-                            <div :option="id" x-radio-group:option :value="id" :disabled="disabled">
-                                <span x-radio-group:label x-text="name"></span>
-                                <span x-radio-group:description x-text="description"></span>
+                            <div :option="id" x-radio:option :value="id" :disabled="disabled">
+                                <span x-radio:label x-text="name"></span>
+                                <span x-radio:description x-text="description"></span>
                             </div>
                         </template>
                     </div>
@@ -226,7 +226,7 @@ test('keyboard navigation works',
 
 test('has accessibility attributes',
     [html`
-        <main x-data="{ active: null, options: [
+        <main x-data="{ active: null, access: [
             {
                 id: 'access-1',
                 name: 'Public access',
@@ -252,18 +252,18 @@ test('has accessibility attributes',
                 disabled: false,
             },
         ]}">
-            <div x-radio-group group x-model="active">
+            <div x-radio group x-model="active">
                 <fieldset>
                     <legend>
-                        <h2 x-radio-group:label>Privacy setting</h2>
-                        <p x-radio-group:description>Some description</p>
+                        <h2 x-radio:label>Privacy setting</h2>
+                        <p x-radio:description>Some description</p>
                     </legend>
 
                     <div>
-                        <template x-for="({ id, name, description, disabled }, i) in options" :key="id">
-                            <div :option="id" x-radio-group:option="({ value: id, disabled: disabled })">
-                                <span :label="id" x-radio-group:label x-text="name"></span>
-                                <span :description="id" x-radio-group:description x-text="description"></span>
+                        <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
+                            <div :option="id" x-radio:option="({ value: id, disabled: disabled })">
+                                <span :label="id" x-radio:label x-text="name"></span>
+                                <span :description="id" x-radio:description x-text="description"></span>
                             </div>
                         </template>
                     </div>

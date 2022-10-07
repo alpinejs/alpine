@@ -150,23 +150,23 @@ function handleOption(el, Alpine) {
         },
         'x-id'() { return ['alpine-radiogroup-label', 'alpine-radiogroup-description'] },
         'role': 'radio',
-        ':aria-checked'() { return this.$radioGroupOption.checked },
-        ':aria-disabled'() { return this.$radioGroupOption.disabled },
+        ':aria-checked'() { return this.$radioOption.checked },
+        ':aria-disabled'() { return this.$radioOption.disabled },
         ':aria-labelledby'() { return this.__hasLabel && this.$id('alpine-radiogroup-label') },
         ':aria-describedby'() { return this.__hasDescription && this.$id('alpine-radiogroup-description') },
         ':tabindex'() {
-            if (this.$radioGroupOption.disabled || disabled) return -1
-            if (this.$radioGroupOption.checked) return 0
+            if (this.$radioOption.disabled || disabled) return -1
+            if (this.$radioOption.checked) return 0
             if (!this.$data.__value && this.$data.__isFirstOption(value)) return 0
             return -1
         },
         '@click'() {
-            if (this.$radioGroupOption.disabled) return
+            if (this.$radioOption.disabled) return
             this.$data.__change(value)
             this.$el.focus()
         },
         '@focus'() {
-            if (this.$radioGroupOption.disabled) return
+            if (this.$radioOption.disabled) return
             this.$data.__setActive(value)
         },
         '@blur'() {

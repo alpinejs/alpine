@@ -194,6 +194,8 @@ let directiveOrder = [
     // to the order list...
     'radio',
     'tabs',
+    'switch',
+    'disclosure',
     'bind',
     'init',
     'for',

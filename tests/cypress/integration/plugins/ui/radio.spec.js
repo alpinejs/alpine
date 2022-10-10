@@ -1,4 +1,4 @@
-import { haveAttribute, haveFocus, html, notHaveFocus, test } from '../../../utils'
+import { haveAttribute, haveFocus, html, haveClasses, notHaveClasses, test, haveText, notExist, beHidden, } from '../../../utils'
 
 test('it works using x-model',
     [html`
@@ -57,6 +57,59 @@ test('it works using x-model',
     },
 )
 
+test('it works without x-model/with default-value',
+    [html`
+        <main x-data="{ access: [
+            {
+                id: 'access-1',
+                name: 'Public access',
+                description: 'This project would be available to anyone who has the link',
+                disabled: false,
+            },
+            {
+                id: 'access-2',
+                name: 'Private to Project Members',
+                description: 'Only members of this project would be able to access',
+                disabled: false,
+            },
+            {
+                id: 'access-3',
+                name: 'Private to you',
+                description: 'You are the only one able to access this project',
+                disabled: true,
+            },
+            {
+                id: 'access-4',
+                name: 'Private to you',
+                description: 'You are the only one able to access this project',
+                disabled: false,
+            },
+        ]}">
+            <div x-radio default-value="access-4">
+                <fieldset>
+                    <legend>
+                        <h2 x-radio:label>Privacy setting</h2>
+                    </legend>
+
+                    <div>
+                        <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
+                            <div :option="id" x-radio:option :value="id" :disabled="disabled">
+                                <span x-radio:label x-text="name"></span>
+                                <span x-radio:description x-text="description"></span>
+                            </div>
+                        </template>
+                    </div>
+                </fieldset>
+            </div>
+        </main>
+    `],
+    ({ get }) => {
+        get('[option="access-4"]').should(haveAttribute('aria-checked', 'true'))
+        get('[option="access-2"]').click()
+        get('[option="access-2"]').should(haveAttribute('aria-checked', 'true'))
+    },
+)
+
 test('cannot select any option when the group is disabled',
     [html`
         <main x-data="{ active: null, access: [
@@ -85,21 +138,13 @@ test('cannot select any option when the group is disabled',
                 disabled: false,
             },
         ]}">
-            <div x-radio x-model="active" :disabled="true">
-                <fieldset>
-                    <legend>
-                        <h2 x-radio:label>Privacy setting</h2>
-                    </legend>
-
-                    <div>
-                        <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
-                            <div :option="id" x-radio:option :value="id" :disabled="disabled">
-                                <span x-radio:label x-text="name"></span>
-                                <span x-radio:description x-text="description"></span>
-                            </div>
-                        </template>
+            <div x-radio x-model="active" disabled>
+                <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
+                    <div :option="id" x-radio:option :value="id" :disabled="disabled">
+                        <span x-radio:label x-text="name"></span>
+                        <span x-radio:description x-text="description"></span>
                     </div>
-                </fieldset>
+                </template>
             </div>
 
             <input x-model="active" type="hidden">
@@ -141,20 +186,12 @@ test('cannot select a disabled option',
             },
         ]}">
             <div x-radio x-model="active">
-                <fieldset>
-                    <legend>
-                        <h2 x-radio:label>Privacy setting</h2>
-                    </legend>
-
-                    <div>
-                        <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
-                            <div :option="id" x-radio:option :value="id" :disabled="disabled">
-                                <span x-radio:label x-text="name"></span>
-                                <span x-radio:description x-text="description"></span>
-                            </div>
-                        </template>
+                <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
+                    <div :option="id" x-radio:option :value="id" :disabled="disabled">
+                        <span x-radio:label x-text="name"></span>
+                        <span x-radio:description x-text="description"></span>
                     </div>
-                </fieldset>
+                </template>
             </div>
 
             <input x-model="active" type="hidden">
@@ -196,20 +233,12 @@ test('keyboard navigation works',
             },
         ]}">
             <div x-radio x-model="active">
-                <fieldset>
-                    <legend>
-                        <h2 x-radio:label>Privacy setting</h2>
-                    </legend>
-
-                    <div>
-                        <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
-                            <div :option="id" x-radio:option :value="id" :disabled="disabled">
-                                <span x-radio:label x-text="name"></span>
-                                <span x-radio:description x-text="description"></span>
-                            </div>
-                        </template>
+                <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
+                    <div :option="id" x-radio:option :value="id" :disabled="disabled">
+                        <span x-radio:label x-text="name"></span>
+                        <span x-radio:description x-text="description"></span>
                     </div>
-                </fieldset>
+                </template>
             </div>
 
             <input x-model="active" type="hidden">
@@ -299,6 +328,257 @@ test('has accessibility attributes',
     },
 )
 
-// @todo: test $radioOption.isChecked state
-// @todo: test $radioOption.isActive state
-// @todo: test $radioOption.isDisabled state
+test('$radioOption.isActive, $radioOption.isChecked, $radioOption.isDisabled work',
+    [html`
+        <main x-data="{ access: [
+            {
+                id: 'access-1',
+                name: 'Public access',
+                description: 'This project would be available to anyone who has the link',
+                disabled: false,
+            },
+            {
+                id: 'access-2',
+                name: 'Private to Project Members',
+                description: 'Only members of this project would be able to access',
+                disabled: false,
+            },
+            {
+                id: 'access-3',
+                name: 'Private to you',
+                description: 'You are the only one able to access this project',
+                disabled: true,
+            },
+            {
+                id: 'access-4',
+                name: 'Private to you',
+                description: 'You are the only one able to access this project',
+                disabled: false,
+            },
+        ]}">
+            <div x-radio group>
+                <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
+                    <div
+                        :option="id"
+                        x-radio:option
+                        :value="id"
+                        :disabled="disabled"
+                        :class="{
+                            'active': $radioOption.isActive,
+                            'checked': $radioOption.isChecked,
+                            'disabled': $radioOption.isDisabled,
+                        }"
+                    >
+                        <span :label="id" x-radio:label x-text="name"></span>
+                        <span :description="id" x-radio:description x-text="description"></span>
+                    </div>
+                </template>
+            </div>
+        </main>
+    `],
+    ({ get }) => {
+        get('[option="access-1"]')
+            .should(notHaveClasses(['active', 'checked', 'disabled']))
+            .focus()
+            .should(haveClasses(['active']))
+            .should(notHaveClasses(['checked']))
+            .type(' ')
+            .should(haveClasses(['active', 'checked']))
+            .type('{downarrow}')
+        get('[option="access-2"]')
+            .should(haveClasses(['active', 'checked']))
+        get('[option="access-3"]')
+            .should(haveClasses(['disabled']))
+    },
+)
+
+test('can bind objects to the value',
+    [html`
+        <main x-data="{ active: null, access: [
+            {
+                id: 'access-1',
+                name: 'Public access',
+                description: 'This project would be available to anyone who has the link',
+                disabled: false,
+            },
+            {
+                id: 'access-2',
+                name: 'Private to Project Members',
+                description: 'Only members of this project would be able to access',
+                disabled: false,
+            },
+            {
+                id: 'access-3',
+                name: 'Private to you',
+                description: 'You are the only one able to access this project',
+                disabled: true,
+            },
+            {
+                id: 'access-4',
+                name: 'Private to you',
+                description: 'You are the only one able to access this project',
+                disabled: false,
+            },
+        ]}">
+            <div x-radio group x-model="active">
+                <template x-for="(option, i) in access" :key="option.id">
+                    <div
+                        :option="option.id"
+                        x-radio:option
+                        :value="option"
+                        :disabled="option.disabled"
+                    >
+                        <span :label="option.id" x-radio:label x-text="option.name"></span>
+                        <span :description="option.id" x-radio:description x-text="option.description"></span>
+                    </div>
+                </template>
+            </div>
+
+            <article x-text="JSON.stringify(active)"></article>
+        </main>
+    `],
+    ({ get }) => {
+        get('[option="access-2"]').click()
+        get('article')
+            .should(haveText(JSON.stringify({
+                id: 'access-2',
+                name: 'Private to Project Members',
+                description: 'Only members of this project would be able to access',
+                disabled: false,
+            })))
+    },
+)
+
+// @todo: fix this test
+test('can use "by" to specify which key to use for option comparison',
+    [html`
+        <main
+            x-data="{
+                active: null,
+                access: [
+                    { id: 1 },
+                    { id: 2 },
+                ]
+            }"
+        >
+            <div x-radio group x-model="active" by="name">
+                <template x-for="(option, i) in access" :key="option.id">
+                    <div
+                        :option="i"
+                        x-radio:option
+                        :value="{ id: i, 'name': 'value' }"
+                    >
+                        <span x-radio:label x-text="option.id"></span>
+                    </div>
+                </template>
+            </div>
+
+            <article x-text="JSON.stringify(active)"></article>
+        </main>
+    `],
+    ({ get }) => {
+        get('[option="1"]').click()
+        get('article')
+            .should(haveText(JSON.stringify({ id: i, 'name': 'value' })))
+    },
+)
+
+// @todo: fix this test
+test('can use "by" to specify a comparison function',
+    [html`
+        <main
+            x-data="{
+                active: null,
+                access: [
+                    { id: 1, },
+                    { id: 2, },
+                ],
+                compare(a, b) {
+                    return a.id === b.id
+                }
+            }
+        ">
+            <div x-radio group x-model="active" :by="compare">
+                <template x-for="(option, i) in access" :key="option.id">
+                    <div
+                        :option="i"
+                        x-radio:option
+                        :value="{ id: i, 'name': 'value' }"
+                    >
+                        <span x-radio:label x-text="option.id"></span>
+                    </div>
+                </template>
+            </div>
+
+            <article x-text="JSON.stringify(active)"></article>
+        </main>
+    `],
+    ({ get }) => {
+        get('[option="1"]').click()
+        get('article')
+            .should(haveText(JSON.stringify({ id: i, 'name': 'value' })))
+    },
+)
+
+test('name prop',
+    [html`
+        <main
+            x-data="{
+                active: null,
+                access: [
+                    {
+                        id: 'access-1',
+                        name: 'Public access',
+                        description: 'This project would be available to anyone who has the link',
+                        disabled: false,
+                    },
+                    {
+                        id: 'access-2',
+                        name: 'Private to Project Members',
+                        description: 'Only members of this project would be able to access',
+                        disabled: false,
+                    },
+                    {
+                        id: 'access-3',
+                        name: 'Private to you',
+                        description: 'You are the only one able to access this project',
+                        disabled: true,
+                    },
+                    {
+                        id: 'access-4',
+                        name: 'Private to you',
+                        description: 'You are the only one able to access this project',
+                        disabled: false,
+                    },
+                ]
+            }
+        ">
+            <div x-radio group x-model="active" name="access">
+                <template x-for="({ id, name, description, disabled }, i) in access" :key="id">
+                    <div
+                        :option="id"
+                        x-radio:option
+                        :value="id"
+                        :disabled="disabled"
+                    >
+                        <span :label="id" x-radio:label x-text="name"></span>
+                        <span :description="id" x-radio:description x-text="description"></span>
+                    </div>
+                </template>
+            </div>
+        </main>
+    `],
+    ({ get }) => {
+        get('input').should(notExist())
+        get('[option="access-2"]').click()
+        get('input').should(beHidden())
+            .should(haveAttribute('name', 'access'))
+            .should(haveAttribute('value', 'access-2'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[option="access-4"]').click()
+        get('input').should(beHidden())
+            .should(haveAttribute('name', 'access'))
+            .should(haveAttribute('value', 'access-4'))
+            .should(haveAttribute('type', 'hidden'))
+    },
+)

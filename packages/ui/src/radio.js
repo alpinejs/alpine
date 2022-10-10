@@ -36,6 +36,9 @@ function handleRoot(el, Alpine) {
                 init() {
                     queueMicrotask(() => {
                         this.__rootDisabled = Alpine.bound(el, 'disabled', false);
+                        this.__value = Alpine.bound(this.$el, 'default-value', false)
+                        this.__inputName = Alpine.bound(this.$el, 'name', false)
+                        this.__inputId = 'alpine-radio-'+Date.now()
                     })
 
                     // Add `role="none"` to all non role elements.
@@ -65,6 +68,8 @@ function handleRoot(el, Alpine) {
                 __hasLabel: false,
                 __hasDescription: false,
                 __rootDisabled: false,
+                __inputName: undefined,
+                __inputId: undefined,
                 __change(value) {
                     if (this.__rootDisabled) return
 
@@ -116,6 +121,31 @@ function handleRoot(el, Alpine) {
                     this.__optionElsByValue.get(prev).focus()
                     this.__change(prev)
                 },
+            }
+        },
+        'x-effect'() {
+            let value = this.__value
+
+            // Only render a hidden input if the "name" prop is passed...
+            if (! this.__inputName) return
+
+            // First remove a previously appended hidden input (if it exists)...
+            let nextEl = this.$el.nextElementSibling
+            if (nextEl && String(nextEl.id) === String(this.__inputId)) {
+                nextEl.remove()
+            }
+
+            // If the value is true, create the input and append it, otherwise,
+            // we already removed it in the previous step...
+            if (value) {
+                let input = document.createElement('input')
+
+                input.type = 'hidden'
+                input.value = value
+                input.name = this.__inputName
+                input.id = this.__inputId
+
+                this.$el.after(input)
             }
         },
         'role': 'radiogroup',

@@ -1,13 +1,15 @@
 import dialog from './dialog'
 import disclosure from './disclosure'
-import popover from './popover'
+import menu from './menu'
 import notSwitch from './switch'
+import popover from './popover'
 import tabs from './tabs'
 
 export default function (Alpine) {
     dialog(Alpine)
     disclosure(Alpine)
-    popover(Alpine)
+    menu(Alpine)
     notSwitch(Alpine)
+    popover(Alpine)
     tabs(Alpine)
 }

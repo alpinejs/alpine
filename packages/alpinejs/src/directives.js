@@ -189,6 +189,13 @@ let directiveOrder = [
     'ref',
     'data',
     'id',
+    // @todo: provide better directive ordering mechanisms so
+    // that I don't have to manually add things like "tabs"
+    // to the order list...
+    'tabs',
+    'radio',
+    'switch',
+    'disclosure',
     'bind',
     'init',
     'for',

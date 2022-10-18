@@ -92,9 +92,12 @@ test('keyboard controls',
             .type('{downarrow}')
         get('[href="#support"]')
             .should(haveClasses(['active']))
+            .type('{downarrow}')
+        get('[href="#license"]')
+            .should(haveClasses(['active']))
         get('[items]')
             .type('{uparrow}')
-        get('[href="#account-settings"]')
+        get('[href="#support"]')
             .should(haveClasses(['active']))
         get('[items]')
             .type('{home}')
@@ -123,7 +126,6 @@ test('keyboard controls',
             .should(notBeVisible())
     },
 )
-
 
 test('has accessibility attributes',
     [html`
@@ -197,5 +199,52 @@ test('has accessibility attributes',
         get('[items]')
             .type('{downarrow}')
             .should(haveAttribute('aria-activedescendant', 'alpine-menu-item-2'))
+    },
+)
+
+
+test('$menuItem.isDisabled',
+    [html`
+        <div x-data x-menu>
+            <label x-menu:label>Options label</label>
+
+            <span>
+                <button x-menu:button trigger>
+                    <span>Options</span>
+                </button>
+            </span>
+
+            <div x-menu:items items>
+                <div>
+                    <p>Signed in as</p>
+                    <p>tom@example.com</p>
+                </div>
+
+                <div>
+                    <a x-menu:item href="#account-settings" :class="{ 'active': $menuItem.isActive, 'disabled': $menuItem.isDisabled }">
+                        Account settings
+                    </a>
+                    <a x-menu:item href="#support" :class="{ 'active': $menuItem.isActive, 'disabled': $menuItem.isDisabled }">
+                        Support
+                    </a>
+                    <a x-menu:item disabled href="#new-feature" :class="{ 'active': $menuItem.isActive, 'disabled': $menuItem.isDisabled }">
+                        New feature (soon)
+                    </a>
+                    <a x-menu:item href="#license" :class="{ 'active': $menuItem.isActive, 'disabled': $menuItem.isDisabled }">
+                        License
+                    </a>
+                </div>
+                <div>
+                    <a x-menu:item href="#sign-out" :class="{ 'active': $menuItem.isActive, 'disabled': $menuItem.isDisabled }">
+                        Sign out
+                    </a>
+                </div>
+            </div>
+        </div>`],
+    ({ get }) => {
+        get('[trigger]').click()
+        get('[href="#account-settings"]').should(notHaveClasses(['disabled']))
+        get('[href="#support"]').should(notHaveClasses(['disabled']))
+        get('[href="#new-feature"]').should(haveClasses(['disabled']))
     },
 )

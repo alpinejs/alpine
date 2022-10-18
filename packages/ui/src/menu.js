@@ -1,6 +1,6 @@
 export default function (Alpine) {
     Alpine.directive('menu', (el, directive) => {
-        if (!directive.value) handleRoot(el, Alpine)
+        if (! directive.value) handleRoot(el, Alpine)
         else if (directive.value === 'items') handleItems(el, Alpine)
         else if (directive.value === 'item') handleItem(el, Alpine)
         else if (directive.value === 'button') handleButton(el, Alpine)
@@ -13,6 +13,9 @@ export default function (Alpine) {
             get isActive() {
                 return $data.__activeEl == $data.__itemEl
             },
+            get isDisabled() {
+                return el.__isDisabled.value
+            },
         }
     })
 }
@@ -20,6 +23,7 @@ export default function (Alpine) {
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
         'x-id'() { return ['alpine-menu-button', 'alpine-menu-items'] },
+        'x-modelable': '__isOpen',
         'x-data'() {
             return {
                 __itemEls: [],
@@ -52,7 +56,7 @@ function handleButton(el, Alpine) {
         ':id'() { return this.$id('alpine-menu-button') },
         ':aria-expanded'() { return this.$data.__isOpen },
         ':aria-controls'() { return this.$data.__isOpen && this.$id('alpine-menu-items') },
-        'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button' },
+        'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && ! this.$el.hasAttribute('type')) this.$el.type = 'button' },
         '@click'() { this.$data.__open() },
         '@keydown.down.stop.prevent'() { this.$data.__open() },
         '@keydown.up.stop.prevent'() { this.$data.__open(dom.Alpine, last) },
@@ -115,7 +119,7 @@ function handleItem(el, Alpine) {
                             }
                         }
 
-                        if (!inserted) els.push(this.$el)
+                        if (! inserted) els.push(this.$el)
 
                         this.$el.__activate = () => {
                             this.$data.__activeEl = this.$el
@@ -126,7 +130,12 @@ function handleItem(el, Alpine) {
                             this.$data.__activeEl = null
                         }
 
-                        this.$el.__isDisabled = !!this.$el.disabled
+
+                        this.$el.__isDisabled = Alpine.reactive({ value: false })
+
+                        queueMicrotask(() => {
+                            this.$el.__isDisabled.value = Alpine.bound(this.$el, 'disabled', false)
+                        })
                     },
                     destroy() {
                         // Remove this element from the elements list.
@@ -137,10 +146,10 @@ function handleItem(el, Alpine) {
             },
             'x-id'() { return ['alpine-menu-item'] },
             ':id'() { return this.$id('alpine-menu-item') },
-            ':tabindex'() { return this.$el.__isDisabled ? false : '-1' },
+            ':tabindex'() { return this.$el.__isDisabled.value ? false : '-1' },
             'role': 'menuitem',
-            '@mousemove'() { this.$el.__isDisabled || this.$menuItem.isActive || this.$el.__activate() },
-            '@mouseleave'() { this.$el.__isDisabled || !this.$menuItem.isActive || this.$el.__deactivate() },
+            '@mousemove'() { this.$el.__isDisabled.value || this.$menuItem.isActive || this.$el.__activate() },
+            '@mouseleave'() { this.$el.__isDisabled.value || ! this.$menuItem.isActive || this.$el.__deactivate() },
         }
     })
 }
@@ -149,21 +158,21 @@ let dom = {
     first(Alpine, parent, receive = i => i, fallback = () => { }) {
         let first = Alpine.$data(parent).__itemEls[0]
 
-        if (!first) return fallback()
+        if (! first) return fallback()
 
         if (first.tagName.toLowerCase() === 'template') {
-            return this.next(first, receive)
+            return this.next(Alpine, first, receive)
         }
 
-        if (first.__isDisabled) return this.next(first, receive)
+        if (first.__isDisabled.value) return this.next(Alpine, first, receive)
 
         return receive(first)
     },
     last(Alpine, parent, receive = i => i, fallback = () => { }) {
         let last = Alpine.$data(parent).__itemEls.slice(-1)[0]
 
-        if (!last) return fallback()
-        if (last.__isDisabled) return this.previous(last, receive)
+        if (! last) return fallback()
+        if (last.__isDisabled.value) return this.previous(Alpine, last, receive)
         return receive(last)
     },
     next(Alpine, el, receive = i => i, fallback = () => { }) {
@@ -173,7 +182,7 @@ let dom = {
         let next = els[els.indexOf(el) + 1]
 
         if (! next) return fallback()
-        if (next.__isDisabled || next.tagName.toLowerCase() === 'template') return this.next(next, receive, fallback)
+        if (next.__isDisabled.value || next.tagName.toLowerCase() === 'template') return this.next(Alpine, next, receive, fallback)
         return receive(next)
     },
     previous(Alpine, el, receive = i => i, fallback = () => { }) {
@@ -183,12 +192,17 @@ let dom = {
         let prev = els[els.indexOf(el) - 1]
 
         if (! prev) return fallback()
-        if (prev.__isDisabled || prev.tagName.toLowerCase() === 'template') return this.previous(prev, receive, fallback)
+        if (prev.__isDisabled.value || prev.tagName.toLowerCase() === 'template') return this.previous(Alpine, prev, receive, fallback)
         return receive(prev)
     },
     searchQuery: '',
+    debouncedClearSearch: undefined,
     clearSearch(Alpine) {
-        Alpine.debounce(function () { this.searchQuery = '' }, 350)
+        if (! this.debouncedClearSearch) {
+            this.debouncedClearSearch = Alpine.debounce(function () { this.searchQuery = '' }, 350)
+        }
+
+        this.debouncedClearSearch()
     },
     search(Alpine, parent, key, receiver) {
         if (key.length > 1) return
@@ -201,7 +215,7 @@ let dom = {
             return el.textContent.trim().toLowerCase().startsWith(this.searchQuery)
         })
 
-        el && !el.__isDisabled && receiver(el)
+        el && ! el.__isDisabled.value && receiver(el)
 
         this.clearSearch(Alpine)
     },

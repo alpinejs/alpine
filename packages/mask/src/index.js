@@ -31,7 +31,7 @@ export default function (Alpine) {
                 // Run on initialize which serves a dual purpose:
                 // - Initializing the mask on the input if it has an initial value.
                 // - Running the template function to set up reactivity, so that
-                //   when a dependancy inside it changes, the input re-masks.
+                //   when a dependency inside it changes, the input re-masks.
                 processInputValue(el)
             })
         } else {

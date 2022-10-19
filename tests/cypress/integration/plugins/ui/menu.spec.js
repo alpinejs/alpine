@@ -43,6 +43,53 @@ test('it works',
     },
 )
 
+test('it works with x-model',
+    [html`
+        <div x-data="{ open: false }" x-menu x-model="open">
+            <button trigger @click="open = !open">
+                <span>Options</span>
+            </button>
+
+            <button x-menu:button>
+                <span>Options</span>
+            </button>
+
+            <div x-menu:items items>
+                <div>
+                    <p>Signed in as</p>
+                    <p>tom@example.com</p>
+                </div>
+
+                <div>
+                    <a x-menu:item href="#account-settings">
+                        Account settings
+                    </a>
+                    <a x-menu:item href="#support">
+                        Support
+                    </a>
+                    <a x-menu:item disabled href="#new-feature">
+                        New feature (soon)
+                    </a>
+                    <a x-menu:item href="#license">
+                        License
+                    </a>
+                </div>
+                <div>
+                    <a x-menu:item href="#sign-out">
+                        Sign out
+                    </a>
+                </div>
+            </div>
+        </div>`],
+    ({ get }) => {
+        get('[items]').should(notBeVisible())
+        get('[trigger]').click()
+        get('[items]').should(beVisible())
+        get('[trigger]').click()
+        get('[items]').should(notBeVisible())
+    },
+)
+
 test('keyboard controls',
     [html`
         <div x-data x-menu>
@@ -124,6 +171,57 @@ test('keyboard controls',
             .should(beVisible())
             .type('{esc}')
             .should(notBeVisible())
+    },
+)
+
+test('search',
+    [html`
+        <div x-data x-menu>
+            <span>
+                <button x-menu:button trigger>
+                    <span>Options</span>
+                </button>
+            </span>
+
+            <div x-menu:items items>
+                <div>
+                    <p>Signed in as</p>
+                    <p>tom@example.com</p>
+                </div>
+
+                <div>
+                    <a x-menu:item href="#account-settings" :class="$menuItem.isActive && 'active'">
+                        Account settings
+                    </a>
+                    <a x-menu:item href="#support" :class="$menuItem.isActive && 'active'">
+                        Support
+                    </a>
+                    <a x-menu:item disabled href="#new-feature" :class="$menuItem.isActive && 'active'">
+                        New feature (soon)
+                    </a>
+                    <a x-menu:item href="#license" :class="$menuItem.isActive && 'active'">
+                        License
+                    </a>
+                </div>
+                <div>
+                    <a x-menu:item href="#sign-out" :class="$menuItem.isActive && 'active'">
+                        Sign out
+                    </a>
+                </div>
+            </div>
+        </div>`],
+    ({ get, wait }) => {
+        get('.active').should(notExist())
+        get('[trigger]').click()
+        get('[items]')
+            .type('ac')
+        get('[href="#account-settings"]')
+            .should(haveClasses(['active']))
+        wait(500)
+        get('[items]')
+            .type('si')
+        get('[href="#sign-out"]')
+            .should(haveClasses(['active']))
     },
 )
 
@@ -247,6 +345,3 @@ test('$menuItem.isDisabled',
         get('[href="#new-feature"]').should(haveClasses(['disabled']))
     },
 )
-
-// @todo: add keydown search and debounced search tests
-// @todo: 'x-model'

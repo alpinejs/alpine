@@ -41,7 +41,7 @@ function handleRoot(el, Alpine) {
                         this.__value = Alpine.bound(this.$el, 'default-checked', false)
                         this.__inputName = Alpine.bound(this.$el, 'name', false)
                         this.__inputValue = Alpine.bound(this.$el, 'value', 'on')
-                        this.__inputId = Date.now()
+                        this.__inputId = 'alpine-switch-'+Date.now()
                     })
                 },
                 __value: undefined,

@@ -18,6 +18,8 @@ export function store(name, value) {
     }
 
     initInterceptors(stores[name])
+    
+    return stores[name]
 }
 
 export function getStores() { return stores }

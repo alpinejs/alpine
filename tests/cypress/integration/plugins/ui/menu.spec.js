@@ -43,6 +43,51 @@ test('it works',
     },
 )
 
+test('focusing away closes menu',
+    [html`
+    <div>
+        <div x-data x-menu>
+            <span>
+                <button x-menu:button trigger>
+                    <span>Options</span>
+                </button>
+            </span>
+            <div x-menu:items items>
+                <div>
+                    <p>Signed in as</p>
+                    <p>tom@example.com</p>
+                </div>
+                <div>
+                    <a x-menu:item href="#account-settings">
+                        Account settings
+                    </a>
+                    <a x-menu:item href="#support">
+                        Support
+                    </a>
+                    <a x-menu:item href="#license">
+                        License
+                    </a>
+                </div>
+                <div>
+                    <a x-menu:item href="#sign-out">
+                        Sign out
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <button>Focus away</button>
+    </div>
+    `],
+    ({ get }) => {
+        get('[items]').should(notBeVisible())
+        get('[trigger]').click()
+        get('[items]').should(beVisible())
+        cy.focused().tab()
+        get('[items]').should(notBeVisible())
+    },
+)
+
 test('it works with x-model',
     [html`
         <div x-data="{ open: false }" x-menu x-model="open">

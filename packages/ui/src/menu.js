@@ -38,11 +38,19 @@ function handleRoot(el, Alpine) {
 
                     nextTick(() => this.$refs.__items.focus({ preventScroll: true }))
                 },
-                __close() {
+                __close(focusAfter = true) {
                     this.__isOpen = false
 
-                    this.$nextTick(() => this.$refs.__button.focus({ preventScroll: true }))
+                    focusAfter && this.$nextTick(() => this.$refs.__button.focus({ preventScroll: true }))
+                },
+                __contains(outer, inner) {
+                    return !! Alpine.findClosest(inner, el => el.isSameNode(outer))
                 }
+            }
+        },
+        '@focusin.window'() {
+            if (! this.$data.__contains(this.$el, document.activeElement)) {
+                this.$data.__close(false)
             }
         },
     })
@@ -74,7 +82,6 @@ function handleItems(el, Alpine) {
         ':aria-labelledby'() { return this.$id('alpine-menu-button') },
         ':aria-activedescendant'() { return this.$data.__activeEl && this.$data.__activeEl.id },
         'x-show'() { return this.$data.__isOpen },
-        'x-trap'() { return this.$data.__isOpen },
         'tabindex': '0',
         '@click.outside'() { this.$data.__close() },
         '@keydown'(e) { dom.search(Alpine, this.$refs.__items, e.key, el => el.__activate()) },

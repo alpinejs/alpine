@@ -36,8 +36,6 @@ export default function (Alpine) {
             set active(value) { this.setActive(value) },
             set selected(value) { this.setSelected(value) },
             setSelected(value) {
-                console.log(value);
-
                 let item = this.items.find(i => i.value === value)
 
                 if (item && item.disabled) return
@@ -241,13 +239,13 @@ export default function (Alpine) {
             isFirst() {
                 return state.items.findIndex(i => i.el.isSameNode(el)) === 0
             },
-            get active() {
+            get isActive() {
                 if (state.reactive.active) return state.reactive.active === item.value
             },
-            get selected() {
+            get isSelected() {
                 if (state.reactive.selected) return state.reactive.selected === item.value
             },
-            get disabled() {
+            get isDisabled() {
                 return item.disabled
             },
             get el() { return item.el },

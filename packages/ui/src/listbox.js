@@ -102,7 +102,6 @@ function handleOption(el, Alpine) {
                         queueMicrotask(() => {
                             this.__value = Alpine.bound(el, 'value');
                             this.__disabled = Alpine.bound(el, 'disabled', false);
-                            console.log(this.__value);
                         })
                     }
                 }

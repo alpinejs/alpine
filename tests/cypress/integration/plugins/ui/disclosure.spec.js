@@ -78,7 +78,7 @@ test('can set a default open state',
     },
 )
 
-test.only('it toggles using the space key',
+test('it toggles using the space key',
     [html`
         <div x-data x-disclosure>
             <button trigger x-disclosure:button>Trigger</button>

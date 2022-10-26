@@ -7,14 +7,36 @@
     <script src="./packages/mask/dist/cdn.js"></script>
     <script src="./packages/ui/dist/cdn.js" defer></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
+    <script src="//cdn.tailwindcss.com"></script>
     <!-- <script src="https://unpkg.com/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
     <!-- Play around. -->
-    <div x-data="{ open: false }">
-        <button @click="open = !open">Toggle</button>
+    <main x-data="{ active: null, access: [
+        {
+            id: 'access-1',
+            name: 'Public access',
+            description: 'This project would be available to anyone who has the link',
+            disabled: false,
+        },
+    ]}">
+        <div x-radio group x-model="active">
+            <fieldset>
+                <legend>
+                    <h2 x-radio:label>Privacy setting</h2>
+                    <p x-radio:description>Some description</p>
+                </legend>
 
-        <span x-show="open">
-            Content...
-        </span>
-    </div>
+                <div>
+                    <template x-for="(item, i) in access" :key="item.id">
+                        <div :option="item.id" x-radio:option :value="item" :disabled="item.disabled">
+                            <span :label="item.id" x-radio:label x-text="item.name"></span>
+                            <span :description="item.id" x-radio:description x-text="item.description"></span>
+                        </div>
+                    </template>
+                </div>
+            </fieldset>
+        </div>
+
+        <span x-text="JSON.stringify(active)"></span>
+    </main>
 </html>

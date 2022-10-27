@@ -16,6 +16,7 @@ export default function (Alpine) {
         return evaluate('$item', el)
     })
 }
+
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
         'x-id'() { return ['alpine-listbox-button', 'alpine-listbox-options', 'alpine-listbox-label'] },

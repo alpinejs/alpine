@@ -559,3 +559,21 @@ test('renders children using directives injected by x-html correctly',
         get('p:nth-of-type(2) span').should(haveText('bar'))
     }
 )
+
+test('renders template in template with the correct order',
+    html`
+    <div x-data="{ lists: [['1'],['2']] }">
+        <ul>
+            <template x-for="list in lists" :key="list"> 
+                <template x-for="item in list" :key="list+item">
+                    <li x-text="item"></li>
+                </template>
+            </template>
+        </ul>
+    </div>
+    `,
+    ({ get }) => {
+        get('li:nth-of-type(1)').should(haveText('1'))
+        get('li:nth-of-type(2)').should(haveText('2'))
+    }
+)

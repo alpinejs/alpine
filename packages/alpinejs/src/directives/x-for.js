@@ -169,6 +169,8 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             refreshScope(elForSpot, scopes[keys.indexOf(keyForSpot)])
         }
 
+        let cloneEls = []
+
         // We can now create and add new elements.
         for (let i = 0; i < adds.length; i++) {
             let [lastKey, index] = adds[i]
@@ -185,10 +187,11 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 
             addScopeToNode(clone, reactive(scope), templateEl)
 
+            // Put the clones in an array to access them later for alpine initTree
+            cloneEls.push(clone);
+
             mutateDom(() => {
                 lastEl.after(clone)
-
-                initTree(clone)
             })
 
             if (typeof key === 'object') {
@@ -198,6 +201,13 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             lookup[key] = clone
         }
 
+        // Clone elements are settled in the dom in the previous loop, so we can now initiate initTree for each of them
+        for (let i = 0; i < cloneEls.length; i++) {
+            mutateDom(() => {
+                initTree(cloneEls[i])
+            })
+        }
+        
         // If an element hasn't changed, we still want to "refresh" the
         // data it depends on in case the data has changed in an
         // "unobservable" way.

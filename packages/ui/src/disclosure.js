@@ -64,7 +64,7 @@ function handleButton(el, Alpine) {
         // Required for firefox, event.preventDefault() in handleKeyDown for
         // the Space key doesn't cancel the handleKeyUp, which in turn
         // triggers a *click*.
-        '@keyup.space.prevent'() { this.$data.__toggle() },
+        '@keyup.space.prevent'() {},
     })
 }
 

@@ -192,13 +192,15 @@ let directiveOrder = [
     // @todo: provide better directive ordering mechanisms so
     // that I don't have to manually add things like "tabs"
     // to the order list...
-    'tabs',
     'radio',
+    'tabs',
     'switch',
     'disclosure',
+    'menu',
     'listbox',
-    'item',
     'list',
+    'item',
+    'combobox',
     'bind',
     'init',
     'for',

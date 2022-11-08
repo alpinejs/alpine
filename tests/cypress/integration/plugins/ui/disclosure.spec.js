@@ -77,3 +77,26 @@ test('can set a default open state',
         get('[panel]').should(notBeVisible())
     },
 )
+
+test('it toggles using the space key',
+    [html`
+        <div x-data x-disclosure>
+            <button trigger x-disclosure:button>Trigger</button>
+
+            <div x-disclosure:panel panel>
+                Content
+
+                <button close-button type="button" @click="$disclosure.close()">Close</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('[panel]').should(notBeVisible())
+        get('[trigger]').click()
+        get('[panel]').should(beVisible())
+        get('[trigger]').type(' ')
+        get('[panel]').should(notBeVisible())
+        get('[trigger]').type(' ')
+        get('[panel]').should(beVisible())
+    },
+)

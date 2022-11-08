@@ -1,4 +1,10 @@
 export default function (Alpine) {
+    // x-listbox registers
+    //   x-list registers the state object that contains the items list
+    // x-listbox:option registers
+    //   x-item registers and pushes item object onto state object
+
+
     Alpine.directive('list', (el, { expression, modifiers }, { evaluateLater, effect }) => {
         let wrap = modifiers.includes('wrap')
         let getOuterValue = () => null
@@ -68,6 +74,9 @@ export default function (Alpine) {
             addItem(el, value, disabled = false) {
                 this.items.push({ el, value, disabled })
                 this.reorderList()
+            },
+            getItem(el) {
+                return this.items.find(i => i.el === el)
             },
             disableItem(el) {
                 this.items.find(i => i.el === el).disabled = true
@@ -194,10 +203,14 @@ export default function (Alpine) {
 
         let listEl = Alpine.findClosest(el, el => el._x_listState)
 
+        el.ready = Alpine.reactive({ state: false })
+
         queueMicrotask(() => {
             let value = Alpine.bound(el, 'value');
 
             listEl._x_listState.addItem(el, value)
+
+            el.ready.state = true
 
             Alpine.bound(el, 'disabled') && listEl._x_listState.disableItem(el)
         })
@@ -220,18 +233,23 @@ export default function (Alpine) {
 
     function generateItemObject(listEl, el) {
         let state = listEl._x_listState
-        let item = listEl._x_listState.items.find(i => i.el === el)
 
         return {
             activate(callback = () => {}) {
+                let item = listEl._x_listState.items.find(i => i.el === el)
+
                 state.setActive(item.value)
 
                 callback(item)
             },
             deactivate() {
+                let item = listEl._x_listState.items.find(i => i.el === el)
+
                 if (Alpine.raw(state.active) === Alpine.raw(item.value)) state.setActive(null)
             },
             select(callback = () => {}) {
+                let item = listEl._x_listState.items.find(i => i.el === el)
+
                 state.setSelected(item.value)
 
                 callback(item)
@@ -240,12 +258,20 @@ export default function (Alpine) {
                 return state.items.findIndex(i => i.el.isSameNode(el)) === 0
             },
             get isActive() {
+                let item = listEl._x_listState.items.find(i => i.el === el)
+
                 if (state.reactive.active) return state.reactive.active === item.value
             },
             get isSelected() {
+                let item = listEl._x_listState.items.find(i => i.el === el)
+
                 if (state.reactive.selected) return state.reactive.selected === item.value
             },
             get isDisabled() {
+                if (! el.ready.state) return false
+
+                let item = listEl._x_listState.items.find(i => i.el === el)
+
                 return item.disabled
             },
             get el() { return item.el },

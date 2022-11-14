@@ -101,7 +101,6 @@ test('it works with internal state',
     },
 )
 
-// @todo fix $listboxOption.isDisabled
 test('$listbox/$listboxOption',
     [html`
         <div
@@ -269,7 +268,7 @@ test('"default-value" prop',
 );
 
 // @todo support "multiple" prop
-test('"multiple" prop',
+test.only('"multiple" prop',
     [html`
         <div
             x-data="{
@@ -327,7 +326,6 @@ test('"multiple" prop',
 );
 
 // @todo support "static" prop
-
 test('keyboard controls',
     [html`
         <div
@@ -550,3 +548,9 @@ test('has accessibility attributes',
             .should(haveAttribute('aria-activedescendant', 'alpine-listbox-item-2'))
     },
 )
+
+
+// Supporting multiple
+// Supporting native inputs
+// Static open/closed
+// Accessibility

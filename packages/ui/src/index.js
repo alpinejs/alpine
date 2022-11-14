@@ -1,4 +1,4 @@
-import helpers from './helpers';
+// import helpers from './helpers';
 
 import dialog from './dialog'
 import disclosure from './disclosure'
@@ -10,7 +10,7 @@ import radio from './radio'
 import tabs from './tabs'
 
 export default function (Alpine) {
-    helpers(Alpine)
+    // helpers(Alpine)
     dialog(Alpine)
     disclosure(Alpine)
     listbox(Alpine)

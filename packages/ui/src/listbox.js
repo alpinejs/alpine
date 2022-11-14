@@ -1,4 +1,4 @@
-import { generateContext } from './lists-context'
+import { generateContext } from './list-context'
 
 export default function (Alpine) {
     Alpine.directive('listbox', (el, directive) => {

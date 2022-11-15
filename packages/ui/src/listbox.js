@@ -76,7 +76,7 @@ function handleRoot(el, Alpine) {
                         this.__value = this.__context.selectedValueOrValues()
                     })
 
-                    setTimeout(() => {
+                    queueMicrotask(() => {
                         this.__ready = true
                     })
                 },

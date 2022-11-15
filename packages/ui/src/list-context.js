@@ -36,9 +36,45 @@ export function generateContext(multiple) {
             return key
         },
 
+        destroyItem(el) {
+            let key = keyByValue(this.elsByKey, el)
+
+            delete this.values[key]
+            delete this.elsByKey[key]
+            delete this.orderedKeys[this.orderedKeys.indexOf(key)]
+            delete this.searchableText[key]
+            delete this.disabledKeys[key]
+
+            this.reorderKeys()
+        },
+
         /**
          * Handle elements...
          */
+         reorderKeys() {
+            // Filter out elements removed from the dom...
+            this.orderedKeys.forEach((key) => {
+                let el = this.elsByKey[key]
+
+                if (el.isConnected) return
+
+                this.destroyItem(el)
+            })
+
+            this.orderedKeys = this.orderedKeys.slice().sort((a, z) => {
+                if (a === null || z === null) return 0
+
+                let aEl = this.elsByKey[a]
+                let zEl = this.elsByKey[z]
+
+                let position = aEl.compareDocumentPosition(zEl)
+
+                if (position & Node.DOCUMENT_POSITION_FOLLOWING) return -1
+                if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1
+                return 0
+            })
+        },
+
         activeEl() {
             if (! this.activeKey) return
 
@@ -85,8 +121,29 @@ export function generateContext(multiple) {
             return this.isDisabled(key)
         },
 
-        scrollToKey(key) {
-            this.elsByKey[key].scrollIntoView({ block: 'nearest' })
+        get isScrollingTo() { return this.scrollingCount > 0 },
+
+        scrollingCount: 0,
+
+        activateAndScrollToKey(key) {
+            // This addresses the following problem:
+            // If deactivate is hooked up to mouseleave,
+            // scrolling to an element will trigger deactivation.
+            // This "isScrollingTo" is exposed to prevent that.
+            this.scrollingCount++
+
+            this.activateKey(key)
+
+            let targetEl = this.elsByKey[key]
+
+            targetEl.scrollIntoView({ block: 'nearest' })
+
+            setTimeout(() => {
+                this.scrollingCount--
+            // Unfortunately, browser experimentation has shown me
+            // that 25ms is the sweet spot when holding down an
+            // arrow key to scroll the list of items...
+            }, 25)
         },
 
         /**
@@ -181,12 +238,16 @@ export function generateContext(multiple) {
             this.activeKey = key
         },
 
-        deactivate() { return this.activeKey = null },
+        deactivate() {
+            if (! this.activeKey) return
+            if (this.isScrollingTo) return
+
+            this.activeKey = null
+        },
 
         /**
          * Handle active key traveral...
          */
-
         nextKey() {
             if (! this.activeKey) return
 
@@ -233,6 +294,8 @@ export function generateContext(multiple) {
         },
 
         activateByKeyEvent(e) {
+            this.reorderKeys()
+
             let hasActive = this.hasActive()
 
             let targetKey
@@ -274,9 +337,7 @@ export function generateContext(multiple) {
             }
 
             if (targetKey) {
-                this.activateKey(targetKey)
-
-                setTimeout(() => this.scrollToKey(targetKey))
+                this.activateAndScrollToKey(targetKey)
             }
         }
     }
@@ -286,15 +347,5 @@ function keyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value)
 }
 
-// reorderList() {
-//     this.items = this.items.slice().sort((a, z) => {
-//         if (a === null || z === null) return 0
 
-//         let position = a.el.compareDocumentPosition(z.el)
-
-//         if (position & Node.DOCUMENT_POSITION_FOLLOWING) return -1
-//         if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1
-//         return 0
-//     })
-// },
 

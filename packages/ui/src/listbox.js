@@ -74,24 +74,36 @@ function handleRoot(el, Alpine) {
 
                     this.__context = generateContext(this.__isMultiple)
 
+                    // We have to wait for the rest of the HTML to initialize in Alpine before
+                    // we mark this component as "ready".
                     queueMicrotask(() => {
                         this.__ready = true
 
+                        // We have to wait again until after the "ready" processes are finished
+                        // to settle up currently selected Values (this prevents this next bit
+                        // of code from running multiple times on startup...)
                         queueMicrotask(() => {
+                            // This "fingerprint" acts as a checksum of the last-known "value"
+                            // passed into x-model. We need to track this so that we can determine
+                            // from the reactive effect if it was the value that changed externally
+                            // or an option was selected internally...
                             let lastValueFingerprint = false
 
                             Alpine.effect(() => {
                                 if (lastValueFingerprint !== false && lastValueFingerprint !== JSON.stringify(this.__value)) {
-                                    console.log('changed value, select keys')
+                                    // Here we know that the value changed externally and we can add the selection...
                                     this.__context.selectValue(this.__value, this.__compareBy)
                                 } else {
-                                    console.log('changed keys, select value')
+                                    // Here we know that an option was selected and we can change the value...
                                     this.__value = this.__context.selectedValueOrValues()
                                 }
 
-                                this.__inputName && renderHiddenInputs(this.$el, this.__inputName, this.__value)
-
+                                // Generate the "value" checksum for comparison next time...
                                 lastValueFingerprint = JSON.stringify(this.__value)
+
+                                // Everytime the value changes, we need to re-render the hidden inputs,
+                                // if a user passed the "name" prop...
+                                this.__inputName && renderHiddenInputs(this.$el, this.__inputName, this.__value)
                             })
                         })
                     })

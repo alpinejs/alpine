@@ -1,4 +1,4 @@
-import { generateContext } from './list-context'
+import { generateContext, renderHiddenInputs } from './list-context'
 
 export default function (Alpine) {
     Alpine.directive('listbox', (el, directive) => {
@@ -69,15 +69,31 @@ function handleRoot(el, Alpine) {
                 init() {
                     this.__isMultiple = Alpine.bound(el, 'multiple', false)
                     this.__isDisabled = Alpine.bound(el, 'disabled', false)
+                    this.__inputName = Alpine.bound(el, 'name', null)
+                    this.__compareBy = Alpine.bound(el, 'by')
 
                     this.__context = generateContext(this.__isMultiple)
 
-                    Alpine.effect(() => {
-                        this.__value = this.__context.selectedValueOrValues()
-                    })
-
                     queueMicrotask(() => {
                         this.__ready = true
+
+                        queueMicrotask(() => {
+                            let lastValueFingerprint = false
+
+                            Alpine.effect(() => {
+                                if (lastValueFingerprint !== false && lastValueFingerprint !== JSON.stringify(this.__value)) {
+                                    console.log('changed value, select keys')
+                                    this.__context.selectValue(this.__value, this.__compareBy)
+                                } else {
+                                    console.log('changed keys, select value')
+                                    this.__value = this.__context.selectedValueOrValues()
+                                }
+
+                                this.__inputName && renderHiddenInputs(this.$el, this.__inputName, this.__value)
+
+                                lastValueFingerprint = JSON.stringify(this.__value)
+                            })
+                        })
                     })
                 },
                 __open() {

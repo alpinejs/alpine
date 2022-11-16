@@ -1,3 +1,4 @@
+import Alpine from "../../alpinejs/src/alpine"
 
 export function generateContext(multiple) {
     return {
@@ -165,6 +166,38 @@ export function generateContext(multiple) {
             return this.selectedKeys[0] ? this.values[this.selectedKeys[0]] : null
         },
 
+        selectValue(value, by) {
+            if (! by) by = (a, b) => a === b
+
+            if (typeof by === 'string') {
+                let property = by
+                by = (a, b) => a[property] === b[property]
+            }
+
+            if (multiple) {
+                // debugger
+                let keys = []
+
+                value.forEach(i => {
+                    for (let key in this.values) {
+                        if (by(this.values[key], i)) {
+                            if (! keys.includes(key)) {
+                                keys.push(key)
+                            }
+                        }
+                    }
+                })
+
+                this.selectExclusive(keys)
+            } else {
+                for (let key in this.values) {
+                    if (by(this.values[key], value)) {
+                        this.selectKey(key)
+                    }
+                }
+            }
+        },
+
         /**
          * Handle disabled keys...
          */
@@ -198,6 +231,28 @@ export function generateContext(multiple) {
         selectOnly(key) {
             this.selectedKeys = []
             this.selectedKeys.push(key)
+        },
+
+        selectExclusive(keys) {
+            // We can't just do this.selectedKeys = keys,
+            // because we need to preserve reactivity...
+
+            let toAdd = [...keys]
+
+            for (let i = 0; i < this.selectedKeys.length; i++) {
+                if (keys.includes(this.selectedKeys[i])) {
+                    delete toAdd[toAdd.indexOf(this.selectedKeys[i])]
+                    continue;
+                }
+
+                if (! keys.includes(this.selectedKeys[i])) {
+                    delete this.selectedKeys[i]
+                }
+            }
+
+            toAdd.forEach(i => {
+                this.selectedKeys.push(i)
+            })
         },
 
         selectActive(key) {
@@ -345,6 +400,60 @@ export function generateContext(multiple) {
 
 function keyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value)
+}
+
+export function renderHiddenInputs(el, name, value) {
+    // Create input elements...
+    let newInputs = generateInputs(name, value)
+
+    // Mark them for later tracking...
+    newInputs.forEach(i => i._x_hiddenInput = true)
+
+    // Mark them for Alpine ignoring...
+    newInputs.forEach(i => i._x_ignore = true)
+
+    // Gather old elements for removal...
+    let children = el.children
+
+    let oldInputs = []
+
+    for (let i = 0; i < children.length; i++) {
+        let child = children[i];
+
+        if (child._x_hiddenInput) oldInputs.push(child)
+        else break
+    }
+
+    // Remove old, and insert new ones into the DOM...
+    Alpine.mutateDom(() => {
+        oldInputs.forEach(i => i.remove())
+
+        newInputs.reverse().forEach(i => el.prepend(i))
+    })
+}
+
+function generateInputs(name, value, carry = []) {
+    if (isObjectOrArray(value)) {
+        for (let key in value) {
+            carry = carry.concat(
+                generateInputs(`${name}[${key}]`, value[key])
+            )
+        }
+    } else {
+        let el = document.createElement('input')
+        el.setAttribute('type', 'hidden')
+        el.setAttribute('name', name)
+        el.setAttribute('value', '' + value)
+
+        return [el]
+    }
+
+
+    return carry
+}
+
+function isObjectOrArray(subject) {
+    return typeof subject === 'object' && subject !== null
 }
 
 

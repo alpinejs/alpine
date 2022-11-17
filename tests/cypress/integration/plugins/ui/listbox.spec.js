@@ -549,13 +549,9 @@ test('has accessibility attributes',
 )
 
 
-// Supporting multiple
-// Supporting native inputs
-// Static open/closed
-// Accessibility
-
 // test multiple (selecting multiple)
 // test keyboard navigation (arrows and searching)
+// test static
 // test skipping disabled
 // test "by" attribute
 // test changing value manually changes selected items

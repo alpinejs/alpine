@@ -415,7 +415,6 @@ test('keyboard controls',
 )
 
 // @todo support horizontal prop and add tests for it
-
 test('search',
     [html`
         <div
@@ -554,3 +553,9 @@ test('has accessibility attributes',
 // Supporting native inputs
 // Static open/closed
 // Accessibility
+
+// test multiple (selecting multiple)
+// test keyboard navigation (arrows and searching)
+// test skipping disabled
+// test "by" attribute
+// test changing value manually changes selected items

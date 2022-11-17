@@ -14,11 +14,19 @@ export default function (Alpine) {
 
         if (! data.__ready) return {
             isDisabled: false,
+            isOpen: false,
+            value: null,
         }
 
         return {
+            get isOpen() {
+                return data.__isOpen
+            },
             get isDisabled() {
                 return data.__isDisabled
+            },
+            get value() {
+                return data.__value
             },
         }
     })
@@ -65,6 +73,7 @@ function handleRoot(el, Alpine) {
                 __isOpen: false,
                 __context: undefined,
                 __isMultiple: undefined,
+                __isStatic: false,
                 __isDisabled: undefined,
                 init() {
                     this.__isMultiple = Alpine.bound(el, 'multiple', false)
@@ -90,7 +99,7 @@ function handleRoot(el, Alpine) {
                             let lastValueFingerprint = false
 
                             Alpine.effect(() => {
-                                if (lastValueFingerprint !== false && lastValueFingerprint !== JSON.stringify(this.__value)) {
+                                if (lastValueFingerprint === false || lastValueFingerprint !== JSON.stringify(this.__value)) {
                                     // Here we know that the value changed externally and we can add the selection...
                                     this.__context.selectValue(this.__value, this.__compareBy)
                                 } else {
@@ -164,7 +173,10 @@ function handleOptions(el, Alpine) {
     Alpine.bind(el, {
         'x-ref': '__options',
         ':id'() { return this.$id('alpine-listbox-options') },
-        'x-show'() { return this.$data.__isOpen },
+        'x-init'() {
+            this.$data.__isStatic = Alpine.bound(this.$el, 'static', false)
+        },
+        'x-show'() { return this.$data.__isStatic ? true : this.$data.__isOpen },
         '@click.outside'() { this.$data.__close() },
         '@keydown.escape.stop.prevent'() { this.$data.__close() },
         tabindex: '0',

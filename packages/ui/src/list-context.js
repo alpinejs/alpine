@@ -167,6 +167,7 @@ export function generateContext(multiple) {
         },
 
         selectValue(value, by) {
+            if (!value) value = (multiple ? [] : null)
             if (! by) by = (a, b) => a === b
 
             if (typeof by === 'string') {
@@ -272,6 +273,8 @@ export function generateContext(multiple) {
         hasActive() { return !! this.activeKey },
 
         isActiveKey(key) { return this.activeKey === key },
+
+        get active() { return this.hasActive() && this.values[this.activeKey] },
 
         activateSelectedOrFirst() {
             let firstSelected = this.firstSelectedKey()
@@ -455,6 +458,3 @@ function generateInputs(name, value, carry = []) {
 function isObjectOrArray(subject) {
     return typeof subject === 'object' && subject !== null
 }
-
-
-

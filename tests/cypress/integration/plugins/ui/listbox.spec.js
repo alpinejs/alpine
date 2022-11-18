@@ -1,4 +1,4 @@
-import { beVisible, haveAttribute, haveClasses, haveText, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test } from '../../../utils'
+import { beVisible, beHidden, haveAttribute, haveClasses, haveText, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test} from '../../../utils'
 
 test('it works with x-model',
     [html`
@@ -161,7 +161,6 @@ test('$listbox/$listboxOption',
     },
 )
 
-// @todo support "name" prop
 test('"name" prop',
     [html`
         <div
@@ -203,12 +202,15 @@ test('"name" prop',
         </div>
     `],
     ({ get }) => {
-        get('input').should(notExist())
+        get('input').should(haveAttribute('value', 'null'))
+        get('button').click()
+        get('input').should(haveAttribute('value', 'null'))
+        get('[option="2"]').click()
         get('input').should(beHidden())
             .should(haveAttribute('name', 'person'))
             .should(haveAttribute('value', '2'))
             .should(haveAttribute('type', 'hidden'))
-        get('[option="2"]').click()
+        get('button').click()
         get('[option="4"]').click()
         get('input').should(beHidden())
             .should(haveAttribute('name', 'person'))
@@ -217,7 +219,70 @@ test('"name" prop',
     },
 );
 
-// @todo support "default-value" prop
+test('"name" prop with object value',
+    [html`
+        <div
+            x-data="{ people: [
+                { id: 1, name: 'Wade Cooper' },
+                { id: 2, name: 'Arlene Mccoy' },
+                { id: 3, name: 'Devon Webb' },
+                { id: 4, name: 'Tom Cook' },
+                { id: 5, name: 'Tanya Fox', disabled: true },
+                { id: 6, name: 'Hellen Schmidt' },
+                { id: 7, name: 'Caroline Schultz' },
+                { id: 8, name: 'Mason Heaney' },
+                { id: 9, name: 'Claudie Smitham' },
+                { id: 10, name: 'Emil Schaefer' },
+            ]}"
+            x-listbox
+            name="person"
+        >
+            <label x-listbox:label>Assigned to</label>
+
+            <button x-listbox:button x-text="$listbox.selected ? $listbox.selected.name : 'Select Person'"></button>
+
+            <ul x-listbox:options>
+                <template x-for="person in people" :key="person.id">
+                    <li
+                        :option="person.id"
+                        x-listbox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                        :class="{
+                            'selected': $listboxOption.isSelected,
+                            'active': $listboxOption.isActive,
+                        }"
+                    >
+                        <span x-text="person.name"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('input[name="person"]').should(haveAttribute('value', 'null'))
+        get('button').click()
+        get('[name="person[id]"]').should(notExist())
+        get('[option="2"]').click()
+        get('input[name="person"]').should(notExist())
+        get('[name="person[id]"]').should(beHidden())
+            .should(haveAttribute('value', '2'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[name="person[name]"]').should(beHidden())
+            .should(haveAttribute('value', 'Arlene Mccoy'))
+            .should(haveAttribute('type', 'hidden'))
+        get('button').click()
+        get('[option="4"]').click()
+        get('[name="person[id]"]').should(beHidden())
+            .should(haveAttribute('value', '4'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[name="person[name]"]').should(beHidden())
+            .should(haveAttribute('value', 'Tom Cook'))
+            .should(haveAttribute('type', 'hidden'))
+    },
+);
+
+// @todo: support default-value
 test('"default-value" prop',
     [html`
         <div
@@ -267,12 +332,10 @@ test('"default-value" prop',
     },
 );
 
-// @todo support "multiple" prop
-test.only('"multiple" prop',
+test('"multiple" prop',
     [html`
         <div
             x-data="{
-                value: [],
                 people: [
                     { id: 1, name: 'Wade Cooper' },
                     { id: 2, name: 'Arlene Mccoy' },
@@ -325,7 +388,92 @@ test.only('"multiple" prop',
     },
 );
 
-// @todo support "static" prop
+test('"multiple" and "name" props together',
+    [html`
+        <div
+            x-data="{
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ]
+            }"
+            x-listbox
+            multiple
+            name="people"
+        >
+            <label x-listbox:label>Assigned to</label>
+
+            <button x-listbox:button x-text="$listbox.selected ? $listbox.selected.map(p => p.id).join(',') : 'Select People'"></button>
+
+            <ul x-listbox:options>
+                <template x-for="person in people" :key="person.id">
+                    <li
+                        :option="person.id"
+                        x-listbox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                        :class="{
+                            'selected': $listboxOption.isSelected,
+                            'active': $listboxOption.isActive,
+                        }"
+                    >
+                        <span x-text="person.name"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('input[name="people"]').should(haveAttribute('value', 'null'))
+        get('button').click()
+        get('[name="people[0][id]"]').should(notExist())
+        get('[option="2"]').click()
+        get('ul').should(beVisible())
+        get('button').should(haveText('2'))
+        get('input[name="people"]').should(notExist())
+        get('[name="people[0][id]"]').should(beHidden())
+            .should(haveAttribute('value', '2'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[name="people[0][name]"]').should(beHidden())
+            .should(haveAttribute('value', 'Arlene Mccoy'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[option="4"]').click()
+        get('[name="people[0][id]"]').should(beHidden())
+            .should(haveAttribute('value', '2'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[name="people[0][name]"]').should(beHidden())
+            .should(haveAttribute('value', 'Arlene Mccoy'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[name="people[1][id]"]').should(beHidden())
+            .should(haveAttribute('value', '4'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[name="people[1][name]"]').should(beHidden())
+            .should(haveAttribute('value', 'Tom Cook'))
+            .should(haveAttribute('type', 'hidden'))
+        get('button').should(haveText('2,4'))
+        get('ul').should(beVisible())
+        get('[option="4"]').click()
+        get('[name="people[0][id]"]').should(beHidden())
+            .should(haveAttribute('value', '2'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[name="people[0][name]"]').should(beHidden())
+            .should(haveAttribute('value', 'Arlene Mccoy'))
+            .should(haveAttribute('type', 'hidden'))
+        get('[name="people[1][id]"]').should(notExist())
+        get('[name="people[1][name]"]').should(notExist())
+        get('button').should(haveText('2'))
+        get('ul').should(beVisible())
+    },
+);
+
 test('keyboard controls',
     [html`
         <div
@@ -372,13 +520,13 @@ test('keyboard controls',
         get('[options]')
             .should(beVisible())
             .should(haveFocus())
-            .type('{downarrow}')
         get('[option="1"')
             .should(haveClasses(['active']))
         get('[options]')
             .type('{downarrow}')
         get('[option="2"]')
             .should(haveClasses(['active']))
+        get('[options]')
             .type('{downarrow}')
         get('[option="4"]')
             .should(haveClasses(['active']))
@@ -414,7 +562,71 @@ test('keyboard controls',
     },
 )
 
-// @todo support horizontal prop and add tests for it
+// @todo support horizontal prop
+test('"horizontal" keyboard controls',
+    [html`
+        <div
+            x-data="{ active: null, people: [
+                { id: 1, name: 'Wade Cooper' },
+                { id: 2, name: 'Arlene Mccoy' },
+                { id: 3, name: 'Devon Webb', disabled: true },
+                { id: 4, name: 'Tom Cook' },
+                { id: 5, name: 'Tanya Fox', disabled: true },
+                { id: 6, name: 'Hellen Schmidt' },
+                { id: 7, name: 'Caroline Schultz' },
+                { id: 8, name: 'Mason Heaney' },
+                { id: 9, name: 'Claudie Smitham' },
+                { id: 10, name: 'Emil Schaefer' },
+            ]}"
+            x-listbox
+            x-model="active"
+            horizontal
+        >
+            <label x-listbox:label>Assigned to</label>
+
+            <button x-listbox:button x-text="active ? active.name : 'Select Person'"></button>
+
+            <ul x-listbox:options options>
+                <template x-for="person in people" :key="person.id">
+                    <li
+                        :option="person.id"
+                        x-listbox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                        :class="{
+                            'selected': $listboxOption.isSelected,
+                            'active': $listboxOption.isActive,
+                        }"
+                    >
+                        <span x-text="person.name"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('.active').should(notExist())
+        get('button').focus().type(' ')
+        get('[options]')
+            .should(beVisible())
+            .should(haveFocus())
+        get('[option="1"')
+            .should(haveClasses(['active']))
+        get('[options]')
+            .type('{rightarrow}')
+        get('[option="2"]')
+            .should(haveClasses(['active']))
+        get('[options]')
+            .type('{rightarrow}')
+        get('[option="4"]')
+            .should(haveClasses(['active']))
+        get('[options]')
+            .type('{leftarrow}')
+        get('[option="2"]')
+            .should(haveClasses(['active']))
+    },
+)
+
 test('search',
     [html`
         <div
@@ -467,6 +679,60 @@ test('search',
             .type('ma')
         get('[option="8"]')
             .should(haveClasses(['active']))
+    },
+)
+
+test('changing value manually changes internal state',
+    [html`
+        <div
+            x-data="{ active: null, people: [
+                { id: 1, name: 'Wade Cooper' },
+                { id: 2, name: 'Arlene Mccoy' },
+                { id: 3, name: 'Devon Webb', disabled: true },
+                { id: 4, name: 'Tom Cook' },
+                { id: 5, name: 'Tanya Fox', disabled: true },
+                { id: 6, name: 'Hellen Schmidt' },
+                { id: 7, name: 'Caroline Schultz' },
+                { id: 8, name: 'Mason Heaney' },
+                { id: 9, name: 'Claudie Smitham' },
+                { id: 10, name: 'Emil Schaefer' },
+            ]}"
+            x-listbox
+            x-model="active"
+        >
+            <label x-listbox:label>Assigned to</label>
+
+            <button toggle x-listbox:button x-text="$listbox.selected ? $listbox.selected : 'Select Person'"></button>
+
+            <button select-tim @click="active = 4">Select Tim</button>
+
+            <ul x-listbox:options options>
+                <template x-for="person in people" :key="person.id">
+                    <li
+                        :option="person.id"
+                        x-listbox:option
+                        :value="person.id"
+                        :disabled="person.disabled"
+                        :class="{
+                            'selected': $listboxOption.isSelected,
+                            'active': $listboxOption.isActive,
+                        }"
+                    >
+                        <span x-text="person.name"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('.active').should(notExist())
+        get('[toggle]').click()
+        get('[option="2"')
+            .click()
+            .should(haveClasses(['selected']))
+        get('[select-tim]').click()
+        get('[option="4"]').should(haveClasses(['selected']))
+        get('[toggle]').should(haveText('4'))
     },
 )
 
@@ -548,10 +814,56 @@ test('has accessibility attributes',
     },
 )
 
+test.only('"static" prop',
+    [html`
+        <div
+            x-data="{ active: null, show: false, people: [
+                { id: 1, name: 'Wade Cooper' },
+                { id: 2, name: 'Arlene Mccoy' },
+                { id: 3, name: 'Devon Webb' },
+                { id: 4, name: 'Tom Cook' },
+                { id: 5, name: 'Tanya Fox', disabled: true },
+                { id: 6, name: 'Hellen Schmidt' },
+                { id: 7, name: 'Caroline Schultz' },
+                { id: 8, name: 'Mason Heaney' },
+                { id: 9, name: 'Claudie Smitham' },
+                { id: 10, name: 'Emil Schaefer' },
+            ]}"
+            x-listbox
+            x-model="active"
+        >
+            <label x-listbox:label>Assigned to</label>
 
-// test multiple (selecting multiple)
-// test keyboard navigation (arrows and searching)
-// test static
-// test skipping disabled
+            <button normal-toggle x-listbox:button x-text="active ? active.name : 'Select Person'"></button>
+
+            <button real-toggle @click="show = ! show">Toggle</button>
+
+            <ul x-listbox:options x-show="show" static>
+                <template x-for="person in people" :key="person.id">
+                    <li
+                        :option="person.id"
+                        x-listbox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                    >
+                        <span x-text="person.name"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('ul').should(notBeVisible())
+        get('[normal-toggle]')
+            .should(haveText('Select Person'))
+            .click()
+        get('ul').should(notBeVisible())
+        get('[real-toggle]').click()
+        get('ul').should(beVisible())
+        get('[option="2"]').click()
+        get('ul').should(beVisible())
+        get('[normal-toggle]').should(haveText('Arlene Mccoy'))
+    },
+)
+
 // test "by" attribute
-// test changing value manually changes selected items

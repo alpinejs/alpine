@@ -9,13 +9,14 @@ export default function (Alpine) {
         else if (directive.value === 'option') handleOption(el, Alpine)
     })
 
-    Alpine.magic('listbox', (el, { evaluate }) => {
+    Alpine.magic('listbox', (el) => {
         let data = Alpine.$data(el)
 
         if (! data.__ready) return {
             isDisabled: false,
             isOpen: false,
-            value: null,
+            selected: null,
+            active: null,
         }
 
         return {
@@ -25,13 +26,16 @@ export default function (Alpine) {
             get isDisabled() {
                 return data.__isDisabled
             },
-            get value() {
+            get selected() {
                 return data.__value
+            },
+            get active() {
+                return data.__context.active
             },
         }
     })
 
-    Alpine.magic('listboxOption', (el, { evaluate }) => {
+    Alpine.magic('listboxOption', (el) => {
         let data = Alpine.$data(el)
 
         let stub = {
@@ -99,6 +103,8 @@ function handleRoot(el, Alpine) {
                             let lastValueFingerprint = false
 
                             Alpine.effect(() => {
+                                this.__context.selectedKeys
+
                                 if (lastValueFingerprint === false || lastValueFingerprint !== JSON.stringify(this.__value)) {
                                     // Here we know that the value changed externally and we can add the selection...
                                     this.__context.selectValue(this.__value, this.__compareBy)

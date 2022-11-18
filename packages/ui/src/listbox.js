@@ -189,7 +189,7 @@ function handleOptions(el, Alpine) {
         'role': 'listbox',
         'aria-orientation': 'vertical',
         ':aria-labelledby'() { return this.$id('alpine-listbox-button') },
-        ':aria-activedescendant'() { return this.__context.activateEl() && this.__context.activateEl().id },
+        ':aria-activedescendant'() { return this.__context.activeEl() && this.__context.activeEl().id },
         '@focus'() { this.__context.activateSelectedOrFirst() },
         'x-trap'() { return this.$data.__isOpen },
         '@keydown'(e) { this.__context.activateByKeyEvent(e) },

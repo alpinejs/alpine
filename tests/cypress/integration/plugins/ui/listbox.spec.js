@@ -1,4 +1,4 @@
-import { beVisible, beHidden, haveAttribute, haveClasses, haveText, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test} from '../../../utils'
+import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test} from '../../../utils'
 
 test('it works with x-model',
     [html`
@@ -520,7 +520,7 @@ test('keyboard controls',
         get('[options]')
             .should(beVisible())
             .should(haveFocus())
-        get('[option="1"')
+        get('[option="1"]')
             .should(haveClasses(['active']))
         get('[options]')
             .type('{downarrow}')
@@ -536,7 +536,7 @@ test('keyboard controls',
             .should(haveClasses(['active']))
         get('[options]')
             .type('{home}')
-        get('[option="1"')
+        get('[option="1"]')
             .should(haveClasses(['active']))
         get('[options]')
             .type('{end}')
@@ -544,7 +544,7 @@ test('keyboard controls',
             .should(haveClasses(['active']))
         get('[options]')
             .type('{pageUp}')
-        get('[option="1"')
+        get('[option="1"]')
             .should(haveClasses(['active']))
         get('[options]')
             .type('{pageDown}')
@@ -608,9 +608,10 @@ test('"horizontal" keyboard controls',
         get('.active').should(notExist())
         get('button').focus().type(' ')
         get('[options]')
+            .should(haveAttribute('orientation', 'horizontal'))
             .should(beVisible())
             .should(haveFocus())
-        get('[option="1"')
+        get('[option="1"]')
             .should(haveClasses(['active']))
         get('[options]')
             .type('{rightarrow}')
@@ -672,7 +673,7 @@ test('search',
         get('button').click()
         get('[options]')
             .type('ar')
-        get('[option="2"')
+        get('[option="2"]')
             .should(haveClasses(['active']))
         wait(500)
         get('[options]')
@@ -682,6 +683,7 @@ test('search',
     },
 )
 
+// @todo make sure $listboxOption.isSelected works in this case (aria-selected and the values are working correctly but the class is not applied)
 test('changing value manually changes internal state',
     [html`
         <div
@@ -725,18 +727,17 @@ test('changing value manually changes internal state',
         </div>
     `],
     ({ get }) => {
-        get('.active').should(notExist())
         get('[toggle]').click()
-        get('[option="2"')
+        get('[option="2"]')
             .click()
             .should(haveClasses(['selected']))
         get('[select-tim]').click()
         get('[option="4"]').should(haveClasses(['selected']))
+        get('[option="1"]').should(notHaveClasses(['selected']))
         get('[toggle]').should(haveText('4'))
     },
 )
 
-// @todo update these assertions to be accurate
 test('has accessibility attributes',
     [html`
         <div
@@ -786,35 +787,40 @@ test('has accessibility attributes',
             .should(haveAttribute('id', 'alpine-listbox-button-1'))
             .click()
             .should(haveAttribute('aria-expanded', 'true'))
-            .should(haveAttribute('aria-controls', 'alpine-listbox-items-1'))
+            .should(haveAttribute('aria-controls', 'alpine-listbox-options-1'))
 
         get('[options]')
             .should(haveAttribute('aria-orientation', 'vertical'))
-            .should(haveAttribute('role', 'menu'))
-            .should(haveAttribute('id', 'alpine-listbox-items-1'))
+            .should(haveAttribute('role', 'listbox'))
+            .should(haveAttribute('id', 'alpine-listbox-options-1'))
             .should(haveAttribute('aria-labelledby', 'alpine-listbox-button-1'))
             .should(notHaveAttribute('aria-activedescendant'))
             .should(haveAttribute('tabindex', '0'))
-            .type('{downarrow}')
-            .should(haveAttribute('aria-activedescendant', 'alpine-listbox-item-1'))
+            .should(haveAttribute('aria-activedescendant', 'alpine-listbox-option-1'))
 
-        get('[option="1"')
-            .should(haveAttribute('role', 'menuitem'))
-            .should(haveAttribute('id', 'alpine-listbox-item-1'))
+        get('[option="1"]')
+            .should(haveAttribute('role', 'option'))
+            .should(haveAttribute('id', 'alpine-listbox-option-1'))
             .should(haveAttribute('tabindex', '-1'))
+            .should(haveAttribute('aria-selected', 'false'))
 
         get('[option="2"]')
-            .should(haveAttribute('role', 'menuitem'))
-            .should(haveAttribute('id', 'alpine-listbox-item-2'))
+            .should(haveAttribute('role', 'option'))
+            .should(haveAttribute('id', 'alpine-listbox-option-2'))
             .should(haveAttribute('tabindex', '-1'))
+            .should(haveAttribute('aria-selected', 'false'))
 
         get('[options]')
             .type('{downarrow}')
-            .should(haveAttribute('aria-activedescendant', 'alpine-listbox-item-2'))
+            .should(haveAttribute('aria-activedescendant', 'alpine-listbox-option-2'))
+
+        get('[option="2"]')
+            .click()
+            .should(haveAttribute('aria-selected', 'true'))
     },
 )
 
-test.only('"static" prop',
+test('"static" prop',
     [html`
         <div
             x-data="{ active: null, show: false, people: [

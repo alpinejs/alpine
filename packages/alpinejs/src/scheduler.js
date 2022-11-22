@@ -28,11 +28,13 @@ export function flushJobs() {
     flushPending = false
     flushing = true
 
-    for (let i = 0; i < queue.length; i++) {
-        queue[i]()
+    try {
+        for (let i = 0; i < queue.length; i++) {
+            queue[i]()
+        }
+    } finally {
+        queue.length = 0
+
+        flushing = false
     }
-
-    queue.length = 0
-
-    flushing = false
 }

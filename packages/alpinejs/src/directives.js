@@ -198,8 +198,6 @@ let directiveOrder = [
     'disclosure',
     'menu',
     'listbox',
-    'list',
-    'item',
     'combobox',
     'bind',
     'init',

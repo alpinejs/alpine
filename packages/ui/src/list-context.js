@@ -192,7 +192,7 @@ export function generateContext(multiple, orientation) {
                 this.selectExclusive(keys)
             } else {
                 for (let key in this.values) {
-                    if (by(this.values[key], value)) {
+                    if (value && by(this.values[key], value)) {
                         this.selectKey(key)
                     }
                 }

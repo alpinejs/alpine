@@ -79,6 +79,8 @@ function handleRoot(el, Alpine) {
                 __isMultiple: undefined,
                 __isStatic: false,
                 __isDisabled: undefined,
+                __compareBy: null,
+                __inputName: null,
                 __orientation: 'vertical',
                 init() {
                     this.__isMultiple = Alpine.bound(el, 'multiple', false)
@@ -231,6 +233,7 @@ function handleOption(el, Alpine) {
             },
             ':aria-selected'() { return this.$listboxOption.isSelected },
             '@click'() {
+                if (this.$listboxOption.isDisabled) return;
                 this.$data.__context.selectEl(el);
                 this.$data.__isMultiple || this.$data.__close()
             },

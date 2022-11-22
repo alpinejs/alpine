@@ -282,7 +282,6 @@ test('"name" prop with object value',
     },
 );
 
-// @todo: support default-value
 test('"default-value" prop',
     [html`
         <div
@@ -562,7 +561,6 @@ test('keyboard controls',
     },
 )
 
-// @todo support horizontal prop
 test('"horizontal" keyboard controls',
     [html`
         <div
@@ -608,7 +606,7 @@ test('"horizontal" keyboard controls',
         get('.active').should(notExist())
         get('button').focus().type(' ')
         get('[options]')
-            .should(haveAttribute('orientation', 'horizontal'))
+            .should(haveAttribute('aria-orientation', 'horizontal'))
             .should(beVisible())
             .should(haveFocus())
         get('[option="1"]')
@@ -683,7 +681,6 @@ test('search',
     },
 )
 
-// @todo make sure $listboxOption.isSelected works in this case (aria-selected and the values are working correctly but the class is not applied)
 test('changing value manually changes internal state',
     [html`
         <div
@@ -727,10 +724,6 @@ test('changing value manually changes internal state',
         </div>
     `],
     ({ get }) => {
-        get('[toggle]').click()
-        get('[option="2"]')
-            .click()
-            .should(haveClasses(['selected']))
         get('[select-tim]').click()
         get('[option="4"]').should(haveClasses(['selected']))
         get('[option="1"]').should(notHaveClasses(['selected']))

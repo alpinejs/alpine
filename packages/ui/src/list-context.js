@@ -1,6 +1,6 @@
 import Alpine from "../../alpinejs/src/alpine"
 
-export function generateContext(multiple) {
+export function generateContext(multiple, orientation) {
     return {
         /**
          * Main state...
@@ -366,12 +366,12 @@ export function generateContext(multiple) {
                     break;
 
                     break;
-                case ['ArrowDown', 'ArrowRight'][0]: // @todo handle orientation switching.
+                case ['ArrowDown', 'ArrowRight'][orientation === 'vertical' ? 0 : 1]:
                     e.preventDefault(); e.stopPropagation()
                     targetKey = hasActive ? this.nextKey() : this.firstKey()
                     break;
 
-                case ['ArrowUp', 'ArrowLeft'][0]:
+                case ['ArrowUp', 'ArrowLeft'][orientation === 'vertical' ? 0 : 1]:
                     e.preventDefault(); e.stopPropagation()
                     targetKey = hasActive ? this.prevKey() : this.lastKey()
                     break;

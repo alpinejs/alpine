@@ -79,13 +79,19 @@ function handleRoot(el, Alpine) {
                 __isMultiple: undefined,
                 __isStatic: false,
                 __isDisabled: undefined,
+                __orientation: 'vertical',
                 init() {
                     this.__isMultiple = Alpine.bound(el, 'multiple', false)
                     this.__isDisabled = Alpine.bound(el, 'disabled', false)
                     this.__inputName = Alpine.bound(el, 'name', null)
                     this.__compareBy = Alpine.bound(el, 'by')
+                    this.__orientation = Alpine.bound(el, 'horizontal', false) ? 'horizontal' : 'vertical'
 
-                    this.__context = generateContext(this.__isMultiple)
+                    this.__context = generateContext(this.__isMultiple, this.__orientation)
+
+                    let defaultValue = Alpine.bound(el, 'default-value', null)
+
+                    this.__value = defaultValue
 
                     // We have to wait for the rest of the HTML to initialize in Alpine before
                     // we mark this component as "ready".
@@ -103,6 +109,7 @@ function handleRoot(el, Alpine) {
                             let lastValueFingerprint = false
 
                             Alpine.effect(() => {
+                                // Accessing selected keys, so a change in it always triggers this effect...
                                 this.__context.selectedKeys
 
                                 if (lastValueFingerprint === false || lastValueFingerprint !== JSON.stringify(this.__value)) {
@@ -187,7 +194,9 @@ function handleOptions(el, Alpine) {
         '@keydown.escape.stop.prevent'() { this.$data.__close() },
         tabindex: '0',
         'role': 'listbox',
-        'aria-orientation': 'vertical',
+        ':aria-orientation'() {
+            return this.$data.__orientation
+        },
         ':aria-labelledby'() { return this.$id('alpine-listbox-button') },
         ':aria-activedescendant'() { return this.__context.activeEl() && this.__context.activeEl().id },
         '@focus'() { this.__context.activateSelectedOrFirst() },

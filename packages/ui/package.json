@@ -2,6 +2,12 @@
     "name": "@alpinejs/ui",
     "version": "3.10.5-beta.7",
     "description": "Headless UI components for Alpine",
+    "homepage": "https://alpinejs.dev/components#headless",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git",
+        "directory": "packages/ui"
+    },
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",

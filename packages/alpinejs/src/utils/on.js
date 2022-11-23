@@ -110,6 +110,11 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
         keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex+1] || 'invalid-wait').split('ms')[0]) ? 2 : 1)
     }
 
+    if (keyModifiers.includes('throttle')) {
+        let debounceIndex = keyModifiers.indexOf('throttle')
+        keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex+1] || 'invalid-wait').split('ms')[0]) ? 2 : 1)
+    }
+
     // If no modifier is specified, we'll call it a press.
     if (keyModifiers.length === 0) return false
 

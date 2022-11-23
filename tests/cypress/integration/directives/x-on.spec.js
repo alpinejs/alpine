@@ -275,6 +275,22 @@ test('.debounce modifier',
     }
 )
 
+test('.throttle modifier',
+    html`
+        <div x-data="{ count: 0 }">
+            <input x-on:keyup.throttle.504ms="count = count+1">
+            <span x-text="count"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('input').type('f')
+        get('span').should(haveText('1'))
+        get('input').type('ffffffffffff')
+        get('span').should(haveText('1'))
+    }
+)
+
 test('keydown modifiers',
     html`
         <div x-data="{ count: 0 }">

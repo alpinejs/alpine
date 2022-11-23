@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charSet="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="icon" type="image/png" sizes="32x32" href="https://headlessui.dev/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="https://headlessui.dev/favicon-16x16.png" />
+
+    <script src="/packages/intersect/dist/cdn.js" defer></script>
+    <script src="/packages/morph/dist/cdn.js" defer></script>
+    <script src="/packages/history/dist/cdn.js"></script>
+    <script src="/packages/persist/dist/cdn.js"></script>
+    <script src="/packages/focus/dist/cdn.js"></script>
+    <script src="/packages/mask/dist/cdn.js"></script>
+    <script src="/packages/ui/dist/cdn.js" defer></script>
+    <script src="/packages/alpinejs/dist/cdn.js" defer></script>
+    <script src="//cdn.tailwindcss.com"></script>
+
+    <title>Listbox</title>
+</head>
+
+<body>
+    <div class="flex flex-col h-screen overflow-hidden font-sans antialiased text-gray-900 bg-gray-700">
+        <div x-data="{ selected: 'Wade Cooper' }" class="flex justify-center w-screen h-full p-12 bg-gray-50">
+            <div class="w-full max-w-xs mx-auto">
+                <div class="flex justify-between mb-8">
+                    <button class="underline" @click="selected = Arlene Mccoy">Change value</button>
+                </div>
+
+                <div x-listbox name="something" x-model="selected" class="space-y-1">
+                    <label x-listbox:label class="block text-sm font-medium leading-5 text-gray-700 mb-1">
+                        Assigned to
+                    </label>
+
+                    <div class="relative">
+                        <span class="inline-block w-full rounded-md shadow-sm">
+                            <button x-listbox:button class="relative w-full py-2 pl-3 pr-10 text-left transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md cursor-default focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5">
+                                <span class="block truncate" x-text="selected"></span>
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                                        <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                </span>
+                            </button>
+                        </span>
+
+                        <div class="absolute w-full mt-1 bg-white rounded-md shadow-lg">
+                            <ul x-listbox:options class="py-1 overflow-auto text-base leading-6 rounded-md shadow-xs max-h-60 focus:outline-none sm:text-sm sm:leading-5">
+                                <li
+                                    x-listbox:option value="Wade Cooper"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Wade Cooper</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                                <li
+                                    x-listbox:option value="Arlene Mccoy"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Arlene Mccoy</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                                <li
+                                    x-listbox:option value="Devon Webb"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Devon Webb</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                                <li
+                                    x-listbox:option value="Tom Cook"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Tom Cook</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                                <li
+                                    x-listbox:option value="Tanya Fox"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Tanya Fox</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                                <li
+                                    x-listbox:option value="Hellen Schmidt"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Hellen Schmidt</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                                <li
+                                    x-listbox:option value="Caroline Schultz"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Caroline Schultz</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                                <li
+                                    x-listbox:option value="Mason Heaney"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Mason Heaney</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                                <li
+                                    x-listbox:option value="Claudie Smitham"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Claudie Smitham</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                                <li
+                                    x-listbox:option value="Emil Schaefer"
+                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
+                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900'].filter(Boolean)"
+                                >
+                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Emil Schaefer</span>
+
+                                    <span
+                                        x-show="$listboxOption.isSelected"
+                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
+                                    >
+                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

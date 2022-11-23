@@ -20,9 +20,31 @@ export function directive(name, callback) {
 }
 
 export function directives(el, attributes, originalAttributeOverride) {
+    attributes = Array.from(attributes)
+
+    if (el._x_virtualDirectives) {
+        let vAttributes = Object.entries(el._x_virtualDirectives).map(([name, value]) => ({ name, value }))
+
+        let staticAttributes = attributesOnly(vAttributes)
+
+        // Handle binding normal HTML attributes (non-Alpine directives).
+        vAttributes = vAttributes.map(attribute => {
+            if (staticAttributes.find(attr => attr.name === attribute.name)) {
+                return {
+                    name: `x-bind:${attribute.name}`,
+                    value: `"${attribute.value}"`,
+                }
+            }
+
+            return attribute
+        })
+
+        attributes = attributes.concat(vAttributes)
+    }
+
     let transformedAttributeMap = {}
 
-    let directives = Array.from(attributes)
+    let directives = attributes
         .map(toTransformedAttributes((newName, oldName) => transformedAttributeMap[newName] = oldName))
         .filter(outNonAlpineAttributes)
         .map(toParsedDirectives(transformedAttributeMap, originalAttributeOverride))
@@ -167,6 +189,16 @@ let directiveOrder = [
     'ref',
     'data',
     'id',
+    // @todo: provide better directive ordering mechanisms so
+    // that I don't have to manually add things like "tabs"
+    // to the order list...
+    'radio',
+    'tabs',
+    'switch',
+    'disclosure',
+    'menu',
+    'listbox',
+    'combobox',
     'bind',
     'init',
     'for',
@@ -178,7 +210,6 @@ let directiveOrder = [
     'if',
     DEFAULT,
     'teleport',
-    'element',
 ]
 
 function byPriority(a, b) {

@@ -49,12 +49,12 @@ test('non-boolean attributes set to null/undefined/false are removed from the el
         </div>
     `,
     ({ get }) => {
-        get('a:nth-child(1)').should(notHaveAttribute('href'))
-        get('a:nth-child(2)').should(notHaveAttribute('href'))
-        get('a:nth-child(3)').should(notHaveAttribute('href'))
-        get('span:nth-child(1)').should(notHaveAttribute('visible'))
-        get('span:nth-child(2)').should(notHaveAttribute('visible'))
-        get('span:nth-child(3)').should(notHaveAttribute('visible'))
+        get('a:nth-of-type(1)').should(notHaveAttribute('href'))
+        get('a:nth-of-type(2)').should(notHaveAttribute('href'))
+        get('a:nth-of-type(3)').should(notHaveAttribute('href'))
+        get('span:nth-of-type(1)').should(notHaveAttribute('visible'))
+        get('span:nth-of-type(2)').should(notHaveAttribute('visible'))
+        get('span:nth-of-type(3)').should(notHaveAttribute('visible'))
     }
 )
 
@@ -439,14 +439,16 @@ test('Can retrieve Alpine bound data with global bound method',
         <div id="1" x-data foo="bar" x-text="Alpine.bound($el, 'foo')"></div>
         <div id="2" x-data :foo="'bar'" x-text="Alpine.bound($el, 'foo')"></div>
         <div id="3" x-data foo x-text="Alpine.bound($el, 'foo')"></div>
-        <div id="4" x-data x-text="Alpine.bound($el, 'foo')"></div>
-        <div id="5" x-data x-text="Alpine.bound($el, 'foo', 'bar')"></div>
+        <div id="4" x-data disabled x-text="Alpine.bound($el, 'disabled')"></div>
+        <div id="5" x-data x-text="Alpine.bound($el, 'foo')"></div>
+        <div id="6" x-data x-text="Alpine.bound($el, 'foo', 'bar')"></div>
     `,
     ({ get }) => {
         get('#1').should(haveText('bar'))
         get('#2').should(haveText('bar'))
         get('#3').should(haveText('true'))
-        get('#4').should(haveText(''))
-        get('#5').should(haveText('bar'))
+        get('#4').should(haveText('true'))
+        get('#5').should(haveText(''))
+        get('#6').should(haveText('bar'))
     }
 )

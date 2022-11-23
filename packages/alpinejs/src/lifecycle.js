@@ -1,7 +1,6 @@
 import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes } from "./mutation"
 import { deferHandlingDirectives, directives } from "./directives"
 import { dispatch } from './utils/dispatch'
-import { nextTick } from "./nextTick"
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
 

@@ -1,6 +1,7 @@
 import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 import { mutateDom } from '../mutation'
+import { nextTick } from '../nextTick'
 import bind from '../utils/bind'
 import on from '../utils/on'
 
@@ -33,6 +34,17 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     el._x_removeModelListeners['default'] = removeListener
 
     cleanup(() => el._x_removeModelListeners['default']())
+
+    // If the input/select/textarea element is linked to a form
+    // we listen for the reset event on the parent form (the event
+    // does not trigger on the single inputs) and update
+    // on nextTick so the page doesn't end up out of sync
+    if (el.form) {
+        let removeResetListener = on(el.form, 'reset', [], (e) => {
+            nextTick(() => el._x_model && el._x_model.set(el.value))
+        })
+        cleanup(() => removeResetListener())
+    }
 
     // Allow programmatic overiding of x-model.
     let evaluateSetModel = evaluateLater(el, `${expression} = __placeholder`)

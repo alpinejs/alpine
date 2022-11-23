@@ -19,7 +19,7 @@ export default function (Alpine) {
         // We use the hidden attribute for the benefit of Tailwind
         // users as the .space utility will ignore [hidden] elements.
         // We also use display:none as the hidden attribute has very
-        // low CSS specificity and could be accidentally overriden
+        // low CSS specificity and could be accidentally overridden
         // by a user.
         if (! el._x_isShown && fullyHide) el.hidden = true
         if (! el._x_isShown) el.style.overflow = 'hidden'
@@ -56,7 +56,7 @@ export default function (Alpine) {
                     start: { height: current+'px' },
                     end: { height: full+'px' },
                 }, () => el._x_isShown = true, () => {
-                    if (el.style.height == `${full}px`) {
+                    if (el.getBoundingClientRect().height == full) {
                         el.style.overflow = null
                     }
                 })

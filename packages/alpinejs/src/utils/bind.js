@@ -138,12 +138,12 @@ export function getBinding(el, name, fallback) {
     // Nothing bound:
     if (attr === null) return typeof fallback === 'function' ? fallback() : fallback
 
+    // The case of a custom attribute with no value. Ex: <div manual>
+    if (attr === '') return true
+
     if (isBooleanAttr(name)) {
         return !! [name, 'true'].includes(attr)
     }
-
-    // The case of a custom attribute with no value. Ex: <div manual>
-    if (attr === '') return true
 
     return attr
 }

@@ -15,13 +15,21 @@ For `x-cloak` to work however, you must add the following CSS to the page.
 [x-cloak] { display: none !important; }
 ```
 
-Now, the following example will hide the `<span>` tag until Alpine has set its text content to the `message` property.
+The following example will hide the `<span>` tag until its `x-show` is specifically set to true, preventing any "blip" of the hidden element onto screen as Alpine loads.
+
+```alpine
+<span x-cloak x-show="false">This will not 'blip' onto screen at any point</span>
+```
+
+`x-cloak` doesn't just work on elements hidden by `x-show` or `x-if`: it also ensures that elements containing data are hidden until the data is correctly set. The following example will hide the `<span>` tag until Alpine has set its text content to the `message` property.
 
 ```alpine
 <span x-cloak x-text="message"></span>
 ```
 
 When Alpine loads on the page, it removes all `x-cloak` property from the element, which also removes the `display: none;` applied by CSS, therefore showing the element.
+
+## Alternative to global syntax
 
 If you'd like to achieve this same behavior, but avoid having to include a global style, you can use the following cool, but admittedly odd trick:
 

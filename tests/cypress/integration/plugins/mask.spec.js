@@ -167,3 +167,14 @@ test('$money works with permenant inserted at beginning',
         get('input').should(haveValue('40.00'))
     }
 )
+
+test('$money mask should remove letters or non numeric characters',
+    [html`<input x-data x-mask:dynamic="$money">`],
+    ({ get }) => {
+        get('input').type('A').should(haveValue(''))
+        get('input').type('ABC').should(haveValue(''))
+        get('input').type('$').should(haveValue(''))
+        get('input').type('/').should(haveValue(''))
+        get('input').type('40').should(haveValue('40'))
+    }
+)

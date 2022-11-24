@@ -164,7 +164,7 @@ export function buildUp(template, input) {
 }
 
 export function formatMoney(input, delimiter = '.', thousands) {
-    thousands = thousands ?? delimiter === "," ? "." : ","
+    thousands = thousands ?? (delimiter === "," ? "." : ",")
 
     let addThousands = (input, thousands) => {
         let output = ''

@@ -19,12 +19,12 @@ test('can use a x-teleport',
     },
 )
 
-test('can use a x-teleport:append',
+test('can use a x-teleport.append',
     [html`
         <div x-data="{ count: 1 }" id="a">
             <button @click="count++">Inc</button>
 
-            <template x-teleport:append="#b">
+            <template x-teleport.append="#b">
                 <span x-text="count"></span>
             </template>
         </div>
@@ -38,12 +38,12 @@ test('can use a x-teleport:append',
     },
 )
 
-test('can use a x-teleport:prepend',
+test('can use a x-teleport.prepend',
     [html`
         <div x-data="{ count: 1 }" id="a">
             <button @click="count++">Inc</button>
 
-            <template x-teleport:prepend="#b">
+            <template x-teleport.prepend="#b">
                 <span x-text="count"></span>
             </template>
         </div>

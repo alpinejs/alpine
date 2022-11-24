@@ -110,3 +110,22 @@ test('x-model can be accessed programmatically',
         get('span').should(haveText('bob'))
     }
 )
+
+test('x-model updates value when the form is reset',
+    html`
+    <div x-data="{ foo: '' }">
+        <form>
+            <input x-model="foo"></input>
+            <button type="reset">Reset</button>
+        </form>
+        <span x-text="foo"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText(''))
+        get('input').type('baz')
+        get('span').should(haveText('baz'))
+        get('button').click()
+        get('span').should(haveText(''))
+    }
+)

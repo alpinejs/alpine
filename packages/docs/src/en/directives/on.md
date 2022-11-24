@@ -89,7 +89,7 @@ For easy reference, here is a list of common keys you may want to listen for.
 | `.caps-lock`                | Caps Lock                   |
 | `.equal`                    | Equal, `=`                  |
 | `.period`                   | Period, `.`                 |
-| `.slash`                    | Foward Slash, `/`           |
+| `.slash`                    | Forward Slash, `/`           |
 
 <a name="custom-events"></a>
 ## Custom events

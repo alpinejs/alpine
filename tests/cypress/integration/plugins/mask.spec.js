@@ -144,6 +144,20 @@ test('$money swapping commas and periods',
     },
 )
 
+test('$money with different thousands separator',
+    [html`<input x-data x-mask:function="$money($input, '.', ' ')" />`],
+    ({ get }) => {
+        get('input').type('3000').should(haveValue('3 000'));
+        get('input').type('{backspace}').blur().should(haveValue('300'));
+        get('input').type('5').should(haveValue('3 005'));
+        get('input').type('{selectAll}{backspace}').should(haveValue(''));
+        get('input').type('123').should(haveValue('123'));
+        get('input').type('4').should(haveValue('1 234'));
+        get('input').type('567').should(haveValue('1 234 567'));
+        get('input').type('.89').should(haveValue('1 234 567.89'));
+    }
+);
+
 test('$money works with permenant inserted at beginning',
     [html`<input x-data x-mask:dynamic="$money">`],
     ({ get }) => {
@@ -151,5 +165,16 @@ test('$money works with permenant inserted at beginning',
         get('input').type('{leftArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}')
         get('input').type('$')
         get('input').should(haveValue('40.00'))
+    }
+)
+
+test('$money mask should remove letters or non numeric characters',
+    [html`<input x-data x-mask:dynamic="$money">`],
+    ({ get }) => {
+        get('input').type('A').should(haveValue(''))
+        get('input').type('ABC').should(haveValue(''))
+        get('input').type('$').should(haveValue(''))
+        get('input').type('/').should(haveValue(''))
+        get('input').type('40').should(haveValue('40'))
     }
 )

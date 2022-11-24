@@ -19,6 +19,44 @@ test('can use a x-teleport',
     },
 )
 
+test('can use a x-teleport.append',
+    [html`
+        <div x-data="{ count: 1 }" id="a">
+            <button @click="count++">Inc</button>
+
+            <template x-teleport.append="#b">
+                <span x-text="count"></span>
+            </template>
+        </div>
+
+        <div id="b"></div>
+    `],
+    ({ get }) => {
+        get('#b + span').should(haveText('1'))
+        get('button').click()
+        get('#b + span').should(haveText('2'))
+    },
+)
+
+test('can use a x-teleport.prepend',
+    [html`
+        <div x-data="{ count: 1 }" id="a">
+            <button @click="count++">Inc</button>
+
+            <template x-teleport.prepend="#b">
+                <span x-text="count"></span>
+            </template>
+        </div>
+
+        <div id="b"></div>
+    `],
+    ({ get }) => {
+        get('#a + span').should(haveText('1'))
+        get('button').click()
+        get('#a + span').should(haveText('2'))
+    },
+)
+
 test('can teleport multiple',
     [html`
         <div x-data="{ count: 1 }" id="a">

@@ -534,3 +534,17 @@ test('.dot modifier correctly binds event listener with namespace',
         get('span').should(haveText('baz'))
     }
 )
+
+test('handles await in handlers with invalid right hand expressions',
+    html`
+        <div x-data="{ text: 'original' }">
+            <button @click="let value = 'new string'; text = await Promise.resolve(value)"></button>
+            <span x-text="text"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('original'))
+        get('button').click()
+        get('span').should(haveText('new string'))
+    }
+)

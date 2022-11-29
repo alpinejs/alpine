@@ -93,6 +93,8 @@ function isNumeric(subject){
 }
 
 function kebabCase(subject) {
+    if ([' ','_'].includes(subject
+    )) return subject
     return subject.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/[_\s]/, '-').toLowerCase()
 }
 
@@ -107,6 +109,11 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
 
     if (keyModifiers.includes('debounce')) {
         let debounceIndex = keyModifiers.indexOf('debounce')
+        keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex+1] || 'invalid-wait').split('ms')[0]) ? 2 : 1)
+    }
+
+    if (keyModifiers.includes('throttle')) {
+        let debounceIndex = keyModifiers.indexOf('throttle')
         keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex+1] || 'invalid-wait').split('ms')[0]) ? 2 : 1)
     }
 
@@ -149,8 +156,8 @@ function keyToModifiers(key) {
     let modifierToKeyMap = {
         'ctrl': 'control',
         'slash': '/',
-        'space': '-',
-        'spacebar': '-',
+        'space': ' ',
+        'spacebar': ' ',
         'cmd': 'meta',
         'esc': 'escape',
         'up': 'arrow-up',
@@ -159,6 +166,8 @@ function keyToModifiers(key) {
         'right': 'arrow-right',
         'period': '.',
         'equal': '=',
+        'minus': '-',
+        'underscore': '_',
     }
 
     modifierToKeyMap[key] = key

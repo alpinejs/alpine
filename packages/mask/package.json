@@ -2,6 +2,12 @@
     "name": "@alpinejs/mask",
     "version": "3.10.5",
     "description": "An Alpine plugin for input masking",
+    "homepage": "https://alpinejs.dev/plugins/mask",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git",
+        "directory": "packages/mask"
+    },
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",

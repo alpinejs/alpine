@@ -12,6 +12,7 @@ Alpine's Mask plugin allows you to automatically format a text input field as a 
 This is useful for many different types of inputs: phone numbers, credit cards, dollar amounts, account numbers, dates, etc.
 
 <a name="installation"></a>
+
 ## Installation
 
 <div x-data="{ expanded: false }">
@@ -27,10 +28,10 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 ```alpine
 <!-- Alpine Plugins -->
-<script defer src="https://unpkg.com/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js"></script>
 
 <!-- Alpine Core -->
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 ```
 
 ### Via NPM
@@ -60,6 +61,7 @@ Alpine.plugin(mask)
  </div>
 
 <a name="x-mask"></a>
+
 ## x-mask
 
 The primary API for using this plugin is the `x-mask` directive.
@@ -80,13 +82,14 @@ Notice how the text you type into the input field must adhere to the format prov
 
 The following wildcard characters are supported in masks:
 
-| Wildcard                   | Description                 |
-| -------------------------- | --------------------------- |
-| `*` | Any character |
-| `a` | Only alpha characters (a-z, A-Z) |
-| `9` | Only numeric characters (0-9) |
+| Wildcard | Description                      |
+| -------- | -------------------------------- |
+| `*`      | Any character                    |
+| `a`      | Only alpha characters (a-z, A-Z) |
+| `9`      | Only numeric characters (0-9)    |
 
 <a name="mask-functions"></a>
+
 ## Dynamic Masks
 
 Sometimes simple mask literals (i.e. `(999) 999-9999`) are not sufficient. In these cases, `x-mask:dynamic` allows you to dynamically generate masks on the fly based on user input.
@@ -128,6 +131,7 @@ function creditCardMask(input) {
 ```
 
 <a name="money-inputs"></a>
+
 ## Money Inputs
 
 Because writing your own dynamic mask expression for money inputs is fairly complex, Alpine offers a prebuilt one and makes it available as `$money()`.
@@ -153,5 +157,17 @@ If you wish to swap the periods for commas and vice versa (as is required in cer
 <!-- START_VERBATIM -->
 <div class="demo" x-data>
     <input type="text" x-mask:dynamic="$money($input, ',')"  placeholder="0,00">
+</div>
+<!-- END_VERBATIM -->
+
+You may also choose to override the thousands separator by supplying a third optional argument:
+
+```alpine
+<input x-mask:dynamic="$money($input, '.', ' ')">
+```
+
+<!-- START_VERBATIM -->
+<div class="demo" x-data>
+    <input type="text" x-mask:dynamic="$money($input, '.', ' ')"  placeholder="3 000.00">
 </div>
 <!-- END_VERBATIM -->

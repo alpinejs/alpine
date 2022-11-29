@@ -163,9 +163,10 @@ export function buildUp(template, input) {
     return output
 }
 
-function formatMoney(input, delimeter = '.', thousands) {
-    thousands = (delimeter === ',' && thousands === undefined)
-        ? '.' : ','
+export function formatMoney(input, delimiter = '.', thousands) {
+    if (/^\D+$/.test(input)) return '9'
+
+    thousands = thousands ?? (delimiter === "," ? "." : ",")
 
     let addThousands = (input, thousands) => {
         let output = ''
@@ -186,17 +187,17 @@ function formatMoney(input, delimeter = '.', thousands) {
         return output
     }
 
-    let strippedInput = input.replaceAll(new RegExp(`[^0-9\\${delimeter}]`, 'g'), '')
-    let template = Array.from({ length: strippedInput.split(delimeter)[0].length }).fill('9').join('')
+    let strippedInput = input.replaceAll(new RegExp(`[^0-9\\${delimiter}]`, 'g'), '')
+    let template = Array.from({ length: strippedInput.split(delimiter)[0].length }).fill('9').join('')
 
     template = addThousands(template, thousands)
 
-    if (input.includes(delimeter)) template += `${delimeter}99`
+    if (input.includes(delimiter)) template += `${delimiter}99`
 
     queueMicrotask(() => {
-        if (this.el.value.endsWith(delimeter)) return
+        if (this.el.value.endsWith(delimiter)) return
 
-        if (this.el.value[this.el.selectionStart - 1] === delimeter) {
+        if (this.el.value[this.el.selectionStart - 1] === delimiter) {
             this.el.setSelectionRange(this.el.selectionStart - 1, this.el.selectionStart - 1)
         }
     })

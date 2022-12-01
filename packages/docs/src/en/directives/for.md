@@ -27,8 +27,8 @@ Alpine's `x-for` directive allows you to create DOM elements by iterating throug
 
 There are two rules worth noting about `x-for`:
 
-* `x-for` MUST be declared on a `<template>` element
-* That `<template>` element MUST have only one root element
+>`x-for` MUST be declared on a `<template>` element
+> That `<template>` element MUST contain only one root element
 
 <a name="keys"></a>
 ## Keys
@@ -85,3 +85,25 @@ If you need to simply loop `n` number of times, rather than iterate through an a
 ```
 
 `i` in this case can be named anything you like.
+
+<a name="contents-of-a-template"></a>
+## Contents of a `<template>`
+
+As mentioned above, an `<template>` tag must contain only one root element.
+
+For example, the following code will not work:
+
+```alpine
+<template x-for="color in colors">
+    <span>The next color is </span><span x-text="color">
+</template>
+```
+
+but this code will work:
+```alpine
+<template x-for="color in colors">
+    <p>
+        <span>The next color is </span><span x-text="color">
+    </p>
+</template>
+```

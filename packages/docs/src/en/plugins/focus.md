@@ -24,10 +24,10 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 ```alpine
 <!-- Alpine Plugins -->
-<script defer src="https://unpkg.com/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
 
 <!-- Alpine Core -->
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 ```
 
 ### Via NPM
@@ -309,7 +309,7 @@ This plugin offers many smaller utilities for managing focus within a page. Thes
 | Property | Description |
 | ---       | --- |
 | `focus(el)`   | Focus the passed element (handling annoyances internally: using nextTick, etc.) |
-| `focusable(el)`   | Detect weather or not an element is focusable |
+| `focusable(el)`   | Detect whether or not an element is focusable |
 | `focusables()`   | Get all "focusable" elements within the current element |
 | `focused()`   | Get the currently focused element on the page |
 | `lastFocused()`   | Get the last focused element on the page |

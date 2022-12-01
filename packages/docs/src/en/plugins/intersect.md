@@ -22,10 +22,10 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 ```alpine
 <!-- Alpine Plugins -->
-<script defer src="https://unpkg.com/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
 
 <!-- Alpine Core -->
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 ```
 
 ### Via NPM
@@ -152,7 +152,7 @@ If you wanted to trigger only when 5% of the element has entered the viewport, y
 Allows you to control the `rootMargin` property of the underlying `IntersectionObserver`.
 This effectively tweaks the size of the viewport boundary. Positive values
 expand the boundary beyond the viewport, and negative values shrink it inward. The values
-work like CSS margin: one value for all sides, two values for top/bottom, left/right, or
+work like CSS margin: one value for all sides; two values for top/bottom, left/right; or
 four values for top, right, bottom, left. You can use `px` and `%` values, or use a bare number to
 get a pixel value.
 

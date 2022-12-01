@@ -275,6 +275,22 @@ test('.debounce modifier',
     }
 )
 
+test('.throttle modifier',
+    html`
+        <div x-data="{ count: 0 }">
+            <input x-on:keyup.throttle.504ms="count = count+1">
+            <span x-text="count"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('input').type('f')
+        get('span').should(haveText('1'))
+        get('input').type('ffffffffffff')
+        get('span').should(haveText('1'))
+    }
+)
+
 test('keydown modifiers',
     html`
         <div x-data="{ count: 0 }">
@@ -329,6 +345,31 @@ test('keydown modifiers',
         get('span').should(haveText('27'))
     }
 )
+
+test('discerns between space minus underscore',
+    html`
+        <div x-data="{ count: 0 }">
+            <input id="space" type="text" x-on:keydown.space="count++" />
+            <input id="minus" type="text" x-on:keydown.-="count++" />
+            <input id="underscore" type="text" x-on:keydown._="count++" />
+            <span x-text="count"></span>
+        </div>
+    `,
+    ({get}) => {
+        get('span').should(haveText('0'))
+        get('#space').type(' ')
+        get('span').should(haveText('1'))
+        get('#space').type('-')
+        get('span').should(haveText('1'))
+        get('#minus').type('-')
+        get('span').should(haveText('2'))
+        get('#minus').type(' ')
+        get('span').should(haveText('2'))
+        get('#underscore').type('_')
+        get('span').should(haveText('3'))
+        get('#underscore').type(' ')
+        get('span').should(haveText('3'))
+    })
 
 test('keydown combo modifiers',
     html`
@@ -491,5 +532,19 @@ test('.dot modifier correctly binds event listener with namespace',
         get('span').should(haveText('bar'))
         get('button').click()
         get('span').should(haveText('baz'))
+    }
+)
+
+test('handles await in handlers with invalid right hand expressions',
+    html`
+        <div x-data="{ text: 'original' }">
+            <button @click="let value = 'new string'; text = await Promise.resolve(value)"></button>
+            <span x-text="text"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('original'))
+        get('button').click()
+        get('span').should(haveText('new string'))
     }
 )

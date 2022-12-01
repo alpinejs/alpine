@@ -7,11 +7,7 @@ import { warn } from "../utils/warn"
 
 let teleportContainerDuringClone = document.createElement('div')
 
-// export function getTeleportContainerDuringClone() {
-//     return teleportContainerDuringClone
-// }
-
-directive('teleport', (el, { expression }, { cleanup }) => {
+directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
     if (el.tagName.toLowerCase() !== 'template') warn('x-teleport can only be used on a <template> tag', el)
 
     let target = skipDuringClone(() => {
@@ -42,7 +38,16 @@ directive('teleport', (el, { expression }, { cleanup }) => {
     addScopeToNode(clone, {}, el)
 
     mutateDom(() => {
-        target.appendChild(clone)
+        if (modifiers.includes('prepend')) {
+            // insert element before the target
+            target.parentNode.insertBefore(clone, target)
+        } else if (modifiers.includes('append')) {
+            // insert element after the target
+            target.parentNode.insertBefore(clone, target.nextSibling)
+        } else {
+            // origin
+            target.appendChild(clone)
+        }
 
         initTree(clone)
 

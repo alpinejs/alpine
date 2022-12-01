@@ -7,7 +7,6 @@ export function scheduler (callback) { queueJob(callback) }
 
 function queueJob(job) {
     if (! queue.includes(job)) queue.push(job)
-    job()
 
     queueFlush()
 }

@@ -8,6 +8,15 @@
     <script src="./packages/ui/dist/cdn.js" defer></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <script src="//cdn.tailwindcss.com"></script>
+
+    <div x-data="{ users: [{ name: 'lebowski' }] }">
+        <template x-for="(user, idx) in users">
+            <span x-text="users[idx].name" x-yo></span>
+        </template>
+
+        <button @click="users = []">Reset</button>
+    </div>
+
     <!-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
     <!-- <div x-data="{ value: null }">

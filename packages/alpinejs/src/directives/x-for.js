@@ -140,7 +140,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             if (!! lookup[key]._x_effects) {
                 lookup[key]._x_effects.forEach(dequeueJob)
             }
-            
+
             lookup[key].remove()
 
             lookup[key] = null

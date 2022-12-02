@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../utils'
+import { haveText, html, test, haveAttribute } from '../utils'
 
 test('can set a custom x- prefix',
     html`
@@ -13,4 +13,19 @@ test('can set a custom x- prefix',
         </div>
     `,
     ({ get }) => get('span').should(haveText('bar'))
+)
+
+
+test('can still bind standard attributes with object syntax',
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.prefix('data-x-')
+            })
+        </script>
+        <span data-x-data data-x-bind="{ foo: 'bar' }"></span>
+    `,
+    ({ get }) => {
+        get('span').should(haveAttribute('foo', 'bar'))
+    }
 )

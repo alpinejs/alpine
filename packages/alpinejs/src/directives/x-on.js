@@ -3,11 +3,13 @@ import { evaluateLater } from '../evaluator'
 import { skipDuringClone } from '../clone'
 import on from '../utils/on'
 
-mapAttributes(startingWith('@', into(prefix('on:'))))
+document.addEventListener('alpine:init', () => {
+    mapAttributes(startingWith('@', into(prefix('on:'))))
+})
 
 directive('on', skipDuringClone((el, { value, modifiers, expression }, { cleanup }) => {
     let evaluate = expression ? evaluateLater(el, expression) : () => {}
-   
+
     // Forward event listeners on portals.
     if (el.tagName.toLowerCase() === 'template') {
         if (! el._x_forwardEvents) el._x_forwardEvents = []

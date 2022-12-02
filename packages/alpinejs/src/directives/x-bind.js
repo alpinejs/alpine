@@ -4,7 +4,9 @@ import { mutateDom } from '../mutation'
 import bind from '../utils/bind'
 import { applyBindingsObject, injectBindingProviders } from '../binds'
 
-mapAttributes(startingWith(':', into(prefix('bind:'))))
+document.addEventListener('alpine:init', () => {
+    mapAttributes(startingWith(':', into(prefix('bind:'))))
+})
 
 directive('bind', (el, { value, modifiers, expression, original }, { effect }) => {
     if (! value) {

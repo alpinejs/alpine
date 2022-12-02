@@ -31,7 +31,7 @@ export function directives(el, attributes, originalAttributeOverride) {
         vAttributes = vAttributes.map(attribute => {
             if (staticAttributes.find(attr => attr.name === attribute.name)) {
                 return {
-                    name: `x-bind:${attribute.name}`,
+                    name: prefix(`bind:${attribute.name}`),
                     value: `"${attribute.value}"`,
                 }
             }

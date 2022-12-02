@@ -152,7 +152,7 @@ function handlePanel(el, Alpine) {
             this.$data.__panelEl = this.$el
         },
         'x-effect'() {
-            this.$data.__isOpen && Alpine.bound(el, 'focus') && this.$focus.first()
+            this.$data.__isOpen && Alpine.bound(el, 'focus') && this.$nextTick(() => this.$focus.first())
         },
         'x-ref': 'panel',
         ':id'() { return this.$id('alpine-popover-panel') },

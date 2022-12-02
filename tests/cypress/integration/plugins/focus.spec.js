@@ -97,6 +97,41 @@ test('can trap focus with inert',
     },
 )
 
+test('inert only applies aria-hidden once',
+    [html`
+        <div>
+            <div id="sibling">I should have aria-hidden applied once</div>
+            <div x-data="{
+                open: false,
+                timesApplied: 0,
+                init() {
+                    let observer = new MutationObserver((mutations) => {
+                        mutations.forEach((mutation) => {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+                                this.timesApplied++
+                            }
+                        })
+                    })
+
+                    observer.observe(document.querySelector('#sibling'), {
+                        attributes: true
+                    })
+                },
+            }">
+                <input type="text" id="timesApplied" x-model="timesApplied" />
+                <button id="trigger" @click="open = true">open</button>
+                <div x-trap.inert="open">
+                    Hello, I'm a friendly modal!
+                </div>
+            </div>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('#trigger').click()
+        get('#timesApplied').should('have.value', '1')
+    },
+)
+
 test('can trap focus with noscroll',
     [html`
         <div x-data="{ open: false }">

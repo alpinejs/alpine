@@ -1,4 +1,4 @@
-import { attributesOnly, directives } from "./directives"
+import { attributesOnly, directives, prefix } from "./directives"
 
 let binds = {}
 
@@ -45,7 +45,7 @@ export function applyBindingsObject(el, obj, original) {
     attributes = attributes.map(attribute => {
         if (staticAttributes.find(attr => attr.name === attribute.name)) {
             return {
-                name: `x-bind:${attribute.name}`,
+                name: prefix(`bind:${attribute.name}`),
                 value: `"${attribute.value}"`,
             }
         }

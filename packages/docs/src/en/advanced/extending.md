@@ -224,6 +224,24 @@ Alpine.directive('...', (el, {}, { cleanup }) => {
 
 Now if the directive is removed from this element or the element is removed itself, the event listener will be removed as well.
 
+<a name="custom-order"></a>
+### Custom order
+
+By default, any new directive will run after the majority of the standard ones (with the exception of `x-teleport`). This is usually acceptable but some times you might need to run your custom directive before another specific one.
+This can be achieved by chaining the `.before() function to `Alpine.directive()` and specifing which directive needs to run after your custom one.
+ 
+```js
+Alpine.directive('foo', (el, { value, modifiers, expression }) => {
+    Alpine.addScopeToNode(el, {foo: 'bar'})
+}).before('bind')
+```
+```alpine
+<div x-data>
+    <span x-foo x-bind:foo="foo"></span>
+</div>
+```
+> Note, the directive name must be written without the `x-` prefix (or any other custom prefix you may use).
+
 <a name="custom-magics"></a>
 ## Custom magics
 

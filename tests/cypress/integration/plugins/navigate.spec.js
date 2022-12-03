@@ -7,7 +7,7 @@ import { beEqualTo, beVisible, haveAttribute, haveFocus, haveText, html, notBeVi
 // Infinite scroll scenario, back button works
 //
 
-it('navigates pages without reload',
+it.skip('navigates pages without reload',
     () => {
         cy.intercept('/first', {
             headers: { 'content-type': 'text/html' },
@@ -55,7 +55,7 @@ it('navigates pages without reload',
     },
 )
 
-it('autofocuses autofocus elements',
+it.skip('autofocuses autofocus elements',
     () => {
         cy.intercept('/first', {
             headers: { 'content-type': 'text/html' },
@@ -94,7 +94,7 @@ it('autofocuses autofocus elements',
     },
 )
 
-it('scripts and styles are properly merged/run or skipped',
+it.skip('scripts and styles are properly merged/run or skipped',
     () => {
         cy.intercept('/first', {
             headers: { 'content-type': 'text/html' },

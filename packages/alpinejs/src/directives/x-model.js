@@ -170,5 +170,5 @@ function isNumeric(subject){
 }
 
 function isGetterSetter(value) {
-    return typeof value === 'object' && typeof value.get === 'function' && typeof value.set === 'function'
+    return value !== null && typeof value === 'object' && typeof value.get === 'function' && typeof value.set === 'function'
 }

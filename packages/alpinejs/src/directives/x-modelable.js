@@ -1,6 +1,7 @@
 import { directive } from '../directives'
+import { entangle } from '../entangle';
 
-directive('modelable', (el, { expression }, { effect, evaluateLater }) => {
+directive('modelable', (el, { expression }, { effect, evaluateLater, cleanup }) => {
     let func = evaluateLater(expression)
     let innerGet = () => { let result; func(i => result = i); return result; }
     let evaluateInnerSet = evaluateLater(`${expression} = __placeholder`)
@@ -22,18 +23,17 @@ directive('modelable', (el, { expression }, { effect, evaluateLater }) => {
         let outerGet = el._x_model.get
         let outerSet = el._x_model.set
 
-        effect(() => {
-            // Putting this operation in a microtask so that
-            // it doesn't get tracked in the effect:
-            let value = outerGet()
-            queueMicrotask(() => innerSet(value))
-        })
+        let releaseEntanglement = entangle(
+            {
+                get() { return outerGet() },
+                set(value) { outerSet(value) },
+            },
+            {
+                get() { return innerGet() },
+                set(value) { innerSet(value) },
+            },
+        )
 
-        effect(() => {
-            // Putting this operation in a microtask so that
-            // it doesn't get tracked in the effect:
-            let value = innerGet()
-            queueMicrotask(() => outerSet(value))
-        })
+        cleanup(releaseEntanglement)
     })
 })

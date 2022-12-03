@@ -214,25 +214,24 @@ export function morph(from, toHtml, options) {
                 continue
             }
 
-            // if (lookahead) {
-            //     let nextToElementSibling = dom.next(toChildren, currentTo, elementOnly)
+            // Lookaheads should only apply to non-text-or-comment elements...
+            if (currentFrom.nodeType === 1 && lookahead) {
+                let nextToElementSibling = dom.next(toChildren, currentTo)
 
-            //     let found = false
+                let found = false
 
-            //     while (!found && nextToElementSibling) {
-            //         if (currentFrom.isEqualNode(nextToElementSibling)) {
-            //             found = true; // This ";" needs to be here...
+                while (! found && nextToElementSibling) {
+                    if (currentFrom.isEqualNode(nextToElementSibling)) {
+                        found = true; // This ";" needs to be here...
 
-            //             [fromChildren, currentFrom] = addNodeBefore(fromChildren, currentTo, currentFrom)
+                        [fromChildren, currentFrom] = addNodeBefore(fromChildren, currentTo, currentFrom)
 
-            //             fromKey = getKey(currentFrom)
+                        fromKey = getKey(currentFrom)
+                    }
 
-                        // breakpoint('Move element (lookahead)')
-            //         }
-
-            //         nextToElementSibling = dom.next(toChildren, nextToElementSibling)
-            //     }
-            // }
+                    nextToElementSibling = dom.next(toChildren, nextToElementSibling)
+                }
+            }
 
             if (toKey !== fromKey) {
                 if (! toKey && fromKey) {

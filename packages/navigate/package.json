@@ -1,0 +1,9 @@
+{
+    "name": "@alpinejs/navigate",
+    "version": "3.10.2",
+    "description": "An Alpine plugin for adding SPA-like navigation to your app.",
+    "author": "Caleb Porzio",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js"
+}

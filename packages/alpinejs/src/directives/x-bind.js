@@ -34,7 +34,6 @@ directive('bind', (el, { value, modifiers, expression, original }, { effect }) =
     }))
 })
 
-
 function storeKeyForXFor(el, expression) {
     el._x_keyExpression = expression
 }

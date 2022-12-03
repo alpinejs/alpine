@@ -7,7 +7,7 @@
         "axios": "^0.21.1",
         "brotli-size": "^4.0.0",
         "chalk": "^4.1.1",
-        "cypress": "^5.5.0",
+        "cypress": "^7.0.0",
         "cypress-plugin-tab": "^1.0.5",
         "dot-json": "^1.2.2",
         "esbuild": "^0.8.39",
@@ -21,5 +21,8 @@
         "jest": "jest test",
         "update-docs": "node ./scripts/update-docs.js",
         "release": "node ./scripts/release.js"
+    },
+    "dependencies": {
+        "nprogress": "^0.2.0"
     }
 }

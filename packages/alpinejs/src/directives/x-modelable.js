@@ -1,6 +1,7 @@
 import { directive } from '../directives'
+import { entangle } from '../entangle';
 
-directive('modelable', (el, { expression }, { effect, evaluateLater }) => {
+directive('modelable', (el, { expression }, { effect, evaluateLater, cleanup }) => {
     let func = evaluateLater(expression)
     let innerGet = () => { let result; func(i => result = i); return result; }
     let evaluateInnerSet = evaluateLater(`${expression} = __placeholder`)
@@ -18,11 +19,21 @@ directive('modelable', (el, { expression }, { effect, evaluateLater }) => {
         // in x-modelable/model, but the input events from the native input
         // override any functionality added by x-modelable causing confusion.
         el._x_removeModelListeners['default']()
-    
+
         let outerGet = el._x_model.get
         let outerSet = el._x_model.set
-    
-        effect(() => innerSet(outerGet()))
-        effect(() => outerSet(innerGet()))
+
+        let releaseEntanglement = entangle(
+            {
+                get() { return outerGet() },
+                set(value) { outerSet(value) },
+            },
+            {
+                get() { return innerGet() },
+                set(value) { innerSet(value) },
+            },
+        )
+
+        cleanup(releaseEntanglement)
     })
 })

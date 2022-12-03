@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../utils'
+import { haveText, haveAttribute, html, test } from '../utils'
 
 test('can register custom directive',
     [html`
@@ -48,4 +48,18 @@ test('directives are auto cleaned up',
         get('#change').click()
         get('h1').should(haveText('7'))
     }
+)
+
+test('can register a custom directive before an existing one',
+    [html`
+        <div x-data>
+            <span x-foo x-bind:foo="foo"></span>
+        </div>
+    `,
+    `
+        Alpine.directive('foo', (el, { value, modifiers, expression }) => {
+            Alpine.addScopeToNode(el, {foo: 'bar'})
+        }).before('bind')
+    `],
+    ({ get }) => get('span').should(haveAttribute('foo', 'bar'))
 )

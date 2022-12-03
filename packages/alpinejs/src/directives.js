@@ -17,6 +17,23 @@ let directiveHandlers = {}
 
 export function directive(name, callback) {
     directiveHandlers[name] = callback
+
+    return {
+        before(directive) {
+            if (!directiveHandlers[directive]) {
+                console.warn(
+                    "Cannot find directive `${directive}`. "
+                    + "`${name}` will use the default order of execution"
+                );
+                return;
+            }
+            const pos = directiveOrder.indexOf(directive)
+                ?? directiveOrder.indexOf('DEFAULT');
+            if (pos >= 0) {
+                directiveOrder.splice(pos, 0, name);
+            }
+        }
+    }
 }
 
 export function directives(el, attributes, originalAttributeOverride) {

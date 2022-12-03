@@ -176,9 +176,11 @@ function crawlSiblingsUp(el, callback) {
     if (el.isSameNode(document.body) || ! el.parentNode) return
 
     Array.from(el.parentNode.children).forEach(sibling => {
-        if (! sibling.isSameNode(el)) callback(sibling)
-
-        crawlSiblingsUp(el.parentNode, callback)
+        if (sibling.isSameNode(el)) {
+            crawlSiblingsUp(el.parentNode, callback)
+        } else {
+            callback(sibling)
+        }
     })
 }
 

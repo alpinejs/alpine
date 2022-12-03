@@ -1,177 +1,51 @@
 <html>
-    <script src="./packages/intersect/dist/cdn.js" defer></script>
+    <!-- <script src="./packages/intersect/dist/cdn.js" defer></script>
     <script src="./packages/morph/dist/cdn.js" defer></script>
     <script src="./packages/history/dist/cdn.js"></script>
     <script src="./packages/persist/dist/cdn.js"></script>
     <script src="./packages/focus/dist/cdn.js"></script>
     <script src="./packages/mask/dist/cdn.js"></script>
-    <script src="./packages/ui/dist/cdn.js" defer></script>
+    <script src="./packages/ui/dist/cdn.js" defer></script> -->
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
+    <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <script src="//cdn.tailwindcss.com"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
-    <!-- <div x-data="{ value: null }">
-        Value: <span x-text="value"></span>
+    <div x-data="{ users: [{ name: 'lebowski' }] }">
+        <template x-for="(user, idx) in users">
+            <span x-text="users[idx].name" x-yo></span>
+        </template>
 
-        <button @click="value = 'bar'">Change value</button>
+        <button @click="users = []">Reset</button>
+    </div>
 
-        <div x-listbox x-model="value">
-            <button x-listbox:button>toggle</button>
+    <!-- Play around here... -->
 
-            <ul x-listbox:options>
-                <li x-listbox:option value="foo" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Foo</li>
-                <li x-listbox:option value="bar" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Bar</li>
-                <li x-listbox:option value="baz" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'">Baz</li>
-            </ul>
-        </div>
-    </div> -->
+    <div x-data>
+        <div id="thing" x-yo>i do not belong here...</div>
 
-    <!-- <div
-    x-data="{ selected: undefined, people: [
-        { id: 1, name: 'Wade Cooper', foo: { bar: 'baz' } },
-        { id: 2, name: 'Arlene Mccoy' },
-        { id: 3, name: 'Devon Webb' },
-        { id: 4, name: 'Tom Cook' },
-        { id: 5, name: 'Tanya Fox', disabled: true },
-        { id: 6, name: 'Hellen Schmidt' },
-        { id: 7, name: 'Caroline Schultz' },
-        { id: 8, name: 'Mason Heaney' },
-        { id: 9, name: 'Claudie Smitham' },
-        { id: 10, name: 'Emil Schaefer' },
-        ]}"
-        class="flex justify-center w-screen h-full p-12 bg-gray-50"
-    >
-        <button @click="selected = people[1]">Change value</button>
+        <br>
+        <br>
+        <br>
+        <br>
 
-        <button @click="
-            people.sort((a, b) => a.name > b.name ? 1 : -1)
-        ">Reorder</button>
+        <button @click="document.getElementById('thing').remove()">remove</button>
+    </div>
 
-        <button @click="
-            people = people.filter(i => i.name !== 'Arlene Mccoy')
-        ">Destroy item</button>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.directive('yo', (el, {}, { cleanup }) => {
+                cleanup(() => {
+                    console.log('removed')
+                })
+            })
+        })
+    </script>
 
-        <div class="w-full max-w-xs mx-auto">
-            <div x-listbox name="something" x-model="selected" class="space-y-1">
-                <label x-listbox:label class="block text-sm font-medium leading-5 text-gray-700 mb-1">
-                    Assigned to
-                </label>
+    <div x-data="{ users: [{ name: 'lebowski' }] }">
+        <template x-for="(user, idx) in users">
+            <span x-text="users[idx].name" x-yo></span>
+        </template>
 
-                <div class="relative">
-                    <span class="inline-block w-full rounded-md shadow-sm">
-                        <button x-listbox:button class="relative w-full py-2 pl-3 pr-10 text-left transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md cursor-default focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5">
-                            <span class="block truncate" x-text="selected ? selected.name : 'Select Person'"></span>
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                                    <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </span>
-                        </button>
-                    </span>
-
-                    <div class="absolute w-full mt-1 bg-white rounded-md shadow-lg">
-                        <ul x-listbox:options class="py-1 overflow-auto text-base leading-6 rounded-md shadow-xs max-h-60 focus:outline-none sm:text-sm sm:leading-5">
-                            <template x-for="person in people" :key="person.id">
-                                <li
-                                    x-listbox:option :value="person"
-                                    class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
-                                    :disabled="person.disabled"
-                                    :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900', person.disabled && 'bg-gray-50 text-gray-300'].filter(Boolean)"
-                                >
-                                    <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'" x-text="person.name"></span>
-
-                                    <span
-                                        x-show="$listboxOption.isSelected"
-                                        class="absolute inset-y-0 right-0 flex items-center pr-4"
-                                        :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
-                                    >
-                                        <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                    </span>
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
-
-    <!-- MULTIPLE: -->
-    <div
-        x-data="{ selected: [], people: [
-            { id: 1, name: 'Wade Cooper' },
-            { id: 2, name: 'Arlene Mccoy' },
-            { id: 3, name: 'Devon Webb' },
-            { id: 4, name: 'Tom Cook' },
-            { id: 5, name: 'Tanya Fox', disabled: true },
-            { id: 6, name: 'Hellen Schmidt' },
-            { id: 7, name: 'Caroline Schultz' },
-            { id: 8, name: 'Mason Heaney' },
-            { id: 9, name: 'Claudie Smitham' },
-            { id: 10, name: 'Emil Schaefer' },
-        ]}"
-        class="flex justify-center w-screen h-full p-12 bg-gray-50"
-    >
-        <div class="w-full max-w-xs mx-auto">
-
-            <button @click="selected.push(people[1])">Change value</button>
-
-            <button @click="
-                people.sort((a, b) => a.name > b.name ? 1 : -1)
-            ">Reorder</button>
-
-            <button @click="
-                people = people.filter(i => i.name !== 'Arlene Mccoy')
-            ">Destroy item</button>
-
-            <div x-listbox name="people" multiple class="space-y-1">
-                <label x-listbox:label class="block text-sm font-medium leading-5 text-gray-700 mb-1">
-                    Assigned to
-                </label>
-
-                <div class="relative">
-                    <span class="inline-block w-full rounded-md shadow-sm">
-                        <button x-listbox:button class="relative w-full py-2 pl-3 pr-10 text-left transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md cursor-default focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5">
-                            <span class="block truncate" x-text="selected.length > 0 ? selected.map(i => i.name).join(', ') : 'Select Person'"></span>
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                <svg class="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                                    <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </span>
-                        </button>
-                    </span>
-
-                    <div class="absolute w-full mt-1 bg-white rounded-md shadow-lg">
-                        <div x-show="$listbox.isOpen">
-                            wrapper
-                            <ul x-listbox:options static class="py-1 overflow-auto text-base leading-6 rounded-md shadow-xs max-h-60 focus:outline-none sm:text-sm sm:leading-5">
-                                <template x-for="person in people" :key="person.id">
-                                    <li
-                                        x-listbox:option :value="person"
-                                        class="relative py-2 pl-3 cursor-default select-none pr-9 focus:outline-none"
-                                        :disabled="person.disabled"
-                                        :class="[$listboxOption.isActive ? 'text-white bg-indigo-600' : 'text-gray-900', person.disabled && 'bg-gray-50 text-gray-300'].filter(Boolean)"
-                                        >
-                                        <span class="block truncate" :class="$listboxOption.isSelected ? 'font-semibold' : 'font-normal'" x-text="person.name"></span>
-                                        <span
-                                            x-show="$listboxOption.isSelected"
-                                            class="absolute inset-y-0 right-0 flex items-center pr-4"
-                                            :class="$listboxOption.isActive ? 'text-white' : 'text-indigo-600'"
-                                        >
-                                            <svg class="w-5 h-5" viewbox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        </span>
-                                    </li>
-                                </template>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <button @click="users = []">Reset</button>
     </div>
 </html>

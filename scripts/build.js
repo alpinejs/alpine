@@ -13,6 +13,7 @@ let brotliSize = require('brotli-size');
     'morph',
     'focus',
     'mask',
+    'navigate',
     'ui',
 ]).forEach(package => {
     if (! fs.existsSync(`./packages/${package}/dist`)) {

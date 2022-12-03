@@ -355,3 +355,69 @@ test('can morph table tr',
         get('td').should(haveText('2'))
     },
 )
+
+test('can morph with conditional markers',
+    [html`
+        <main>
+            <!-- __BLOCK__ -->
+            <div>foo<input></div>
+            <!-- __ENDBLOCK__ -->
+            <div>bar<input></div>
+        </main>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <main>
+            <!-- __BLOCK__ -->
+            <div>foo<input></div>
+            <div>baz<input></div>
+            <!-- __ENDBLOCK__ -->
+            <div>bar<input></div>
+        </main>
+        `
+
+        get('div:nth-of-type(1) input').type('foo')
+        get('div:nth-of-type(2) input').type('bar')
+
+        get('main').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('div:nth-of-type(1) input').should(haveValue('foo'))
+        get('div:nth-of-type(2) input').should(haveValue(''))
+        get('div:nth-of-type(3) input').should(haveValue('bar'))
+    },
+)
+
+test('can morph with flat-nested conditional markers',
+    [html`
+        <main>
+            <!-- __BLOCK__ -->
+            <div>foo<input></div>
+            <!-- __BLOCK__ -->
+            <!-- __ENDBLOCK__ -->
+            <!-- __ENDBLOCK__ -->
+            <div>bar<input></div>
+        </main>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <main>
+            <!-- __BLOCK__ -->
+            <div>foo<input></div>
+            <!-- __BLOCK__ -->
+            <!-- __ENDBLOCK__ -->
+            <div>baz<input></div>
+            <!-- __ENDBLOCK__ -->
+            <div>bar<input></div>
+        </main>
+        `
+
+        get('div:nth-of-type(1) input').type('foo')
+        get('div:nth-of-type(2) input').type('bar')
+
+        get('main').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('div:nth-of-type(1) input').should(haveValue('foo'))
+        get('div:nth-of-type(2) input').should(haveValue(''))
+        get('div:nth-of-type(3) input').should(haveValue('bar'))
+    },
+)

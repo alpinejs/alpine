@@ -22,8 +22,8 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-modelable': '__isOpen',
-        'x-data'() {
+        [Alpine.prefixed('modelable')]: '__isOpen',
+        [Alpine.prefixed('data')]() {
             return {
                 init() {
                     queueMicrotask(() => {
@@ -41,39 +41,39 @@ function handleRoot(el, Alpine) {
                 },
             }
         },
-        'x-id'() { return ['alpine-disclosure-panel'] },
+        [Alpine.prefixed('id')]() { return ['alpine-disclosure-panel'] },
     })
 }
 
 function handleButton(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() {
+        [Alpine.prefixed('init')]() {
             if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button'
         },
-        '@click'() {
+        [Alpine.prefixed('on:click')]() {
             this.$data.__isOpen = ! this.$data.__isOpen
         },
-        ':aria-expanded'() {
+        [Alpine.prefixed('bind:aria-expanded')]() {
             return this.$data.__isOpen
         },
-        ':aria-controls'() {
+        [Alpine.prefixed('bind:aria-controls')]() {
             return this.$data.$id('alpine-disclosure-panel')
         },
-        '@keydown.space.prevent.stop'() { this.$data.__toggle() },
-        '@keydown.enter.prevent.stop'() { this.$data.__toggle() },
+        [Alpine.prefixed('on:keydown.space.prevent.stop')]() { this.$data.__toggle() },
+        [Alpine.prefixed('on:keydown.enter.prevent.stop')]() { this.$data.__toggle() },
         // Required for firefox, event.preventDefault() in handleKeyDown for
         // the Space key doesn't cancel the handleKeyUp, which in turn
         // triggers a *click*.
-        '@keyup.space.prevent'() {},
+        [Alpine.prefixed('on:keyup.space.prevent')]() {},
     })
 }
 
 function handlePanel(el, Alpine) {
     Alpine.bind(el, {
-        'x-show'() {
+        [Alpine.prefixed('show')]() {
             return this.$data.__isOpen
         },
-        ':id'() {
+        [Alpine.prefixed('bind:id')]() {
             return this.$data.$id('alpine-disclosure-panel')
         },
     })

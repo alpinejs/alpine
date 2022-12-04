@@ -22,9 +22,9 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-id'() { return ['alpine-menu-button', 'alpine-menu-items'] },
-        'x-modelable': '__isOpen',
-        'x-data'() {
+        [Alpine.prefixed('id')]() { return ['alpine-menu-button', 'alpine-menu-items'] },
+        [Alpine.prefixed('modelable')]: '__isOpen',
+        [Alpine.prefixed('data')]() {
             return {
                 __itemEls: [],
                 __activeEl: null,
@@ -48,7 +48,7 @@ function handleRoot(el, Alpine) {
                 }
             }
         },
-        '@focusin.window'() {
+        [Alpine.prefixed('on:focusin.window')]() {
             if (! this.$data.__contains(this.$el, document.activeElement)) {
                 this.$data.__close(false)
             }
@@ -58,59 +58,59 @@ function handleRoot(el, Alpine) {
 
 function handleButton(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': '__button',
+        [Alpine.prefixed('ref')]: '__button',
         'aria-haspopup': 'true',
-        ':aria-labelledby'() { return this.$id('alpine-menu-label') },
-        ':id'() { return this.$id('alpine-menu-button') },
-        ':aria-expanded'() { return this.$data.__isOpen },
-        ':aria-controls'() { return this.$data.__isOpen && this.$id('alpine-menu-items') },
-        'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && ! this.$el.hasAttribute('type')) this.$el.type = 'button' },
-        '@click'() { this.$data.__open() },
-        '@keydown.down.stop.prevent'() { this.$data.__open() },
-        '@keydown.up.stop.prevent'() { this.$data.__open(dom.Alpine, last) },
-        '@keydown.space.stop.prevent'() { this.$data.__open() },
-        '@keydown.enter.stop.prevent'() { this.$data.__open() },
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.$id('alpine-menu-label') },
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-menu-button') },
+        [Alpine.prefixed('bind:aria-expanded')]() { return this.$data.__isOpen },
+        [Alpine.prefixed('bind:aria-controls')]() { return this.$data.__isOpen && this.$id('alpine-menu-items') },
+        [Alpine.prefixed('init')]() { if (this.$el.tagName.toLowerCase() === 'button' && ! this.$el.hasAttribute('type')) this.$el.type = 'button' },
+        [Alpine.prefixed('on:click')]() { this.$data.__open() },
+        [Alpine.prefixed('on:keydown.down.stop.prevent')]() { this.$data.__open() },
+        [Alpine.prefixed('on:keydown.up.stop.prevent')]() { this.$data.__open(dom.Alpine, last) },
+        [Alpine.prefixed('on:keydown.space.stop.prevent')]() { this.$data.__open() },
+        [Alpine.prefixed('on:keydown.enter.stop.prevent')]() { this.$data.__open() },
     })
 }
 
 function handleItems(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': '__items',
+        [Alpine.prefixed('ref')]: '__items',
         'aria-orientation': 'vertical',
         'role': 'menu',
-        ':id'() { return this.$id('alpine-menu-items') },
-        ':aria-labelledby'() { return this.$id('alpine-menu-button') },
-        ':aria-activedescendant'() { return this.$data.__activeEl && this.$data.__activeEl.id },
-        'x-show'() { return this.$data.__isOpen },
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-menu-items') },
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.$id('alpine-menu-button') },
+        [Alpine.prefixed('bind:aria-activedescendant')]() { return this.$data.__activeEl && this.$data.__activeEl.id },
+        [Alpine.prefixed('show')]() { return this.$data.__isOpen },
         'tabindex': '0',
-        '@click.outside'() { this.$data.__close() },
-        '@keydown'(e) { dom.search(Alpine, this.$refs.__items, e.key, el => el.__activate()) },
-        '@keydown.down.stop.prevent'() {
+        [Alpine.prefixed('on:click.outside')]() { this.$data.__close() },
+        [Alpine.prefixed('on:keydown')](e) { dom.search(Alpine, this.$refs.__items, e.key, el => el.__activate()) },
+        [Alpine.prefixed('on:keydown.down.stop.prevent')]() {
             if (this.$data.__activeEl) dom.next(Alpine, this.$data.__activeEl, el => el.__activate())
             else dom.first(Alpine, this.$refs.__items, el => el.__activate())
         },
-        '@keydown.up.stop.prevent'() {
+        [Alpine.prefixed('on:keydown.up.stop.prevent')]() {
             if (this.$data.__activeEl) dom.previous(Alpine, this.$data.__activeEl, el => el.__activate())
             else dom.last(Alpine, this.$refs.__items, el => el.__activate())
         },
-        '@keydown.home.stop.prevent'() { dom.first(Alpine, this.$refs.__items, el => el.__activate()) },
-        '@keydown.end.stop.prevent'() { dom.last(Alpine, this.$refs.__items, el => el.__activate()) },
-        '@keydown.page-up.stop.prevent'() { dom.first(Alpine, this.$refs.__items, el => el.__activate()) },
-        '@keydown.page-down.stop.prevent'() { dom.last(Alpine, this.$refs.__items, el => el.__activate()) },
-        '@keydown.escape.stop.prevent'() { this.$data.__close() },
-        '@keydown.space.stop.prevent'() { this.$data.__activeEl && this.$data.__activeEl.click() },
-        '@keydown.enter.stop.prevent'() { this.$data.__activeEl && this.$data.__activeEl.click() },
+        [Alpine.prefixed('on:keydown.home.stop.prevent')]() { dom.first(Alpine, this.$refs.__items, el => el.__activate()) },
+        [Alpine.prefixed('on:keydown.end.stop.prevent')]() { dom.last(Alpine, this.$refs.__items, el => el.__activate()) },
+        [Alpine.prefixed('on:keydown.page-up.stop.prevent')]() { dom.first(Alpine, this.$refs.__items, el => el.__activate()) },
+        [Alpine.prefixed('on:keydown.page-down.stop.prevent')]() { dom.last(Alpine, this.$refs.__items, el => el.__activate()) },
+        [Alpine.prefixed('on:keydown.escape.stop.prevent')]() { this.$data.__close() },
+        [Alpine.prefixed('on:keydown.space.stop.prevent')]() { this.$data.__activeEl && this.$data.__activeEl.click() },
+        [Alpine.prefixed('on:keydown.enter.stop.prevent')]() { this.$data.__activeEl && this.$data.__activeEl.click() },
         // Required for firefox, event.preventDefault() in handleKeyDown for
         // the Space key doesn't cancel the handleKeyUp, which in turn
         // triggers a *click*.
-        '@keyup.space.prevent'() { },
+        [Alpine.prefixed('on:keyup.space.prevent')]() { },
     })
 }
 
 function handleItem(el, Alpine) {
     Alpine.bind(el, () => {
         return {
-            'x-data'() {
+            [Alpine.prefixed('data')]() {
                 return {
                     __itemEl: this.$el,
                     init() {
@@ -151,12 +151,12 @@ function handleItem(el, Alpine) {
                     },
                 }
             },
-            'x-id'() { return ['alpine-menu-item'] },
-            ':id'() { return this.$id('alpine-menu-item') },
-            ':tabindex'() { return this.$el.__isDisabled.value ? false : '-1' },
+            [Alpine.prefixed('id')]() { return ['alpine-menu-item'] },
+            [Alpine.prefixed('bind:id')]() { return this.$id('alpine-menu-item') },
+            [Alpine.prefixed('bind:tabindex')]() { return this.$el.__isDisabled.value ? false : '-1' },
             'role': 'menuitem',
-            '@mousemove'() { this.$el.__isDisabled.value || this.$menuItem.isActive || this.$el.__activate() },
-            '@mouseleave'() { this.$el.__isDisabled.value || ! this.$menuItem.isActive || this.$el.__deactivate() },
+            [Alpine.prefixed('on:mousemove')]() { this.$el.__isDisabled.value || this.$menuItem.isActive || this.$el.__activate() },
+            [Alpine.prefixed('on:mouseleave')]() { this.$el.__isDisabled.value || ! this.$menuItem.isActive || this.$el.__deactivate() },
         }
     })
 }

@@ -12,7 +12,7 @@ export default function (Alpine) {
 
         return {
             get isChecked() {
-                return $data.__value === true
+                return Boolean($data.__value) === true
             },
         }
     })
@@ -20,8 +20,8 @@ export default function (Alpine) {
 
 function handleGroup(el, Alpine) {
     Alpine.bind(el, {
-        'x-id'() { return ['alpine-switch-label', 'alpine-switch-description'] },
-        'x-data'() {
+        [Alpine.prefixed('id')]() { return ['alpine-switch-label', 'alpine-switch-description'] },
+        [Alpine.prefixed('data')]() {
             return {
                 __hasLabel: false,
                 __hasDescription: false,
@@ -33,8 +33,8 @@ function handleGroup(el, Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-modelable': '__value',
-        'x-data'() {
+        [Alpine.prefixed('modelable')]: '__value',
+        [Alpine.prefixed('data')]() {
             return {
                 init() {
                     queueMicrotask(() => {
@@ -53,7 +53,7 @@ function handleRoot(el, Alpine) {
                 },
             }
         },
-        'x-effect'() {
+        [Alpine.prefixed('effect')]() {
             let value = this.__value
 
             // Only render a hidden input if the "name" prop is passed...
@@ -78,30 +78,30 @@ function handleRoot(el, Alpine) {
                 this.$el.after(input)
             }
         },
-        'x-init'() {
+        [Alpine.prefixed('init')]() {
             if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button'
             this.$data.__switchEl = this.$el
         },
         'role': 'switch',
         'tabindex': "0",
-        ':aria-checked'() { return !!this.__value },
-        ':aria-labelledby'() { return this.$data.__hasLabel && this.$id('alpine-switch-label') },
-        ':aria-describedby'() { return this.$data.__hasDescription && this.$id('alpine-switch-description') },
-        '@click.prevent'() { this.__toggle() },
-        '@keyup'(e) {
+        [Alpine.prefixed('bind:aria-checked')]() { return !!this.__value },
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.$data.__hasLabel && this.$id('alpine-switch-label') },
+        [Alpine.prefixed('bind:aria-describedby')]() { return this.$data.__hasDescription && this.$id('alpine-switch-description') },
+        [Alpine.prefixed('on:click.prevent')]() { this.__toggle() },
+        [Alpine.prefixed('on:keyup')](e) {
             if (e.key !== 'Tab') e.preventDefault()
             if (e.key === ' ') this.__toggle()
         },
         // This is needed so that we can "cancel" the click event when we use the `Enter` key on a button.
-        '@keypress.prevent'() { },
+        [Alpine.prefixed('on:keypress.prevent')]() { },
     })
 }
 
 function handleLabel(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() { this.$data.__hasLabel = true },
-        ':id'() { return this.$id('alpine-switch-label') },
-        '@click'() {
+        [Alpine.prefixed('init')]() { this.$data.__hasLabel = true },
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-switch-label') },
+        [Alpine.prefixed('on:click')]() {
             this.$data.__switchEl.click()
             this.$data.__switchEl.focus({ preventScroll: true })
         },
@@ -110,7 +110,7 @@ function handleLabel(el, Alpine) {
 
 function handleDescription(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() { this.$data.__hasDescription = true },
-        ':id'() { return this.$id('alpine-switch-description') },
+        [Alpine.prefixed('init')]() { this.$data.__hasDescription = true },
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-switch-description') },
     })
 }

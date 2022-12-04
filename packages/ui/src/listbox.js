@@ -68,9 +68,9 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-id'() { return ['alpine-listbox-button', 'alpine-listbox-options', 'alpine-listbox-label'] },
-        'x-modelable': '__value',
-        'x-data'() {
+        [Alpine.prefixed('id')]() { return ['alpine-listbox-button', 'alpine-listbox-options', 'alpine-listbox-label'] },
+        [Alpine.prefixed('modelable')]: '__value',
+        [Alpine.prefixed('data')]() {
             return {
                 __ready: false,
                 __value: null,
@@ -155,23 +155,23 @@ function handleRoot(el, Alpine) {
 
 function handleLabel(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': '__label',
-        ':id'() { return this.$id('alpine-listbox-label') },
-        '@click'() { this.$refs.__button.focus({ preventScroll: true }) },
+        [Alpine.prefixed('ref')]: '__label',
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-listbox-label') },
+        [Alpine.prefixed('on:click')]() { this.$refs.__button.focus({ preventScroll: true }) },
     })
 }
 
 function handleButton(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': '__button',
-        ':id'() { return this.$id('alpine-listbox-button') },
+        [Alpine.prefixed('ref')]: '__button',
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-listbox-button') },
         'aria-haspopup': 'true',
-        ':aria-labelledby'() { return this.$id('alpine-listbox-label') },
-        ':aria-expanded'() { return this.$data.__isOpen },
-        ':aria-controls'() { return this.$data.__isOpen && this.$id('alpine-listbox-options') },
-        'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button' },
-        '@click'() { this.$data.__open() },
-        '@keydown'(e) {
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.$id('alpine-listbox-label') },
+        [Alpine.prefixed('bind:aria-expanded')]() { return this.$data.__isOpen },
+        [Alpine.prefixed('bind:aria-controls')]() { return this.$data.__isOpen && this.$id('alpine-listbox-options') },
+        [Alpine.prefixed('init')]() { if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button' },
+        [Alpine.prefixed('on:click')]() { this.$data.__open() },
+        [Alpine.prefixed('on:keydown')](e) {
             if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.stopPropagation()
                 e.preventDefault()
@@ -179,37 +179,37 @@ function handleButton(el, Alpine) {
                 this.$data.__open()
             }
         },
-        '@keydown.space.stop.prevent'() { this.$data.__open() },
-        '@keydown.enter.stop.prevent'() { this.$data.__open() },
+        [Alpine.prefixed('on:keydown.space.stop.prevent')]() { this.$data.__open() },
+        [Alpine.prefixed('on:keydown.enter.stop.prevent')]() { this.$data.__open() },
     })
 }
 
 function handleOptions(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': '__options',
-        ':id'() { return this.$id('alpine-listbox-options') },
-        'x-init'() {
+        [Alpine.prefixed('ref')]: '__options',
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-listbox-options') },
+        [Alpine.prefixed('init')]() {
             this.$data.__isStatic = Alpine.bound(this.$el, 'static', false)
         },
-        'x-show'() { return this.$data.__isStatic ? true : this.$data.__isOpen },
-        '@click.outside'() { this.$data.__close() },
-        '@keydown.escape.stop.prevent'() { this.$data.__close() },
+        [Alpine.prefixed('show')]() { return this.$data.__isStatic ? true : this.$data.__isOpen },
+        [Alpine.prefixed('on:click.outside')]() { this.$data.__close() },
+        [Alpine.prefixed('on:keydown.escape.stop.prevent')]() { this.$data.__close() },
         tabindex: '0',
         'role': 'listbox',
-        ':aria-orientation'() {
+        [Alpine.prefixed('bind:aria-orientation')]() {
             return this.$data.__orientation
         },
-        ':aria-labelledby'() { return this.$id('alpine-listbox-button') },
-        ':aria-activedescendant'() { return this.__context.activeEl() && this.__context.activeEl().id },
-        '@focus'() { this.__context.activateSelectedOrFirst() },
-        'x-trap'() { return this.$data.__isOpen },
-        '@keydown'(e) { this.__context.activateByKeyEvent(e) },
-        '@keydown.enter.stop.prevent'() {
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.$id('alpine-listbox-button') },
+        [Alpine.prefixed('bind:aria-activedescendant')]() { return this.__context.activeEl() && this.__context.activeEl().id },
+        [Alpine.prefixed('on:focus')]() { this.__context.activateSelectedOrFirst() },
+        [Alpine.prefixed('trap')]() { return this.$data.__isOpen },
+        [Alpine.prefixed('on:keydown')](e) { this.__context.activateByKeyEvent(e) },
+        [Alpine.prefixed('on:keydown.enter.stop.prevent')]() {
             this.__context.selectActive();
 
             this.$data.__isMultiple || this.$data.__close()
         },
-        '@keydown.space.stop.prevent'() {
+        [Alpine.prefixed('on:keydown.space.stop.prevent')]() {
             this.__context.selectActive();
 
             this.$data.__isMultiple || this.$data.__close()
@@ -220,10 +220,10 @@ function handleOptions(el, Alpine) {
 function handleOption(el, Alpine) {
     Alpine.bind(el, () => {
         return {
-            ':id'() { return this.$id('alpine-listbox-option') },
-            ':tabindex'() { return this.$listbox.isDisabled ? false : '-1' },
+            [Alpine.prefixed('bind:id')]() { return this.$id('alpine-listbox-option') },
+            [Alpine.prefixed('bind:tabindex')]() { return this.$listbox.isDisabled ? false : '-1' },
             'role': 'option',
-            'x-init'() {
+            [Alpine.prefixed('init')]() {
                 queueMicrotask(() => {
                     let value = Alpine.bound(el, 'value')
                     let disabled = Alpine.bound(el, 'disabled')
@@ -231,14 +231,14 @@ function handleOption(el, Alpine) {
                     el.__optionKey = this.$data.__context.initItem(el, value, disabled)
                 })
             },
-            ':aria-selected'() { return this.$listboxOption.isSelected },
-            '@click'() {
+            [Alpine.prefixed('bind:aria-selected')]() { return this.$listboxOption.isSelected },
+            [Alpine.prefixed('on:click')]() {
                 if (this.$listboxOption.isDisabled) return;
                 this.$data.__context.selectEl(el);
                 this.$data.__isMultiple || this.$data.__close()
             },
-            '@mousemove'() { this.$data.__context.activateEl(el) },
-            '@mouseleave'() { this.$data.__context.deactivate() },
+            [Alpine.prefixed('on:mousemove')]() { this.$data.__context.activateEl(el) },
+            [Alpine.prefixed('on:mouseleave')]() { this.$data.__context.deactivate() },
         }
     })
 }

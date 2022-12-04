@@ -27,9 +27,9 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-id'() { return ['alpine-popover-button', 'alpine-popover-panel'] },
-        'x-modelable': '__isOpenState',
-        'x-data'() {
+        [Alpine.prefixed('id')]() { return ['alpine-popover-button', 'alpine-popover-panel'] },
+        [Alpine.prefixed('modelable')]: '__isOpenState',
+        [Alpine.prefixed('data')]() {
             return {
                 init() {
                     if (this.$data.__groupEl) {
@@ -75,10 +75,10 @@ function handleRoot(el, Alpine) {
                 }
             }
         },
-        '@keydown.escape.stop.prevent'() {
+        [Alpine.prefixed('on:keydown.escape.stop.prevent')]() {
             this.__close()
         },
-        '@focusin.window'() {
+        [Alpine.prefixed('on:focusin.window')]() {
             if (this.$data.__groupEl) {
                 if (! this.$data.__contains(this.$data.__groupEl, document.activeElement)) {
                     this.$data.__close(false)
@@ -96,17 +96,17 @@ function handleRoot(el, Alpine) {
 
 function handleButton(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': 'button',
-        ':id'() { return this.$id('alpine-popover-button') },
-        ':aria-expanded'() { return this.$data.__isOpen },
-        ':aria-controls'() { return this.$data.__isOpen && this.$id('alpine-popover-panel') },
-        'x-init'() {
+        [Alpine.prefixed('ref')]: 'button',
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-popover-button') },
+        [Alpine.prefixed('bind:aria-expanded')]() { return this.$data.__isOpen },
+        [Alpine.prefixed('bind:aria-controls')]() { return this.$data.__isOpen && this.$id('alpine-popover-panel') },
+        [Alpine.prefixed('init')]() {
             if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button'
 
             this.$data.__buttonEl = this.$el
         },
-        '@click'() { this.$data.__toggle() },
-        '@keydown.tab'(e) {
+        [Alpine.prefixed('on:click')]() { this.$data.__toggle() },
+        [Alpine.prefixed('on:keydown.tab')](e) {
             if (! e.shiftKey && this.$data.__isOpen) {
                 let firstFocusableEl = this.$focus.within(this.$data.__panelEl).getFirst()
 
@@ -118,7 +118,7 @@ function handleButton(el, Alpine) {
                 }
             }
         },
-        '@keyup.tab'(e) {
+        [Alpine.prefixed('on:keyup.tab')](e) {
             if (this.$data.__isOpen) {
                 // Check if the last focused element was "after" this one
                 let lastEl = this.$focus.previouslyFocused()
@@ -138,26 +138,26 @@ function handleButton(el, Alpine) {
                 }
             }
         },
-        '@keydown.space.stop.prevent'() { this.$data.__toggle() },
-        '@keydown.enter.stop.prevent'() { this.$data.__toggle() },
+        [Alpine.prefixed('on:keydown.space.stop.prevent')]() { this.$data.__toggle() },
+        [Alpine.prefixed('on:keydown.enter.stop.prevent')]() { this.$data.__toggle() },
         // This is to stop Firefox from firing a "click".
-        '@keyup.space.stop.prevent'() { },
+        [Alpine.prefixed('on:keyup.space.stop.prevent')]() { },
     })
 }
 
 function handlePanel(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() {
+        [Alpine.prefixed('init')]() {
             this.$data.__isStatic = Alpine.bound(this.$el, 'static', false)
             this.$data.__panelEl = this.$el
         },
-        'x-effect'() {
+        [Alpine.prefixed('effect')]() {
             this.$data.__isOpen && Alpine.bound(el, 'focus') && this.$focus.first()
         },
-        'x-ref': 'panel',
-        ':id'() { return this.$id('alpine-popover-panel') },
-        'x-show'() { return this.$data.__isOpen },
-        '@mousedown.window'($event) {
+        [Alpine.prefixed('ref')]: 'panel',
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-popover-panel') },
+        [Alpine.prefixed('show')]() { return this.$data.__isOpen },
+        [Alpine.prefixed('on:mousedown.window')]($event) {
             if (! this.$data.__isOpen) return
             if (this.$data.__contains(this.$data.__buttonEl, $event.target)) return
             if (this.$data.__contains(this.$el, $event.target)) return
@@ -166,7 +166,7 @@ function handlePanel(el, Alpine) {
                 this.$data.__close()
             }
         },
-        '@keydown.tab'(e) {
+        [Alpine.prefixed('on:keydown.tab')](e) {
             if (e.shiftKey && this.$focus.isFirst(e.target)) {
                 e.preventDefault()
                 e.stopPropagation()
@@ -193,8 +193,8 @@ function handlePanel(el, Alpine) {
 
 function handleGroup(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': 'container',
-        'x-data'() {
+        [Alpine.prefixed('ref')]: 'container',
+        [Alpine.prefixed('data')]() {
             return {
                 __groupEl: this.$el,
             }
@@ -204,6 +204,6 @@ function handleGroup(el, Alpine) {
 
 function handleOverlay(el, Alpine) {
     Alpine.bind(el, {
-        'x-show'() { return this.$data.__isOpen }
+        [Alpine.prefixed('show')]() { return this.$data.__isOpen }
     })
 }

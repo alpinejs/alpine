@@ -34,8 +34,8 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-modelable': '__selectedIndex',
-        'x-data'() {
+        [Alpine.prefixed('modelable')]: '__selectedIndex',
+        [Alpine.prefixed('data')]() {
             return {
                 init() {
                     queueMicrotask(() => {
@@ -70,14 +70,14 @@ function handleRoot(el, Alpine) {
 
 function handleList(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() { this.$data.__tabGroupEl = this.$el }
+        [Alpine.prefixed('init')]() { this.$data.__tabGroupEl = this.$el }
     })
 }
 
 function handleTab(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button' },
-        'x-data'() { return {
+        [Alpine.prefixed('init')]() { if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button' },
+        [Alpine.prefixed('data')]() { return {
             init() {
                 this.__tabEl = this.$el
                 this.$data.__addTab(this.$el)
@@ -87,25 +87,25 @@ function handleTab(el, Alpine) {
             __tabEl: undefined,
             __isDisabled: false,
         }},
-        '@click'() {
+        [Alpine.prefixed('on:click')]() {
             if (this.$el.__disabled) return
 
             this.$data.__selectTab(this.$el)
 
             this.$el.focus()
         },
-        '@keydown.enter.prevent.stop'() { this.__selectTab(this.$el) },
-        '@keydown.space.prevent.stop'() { this.__selectTab(this.$el) },
-        '@keydown.home.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).first() },
-        '@keydown.page-up.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).first() },
-        '@keydown.end.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).last() },
-        '@keydown.page-down.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).last() },
-        '@keydown.down.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().next() },
-        '@keydown.right.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().next() },
-        '@keydown.up.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().prev() },
-        '@keydown.left.prevent.stop'() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().prev() },
-        ':tabindex'() { return this.$tab.isSelected ? 0 : -1 },
-        '@focus'() {
+        [Alpine.prefixed('on:keydown.enter.prevent.stop')]() { this.__selectTab(this.$el) },
+        [Alpine.prefixed('on:keydown.space.prevent.stop')]() { this.__selectTab(this.$el) },
+        [Alpine.prefixed('on:keydown.home.prevent.stop')]() { this.$focus.within(this.$data.__activeTabs()).first() },
+        [Alpine.prefixed('on:keydown.page-up.prevent.stop')]() { this.$focus.within(this.$data.__activeTabs()).first() },
+        [Alpine.prefixed('on:keydown.end.prevent.stop')]() { this.$focus.within(this.$data.__activeTabs()).last() },
+        [Alpine.prefixed('on:keydown.page-down.prevent.stop')]() { this.$focus.within(this.$data.__activeTabs()).last() },
+        [Alpine.prefixed('on:keydown.down.prevent.stop')]() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().next() },
+        [Alpine.prefixed('on:keydown.right.prevent.stop')]() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().next() },
+        [Alpine.prefixed('on:keydown.up.prevent.stop')]() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().prev() },
+        [Alpine.prefixed('on:keydown.left.prevent.stop')]() { this.$focus.within(this.$data.__activeTabs()).withWrapAround().prev() },
+        [Alpine.prefixed('bind:tabindex')]() { return this.$tab.isSelected ? 0 : -1 },
+        [Alpine.prefixed('on:focus')]() {
             if (this.$data.__manualActivation) {
                 this.$el.focus()
             } else {
@@ -127,15 +127,15 @@ function handlePanels(el, Alpine) {
 
 function handlePanel(el, Alpine) {
     Alpine.bind(el, {
-        ':tabindex'() { return this.$panel.isSelected ? 0 : -1 },
-        'x-data'() { return {
+        [Alpine.prefixed('bind:tabindex')]() { return this.$panel.isSelected ? 0 : -1 },
+        [Alpine.prefixed('data')]() { return {
             init() {
                 this.__panelEl = this.$el
                 this.$data.__addPanel(this.$el)
             },
             __panelEl: undefined,
         }},
-        'x-show'() { return this.$panel.isSelected },
+        [Alpine.prefixed('show')]() { return this.$panel.isSelected },
     })
 }
 

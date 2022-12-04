@@ -30,8 +30,8 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-modelable': '__value',
-        'x-data'() {
+        [Alpine.prefixed('modelable')]: '__value',
+        [Alpine.prefixed('data')]() {
             return {
                 init() {
                     queueMicrotask(() => {
@@ -123,7 +123,7 @@ function handleRoot(el, Alpine) {
                 },
             }
         },
-        'x-effect'() {
+        [Alpine.prefixed('effect')]() {
             let value = this.__value
 
             // Only render a hidden input if the "name" prop is passed...
@@ -149,19 +149,19 @@ function handleRoot(el, Alpine) {
             }
         },
         'role': 'radiogroup',
-        'x-id'() { return ['alpine-radio-label', 'alpine-radio-description'] },
-        ':aria-labelledby'() { return this.__hasLabel && this.$id('alpine-radio-label') },
-        ':aria-describedby'() { return this.__hasDescription && this.$id('alpine-radio-description') },
-        '@keydown.up.prevent.stop'() { this.__focusOptionPrev() },
-        '@keydown.left.prevent.stop'() { this.__focusOptionPrev() },
-        '@keydown.down.prevent.stop'() { this.__focusOptionNext() },
-        '@keydown.right.prevent.stop'() { this.__focusOptionNext() },
+        [Alpine.prefixed('id')]() { return ['alpine-radio-label', 'alpine-radio-description'] },
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.__hasLabel && this.$id('alpine-radio-label') },
+        [Alpine.prefixed('bind:aria-describedby')]() { return this.__hasDescription && this.$id('alpine-radio-description') },
+        [Alpine.prefixed('on:keydown.up.prevent.stop')]() { this.__focusOptionPrev() },
+        [Alpine.prefixed('on:keydown.left.prevent.stop')]() { this.__focusOptionPrev() },
+        [Alpine.prefixed('on:keydown.down.prevent.stop')]() { this.__focusOptionNext() },
+        [Alpine.prefixed('on:keydown.right.prevent.stop')]() { this.__focusOptionNext() },
     })
 }
 
 function handleOption(el, Alpine) {
     Alpine.bind(el, {
-        'x-data'() {
+        [Alpine.prefixed('data')]() {
             return {
                 init() {
                     queueMicrotask(() => {
@@ -176,45 +176,45 @@ function handleOption(el, Alpine) {
                 __hasDescription: false,
             }
         },
-        'x-id'() { return ['alpine-radio-label', 'alpine-radio-description'] },
+        [Alpine.prefixed('id')]() { return ['alpine-radio-label', 'alpine-radio-description'] },
         'role': 'radio',
-        ':aria-checked'() { return this.$radioOption.isChecked },
-        ':aria-disabled'() { return this.$radioOption.isDisabled },
-        ':aria-labelledby'() { return this.__hasLabel && this.$id('alpine-radio-label') },
-        ':aria-describedby'() { return this.__hasDescription && this.$id('alpine-radio-description') },
-        ':tabindex'()   {
+        [Alpine.prefixed('bind:aria-checked')]() { return this.$radioOption.isChecked },
+        [Alpine.prefixed('bind:aria-disabled')]() { return this.$radioOption.isDisabled },
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.__hasLabel && this.$id('alpine-radio-label') },
+        [Alpine.prefixed('bind:aria-describedby')]() { return this.__hasDescription && this.$id('alpine-radio-description') },
+        [Alpine.prefixed('bind:tabindex')]()   {
             if (this.$radioOption.isDisabled) return -1
             if (this.$radioOption.isChecked) return 0
             if (! this.$data.__value && this.$data.__isFirstOption(this.$data.__option)) return 0
 
             return -1
         },
-        '@click'() {
+        [Alpine.prefixed('on:click')]() {
             if (this.$radioOption.isDisabled) return
             this.$data.__change(this.$data.__option)
             this.$el.focus()
         },
-        '@focus'() {
+        [Alpine.prefixed('on:focus')]() {
             if (this.$radioOption.isDisabled) return
             this.$data.__setActive(this.$data.__option)
         },
-        '@blur'() {
+        [Alpine.prefixed('on:blur')]() {
             if (this.$data.__active === this.$data.__option) this.$data.__setActive(undefined)
         },
-        '@keydown.space.stop.prevent'() { this.$data.__change(this.$data.__option) },
+        [Alpine.prefixed('on:keydown.space.stop.prevent')]() { this.$data.__change(this.$data.__option) },
     })
 }
 
 function handleLabel(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() { this.$data.__hasLabel = true },
-        ':id'() { return this.$id('alpine-radio-label') },
+        [Alpine.prefixed('init')]() { this.$data.__hasLabel = true },
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-radio-label') },
     })
 }
 
 function handleDescription(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() { this.$data.__hasDescription = true },
-        ':id'() { return this.$id('alpine-radio-description') },
+        [Alpine.prefixed('init')]() { this.$data.__hasDescription = true },
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-radio-description') },
     })
 }

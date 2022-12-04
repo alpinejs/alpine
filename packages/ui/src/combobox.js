@@ -20,10 +20,10 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-id'() { return ['headlessui-combobox-button', 'headlessui-combobox-options', 'headlessui-combobox-label'] },
-        'x-list': '__value',
-        'x-modelable': '__value',
-        'x-data'() {
+        [Alpine.prefixed('id')]() { return ['headlessui-combobox-button', 'headlessui-combobox-options', 'headlessui-combobox-label'] },
+        [Alpine.prefixed('list')]: '__value',
+        [Alpine.prefixed('modelable')]: '__value',
+        [Alpine.prefixed('data')]() {
             return {
                 init() {
                     this.$nextTick(() => {
@@ -60,7 +60,7 @@ function handleRoot(el, Alpine) {
                 },
             }
         },
-        '@mousedown.window'(e) {
+        [Alpine.prefixed('on:mousedown.window')](e) {
             if (
                 !! ! this.$refs.__input.contains(e.target)
                 && ! this.$refs.__button.contains(e.target)
@@ -74,15 +74,15 @@ function handleRoot(el, Alpine) {
 
 function handleInput(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': '__input',
-        ':id'() { return this.$id('headlessui-combobox-input') },
+        [Alpine.prefixed('ref')]: '__input',
+        [Alpine.prefixed('bind:id')]() { return this.$id('headlessui-combobox-input') },
         'role': 'combobox',
         'tabindex': '0',
-        ':aria-controls'() { return this.$data.__optionsEl && this.$data.__optionsEl.id },
-        ':aria-expanded'() { return this.$data.__disabled ? undefined : this.$data.__isOpen },
-        ':aria-activedescendant'() { return this.$data.$list.activeEl ? this.$data.$list.activeEl.id : null },
-        ':aria-labelledby'() { return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null) },
-        'x-init'() {
+        [Alpine.prefixed('bind:aria-controls')]() { return this.$data.__optionsEl && this.$data.__optionsEl.id },
+        [Alpine.prefixed('bind:aria-expanded')]() { return this.$data.__disabled ? undefined : this.$data.__isOpen },
+        [Alpine.prefixed('bind:aria-activedescendant')]() { return this.$data.$list.activeEl ? this.$data.$list.activeEl.id : null },
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null) },
+        [Alpine.prefixed('init')]() {
             queueMicrotask(() => {
                 Alpine.effect(() => {
                     this.$data.__disabled = Alpine.bound(this.$el, 'disabled', false)
@@ -92,33 +92,33 @@ function handleInput(el, Alpine) {
                 if (displayValueFn) this.$data.__displayValue = displayValueFn
             })
         },
-        '@input.stop'() { this.$data.__open(); this.$dispatch('change') },
-        '@change.stop'() {},
-        '@keydown.enter.prevent.stop'() { this.$list.selectActive(); this.$data.__close() },
-        '@keydown'(e) { this.$list.handleKeyboardNavigation(e) },
-        '@keydown.down'(e) { if(! this.$data.__isOpen) this.$data.__open(); },
-        '@keydown.up'(e) { if(! this.$data.__isOpen) this.$data.__open(); },
-        '@keydown.escape.prevent'(e) {
+        [Alpine.prefixed('on:input.stop')]() { this.$data.__open(); this.$dispatch('change') },
+        [Alpine.prefixed('on:change.stop')]() {},
+        [Alpine.prefixed('on:keydown.enter.prevent.stop')]() { this.$list.selectActive(); this.$data.__close() },
+        [Alpine.prefixed('on:keydown')](e) { this.$list.handleKeyboardNavigation(e) },
+        [Alpine.prefixed('on:keydown.down')](e) { if(! this.$data.__isOpen) this.$data.__open(); },
+        [Alpine.prefixed('on:keydown.up')](e) { if(! this.$data.__isOpen) this.$data.__open(); },
+        [Alpine.prefixed('on:keydown.escape.prevent')](e) {
             if (! this.$data.__static) e.stopPropagation()
 
             this.$data.__close()
         },
-        '@keydown.tab'() { if (this.$data.__isOpen) { this.$list.selectActive(); this.$data.__close() }},
+        [Alpine.prefixed('on:keydown.tab')]() { if (this.$data.__isOpen) { this.$list.selectActive(); this.$data.__close() }},
     })
 }
 
 function handleButton(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': '__button',
-        ':id'() { return this.$id('headlessui-combobox-button') },
+        [Alpine.prefixed('ref')]: '__button',
+        [Alpine.prefixed('bind:id')]() { return this.$id('headlessui-combobox-button') },
         'aria-haspopup': 'true',
-        ':aria-labelledby'() { return this.$refs.__label ? [this.$refs.__label.id, this.$el.id].join(' ') : null },
-        ':aria-expanded'() { return this.$data.__disabled ? null : this.$data.__isOpen },
-        ':aria-controls'() { return this.$data.__optionsEl ? this.$data.__optionsEl.id : null },
-        ':disabled'() { return this.$data.__disabled },
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.$refs.__label ? [this.$refs.__label.id, this.$el.id].join(' ') : null },
+        [Alpine.prefixed('bind:aria-expanded')]() { return this.$data.__disabled ? null : this.$data.__isOpen },
+        [Alpine.prefixed('bind:aria-controls')]() { return this.$data.__optionsEl ? this.$data.__optionsEl.id : null },
+        [Alpine.prefixed('bind:disabled')]() { return this.$data.__disabled },
         'tabindex': '-1',
-        'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && ! this.$el.hasAttribute('type')) this.$el.type = 'button' },
-        '@click'(e) {
+        [Alpine.prefixed('init')]() { if (this.$el.tagName.toLowerCase() === 'button' && ! this.$el.hasAttribute('type')) this.$el.type = 'button' },
+        [Alpine.prefixed('on:click')](e) {
             if (this.$data.__disabled) return
             if (this.$data.__isOpen) {
                 this.$data.__close()
@@ -129,7 +129,7 @@ function handleButton(el, Alpine) {
 
             this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
         },
-        '@keydown.down.prevent.stop'() {
+        [Alpine.prefixed('on:keydown.down.prevent.stop')]() {
             if (! this.$data.__isOpen) {
                 this.$data.__open()
                 this.$list.activateSelectedOrFirst()
@@ -137,7 +137,7 @@ function handleButton(el, Alpine) {
 
             this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
         },
-        '@keydown.up.prevent.stop'() {
+        [Alpine.prefixed('on:keydown.up.prevent.stop')]() {
             if (! this.$data.__isOpen) {
                 this.$data.__open()
                 this.$list.activateSelectedOrLast()
@@ -145,7 +145,7 @@ function handleButton(el, Alpine) {
 
             this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
         },
-        '@keydown.escape.prevent'(e) {
+        [Alpine.prefixed('on:keydown.escape.prevent')](e) {
             if (! this.$data.__static) e.stopPropagation()
 
             this.$data.__close()
@@ -156,16 +156,16 @@ function handleButton(el, Alpine) {
 
 function handleLabel(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': '__label',
-        ':id'() { return this.$id('headlessui-combobox-label') },
-        '@click'() { this.$refs.__input.focus({ preventScroll: true }) },
+        [Alpine.prefixed('ref')]: '__label',
+        [Alpine.prefixed('bind:id')]() { return this.$id('headlessui-combobox-label') },
+        [Alpine.prefixed('on:click')]() { this.$refs.__input.focus({ preventScroll: true }) },
     })
 }
 
 function handleOptions(el, Alpine) {
     Alpine.bind(el, {
-        'x-ref': '__options',
-        'x-init'() {
+        [Alpine.prefixed('ref')]: '__options',
+        [Alpine.prefixed('init')]() {
             this.$data.__optionsEl = this.$el
 
             queueMicrotask(() => {
@@ -196,10 +196,10 @@ function handleOptions(el, Alpine) {
             })
         },
         'role': 'listbox',
-        ':id'() { return this.$id('headlessui-combobox-options') },
-        ':aria-labelledby'() { return this.$id('headlessui-combobox-button') },
-        ':aria-activedescendant'() { return this.$list.activeEl ? this.$list.activeEl.id : null },
-        'x-show'() { return this.$data.__isOpen },
+        [Alpine.prefixed('bind:id')]() { return this.$id('headlessui-combobox-options') },
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.$id('headlessui-combobox-button') },
+        [Alpine.prefixed('bind:aria-activedescendant')]() { return this.$list.activeEl ? this.$list.activeEl.id : null },
+        [Alpine.prefixed('show')]() { return this.$data.__isOpen },
     })
 }
 
@@ -208,34 +208,34 @@ function handleOption(el, Alpine, directive, evaluate) {
 
     Alpine.bind(el, {
         'role': 'option',
-        'x-item'() { return value },
-        ':id'() { return this.$id('headlessui-combobox-option') },
-        ':tabindex'() { return this.$item.disabled ? undefined : '-1' },
-        ':aria-selected'() { return this.$item.selected },
-        ':aria-disabled'() { return this.$item.disabled },
-        '@click'(e) {
+        [Alpine.prefixed('item')]() { return value },
+        [Alpine.prefixed('bind:id')]() { return this.$id('headlessui-combobox-option') },
+        [Alpine.prefixed('bind:tabindex')]() { return this.$item.disabled ? undefined : '-1' },
+        [Alpine.prefixed('bind:aria-selected')]() { return this.$item.selected },
+        [Alpine.prefixed('bind:aria-disabled')]() { return this.$item.disabled },
+        [Alpine.prefixed('on:click')](e) {
             if (this.$item.disabled) e.preventDefault()
             this.$item.select()
             this.$data.__close()
             this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
         },
-        '@focus'() {
+        [Alpine.prefixed('on:focus')]() {
             if (this.$item.disabled) return this.$list.deactivate()
             this.$item.activate()
         },
-        '@pointermove'() {
+        [Alpine.prefixed('on:pointermove')]() {
             if (this.$item.disabled || this.$item.active) return
             this.$item.activate()
         },
-        '@mousemove'() {
+        [Alpine.prefixed('on:mousemove')]() {
             if (this.$item.disabled || this.$item.active) return
             this.$item.activate()
         },
-        '@pointerleave'() {
+        [Alpine.prefixed('on:pointerleave')]() {
             if (this.$item.disabled || ! this.$item.active || this.$data.__hold) return
             this.$list.deactivate()
         },
-        '@mouseleave'() {
+        [Alpine.prefixed('on:mouseleave')]() {
             if (this.$item.disabled || ! this.$item.active || this.$data.__hold) return
             this.$list.deactivate()
         },

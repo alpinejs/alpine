@@ -28,7 +28,7 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-data'() {
+        [Alpine.prefixed('data')]() {
             return {
                 init() {
                     // If the user chose to use :open and @close instead of x-model.
@@ -54,13 +54,13 @@ function handleRoot(el, Alpine) {
                 },
             }
         },
-        'x-modelable': '__isOpenState',
-        'x-id'() { return ['alpine-dialog-title', 'alpine-dialog-description'] },
-        'x-show'() { return this.__isOpen },
-        'x-trap.inert.noscroll'() { return this.__isOpen },
-        '@keydown.escape'() { this.__close() },
-        ':aria-labelledby'() { return this.$id('alpine-dialog-title') },
-        ':aria-describedby'() { return this.$id('alpine-dialog-description') },
+        [Alpine.prefixed('modelable')]: '__isOpenState',
+        [Alpine.prefixed('id')]() { return ['alpine-dialog-title', 'alpine-dialog-description'] },
+        [Alpine.prefixed('show')]() { return this.__isOpen },
+        [Alpine.prefixed('trap.inert.noscroll')]() { return this.__isOpen },
+        [Alpine.prefixed('on:keydown.escape')]() { this.__close() },
+        [Alpine.prefixed('bind:aria-labelledby')]() { return this.$id('alpine-dialog-title') },
+        [Alpine.prefixed('bind:aria-describedby')]() { return this.$id('alpine-dialog-description') },
         'role': 'dialog',
         'aria-modal': 'true',
     })
@@ -68,29 +68,29 @@ function handleRoot(el, Alpine) {
 
 function handleOverlay(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() { if (this.$data.__isOpen === undefined) console.warn('"x-dialog:overlay" is missing a parent element with "x-dialog".') },
-        'x-show'() { return this.__isOpen },
-        '@click.prevent.stop'() { this.$data.__close() },
+        [Alpine.prefixed('init')]() { if (this.$data.__isOpen === undefined) console.warn('"x-dialog:overlay" is missing a parent element with "x-dialog".') },
+        [Alpine.prefixed('show')]() { return this.__isOpen },
+        [Alpine.prefixed('on:click.prevent.stop')]() { this.$data.__close() },
     })
 }
 
 function handlePanel(el, Alpine) {
     Alpine.bind(el, {
-        '@click.outside'() { this.$data.__close() },
-        'x-show'() { return this.$data.__isOpen },
+        [Alpine.prefixed('on:click.outside')]() { this.$data.__close() },
+        [Alpine.prefixed('show')]() { return this.$data.__isOpen },
     })
 }
 
 function handleTitle(el, Alpine) {
     Alpine.bind(el, {
-        'x-init'() { if (this.$data.__isOpen === undefined) console.warn('"x-dialog:title" is missing a parent element with "x-dialog".') },
-        ':id'() { return this.$id('alpine-dialog-title') },
+        [Alpine.prefixed('init')]() { if (this.$data.__isOpen === undefined) console.warn('"x-dialog:title" is missing a parent element with "x-dialog".') },
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-dialog-title') },
     })
 }
 
 function handleDescription(el, Alpine) {
     Alpine.bind(el, {
-        ':id'() { return this.$id('alpine-dialog-description') },
+        [Alpine.prefixed('bind:id')]() { return this.$id('alpine-dialog-description') },
     })
 }
 

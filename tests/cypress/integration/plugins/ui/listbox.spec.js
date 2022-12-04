@@ -865,4 +865,60 @@ test('"static" prop',
     },
 )
 
+test('works with a custom prefix',
+    [html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.prefix('data-x-')
+            })
+        </script>
+        <div
+            data-x-data="{ active: null, people: [
+                { id: 1, name: 'Wade Cooper' },
+                { id: 2, name: 'Arlene Mccoy' },
+                { id: 3, name: 'Devon Webb' },
+                { id: 4, name: 'Tom Cook' },
+                { id: 5, name: 'Tanya Fox', disabled: true },
+                { id: 6, name: 'Hellen Schmidt' },
+                { id: 7, name: 'Caroline Schultz' },
+                { id: 8, name: 'Mason Heaney' },
+                { id: 9, name: 'Claudie Smitham' },
+                { id: 10, name: 'Emil Schaefer' },
+            ]}"
+            data-x-listbox
+            data-x-model="active"
+        >
+            <label data-x-listbox:label>Assigned to</label>
+
+            <button data-x-listbox:button data-x-text="active ? active.name : 'Select Person'"></button>
+
+            <ul data-x-listbox:options>
+                <template data-x-for="person in people" :key="person.id">
+                    <li
+                        :option="person.id"
+                        data-x-listbox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                    >
+                        <span data-x-text="person.name"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('ul').should(notBeVisible())
+        get('button')
+            .should(haveText('Select Person'))
+            .click()
+        get('ul').should(beVisible())
+        get('button').click()
+        get('ul').should(notBeVisible())
+        get('button').click()
+        get('[option="2"]').click()
+        get('ul').should(notBeVisible())
+        get('button').should(haveText('Arlene Mccoy'))
+    },
+)
+
 // test "by" attribute

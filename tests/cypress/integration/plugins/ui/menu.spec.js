@@ -390,3 +390,51 @@ test('$menuItem.isDisabled',
         get('[href="#new-feature"]').should(haveClasses(['disabled']))
     },
 )
+
+test('works with a custom prefix',
+    [html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.prefix('data-x-')
+            })
+        </script>
+        <div data-x-data data-x-menu>
+            <span>
+                <button data-x-menu:button trigger>
+                    <span>Options</span>
+                </button>
+            </span>
+
+            <div data-x-menu:items items>
+                <div>
+                    <p>Signed in as</p>
+                    <p>tom@example.com</p>
+                </div>
+
+                <div>
+                    <a data-x-menu:item href="#account-settings">
+                        Account settings
+                    </a>
+                    <a data-x-menu:item href="#support">
+                        Support
+                    </a>
+                    <a data-x-menu:item disabled href="#new-feature">
+                        New feature (soon)
+                    </a>
+                    <a data-x-menu:item href="#license">
+                        License
+                    </a>
+                </div>
+                <div>
+                    <a data-x-menu:item href="#sign-out">
+                        Sign out
+                    </a>
+                </div>
+            </div>
+        </div>`],
+    ({ get }) => {
+        get('[items]').should(notBeVisible())
+        get('[trigger]').click()
+        get('[items]').should(beVisible())
+    },
+)

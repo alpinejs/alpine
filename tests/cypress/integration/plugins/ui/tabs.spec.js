@@ -223,3 +223,32 @@ test('can programmatically control the selected tab',
         get('[panel-2]').should(beVisible())
     },
 )
+
+
+test('works with a custom prefix',
+    [html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.prefix('data-x-')
+            })
+        </script>
+        <div data-x-data data-x-tabs>
+            <div data-x-tabs:list>
+                <button data-x-tabs:tab button-1>First</button>
+                <button data-x-tabs:tab button-2>Second</button>
+            </div>
+
+            <div data-x-tabs:panels>
+                <div data-x-tabs:panel panel-1>First Panel</div>
+                <div data-x-tabs:panel panel-2>Second Panel</div>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('[panel-1]').should(beVisible())
+        get('[panel-2]').should(notBeVisible())
+        get('[button-2]').click()
+        get('[panel-1]').should(notBeVisible())
+        get('[panel-2]').should(beVisible())
+    },
+)

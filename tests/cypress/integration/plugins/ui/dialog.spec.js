@@ -198,6 +198,31 @@ test('works with x-teleport',
     },
 )
 
+test('works with a custom prefix',
+    [html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.prefix('data-x-')
+            })
+        </script>
+        <div data-x-data="{ open: false }">
+            <button @click="open = ! open">Toggle</button>
+
+            <article data-x-dialog data-x-model="open">
+                Dialog Contents!
+            </article>
+        </div>
+    `],
+    ({ get }) => {
+        get('article').should(notBeVisible())
+        get('button').click()
+        get('article').should(beVisible())
+        get('button').click()
+        get('article').should(notBeVisible())
+    },
+)
+
+
 // Skipping these two tests as anything focus related seems to be flaky
 // with cypress, but fine in a real browser.
 // test('x-dialog traps focus'...

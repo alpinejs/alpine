@@ -100,3 +100,29 @@ test('it toggles using the space key',
         get('[panel]').should(beVisible())
     },
 )
+
+test('works with a custom prefix',
+    [html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.prefix('data-x-')
+            })
+        </script>
+        <div data-x-data data-x-disclosure>
+            <button trigger data-x-disclosure:button>Trigger</button>
+
+            <div data-x-disclosure:panel panel>
+                Content
+
+                <button close-button type="button" @click="$disclosure.close()">Close</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('[panel]').should(notBeVisible())
+        get('[trigger]').click()
+        get('[panel]').should(beVisible())
+        get('[trigger]').click()
+        get('[panel]').should(notBeVisible())
+    },
+)

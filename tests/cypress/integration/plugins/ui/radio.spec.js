@@ -511,3 +511,73 @@ test('name prop',
             .should(haveAttribute('type', 'hidden'))
     },
 )
+
+
+test('works with a custom prefix',
+    [html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.prefix('data-x-')
+            })
+        </script>
+        <main data-x-data="{ access: [
+            {
+                id: 'access-1',
+                name: 'Public access',
+                description: 'This project would be available to anyone who has the link',
+                disabled: false,
+            },
+            {
+                id: 'access-2',
+                name: 'Private to Project Members',
+                description: 'Only members of this project would be able to access',
+                disabled: false,
+            },
+            {
+                id: 'access-3',
+                name: 'Private to you',
+                description: 'You are the only one able to access this project',
+                disabled: true,
+            },
+            {
+                id: 'access-4',
+                name: 'Private to you',
+                description: 'You are the only one able to access this project',
+                disabled: false,
+            },
+        ]}">
+            <div data-x-radio group>
+                <template data-x-for="({ id, name, description, disabled }, i) in access" :key="id">
+                    <div
+                        :option="id"
+                        data-x-radio:option
+                        :value="id"
+                        :disabled="disabled"
+                        :class="{
+                            'active': $radioOption.isActive,
+                            'checked': $radioOption.isChecked,
+                            'disabled': $radioOption.isDisabled,
+                        }"
+                    >
+                        <span :label="id" data-x-radio:label data-x-text="name"></span>
+                        <span :description="id" data-x-radio:description data-x-text="description"></span>
+                    </div>
+                </template>
+            </div>
+        </main>
+    `],
+    ({ get }) => {
+        get('[option="access-1"]')
+            .should(notHaveClasses(['active', 'checked', 'disabled']))
+            .focus()
+            .should(haveClasses(['active']))
+            .should(notHaveClasses(['checked']))
+            .type(' ')
+            .should(haveClasses(['active', 'checked']))
+            .type('{downarrow}')
+        get('[option="access-2"]')
+            .should(haveClasses(['active', 'checked']))
+        get('[option="access-3"]')
+            .should(haveClasses(['disabled']))
+    },
+)

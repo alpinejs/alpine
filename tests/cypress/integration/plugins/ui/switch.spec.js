@@ -149,3 +149,26 @@ test('value defaults to "on"',
         get('input').should(notExist())
     },
 )
+
+test('works with a custom prefix',
+    [html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.prefix('data-x-')
+            })
+        </script>
+        <div data-x-data>
+            <div>
+                <button
+                    data-x-switch
+                    :class="$switch.isChecked ? 'checked' : 'not-checked'"
+                >Enable notifications</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('button').should(haveClasses(['not-checked']))
+        get('button').click()
+        get('button').should(haveClasses(['checked']))
+    },
+)

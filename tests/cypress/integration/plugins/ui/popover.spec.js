@@ -1,4 +1,4 @@
-import { beVisible, haveAttribute, html, notBeVisible, notHaveAttribute, test } from '../../../utils'
+import { beVisible, haveAttribute, html, notBeVisible, notHaveAttribute, haveFocus, test } from '../../../utils'
 
 test('button toggles panel',
     [html`
@@ -183,8 +183,33 @@ test('focusing away still closes panel inside a group if the focus attribute is 
         get('#1 button').click()
         get('#1 ul').should(beVisible())
         get('#2 ul').should(notBeVisible())
+        get('#1 ul a').should(haveFocus())
         cy.focused().tab()
         get('#1 ul').should(notBeVisible())
         get('#2 ul').should(notBeVisible())
+    },
+)
+
+test('works with a custom prefix',
+    [html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.prefix('data-x-')
+            })
+        </script>
+        <div data-x-data data-x-popover>
+            <button data-x-popover:button>Toggle</button>
+
+            <ul data-x-popover:panel>
+                Dialog Contents!
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('ul').should(notBeVisible())
+        get('button').click()
+        get('ul').should(beVisible())
+        get('button').click()
+        get('ul').should(notBeVisible())
     },
 )

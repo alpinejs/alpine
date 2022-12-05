@@ -1,4 +1,4 @@
-import { beHidden, beVisible, haveAttribute, html, test } from '../../utils'
+import { beHidden, beVisible, haveAttribute, notHaveAttribute, html, test } from '../../utils'
 
 test('x-show toggles display: none; with no other style attributes',
     html`
@@ -174,5 +174,23 @@ test('x-show toggles display: none; with the !important property when using the 
         get('button').click()
         get('span').should(beHidden())
         get('span').should(haveAttribute('style', 'color: blue; display: none !important;'))
+    }
+)
+
+test('x-show toggles visibility style attribute when using the .visibility modifier while respecting other style attributes',
+    html`
+        <div x-data="{ show: true }">
+            <span x-show.visibility="show" style="color: green;">thing</span>
+
+            <button x-on:click="show = !show"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(notHaveAttribute('style', 'visibility: hidden;'))
+        get('button').click()
+        get('span').should(haveAttribute('style', 'color: green; visibility: hidden;'))
+        get('button').click()
+        get('span').should(haveAttribute('style', 'color: green;'))
+        get('span').should(notHaveAttribute('style', 'visibility: hidden;'))
     }
 )

@@ -9,16 +9,27 @@ directive('show', (el, { modifiers, expression }, { effect }) => {
     // We're going to set this function on the element directly so that
     // other plugins like "Collapse" can overwrite them with their own logic.
     if (! el._x_doHide) el._x_doHide = () => {
-        mutateDom(() => {
-            el.style.setProperty('display', 'none', modifiers.includes('important') ? 'important' : undefined)
-        })
+        if(modifiers.includes('visibility')) {
+            mutateDom(() => {
+                el.style.setProperty('visibility', 'hidden', modifiers.includes('important') ? 'important' : undefined)
+            })
+        }
+        else {
+            mutateDom(() => {
+                el.style.setProperty('display', 'none', modifiers.includes('important') ? 'important' : undefined)
+            })
+        }
     }
 
     if (! el._x_doShow) el._x_doShow = () => {
         mutateDom(() => {
             if (el.style.length === 1 && el.style.display === 'none') {
                 el.removeAttribute('style')
-            } else {
+            }
+            else if(el.style.length > 0 && modifiers.includes('visibility') && el.style.visibility === 'hidden') {
+                el.style.removeProperty('visibility')
+            }
+            else {
                 el.style.removeProperty('display')
             }
         })

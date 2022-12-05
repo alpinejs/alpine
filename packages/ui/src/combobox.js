@@ -20,7 +20,7 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
-        'x-id'() { return ['headlessui-combobox-button', 'headlessui-combobox-options', 'headlessui-combobox-label'] },
+        'x-id'() { return ['alpine-combobox-button', 'alpine-combobox-options', 'alpine-combobox-label'] },
         'x-list': '__value',
         'x-modelable': '__value',
         'x-data'() {
@@ -75,7 +75,7 @@ function handleRoot(el, Alpine) {
 function handleInput(el, Alpine) {
     Alpine.bind(el, {
         'x-ref': '__input',
-        ':id'() { return this.$id('headlessui-combobox-input') },
+        ':id'() { return this.$id('alpine-combobox-input') },
         'role': 'combobox',
         'tabindex': '0',
         ':aria-controls'() { return this.$data.__optionsEl && this.$data.__optionsEl.id },
@@ -110,7 +110,7 @@ function handleInput(el, Alpine) {
 function handleButton(el, Alpine) {
     Alpine.bind(el, {
         'x-ref': '__button',
-        ':id'() { return this.$id('headlessui-combobox-button') },
+        ':id'() { return this.$id('alpine-combobox-button') },
         'aria-haspopup': 'true',
         ':aria-labelledby'() { return this.$refs.__label ? [this.$refs.__label.id, this.$el.id].join(' ') : null },
         ':aria-expanded'() { return this.$data.__disabled ? null : this.$data.__isOpen },
@@ -157,7 +157,7 @@ function handleButton(el, Alpine) {
 function handleLabel(el, Alpine) {
     Alpine.bind(el, {
         'x-ref': '__label',
-        ':id'() { return this.$id('headlessui-combobox-label') },
+        ':id'() { return this.$id('alpine-combobox-label') },
         '@click'() { this.$refs.__input.focus({ preventScroll: true }) },
     })
 }
@@ -196,8 +196,8 @@ function handleOptions(el, Alpine) {
             })
         },
         'role': 'listbox',
-        ':id'() { return this.$id('headlessui-combobox-options') },
-        ':aria-labelledby'() { return this.$id('headlessui-combobox-button') },
+        ':id'() { return this.$id('alpine-combobox-options') },
+        ':aria-labelledby'() { return this.$id('alpine-combobox-button') },
         ':aria-activedescendant'() { return this.$list.activeEl ? this.$list.activeEl.id : null },
         'x-show'() { return this.$data.__isOpen },
     })
@@ -209,7 +209,7 @@ function handleOption(el, Alpine, directive, evaluate) {
     Alpine.bind(el, {
         'role': 'option',
         'x-item'() { return value },
-        ':id'() { return this.$id('headlessui-combobox-option') },
+        ':id'() { return this.$id('alpine-combobox-option') },
         ':tabindex'() { return this.$item.disabled ? undefined : '-1' },
         ':aria-selected'() { return this.$item.selected },
         ':aria-disabled'() { return this.$item.disabled },

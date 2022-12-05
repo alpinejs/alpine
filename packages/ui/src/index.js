@@ -1,3 +1,4 @@
+import combobox from './combobox'
 import dialog from './dialog'
 import disclosure from './disclosure'
 import listbox from './listbox'
@@ -8,6 +9,7 @@ import radio from './radio'
 import tabs from './tabs'
 
 export default function (Alpine) {
+    combobox(Alpine)
     dialog(Alpine)
     disclosure(Alpine)
     listbox(Alpine)

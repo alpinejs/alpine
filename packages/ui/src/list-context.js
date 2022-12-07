@@ -17,6 +17,25 @@ export function generateContext(multiple, orientation) {
          *  Initialization...
          */
         initItem(el, value, disabled) {
+            // First, check if there is an existing value...
+            if (Object.values(this.values).includes(value)) {
+                let key = Object.keys(this.values).find(key => this.values[key] === value)
+
+                // Remove the old el association and replace it with this one...
+                delete this.elsByKey[key]
+                this.elsByKey[key] = el
+
+                // Refresh the searchable text...
+                this.searchableText[key] = el.textContent.trim().toLowerCase()
+
+                // Refresh disabled...
+                disabled && (! this.disabledKeys.includes(key)) && this.disabledKeys.push(key)
+
+                console.log('refreshed item')
+
+                return key
+            }
+
             let key = (Math.random() + 1).toString(36).substring(7)
 
             // Register value by key...

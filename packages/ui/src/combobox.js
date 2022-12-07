@@ -1,3 +1,4 @@
+import { generateContext } from "./list-context"
 
 export default function (Alpine) {
     Alpine.directive('combobox', (el, directive, { evaluate }) => {
@@ -9,55 +10,157 @@ export default function (Alpine) {
         else                                         handleRoot(el, Alpine)
     })
 
-    Alpine.magic('comboboxOption', el => {
-        let $data = Alpine.$data(el)
+    Alpine.magic('combobox', el => {
+        let data = Alpine.$data(el)
 
-        return $data.$item
+        if (! data.__ready) return {
+            isDisabled: false,
+            isOpen: false,
+            selected: null,
+            active: null,
+        }
+
+        return {
+            get isOpen() {
+                return data.__isOpen
+            },
+            get isDisabled() {
+                return data.__isDisabled
+            },
+            get selected() {
+                return data.__value
+            },
+            get active() {
+                return data.__context.active
+            },
+        }
     })
 
-    registerListStuff(Alpine)
+    Alpine.magic('comboboxOption', el => {
+        let data = Alpine.$data(el)
+
+        let stub = {
+            isDisabled: false,
+            isSelected: false,
+            isActive: true,
+        }
+
+        if (! data.__ready) return stub
+
+        let optionEl = Alpine.findClosest(el, i => i.__optionKey)
+
+        if (! optionEl) return stub
+
+        let context = data.__context
+
+        return {
+            get isActive() {
+                return context.isActiveEl(optionEl)
+            },
+            get isSelected() {
+                return context.isSelectedEl(optionEl)
+            },
+            get isDisabled() {
+                return context.isDisabledEl(optionEl)
+            },
+        }
+    })
 }
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
         'x-id'() { return ['alpine-combobox-button', 'alpine-combobox-options', 'alpine-combobox-label'] },
-        'x-list': '__value',
         'x-modelable': '__value',
         'x-data'() {
             return {
+                __ready: false,
+                __value: null,
+                __isOpen: false,
+                __context: undefined,
+                __isMultiple: undefined,
+                __isStatic: false,
+                __isDisabled: undefined,
+                __displayValue: undefined,
+                __compareBy: null,
+                __inputName: null,
+                __orientation: 'vertical',
                 init() {
-                    this.$nextTick(() => {
-                        this.syncInputValue()
+                    this.__isMultiple = Alpine.bound(el, 'multiple', false)
+                    this.__isDisabled = Alpine.bound(el, 'disabled', false)
+                    this.__inputName = Alpine.bound(el, 'name', null)
+                    this.__compareBy = Alpine.bound(el, 'by')
+                    this.__orientation = Alpine.bound(el, 'horizontal', false) ? 'horizontal' : 'vertical'
 
-                        Alpine.effect(() => this.syncInputValue())
+                    this.__context = generateContext(this.__isMultiple, this.__orientation)
+
+                    let defaultValue = Alpine.bound(el, 'default-value', null)
+
+                    this.__value = defaultValue
+
+                    // @todo: remove me...
+                    window._reorder = () => this.__context.reorderKeys()
+
+                    // We have to wait for the rest of the HTML to initialize in Alpine before
+                    // we mark this component as "ready".
+                    queueMicrotask(() => {
+                        this.__ready = true
+
+                        // We have to wait again until after the "ready" processes are finished
+                        // to settle up currently selected Values (this prevents this next bit
+                        // of code from running multiple times on startup...)
+                        queueMicrotask(() => {
+                            // This "fingerprint" acts as a checksum of the last-known "value"
+                            // passed into x-model. We need to track this so that we can determine
+                            // from the reactive effect if it was the value that changed externally
+                            // or an option was selected internally...
+                            let lastValueFingerprint = false
+
+                            Alpine.effect(() => {
+                                // Accessing selected keys, so a change in it always triggers this effect...
+                                this.__context.selectedKeys
+
+                                if (lastValueFingerprint === false || lastValueFingerprint !== JSON.stringify(this.__value)) {
+                                    // Here we know that the value changed externally and we can add the selection...
+                                    this.__context.selectValue(this.__value, this.__compareBy)
+                                } else {
+                                    // Here we know that an option was selected and we can change the value...
+                                    this.__value = this.__context.selectedValueOrValues()
+                                }
+
+
+                                // Generate the "value" checksum for comparison next time...
+                                lastValueFingerprint = JSON.stringify(this.__value)
+
+                                // Everytime the value changes, we need to re-render the hidden inputs,
+                                // if a user passed the "name" prop...
+                                this.__inputName && renderHiddenInputs(this.$el, this.__inputName, this.__value)
+                            })
+
+                            Alpine.effect(() => {
+                                if (this.__value) {
+                                    this.$refs.__input.value = this.$data.__displayValue(this.__value)
+                                }
+                            })
+                        })
                     })
                 },
-                __value: null,
-                __disabled: false,
-                __static: false,
-                __hold: false,
-                __displayValue: i => i,
-                __isOpen: false,
-                __optionsEl: null,
                 __open() {
-                    // @todo handle disabling the entire combobox.
                     if (this.__isOpen) return
                     this.__isOpen = true
 
-                    this.$list.activateSelectedOrFirst()
+                    this.__context.activateSelectedOrFirst()
+
+                    // Safari needs more of a "tick" for focusing after x-show for some reason.
+                    // Probably because Alpine adds an extra tick when x-showing for @click.outside
+                    let nextTick = callback => requestAnimationFrame(() => requestAnimationFrame(callback))
+
+                    nextTick(() => this.$refs.__options.focus({ preventScroll: true }))
                 },
                 __close() {
-                    this.syncInputValue()
-
-                    if (this.__static) return
-                    if (! this.__isOpen) return
-
                     this.__isOpen = false
-                    this.$list.active = null
-                },
-                syncInputValue() {
-                    if (this.$list.selected) this.$refs.__input.value = this.__displayValue(this.$list.selected)
-                },
+
+                    this.$nextTick(() => this.$refs.__button.focus({ preventScroll: true }))
+                }
             }
         },
         '@mousedown.window'(e) {
@@ -78,24 +181,31 @@ function handleInput(el, Alpine) {
         ':id'() { return this.$id('alpine-combobox-input') },
         'role': 'combobox',
         'tabindex': '0',
-        ':aria-controls'() { return this.$data.__optionsEl && this.$data.__optionsEl.id },
-        ':aria-expanded'() { return this.$data.__disabled ? undefined : this.$data.__isOpen },
-        ':aria-activedescendant'() { return this.$data.$list.activeEl ? this.$data.$list.activeEl.id : null },
-        ':aria-labelledby'() { return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null) },
+        // ':aria-controls'() { return this.$data.__optionsEl && this.$data.__optionsEl.id },
+        // ':aria-expanded'() { return this.$data.__disabled ? undefined : this.$data.__isOpen },
+        // ':aria-activedescendant'() { return this.$data.$list.activeEl ? this.$data.$list.activeEl.id : null },
+        // ':aria-labelledby'() { return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null) },
         'x-init'() {
             queueMicrotask(() => {
-                Alpine.effect(() => {
-                    this.$data.__disabled = Alpine.bound(this.$el, 'disabled', false)
-                })
+                // Alpine.effect(() => {
+                //     this.$data.__disabled = Alpine.bound(this.$el, 'disabled', false)
+                // })
 
                 let displayValueFn = Alpine.bound(this.$el, 'display-value')
                 if (displayValueFn) this.$data.__displayValue = displayValueFn
             })
         },
-        '@input.stop'() { this.$data.__open(); this.$dispatch('change') },
-        '@change.stop'() {},
-        '@keydown.enter.prevent.stop'() { this.$list.selectActive(); this.$data.__close() },
-        '@keydown'(e) { this.$list.handleKeyboardNavigation(e) },
+        '@input.stop'() {
+            this.$data.__open(); this.$dispatch('change')
+            setTimeout(() => this.$data.__context.reorderKeys())
+        },
+        '@change.stop'() {
+            setTimeout(() => this.$data.__context.reorderKeys())
+        },
+        '@keydown.enter.prevent.stop'() { this.$data.__context.selectActive(); this.$data.__close() },
+        '@keydown'(e) {
+            this.$data.__context.activateByKeyEvent(e)
+         },
         '@keydown.down'(e) { if(! this.$data.__isOpen) this.$data.__open(); },
         '@keydown.up'(e) { if(! this.$data.__isOpen) this.$data.__open(); },
         '@keydown.escape.prevent'(e) {
@@ -103,7 +213,7 @@ function handleInput(el, Alpine) {
 
             this.$data.__close()
         },
-        '@keydown.tab'() { if (this.$data.__isOpen) { this.$list.selectActive(); this.$data.__close() }},
+        '@keydown.tab'() { if (this.$data.__isOpen) { this.$data.__context.selectActive(); this.$data.__close() }},
     })
 }
 
@@ -112,9 +222,9 @@ function handleButton(el, Alpine) {
         'x-ref': '__button',
         ':id'() { return this.$id('alpine-combobox-button') },
         'aria-haspopup': 'true',
-        ':aria-labelledby'() { return this.$refs.__label ? [this.$refs.__label.id, this.$el.id].join(' ') : null },
-        ':aria-expanded'() { return this.$data.__disabled ? null : this.$data.__isOpen },
-        ':aria-controls'() { return this.$data.__optionsEl ? this.$data.__optionsEl.id : null },
+        // ':aria-labelledby'() { return this.$refs.__label ? [this.$refs.__label.id, this.$el.id].join(' ') : null },
+        // ':aria-expanded'() { return this.$data.__disabled ? null : this.$data.__isOpen },
+        // ':aria-controls'() { return this.$data.__optionsEl ? this.$data.__optionsEl.id : null },
         ':disabled'() { return this.$data.__disabled },
         'tabindex': '-1',
         'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && ! this.$el.hasAttribute('type')) this.$el.type = 'button' },
@@ -166,342 +276,63 @@ function handleOptions(el, Alpine) {
     Alpine.bind(el, {
         'x-ref': '__options',
         'x-init'() {
-            this.$data.__optionsEl = this.$el
+            this.$data.__isStatic = Alpine.bound(this.$el, 'static', false)
 
-            queueMicrotask(() => {
-                if (Alpine.bound(this.$el, 'static')) {
-                    this.$data.__open()
-                    this.$data.__static = true;
-                }
-
-                if (Alpine.bound(this.$el, 'hold')) {
-                    this.$data.__hold = true;
-                }
-            })
-
+            // if (Alpine.bound(this.$el, 'hold')) {
+            //     this.$data.__hold = true;
+            // }
             // Add `role="none"` to all non option elements.
-            this.$nextTick(() => {
-                let walker = document.createTreeWalker(
-                    this.$el,
-                    NodeFilter.SHOW_ELEMENT,
-                    { acceptNode: node => {
-                        if (node.getAttribute('role') === 'option') return NodeFilter.FILTER_REJECT
-                        if (node.hasAttribute('role')) return NodeFilter.FILTER_SKIP
-                        return NodeFilter.FILTER_ACCEPT
-                    }},
-                    false
-                )
-
-                while (walker.nextNode()) walker.currentNode.setAttribute('role', 'none')
-            })
+            // this.$nextTick(() => {
+            //     let walker = document.createTreeWalker(
+            //         this.$el,
+            //         NodeFilter.SHOW_ELEMENT,
+            //         { acceptNode: node => {
+            //             if (node.getAttribute('role') === 'option') return NodeFilter.FILTER_REJECT
+            //             if (node.hasAttribute('role')) return NodeFilter.FILTER_SKIP
+            //             return NodeFilter.FILTER_ACCEPT
+            //         }},
+            //         false
+            //     )
+            //
+            //     while (walker.nextNode()) walker.currentNode.setAttribute('role', 'none')
+            // })
         },
         'role': 'listbox',
         ':id'() { return this.$id('alpine-combobox-options') },
-        ':aria-labelledby'() { return this.$id('alpine-combobox-button') },
-        ':aria-activedescendant'() { return this.$list.activeEl ? this.$list.activeEl.id : null },
+        // ':aria-labelledby'() { return this.$id('alpine-combobox-button') },
+        // ':aria-activedescendant'() { return this.$list.activeEl ? this.$list.activeEl.id : null },
         'x-show'() { return this.$data.__isOpen },
     })
 }
 
-function handleOption(el, Alpine, directive, evaluate) {
-    let value = evaluate(directive.expression)
-
+function handleOption(el, Alpine) {
     Alpine.bind(el, {
         'role': 'option',
-        'x-item'() { return value },
+        'x-init'() {
+            el._x_optionReady = Alpine.reactive({ state: false })
+
+            queueMicrotask(() => {
+                el._x_optionReady.state = true
+
+                let value = Alpine.bound(el, 'value')
+                let disabled = Alpine.bound(el, 'disabled')
+
+                el.__optionKey = this.$data.__context.initItem(el, value, disabled)
+            })
+        },
         ':id'() { return this.$id('alpine-combobox-option') },
-        ':tabindex'() { return this.$item.disabled ? undefined : '-1' },
-        ':aria-selected'() { return this.$item.selected },
-        ':aria-disabled'() { return this.$item.disabled },
-        '@click'(e) {
-            if (this.$item.disabled) e.preventDefault()
-            this.$item.select()
-            this.$data.__close()
-            this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
+        // ':tabindex'() { return this.$item.disabled ? undefined : '-1' },
+        // ':aria-selected'() { return this.$item.selected },
+        // ':aria-disabled'() { return this.$item.disabled },
+        '@click'() {
+            if (this.$comboboxOption.isDisabled) return;
+            this.$data.__context.selectEl(el);
+            this.$data.__isMultiple || this.$data.__close()
         },
-        '@focus'() {
-            if (this.$item.disabled) return this.$list.deactivate()
-            this.$item.activate()
-        },
-        '@pointermove'() {
-            if (this.$item.disabled || this.$item.active) return
-            this.$item.activate()
-        },
-        '@mousemove'() {
-            if (this.$item.disabled || this.$item.active) return
-            this.$item.activate()
-        },
-        '@pointerleave'() {
-            if (this.$item.disabled || ! this.$item.active || this.$data.__hold) return
-            this.$list.deactivate()
-        },
-        '@mouseleave'() {
-            if (this.$item.disabled || ! this.$item.active || this.$data.__hold) return
-            this.$list.deactivate()
-        },
+        // @todo: this is a memory leak for _x_cleanups...
+        '@mouseenter'() { this.$data.__context.activateEl(el) },
+        '@mouseleave'() { this.$data.__context.deactivate() },
     })
-}
-
-function registerListStuff(Alpine) {
-    Alpine.directive('list', (el, { expression, modifiers }, { evaluateLater, effect }) => {
-        let wrap = modifiers.includes('wrap')
-        let getOuterValue = () => null
-        let setOuterValue = () => {}
-
-        if (expression) {
-            let func = evaluateLater(expression)
-            getOuterValue = () => { let result; func(i => result = i); return result; }
-            let evaluateOuterSet = evaluateLater(`${expression} = __placeholder`)
-            setOuterValue = val => evaluateOuterSet(() => {}, { scope: { '__placeholder': val }})
-        }
-
-        let listEl = el
-
-        el._x_listState = {
-            wrap,
-            reactive: Alpine.reactive({
-                active: null,
-                selected: null,
-            }),
-            get active() { return this.reactive.active },
-            get selected() { return this.reactive.selected },
-            get activeEl() {
-                this.reactive.active
-
-                let item = this.items.find(i => i.value === this.reactive.active)
-
-                return item && item.el
-            },
-            get selectedEl() {
-                let item = this.items.find(i => i.value === this.reactive.selected)
-
-                return item && item.el
-            },
-            set active(value) { this.setActive(value) },
-            set selected(value) { this.setSelected(value) },
-            setSelected(value) {
-                let item = this.items.find(i => i.value === value)
-
-                if (item && item.disabled) return
-
-                this.reactive.selected = value; setOuterValue(value)
-            },
-            setActive(value) {
-                let item = this.items.find(i => i.value === value)
-
-                if (item && item.disabled) return
-
-                this.reactive.active = value
-            },
-            deactivate() {
-                this.reactive.active = null
-            },
-            selectActive() {
-                this.selected = this.active
-            },
-            activateSelectedOrFirst() {
-                if (this.selected) this.active = this.selected
-                else this.first()?.activate()
-            },
-            activateSelectedOrLast() {
-                if (this.selected) this.active = this.selected
-                else this.last()?.activate()
-            },
-            items: [],
-            get filteredEls() { return this.items.filter(i => ! i.disabled).map(i => i.el) },
-            addItem(el, value, disabled = false) {
-                this.items.push({ el, value, disabled })
-                this.reorderList()
-            },
-            disableItem(el) {
-                this.items.find(i => i.el === el).disabled = true
-            },
-            removeItem(el) {
-                this.items = this.items.filter(i => i.el !== el)
-                this.reorderList()
-            },
-            reorderList() {
-                this.items = this.items.slice().sort((a, z) => {
-                    if (a === null || z === null) return 0
-
-                    let position = a.el.compareDocumentPosition(z.el)
-
-                    if (position & Node.DOCUMENT_POSITION_FOLLOWING) return -1
-                    if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1
-                    return 0
-                })
-            },
-            handleKeyboardNavigation(e) {
-                let item
-
-                switch (e.key) {
-                    case 'Tab':
-                    case 'Backspace':
-                    case 'Delete':
-                    case 'Meta':
-                        break;
-
-                        break;
-                    case ['ArrowDown', 'ArrowRight'][0]: // @todo handle orientation switching.
-                        e.preventDefault(); e.stopPropagation()
-                        item = this.active ? this.next() : this.first()
-                        break;
-
-                    case ['ArrowUp', 'ArrowLeft'][0]:
-                        e.preventDefault(); e.stopPropagation()
-                        item = this.active ? this.prev() : this.last()
-                        break;
-                    case 'Home':
-                    case 'PageUp':
-                        e.preventDefault(); e.stopPropagation()
-                        item = this.first()
-                        break;
-
-                    case 'End':
-                    case 'PageDown':
-                        e.preventDefault(); e.stopPropagation()
-                        item = this.last()
-                        break;
-
-                    default:
-                        if (e.key.length === 1) {
-                            // item = this.search(e.key)
-                        }
-                        break;
-                }
-
-                item && item.activate(({ el }) => {
-                    setTimeout(() => el.scrollIntoView({ block: 'nearest' }))
-                })
-            },
-            // Todo: the debounce doesn't work.
-            searchQuery: '',
-            clearSearch: Alpine.debounce(function () { this.searchQuery = '' }, 350),
-            search(key) {
-                this.searchQuery += key
-
-                let el = this.filteredEls.find(el => {
-                    return el.textContent.trim().toLowerCase().startsWith(this.searchQuery)
-                })
-
-                let obj = el ? generateItemObject(listEl, el) : null
-
-                this.clearSearch()
-
-                return obj
-            },
-            first() {
-                let el = this.filteredEls[0]
-
-                return el && generateItemObject(listEl, el)
-            },
-            last() {
-                let el = this.filteredEls[this.filteredEls.length-1]
-
-                return el && generateItemObject(listEl, el)
-            },
-            next() {
-                let current = this.activeEl || this.filteredEls[0]
-                let index = this.filteredEls.indexOf(current)
-
-                let el = this.wrap
-                    ? this.filteredEls[index + 1] || this.filteredEls[0]
-                    : this.filteredEls[index + 1] || this.filteredEls[index]
-
-                return el && generateItemObject(listEl, el)
-            },
-            prev() {
-                let current = this.activeEl || this.filteredEls[0]
-                let index = this.filteredEls.indexOf(current)
-
-                let el = this.wrap
-                    ? (index - 1 < 0 ? this.filteredEls[this.filteredEls.length-1] : this.filteredEls[index - 1])
-                    : (index - 1 < 0 ? this.filteredEls[0] : this.filteredEls[index - 1])
-
-                return el && generateItemObject(listEl, el)
-            },
-        }
-
-        effect(() => {
-            el._x_listState.setSelected(getOuterValue())
-        })
-    })
-
-    Alpine.magic('list', (el) => {
-        let listEl = Alpine.findClosest(el, el => el._x_listState)
-
-        return listEl._x_listState
-    })
-
-    Alpine.directive('item', (el, { expression }, { effect, evaluate, cleanup }) => {
-        let value
-        el._x_listItem = true
-
-        if (expression) value = evaluate(expression)
-
-        let listEl = Alpine.findClosest(el, el => el._x_listState)
-
-        console.log(value)
-        listEl._x_listState.addItem(el, value)
-
-        queueMicrotask(() => {
-            Alpine.bound(el, 'disabled') && listEl._x_listState.disableItem(el)
-        })
-
-        cleanup(() => {
-            listEl._x_listState.removeItem(el)
-            delete el._x_listItem
-        })
-    })
-
-    Alpine.magic('item', el => {
-        let listEl = Alpine.findClosest(el, el => el._x_listState)
-        let itemEl = Alpine.findClosest(el, el => el._x_listItem)
-
-        if (! listEl) throw 'Cant find x-list element'
-        if (! itemEl) throw 'Cant find x-item element'
-
-        return generateItemObject(listEl, itemEl)
-    })
-
-    function generateItemObject(listEl, el) {
-        let state = listEl._x_listState
-        let item = listEl._x_listState.items.find(i => i.el === el)
-
-        return {
-            activate(callback = () => {}) {
-                state.setActive(item.value)
-
-                callback(item)
-            },
-            deactivate() {
-                if (Alpine.raw(state.active) === Alpine.raw(item.value)) state.setActive(null)
-            },
-            select(callback = () => {}) {
-                state.setSelected(item.value)
-
-                callback(item)
-            },
-            isFirst() {
-                return state.items.findIndex(i => i.el.isSameNode(el)) === 0
-            },
-            get active() {
-                if (state.reactive.active) return state.reactive.active === item.value
-
-                return null
-            },
-            get selected() {
-                if (state.reactive.selected) return state.reactive.selected === item.value
-
-                return null
-            },
-            get disabled() {
-                return item.disabled
-            },
-            get el() { return item.el },
-            get value() { return item.value },
-        }
-    }
 }
 
 /* <div x-data="{

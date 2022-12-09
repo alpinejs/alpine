@@ -45,6 +45,7 @@ export function normalEvaluator(el, expression) {
 
     let evaluator = generateEvaluatorFromString(dataStack, expression, el)
 
+    return evaluator
     return tryCatch.bind(null, el, expression, evaluator)
 }
 

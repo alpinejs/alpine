@@ -16,30 +16,8 @@ export function generateContext(multiple, orientation) {
         /**
          *  Initialization...
          */
-        initItem(el, value, disabled) {
-            // First, check if there is an existing value...
-            if (Object.values(this.values).includes(value)) {
-                let key = Object.keys(this.values).find(key => this.values[key] === value)
-
-                // Remove the old el association and replace it with this one...
-                delete this.elsByKey[key]
-                this.elsByKey[key] = el
-
-                // Refresh the searchable text...
-                this.searchableText[key] = el.textContent.trim().toLowerCase()
-
-                // Refresh disabled...
-                disabled && (! this.disabledKeys.includes(key)) && this.disabledKeys.push(key)
-
-                console.log('refreshed item')
-
-                return key
-            }
-
+        createItem(el) {
             let key = (Math.random() + 1).toString(36).substring(7)
-
-            // Register value by key...
-            this.values[key] = value
 
             // Associate key with element...
             this.elsByKey[key] = el
@@ -47,23 +25,39 @@ export function generateContext(multiple, orientation) {
             // Register key for ordering...
             this.orderedKeys.push(key)
 
+            return key
+        },
+
+        updateItem(key, value, disabled) {
+            // Register value by key...
+            this.values[key] = value
+
+            let el = this.elsByKey[key]
+
             // Register key for searching...
             this.searchableText[key] = el.textContent.trim().toLowerCase()
 
             // Store whether disabled or not...
             disabled && this.disabledKeys.push(key)
-
-            return key
         },
 
         destroyItem(el) {
             let key = keyByValue(this.elsByKey, el)
 
-            delete this.values[key]
+            // This line makes sense to free stored values from
+            // memory, however, in a combobox, if the options change
+            // we want to preserve selected values that may not be present
+            // in the most current list. If this becomes a problem, we will
+            // need to find a way to free values from memory while preserving
+            // selected values:
+            // delete this.values[key]
+
             delete this.elsByKey[key]
             delete this.orderedKeys[this.orderedKeys.indexOf(key)]
             delete this.searchableText[key]
             delete this.disabledKeys[key]
+
+            this.deactivateKey(key)
 
             this.reorderKeys()
         },
@@ -195,7 +189,6 @@ export function generateContext(multiple, orientation) {
             }
 
             if (multiple) {
-                // debugger
                 let keys = []
 
                 value.forEach(i => {
@@ -241,6 +234,7 @@ export function generateContext(multiple, orientation) {
         },
 
         toggleSelected(key) {
+            console.log(key)
             if (this.selectedKeys.includes(key)) {
                 this.selectedKeys.splice(this.selectedKeys.indexOf(key), 1)
             } else {
@@ -266,7 +260,7 @@ export function generateContext(multiple, orientation) {
                 }
 
                 if (! keys.includes(this.selectedKeys[i])) {
-                    delete this.selectedKeys[i]
+                    this.selectedKeys.splice(i, 1)
                 }
             }
 
@@ -313,6 +307,10 @@ export function generateContext(multiple, orientation) {
             if (this.isDisabled(key)) return
 
             this.activeKey = key
+        },
+
+        deactivateKey(key) {
+            if (this.activeKey === key) this.activeKey = null
         },
 
         deactivate() {
@@ -371,11 +369,10 @@ export function generateContext(multiple, orientation) {
         },
 
         activateByKeyEvent(e) {
-            this.reorderKeys()
+            // if (e.key === 'ArrowDown') debugger
 
-            let hasActive = this.hasActive()
 
-            let targetKey
+            let targetKey, hasActive
 
             switch (e.key) {
                 case 'Tab':
@@ -387,22 +384,26 @@ export function generateContext(multiple, orientation) {
                     break;
                 case ['ArrowDown', 'ArrowRight'][orientation === 'vertical' ? 0 : 1]:
                     e.preventDefault(); e.stopPropagation()
+                    this.reorderKeys(); hasActive = this.hasActive()
                     targetKey = hasActive ? this.nextKey() : this.firstKey()
                     break;
 
                 case ['ArrowUp', 'ArrowLeft'][orientation === 'vertical' ? 0 : 1]:
                     e.preventDefault(); e.stopPropagation()
+                    this.reorderKeys(); hasActive = this.hasActive()
                     targetKey = hasActive ? this.prevKey() : this.lastKey()
                     break;
                 case 'Home':
                 case 'PageUp':
                     e.preventDefault(); e.stopPropagation()
+                    this.reorderKeys(); hasActive = this.hasActive()
                     targetKey = this.firstKey()
                     break;
 
                 case 'End':
                 case 'PageDown':
                     e.preventDefault(); e.stopPropagation()
+                    this.reorderKeys(); hasActive = this.hasActive()
                     targetKey = this.lastKey()
                     break;
 

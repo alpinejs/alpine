@@ -1,51 +1,257 @@
 <html>
-    <!-- <script src="./packages/intersect/dist/cdn.js" defer></script>
-    <script src="./packages/morph/dist/cdn.js" defer></script>
-    <script src="./packages/history/dist/cdn.js"></script>
-    <script src="./packages/persist/dist/cdn.js"></script>
-    <script src="./packages/focus/dist/cdn.js"></script>
-    <script src="./packages/mask/dist/cdn.js"></script>
-    <script src="./packages/ui/dist/cdn.js" defer></script> -->
-    <script src="./packages/alpinejs/dist/cdn.js" defer></script>
-    <!-- <script src="//cdn.tailwindcss.com"></script> -->
-    <script src="//cdn.tailwindcss.com"></script>
+<script src="./packages/intersect/dist/cdn.js" defer></script>
+<script src="./packages/morph/dist/cdn.js" defer></script>
+<script src="./packages/history/dist/cdn.js"></script>
+<script src="./packages/persist/dist/cdn.js"></script>
+<script src="./packages/focus/dist/cdn.js"></script>
+<script src="./packages/mask/dist/cdn.js"></script>
+<script src="./packages/ui/dist/cdn.js" defer></script>
+<script src="./packages/alpinejs/dist/cdn.js" defer></script>
+<script src="//cdn.tailwindcss.com"></script>
 
-    <div x-data="{ users: [{ name: 'lebowski' }] }">
-        <template x-for="(user, idx) in users">
-            <span x-text="users[idx].name" x-yo></span>
-        </template>
+<!-- <div
+            x-data="{
+                selected: null,
+                query: '',
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query.value === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                }
+            }"
+            x-combobox
+            x-model="selected"
+        >
+            <span x-text="$combobox.active && $combobox.active.name"></span>
+            <label x-combobox:label>Assigned to</label>
 
-        <button @click="users = []">Reset</button>
+            <div>
+                <div>
+                </div>
+                <input x-combobox:input @change="query = $event.target.value" :display-value="() => person => person.name" type="text">
+                <button x-combobox:button x-text="selected ? selected.name : 'Select Person'">Select Person</button>
+            </div>
+
+            <ul x-combobox:options>
+                <template x-for="person in filteredPeople" :key="person.id">
+                    <li
+                        x-combobox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                        :class="$comboboxOption.isActive && 'foo'"
+                    >
+                        <span x-show="$comboboxOption.isSelected">-</span>
+                        <span x-text="person.name"></span>
+                        <span x-show="$comboboxOption.isActive">*</span>
+                    </li>
+                </template>
+            </ul>
+        </div> -->
+
+<!-- Multiple -->
+<!-- <div
+            x-data="{
+                selected: [],
+                query: '',
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query.value === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                }
+            }"
+            x-combobox
+            multiple
+            by="id"
+            x-model="selected"
+        >
+            <span x-text="$combobox.active && $combobox.active.name"></span>
+            <label x-combobox:label>Assigned to</label>
+
+            <div>
+                <div x-effect="selected.forEach(i => console.log(JSON.stringify(i)))">
+                    <template x-for="selectedPerson in selected" :key="selectedPerson.id">
+                        <button x-text="selectedPerson.name" @click="selected = selected.filter(i => i.id !== selectedPerson.id)"></button>
+                    </template>
+                </div>
+                <input x-combobox:input @change="query = $event.target.value" type="text">
+                <button x-combobox:button x-text="selected.length ? selected.map(i => i.name).join(', ') : 'Selected Person'">Select Person</button>
+            </div>
+
+            <ul x-combobox:options>
+                <template x-for="person in filteredPeople" :key="person.id">
+                    <li
+                        x-combobox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                        :class="$comboboxOption.isActive && 'foo'"
+                    >
+                        <span x-show="$comboboxOption.isSelected">-</span>
+                        <span x-text="person.name"></span>
+                        <span x-show="$comboboxOption.isActive">*</span>
+                    </li>
+                </template>
+            </ul>
+        </div> -->
+
+<div
+    x-data="{
+        query: '',
+        people: [
+            { id: 1, name: 'Wade Cooper' },
+            { id: 2, name: 'Arlene Mccoy' },
+            { id: 3, name: 'Devon Webb' },
+            { id: 4, name: 'Tom Cook' },
+            { id: 5, name: 'Tanya Fox' },
+            { id: 6, name: 'Hellen Schmidt' },
+            { id: 7, name: 'Caroline Schultz' },
+            { id: 8, name: 'Mason Heaney' },
+            { id: 9, name: 'Claudie Smitham' },
+            { id: 10, name: 'Emil Schaefer' },
+        ],
+        activePersons: [],
+        onSubmit(e) {
+            e.preventDefault()
+            console.log([...new FormData(e.currentTarget).entries()])
+        },
+        removePerson(person) {
+            this.activePersons = this.activePersons.filter((p) => p !== person)
+        }
+    }"
+    class="flex h-full w-screen justify-center space-x-4 bg-gray-50 p-12"
+>
+    <div class="w-full max-w-4xl">
+        <div class="space-y-1">
+            <form @submit="onSubmit">
+                <div x-combobox x-model="activePersons" name="people" multiple>
+                    <label x-combobox:label class="block text-sm font-medium leading-5 text-gray-700">
+                        Assigned to
+                    </label>
+
+                    <div class="relative">
+                        <span class="inline-block w-full rounded-md shadow-sm">
+                            <div class="relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pl-2 pr-10 text-left transition duration-150 ease-in-out focus-within:border-blue-700 focus-within:outline-none focus-within:ring-1 focus-within:ring-blue-700 sm:text-sm sm:leading-5">
+                                <span class="block flex flex-wrap gap-2">
+                                    <span x-show="activePersons.length === 0" class="p-0.5">Empty</span>
+                                    <template x-for="person in activePersons" :key="person.id">
+                                        <span class="flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5">
+                                            <span x-text="person.name"></span>
+                                            <svg class="h-4 w-4 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" @click.stop.prevent="removePerson(person)">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </span>
+                                    </template>
+                                    <input x-combobox:input @change="query = $event.target.value" @focus="query = ''" class="border-none p-0 focus:ring-0" placeholder="Search..." />
+                                </span>
+                                <button x-combobox:button class="absolute inset-y-0 right-0 flex items-center pr-2">
+                                    <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                                        <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </span>
+
+                        <div class="absolute mt-1 w-full rounded-md bg-white shadow-lg">
+                            <div x-combobox:options class="shadow-xs max-h-60 overflow-auto rounded-md py-1 text-base leading-6 focus:outline-none sm:text-sm sm:leading-5">
+                                <template
+                                    x-for="person in people.filter((person) =>
+                                        person.name.toLowerCase().includes(query.toLowerCase())
+                                    )"
+                                    :key="person.id"
+                                >
+                                    <div x-combobox:option :value="person">
+                                        <li class="relative cursor-default select-none py-2 pl-3 pr-9 focus:outline-none" :class="$comboboxOption.isActive ? 'bg-indigo-600 text-white' : 'text-gray-900'">
+                                            <span x-text="person.name" class="block truncate" :class="{ 'font-semibold': $comboboxOption.isSelected, 'font-normal': !$comboboxOption.isSelected }">
+                                            </span>
+                                            <span x-show="$comboboxOption.isSelected" class="absolute inset-y-0 right-0 flex items-center pr-4" :class="{ 'text-white': $comboboxOption.isActive, 'text-indigo-600': !$comboboxOption.isActive }">
+                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                </svg>
+                                            </span>
+                                        </li>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="mt-2 inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    Submit
+                </button>
+            </form>
+        </div>
     </div>
+</div>
 
-    <!-- Play around here... -->
+<!-- <div x-data="{ active: true }">
+            <button @click="active = ! active">switch active</button>
+            <div
+                x-foo
+                :doo="active"
+                :class="$foo.isActive ? 'active' : 'not active'"
+            >
+                <div x-text="$foo.isActive ? 'active' : 'not active'"></div>
+            </div>
+        </div> -->
 
-    <div x-data>
-        <div id="thing" x-yo>i do not belong here...</div>
+<script>
 
-        <br>
-        <br>
-        <br>
-        <br>
+            // document.addEventListener('alpine:init', () => {
+            //     let directive = el => {
+            //         el.__isActive = Alpine.reactive({ state: false })
 
-        <button @click="document.getElementById('thing').remove()">remove</button>
-    </div>
+            //         Alpine.effect(() => {
+            //             el.__isActive.state = Alpine.bound(el, 'doo');
+            //         })
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.directive('yo', (el, {}, { cleanup }) => {
-                cleanup(() => {
-                    console.log('removed')
-                })
-            })
-        })
-    </script>
+            //         el.__isOption.ready = true
+            //     }
 
-    <div x-data="{ users: [{ name: 'lebowski' }] }">
-        <template x-for="(user, idx) in users">
-            <span x-text="users[idx].name" x-yo></span>
-        </template>
+            //     directive.inline = el => {
+            //         el.__isOption = Alpine.reactive({ ready: false })
+            //     }
 
-        <button @click="users = []">Reset</button>
-    </div>
+            //     Alpine.directive('foo', directive)
+
+            //     Alpine.magic('foo', el => {
+            //         if (el.__isOption && ! el.__isOption.ready) {
+            //             return { isActive: true }
+            //         }
+
+            //         let optionEl = Alpine.findClosest(el, el => el.__isOption)
+
+            //         return {
+            //             isActive: optionEl.__isActive.state,
+            //         }
+            //     })
+            // })
+</script>
+
 </html>

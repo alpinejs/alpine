@@ -1,4 +1,4 @@
-import { generateContext } from "./list-context"
+import { generateContext, renderHiddenInputs } from './list-context'
 
 export default function (Alpine) {
     Alpine.directive('combobox', (el, directive, { evaluate }) => {
@@ -12,13 +12,6 @@ export default function (Alpine) {
 
     Alpine.magic('combobox', el => {
         let data = Alpine.$data(el)
-
-        if (! data.__ready) return {
-            isDisabled: false,
-            isOpen: false,
-            selected: null,
-            active: null,
-        }
 
         return {
             get isOpen() {
@@ -39,17 +32,9 @@ export default function (Alpine) {
     Alpine.magic('comboboxOption', el => {
         let data = Alpine.$data(el)
 
-        let stub = {
-            isDisabled: false,
-            isSelected: false,
-            isActive: true,
-        }
-
-        if (! data.__ready) return stub
-
         let optionEl = Alpine.findClosest(el, i => i.__optionKey)
 
-        if (! optionEl) return stub
+        if (! optionEl) throw 'No x-combobox:option directive found...'
 
         let context = data.__context
 
@@ -97,52 +82,49 @@ function handleRoot(el, Alpine) {
 
                     this.__value = defaultValue
 
-                    // @todo: remove me...
-                    window._reorder = () => this.__context.reorderKeys()
-
-                    // We have to wait for the rest of the HTML to initialize in Alpine before
-                    // we mark this component as "ready".
+                    // We have to wait again until after the "ready" processes are finished
+                    // to settle up currently selected Values (this prevents this next bit
+                    // of code from running multiple times on startup...)
                     queueMicrotask(() => {
-                        this.__ready = true
+                        // This "fingerprint" acts as a checksum of the last-known "value"
+                        // passed into x-model. We need to track this so that we can determine
+                        // from the reactive effect if it was the value that changed externally
+                        // or an option was selected internally...
+                        let lastValueFingerprint = false
 
-                        // We have to wait again until after the "ready" processes are finished
-                        // to settle up currently selected Values (this prevents this next bit
-                        // of code from running multiple times on startup...)
-                        queueMicrotask(() => {
-                            // This "fingerprint" acts as a checksum of the last-known "value"
-                            // passed into x-model. We need to track this so that we can determine
-                            // from the reactive effect if it was the value that changed externally
-                            // or an option was selected internally...
-                            let lastValueFingerprint = false
+                        Alpine.effect(() => {
+                            // Accessing selected keys, so a change in it always triggers this effect...
+                            this.__context.selectedKeys
 
-                            Alpine.effect(() => {
-                                // Accessing selected keys, so a change in it always triggers this effect...
-                                this.__context.selectedKeys
+                            if (lastValueFingerprint === false || lastValueFingerprint !== JSON.stringify(this.__value)) {
+                                // Here we know that the value changed externally and we can add the selection...
+                                this.__context.selectValue(this.__value, this.__compareBy)
+                            } else {
+                                // Here we know that an option was selected and we can change the value...
+                                this.__value = this.__context.selectedValueOrValues()
+                            }
 
-                                if (lastValueFingerprint === false || lastValueFingerprint !== JSON.stringify(this.__value)) {
-                                    // Here we know that the value changed externally and we can add the selection...
-                                    this.__context.selectValue(this.__value, this.__compareBy)
-                                } else {
-                                    // Here we know that an option was selected and we can change the value...
-                                    this.__value = this.__context.selectedValueOrValues()
-                                }
+                            // Generate the "value" checksum for comparison next time...
+                            lastValueFingerprint = JSON.stringify(this.__value)
 
+                            // Everytime the value changes, we need to re-render the hidden inputs,
+                            // if a user passed the "name" prop...
+                            this.__inputName && renderHiddenInputs(this.$el, this.__inputName, this.__value)
+                        })
 
-                                // Generate the "value" checksum for comparison next time...
-                                lastValueFingerprint = JSON.stringify(this.__value)
-
-                                // Everytime the value changes, we need to re-render the hidden inputs,
-                                // if a user passed the "name" prop...
-                                this.__inputName && renderHiddenInputs(this.$el, this.__inputName, this.__value)
-                            })
-
-                            Alpine.effect(() => {
-                                if (this.__value) {
-                                    this.$refs.__input.value = this.$data.__displayValue(this.__value)
-                                }
-                            })
+                        Alpine.effect(() => {
+                            if (this.__value) {
+                                let input = this.$refs.__input
+                                if (input) input.value = this.$data.__getCurrentValue()
+                            }
                         })
                     })
+                },
+                __getCurrentValue() {
+                    if (! this.$refs.__input) return ''
+                    if (this.$data.__displayValue) return this.$data.__displayValue(this.__value)
+                    if (typeof this.__value === 'string') return this.__value
+                    return ''
                 },
                 __open() {
                     if (this.__isOpen) return
@@ -154,12 +136,13 @@ function handleRoot(el, Alpine) {
                     // Probably because Alpine adds an extra tick when x-showing for @click.outside
                     let nextTick = callback => requestAnimationFrame(() => requestAnimationFrame(callback))
 
-                    nextTick(() => this.$refs.__options.focus({ preventScroll: true }))
+                    nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
                 },
                 __close() {
                     this.__isOpen = false
 
-                    this.$nextTick(() => this.$refs.__button.focus({ preventScroll: true }))
+                    // I think this shouldn't be here...
+                    // this.$nextTick(() => this.$refs.__button.focus({ preventScroll: true }))
                 }
             }
         },
@@ -197,14 +180,17 @@ function handleInput(el, Alpine) {
         },
         '@input.stop'() {
             this.$data.__open(); this.$dispatch('change')
-            setTimeout(() => this.$data.__context.reorderKeys())
+            // setTimeout(() => this.$data.__context.reorderKeys())
         },
-        '@change.stop'() {
-            setTimeout(() => this.$data.__context.reorderKeys())
+        // '@change.stop'() {
+            // setTimeout(() => this.$data.__context.reorderKeys())
+        // },
+        '@keydown.enter.prevent.stop'() {
+            this.$data.__context.selectActive();
+            this.$data.__isMultiple || this.$data.__close()
         },
-        '@keydown.enter.prevent.stop'() { this.$data.__context.selectActive(); this.$data.__close() },
         '@keydown'(e) {
-            this.$data.__context.activateByKeyEvent(e)
+            queueMicrotask(() => this.$data.__context.activateByKeyEvent(e))
          },
         '@keydown.down'(e) { if(! this.$data.__isOpen) this.$data.__open(); },
         '@keydown.up'(e) { if(! this.$data.__isOpen) this.$data.__open(); },
@@ -311,13 +297,18 @@ function handleOption(el, Alpine) {
         'x-init'() {
             el._x_optionReady = Alpine.reactive({ state: false })
 
-            queueMicrotask(() => {
-                el._x_optionReady.state = true
+            el.__optionKey = this.$data.__context.createItem(el)
 
+            queueMicrotask(() => {
                 let value = Alpine.bound(el, 'value')
                 let disabled = Alpine.bound(el, 'disabled')
 
-                el.__optionKey = this.$data.__context.initItem(el, value, disabled)
+                this.$data.__context.updateItem(el.__optionKey, value, disabled)
+
+                // @todo: make sure this is what you want...
+                el._x_forCleanup = () => {
+                    this.$data.__context.destroyItem(el)
+                }
             })
         },
         ':id'() { return this.$id('alpine-combobox-option') },
@@ -328,6 +319,7 @@ function handleOption(el, Alpine) {
             if (this.$comboboxOption.isDisabled) return;
             this.$data.__context.selectEl(el);
             this.$data.__isMultiple || this.$data.__close()
+            this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
         },
         // @todo: this is a memory leak for _x_cleanups...
         '@mouseenter'() { this.$data.__context.activateEl(el) },

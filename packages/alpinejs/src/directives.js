@@ -217,6 +217,7 @@ let directiveOrder = [
     'listbox',
     'combobox',
     'bind',
+    'foo',
     'init',
     'for',
     'mask',

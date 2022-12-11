@@ -6,7 +6,7 @@ export default function (Alpine) {
         else if (directive.value === 'button')      handleButton(el, Alpine)
         else if (directive.value === 'panel')       handlePanel(el, Alpine)
         else if (directive.value === 'group')       handleGroup(el, Alpine)
-    })
+    }).before('bind')
 
     Alpine.magic('popover', el => {
         let $data = Alpine.$data(el)

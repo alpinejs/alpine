@@ -7,7 +7,7 @@ export default function (Alpine) {
         else if (directive.value === 'button') handleButton(el, Alpine)
         else if (directive.value === 'options') handleOptions(el, Alpine)
         else if (directive.value === 'option') handleOption(el, Alpine)
-    })
+    }).before('bind')
 
     Alpine.magic('listbox', (el) => {
         let data = Alpine.$data(el)

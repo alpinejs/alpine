@@ -1,10 +1,11 @@
-import Alpine from "../../alpinejs/src/alpine"
 
-export function generateContext(multiple, orientation) {
+export function generateContext(multiple, orientation, activateSelectedOrFirst) {
     return {
         /**
          * Main state...
          */
+        items: [],
+
         searchableText: {},
         disabledKeys: [],
         activeKey: null,
@@ -16,70 +17,75 @@ export function generateContext(multiple, orientation) {
         /**
          *  Initialization...
          */
-        createItem(el) {
-            let key = (Math.random() + 1).toString(36).substring(7)
+        activateSelectedOrFirst: Alpine.debounce(function () {
+            activateSelectedOrFirst(false)
+        }),
 
-            // Associate key with element...
-            this.elsByKey[key] = el
+        registerItem(key, el, value, disabled) {
+            this.items.push({
+                key, el, value, disabled
+            })
 
-            // Register key for ordering...
             this.orderedKeys.push(key)
 
-            return key
-        },
-
-        updateItem(key, value, disabled) {
-            // Register value by key...
-            this.values[key] = value
-
-            let el = this.elsByKey[key]
-
-            // Register key for searching...
             this.searchableText[key] = el.textContent.trim().toLowerCase()
 
-            // Store whether disabled or not...
-            disabled && this.disabledKeys.push(key)
+            this.reorderKeys()
+            this.activateSelectedOrFirst()
         },
 
-        destroyItem(el) {
-            let key = keyByValue(this.elsByKey, el)
+        unregisterItem(key) {
+            let i = this.items.findIndex((i) => i.key === key)
+            if (i !== -1) this.items.splice(i, 1)
 
-            // This line makes sense to free stored values from
-            // memory, however, in a combobox, if the options change
-            // we want to preserve selected values that may not be present
-            // in the most current list. If this becomes a problem, we will
-            // need to find a way to free values from memory while preserving
-            // selected values:
-            // delete this.values[key]
+            i = this.orderedKeys.indexOf(key)
+            if (i !== -1) this.orderedKeys.splice(i, 1)
 
-            delete this.elsByKey[key]
-            delete this.orderedKeys[this.orderedKeys.indexOf(key)]
             delete this.searchableText[key]
-            delete this.disabledKeys[key]
-
-            this.deactivateKey(key)
 
             this.reorderKeys()
+            this.activateSelectedOrFirst()
+        },
+
+        getItemByKey(key) {
+            return this.items.find(i => i.key === key)
+        },
+
+        getItemByValue(value) {
+            return this.items.find(i => Alpine.raw(i.value) === Alpine.raw(value))
+        },
+
+        getItemByEl(el) {
+            return this.items.find(i => i.el === el)
+        },
+
+        getActiveItem() {
+            if (! this.hasActive()) return null
+
+            let item = this.items.find(i => i.key === this.activeKey)
+
+            if (! item) return this.activeKey = null
+
+            return item
+        },
+
+        activateItem(item) {
+            if (! item) return
+
+            this.activeKey = item.key
         },
 
         /**
          * Handle elements...
          */
-         reorderKeys() {
-            // Filter out elements removed from the dom...
-            this.orderedKeys.forEach((key) => {
-                let el = this.elsByKey[key]
-
-                if (el.isConnected) return
-
-                this.destroyItem(el)
-            })
+         reorderKeys: Alpine.debounce(function () {
+            this.orderedKeys = this.items.map(i => i.key)
 
             this.orderedKeys = this.orderedKeys.slice().sort((a, z) => {
                 if (a === null || z === null) return 0
 
-                let aEl = this.elsByKey[a]
-                let zEl = this.elsByKey[z]
+                let aEl = this.items.find(i => i.key === a).el
+                let zEl = this.items.find(i => i.key === z).el
 
                 let position = aEl.compareDocumentPosition(zEl)
 
@@ -87,52 +93,32 @@ export function generateContext(multiple, orientation) {
                 if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1
                 return 0
             })
-        },
+
+            // If there no longer is the active key in the items list, then
+            // deactivate it...
+            if (! this.orderedKeys.includes(this.activeKey)) this.activeKey = null
+        }),
 
         activeEl() {
             if (! this.activeKey) return
 
-            return this.elsByKey[this.activeKey]
+            return this.items.find(i => i.key === this.activeKey).el
         },
 
         isActiveEl(el) {
-            let key = keyByValue(this.elsByKey, el)
-
-            if (! key) return
+            let key = this.items.find(i => i.el === el)
 
             return this.activeKey === key
         },
 
         activateEl(el) {
-            let key = keyByValue(this.elsByKey, el)
+            let item = this.items.find(i => i.el === el)
 
-            if (! key) return
-
-            this.activateKey(key)
-        },
-
-        selectEl(el) {
-            let key = keyByValue(this.elsByKey, el)
-
-            if (! key) return
-
-            this.selectKey(key)
-        },
-
-        isSelectedEl(el) {
-            let key = keyByValue(this.elsByKey, el)
-
-            if (! key) return
-
-            return this.isSelected(key)
+            this.activateKey(item.key)
         },
 
         isDisabledEl(el) {
-            let key = keyByValue(this.elsByKey, el)
-
-            if (! key) return
-
-            return this.isDisabled(key)
+            return this.items.find(i => i.el === el).disabled
         },
 
         get isScrollingTo() { return this.scrollingCount > 0 },
@@ -140,6 +126,8 @@ export function generateContext(multiple, orientation) {
         scrollingCount: 0,
 
         activateAndScrollToKey(key) {
+            if (! this.getItemByKey(key)) return
+
             // This addresses the following problem:
             // If deactivate is hooked up to mouseleave,
             // scrolling to an element will trigger deactivation.
@@ -148,7 +136,7 @@ export function generateContext(multiple, orientation) {
 
             this.activateKey(key)
 
-            let targetEl = this.elsByKey[key]
+            let targetEl = this.items.find(i => i.key === key).el
 
             targetEl.scrollIntoView({ block: 'nearest' })
 
@@ -163,58 +151,64 @@ export function generateContext(multiple, orientation) {
         /**
          * Handle values...
          */
-        selectedValueOrValues() {
-            if (multiple) {
-                return this.selectedValues()
-            } else {
-                return this.selectedValue()
-            }
-        },
+        // selectedValueOrValues() {
+        //     if (multiple) {
+        //         return this.selectedValues()
+        //     } else {
+        //         return this.selectedValue()
+        //     }
+        // },
 
-        selectedValues() {
-            return this.selectedKeys.map(i => this.values[i])
-        },
+        // selectedValues() {
+        //     return this.selectedKeys.map(i => this.values[i])
+        // },
 
-        selectedValue() {
-            return this.selectedKeys[0] ? this.values[this.selectedKeys[0]] : null
-        },
+        // selectedValue() {
+        //     return this.selectedKeys[0] ? this.values[this.selectedKeys[0]] : null
+        // },
 
-        selectValue(value, by) {
-            if (!value) value = (multiple ? [] : null)
-            if (! by) by = (a, b) => a === b
+        // selectValue(value, by) {
+        //     if (!value) value = (multiple ? [] : null)
+        //     if (! by) by = (a, b) => a === b
 
-            if (typeof by === 'string') {
-                let property = by
-                by = (a, b) => a[property] === b[property]
-            }
+        //     if (typeof by === 'string') {
+        //         let property = by
+        //         by = (a, b) => a[property] === b[property]
+        //     }
 
-            if (multiple) {
-                let keys = []
+        //     if (multiple) {
+        //         let keys = []
 
-                value.forEach(i => {
-                    for (let key in this.values) {
-                        if (by(this.values[key], i)) {
-                            if (! keys.includes(key)) {
-                                keys.push(key)
-                            }
-                        }
-                    }
-                })
+        //         value.forEach(i => {
+        //             for (let key in this.values) {
+        //                 if (by(this.values[key], i)) {
+        //                     if (! keys.includes(key)) {
+        //                         keys.push(key)
+        //                     }
+        //                 }
+        //             }
+        //         })
 
-                this.selectExclusive(keys)
-            } else {
-                for (let key in this.values) {
-                    if (value && by(this.values[key], value)) {
-                        this.selectKey(key)
-                    }
-                }
-            }
-        },
+        //         this.selectExclusive(keys)
+        //     } else {
+        //         for (let key in this.values) {
+        //             if (value && by(this.values[key], value)) {
+        //                 this.selectKey(key)
+        //             }
+        //         }
+        //     }
+        // },
 
         /**
          * Handle disabled keys...
          */
-        isDisabled(key) { return this.disabledKeys.includes(key) },
+        isDisabled(key) {
+            let item = this.items.find(i => i.key === key)
+
+            if (! item) return false
+
+            return item.disabled
+        },
 
         get nonDisabledOrderedKeys() {
             return this.orderedKeys.filter(i => ! this.isDisabled(i))
@@ -223,62 +217,62 @@ export function generateContext(multiple, orientation) {
         /**
          * Handle selected keys...
          */
-        selectKey(key) {
-            if (this.isDisabled(key)) return
+        // selectKey(key) {
+        //     if (this.isDisabled(key)) return
 
-            if (multiple) {
-                this.toggleSelected(key)
-            } else {
-                this.selectOnly(key)
-            }
-        },
+        //     if (multiple) {
+        //         this.toggleSelected(key)
+        //     } else {
+        //         this.selectOnly(key)
+        //     }
+        // },
 
-        toggleSelected(key) {
-            console.log(key)
-            if (this.selectedKeys.includes(key)) {
-                this.selectedKeys.splice(this.selectedKeys.indexOf(key), 1)
-            } else {
-                this.selectedKeys.push(key)
-            }
-        },
+        // toggleSelected(key) {
+        //     console.log(key)
+        //     if (this.selectedKeys.includes(key)) {
+        //         this.selectedKeys.splice(this.selectedKeys.indexOf(key), 1)
+        //     } else {
+        //         this.selectedKeys.push(key)
+        //     }
+        // },
 
-        selectOnly(key) {
-            this.selectedKeys = []
-            this.selectedKeys.push(key)
-        },
+        // selectOnly(key) {
+        //     this.selectedKeys = []
+        //     this.selectedKeys.push(key)
+        // },
 
-        selectExclusive(keys) {
-            // We can't just do this.selectedKeys = keys,
-            // because we need to preserve reactivity...
+        // selectExclusive(keys) {
+        //     // We can't just do this.selectedKeys = keys,
+        //     // because we need to preserve reactivity...
 
-            let toAdd = [...keys]
+        //     let toAdd = [...keys]
 
-            for (let i = 0; i < this.selectedKeys.length; i++) {
-                if (keys.includes(this.selectedKeys[i])) {
-                    delete toAdd[toAdd.indexOf(this.selectedKeys[i])]
-                    continue;
-                }
+        //     for (let i = 0; i < this.selectedKeys.length; i++) {
+        //         if (keys.includes(this.selectedKeys[i])) {
+        //             delete toAdd[toAdd.indexOf(this.selectedKeys[i])]
+        //             continue;
+        //         }
 
-                if (! keys.includes(this.selectedKeys[i])) {
-                    this.selectedKeys.splice(i, 1)
-                }
-            }
+        //         if (! keys.includes(this.selectedKeys[i])) {
+        //             this.selectedKeys.splice(i, 1)
+        //         }
+        //     }
 
-            toAdd.forEach(i => {
-                this.selectedKeys.push(i)
-            })
-        },
+        //     toAdd.forEach(i => {
+        //         this.selectedKeys.push(i)
+        //     })
+        // },
 
-        selectActive(key) {
-            if (! this.activeKey) return
+        // selectActive(key) {
+        //     if (! this.activeKey) return
 
-            this.selectKey(this.activeKey)
-        },
+        //     this.selectKey(this.activeKey)
+        // },
 
-        isSelected(key) { return this.selectedKeys.includes(key) },
+        // isSelected(key) { return this.selectedKeys.includes(key) },
 
 
-        firstSelectedKey() { return this.selectedKeys[0] },
+        // firstSelectedKey() { return this.selectedKeys[0] },
 
         /**
          * Handle activated keys...
@@ -287,21 +281,20 @@ export function generateContext(multiple, orientation) {
 
         isActiveKey(key) { return this.activeKey === key },
 
-        get active() { return this.hasActive() && this.values[this.activeKey] },
 
-        activateSelectedOrFirst() {
-            let firstSelected = this.firstSelectedKey()
+        // activateSelectedOrFirst() {
+        //     let firstSelected = this.firstSelectedKey()
 
-            if (firstSelected) {
-                return this.activateKey(firstSelected)
-            }
+        //     if (firstSelected) {
+        //         return this.activateKey(firstSelected)
+        //     }
 
-            let firstKey = this.firstKey()
+        //     let firstKey = this.firstKey()
 
-            if (firstKey) {
-                this.activateKey(firstKey)
-            }
-        },
+        //     if (firstKey) {
+        //         this.activateKey(firstKey)
+        //     }
+        // },
 
         activateKey(key) {
             if (this.isDisabled(key)) return
@@ -368,34 +361,47 @@ export function generateContext(multiple, orientation) {
             return foundKey
         },
 
-        activateByKeyEvent(e) {
-            // if (e.key === 'ArrowDown') debugger
-
-
+        activateByKeyEvent(e, isOpen = () => false, open = () => {}, setIsTyping) {
             let targetKey, hasActive
 
-            switch (e.key) {
-                case 'Tab':
-                case 'Backspace':
-                case 'Delete':
-                case 'Meta':
-                    break;
+            setIsTyping(true)
 
-                    break;
+            switch (e.key) {
+                // case 'Backspace':
+                // case 'Delete':
                 case ['ArrowDown', 'ArrowRight'][orientation === 'vertical' ? 0 : 1]:
                     e.preventDefault(); e.stopPropagation()
+
+                    setIsTyping(false)
+
+                    if (! isOpen()) {
+                        open()
+                        break;
+                    }
+
                     this.reorderKeys(); hasActive = this.hasActive()
+
                     targetKey = hasActive ? this.nextKey() : this.firstKey()
                     break;
 
                 case ['ArrowUp', 'ArrowLeft'][orientation === 'vertical' ? 0 : 1]:
                     e.preventDefault(); e.stopPropagation()
+
+                    setIsTyping(false)
+
+                    if (! isOpen()) {
+                        open()
+                        break;
+                    }
+
                     this.reorderKeys(); hasActive = this.hasActive()
+
                     targetKey = hasActive ? this.prevKey() : this.lastKey()
                     break;
                 case 'Home':
                 case 'PageUp':
                     e.preventDefault(); e.stopPropagation()
+                    setIsTyping(false)
                     this.reorderKeys(); hasActive = this.hasActive()
                     targetKey = this.firstKey()
                     break;
@@ -403,6 +409,7 @@ export function generateContext(multiple, orientation) {
                 case 'End':
                 case 'PageDown':
                     e.preventDefault(); e.stopPropagation()
+                    setIsTyping(false)
                     this.reorderKeys(); hasActive = this.hasActive()
                     targetKey = this.lastKey()
                     break;

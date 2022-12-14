@@ -1,3 +1,4 @@
+import { dontAutoEvaluateFunctions, evaluate } from '../evaluator'
 import { reactive } from '../reactivity'
 import { setClasses } from './classes'
 import { setStyles } from './styles'
@@ -132,6 +133,27 @@ export function getBinding(el, name, fallback) {
     // First let's get it out of Alpine bound data.
     if (el._x_bindings && el._x_bindings[name] !== undefined) return el._x_bindings[name]
 
+    return getAttributeBinding(el, name, fallback)
+}
+
+export function extractProp(el, name, fallback, extract = true) {
+    // First let's get it out of Alpine bound data.
+    if (el._x_bindings && el._x_bindings[name] !== undefined) return el._x_bindings[name]
+
+    if (el._x_inlineBindings && el._x_inlineBindings[name] !== undefined) {
+        let binding = el._x_inlineBindings[name]
+
+        binding.extract = extract
+
+        return dontAutoEvaluateFunctions(() => {
+            return evaluate(el, binding.expression)
+        })
+    }
+
+    return getAttributeBinding(el, name, fallback)
+}
+
+function getAttributeBinding(el, name, fallback) {
     // If not, we'll return the literal attribute.
     let attr = el.getAttribute(name)
 

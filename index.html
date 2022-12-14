@@ -8,8 +8,42 @@
 <script src="./packages/ui/dist/cdn.js" defer></script>
 <script src="./packages/alpinejs/dist/cdn.js" defer></script>
 <script src="//cdn.tailwindcss.com"></script>
+<div
+            x-data="{ active: null, people: [
+                { id: 1, name: 'Wade Cooper' },
+                { id: 2, name: 'Arlene Mccoy' },
+                { id: 3, name: 'Devon Webb' },
+                { id: 4, name: 'Tom Cook' },
+                { id: 5, name: 'Tanya Fox', disabled: true },
+                { id: 6, name: 'Hellen Schmidt' },
+                { id: 7, name: 'Caroline Schultz' },
+                { id: 8, name: 'Mason Heaney' },
+                { id: 9, name: 'Claudie Smitham' },
+                { id: 10, name: 'Emil Schaefer' },
+            ]}"
+            x-combobox
+            x-model="active"
+        >
+            <label x-combobox:label>Assigned to</label>
 
-<!-- <div
+            <input x-combobox:input :display-value="person => person.name" x-text="active ? active.name : 'Select Person'" type="text">
+            <button x-combobox:button x-text="active ? active.name : 'Select Person'"></button>
+
+            <ul x-combobox:options>
+                <template x-for="person in people" :key="person.id">
+                    <li
+                        :option="person.id"
+                        x-combobox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                    >
+                        <span x-text="person.name"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+
+<div
             x-data="{
                 selected: null,
                 query: '',
@@ -35,14 +69,13 @@
             }"
             x-combobox
             x-model="selected"
+            nullable
         >
             <span x-text="$combobox.active && $combobox.active.name"></span>
             <label x-combobox:label>Assigned to</label>
 
             <div>
-                <div>
-                </div>
-                <input x-combobox:input @change="query = $event.target.value" :display-value="() => person => person.name" type="text">
+                <input x-combobox:input @change="query = $event.target.value" :display-value="() => person => person ? person.name : ''" type="text">
                 <button x-combobox:button x-text="selected ? selected.name : 'Select Person'">Select Person</button>
             </div>
 
@@ -53,17 +86,17 @@
                         :value="person"
                         :disabled="person.disabled"
                         :class="$comboboxOption.isActive && 'foo'"
-                    >
+                        >
                         <span x-show="$comboboxOption.isSelected">-</span>
                         <span x-text="person.name"></span>
                         <span x-show="$comboboxOption.isActive">*</span>
                     </li>
                 </template>
             </ul>
-        </div> -->
+        </div>
 
 <!-- Multiple -->
-<!-- <div
+<div
             x-data="{
                 selected: [],
                 query: '',
@@ -101,7 +134,7 @@
                         <button x-text="selectedPerson.name" @click="selected = selected.filter(i => i.id !== selectedPerson.id)"></button>
                     </template>
                 </div>
-                <input x-combobox:input @change="query = $event.target.value" type="text">
+                <input x-combobox:input @change="query = $event.target.value" :display-value="() => person => person.map(i => i.name).join(', ')" type="text">
                 <button x-combobox:button x-text="selected.length ? selected.map(i => i.name).join(', ') : 'Selected Person'">Select Person</button>
             </div>
 
@@ -119,7 +152,7 @@
                     </li>
                 </template>
             </ul>
-        </div> -->
+        </div>
 
 <div
     x-data="{
@@ -137,6 +170,13 @@
             { id: 10, name: 'Emil Schaefer' },
         ],
         activePersons: [],
+        get queryPerson() {
+            if (! this.query) return null
+
+            return {
+                id: 11, name: this.query,
+            }
+        },
         onSubmit(e) {
             e.preventDefault()
             console.log([...new FormData(e.currentTarget).entries()])
@@ -179,26 +219,36 @@
                         </span>
 
                         <div class="absolute mt-1 w-full rounded-md bg-white shadow-lg">
-                            <div x-combobox:options class="shadow-xs max-h-60 overflow-auto rounded-md py-1 text-base leading-6 focus:outline-none sm:text-sm sm:leading-5">
+                            <ul x-combobox:options hold class="shadow-xs max-h-60 overflow-auto rounded-md py-1 text-base leading-6 focus:outline-none sm:text-sm sm:leading-5">
                                 <template
                                     x-for="person in people.filter((person) =>
                                         person.name.toLowerCase().includes(query.toLowerCase())
                                     )"
                                     :key="person.id"
                                 >
-                                    <div x-combobox:option :value="person">
-                                        <li class="relative cursor-default select-none py-2 pl-3 pr-9 focus:outline-none" :class="$comboboxOption.isActive ? 'bg-indigo-600 text-white' : 'text-gray-900'">
-                                            <span x-text="person.name" class="block truncate" :class="{ 'font-semibold': $comboboxOption.isSelected, 'font-normal': !$comboboxOption.isSelected }">
-                                            </span>
-                                            <span x-show="$comboboxOption.isSelected" class="absolute inset-y-0 right-0 flex items-center pr-4" :class="{ 'text-white': $comboboxOption.isActive, 'text-indigo-600': !$comboboxOption.isActive }">
-                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                </svg>
-                                            </span>
-                                        </li>
-                                    </div>
+                                    <li x-combobox:option :value="person" class="relative cursor-default select-none py-2 pl-3 pr-9 focus:outline-none" :class="$comboboxOption.isActive ? 'bg-indigo-600 text-white' : 'text-gray-900'">
+                                        <span x-text="person.name" class="block truncate" :class="{ 'font-semibold': $comboboxOption.isSelected, 'font-normal': !$comboboxOption.isSelected }">
+                                        </span>
+                                        <span x-show="$comboboxOption.isSelected" class="absolute inset-y-0 right-0 flex items-center pr-4" :class="{ 'text-white': $comboboxOption.isActive, 'text-indigo-600': !$comboboxOption.isActive }">
+                                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </li>
                                 </template>
-                            </div>
+
+                                <template x-if="queryPerson">
+                                    <li x-combobox:option :value="queryPerson" class="relative cursor-default select-none py-2 pl-3 pr-9 focus:outline-none" :class="$comboboxOption.isActive ? 'bg-indigo-600 text-white' : 'text-gray-900'">
+                                        <span x-text="'Create ' + queryPerson.name" class="block truncate" :class="{ 'font-semibold': $comboboxOption.isSelected, 'font-normal': !$comboboxOption.isSelected }">
+                                        </span>
+                                        <span x-show="$comboboxOption.isSelected" class="absolute inset-y-0 right-0 flex items-center pr-4" :class="{ 'text-white': $comboboxOption.isActive, 'text-indigo-600': !$comboboxOption.isActive }">
+                                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </li>
+                                </template>
+                            </ul>
                         </div>
                     </div>
                 </div>

@@ -26,10 +26,10 @@ test.only('it works with x-model',
             <ul x-combobox:options>
                 <template x-for="person in people" :key="person.id">
                     <li
-                        :option="person.id"
                         x-combobox:option
-                        :value="person.id"
+                        :value="person"
                         :disabled="person.disabled"
+                        :option="person.id"
                     >
                         <span x-text="person.name"></span>
                     </li>
@@ -47,8 +47,8 @@ test.only('it works with x-model',
         get('ul').should(notBeVisible())
         get('button').click()
         get('[option="2"]').click()
-        // get('ul').should(notBeVisible())
-        // get('button').should(haveText('Arlene Mccoy'))
+        get('ul').should(notBeVisible())
+        get('button').should(haveText('Arlene Mccoy'))
     },
 )
 

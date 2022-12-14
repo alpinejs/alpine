@@ -431,7 +431,7 @@ test('"multiple" and "name" props together',
         </div>
     `],
     ({ get }) => {
-        get('input[name="people"]').should(haveAttribute('value', 'null'))
+        get('input[name="people"]').should(notExist())
         get('button').click()
         get('[name="people[0][id]"]').should(notExist())
         get('[option="2"]').click()

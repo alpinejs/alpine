@@ -6,7 +6,6 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
          */
         items: [],
 
-        searchableText: {},
         disabledKeys: [],
         activeKey: null,
         selectedKeys: [],
@@ -27,8 +26,6 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
             })
 
             this.orderedKeys.push(key)
-
-            this.searchableText[key] = el.textContent.trim().toLowerCase()
 
             this.reorderKeys()
             this.activateSelectedOrFirst()
@@ -347,11 +344,11 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
 
             let foundKey
 
-            for (let key in this.searchableText) {
-                let content = this.searchableText[key]
+            for (let key in this.items) {
+                let content = this.items[key].el.textContent.trim().toLowerCase()
 
                 if (content.startsWith(this.searchQuery)) {
-                    foundKey = key
+                    foundKey = this.items[key].key
                     break;
                 }
             }
@@ -361,7 +358,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
             return foundKey
         },
 
-        activateByKeyEvent(e, isOpen = () => false, open = () => {}, setIsTyping) {
+        activateByKeyEvent(e, searchable = false, isOpen = () => false, open = () => {}, setIsTyping) {
             let targetKey, hasActive
 
             setIsTyping(true)
@@ -415,7 +412,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
                     break;
 
                 default:
-                    if (e.key.length === 1) {
+                    if (searchable && e.key.length === 1) {
                         targetKey = this.searchKey(e.key)
                     }
                     break;

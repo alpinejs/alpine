@@ -12,25 +12,35 @@ export default function (Alpine) {
     Alpine.magic('listbox', (el) => {
         let data = Alpine.$data(el)
 
-        if (! data.__ready) return {
-            isDisabled: false,
-            isOpen: false,
-            selected: null,
-            active: null,
-        }
-
         return {
+            // @todo: remove "selected" and "active" when 1.0 is tagged...
+            get selected() {
+                return data.__value
+            },
+            get active() {
+                let active = data.__context.getActiveItem()
+
+                return active && active.value
+            },
+
+            get value() {
+                return data.__value
+            },
             get isOpen() {
                 return data.__isOpen
             },
             get isDisabled() {
                 return data.__isDisabled
             },
-            get selected() {
-                return data.__value
+            get activeOption() {
+                let active = data.__context.getActiveItem()
+
+                return active && active.value
             },
-            get active() {
-                return data.__context.active
+            get activeIndex() {
+                let active = data.__context.getActiveItem()
+
+                return active && active.key
             },
         }
     })
@@ -38,29 +48,19 @@ export default function (Alpine) {
     Alpine.magic('listboxOption', (el) => {
         let data = Alpine.$data(el)
 
-        let stub = {
-            isDisabled: false,
-            isSelected: false,
-            isActive: false,
-        }
-
-        if (! data.__ready) return stub
-
         let optionEl = Alpine.findClosest(el, i => i.__optionKey)
 
-        if (! optionEl) return stub
-
-        let context = data.__context
+        if (! optionEl) throw 'No x-combobox:option directive found...'
 
         return {
             get isActive() {
-                return context.isActiveEl(optionEl)
+                return data.__context.isActiveKey(optionEl.__optionKey)
             },
             get isSelected() {
-                return context.isSelectedEl(optionEl)
+                return data.__isSelected(optionEl)
             },
             get isDisabled() {
-                return context.isDisabledEl(optionEl)
+                return data.__context.isDisabled(optionEl.__optionKey)
             },
         }
     })
@@ -68,10 +68,16 @@ export default function (Alpine) {
 
 function handleRoot(el, Alpine) {
     Alpine.bind(el, {
+        // Setup...
         'x-id'() { return ['alpine-listbox-button', 'alpine-listbox-options', 'alpine-listbox-label'] },
         'x-modelable': '__value',
+
+        // Initialize...
         'x-data'() {
             return {
+                /**
+                 * Listbox state...
+                 */
                 __ready: false,
                 __value: null,
                 __isOpen: false,
@@ -82,60 +88,60 @@ function handleRoot(el, Alpine) {
                 __compareBy: null,
                 __inputName: null,
                 __orientation: 'vertical',
+                __hold: false,
+
+                /**
+                 * Comobox initialization...
+                 */
                 init() {
-                    this.__isMultiple = Alpine.bound(el, 'multiple', false)
-                    this.__isDisabled = Alpine.bound(el, 'disabled', false)
-                    this.__inputName = Alpine.bound(el, 'name', null)
-                    this.__compareBy = Alpine.bound(el, 'by')
-                    this.__orientation = Alpine.bound(el, 'horizontal', false) ? 'horizontal' : 'vertical'
+                    this.__isMultiple = Alpine.extractProp(el, 'multiple', false)
+                    this.__isDisabled = Alpine.extractProp(el, 'disabled', false)
+                    this.__inputName = Alpine.extractProp(el, 'name', null)
+                    this.__compareBy = Alpine.extractProp(el, 'by')
+                    this.__orientation = Alpine.extractProp(el, 'horizontal', false) ? 'horizontal' : 'vertical'
 
-                    this.__context = generateContext(this.__isMultiple, this.__orientation)
+                    this.__context = generateContext(this.__isMultiple, this.__orientation, () => this.$data.__activateSelectedOrFirst())
 
-                    let defaultValue = Alpine.bound(el, 'default-value', null)
+                    let defaultValue = Alpine.extractProp(el, 'default-value', this.__isMultiple ? [] : null)
 
                     this.__value = defaultValue
 
-                    // We have to wait for the rest of the HTML to initialize in Alpine before
-                    // we mark this component as "ready".
+                    // We have to wait again until after the "ready" processes are finished
+                    // to settle up currently selected Values (this prevents this next bit
+                    // of code from running multiple times on startup...)
                     queueMicrotask(() => {
-                        this.__ready = true
+                        Alpine.effect(() => {
+                            // Everytime the value changes, we need to re-render the hidden inputs,
+                            // if a user passed the "name" prop...
+                            this.__inputName && renderHiddenInputs(this.$el, this.__inputName, this.__value)
+                        })
 
-                        // We have to wait again until after the "ready" processes are finished
-                        // to settle up currently selected Values (this prevents this next bit
-                        // of code from running multiple times on startup...)
-                        queueMicrotask(() => {
-                            // This "fingerprint" acts as a checksum of the last-known "value"
-                            // passed into x-model. We need to track this so that we can determine
-                            // from the reactive effect if it was the value that changed externally
-                            // or an option was selected internally...
-                            let lastValueFingerprint = false
-
-                            Alpine.effect(() => {
-                                // Accessing selected keys, so a change in it always triggers this effect...
-                                this.__context.selectedKeys
-
-                                if (lastValueFingerprint === false || lastValueFingerprint !== JSON.stringify(this.__value)) {
-                                    // Here we know that the value changed externally and we can add the selection...
-                                    this.__context.selectValue(this.__value, this.__compareBy)
-                                } else {
-                                    // Here we know that an option was selected and we can change the value...
-                                    this.__value = this.__context.selectedValueOrValues()
-                                }
-
-                                // Generate the "value" checksum for comparison next time...
-                                lastValueFingerprint = JSON.stringify(this.__value)
-
-                                // Everytime the value changes, we need to re-render the hidden inputs,
-                                // if a user passed the "name" prop...
-                                this.__inputName && renderHiddenInputs(this.$el, this.__inputName, this.__value)
-                            })
+                        // Keep the currently selected value in sync with the input value...
+                        Alpine.effect(() => {
+                            this.__resetInput()
                         })
                     })
                 },
+                __resetInput() {
+                    let input = this.$refs.__input
+                    if (! input) return
+
+                    let value = this.$data.__getCurrentValue()
+
+                    input.value = value
+                },
+                __getCurrentValue() {
+                    if (! this.$refs.__input) return ''
+                    if (! this.__value) return ''
+                    if (this.$data.__displayValue && this.__value !== undefined) return this.$data.__displayValue(this.__value)
+                    if (typeof this.__value === 'string') return this.__value
+                    return ''
+                },
                 __open() {
+                    if (this.__isOpen) return
                     this.__isOpen = true
 
-                    this.__context.activateSelectedOrFirst()
+                    this.__activateSelectedOrFirst()
 
                     // Safari needs more of a "tick" for focusing after x-show for some reason.
                     // Probably because Alpine adds an extra tick when x-showing for @click.outside
@@ -146,8 +152,85 @@ function handleRoot(el, Alpine) {
                 __close() {
                     this.__isOpen = false
 
+                    this.__context.deactivate()
+
                     this.$nextTick(() => this.$refs.__button.focus({ preventScroll: true }))
-                }
+                },
+                __activateSelectedOrFirst(activateSelected = true) {
+                    if (! this.__isOpen) return
+
+                    if (this.__context.activeKey) {
+                        this.__context.activateAndScrollToKey(this.__context.activeKey)
+                        return
+                    }
+
+                    let firstSelectedValue
+
+                    if (this.__isMultiple) {
+                        firstSelectedValue = this.__value.find(i => {
+                            return !! this.__context.getItemByValue(i)
+                        })
+                    } else {
+                        firstSelectedValue = this.__value
+                    }
+
+                    if (activateSelected && firstSelectedValue) {
+                        let firstSelected = this.__context.getItemByValue(firstSelectedValue)
+
+                        firstSelected && this.__context.activateAndScrollToKey(firstSelected.key)
+                    } else {
+                        this.__context.activateAndScrollToKey(this.__context.firstKey())
+                    }
+                },
+                __selectActive() {
+                    let active = this.$data.__context.getActiveItem()
+                    if (active) this.__toggleSelected(active.value)
+                },
+                __selectOption(el) {
+                    let item = this.__context.getItemByEl(el)
+
+                    if (item) this.__toggleSelected(item.value)
+                },
+                __isSelected(el) {
+                    let item = this.__context.getItemByEl(el)
+
+                    if (! item) return false
+                    if (! item.value) return false
+
+                    return this.__hasSelected(item.value)
+                },
+                __toggleSelected(value) {
+                    if (! this.__isMultiple) {
+                        this.__value = value
+
+                        return
+                    }
+
+                    let index = this.__value.findIndex(j => this.__compare(j, value))
+
+                    if (index === -1) {
+                        this.__value.push(value)
+                    } else {
+                        this.__value.splice(index, 1)
+                    }
+                },
+                __hasSelected(value) {
+                    if (! this.__isMultiple) return this.__compare(this.__value, value)
+
+                    return this.__value.some(i => this.__compare(i, value))
+                },
+                __compare(a, b) {
+                    let by = this.__compareBy
+
+                    if (! by) by = (a, b) => Alpine.raw(a) === Alpine.raw(b)
+
+                    if (typeof by === 'string') {
+                        let property = by
+                        by = (a, b) => a[property] === b[property]
+                    }
+
+                    return by(a, b)
+                },
             }
         },
     })
@@ -163,13 +246,20 @@ function handleLabel(el, Alpine) {
 
 function handleButton(el, Alpine) {
     Alpine.bind(el, {
+        // Setup...
         'x-ref': '__button',
         ':id'() { return this.$id('alpine-listbox-button') },
+
+        // Accessibility attributes...
         'aria-haspopup': 'true',
         ':aria-labelledby'() { return this.$id('alpine-listbox-label') },
         ':aria-expanded'() { return this.$data.__isOpen },
         ':aria-controls'() { return this.$data.__isOpen && this.$id('alpine-listbox-options') },
+
+        // Initialize....
         'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && !this.$el.hasAttribute('type')) this.$el.type = 'button' },
+
+        // Register listeners...
         '@click'() { this.$data.__open() },
         '@keydown'(e) {
             if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
@@ -186,31 +276,49 @@ function handleButton(el, Alpine) {
 
 function handleOptions(el, Alpine) {
     Alpine.bind(el, {
+        // Setup...
         'x-ref': '__options',
         ':id'() { return this.$id('alpine-listbox-options') },
-        'x-init'() {
-            this.$data.__isStatic = Alpine.bound(this.$el, 'static', false)
-        },
-        'x-show'() { return this.$data.__isStatic ? true : this.$data.__isOpen },
-        '@click.outside'() { this.$data.__close() },
-        '@keydown.escape.stop.prevent'() { this.$data.__close() },
-        tabindex: '0',
+
+        // Accessibility attributes...
         'role': 'listbox',
+        tabindex: '0',
         ':aria-orientation'() {
             return this.$data.__orientation
         },
         ':aria-labelledby'() { return this.$id('alpine-listbox-button') },
-        ':aria-activedescendant'() { return this.__context.activeEl() && this.__context.activeEl().id },
-        '@focus'() { this.__context.activateSelectedOrFirst() },
+        ':aria-activedescendant'() {
+            if (! this.$data.__context.hasActive()) return
+
+            let active = this.$data.__context.getActiveItem()
+
+            return active ? active.el.id : null
+        },
+
+        // Initialize...
+        'x-init'() {
+            this.$data.__isStatic = Alpine.extractProp(this.$el, 'static', false)
+
+            if (Alpine.bound(this.$el, 'hold')) {
+                this.$data.__hold = true;
+            }
+        },
+
+        'x-show'() { return this.$data.__isStatic ? true : this.$data.__isOpen },
         'x-trap'() { return this.$data.__isOpen },
-        '@keydown'(e) { this.__context.activateByKeyEvent(e) },
+        '@click.outside'() { this.$data.__close() },
+        '@keydown.escape.stop.prevent'() { this.$data.__close() },
+        '@focus'() { this.$data.__activateSelectedOrFirst() },
+        '@keydown'(e) {
+            queueMicrotask(() => this.$data.__context.activateByKeyEvent(e, true, () => this.$data.__isOpen, () => this.$data.__open(), () => {}))
+         },
         '@keydown.enter.stop.prevent'() {
-            this.__context.selectActive();
+            this.$data.__selectActive();
 
             this.$data.__isMultiple || this.$data.__close()
         },
         '@keydown.space.stop.prevent'() {
-            this.__context.selectActive();
+            this.$data.__selectActive();
 
             this.$data.__isMultiple || this.$data.__close()
         },
@@ -220,25 +328,48 @@ function handleOptions(el, Alpine) {
 function handleOption(el, Alpine) {
     Alpine.bind(el, () => {
         return {
+            'x-id'() { return ['alpine-listbox-option'] },
             ':id'() { return this.$id('alpine-listbox-option') },
-            ':tabindex'() { return this.$listbox.isDisabled ? false : '-1' },
-            'role': 'option',
-            'x-init'() {
-                queueMicrotask(() => {
-                    let value = Alpine.bound(el, 'value')
-                    let disabled = Alpine.bound(el, 'disabled')
 
-                    el.__optionKey = this.$data.__context.initItem(el, value, disabled)
-                })
-            },
+            // Accessibility attributes...
+            'role': 'option',
+            ':tabindex'() { return this.$listboxOption.isDisabled ? false : '-1' },
             ':aria-selected'() { return this.$listboxOption.isSelected },
+
+            // Initialize...
+            'x-data'() {
+                return {
+                    init() {
+                        let key = el.__optionKey = (Math.random() + 1).toString(36).substring(7)
+
+                        let value = Alpine.extractProp(el, 'value')
+                        let disabled = Alpine.extractProp(el, 'disabled', false, false)
+
+                        this.$data.__context.registerItem(key, el, value, disabled)
+                    },
+                    destroy() {
+                        this.$data.__context.unregisterItem(this.$el.__optionKey)
+                    },
+                }
+            },
+
+            // Register listeners...
             '@click'() {
                 if (this.$listboxOption.isDisabled) return;
-                this.$data.__context.selectEl(el);
+
+                this.$data.__selectOption(el)
+
                 this.$data.__isMultiple || this.$data.__close()
             },
-            '@mousemove'() { this.$data.__context.activateEl(el) },
-            '@mouseleave'() { this.$data.__context.deactivate() },
+            '@mouseenter'() { this.$data.__context.activateEl(el) },
+            '@mouseleave'() {
+                this.$data.__hold || this.$data.__context.deactivate()
+            },
         }
     })
+}
+
+// Little utility to defer a callback into the microtask queue...
+function microtask(callback) {
+    return new Promise(resolve => queueMicrotask(() => resolve(callback())))
 }

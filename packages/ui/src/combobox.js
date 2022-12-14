@@ -87,18 +87,16 @@ function handleRoot(el, Alpine) {
                  * Comobox initialization...
                  */
                 init() {
-                    // We have to put this in a microtask so that all the bindings
-                    // have a chance to register so we can resolve them properly...
-                    // First, let's set initial state from
                     this.__isMultiple = Alpine.extractProp(el, 'multiple', false)
                     this.__isDisabled = Alpine.extractProp(el, 'disabled', false)
                     this.__inputName = Alpine.extractProp(el, 'name', null)
                     this.__nullable = Alpine.extractProp(el, 'nullable', false)
                     this.__compareBy = Alpine.extractProp(el, 'by')
                     this.__orientation = Alpine.extractProp(el, 'horizontal', false) ? 'horizontal' : 'vertical'
+
                     this.__context = generateContext(this.__isMultiple, this.__orientation, () => this.$data.__activateSelectedOrFirst())
 
-                    let defaultValue = Alpine.bound(el, 'default-value', this.__isMultiple ? [] : null)
+                    let defaultValue = Alpine.extractProp(el, 'default-value', this.__isMultiple ? [] : null)
 
                     this.__value = defaultValue
 
@@ -286,7 +284,7 @@ function handleInput(el, Alpine) {
         },
         '@blur'() { this.$data.__isTyping = false } ,
         '@keydown'(e) {
-            queueMicrotask(() => this.$data.__context.activateByKeyEvent(e, () => this.$data.__isOpen, () => this.$data.__open(), (state) => this.$data.__isTyping = state, () => this.$data.__resetInput()))
+            queueMicrotask(() => this.$data.__context.activateByKeyEvent(e, false, () => this.$data.__isOpen, () => this.$data.__open(), (state) => this.$data.__isTyping = state))
          },
         '@keydown.enter.prevent.stop'() {
             this.$data.__selectActive()
@@ -398,7 +396,7 @@ function handleOptions(el, Alpine) {
             }
         },
 
-        'x-show'() { return this.$data.__isOpen },
+        'x-show'() { return this.$data.__isStatic ? true : this.$data.__isOpen },
     })
 }
 

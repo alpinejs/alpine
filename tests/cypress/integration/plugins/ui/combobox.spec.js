@@ -1,6 +1,6 @@
 import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test} from '../../../utils'
 
-test.only('it works with x-model',
+test('it works with x-model',
     [html`
         <div
             x-data="{ active: null, people: [

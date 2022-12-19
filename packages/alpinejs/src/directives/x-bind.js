@@ -28,16 +28,14 @@ let handler = (el, { value, modifiers, expression, original }, { effect }) => {
 
     let evaluate = evaluateLater(el, expression)
 
-    dontAutoEvaluateFunctions(() => {
-        effect(() => evaluate(result => {
-            // If nested object key is undefined, set the default value to empty string.
-            if (result === undefined && typeof expression === 'string' && expression.match(/\./)) {
-                result = ''
-            }
+    effect(() => evaluate(result => {
+        // If nested object key is undefined, set the default value to empty string.
+        if (result === undefined && typeof expression === 'string' && expression.match(/\./)) {
+            result = ''
+        }
 
-            mutateDom(() => bind(el, value, result, modifiers))
-        }))
-    })
+        mutateDom(() => bind(el, value, result, modifiers))
+    }))
 }
 
 // @todo: see if I can take advantage of the object created here inside the

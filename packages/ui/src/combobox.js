@@ -24,14 +24,15 @@ export default function (Alpine) {
                 return data.__isDisabled
             },
             get activeOption() {
-                let active = data.__context.getActiveItem()
+                let active = data.__context?.getActiveItem()
 
                 return active && active.value
             },
             get activeIndex() {
-                let active = data.__context.getActiveItem()
+                let active = data.__context?.getActiveItem()
+                let index = active && Object.values(Alpine.raw(data.__context.items)).findIndex(i => Alpine.raw(active) == Alpine.raw(i))
 
-                return active && active.key
+                return index
             },
         }
     })
@@ -84,7 +85,7 @@ function handleRoot(el, Alpine) {
                 __hold: false,
 
                 /**
-                 * Comobox initialization...
+                 * Combobox initialization...
                  */
                 init() {
                     this.__isMultiple = Alpine.extractProp(el, 'multiple', false)

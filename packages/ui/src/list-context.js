@@ -38,8 +38,6 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
             i = this.orderedKeys.indexOf(key)
             if (i !== -1) this.orderedKeys.splice(i, 1)
 
-            delete this.searchableText[key]
-
             this.reorderKeys()
             this.activateSelectedOrFirst()
         },

@@ -135,6 +135,7 @@ function handleRoot(el, Alpine) {
                     let value = this.$data.__getCurrentValue()
 
                     input.value = value
+                    input.dispatchEvent(new Event('input'))
                 },
                 __getCurrentValue() {
                     if (! this.$refs.__input) return ''

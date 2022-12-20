@@ -30,9 +30,12 @@ export default function (Alpine) {
             },
             get activeIndex() {
                 let active = data.__context?.getActiveItem()
-                let index = active && Object.values(Alpine.raw(data.__context.items)).findIndex(i => Alpine.raw(active) == Alpine.raw(i))
 
-                return index
+                if (active) {
+                    return Object.values(Alpine.raw(data.__context.items)).findIndex(i => Alpine.raw(active) == Alpine.raw(i))
+                }
+
+                return null
             },
         }
     })
@@ -80,7 +83,6 @@ function handleRoot(el, Alpine) {
                 __displayValue: undefined,
                 __compareBy: null,
                 __inputName: null,
-                __orientation: 'vertical',
                 __isTyping: false,
                 __hold: false,
 
@@ -93,9 +95,8 @@ function handleRoot(el, Alpine) {
                     this.__inputName = Alpine.extractProp(el, 'name', null)
                     this.__nullable = Alpine.extractProp(el, 'nullable', false)
                     this.__compareBy = Alpine.extractProp(el, 'by')
-                    this.__orientation = Alpine.extractProp(el, 'horizontal', false) ? 'horizontal' : 'vertical'
 
-                    this.__context = generateContext(this.__isMultiple, this.__orientation, () => this.$data.__activateSelectedOrFirst())
+                    this.__context = generateContext(this.__isMultiple, 'vertical', () => this.$data.__activateSelectedOrFirst())
 
                     let defaultValue = Alpine.extractProp(el, 'default-value', this.__isMultiple ? [] : null)
 

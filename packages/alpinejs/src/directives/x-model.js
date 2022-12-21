@@ -5,8 +5,9 @@ import { nextTick } from '../nextTick'
 import bind from '../utils/bind'
 import on from '../utils/on'
 import { warn } from '../utils/warn'
+import { skipDuringClone } from '../clone'
 
-directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
+directive('model', skipDuringClone((el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
 
     if (modifiers.includes('parent')) {
@@ -119,7 +120,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
 
         el._x_forceModelUpdate(value)
     })
-})
+}))
 
 function getInputValue(el, modifiers, event, currentValue) {
     return mutateDom(() => {

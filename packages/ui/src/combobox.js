@@ -111,15 +111,6 @@ function handleRoot(el, Alpine) {
                             // if a user passed the "name" prop...
                             this.__inputName && renderHiddenInputs(this.$el, this.__inputName, this.__value)
                         })
-
-                        let nonReactiveThis = Alpine.raw(this)
-
-                        // Keep the currently selected value in sync with the input value...
-                        Alpine.effect(() => {
-                            if (nonReactiveThis.__isTyping) return
-
-                            this.__resetInput()
-                        })
                     })
                 },
                 __startTyping() {
@@ -127,6 +118,7 @@ function handleRoot(el, Alpine) {
                 },
                 __stopTyping() {
                     this.__isTyping = false
+                    this.__resetInput()
                 },
                 __resetInput() {
                     let input = this.$refs.__input
@@ -135,7 +127,7 @@ function handleRoot(el, Alpine) {
                     let value = this.$data.__getCurrentValue()
 
                     input.value = value
-                    input.dispatchEvent(new Event('input'))
+                    input.dispatchEvent(new Event('change'))
                 },
                 __getCurrentValue() {
                     if (! this.$refs.__input) return ''
@@ -282,10 +274,10 @@ function handleInput(el, Alpine) {
         },
 
         // Register listeners...
-        '@input.stop'() {
+        '@input.stop'(e) {
             this.$data.__open(); this.$dispatch('change')
         },
-        '@blur'() { this.$data.__isTyping = false } ,
+        '@blur'() { this.$data.__stopTyping() },
         '@keydown'(e) {
             queueMicrotask(() => this.$data.__context.activateByKeyEvent(e, false, () => this.$data.__isOpen, () => this.$data.__open(), (state) => this.$data.__isTyping = state))
          },
@@ -294,20 +286,20 @@ function handleInput(el, Alpine) {
 
             this.$data.__isMultiple || this.$data.__close()
 
-            this.$data.__isTyping = false
+            this.$data.__stopTyping()
         },
         '@keydown.escape.prevent'(e) {
             if (! this.$data.__static) e.stopPropagation()
 
             this.$data.__close()
 
-            this.$data.__isTyping = false
+            this.$data.__stopTyping()
         },
         '@keydown.tab'() {
-            if (this.$data.__isOpen) { this.$data.__close() }
-
             this.$data.__stopTyping()
             this.$data.__resetInput()
+
+            if (this.$data.__isOpen) { this.$data.__close() }
         },
         '@keydown.backspace'(e) {
             if (this.$data.__isMultiple) return

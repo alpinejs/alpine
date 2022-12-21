@@ -97,3 +97,34 @@ test('wont register listeners on clone',
         get('#copy span').should(haveText('1'))
     }
 )
+
+test('wont register extra listeners on x-model on clone',
+    html`
+        <script>
+            document.addEventListener('alpine:initialized', () => {
+                window.original = document.getElementById('original')
+                window.copy = document.getElementById('copy')
+            })
+        </script>
+
+        <button x-data @click="Alpine.clone(original, copy)">click</button>
+
+        <div x-data="{ checks: [] }" id="original">
+            <input type="checkbox" x-model="checks" value="1">
+            <span x-text="checks"></span>
+        </div>
+
+        <div x-data="{ checks: [] }" id="copy">
+            <input type="checkbox" x-model="checks" value="1">
+            <span x-text="checks"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('#original span').should(haveText(''))
+        get('#copy span').should(haveText(''))
+        get('button').click()
+        get('#copy span').should(haveText(''))
+        get('#copy input').click()
+        get('#copy span').should(haveText('1'))
+    }
+)

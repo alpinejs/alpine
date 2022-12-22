@@ -672,7 +672,7 @@ test('has accessibility attributes',
         get('button')
             .should(haveAttribute('aria-haspopup', 'true'))
             // @todo: decide if this is correct or if it should join the label and button IDs
-            .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1'))
+            .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1 alpine-combobox-button-1'))
             .should(haveAttribute('aria-expanded', 'false'))
             .should(notHaveAttribute('aria-controls'))
             .should(haveAttribute('id', 'alpine-combobox-button-1'))

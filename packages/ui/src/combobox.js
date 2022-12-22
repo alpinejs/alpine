@@ -85,6 +85,24 @@ function handleRoot(el, Alpine) {
                 __inputName: null,
                 __isTyping: false,
                 __hold: false,
+                __pointer: {
+                    lastPosition: [-1, -1],
+
+                    wasMoved(e) {
+                        let newPosition = [e.screenX, e.screenY]
+
+                        if (this.lastPosition[0] === newPosition[0] && this.lastPosition[1] === newPosition[1]) {
+                            return false
+                        }
+
+                        this.lastPosition = newPosition
+                        return true
+                    },
+
+                    update(e) {
+                        this.lastPosition = [e.screenX, e.screenY]
+                    },
+                },
 
                 /**
                  * Combobox initialization...
@@ -450,9 +468,19 @@ function handleOption(el, Alpine) {
         },
 
         // @todo: this is a memory leak for _x_cleanups...
-        '@mouseenter'() { this.$data.__context.activateEl(el) },
-        '@mouseleave'() {
-            this.$data.__hold || this.$data.__context.deactivate()
+        '@mouseenter'(e) {
+            this.$data.__pointer.update(e)
+        },
+        '@mousemove'(e) {
+            if (!this.$data.__pointer.wasMoved(e)) return
+
+            this.$data.__context.activateEl(el)
+        },
+        '@mouseleave'(e) {
+            if (!this.$data.__pointer.wasMoved(e)) return
+            if (this.$data.__hold) return
+
+            this.$data.__context.deactivate()
         },
     })
 }

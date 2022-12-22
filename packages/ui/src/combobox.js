@@ -442,8 +442,8 @@ function handleOption(el, Alpine) {
             this.$data.__selectOption(el)
 
             if (! this.$data.__isMultiple) {
-                this.$data.__close()
                 this.$data.__resetInput()
+                this.$data.__close()
             }
 
             this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))

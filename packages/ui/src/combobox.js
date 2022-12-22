@@ -116,9 +116,10 @@ function handleRoot(el, Alpine) {
                 __startTyping() {
                     this.__isTyping = true
                 },
-                __stopTyping() {
+                __stopTyping(resetInput = true) {
                     this.__isTyping = false
-                    this.__resetInput()
+
+                    if (resetInput) this.__resetInput()
                 },
                 __resetInput() {
                     let input = this.$refs.__input
@@ -238,6 +239,7 @@ function handleRoot(el, Alpine) {
                 && ! this.$refs.__button.contains(e.target)
                 && ! this.$refs.__options.contains(e.target)
             ) {
+                this.__resetInput()
                 this.__close()
             }
         }
@@ -277,7 +279,7 @@ function handleInput(el, Alpine) {
         '@input.stop'(e) {
             this.$data.__open(); this.$dispatch('change')
         },
-        '@blur'() { this.$data.__stopTyping() },
+        '@blur'() { this.$data.__stopTyping(false) },
         '@keydown'(e) {
             queueMicrotask(() => this.$data.__context.activateByKeyEvent(e, false, () => this.$data.__isOpen, () => this.$data.__open(), (state) => this.$data.__isTyping = state))
          },
@@ -286,7 +288,7 @@ function handleInput(el, Alpine) {
 
             this.$data.__isMultiple || this.$data.__close()
 
-            this.$data.__stopTyping()
+            this.$data.isTyping = false
         },
         '@keydown.escape.prevent'(e) {
             if (! this.$data.__static) e.stopPropagation()
@@ -346,6 +348,7 @@ function handleButton(el, Alpine) {
         '@click'(e) {
             if (this.$data.__isDisabled) return
             if (this.$data.__isOpen) {
+                this.__resetInput()
                 this.$data.__close()
             } else {
                 e.preventDefault()

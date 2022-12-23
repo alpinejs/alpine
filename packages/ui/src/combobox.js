@@ -219,6 +219,8 @@ function handleRoot(el, Alpine) {
                     if (! this.__isMultiple) {
                         this.__value = value
 
+                        console.log('toggleSelected', this.__value)
+
                         return
                     }
 
@@ -250,7 +252,7 @@ function handleRoot(el, Alpine) {
             }
         },
 
-        // Register event liseners..
+        // Register event listeners..
         '@mousedown.window'(e) {
             if (
                 !! ! this.$refs.__input.contains(e.target)

@@ -219,8 +219,6 @@ function handleRoot(el, Alpine) {
                     if (! this.__isMultiple) {
                         this.__value = value
 
-                        console.log('toggleSelected', this.__value)
-
                         return
                     }
 

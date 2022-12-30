@@ -1,58 +1,105 @@
 import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, contain, notContain, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test, haveValue} from '../../../utils'
 
-test('it works with x-model',
+test.only('it works with x-model',
     [html`
         <div
-            x-data="{ active: null, people: [
-                { id: 1, name: 'Wade Cooper' },
-                { id: 2, name: 'Arlene Mccoy' },
-                { id: 3, name: 'Devon Webb' },
-                { id: 4, name: 'Tom Cook' },
-                { id: 5, name: 'Tanya Fox', disabled: true },
-                { id: 6, name: 'Hellen Schmidt' },
-                { id: 7, name: 'Caroline Schultz' },
-                { id: 8, name: 'Mason Heaney' },
-                { id: 9, name: 'Claudie Smitham' },
-                { id: 10, name: 'Emil Schaefer' },
-            ]}"
-            x-combobox
-            x-model="active"
+            x-data="{
+                init() {
+                    this.$watch('selected', (value) => {
+                        if (value) this.query = ''
+                    })
+                },
+                query: '',
+                selected: null,
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                },
+            }"
         >
-            <label x-combobox:label>Assigned to</label>
+            <div x-combobox x-model="selected">
+                <label x-combobox:label>Select person</label>
 
-            <input x-combobox:input :display-value="(person) => person.name" type="text">
-            <button x-combobox:button x-text="active ? active.name : 'Select Person'"></button>
+                <div>
+                    <div>
+                        <input
+                            x-combobox:input
+                            :display-value="person => person.name"
+                            @change="query = $event.target.value"
+                            placeholder="Search..."
+                        />
 
-            <ul x-combobox:options>
-                <template x-for="person in people" :key="person.id">
-                    <li
-                        x-combobox:option
-                        :value="person"
-                        :disabled="person.disabled"
-                        :option="person.id"
-                    >
-                        <span x-text="person.name"></span>
-                    </li>
-                </template>
-            </ul>
+                        <button x-combobox:button>Toggle</button>
+                    </div>
 
-            <article x-text="active?.name"></article>
+                    <div x-combobox:options>
+                        <ul>
+                            <template
+                                x-for="person in filteredPeople"
+                                :key="person.id"
+                                hidden
+                            >
+                                <li
+                                    x-combobox:option
+                                    :option="person.id"
+                                    :value="person"
+                                    :disabled="person.disabled"
+                                    x-text="person.name"
+                                >
+                                </li>
+                            </template>
+                        </ul>
+
+                        <p x-show="filteredPeople.length == 0">No people match your query.</p>
+                    </div>
+                </div>
+
+                <article x-text="selected?.name"></article>
+            </div>
         </div>
     `],
     ({ get }) => {
         get('ul').should(notBeVisible())
-        get('button')
-            .should(haveText('Select Person'))
-            .click()
+        get('button').click()
         get('ul').should(beVisible())
         get('button').click()
         get('ul').should(notBeVisible())
         get('button').click()
         get('[option="2"]').click()
         get('ul').should(notBeVisible())
-        get('button').should(haveText('Arlene Mccoy'))
         get('input').should(haveValue('Arlene Mccoy'))
         get('article').should(haveText('Arlene Mccoy'))
+        get('button').click()
+        get('ul').should(contain('Wade Cooper'))
+            .should(contain('Arlene Mccoy'))
+            .should(contain('Devon Webb'))
+        get('[option="3"]').click()
+        get('ul').should(notBeVisible())
+        get('input').should(haveValue('Devon Webb'))
+        get('article').should(haveText('Devon Webb'))
+        get('button').click()
+        get('ul').should(contain('Wade Cooper'))
+            .should(contain('Arlene Mccoy'))
+            .should(contain('Devon Webb'))
+        get('[option="1"]').click()
+        get('ul').should(notBeVisible())
+        get('input').should(haveValue('Wade Cooper'))
+        get('article').should(haveText('Wade Cooper'))
     },
 )
 
@@ -671,7 +718,6 @@ test('has accessibility attributes',
     ({ get }) => {
         get('button')
             .should(haveAttribute('aria-haspopup', 'true'))
-            // @todo: decide if this is correct or if it should join the label and button IDs
             .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1 alpine-combobox-button-1'))
             .should(haveAttribute('aria-expanded', 'false'))
             .should(notHaveAttribute('aria-controls'))

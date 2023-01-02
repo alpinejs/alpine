@@ -32,10 +32,10 @@ export default function (Alpine) {
                 // - Initializing the mask on the input if it has an initial value.
                 // - Running the template function to set up reactivity, so that
                 //   when a dependency inside it changes, the input re-masks.
-                processInputValue(el)
+                processInputValue(el, false)
             })
         } else {
-            processInputValue(el)
+            processInputValue(el, false)
         }
 
         el.addEventListener('input', () => processInputValue(el))

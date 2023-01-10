@@ -9,6 +9,106 @@
 <script src="./packages/alpinejs/dist/cdn.js" defer></script>
 <script src="//cdn.tailwindcss.com"></script>
 
+<div class="px-5 py-16 min-h-[20rem] flex items-center justify-center">
+                                                    <div x-data="{
+        query: '',
+        selected: null,
+        frameworks: [
+            {
+                id: 1,
+                name: 'Laravel',
+                disabled: false,
+            },
+            {
+                id: 2,
+                name: 'Ruby on Rails',
+                disabled: false,
+            },
+            {
+                id: 3,
+                name: 'Django',
+                disabled: false,
+            },
+            {
+                id: 4,
+                name: 'Express',
+                disabled: false,
+            },
+            {
+                id: 5,
+                name: 'Phoenix',
+                disabled: false,
+            },
+            {
+                id: 6,
+                name: 'Adonis',
+                disabled: false,
+            },
+            {
+                id: 7,
+                name: 'NextJS',
+                disabled: false,
+            },
+        ],
+        get filteredFrameworks() {
+            return this.query === ''
+                ? this.frameworks
+                : this.frameworks.filter((framework) => {
+                    return framework.name.toLowerCase().includes(this.query.toLowerCase())
+                })
+        },
+        init() {
+            this.$watch('selected', (value) => {
+                console.log('watcher', value)
+                if (value) this.query = ''
+            })
+        },
+    }">
+    <div x-combobox="" x-model="selected">
+        <label x-combobox:label="" class="block text-sm text-gray-600" id="alpine-combobox-label-1">
+            Select framework
+        </label>
+
+        <div class="mt-1 relative">
+            <div class="flex items-center justify-between gap-2 w-64 bg-white pl-5 pr-3 py-2.5 rounded-md shadow">
+                <input x-combobox:input="" :display-value="framework => framework.name" @change="query = $event.target.value" class="border-none p-0 focus:outline-none focus:ring-0" placeholder="Search..." id="alpine-combobox-input-1" role="combobox" tabindex="0" aria-expanded="false" aria-labelledby="alpine-combobox-label-1" aria-controls="alpine-combobox-options-1">
+                <button x-combobox:button="" class="absolute inset-y-0 right-0 flex items-center pr-2" id="alpine-combobox-button-1" aria-haspopup="true" aria-labelledby="alpine-combobox-label-1 alpine-combobox-button-1" aria-expanded="false" tabindex="-1" type="button" aria-controls="alpine-combobox-options-1">
+                    <!-- Heroicons up/down -->
+                    <svg class="shrink-0 w-5 h-5 text-gray-500" viewBox="0 0 20 20" fill="none" stroke="currentColor"><path d="M7 7l3-3 3 3m0 6l-3 3-3-3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+            </div>
+
+            <div x-combobox:options="" class="absolute right-0 w-64 max-h-60 mt-2 z-10 origin-top-right overflow-hidden bg-white border border-gray-200 rounded-md shadow-md outline-none" x-transition="" id="alpine-combobox-options-1" role="combobox" aria-labelledby="alpine-combobox-label-1" style="display: none;">
+                <ul class="divide-y divide-gray-100">
+                    <template x-for="framework in filteredFrameworks" :key="framework.id" hidden="">
+                        <li x-combobox:option="" :value="framework" :disabled="framework.disabled" :class="{
+                                'bg-cyan-500/10 text-gray-900': $comboboxOption.isActive,
+                                'text-gray-600': ! $comboboxOption.isActive,
+                                'opacity-50 cursor-not-allowed': $comboboxOption.isDisabled,
+                            }" class="flex items-center cursor-default justify-between gap-2 w-full px-4 py-2 text-sm transition-colors">
+                            <span x-text="framework.name"></span>
+
+                            <span x-show="$comboboxOption.isSelected" class="text-cyan-600 font-bold">✓</span>
+                        </li>
+                    </template><li x-combobox:option="" :value="framework" :disabled="framework.disabled" :class="{
+                                'bg-cyan-500/10 text-gray-900': $comboboxOption.isActive,
+                                'text-gray-600': ! $comboboxOption.isActive,
+                                'opacity-50 cursor-not-allowed': $comboboxOption.isDisabled,
+                            }" class="flex items-center cursor-default justify-between gap-2 w-full px-4 py-2 text-sm transition-colors text-gray-600" id="alpine-combobox-option-9" role="option" tabindex="-1" aria-selected="true">
+                            <span x-text="framework.name">Django</span>
+
+                            <span x-show="$comboboxOption.isSelected" class="text-cyan-600 font-bold" style="">✓</span>
+                        </li>
+                </ul>
+
+                <p x-show="filteredFrameworks.length == 0" class="px-4 py-2 text-sm text-gray-600" style="display: none;">No frameworks match your query.</p>
+            </div>
+        </div>
+        <div>local selected: <span x-text="selected?.name">Ruby on Rails</span></div>
+        <div>internal selected: <span x-text="$combobox.value?.name">Django</span></div>
+    </div>
+</div>
+                                            </div>
 <!-- <div
             x-data="{ active: null, people: [
                 { id: 1, name: 'Wade Cooper' },

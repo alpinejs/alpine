@@ -97,8 +97,6 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     }
 
     el._x_forceModelUpdate = (value) => {
-        value = value === undefined ? getValue() : value
-
         // If nested model key is undefined, set the default value to empty string.
         if (value === undefined && typeof expression === 'string' && expression.match(/\./)) value = ''
 

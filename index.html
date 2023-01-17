@@ -1,14 +1,19 @@
 <html>
     <!-- <script src="./packages/intersect/dist/cdn.js" defer></script>
     <script src="./packages/morph/dist/cdn.js" defer></script>
-    <script src="./packages/history/dist/cdn.js"></script>
     <script src="./packages/persist/dist/cdn.js"></script>
     <script src="./packages/focus/dist/cdn.js"></script>
     <script src="./packages/mask/dist/cdn.js"></script>
     <script src="./packages/ui/dist/cdn.js" defer></script> -->
+    <script src="./packages/history/dist/cdn.js"></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <script src="//cdn.tailwindcss.com"></script>
+
+    <div x-data="{ count: $queryString(1) }">
+        <input type="text" x-model="count">
+        <span x-text="count"></span>
+    </div>
 
     <div x-data="{ users: [{ name: 'lebowski' }] }">
         <template x-for="(user, idx) in users">
@@ -16,6 +21,10 @@
         </template>
 
         <button @click="users = []">Reset</button>
+    </div>
+
+    <div x-data="{ foo: undefined }">
+        Yo: <input type="text" x-model="foo">
     </div>
 
     <!-- Play around here... -->

@@ -9,7 +9,7 @@ export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set:
 
         if (firstRun) {
             outer = outerGet()
-            innerSet(outer)
+            innerSet(JSON.parse(JSON.stringify(outer))) // We need to break internal references using parse/stringify...
             inner = innerGet()
             firstRun = false
         } else {
@@ -24,7 +24,7 @@ export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set:
                 innerSet(outer)
                 inner = outer // Assign inner to outer so that it can be serialized for diffing...
             } else { // If inner changed...
-                outerSet(inner)
+                outerSet(JSON.parse(JSON.stringify(inner))) // We need to break internal references using parse/stringify...
                 outer = inner // Assign outer to inner so that it can be serialized for diffing...
             }
         }

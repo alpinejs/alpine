@@ -99,6 +99,8 @@ export function morph(from, toHtml, options) {
     }
 
     function patchAttributes(from, to) {
+        if (from._x_transitioning) return
+
         if (from._x_isShown && ! to._x_isShown) {
             return
         }

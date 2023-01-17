@@ -3,60 +3,80 @@ export default function history(Alpine) {
         let alias
 
         return interceptor((initialValue, getter, setter, path, key) => {
-            let pause = false
             let queryKey = alias || path
 
-            let value = initialValue
-            let url = new URL(window.location.href)
+            let { initial, replace } = track(queryKey, initialValue)
 
-            if (url.searchParams.has(queryKey)) {
-                value = url.searchParams.get(queryKey)
-            }
-
-            setter(value)
-
-            let object = { value }
-
-            url.searchParams.set(queryKey, value)
-
-            replace(url.toString(), path, object)
-
-            window.addEventListener('popstate', (e) => {
-                if (! e.state) return
-                if (! e.state.alpine) return
-
-                Object.entries(e.state.alpine).forEach(([newKey, { value }]) => {
-                    if (newKey !== key) return
-
-                    pause = true
-
-                    Alpine.disableEffectScheduling(() => {
-                        setter(value)
-                    })
-
-                    pause = false
-                })
-            })
+            setter(initial)
 
             Alpine.effect(() => {
-                let value = getter()
-
-                if (pause) return
-
-                let object = { value }
-
-                let url = new URL(window.location.href)
-
-                url.searchParams.set(queryKey, value)
-
-                push(url.toString(), path, object)
+                replace(getter())
             })
 
-            return value
+            return initial
         }, func => {
             func.as = key => { alias = key; return func }
         })
     })
+
+    Alpine.history = { track }
+}
+
+export function track(name, initialValue, except = null) {
+    let pause = false
+    let url = new URL(window.location.href)
+    let value = initialValue
+
+    if (url.searchParams.has(name)) {
+        value = url.searchParams.get(name)
+    }
+
+    // Nothing happens here...
+    // let object = { value }
+
+    // url.searchParams.set(name, value)
+
+    // replace(url.toString(), name, object)
+
+    return {
+        initial: value, // Initial value...
+        replace(newValue) { // Update via replaceState...
+            let object = { value: newValue }
+
+            let url = new URL(window.location.href)
+
+            url.searchParams.set(name, newValue)
+
+            replace(url.toString(), name, object)
+        },
+        push(newValue) { // Update via pushState...
+            if (pause) return
+
+            let object = { value: newValue }
+
+            let url = new URL(window.location.href)
+
+            url.searchParams.set(name, newValue)
+
+            push(url.toString(), name, object)
+        },
+        pop(receiver) { // onPopState...
+            window.addEventListener('popstate', (e) => {
+                if (! e.state) return
+                if (! e.state.alpine) return
+
+                Object.entries(e.state.alpine).forEach(([newName, { value }]) => {
+                    if (newName !== name) return
+
+                    pause = true
+
+                    receiver(value)
+
+                    pause = false
+                })
+            })
+        }
+    }
 }
 
 function replace(url, key, object) {
@@ -74,3 +94,62 @@ function push(url, key, object) {
 
     window.history.pushState(state, '', url)
 }
+
+// Alpine.magic('queryString', (el, { interceptor }) =>  {
+//     let alias
+
+//     return interceptor((initialValue, getter, setter, path, key) => {
+//         let pause = false
+//         let queryKey = alias || path
+
+//         let value = initialValue
+//         let url = new URL(window.location.href)
+
+//         if (url.searchParams.has(queryKey)) {
+//             value = url.searchParams.get(queryKey)
+//         }
+
+//         setter(value)
+
+//         let object = { value }
+
+//         url.searchParams.set(queryKey, value)
+
+//         replace(url.toString(), path, object)
+
+//         window.addEventListener('popstate', (e) => {
+//             if (! e.state) return
+//             if (! e.state.alpine) return
+
+//             Object.entries(e.state.alpine).forEach(([newKey, { value }]) => {
+//                 if (newKey !== key) return
+
+//                 pause = true
+
+//                 Alpine.disableEffectScheduling(() => {
+//                     setter(value)
+//                 })
+
+//                 pause = false
+//             })
+//         })
+
+//         Alpine.effect(() => {
+//             let value = getter()
+
+//             if (pause) return
+
+//             let object = { value }
+
+//             let url = new URL(window.location.href)
+
+//             url.searchParams.set(queryKey, value)
+
+//             push(url.toString(), path, object)
+//         })
+
+//         return value
+//     }, func => {
+//         func.as = key => { alias = key; return func }
+//     })
+// })

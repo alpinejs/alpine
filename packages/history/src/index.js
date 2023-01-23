@@ -1,20 +1,35 @@
+
 export default function history(Alpine) {
     Alpine.magic('queryString', (el, { interceptor }) =>  {
         let alias
+        let alwaysShow = false
+        let usePush = false
 
-        return interceptor((initialValue, getter, setter, path, key) => {
+        return interceptor((initialSeedValue, getter, setter, path, key) => {
             let queryKey = alias || path
 
-            let { initial, replace } = track(queryKey, initialValue)
+            let { initial, replace, push, pop } = track(queryKey, initialSeedValue, alwaysShow)
 
             setter(initial)
 
-            Alpine.effect(() => {
-                replace(getter())
-            })
+            if (! usePush) {
+                Alpine.effect(() => replace(getter()))
+            } else {
+                Alpine.effect(() => push(getter()))
+
+                pop(async newValue => {
+                    setter(newValue)
+
+                    let tillTheEndOfTheMicrotaskQueue = () => Promise.resolve()
+
+                    await tillTheEndOfTheMicrotaskQueue() // ...so that we preserve the internal lock...
+                })
+            }
 
             return initial
         }, func => {
+            func.alwaysShow = () => { alwaysShow = true; return func }
+            func.usePush = () => { usePush = true; return func }
             func.as = key => { alias = key; return func }
         })
     })
@@ -22,57 +37,65 @@ export default function history(Alpine) {
     Alpine.history = { track }
 }
 
-export function track(name, initialValue, except = null) {
-    let pause = false
-    let url = new URL(window.location.href)
-    let value = initialValue
+export function track(name, initialSeedValue, alwaysShow = false) {
+    let { has, get, set, remove } = queryStringUtils()
 
-    if (url.searchParams.has(name)) {
-        value = url.searchParams.get(name)
+    let url = new URL(window.location.href)
+    let isInitiallyPresentInUrl = has(url, name)
+    let initialValue = isInitiallyPresentInUrl ? get(url, name) : initialSeedValue
+    let initialValueMemo = JSON.stringify(initialValue)
+    let hasReturnedToInitialValue = (newValue) => JSON.stringify(newValue) === initialValueMemo
+
+    if (alwaysShow) url = set(url, name, initialValue)
+
+    replace(url, name, { value: initialValue })
+
+    let lock = false
+
+    let update = (strategy, newValue) => {
+        if (lock) return
+
+        let url = new URL(window.location.href)
+
+        if (! alwaysShow && ! isInitiallyPresentInUrl && hasReturnedToInitialValue(newValue)) {
+            url = remove(url, name)
+        } else {
+            url = set(url, name, newValue)
+        }
+
+        strategy(url, name, { value: newValue})
     }
 
-    // Nothing happens here...
-    // let object = { value }
-
-    // url.searchParams.set(name, value)
-
-    // replace(url.toString(), name, object)
-
     return {
-        initial: value, // Initial value...
+        initial: initialValue,
+
         replace(newValue) { // Update via replaceState...
-            let object = { value: newValue }
-
-            let url = new URL(window.location.href)
-
-            url.searchParams.set(name, newValue)
-
-            replace(url.toString(), name, object)
+            update(replace, newValue)
         },
+
         push(newValue) { // Update via pushState...
-            if (pause) return
-
-            let object = { value: newValue }
-
-            let url = new URL(window.location.href)
-
-            url.searchParams.set(name, newValue)
-
-            push(url.toString(), name, object)
+            update(push, newValue)
         },
-        pop(receiver) { // onPopState...
+
+        pop(receiver) { // "popstate" handler...
             window.addEventListener('popstate', (e) => {
-                if (! e.state) return
-                if (! e.state.alpine) return
+                if (! e.state || ! e.state.alpine) return
 
-                Object.entries(e.state.alpine).forEach(([newName, { value }]) => {
-                    if (newName !== name) return
+                Object.entries(e.state.alpine).forEach(([iName, { value: newValue }]) => {
+                    if (iName !== name) return
 
-                    pause = true
+                    lock = true
 
-                    receiver(value)
+                    // Allow the "receiver" to be an async function in case a non-syncronous
+                    // operation (like an ajax) requests needs to happen while preserving
+                    // the "locking" mechanism ("lock = true" in this case)...
+                    let result = receiver(newValue)
 
-                    pause = false
+                    if (result instanceof Promise) {
+                        result.finally(() => lock = false)
+                    } else {
+                        lock = false
+                    }
                 })
             })
         }
@@ -84,72 +107,127 @@ function replace(url, key, object) {
 
     if (! state.alpine) state.alpine = {}
 
-    state.alpine[key] = object
+    state.alpine[key] = unwrap(object)
 
-    window.history.replaceState(state, '', url)
+    window.history.replaceState(state, '', url.toString())
 }
 
 function push(url, key, object) {
-    let state = { alpine: {...window.history.state.alpine, ...{[key]: object}} }
+    let state = { alpine: {...window.history.state.alpine, ...{[key]: unwrap(object)}} }
 
-    window.history.pushState(state, '', url)
+    window.history.pushState(state, '', url.toString())
 }
 
-// Alpine.magic('queryString', (el, { interceptor }) =>  {
-//     let alias
+function unwrap(object) {
+    return JSON.parse(JSON.stringify(object))
+}
 
-//     return interceptor((initialValue, getter, setter, path, key) => {
-//         let pause = false
-//         let queryKey = alias || path
+function queryStringUtils() {
+    return {
+        has(url, key) {
+            let search = url.search
 
-//         let value = initialValue
-//         let url = new URL(window.location.href)
+            if (! search) return false
 
-//         if (url.searchParams.has(queryKey)) {
-//             value = url.searchParams.get(queryKey)
-//         }
+            let data = fromQueryString(search)
 
-//         setter(value)
+            return Object.keys(data).includes(key)
+        },
+        get(url, key) {
+            let search = url.search
 
-//         let object = { value }
+            if (! search) return false
 
-//         url.searchParams.set(queryKey, value)
+            let data = fromQueryString(search)
 
-//         replace(url.toString(), path, object)
+            return data[key]
+        },
+        set(url, key, value) {
+            let data = fromQueryString(url.search)
 
-//         window.addEventListener('popstate', (e) => {
-//             if (! e.state) return
-//             if (! e.state.alpine) return
+            data[key] = value
 
-//             Object.entries(e.state.alpine).forEach(([newKey, { value }]) => {
-//                 if (newKey !== key) return
+            url.search = toQueryString(data)
 
-//                 pause = true
+            return url
+        },
+        remove(url, key) {
+            let data = fromQueryString(url.search)
 
-//                 Alpine.disableEffectScheduling(() => {
-//                     setter(value)
-//                 })
+            delete data[key]
 
-//                 pause = false
-//             })
-//         })
+            url.search = toQueryString(data)
 
-//         Alpine.effect(() => {
-//             let value = getter()
+            return url
+        },
+    }
+}
 
-//             if (pause) return
+// This function converts JavaScript data to bracketed query string notation...
+// { items: [['foo']] } -> "items[0][0]=foo"
+function toQueryString(data) {
+    let isObjecty = (subject) => typeof subject === 'object' && subject !== null
 
-//             let object = { value }
+    let buildQueryStringEntries = (data, entries = {}, baseKey = '') => {
+        Object.entries(data).forEach(([iKey, iValue]) => {
+            let key = baseKey === '' ? iKey : `${baseKey}[${iKey}]`
 
-//             let url = new URL(window.location.href)
+            if (! isObjecty(iValue)) {
+                entries[key] = encodeURIComponent(iValue)
+                    .replaceAll('%20', '+') // Conform to RFC1738
+            } else {
+                entries = {...entries, ...buildQueryStringEntries(iValue, entries, key)}
+            }
+        })
 
-//             url.searchParams.set(queryKey, value)
+        return entries
+    }
 
-//             push(url.toString(), path, object)
-//         })
+    let entries = buildQueryStringEntries(data)
 
-//         return value
-//     }, func => {
-//         func.as = key => { alias = key; return func }
-//     })
-// })
+
+    return Object.entries(entries).map(([key, value]) => `${key}=${value}`).join('&')
+}
+
+// This function converts bracketed query string notation back to JS data...
+// "items[0][0]=foo" -> { items: [['foo']] }
+function fromQueryString(search) {
+    search = search.replace('?', '')
+
+    if (search === '') return {}
+
+    let insertDotNotatedValueIntoData = (key, value, data) => {
+        let [first, second, ...rest] = key.split('.')
+
+        // We're at a leaf node, let's make the assigment...
+        if (! second) return data[key] = value
+
+        // This is where we fill in empty arrays/objects allong the way to the assigment...
+        if (data[first] === undefined) {
+            data[first] = isNaN(second) ? {} : []
+        }
+
+        // Keep deferring assignment until the full key is built up...
+        insertDotNotatedValueIntoData([second, ...rest].join('.'), value, data[first])
+    }
+
+    let entries = search.split('&').map(i => i.split('='))
+
+    let data = {}
+
+    entries.forEach(([key, value]) => {
+        value = decodeURIComponent(value.replaceAll('+', '%20'))
+
+        if (! key.includes('[')) {
+            data[key] = value
+        } else {
+            // Convert to dot notation because it's easier...
+            let dotNotatedKey = key.replaceAll('[', '.').replaceAll(']', '')
+
+            insertDotNotatedValueIntoData(dotNotatedKey, value, data)
+        }
+    })
+
+    return data
+}
+

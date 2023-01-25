@@ -90,15 +90,7 @@
 
                             <span x-show="$comboboxOption.isSelected" class="text-cyan-600 font-bold">✓</span>
                         </li>
-                    </template><li x-combobox:option="" :value="framework" :disabled="framework.disabled" :class="{
-                                'bg-cyan-500/10 text-gray-900': $comboboxOption.isActive,
-                                'text-gray-600': ! $comboboxOption.isActive,
-                                'opacity-50 cursor-not-allowed': $comboboxOption.isDisabled,
-                            }" class="flex items-center cursor-default justify-between gap-2 w-full px-4 py-2 text-sm transition-colors text-gray-600" id="alpine-combobox-option-9" role="option" tabindex="-1" aria-selected="true">
-                            <span x-text="framework.name">Django</span>
-
-                            <span x-show="$comboboxOption.isSelected" class="text-cyan-600 font-bold" style="">✓</span>
-                        </li>
+                    </template>
                 </ul>
 
                 <p x-show="filteredFrameworks.length == 0" class="px-4 py-2 text-sm text-gray-600" style="display: none;">No frameworks match your query.</p>

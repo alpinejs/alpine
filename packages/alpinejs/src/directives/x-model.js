@@ -5,9 +5,9 @@ import { nextTick } from '../nextTick'
 import bind from '../utils/bind'
 import on from '../utils/on'
 import { warn } from '../utils/warn'
-import { skipDuringClone } from '../clone'
+import { isCloning } from '../clone'
 
-directive('model', skipDuringClone((el, { modifiers, expression }, { effect, cleanup }) => {
+directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
 
     if (modifiers.includes('parent')) {
@@ -63,9 +63,16 @@ directive('model', skipDuringClone((el, { modifiers, expression }, { effect, cle
         || modifiers.includes('lazy')
             ? 'change' : 'input'
 
-    let removeListener = on(el, event, modifiers, (e) => {
-        setValue(getInputValue(el, modifiers, e, getValue()))
-    })
+    let removeListener = {}
+
+    // We only want to register the event listener when we're not cloning, since the
+    // mutation observer handles initializing the x-model directive already when
+    // the element is inserted into the DOM. Otherwise we register it twice.
+    if (!isCloning) {
+        removeListener = on(el, event, modifiers, (e) => {
+            setValue(getInputValue(el, modifiers, e, getValue()))
+        })
+    }
 
     // Register the listener removal callback on the element, so that
     // in addition to the cleanup function, x-modelable may call it.
@@ -120,7 +127,7 @@ directive('model', skipDuringClone((el, { modifiers, expression }, { effect, cle
 
         el._x_forceModelUpdate(value)
     })
-}))
+})
 
 function getInputValue(el, modifiers, event, currentValue) {
     return mutateDom(() => {

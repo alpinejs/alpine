@@ -63,16 +63,12 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         || modifiers.includes('lazy')
             ? 'change' : 'input'
 
-    let removeListener = {}
-
     // We only want to register the event listener when we're not cloning, since the
     // mutation observer handles initializing the x-model directive already when
     // the element is inserted into the DOM. Otherwise we register it twice.
-    if (!isCloning) {
-        removeListener = on(el, event, modifiers, (e) => {
-            setValue(getInputValue(el, modifiers, e, getValue()))
-        })
-    }
+    let removeListener = isCloning ? () => {} : on(el, event, modifiers, (e) => {
+        setValue(getInputValue(el, modifiers, e, getValue()))
+    })
 
     // Register the listener removal callback on the element, so that
     // in addition to the cleanup function, x-modelable may call it.

@@ -116,10 +116,8 @@ function handleRoot(el, Alpine) {
                 __startTyping() {
                     this.__isTyping = true
                 },
-                __stopTyping(resetInput = true) {
+                __stopTyping() {
                     this.__isTyping = false
-
-                    if (resetInput) this.$data.__resetInput()
                 },
                 __resetInput() {
                     let input = this.$refs['__input']
@@ -127,9 +125,6 @@ function handleRoot(el, Alpine) {
                     if (! input) return
 
                     let value = this.$data.__getCurrentValue()
-
-                    input.value = ''
-                    input.dispatchEvent(new Event('change'))
                     input.value = value
                 },
                 __getCurrentValue() {
@@ -240,8 +235,8 @@ function handleRoot(el, Alpine) {
                 && ! this.$refs.__button.contains(e.target)
                 && ! this.$refs.__options.contains(e.target)
             ) {
-                this.$data.__resetInput()
                 this.$data.__close()
+                this.$data.__resetInput()
             }
         }
     })
@@ -296,7 +291,7 @@ function handleInput(el, Alpine) {
             }
         },
         'x-on:blur'() {
-            this.$data.__stopTyping(false)
+            this.$data.__stopTyping()
         },
         'x-on:keydown'(e) {
             queueMicrotask(() => this.$data.__context.activateByKeyEvent(e, false, () => this.$data.__isOpen, () => this.$data.__open(), (state) => this.$data.__isTyping = state))
@@ -308,21 +303,22 @@ function handleInput(el, Alpine) {
 
             if (! this.$data.__isMultiple) {
                 this.$data.__close()
-                this.$data.__resetInput()
             }
+
+            this.$data.__resetInput()
         },
         'x-on:keydown.escape.prevent'(e) {
             if (! this.$data.__static) e.stopPropagation()
 
-            this.$data.__close()
-
             this.$data.__stopTyping()
+            this.$data.__close()
+            this.$data.__resetInput()
+
         },
         'x-on:keydown.tab'() {
             this.$data.__stopTyping()
-            this.$data.__resetInput()
-
             if (this.$data.__isOpen) { this.$data.__close() }
+            this.$data.__resetInput()
         },
         'x-on:keydown.backspace'(e) {
             if (this.$data.__isMultiple) return
@@ -371,8 +367,8 @@ function handleButton(el, Alpine) {
         'x-on:click'(e) {
             if (this.$data.__isDisabled) return
             if (this.$data.__isOpen) {
-                this.$data.__resetInput()
                 this.$data.__close()
+                this.$data.__resetInput()
             } else {
                 e.preventDefault()
                 this.$data.__open()
@@ -467,8 +463,8 @@ function handleOption(el, Alpine) {
             this.$data.__selectOption(this.$el)
 
             if (! this.$data.__isMultiple) {
-                this.$data.__resetInput()
                 this.$data.__close()
+                this.$data.__resetInput()
             }
 
             this.$nextTick(() => this.$refs['__input'].focus({ preventScroll: true }))

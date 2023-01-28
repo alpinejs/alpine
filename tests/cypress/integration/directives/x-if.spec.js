@@ -73,3 +73,40 @@ test('x-if removed dom does not evaluate reactive expressions in dom tree',
         get('span').should(notExist())
     }
 )
+
+// Attempting to skip an already-flushed reactive effect would cause inconsistencies when updating other effects.
+// See https://github.com/alpinejs/alpine/issues/2803 for more details.
+test('x-if removed dom does not attempt skipping already-processed reactive effects in dom tree',
+    html`
+    <div x-data="{
+        isEditing: true,
+        foo: 'random text',
+        stopEditing() {
+          this.foo = '';
+          this.isEditing = false;
+        },
+    }">
+        <button @click="stopEditing">Stop editing</button>
+        <template x-if="isEditing">
+            <div id="div-editing">
+              <h2>Editing</h2>
+              <input id="foo" name="foo" type="text" x-model="foo" />
+            </div>
+        </template>
+
+        <template x-if="!isEditing">
+            <div id="div-not-editing"><h2>Not editing</h2></div>
+        </template>
+
+        <template x-if="!isEditing">
+            <div id="div-also-not-editing"><h2>Also not editing</h2></div>
+        </template>
+    </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('div#div-editing').should(notExist())
+        get('div#div-not-editing').should(exist())
+        get('div#div-also-not-editing').should(exist())
+    }
+)

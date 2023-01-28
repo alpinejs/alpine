@@ -188,6 +188,13 @@ Adding `.window` to listeners is extremely useful for these sorts of cases where
 
 `.document` works similarly to `.window` only it registers listeners on the `document` global, instead of the `window` global.
 
+<a name="body"></a>
+### .body
+
+`.body` works similarly to `.document` and `.window` only it registers listeners on the `body` element.
+
+Using this modifier makes it easy to get reference to the event listener's parent element by using a CSS selector (e.g. `document.querySelector("body")`) while still providing a 'global' scope for the event.
+
 <a name="once"></a>
 ### .once
 

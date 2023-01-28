@@ -205,6 +205,21 @@ test('.document modifier',
     }
 )
 
+test('.body modifier',
+    html`
+       <div x-data="{ foo: 'bar' }">
+            <div x-on:click.body="foo = 'baz'"></div>
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('span').click()
+        get('span').should(haveText('baz'))
+    }
+)
+
 test('.once modifier',
     html`
         <div x-data="{ count: 0 }">

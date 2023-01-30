@@ -114,6 +114,38 @@ test('.capture modifier',
     }
 )
 
+test('.capture modifier with @keyup',
+    html`
+        <div x-data="{ foo: 'bar', count: 0 }">
+            <span @keyup.capture="count = count + 1; foo = 'span'">
+                <input type="text" @keyup="foo = 'input'">
+            </span>
+        </div>
+    `,
+    ({ get }) => {
+        get('div').should(haveData('foo', 'bar'))
+        get('input').type('f')
+        get('div').should(haveData('foo', 'input'))
+        get('div').should(haveData('count', 1))
+    }
+)
+
+test('.capture modifier with @keyup and specified key',
+    html`
+        <div x-data="{ foo: 'bar', count: 0 }">
+            <span @keyup.enter.capture="count = count + 1; foo = 'span'">
+                <input type="text" @keyup.enter="foo = 'input'">
+            </span>
+        </div>
+    `,
+    ({ get }) => {
+        get('div').should(haveData('foo', 'bar'))
+        get('input').type('{enter}')
+        get('div').should(haveData('foo', 'input'))
+        get('div').should(haveData('count', 1))
+    }
+)
+
 test('.self modifier',
     html`
         <div x-data="{ foo: 'bar' }">

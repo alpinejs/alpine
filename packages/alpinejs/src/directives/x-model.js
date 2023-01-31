@@ -5,6 +5,7 @@ import { nextTick } from '../nextTick'
 import bind from '../utils/bind'
 import on from '../utils/on'
 import { warn } from '../utils/warn'
+import { isCloning } from '../clone'
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
@@ -62,7 +63,10 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         || modifiers.includes('lazy')
             ? 'change' : 'input'
 
-    let removeListener = on(el, event, modifiers, (e) => {
+    // We only want to register the event listener when we're not cloning, since the
+    // mutation observer handles initializing the x-model directive already when
+    // the element is inserted into the DOM. Otherwise we register it twice.
+    let removeListener = isCloning ? () => {} : on(el, event, modifiers, (e) => {
         setValue(getInputValue(el, modifiers, e, getValue()))
     })
 

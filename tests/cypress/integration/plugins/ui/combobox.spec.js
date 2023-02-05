@@ -4,11 +4,6 @@ test('it works with x-model',
     [html`
         <div
             x-data="{
-                init() {
-                    this.$watch('selected', (value) => {
-                        if (value) this.query = ''
-                    })
-                },
                 query: '',
                 selected: null,
                 people: [
@@ -716,12 +711,16 @@ test('has accessibility attributes',
         </div>
     `],
     ({ get }) => {
+        get('input')
+            .should(haveAttribute('aria-expanded', 'false'))
+
         get('button')
             .should(haveAttribute('aria-haspopup', 'true'))
             .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1 alpine-combobox-button-1'))
             .should(haveAttribute('aria-expanded', 'false'))
             .should(notHaveAttribute('aria-controls'))
             .should(haveAttribute('id', 'alpine-combobox-button-1'))
+            .should(haveAttribute('tabindex', '-1'))
             .click()
             .should(haveAttribute('aria-expanded', 'true'))
             .should(haveAttribute('aria-controls', 'alpine-combobox-options-1'))
@@ -730,14 +729,12 @@ test('has accessibility attributes',
             .should(haveAttribute('role', 'combobox'))
             .should(haveAttribute('id', 'alpine-combobox-options-1'))
             .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1'))
-            .should(notHaveAttribute('aria-activedescendant'))
-            .should(haveAttribute('aria-activedescendant', 'alpine-combobox-option-1'))
 
         get('[option="1"]')
             .should(haveAttribute('role', 'option'))
             .should(haveAttribute('id', 'alpine-combobox-option-1'))
             .should(haveAttribute('tabindex', '-1'))
-            .should(haveAttribute('aria-selected', 'false'))
+            .should(haveAttribute('aria-selected', 'true'))
 
         get('[option="2"]')
             .should(haveAttribute('role', 'option'))
@@ -746,11 +743,17 @@ test('has accessibility attributes',
             .should(haveAttribute('aria-selected', 'false'))
 
         get('input')
+            .should(haveAttribute('role', 'combobox'))
+            .should(haveAttribute('aria-autocomplete', 'list'))
+            .should(haveAttribute('tabindex', '0'))
+            .should(haveAttribute('aria-expanded', 'true'))
+            .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1'))
+            .should(haveAttribute('aria-controls', 'alpine-combobox-options-1'))
+            .should(haveAttribute('aria-activedescendant', 'alpine-combobox-option-1'))
             .type('{downarrow}')
             .should(haveAttribute('aria-activedescendant', 'alpine-combobox-option-2'))
 
         get('[option="2"]')
-            .click()
             .should(haveAttribute('aria-selected', 'true'))
     },
 )
@@ -805,5 +808,85 @@ test('"static" prop',
         get('[option="2"]').click()
         get('ul').should(beVisible())
         get('[normal-toggle]').should(haveText('Arlene Mccoy'))
+    },
+)
+
+test('clicking outside the combobox closes it and resets the state',
+    [html`
+        <div
+            x-data="{
+                query: '',
+                selected: null,
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                },
+            }"
+        >
+            <div x-combobox x-model="selected">
+                <label x-combobox:label>Select person</label>
+
+                <div>
+                    <div>
+                        <input
+                            x-combobox:input
+                            :display-value="person => person.name"
+                            @change="query = $event.target.value"
+                            placeholder="Search..."
+                        />
+
+                        <button x-combobox:button>Toggle</button>
+                    </div>
+
+                    <div x-combobox:options>
+                        <ul>
+                            <template
+                                x-for="person in filteredPeople"
+                                :key="person.id"
+                                hidden
+                            >
+                                <li
+                                    x-combobox:option
+                                    :option="person.id"
+                                    :value="person"
+                                    :disabled="person.disabled"
+                                    x-text="person.name"
+                                >
+                                </li>
+                            </template>
+                        </ul>
+
+                        <p x-show="filteredPeople.length == 0">No people match your query.</p>
+                    </div>
+                </div>
+            </div>
+
+            <article x-text="selected?.name"></article>
+        </div>
+    `],
+    ({ get }) => {
+        get('button').click()
+        get('[option="2"]').click()
+        get('input').should(haveValue('Arlene Mccoy'))
+        get('button').click()
+        get('input').type('W')
+        get('article').click()
+        get('ul').should(notBeVisible())
+        get('input').should(haveValue('Arlene Mccoy'))
     },
 )

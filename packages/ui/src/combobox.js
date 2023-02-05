@@ -138,6 +138,22 @@ function handleRoot(el, Alpine) {
                     if (this.__isOpen) return
                     this.__isOpen = true
 
+                    let input = this.$refs['__input']
+
+                    // Make sure we always notify the parent component
+                    // that the starting value is the empty string
+                    // when we open the combobox (ignoring any existing value)
+                    // to avoid inconsistent displaying.
+                    // Setting the input to empty and back to the real value
+                    // also helps VoiceOver to annunce the content properly
+                    // See https://github.com/tailwindlabs/headlessui/pull/2153
+                    if (input) {
+                        let value = input.value
+                        input.value = ''
+                        input.dispatchEvent(new Event('change'))
+                        input.value = value
+                    }
+
                     this.__activateSelectedOrFirst()
 
                     // Safari needs more of a "tick" for focusing after x-show for some reason.
@@ -229,7 +245,7 @@ function handleRoot(el, Alpine) {
             }
         },
         // Register event listeners..
-        'x-on:mousedown.window'(e) {
+        '@mousedown.window'(e) {
             if (
                 !! ! this.$refs.__input.contains(e.target)
                 && ! this.$refs.__button.contains(e.target)
@@ -246,7 +262,7 @@ function handleInput(el, Alpine) {
     Alpine.bind(el, {
         // Setup...
         'x-ref': '__input',
-        'x-bind:id'() {
+        ':id'() {
             return this.$id('alpine-combobox-input')
         },
 
@@ -257,23 +273,23 @@ function handleInput(el, Alpine) {
 
         // We need to defer this evaluation a bit because $refs that get declared later
         // in the DOM aren't available yet when x-ref is the result of an Alpine.bind object.
-        async 'x-bind:aria-controls'() {
+        async ':aria-controls'() {
             return await microtask(() => this.$refs.__options && this.$refs.__options.id)
         },
-        'x-bind:aria-expanded'() {
+        ':aria-expanded'() {
             return this.$data.__isDisabled ? undefined : this.$data.__isOpen
         },
-        'x-bind:aria-multiselectable'() {
+        ':aria-multiselectable'() {
             return this.$data.__isMultiple ? true : undefined
         },
-        'x-bind:aria-activedescendant'() {
+        ':aria-activedescendant'() {
             if (! this.$data.__context.hasActive()) return
 
             let active = this.$data.__context.getActiveItem()
 
             return active ? active.el.id : null
         },
-        'x-bind:aria-labelledby'() {
+        ':aria-labelledby'() {
             return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null)
         },
 
@@ -284,19 +300,19 @@ function handleInput(el, Alpine) {
         },
 
         // Register listeners...
-        'x-on:input.stop'(e) {
+        '@input.stop'(e) {
             if(this.$data.__isTyping) {
                 this.$data.__open();
                 this.$dispatch('change')
             }
         },
-        'x-on:blur'() {
+        '@blur'() {
             this.$data.__stopTyping()
         },
-        'x-on:keydown'(e) {
+        '@keydown'(e) {
             queueMicrotask(() => this.$data.__context.activateByKeyEvent(e, false, () => this.$data.__isOpen, () => this.$data.__open(), (state) => this.$data.__isTyping = state))
         },
-        'x-on:keydown.enter.prevent.stop'() {
+        '@keydown.enter.prevent.stop'() {
             this.$data.__selectActive()
 
             this.$data.__stopTyping()
@@ -307,7 +323,7 @@ function handleInput(el, Alpine) {
 
             this.$data.__resetInput()
         },
-        'x-on:keydown.escape.prevent'(e) {
+        '@keydown.escape.prevent'(e) {
             if (! this.$data.__static) e.stopPropagation()
 
             this.$data.__stopTyping()
@@ -315,12 +331,12 @@ function handleInput(el, Alpine) {
             this.$data.__resetInput()
 
         },
-        'x-on:keydown.tab'() {
+        '@keydown.tab'() {
             this.$data.__stopTyping()
             if (this.$data.__isOpen) { this.$data.__close() }
             this.$data.__resetInput()
         },
-        'x-on:keydown.backspace'(e) {
+        '@keydown.backspace'(e) {
             if (this.$data.__isMultiple) return
             if (! this.$data.__nullable) return
 
@@ -346,7 +362,7 @@ function handleButton(el, Alpine) {
     Alpine.bind(el, {
         // Setup...
         'x-ref': '__button',
-        'x-bind:id'() {
+        ':id'() {
             return this.$id('alpine-combobox-button')
         },
 
@@ -354,17 +370,17 @@ function handleButton(el, Alpine) {
         'aria-haspopup': 'true',
         // We need to defer this evaluation a bit because $refs that get declared later
         // in the DOM aren't available yet when x-ref is the result of an Alpine.bind object.
-        async 'x-bind:aria-controls'() { return await microtask(() => this.$refs.__options && this.$refs.__options.id) },
-        'x-bind:aria-labelledby'() { return this.$refs.__label ? [this.$refs.__label.id, this.$el.id].join(' ') : null },
-        'x-bind:aria-expanded'() { return this.$data.__isDisabled ? null : this.$data.__isOpen },
-        'x-bind:disabled'() { return this.$data.__isDisabled },
+        async ':aria-controls'() { return await microtask(() => this.$refs.__options && this.$refs.__options.id) },
+        ':aria-labelledby'() { return this.$refs.__label ? [this.$refs.__label.id, this.$el.id].join(' ') : null },
+        ':aria-expanded'() { return this.$data.__isDisabled ? null : this.$data.__isOpen },
+        ':disabled'() { return this.$data.__isDisabled },
         'tabindex': '-1',
 
         // Initialize....
         'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && ! this.$el.hasAttribute('type')) this.$el.type = 'button' },
 
         // Register listeners...
-        'x-on:click'(e) {
+        '@click'(e) {
             if (this.$data.__isDisabled) return
             if (this.$data.__isOpen) {
                 this.$data.__close()
@@ -382,10 +398,10 @@ function handleButton(el, Alpine) {
 function handleLabel(el, Alpine) {
     Alpine.bind(el, {
         'x-ref': '__label',
-        'x-bind:id'() {
+        ':id'() {
             return this.$id('alpine-combobox-label')
         },
-        'x-on:click'() { this.$refs.__input.focus({ preventScroll: true }) },
+        '@click'() { this.$refs.__input.focus({ preventScroll: true }) },
     })
 }
 
@@ -393,20 +409,13 @@ function handleOptions(el, Alpine) {
     Alpine.bind(el, {
         // Setup...
         'x-ref': '__options',
-        'x-bind:id'() {
+        ':id'() {
             return this.$id('alpine-combobox-options')
         },
 
         // Accessibility attributes...
         'role': 'combobox',
-        'x-bind:aria-labelledby'() { return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null) },
-        'x-bind:aria-activedescendant'() {
-            if (! this.$data.__context.hasActive()) return
-
-            let active = this.$data.__context.getActiveItem()
-
-            return active ? active.el.id : null
-        },
+        ':aria-labelledby'() { return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null) },
 
         // Initialize...
         'x-init'() {
@@ -429,15 +438,15 @@ function handleOption(el, Alpine) {
         'x-id'() {
             return ['alpine-combobox-option']
         },
-        'x-bind:id'() {
+        ':id'() {
             return this.$id('alpine-combobox-option')
         },
 
         // Accessibility attributes...
         'role': 'option',
-        'x-bind:tabindex'() { return this.$comboboxOption.isDisabled ? undefined : '-1' },
-        'x-bind:aria-selected'() { return this.$comboboxOption.isSelected },
-        'x-bind:aria-disabled'() { return this.$comboboxOption.isDisabled },
+        ':tabindex'() { return this.$comboboxOption.isDisabled ? undefined : '-1' },
+        ':aria-selected'() { return this.$comboboxOption.isActive },
+        ':aria-disabled'() { return this.$comboboxOption.isDisabled },
 
         // Initialize...
         'x-data'() {
@@ -457,7 +466,7 @@ function handleOption(el, Alpine) {
         },
 
         // Register listeners...
-        'x-on:click'() {
+        '@click'() {
             if (this.$comboboxOption.isDisabled) return;
 
             this.$data.__selectOption(this.$el)
@@ -469,12 +478,12 @@ function handleOption(el, Alpine) {
 
             this.$nextTick(() => this.$refs['__input'].focus({ preventScroll: true }))
         },
-        'x-on:mousemove'(e) {
+        '@mousemove'(e) {
             if (this.$data.__context.isActiveEl(this.$el)) return
 
             this.$data.__context.activateEl(this.$el)
         },
-        'x-on:mouseleave'(e) {
+        '@mouseleave'(e) {
             if (this.$data.__hold) return
 
             this.$data.__context.deactivate()

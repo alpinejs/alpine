@@ -125,6 +125,7 @@ function handleRoot(el, Alpine) {
                     if (! input) return
 
                     let value = this.$data.__getCurrentValue()
+
                     input.value = value
                 },
                 __getCurrentValue() {
@@ -178,9 +179,9 @@ function handleRoot(el, Alpine) {
                     let firstSelectedValue
 
                     if (this.__isMultiple) {
-                        firstSelectedValue = this.__value.find(i => {
-                            return !! this.__context.getItemByValue(i)
-                        })
+                        let activeElement = this.__context.getItemsByValues(this.__value)
+
+                        firstSelectedValue = activeElement.length ? activeElement[0].value : null
                     } else {
                         firstSelectedValue = this.__value
                     }
@@ -262,9 +263,7 @@ function handleInput(el, Alpine) {
     Alpine.bind(el, {
         // Setup...
         'x-ref': '__input',
-        ':id'() {
-            return this.$id('alpine-combobox-input')
-        },
+        ':id'() { return this.$id('alpine-combobox-input') },
 
         // Accessibility attributes...
         'role': 'combobox',
@@ -273,15 +272,9 @@ function handleInput(el, Alpine) {
 
         // We need to defer this evaluation a bit because $refs that get declared later
         // in the DOM aren't available yet when x-ref is the result of an Alpine.bind object.
-        async ':aria-controls'() {
-            return await microtask(() => this.$refs.__options && this.$refs.__options.id)
-        },
-        ':aria-expanded'() {
-            return this.$data.__isDisabled ? undefined : this.$data.__isOpen
-        },
-        ':aria-multiselectable'() {
-            return this.$data.__isMultiple ? true : undefined
-        },
+        async ':aria-controls'() { return await microtask(() => this.$refs.__options && this.$refs.__options.id) },
+        ':aria-expanded'() { return this.$data.__isDisabled ? undefined : this.$data.__isOpen },
+        ':aria-multiselectable'() { return this.$data.__isMultiple ? true : undefined },
         ':aria-activedescendant'() {
             if (! this.$data.__context.hasActive()) return
 
@@ -289,9 +282,7 @@ function handleInput(el, Alpine) {
 
             return active ? active.el.id : null
         },
-        ':aria-labelledby'() {
-            return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null)
-        },
+        ':aria-labelledby'() { return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null) },
 
         // Initialize...
         'x-init'() {
@@ -306,9 +297,7 @@ function handleInput(el, Alpine) {
                 this.$dispatch('change')
             }
         },
-        '@blur'() {
-            this.$data.__stopTyping()
-        },
+        '@blur'() { this.$data.__stopTyping(false) },
         '@keydown'(e) {
             queueMicrotask(() => this.$data.__context.activateByKeyEvent(e, false, () => this.$data.__isOpen, () => this.$data.__open(), (state) => this.$data.__isTyping = state))
         },
@@ -319,9 +308,8 @@ function handleInput(el, Alpine) {
 
             if (! this.$data.__isMultiple) {
                 this.$data.__close()
+                this.$data.__resetInput()
             }
-
-            this.$data.__resetInput()
         },
         '@keydown.escape.prevent'(e) {
             if (! this.$data.__static) e.stopPropagation()
@@ -362,9 +350,7 @@ function handleButton(el, Alpine) {
     Alpine.bind(el, {
         // Setup...
         'x-ref': '__button',
-        ':id'() {
-            return this.$id('alpine-combobox-button')
-        },
+        ':id'() { return this.$id('alpine-combobox-button') },
 
         // Accessibility attributes...
         'aria-haspopup': 'true',
@@ -398,9 +384,7 @@ function handleButton(el, Alpine) {
 function handleLabel(el, Alpine) {
     Alpine.bind(el, {
         'x-ref': '__label',
-        ':id'() {
-            return this.$id('alpine-combobox-label')
-        },
+        ':id'() { return this.$id('alpine-combobox-label') },
         '@click'() { this.$refs.__input.focus({ preventScroll: true }) },
     })
 }
@@ -409,9 +393,7 @@ function handleOptions(el, Alpine) {
     Alpine.bind(el, {
         // Setup...
         'x-ref': '__options',
-        ':id'() {
-            return this.$id('alpine-combobox-options')
-        },
+        ':id'() { return this.$id('alpine-combobox-options') },
 
         // Accessibility attributes...
         'role': 'combobox',
@@ -426,21 +408,15 @@ function handleOptions(el, Alpine) {
             }
         },
 
-        'x-show'() {
-            return this.$data.__isStatic ? true : this.$data.__isOpen
-        },
+        'x-show'() { return this.$data.__isStatic ? true : this.$data.__isOpen },
     })
 }
 
 function handleOption(el, Alpine) {
     Alpine.bind(el, {
         // Setup...
-        'x-id'() {
-            return ['alpine-combobox-option']
-        },
-        ':id'() {
-            return this.$id('alpine-combobox-option')
-        },
+        'x-id'() { return ['alpine-combobox-option'] },
+        ':id'() { return this.$id('alpine-combobox-option') },
 
         // Accessibility attributes...
         'role': 'option',
@@ -457,11 +433,16 @@ function handleOption(el, Alpine) {
                     let value = Alpine.extractProp(this.$el, 'value')
                     let disabled = Alpine.extractProp(this.$el, 'disabled', false, false)
 
-                    this.$data.__context.registerItem(key, this.$el, value, disabled)
+                    // memoize the context as it's not going to change
+                    // and calling this.$data on mouse action is expensive
+                    this.__context = this.$data.__context
+                    this.__context.registerItem(key, this.$el, value, disabled)
                 },
                 destroy() {
-                    this.$data.__context.unregisterItem(this.$el.__optionKey)
+                    this.__context.unregisterItem(this.$el.__optionKey)
+                    this.__context = null
                 },
+                __context: null
             }
         },
 
@@ -478,15 +459,18 @@ function handleOption(el, Alpine) {
 
             this.$nextTick(() => this.$refs['__input'].focus({ preventScroll: true }))
         },
+        '@mouseenter'(e) {
+            this.__context.activateEl(this.$el)
+        },
         '@mousemove'(e) {
-            if (this.$data.__context.isActiveEl(this.$el)) return
+            if (this.__context.isActiveEl(this.$el)) return
 
-            this.$data.__context.activateEl(this.$el)
+            this.__context.activateEl(this.$el)
         },
         '@mouseleave'(e) {
             if (this.$data.__hold) return
 
-            this.$data.__context.deactivate()
+            this.__context.deactivate()
         },
     })
 }

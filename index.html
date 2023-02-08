@@ -8,12 +8,73 @@
     <script src="./packages/history/dist/cdn.js"></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
-    <script src="//cdn.tailwindcss.com"></script>
+    <!-- <script src="//cdn.tailwindcss.com"></script> -->
 
-    <div x-data="{ count: $queryString(1) }">
-        <input type="text" x-model="count">
-        <span x-text="count"></span>
-    </div>
+
+
+
+    <button wire:click.prefetch"...">
+        Do something
+    </button>
+
+
+
+
+
+
+
+
+
+
+<div x-data="{ count: $url(1) }">
+    <button @click="count++">+</button>
+    <button @click="count--">-</button>
+
+    <h1 x-text="count"></h1>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
 
     <div x-data="{ users: [{ name: 'lebowski' }] }">
         <template x-for="(user, idx) in users">

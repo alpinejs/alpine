@@ -3,6 +3,7 @@ import { deferHandlingDirectives, directives } from "./directives"
 import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
+import Alpine from "./alpine"
 
 export function start() {
     if (! document.body) warn('Unable to initialize. Trying to load Alpine before `<body>` is available. Did you forget to add `defer` in Alpine\'s `<script>` tag?')

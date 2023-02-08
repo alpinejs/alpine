@@ -27,11 +27,8 @@ export function directive(name, callback) {
                 );
                 return;
             }
-            const pos = directiveOrder.indexOf(directive)
-                ?? directiveOrder.indexOf('DEFAULT');
-            if (pos >= 0) {
-                directiveOrder.splice(pos, 0, name);
-            }
+            const pos = directiveOrder.indexOf(directive);
+            directiveOrder.splice(pos >= 0 ? pos : directiveOrder.indexOf('DEFAULT'), 0, name);
         }
     }
 }

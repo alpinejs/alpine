@@ -2,7 +2,7 @@ import { effect, release, overrideEffect } from "./reactivity"
 import { initTree, isRoot } from "./lifecycle"
 import { walk } from "./utils/walk"
 
-let isCloning = false
+export let isCloning = false
 
 export function skipDuringClone(callback, fallback = () => {}) {
     return (...args) => isCloning ? fallback(...args) : callback(...args)

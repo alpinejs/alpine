@@ -9,12 +9,12 @@ In order for Alpine to be able to execute plain strings from HTML attributes as 
 
 > Under the hood, Alpine doesn't actually use eval() itself because it's slow and problematic. Instead it uses Function declarations, which are much better, but still violate "unsafe-eval".
 
-In order to accommodate environments where this CSP is necessary, Alpine offers an alternate build that doesn't violate "unsafe-eval", but has a more restrictive syntax.
+In order to accommodate environments where this CSP is necessary, Alpine will offer an alternate build that doesn't violate "unsafe-eval", but has a more restrictive syntax.
 
 <a name="installation"></a>
 ## Installation
 
-Like all Alpine extensions, you can include this either via `<script>` tag or module import:
+The CSP build hasn’t been officially released yet. In the meantime, you may [build it from source](https://github.com/alpinejs/alpine/tree/main/packages/csp). Once released, like all Alpine extensions, you will be able to include this either via `<script>` tag or module import:
 
 <a name="script-tag"></a>
 ### Script tag

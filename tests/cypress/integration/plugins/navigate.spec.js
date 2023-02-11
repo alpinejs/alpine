@@ -1,6 +1,6 @@
 import { beEqualTo, beVisible, haveAttribute, haveFocus, haveText, html, notBeVisible, test } from '../../utils'
 
-// Test persistant peice of layout
+// Test persistent piece of layout
 // Handle non-origin links and such
 // Handle 404
 // Middle/command click link in new tab works?

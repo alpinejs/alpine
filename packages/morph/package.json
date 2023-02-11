@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/morph",
-    "version": "3.10.5",
+    "version": "3.11.1",
     "description": "Diff and patch a block of HTML on a page with an HTML template",
     "homepage": "https://alpinejs.dev/plugins/morph",
     "repository": {

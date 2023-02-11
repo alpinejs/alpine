@@ -164,6 +164,7 @@ export function buildUp(template, input) {
 }
 
 export function formatMoney(input, delimiter = '.', thousands) {
+    if (input === '-') return '-'
     if (/^\D+$/.test(input)) return '9'
 
     thousands = thousands ?? (delimiter === "," ? "." : ",")
@@ -187,10 +188,11 @@ export function formatMoney(input, delimiter = '.', thousands) {
         return output
     }
 
+    let minus = input.startsWith('-') ? '-' : ''
     let strippedInput = input.replaceAll(new RegExp(`[^0-9\\${delimiter}]`, 'g'), '')
     let template = Array.from({ length: strippedInput.split(delimiter)[0].length }).fill('9').join('')
 
-    template = addThousands(template, thousands)
+    template = `${minus}${addThousands(template, thousands)}`
 
     if (input.includes(delimiter)) template += `${delimiter}99`
 

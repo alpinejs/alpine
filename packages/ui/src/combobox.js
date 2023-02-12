@@ -96,7 +96,7 @@ function handleRoot(el, Alpine) {
                     this.__nullable = Alpine.extractProp(el, 'nullable', false)
                     this.__compareBy = Alpine.extractProp(el, 'by')
 
-                    this.__context = generateContext(this.__isMultiple, 'vertical', () => this.$data.__activateSelectedOrFirst())
+                    this.__context = generateContext(this.__isMultiple, 'vertical', () => this.__activateSelectedOrFirst())
 
                     let defaultValue = Alpine.extractProp(el, 'default-value', this.__isMultiple ? [] : null)
 
@@ -124,14 +124,14 @@ function handleRoot(el, Alpine) {
 
                     if (! input) return
 
-                    let value = this.$data.__getCurrentValue()
+                    let value = this.__getCurrentValue()
 
                     input.value = value
                 },
                 __getCurrentValue() {
                     if (! this.$refs['__input']) return ''
                     if (! this.__value) return ''
-                    if (this.$data.__displayValue) return this.$data.__displayValue(this.__value)
+                    if (this.__displayValue) return this.__displayValue(this.__value)
                     if (typeof this.__value === 'string') return this.__value
                     return ''
                 },
@@ -195,7 +195,7 @@ function handleRoot(el, Alpine) {
                     }
                 },
                 __selectActive() {
-                    let active = this.$data.__context.getActiveItem()
+                    let active = this.__context.getActiveItem()
                     if (active) this.__toggleSelected(active.value)
                 },
                 __selectOption(el) {
@@ -252,8 +252,8 @@ function handleRoot(el, Alpine) {
                 && ! this.$refs.__button.contains(e.target)
                 && ! this.$refs.__options.contains(e.target)
             ) {
-                this.$data.__close()
-                this.$data.__resetInput()
+                this.__close()
+                this.__resetInput()
             }
         }
     })
@@ -435,14 +435,11 @@ function handleOption(el, Alpine) {
 
                     // memoize the context as it's not going to change
                     // and calling this.$data on mouse action is expensive
-                    this.__context = this.$data.__context
                     this.__context.registerItem(key, this.$el, value, disabled)
                 },
                 destroy() {
                     this.__context.unregisterItem(this.$el.__optionKey)
-                    this.__context = null
-                },
-                __context: null
+                }
             }
         },
 
@@ -450,11 +447,11 @@ function handleOption(el, Alpine) {
         '@click'() {
             if (this.$comboboxOption.isDisabled) return;
 
-            this.$data.__selectOption(this.$el)
+            this.__selectOption(this.$el)
 
-            if (! this.$data.__isMultiple) {
-                this.$data.__close()
-                this.$data.__resetInput()
+            if (! this.__isMultiple) {
+                this.__close()
+                this.__resetInput()
             }
 
             this.$nextTick(() => this.$refs['__input'].focus({ preventScroll: true }))
@@ -468,7 +465,7 @@ function handleOption(el, Alpine) {
             this.__context.activateEl(this.$el)
         },
         '@mouseleave'(e) {
-            if (this.$data.__hold) return
+            if (this.__hold) return
 
             this.__context.deactivate()
         },

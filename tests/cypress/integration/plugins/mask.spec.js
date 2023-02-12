@@ -181,15 +181,17 @@ test('$money mask should remove letters or non numeric characters',
 
 test('$money with custom decimal precision',
     [html`
-        <input id="0" x-data x-mask:dynamic="$money($input, '.', ',', 0)" />
-        <input id="1" x-data x-mask:dynamic="$money($input, '.', ',', 1)" />
-        <input id="2" x-data x-mask:dynamic="$money($input, '.', ',', 2)" />
-        <input id="3" x-data x-mask:dynamic="$money($input, '.', ',', 3)" />
+        <input id="0" x-data x-mask:dynamic="$money($input, { precision: 0 })" />
+        <input id="10" x-data x-mask:dynamic="$money($input, { precision: 0 })" value="1234.5678" />
+        <input id="1" x-data x-mask:dynamic="$money($input, { precision: 1 })" />
+        <input id="2" x-data x-mask:dynamic="$money($input, { delimiter: ',', precision: 2 })" />
+        <input id="3" x-data x-mask:dynamic="$money($input, { precision: 3, thousands: ' ', delimiter: ',' })" />
     `],
     ({ get }) => {
         get('#0').type('1234.5678').should(haveValue('12,345,678'))
+        get('#10').should(haveValue('1,234'))
         get('#1').type('1234.5678').should(haveValue('1,234.5'))
-        get('#2').type('1234.5678').should(haveValue('1,234.56'))
-        get('#3').type('1234.5678').should(haveValue('1,234.567'))
+        get('#2').type('1234,5678').should(haveValue('1.234,56'))
+        get('#3').type('1234,5678').should(haveValue('1 234,567'))
     }
 )

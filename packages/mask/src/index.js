@@ -163,10 +163,18 @@ export function buildUp(template, input) {
     return output
 }
 
-export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
+export function formatMoney(input, options = {}) {
     if (/^\D+$/.test(input)) return '9'
-
-    thousands = thousands ?? (delimiter === "," ? "." : ",")
+    
+    let delimiter = options.delimiter ?? '.'
+    let thousands = options.thousands ?? (delimiter === ',' ? '.' : ',')
+    let precision = options.precision ?? 2
+    
+    // backwards compatibility for any formatMoney(input, delimiter = '.', thousands) calls
+    if (typeof options === 'string') {
+        delimiter = options
+        thousands = arguments[2] ?? (delimiter === ',' ? '.' : ',')
+    }
 
     let addThousands = (input, thousands) => {
         let output = ''

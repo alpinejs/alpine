@@ -120,7 +120,7 @@ function handleRoot(el, Alpine) {
                     this.__isTyping = false
                 },
                 __resetInput() {
-                    let input = this.$refs['__input']
+                    let input = this.$refs.__input
 
                     if (! input) return
 
@@ -129,7 +129,7 @@ function handleRoot(el, Alpine) {
                     input.value = value
                 },
                 __getCurrentValue() {
-                    if (! this.$refs['__input']) return ''
+                    if (! this.$refs.__input) return ''
                     if (! this.__value) return ''
                     if (this.__displayValue) return this.__displayValue(this.__value)
                     if (typeof this.__value === 'string') return this.__value
@@ -139,7 +139,7 @@ function handleRoot(el, Alpine) {
                     if (this.__isOpen) return
                     this.__isOpen = true
 
-                    let input = this.$refs['__input']
+                    let input = this.$refs.__input
 
                     // Make sure we always notify the parent component
                     // that the starting value is the empty string
@@ -161,7 +161,7 @@ function handleRoot(el, Alpine) {
                     // Probably because Alpine adds an extra tick when x-showing for @click.outside
                     let nextTick = callback => requestAnimationFrame(() => requestAnimationFrame(callback))
 
-                    nextTick(() => this.$refs['__input'].focus({ preventScroll: true }))
+                    nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
                 },
                 __close() {
                     this.__isOpen = false
@@ -454,7 +454,7 @@ function handleOption(el, Alpine) {
                 this.__resetInput()
             }
 
-            this.$nextTick(() => this.$refs['__input'].focus({ preventScroll: true }))
+            this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
         },
         '@mouseenter'(e) {
             this.__context.activateEl(this.$el)

@@ -171,11 +171,6 @@ function handleRoot(el, Alpine) {
                 __activateSelectedOrFirst(activateSelected = true) {
                     if (! this.__isOpen) return
 
-                    if (this.__context.activeKey) {
-                        this.__context.activateAndScrollToKey(this.__context.activeKey)
-                        return
-                    }
-
                     let firstSelectedValue
 
                     if (this.__isMultiple) {
@@ -186,13 +181,17 @@ function handleRoot(el, Alpine) {
                         firstSelectedValue = this.__value
                     }
 
+                    let firstSelected = null
                     if (activateSelected && firstSelectedValue) {
-                        let firstSelected = this.__context.getItemByValue(firstSelectedValue)
-
-                        firstSelected && this.__context.activateAndScrollToKey(firstSelected.key)
-                    } else {
-                        this.__context.activateAndScrollToKey(this.__context.firstKey())
+                        firstSelected = this.__context.getItemByValue(firstSelectedValue)
                     }
+
+                    if (firstSelected) {
+                        this.__context.activateAndScrollToKey(firstSelected.key)
+                        return
+                    }
+
+                    this.__context.activateAndScrollToKey(this.__context.firstKey())
                 },
                 __selectActive() {
                     let active = this.__context.getActiveItem()

@@ -178,3 +178,10 @@ test('$money mask should remove letters or non numeric characters',
         get('input').type('40').should(haveValue('40'))
     }
 )
+
+test('$money formats existing x-model value',
+    [html`<input x-data="{ value: 12_123 }" x-model="value" x-mask:dynamic="$money" />`],
+    ({ get }) => {
+        get('input').should(haveValue('12,123'))
+    }
+)

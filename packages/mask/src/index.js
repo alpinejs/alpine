@@ -1,8 +1,9 @@
-
 export default function (Alpine) {
     Alpine.directive('mask', (el, { value, expression }, { effect, evaluateLater }) => {
         let templateFn = () => expression
         let lastInputValue = ''
+
+        let nextTick = callback => requestAnimationFrame(() => requestAnimationFrame(callback))
 
         if (['function', 'dynamic'].includes(value)) {
             // This is an x-mask:function directive.
@@ -32,10 +33,10 @@ export default function (Alpine) {
                 // - Initializing the mask on the input if it has an initial value.
                 // - Running the template function to set up reactivity, so that
                 //   when a dependency inside it changes, the input re-masks.
-                processInputValue(el)
+                nextTick(() => processInputValue(el));
             })
         } else {
-            processInputValue(el)
+            nextTick(() => processInputValue(el));
         }
 
         el.addEventListener('input', () => processInputValue(el))

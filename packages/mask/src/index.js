@@ -31,10 +31,10 @@ export default function (Alpine) {
                 // - Initializing the mask on the input if it has an initial value.
                 // - Running the template function to set up reactivity, so that
                 //   when a dependency inside it changes, the input re-masks.
-                Alpine.nextTick(() => processInputValue(el));
+                Alpine.nextTick(() => processInputValue(el))
             })
         } else {
-            Alpine.nextTick(() => processInputValue(el));
+            Alpine.nextTick(() => processInputValue(el))
         }
 
         el.addEventListener('input', () => processInputValue(el))

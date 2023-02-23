@@ -3,7 +3,6 @@ export default function (Alpine) {
         let templateFn = () => expression
         let lastInputValue = ''
 
-
         if (['function', 'dynamic'].includes(value)) {
             // This is an x-mask:function directive.
 

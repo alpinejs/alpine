@@ -1,3 +1,4 @@
+let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils')
 let fs = require('fs');
 let DotJson = require('dot-json');
 let brotliSize = require('brotli-size');
@@ -90,18 +91,6 @@ function build(options) {
         // external: ['alpinejs'],
         ...options,
     }).catch(() => process.exit(1))
-}
-
-function writeToPackageDotJson(package, key, value) {
-    let dotJson = new DotJson(`./packages/${package}/package.json`)
-
-    dotJson.set(key, value).save()
-}
-
-function getFromPackageDotJson(package, key) {
-    let dotJson = new DotJson(`./packages/${package}/package.json`)
-
-    return dotJson.get(key)
 }
 
 function outputSize(package, file) {

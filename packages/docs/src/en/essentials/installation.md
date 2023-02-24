@@ -19,12 +19,12 @@ This is by far the simplest way to get started with Alpine. Include the followin
 
 ```alpine
 <html>
-  <head>
-    ...
+    <head>
+        ...
 
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  </head>
-  ...
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    </head>
+    ...
 </html>
 ```
 

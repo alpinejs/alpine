@@ -1,6 +1,5 @@
-let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils')
+let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils');
 let fs = require('fs');
-let DotJson = require('dot-json');
 let brotliSize = require('brotli-size');
 
 ([

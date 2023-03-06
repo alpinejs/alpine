@@ -11,7 +11,7 @@ For example, here's a component where we will use `x-bind` to set the placeholde
 
 ```alpine
 <div x-data="{ placeholder: 'Type here...' }">
-  <input type="text" x-bind:placeholder="placeholder">
+    <input type="text" x-bind:placeholder="placeholder">
 </div>
 ```
 
@@ -33,11 +33,11 @@ Here's a simple example of a simple dropdown toggle, but instead of using `x-sho
 
 ```alpine
 <div x-data="{ open: false }">
-  <button x-on:click="open = ! open">Toggle Dropdown</button>
+    <button x-on:click="open = ! open">Toggle Dropdown</button>
 
-  <div :class="open ? '' : 'hidden'">
-    Dropdown Contents...
-  </div>
+    <div :class="open ? '' : 'hidden'">
+        Dropdown Contents...
+    </div>
 </div>
 ```
 

@@ -100,7 +100,7 @@ Here's an example of a component that dispatches a custom DOM event and listens 
 
 ```alpine
 <div x-data @foo="alert('Button Was Clicked!')">
-	<button @click="$event.target.dispatchEvent(new CustomEvent('foo', { bubbles: true }))">...</button>
+    <button @click="$event.target.dispatchEvent(new CustomEvent('foo', { bubbles: true }))">...</button>
 </div>
 ```
 
@@ -112,7 +112,7 @@ Here's the same component re-written with the `$dispatch` magic property.
 
 ```alpine
 <div x-data @foo="alert('Button Was Clicked!')">
-  <button @click="$dispatch('foo')">...</button>
+    <button @click="$dispatch('foo')">...</button>
 </div>
 ```
 

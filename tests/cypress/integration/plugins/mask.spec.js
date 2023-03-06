@@ -60,6 +60,19 @@ test('x-mask with x-model',
     },
 )
 
+test('x-mask with x-model with initial value',
+    [html`
+        <div x-data="{ value: '1234567890' }">
+            <input x-mask="(999) 999-9999" x-model="value" id="1">
+            <input id="2" x-model="value">
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('(123) 456-7890'))
+        get('#2').should(haveValue('(123) 456-7890'))
+    },
+)
+
 test('x-mask with a falsy input',
     [html`<input x-data x-mask="">`],
     ({ get }) => {

@@ -298,3 +298,16 @@ If you are listening for touch events, it's important to add `.passive` to your 
 ```
 
 [→ Read more about passive listeners](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#improving_scrolling_performance_with_passive_listeners)
+
+### .capture
+
+Add this modifier if you want to execute this listener in the event's capturing phase, e.g. before the event bubbles from the target element up the DOM.
+
+```
+<div @click.capture="console.log('I will log first')">
+    <button @click="console.log('I will log second')"></button>
+</div>
+```
+
+[→ Read more about the capturing and bubbling phase of events](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#usecapture)
+

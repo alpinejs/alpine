@@ -104,7 +104,7 @@ function isKeyEvent(event) {
 
 function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
-        return ! ['window', 'document', 'prevent', 'stop', 'once'].includes(i)
+        return ! ['window', 'document', 'prevent', 'stop', 'once', 'capture'].includes(i)
     })
 
     if (keyModifiers.includes('debounce')) {

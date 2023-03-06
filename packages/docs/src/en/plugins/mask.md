@@ -171,3 +171,16 @@ You may also choose to override the thousands separator by supplying a third opt
     <input type="text" x-mask:dynamic="$money($input, '.', ' ')"  placeholder="3 000.00">
 </div>
 <!-- END_VERBATIM -->
+
+
+You can also override the default precision of 2 digits by using any desired number digits as the fourth optional argument:
+
+```alpine
+<input x-mask:dynamic="$money($input, '.', ',', 8)">
+```
+
+<!-- START_VERBATIM -->
+<div class="demo" x-data>
+    <input type="text" x-mask:dynamic="$money($input, '.', ',', 8)"  placeholder="0.00000001">
+</div>
+<!-- END_VERBATIM -->

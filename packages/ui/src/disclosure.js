@@ -4,7 +4,7 @@ export default function (Alpine) {
         if      (! directive.value)            handleRoot(el, Alpine)
         else if (directive.value === 'panel')  handlePanel(el, Alpine)
         else if (directive.value === 'button') handleButton(el, Alpine)
-    })
+    }).before('bind')
 
     Alpine.magic('disclosure', el => {
         let $data = Alpine.$data(el)

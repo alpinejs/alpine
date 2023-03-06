@@ -5,7 +5,7 @@ export default function (Alpine) {
         else if (directive.value === 'option')      handleOption(el, Alpine)
         else if (directive.value === 'label')       handleLabel(el, Alpine)
         else if (directive.value === 'description') handleDescription(el, Alpine)
-    })
+    }).before('bind')
 
     Alpine.magic('radioOption', el => {
         let $data = Alpine.$data(el)

@@ -58,7 +58,7 @@ Alpine.plugin(mask)
 <button :aria-expanded="expanded" @click="expanded = ! expanded" class="text-cyan-600 font-medium underline">
     <span x-text="expanded ? 'Hide' : 'Show more'">Show</span> <span x-text="expanded ? '↑' : '↓'">↓</span>
 </button>
- </div>
+</div>
 
 <a name="x-mask"></a>
 

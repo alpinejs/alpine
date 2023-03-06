@@ -5,7 +5,7 @@ export default function (Alpine) {
         else if (directive.value === 'label')       handleLabel(el, Alpine)
         else if (directive.value === 'description') handleDescription(el, Alpine)
         else                                        handleRoot(el, Alpine)
-    })
+    }).before('bind')
 
     Alpine.magic('switch', el => {
         let $data = Alpine.$data(el)

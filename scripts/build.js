@@ -1,5 +1,5 @@
+let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils');
 let fs = require('fs');
-let DotJson = require('dot-json');
 let brotliSize = require('brotli-size');
 
 ([
@@ -37,7 +37,7 @@ function bundleFile(package, file) {
                 outfile: `packages/${package}/dist/${file}`,
                 bundle: true,
                 platform: 'browser',
-                define: { CDN: true },
+                define: { CDN: 'true' },
             })
 
             // Build a minified version.
@@ -47,7 +47,7 @@ function bundleFile(package, file) {
                 bundle: true,
                 minify: true,
                 platform: 'browser',
-                define: { CDN: true },
+                define: { CDN: 'true' },
             }).then(() => {
                 outputSize(package, `packages/${package}/dist/${file.replace('.js', '.min.js')}`)
             })
@@ -86,22 +86,11 @@ function build(options) {
     options.define['process.env.NODE_ENV'] = process.argv.includes('--watch') ? `'production'` : `'development'`
 
     return require('esbuild').build({
+        logLevel: process.argv.includes('--watch') ? 'info' : 'warning',
         watch: process.argv.includes('--watch'),
         // external: ['alpinejs'],
         ...options,
     }).catch(() => process.exit(1))
-}
-
-function writeToPackageDotJson(package, key, value) {
-    let dotJson = new DotJson(`./packages/${package}/package.json`)
-
-    dotJson.set(key, value).save()
-}
-
-function getFromPackageDotJson(package, key) {
-    let dotJson = new DotJson(`./packages/${package}/package.json`)
-
-    return dotJson.get(key)
 }
 
 function outputSize(package, file) {

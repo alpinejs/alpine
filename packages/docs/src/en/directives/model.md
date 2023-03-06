@@ -337,6 +337,15 @@ The default throttle interval is 250 milliseconds, you can easily customize this
 <input type="text" x-model.throttle.500ms="search">
 ```
 
+<a name="fill"></a>
+### `.fill`
+
+By adding `.fill` an empty value bound by `x-model` will be filled by the value attribute of the input.
+
+<div x-data="{ message: null }">
+  <input x-model.fill="message" value="This is the default message.">
+</div>
+
 <a name="programmatic access"></a>
 ## Programmatic access
 

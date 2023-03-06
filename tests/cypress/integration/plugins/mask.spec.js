@@ -191,3 +191,20 @@ test('$money mask should remove letters or non numeric characters',
         get('input').type('40').should(haveValue('40'))
     }
 )
+
+test('$money mask negative values',
+    [html`
+        <input id="1" x-data x-mask:dynamic="$money($input)" value="-1234.50" />
+        <input id="2" x-data x-mask:dynamic="$money($input)" />
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('-1,234.50'))
+        get('#2').type('-12.509').should(haveValue('-12.50'))
+        get('#2').type('{leftArrow}{leftArrow}{leftArrow}-').should(haveValue('-12.50'))
+        get('#2').type('{leftArrow}{leftArrow}{backspace}').should(haveValue('12.50'))
+        get('#2').type('{rightArrow}-').should(haveValue('12.50'))
+        get('#2').type('{rightArrow}-').should(haveValue('12.50'))
+        get('#2').type('{rightArrow}{rightArrow}{rightArrow}-').should(haveValue('12.50'))
+        get('#2').type('{leftArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}-').should(haveValue('-12.50'))
+    }
+)

@@ -208,3 +208,18 @@ test('$money mask negative values',
         get('#2').type('{leftArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}-').should(haveValue('-12.50'))
     }
 )
+
+test('$money with custom decimal precision',
+    [html`
+        <input id="0" x-data x-mask:dynamic="$money($input, '.', ',', 0)" />
+        <input id="1" x-data x-mask:dynamic="$money($input, '.', ',', 1)" />
+        <input id="2" x-data x-mask:dynamic="$money($input, '.', ',', 2)" />
+        <input id="3" x-data x-mask:dynamic="$money($input, '.', ',', 3)" />
+    `],
+    ({ get }) => {
+        get('#0').type('1234.5678').should(haveValue('12,345,678'))
+        get('#1').type('1234.5678').should(haveValue('1,234.5'))
+        get('#2').type('1234.5678').should(haveValue('1,234.56'))
+        get('#3').type('1234.5678').should(haveValue('1,234.567'))
+    }
+)

@@ -1,6 +1,6 @@
 let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils');
 let fs = require('fs');
-let brotliSize = require('brotli-size');
+let zlib = require('zlib');
 
 ([
     // Packages:
@@ -94,7 +94,7 @@ function build(options) {
 }
 
 function outputSize(package, file) {
-    let size = bytesToSize(brotliSize.sync(fs.readFileSync(file)))
+    let size = bytesToSize(zlib.brotliCompressSync(fs.readFileSync(file)).length)
 
     console.log("\x1b[32m", `${package}: ${size}`)
 }

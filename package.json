@@ -20,8 +20,5 @@
         "jest": "jest test",
         "update-docs": "node ./scripts/update-docs.js",
         "release": "node ./scripts/release.js"
-    },
-    "dependencies": {
-        "nprogress": "^0.2.0"
     }
 }

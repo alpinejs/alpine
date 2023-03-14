@@ -2,6 +2,7 @@ export default function (Alpine) {
     let persist = () => {
         let alias
         let storage = localStorage
+        let isInitial = true
 
         return Alpine.interceptor((initialValue, getter, setter, path, key) => {
             let lookup = alias || `_x_${path}`
@@ -15,9 +16,11 @@ export default function (Alpine) {
             Alpine.effect(() => {
                 let value = getter()
 
-                storageSet(lookup, value, storage)
+                if (!isInitial) storageSet(lookup, value, storage)
 
                 setter(value)
+
+                isInitial = false
             })
 
             return initial

@@ -67,6 +67,23 @@ test('can persist array',
     },
 )
 
+test('can defer persisting an array',
+    [html`
+        <div x-data="{ things: $persist(['foo', 'bar']).defer() }">
+            <button @click="things.push('baz')"></button>
+
+            <span x-text="things.join('-')"></span>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('span').should(haveText('foo-bar'))
+        get('button').click()
+        get('span').should(haveText('foo-bar-baz'))
+        reload()
+        get('span').should(haveText('foo-bar-baz'))
+    },
+)
+
 test('can persist object',
     [html`
         <div x-data="{ something: $persist({foo: 'bar'}) }">

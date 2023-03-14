@@ -33,6 +33,23 @@ test('can persist string',
     },
 )
 
+test('can defer persisting a string',
+    [html`
+        <div x-data="{ message: $persist('foo').defer() }">
+            <input x-model="message">
+
+            <span x-text="message"></span>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('span').should(haveText('foo'))
+        get('input').clear().type('bar')
+        get('span').should(haveText('bar'))
+        reload()
+        get('span').should(haveText('bar'))
+    },
+)
+
 test('can persist array',
     [html`
         <div x-data="{ things: $persist(['foo', 'bar']) }">

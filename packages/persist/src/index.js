@@ -8,8 +8,6 @@ export default function (Alpine) {
         return Alpine.interceptor((initialValue, getter, setter, path, key) => {
             let lookup = alias || `_x_${path}`
 
-            console.log('defer:', defer);
-
             let initial = storageHas(lookup, storage)
                 ? storageGet(lookup, storage)
                 : initialValue

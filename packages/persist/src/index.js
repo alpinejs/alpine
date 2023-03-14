@@ -2,10 +2,13 @@ export default function (Alpine) {
     let persist = () => {
         let alias
         let storage = localStorage
+        let defer = false
         let isInitial = true
 
         return Alpine.interceptor((initialValue, getter, setter, path, key) => {
             let lookup = alias || `_x_${path}`
+
+            console.log('defer:', defer);
 
             let initial = storageHas(lookup, storage)
                 ? storageGet(lookup, storage)
@@ -16,7 +19,7 @@ export default function (Alpine) {
             Alpine.effect(() => {
                 let value = getter()
 
-                if (!isInitial) storageSet(lookup, value, storage)
+                if (!defer || !isInitial) storageSet(lookup, value, storage)
 
                 setter(value)
 
@@ -26,7 +29,8 @@ export default function (Alpine) {
             return initial
         }, func => {
             func.as = key => { alias = key; return func },
-            func.using = target => { storage = target; return func }
+            func.using = target => { storage = target; return func },
+            func.defer = target => { defer = true; return func }
         })
     }
 

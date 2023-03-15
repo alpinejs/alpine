@@ -28,6 +28,23 @@ Alpine.data('dropdown', () => ({
 }))
 ```
 
+<a name="element-destruction"></a>
+## Element destruction
+
+The `destroy()` method, if present, is called when an element is removed from the DOM.
+
+Alpine will automatically call any `destroy()` methods stored on a data object. For example:
+
+```js
+Alpine.data('dropdown', () => ({
+    destroy() {
+      // I get called before the element using this data is removed from the DOM.
+    }
+}))
+```
+
+This method can be used to clean up any logic before destroying a component, e.g. removing event listeners.
+
 <a name="after-a-state-change"></a>
 ## After a state change
 

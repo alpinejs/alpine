@@ -97,6 +97,25 @@ test('.stop modifier',
     }
 )
 
+
+test('.stop modifier with a .throttle',
+    html`
+        <div x-data="{ count: 0 }">
+            <div x-on:keyup="count = count - 1">
+                <input x-on:keyup.stop.throttle.504ms="count = count+1">
+            </div>
+            <span x-text="count"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('input').type('f')
+        get('span').should(haveText('1'))
+        get('input').type('ffffffffffff')
+        get('span').should(haveText('1'))
+    }
+)
+
 test('.capture modifier',
     html`
         <div x-data="{ foo: 'bar', count: 0 }">
@@ -173,6 +192,19 @@ test('.prevent modifier',
         </div>
     `,
     ({ get }) => {
+        get('input').check()
+        get('input').should(notBeChecked())
+    }
+)
+
+test('.prevent modifier with a .debounce',
+    html`
+        <div x-data="{}">
+            <input type="checkbox" x-on:click.prevent.debounce>
+        </div>
+    `,
+    ({ get }) => {
+        get('input').check()
         get('input').check()
         get('input').should(notBeChecked())
     }

@@ -103,7 +103,7 @@ test('.stop modifier with a .throttle',
         <div x-data="{ foo: 'bar' }">
             <button x-on:click="foo = 'baz'">
                 <h1>h1</h1>
-                <h2 @click.stop.debounce>h2</h2>
+                <h2 @click.stop.throttle>h2</h2>
             </button>
         </div>
     `,

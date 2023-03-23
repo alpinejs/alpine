@@ -100,19 +100,20 @@ test('.stop modifier',
 
 test('.stop modifier with a .throttle',
     html`
-        <div x-data="{ count: 0 }">
-            <div x-on:keyup="count = count - 1">
-                <input x-on:keyup.stop.throttle.504ms="count = count+1">
-            </div>
-            <span x-text="count"></span>
+        <div x-data="{ foo: 'bar' }">
+            <button x-on:click="foo = 'baz'">
+                <h1>h1</h1>
+                <h2 @click.stop.debounce>h2</h2>
+            </button>
         </div>
     `,
     ({ get }) => {
-        get('span').should(haveText('0'))
-        get('input').type('f')
-        get('span').should(haveText('1'))
-        get('input').type('ffffffffffff')
-        get('span').should(haveText('1'))
+        get('div').should(haveData('foo', 'bar'))
+        get('h2').click()
+        get('h2').click()
+        get('div').should(haveData('foo', 'bar'))
+        get('h1').click()
+        get('div').should(haveData('foo', 'baz'))
     }
 )
 

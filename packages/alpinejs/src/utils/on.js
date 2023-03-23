@@ -21,7 +21,7 @@ export default function on (el, event, modifiers, callback) {
 
     // By wrapping the handler with debounce & throttle first, we ensure that the wrapping logic itself is not
     // throttled/debounced, only the user's callback is. This way, if the user expects
-    // `e.preventDefault()` to happen, it'll still happen even if the callback gets throttled.
+    // `e.preventDefault()` to happen, it'll still happen even if their callback gets throttled.
     if (modifiers.includes('debounce')) {
         let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
         let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250

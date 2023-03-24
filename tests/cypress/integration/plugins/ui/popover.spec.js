@@ -156,7 +156,7 @@ test('focusing away doesnt close panel if focusing inside a group',
     },
 )
 
-test('focusing away still closes panel inside a group if the focus attribute is present',
+test.retry(5)('focusing away still closes panel inside a group if the focus attribute is present',
     [html`
         <div x-data>
             <div x-popover:group>

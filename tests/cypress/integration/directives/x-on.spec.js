@@ -99,8 +99,8 @@ test('.stop modifier',
 
 test('.capture modifier',
     html`
-        <div x-data="{ foo: 'bar' }">
-            <button @click.capture="foo = 'baz'">
+        <div x-data="{ foo: 'bar', count: 0 }">
+            <button @click.capture="count = count + 1; foo = 'baz'">
                 <h1>h1</h1>
                 <h2 @click="foo = 'bob'">h2</h2>
             </button>
@@ -110,6 +110,39 @@ test('.capture modifier',
         get('div').should(haveData('foo', 'bar'))
         get('h2').click()
         get('div').should(haveData('foo', 'bob'))
+        get('div').should(haveData('count', 1))
+    }
+)
+
+test('.capture modifier with @keyup',
+    html`
+        <div x-data="{ foo: 'bar', count: 0 }">
+            <span @keyup.capture="count = count + 1; foo = 'span'">
+                <input type="text" @keyup="foo = 'input'">
+            </span>
+        </div>
+    `,
+    ({ get }) => {
+        get('div').should(haveData('foo', 'bar'))
+        get('input').type('f')
+        get('div').should(haveData('foo', 'input'))
+        get('div').should(haveData('count', 1))
+    }
+)
+
+test('.capture modifier with @keyup and specified key',
+    html`
+        <div x-data="{ foo: 'bar', count: 0 }">
+            <span @keyup.enter.capture="count = count + 1; foo = 'span'">
+                <input type="text" @keyup.enter="foo = 'input'">
+            </span>
+        </div>
+    `,
+    ({ get }) => {
+        get('div').should(haveData('foo', 'bar'))
+        get('input').type('{enter}')
+        get('div').should(haveData('foo', 'input'))
+        get('div').should(haveData('count', 1))
     }
 )
 

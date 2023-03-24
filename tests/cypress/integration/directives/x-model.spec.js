@@ -129,3 +129,27 @@ test('x-model updates value when the form is reset',
         get('span').should(haveText(''))
     }
 )
+
+test('x-model with fill modifier takes input value on null or empty string',
+    html`
+    <div x-data="{ a: 123, b: 0, c: '', d: null }">
+      <input x-model.fill="a" value="123456" />
+      <span id="a" x-text="a"></span>
+      <input x-model.fill="b" value="123456" />
+      <span id="b" x-text="b"></span>
+      <input x-model.fill="c" value="123456" />
+      <span id="c" x-text="c"></span>
+      <input x-model.fill="d" value="123456" />
+      <span id="d" x-text="d"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get('#a').should(haveText('123'))
+        get('#b').should(haveText('0'))
+        get('#c').should(haveText('123456'))
+        get('#d').should(haveText('123456'))
+    }
+)
+
+
+

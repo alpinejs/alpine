@@ -8,7 +8,7 @@ export default function (Alpine) {
         else if (directive.value === 'options')      handleOptions(el, Alpine)
         else if (directive.value === 'option')       handleOption(el, Alpine, directive, evaluate)
         else                                         handleRoot(el, Alpine)
-    })
+    }).before('bind')
 
     Alpine.magic('combobox', el => {
         let data = Alpine.$data(el)

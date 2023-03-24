@@ -337,6 +337,17 @@ The default throttle interval is 250 milliseconds, you can easily customize this
 <input type="text" x-model.throttle.500ms="search">
 ```
 
+<a name="fill"></a>
+### `.fill`
+
+By default, if an input has a value attribute, it is ignored by Alpine and instead, the value of the input is set to the value of the property bound using `x-model`.
+
+But if a bound property is empty, then you can use an input's value attribute to populate the property by adding the `.fill` modifier.
+
+<div x-data="{ message: null }">
+  <input x-model.fill="message" value="This is the default message.">
+</div>
+
 <a name="programmatic access"></a>
 ## Programmatic access
 

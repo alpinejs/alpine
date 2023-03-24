@@ -27,11 +27,8 @@ export function directive(name, callback) {
                 );
                 return;
             }
-            const pos = directiveOrder.indexOf(directive)
-                ?? directiveOrder.indexOf('DEFAULT');
-            if (pos >= 0) {
-                directiveOrder.splice(pos, 0, name);
-            }
+            const pos = directiveOrder.indexOf(directive);
+            directiveOrder.splice(pos >= 0 ? pos : directiveOrder.indexOf('DEFAULT'), 0, name);
         }
     }
 }
@@ -206,20 +203,9 @@ let directiveOrder = [
     'ref',
     'data',
     'id',
-    // @todo: provide better directive ordering mechanisms so
-    // that I don't have to manually add things like "tabs"
-    // to the order list...
-    'radio',
-    'tabs',
-    'switch',
-    'disclosure',
-    'menu',
-    'listbox',
-    'combobox',
     'bind',
     'init',
     'for',
-    'mask',
     'model',
     'modelable',
     'transition',

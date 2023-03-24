@@ -47,6 +47,10 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         }
     }
 
+    if (modifiers.includes('fill') && el.hasAttribute('value') && (getValue() === null || getValue() === '')) {
+        setValue(el.value)
+    }
+    
     if (typeof expression === 'string' && el.type === 'radio') {
         // Radio buttons only work properly when they share a name attribute.
         // People might assume we take care of that for them, because

@@ -18,11 +18,15 @@ Things like input components, modals, listboxes, etc. will all benefit from this
 Suppose you have two input elements on a page, and you want them to have a unique ID from each other, you can do the following:
 
 ```alpine
+<div x-data>
+
 <input type="text" :id="$id('text-input')">
 <!-- id="text-input-1" -->
 
 <input type="text" :id="$id('text-input')">
 <!-- id="text-input-2" -->
+
+</div>
 ```
 
 As you can see, `$id` takes in a string and spits out an appended suffix that is unique on the page.

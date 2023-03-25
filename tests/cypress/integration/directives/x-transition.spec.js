@@ -1,4 +1,4 @@
-import { beHidden, beVisible, haveClasses, haveComputedStyle, html, notBeVisible, notHaveClasses, notHaveComputedStyle, test } from '../../utils'
+import { beHidden, beVisible, haveClasses, haveComputedStyle, html, notHaveClasses, notHaveComputedStyle, test, haveText } from '../../utils'
 
 test('transition in',
     html`
@@ -80,3 +80,34 @@ test('transition:enter in nested x-show visually runs',
         get('h1').should(haveComputedStyle('opacity', '1')) // Eventually opacity will be 1
     }
 )
+
+// test is flaky as all heck, rarely works
+// Can't even tell if the test is setup correctly and cypress just doesn't respect it or what
+/* test('no transition when (prefers-reduced-motion: reduce)',
+    html`
+        <div x-data="{ show: false, transitioned: false }">
+            <button x-on:click="show = !show; transitioned = false" x-text="transitioned"></button>
+            <h1 x-show="show" x-transition.duration.1000 @transitionend="transitioned = true">Hi, mom</h1>
+        </div>
+    `,
+    async ({ get }, _, window) => {
+        cy.then(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches).should('be.false')
+        get('button').should(haveText('false'))
+        get('button').click()
+        get('button').should(haveText('true'))
+        cy.then(() => Cypress.automation('remote:debugger:protocol', {
+            command: 'Emulation.setEmulatedMedia',
+            params: {
+                media: 'page',
+                features: [
+                    {
+                        name: 'prefers-reduced-motion',
+                        value: 'reduce',
+                    },
+                ],
+            },
+        })).then(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches).should('be.true').wait(1000)
+        get('button').wait(1000).click()
+        get('button').wait(1100).should(haveText('false'));
+    }
+) */

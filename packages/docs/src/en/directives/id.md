@@ -13,7 +13,7 @@ title: id
 Here's a brief example of this directive in use:
 
 ```alpine
-<div x-id="['text-input']">
+<div x-data x-id="['text-input']">
     <label :for="$id('text-input')">Username</label>
     <!-- for="text-input-1" -->
 
@@ -21,7 +21,7 @@ Here's a brief example of this directive in use:
     <!-- id="text-input-1" -->
 </div>
 
-<div x-id="['text-input']">
+<div x-data x-id="['text-input']">
     <label :for="$id('text-input')">Username</label>
     <!-- for="text-input-2" -->
 

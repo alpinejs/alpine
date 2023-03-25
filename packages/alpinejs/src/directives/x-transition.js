@@ -5,29 +5,68 @@ import { directive } from '../directives'
 import { mutateDom } from '../mutation'
 import { once } from '../utils/once'
 
-directive('transition', (el, { value, modifiers, expression }, { evaluate }) => {
-    if (typeof expression === 'function') expression = evaluate(expression)
+directive(
+    'transition',
+    (el, { value, modifiers, expression }, { evaluate, cleanup }) => {
+        if (typeof expression === 'function') expression = evaluate(expression)
 
-    if (! expression) {
-        registerTransitionsFromHelper(el, modifiers, value)
-    } else {
-        registerTransitionsFromClassString(el, expression, value)
+        cleanup(
+            registerTransitionWithReducedMotion(
+                el,
+                expression || modifiers,
+                value
+            )
+        )
     }
-})
+)
+
+const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+)
+
+function registerTransitionWithReducedMotion(el, expressionOrMod, stage) {
+    const handler = ({ matches }) => {
+        if (matches) return removeTransitions(el)
+        if (typeof expressionOrMod === 'string') {
+            registerTransitionsFromClassString(el, expressionOrMod, stage)
+        } else {
+            registerTransitionsFromHelper(el, expressionOrMod, stage)
+        }
+    }
+    prefersReducedMotion.addEventListener('change', handler)
+    handler(prefersReducedMotion)
+    return () => prefersReducedMotion.removeEventListener('change', handler)
+}
+
+function removeTransitions(el) {
+    delete el._x_transition
+}
+
+const directiveStorageMap = {
+    enter: (el, classes) => {
+        el._x_transition.enter.during = classes;
+    },
+    'enter-start': (el, classes) => {
+        el._x_transition.enter.start = classes;
+    },
+    'enter-end': (el, classes) => {
+        el._x_transition.enter.end = classes;
+    },
+    leave: (el, classes) => {
+        el._x_transition.leave.during = classes;
+    },
+    'leave-start': (el, classes) => {
+        el._x_transition.leave.start = classes;
+    },
+    'leave-end': (el, classes) => {
+        el._x_transition.leave.end = classes;
+    },
+};
 
 function registerTransitionsFromClassString(el, classString, stage) {
     registerTransitionObject(el, setClasses, '')
 
-    let directiveStorageMap = {
-        'enter': (classes) => { el._x_transition.enter.during = classes },
-        'enter-start': (classes) => { el._x_transition.enter.start = classes },
-        'enter-end': (classes) => { el._x_transition.enter.end = classes },
-        'leave': (classes) => { el._x_transition.leave.during = classes },
-        'leave-start': (classes) => { el._x_transition.leave.start = classes },
-        'leave-end': (classes) => { el._x_transition.leave.end = classes },
-    }
-
-    directiveStorageMap[stage](classString)
+    directiveStorageMap[stage](el, classString)
 }
 
 function registerTransitionsFromHelper(el, modifiers, stage) {
@@ -139,7 +178,10 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
             // This fixes a bug where if you are only transitioning OUT and you are also using @click.outside
             // the element when shown immediately starts transitioning out. There is a test in the manual
             // transition test file for this: /tests/cypress/manual-transition-test.html
-            (el._x_transition.enter && (Object.entries(el._x_transition.enter.during).length || Object.entries(el._x_transition.enter.start).length || Object.entries(el._x_transition.enter.end).length))
+            el._x_transition.enter &&
+            (Object.entries(el._x_transition.enter.during).length ||
+                Object.entries(el._x_transition.enter.start).length ||
+                Object.entries(el._x_transition.enter.end).length)
                 ? el._x_transition.in(show)
                 : clickAwayCompatibleShow()
         } else {
@@ -197,12 +239,23 @@ function closestHide(el) {
     return parent._x_hidePromise ? parent : closestHide(parent)
 }
 
-export function transition(el, setFunction, { during, start, end } = {}, before = () => {}, after = () => {}) {
+export function transition(
+    el,
+    setFunction,
+    { during, start, end } = {},
+    before = () => {},
+    after = () => {}
+) {
     if (el._x_transitioning) el._x_transitioning.cancel()
 
-    if (Object.keys(during).length === 0 && Object.keys(start).length === 0 && Object.keys(end).length === 0) {
+    if (
+        Object.keys(during).length === 0 &&
+        Object.keys(start).length === 0 &&
+        Object.keys(end).length === 0
+    ) {
         // Execute right away if there is no transition.
-        before(); after()
+        before()
+        after()
         return
     }
 
@@ -258,8 +311,15 @@ export function performTransition(el, stages) {
 
     el._x_transitioning = {
         beforeCancels: [],
-        beforeCancel(callback) { this.beforeCancels.push(callback) },
-        cancel: once(function () { while (this.beforeCancels.length) { this.beforeCancels.shift()() }; finish(); }),
+        beforeCancel(callback) {
+            this.beforeCancels.push(callback)
+        },
+        cancel: once(function () {
+            while (this.beforeCancels.length) {
+                this.beforeCancels.shift()()
+            }
+            finish()
+        }),
         finish,
     }
 

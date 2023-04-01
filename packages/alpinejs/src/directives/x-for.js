@@ -166,7 +166,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
                 marker.remove()
             })
 
-            refreshScope(elForSpot, scopes[keys.indexOf(keyForSpot)])
+            refreshScope(elForSpot, scopes[keys.indexOf(keyForSpot)], true)
         }
 
         // We can now create and add new elements.
@@ -184,6 +184,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             let clone = document.importNode(templateEl.content, true).firstElementChild
 
             addScopeToNode(clone, reactive(scope), templateEl)
+            clone._x_forScope = clone._x_dataStack[0]
 
             mutateDom(() => {
                 lastEl.after(clone)
@@ -202,7 +203,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         // data it depends on in case the data has changed in an
         // "unobservable" way.
         for (let i = 0; i < sames.length; i++) {
-            refreshScope(lookup[sames[i]], scopes[keys.indexOf(sames[i])])
+            refreshScope(lookup[sames[i]], scopes[keys.indexOf(sames[i])], true)
         }
 
         // Now we'll log the keys (and the order they're in) for comparing

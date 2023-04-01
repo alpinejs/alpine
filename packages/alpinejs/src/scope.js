@@ -15,8 +15,8 @@ export function hasScope(node) {
     return !! node._x_dataStack
 }
 
-export function refreshScope(element, scope) {
-    let existingScope = element._x_dataStack[0]
+export function refreshScope(element, scope, fromXFor = false) {
+    let existingScope = (fromXFor && element._x_forScope) || element._x_dataStack[0]
 
     Object.entries(scope).forEach(([key, value]) => {
         existingScope[key] = value

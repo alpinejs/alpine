@@ -79,6 +79,61 @@ test('x-model with number modifier returns: null if empty, original value if cas
     }
 )
 
+test('x-model casts value to boolean if boolean modifier is present',
+    html`
+    <div x-data="{ foo: null, bar: null, baz: [] }">
+        <input type="text" x-model.boolean="foo"></input>
+        <select x-model.boolean="bar">
+            <option value="true">yes</option>
+            <option value="false">no</option>
+        </select>
+    </div>
+    `,
+    ({ get }) => {
+        get('input[type=text]').type('1')
+        get('div').should(haveData('foo', true))
+
+        get('input[type=text]').clear().type('0')
+        get('div').should(haveData('foo', false))
+
+        get('input[type=text]').clear().type('true')
+        get('div').should(haveData('foo', true))
+
+        get('input[type=text]').clear().type('false')
+        get('div').should(haveData('foo', false))
+
+        get('select').select('no')
+        get('div').should(haveData('bar', false))
+
+        get('select').select('yes')
+        get('div').should(haveData('bar', true))
+    }
+)
+
+test('x-model with boolean modifier returns: null if empty, original value if casting fails, numeric value if casting passes',
+    html`
+    <div x-data="{ foo: 0, bar: '' }">
+        <input x-model.boolean="foo"></input>
+    </div>
+    `,
+    ({ get }) => {
+        get('input').clear()
+        get('div').should(haveData('foo', null))
+        get('input').clear().type('bar')
+        get('div').should(haveData('foo', 'bar'))
+        get('input').clear().type('1')
+        get('div').should(haveData('foo', true))
+        get('input').clear().type('1').clear()
+        get('div').should(haveData('foo', null))
+        get('input').clear().type('0')
+        get('div').should(haveData('foo', false))
+        get('input').clear().type('bar')
+        get('div').should(haveData('foo', 'bar'))
+        get('input').clear().type('0').clear()
+        get('div').should(haveData('foo', null))
+    }
+)
+
 test('x-model trims value if trim modifier is present',
     html`
     <div x-data="{ foo: '' }">
@@ -150,6 +205,3 @@ test('x-model with fill modifier takes input value on null or empty string',
         get('#d').should(haveText('123456'))
     }
 )
-
-
-

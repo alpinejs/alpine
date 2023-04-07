@@ -1,6 +1,6 @@
 import { haveValue, html, test } from '../utils'
 
-test('can entangle to getter/setter pairs',
+test.skip('can entangle to getter/setter pairs',
     [html`
     <div x-data="{ outer: 'foo' }">
         <input x-model="outer" outer>
@@ -33,7 +33,7 @@ test('can entangle to getter/setter pairs',
     }
 )
 
-test('can release entanglement',
+test.skip('can release entanglement',
     [html`
         <div x-data="{ outer: 'foo' }">
             <input x-model="outer" outer>

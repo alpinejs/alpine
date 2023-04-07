@@ -4,7 +4,7 @@ export default function (Alpine) {
         else if (directive.value === 'items') handleItems(el, Alpine)
         else if (directive.value === 'item') handleItem(el, Alpine)
         else if (directive.value === 'button') handleButton(el, Alpine)
-    });
+    }).before('bind')
 
     Alpine.magic('menuItem', el => {
         let $data = Alpine.$data(el)

@@ -6,7 +6,7 @@ export default function (Alpine) {
         else if (directive.value === 'tab')        handleTab(el, Alpine)
         else if (directive.value === 'panels')     handlePanels(el, Alpine)
         else if (directive.value === 'panel')      handlePanel(el, Alpine)
-    })
+    }).before('bind')
 
     Alpine.magic('tab', el => {
         let $data = Alpine.$data(el)

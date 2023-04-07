@@ -8,7 +8,7 @@ export default function (Alpine) {
         else if (directive.value === 'options')      handleOptions(el, Alpine)
         else if (directive.value === 'option')       handleOption(el, Alpine, directive, evaluate)
         else                                         handleRoot(el, Alpine)
-    })
+    }).before('bind')
 
     Alpine.magic('combobox', el => {
         let data = Alpine.$data(el)
@@ -96,7 +96,7 @@ function handleRoot(el, Alpine) {
                     this.__nullable = Alpine.extractProp(el, 'nullable', false)
                     this.__compareBy = Alpine.extractProp(el, 'by')
 
-                    this.__context = generateContext(this.__isMultiple, 'vertical', () => this.$data.__activateSelectedOrFirst())
+                    this.__context = generateContext(this.__isMultiple, 'vertical', () => this.__activateSelectedOrFirst())
 
                     let defaultValue = Alpine.extractProp(el, 'default-value', this.__isMultiple ? [] : null)
 
@@ -120,18 +120,18 @@ function handleRoot(el, Alpine) {
                     this.__isTyping = false
                 },
                 __resetInput() {
-                    let input = this.$refs['__input']
+                    let input = this.$refs.__input
 
                     if (! input) return
 
-                    let value = this.$data.__getCurrentValue()
+                    let value = this.__getCurrentValue()
 
                     input.value = value
                 },
                 __getCurrentValue() {
-                    if (! this.$refs['__input']) return ''
+                    if (! this.$refs.__input) return ''
                     if (! this.__value) return ''
-                    if (this.$data.__displayValue) return this.$data.__displayValue(this.__value)
+                    if (this.__displayValue) return this.__displayValue(this.__value)
                     if (typeof this.__value === 'string') return this.__value
                     return ''
                 },
@@ -139,7 +139,7 @@ function handleRoot(el, Alpine) {
                     if (this.__isOpen) return
                     this.__isOpen = true
 
-                    let input = this.$refs['__input']
+                    let input = this.$refs.__input
 
                     // Make sure we always notify the parent component
                     // that the starting value is the empty string
@@ -161,7 +161,7 @@ function handleRoot(el, Alpine) {
                     // Probably because Alpine adds an extra tick when x-showing for @click.outside
                     let nextTick = callback => requestAnimationFrame(() => requestAnimationFrame(callback))
 
-                    nextTick(() => this.$refs['__input'].focus({ preventScroll: true }))
+                    nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
                 },
                 __close() {
                     this.__isOpen = false
@@ -171,31 +171,30 @@ function handleRoot(el, Alpine) {
                 __activateSelectedOrFirst(activateSelected = true) {
                     if (! this.__isOpen) return
 
-                    if (this.__context.activeKey) {
-                        this.__context.activateAndScrollToKey(this.__context.activeKey)
-                        return
-                    }
-
                     let firstSelectedValue
 
                     if (this.__isMultiple) {
-                        firstSelectedValue = this.__value.find(i => {
-                            return !! this.__context.getItemByValue(i)
-                        })
+                        let activeElement = this.__context.getItemsByValues(this.__value)
+
+                        firstSelectedValue = activeElement.length ? activeElement[0].value : null
                     } else {
                         firstSelectedValue = this.__value
                     }
 
+                    let firstSelected = null
                     if (activateSelected && firstSelectedValue) {
-                        let firstSelected = this.__context.getItemByValue(firstSelectedValue)
-
-                        firstSelected && this.__context.activateAndScrollToKey(firstSelected.key)
-                    } else {
-                        this.__context.activateAndScrollToKey(this.__context.firstKey())
+                        firstSelected = this.__context.getItemByValue(firstSelectedValue)
                     }
+
+                    if (firstSelected) {
+                        this.__context.activateAndScrollToKey(firstSelected.key)
+                        return
+                    }
+
+                    this.__context.activateAndScrollToKey(this.__context.firstKey())
                 },
                 __selectActive() {
-                    let active = this.$data.__context.getActiveItem()
+                    let active = this.__context.getActiveItem()
                     if (active) this.__toggleSelected(active.value)
                 },
                 __selectOption(el) {
@@ -252,8 +251,8 @@ function handleRoot(el, Alpine) {
                 && ! this.$refs.__button.contains(e.target)
                 && ! this.$refs.__options.contains(e.target)
             ) {
-                this.$data.__close()
-                this.$data.__resetInput()
+                this.__close()
+                this.__resetInput()
             }
         }
     })
@@ -308,9 +307,8 @@ function handleInput(el, Alpine) {
 
             if (! this.$data.__isMultiple) {
                 this.$data.__close()
+                this.$data.__resetInput()
             }
-
-            this.$data.__resetInput()
         },
         '@keydown.escape.prevent'(e) {
             if (! this.$data.__static) e.stopPropagation()
@@ -434,11 +432,13 @@ function handleOption(el, Alpine) {
                     let value = Alpine.extractProp(this.$el, 'value')
                     let disabled = Alpine.extractProp(this.$el, 'disabled', false, false)
 
-                    this.$data.__context.registerItem(key, this.$el, value, disabled)
+                    // memoize the context as it's not going to change
+                    // and calling this.$data on mouse action is expensive
+                    this.__context.registerItem(key, this.$el, value, disabled)
                 },
                 destroy() {
-                    this.$data.__context.unregisterItem(this.$el.__optionKey)
-                },
+                    this.__context.unregisterItem(this.$el.__optionKey)
+                }
             }
         },
 
@@ -446,24 +446,27 @@ function handleOption(el, Alpine) {
         '@click'() {
             if (this.$comboboxOption.isDisabled) return;
 
-            this.$data.__selectOption(this.$el)
+            this.__selectOption(this.$el)
 
-            if (! this.$data.__isMultiple) {
-                this.$data.__close()
-                this.$data.__resetInput()
+            if (! this.__isMultiple) {
+                this.__close()
+                this.__resetInput()
             }
 
-            this.$nextTick(() => this.$refs['__input'].focus({ preventScroll: true }))
+            this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
+        },
+        '@mouseenter'(e) {
+            this.__context.activateEl(this.$el)
         },
         '@mousemove'(e) {
-            if (this.$data.__context.isActiveEl(this.$el)) return
+            if (this.__context.isActiveEl(this.$el)) return
 
-            this.$data.__context.activateEl(this.$el)
+            this.__context.activateEl(this.$el)
         },
         '@mouseleave'(e) {
-            if (this.$data.__hold) return
+            if (this.__hold) return
 
-            this.$data.__context.deactivate()
+            this.__context.deactivate()
         },
     })
 }

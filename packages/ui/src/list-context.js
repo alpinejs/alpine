@@ -54,6 +54,11 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
             return this.items.find(i => i.el === el)
         },
 
+        getItemsByValues(values) {
+            let rawValues = values.map(i => Alpine.raw(i));
+            return this.items.filter(i => rawValues.includes(Alpine.raw(i.value)))
+        },
+
         getActiveItem() {
             if (! this.hasActive()) return null
 

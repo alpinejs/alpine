@@ -5,13 +5,8 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
          * Main state...
          */
         items: [],
-
-        disabledKeys: [],
         activeKey: null,
-        selectedKeys: [],
         orderedKeys: [],
-        elsByKey: {},
-        values: {},
 
         /**
          *  Initialization...
@@ -149,57 +144,6 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
         },
 
         /**
-         * Handle values...
-         */
-        // selectedValueOrValues() {
-        //     if (multiple) {
-        //         return this.selectedValues()
-        //     } else {
-        //         return this.selectedValue()
-        //     }
-        // },
-
-        // selectedValues() {
-        //     return this.selectedKeys.map(i => this.values[i])
-        // },
-
-        // selectedValue() {
-        //     return this.selectedKeys[0] ? this.values[this.selectedKeys[0]] : null
-        // },
-
-        // selectValue(value, by) {
-        //     if (!value) value = (multiple ? [] : null)
-        //     if (! by) by = (a, b) => a === b
-
-        //     if (typeof by === 'string') {
-        //         let property = by
-        //         by = (a, b) => a[property] === b[property]
-        //     }
-
-        //     if (multiple) {
-        //         let keys = []
-
-        //         value.forEach(i => {
-        //             for (let key in this.values) {
-        //                 if (by(this.values[key], i)) {
-        //                     if (! keys.includes(key)) {
-        //                         keys.push(key)
-        //                     }
-        //                 }
-        //             }
-        //         })
-
-        //         this.selectExclusive(keys)
-        //     } else {
-        //         for (let key in this.values) {
-        //             if (value && by(this.values[key], value)) {
-        //                 this.selectKey(key)
-        //             }
-        //         }
-        //     }
-        // },
-
-        /**
          * Handle disabled keys...
          */
         isDisabled(key) {
@@ -215,86 +159,11 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
         },
 
         /**
-         * Handle selected keys...
-         */
-        // selectKey(key) {
-        //     if (this.isDisabled(key)) return
-
-        //     if (multiple) {
-        //         this.toggleSelected(key)
-        //     } else {
-        //         this.selectOnly(key)
-        //     }
-        // },
-
-        // toggleSelected(key) {
-        //     console.log(key)
-        //     if (this.selectedKeys.includes(key)) {
-        //         this.selectedKeys.splice(this.selectedKeys.indexOf(key), 1)
-        //     } else {
-        //         this.selectedKeys.push(key)
-        //     }
-        // },
-
-        // selectOnly(key) {
-        //     this.selectedKeys = []
-        //     this.selectedKeys.push(key)
-        // },
-
-        // selectExclusive(keys) {
-        //     // We can't just do this.selectedKeys = keys,
-        //     // because we need to preserve reactivity...
-
-        //     let toAdd = [...keys]
-
-        //     for (let i = 0; i < this.selectedKeys.length; i++) {
-        //         if (keys.includes(this.selectedKeys[i])) {
-        //             delete toAdd[toAdd.indexOf(this.selectedKeys[i])]
-        //             continue;
-        //         }
-
-        //         if (! keys.includes(this.selectedKeys[i])) {
-        //             this.selectedKeys.splice(i, 1)
-        //         }
-        //     }
-
-        //     toAdd.forEach(i => {
-        //         this.selectedKeys.push(i)
-        //     })
-        // },
-
-        // selectActive(key) {
-        //     if (! this.activeKey) return
-
-        //     this.selectKey(this.activeKey)
-        // },
-
-        // isSelected(key) { return this.selectedKeys.includes(key) },
-
-
-        // firstSelectedKey() { return this.selectedKeys[0] },
-
-        /**
          * Handle activated keys...
          */
         hasActive() { return !! this.activeKey },
 
         isActiveKey(key) { return this.activeKey === key },
-
-
-        // activateSelectedOrFirst() {
-        //     let firstSelected = this.firstSelectedKey()
-
-        //     if (firstSelected) {
-        //         return this.activateKey(firstSelected)
-        //     }
-
-        //     let firstKey = this.firstKey()
-
-        //     if (firstKey) {
-        //         this.activateKey(firstKey)
-        //     }
-        // },
 
         activateKey(key) {
             if (this.isDisabled(key)) return

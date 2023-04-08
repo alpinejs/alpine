@@ -171,12 +171,14 @@ function handleRoot(el, Alpine) {
                 __activateSelectedOrFirst(activateSelected = true) {
                     if (! this.__isOpen) return
 
+                    if (this.__context.hasActive()) return
+
                     let firstSelectedValue
 
                     if (this.__isMultiple) {
-                        let activeElement = this.__context.getItemsByValues(this.__value)
+                        let selectedItem = this.__context.getItemsByValues(this.__value)
 
-                        firstSelectedValue = activeElement.length ? activeElement[0].value : null
+                        firstSelectedValue = selectedItem.length ? selectedItem[0].value : null
                     } else {
                         firstSelectedValue = this.__value
                     }

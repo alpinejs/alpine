@@ -391,8 +391,8 @@ test('x-bind object syntax event handlers defined as functions receive the event
         <script>
             window.data = () => { return {
                 button: {
-                    ['@click']() {
-                        this.$refs.span.innerText = this.$el.id
+                    ['@click'](event) {
+                        this.$refs.span.innerText = event.currentTarget.id
                     }
                 }
             }}
@@ -410,7 +410,7 @@ test('x-bind object syntax event handlers defined as functions receive the event
     }
 )
 
-test('x-bind object syntax event handlers defined as functions receive the event object as their first argument',
+test('x-bind object syntax event handlers defined as functions receive element bound magics',
     html`
         <script>
             window.data = () => { return {

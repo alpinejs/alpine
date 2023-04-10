@@ -822,7 +822,7 @@ test('has accessibility attributes',
             .should(haveAttribute('aria-controls', 'alpine-combobox-options-1'))
 
         get('[options]')
-            .should(haveAttribute('role', 'combobox'))
+            .should(haveAttribute('role', 'listbox'))
             .should(haveAttribute('id', 'alpine-combobox-options-1'))
             .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1'))
 
@@ -836,7 +836,7 @@ test('has accessibility attributes',
             .should(haveAttribute('role', 'option'))
             .should(haveAttribute('id', 'alpine-combobox-option-2'))
             .should(haveAttribute('tabindex', '-1'))
-            .should(haveAttribute('aria-selected', 'false'))
+            .should(notHaveAttribute('aria-selected'))
 
         get('input')
             .should(haveAttribute('role', 'combobox'))
@@ -1206,7 +1206,7 @@ test('active element logic when opening a combobox',
         get('ul').should(beVisible())
         get('[option="1"]').should(haveAttribute('aria-selected', 'true'))
         // First match is selected while typing
-        get('[option="4"]').should(haveAttribute('aria-selected', 'false'))
+        get('[option="4"]').should(notHaveAttribute('aria-selected'))
         get('input').type('T')
         get('input').trigger('change')
         get('[option="4"]').should(haveAttribute('aria-selected', 'true'))
@@ -1216,7 +1216,7 @@ test('active element logic when opening a combobox',
         get('[option="3"]').click()
         // Previous selection is selected
         get('button').click()
-        get('[option="4"]').should(haveAttribute('aria-selected', 'false'))
+        get('[option="4"]').should(notHaveAttribute('aria-selected'))
         get('[option="3"]').should(haveAttribute('aria-selected', 'true'))
     }
 )

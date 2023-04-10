@@ -397,7 +397,7 @@ function handleOptions(el, Alpine) {
         ':id'() { return this.$id('alpine-combobox-options') },
 
         // Accessibility attributes...
-        'role': 'combobox',
+        'role': 'listbox',
         ':aria-labelledby'() { return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null) },
 
         // Initialize...
@@ -422,7 +422,8 @@ function handleOption(el, Alpine) {
         // Accessibility attributes...
         'role': 'option',
         ':tabindex'() { return this.$comboboxOption.isDisabled ? undefined : '-1' },
-        ':aria-selected'() { return this.$comboboxOption.isActive },
+        // Only the active element should have aria-selected="true"...
+        'x-effect'() { this.$comboboxOption.isActive ? el.setAttribute('aria-selected', true) : el.removeAttribute('aria-selected') },
         ':aria-disabled'() { return this.$comboboxOption.isDisabled },
 
         // Initialize...

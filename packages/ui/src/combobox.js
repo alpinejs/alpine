@@ -428,8 +428,14 @@ function handleOption(el, Alpine) {
         // Accessibility attributes...
         'role': 'option',
         ':tabindex'() { return this.$comboboxOption.isDisabled ? undefined : '-1' },
+
         // Only the active element should have aria-selected="true"...
-        'x-effect'() { this.$comboboxOption.isActive ? el.setAttribute('aria-selected', true) : el.removeAttribute('aria-selected') },
+        'x-effect'() {
+            this.$comboboxOption.isActive
+                ? el.setAttribute('aria-selected', true)
+                : el.removeAttribute('aria-selected')
+        },
+
         ':aria-disabled'() { return this.$comboboxOption.isDisabled },
 
         // Initialize...

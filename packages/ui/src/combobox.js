@@ -150,9 +150,15 @@ function handleRoot(el, Alpine) {
                     // See https://github.com/tailwindlabs/headlessui/pull/2153
                     if (input) {
                         let value = input.value
+                        let { selectionStart, selectionEnd, selectionDirection } = input
                         input.value = ''
                         input.dispatchEvent(new Event('change'))
                         input.value = value
+                        if (selectionDirection !== null) {
+                            input.setSelectionRange(selectionStart, selectionEnd, selectionDirection)
+                        } else {
+                            input.setSelectionRange(selectionStart, selectionEnd)
+                        }
                     }
 
                     this.__activateSelectedOrFirst()

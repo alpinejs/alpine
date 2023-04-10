@@ -170,7 +170,7 @@ export function buildUp(template, input) {
     return output
 }
 
-export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
+export function formatMoney(input, delimiter = '.', thousands, precision = 2, prefix = '') {
     if (input === '-') return '-'
     if (/^\D+$/.test(input)) return '9'
 
@@ -201,7 +201,7 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
 
     template = `${minus}${addThousands(template, thousands)}`
 
-    if (precision > 0 && input.includes(delimiter)) 
+    if (precision > 0 && input.includes(delimiter))
         template += `${delimiter}` + '9'.repeat(precision)
 
     queueMicrotask(() => {
@@ -212,5 +212,5 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
         }
     })
 
-    return template
+    return prefix + template
 }

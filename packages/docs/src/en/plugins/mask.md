@@ -184,3 +184,16 @@ You can also override the default precision of 2 digits by using any desired num
     <input type="text" x-mask:dynamic="$money($input, '.', ',', 4)"  placeholder="0.0001">
 </div>
 <!-- END_VERBATIM -->
+
+
+You can also add a prefix to your input by passing it as the fifth optional argument:
+
+```alpine
+<input x-mask:dynamic="$money($input, '.', ',', 4, '$')">
+```
+
+<!-- START_VERBATIM -->
+<div class="demo" x-data>
+    <input type="text" x-mask:dynamic="$money($input, '.', ',', 4, '$')"  placeholder="$0,00">
+</div>
+<!-- END_VERBATIM -->

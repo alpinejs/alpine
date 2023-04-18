@@ -97,6 +97,8 @@ export let haveAttribute = (name, value) => el => expect(el).to.have.attr(name, 
 
 export let notHaveAttribute = (name, value) => el => expect(el).not.to.have.attr(name, value)
 
+export let haveProperty = (name, value) => el => expect(el).to.have.prop(name, value)
+
 export let haveText = text => el => expect(el).to.have.text(text)
 
 export let notHaveText = text => el => expect(el).not.to.have.text(text)

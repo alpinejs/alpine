@@ -28,7 +28,7 @@ export default function bind(el, name, value, modifiers = []) {
         // attribute and property need to be updated when bound.
         case 'selected':
         case 'checked':
-            bindAttributeAndPropery(el, name, value)
+            bindAttributeAndProperty(el, name, value)
             break;
 
         default:
@@ -86,7 +86,7 @@ function bindStyles(el, value) {
     el._x_undoAddedStyles = setStyles(el, value)
 }
 
-function bindAttributeAndPropery(el, name, value) {
+function bindAttributeAndProperty(el, name, value) {
     bindAttribute(el, name, value)
     setPropertyIfChanged(el, name, value)
 }

@@ -27,7 +27,7 @@ export default function (Alpine) {
         })
     }
 
-    Object.defineProperty(Alpine, '$persist', { get: () => persist() })
+    Object.defineProperty(Alpine, '$persist', { get: () => persist(), configurable: true })
     Alpine.magic('persist', persist)
     Alpine.persist = (key, { get, set }, storage = localStorage) => {
         let initial = storageHas(key, storage)

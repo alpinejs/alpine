@@ -422,7 +422,7 @@ test('can morph with flat-nested conditional markers',
     },
 )
 
-// '@event' handlers cannot be assigned directly on the element
+// '@event' handlers cannot be assigned directly on the element without Alpine's internl monkey patching...
 test('can morph @event handlers', [
     html`
         <div x-data="{ foo: 'bar' }">

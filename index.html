@@ -10,6 +10,35 @@
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
 
+    <div x-data="{
+        my_array: [{x:'x'},{x:'y'}],
+        click() {
+            this.my_array = [{x:'a'},{x:'b'}];
+        }
+    }">
+
+        <!-- Loop with plain div -->
+        <template x-for="item in my_array">
+            <div x-text="item.x"></div>
+        </template>
+
+        <!-- Loop with div nested inside component -->
+        <template x-for="item in my_array">
+            <div x-data="some_component" >
+                <div x-text="item.x"></div>
+            </div>
+        </template>
+
+        <button @click="click">Click me</button>
+
+    </div>
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('some_component', () => ({}));
+            });
+
+        </script>
+
 
 
 

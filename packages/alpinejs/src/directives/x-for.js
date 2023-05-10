@@ -158,9 +158,8 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             let marker = document.createElement('div')
 
             mutateDom(() => {
-                if (!elForSpot) {
-                    throw new Error("AlpineJS x-for Error: ':key' is undefined or invalid. Please ensure you're providing a valid key attribute.");
-                }
+                if (! elForSpot) warn(`x-for ":key" is undefined or invalid`, templateEl)
+
                 elForSpot.after(marker)
                 elInSpot.after(elForSpot)
                 elForSpot._x_currentIfEl && elForSpot.after(elForSpot._x_currentIfEl)

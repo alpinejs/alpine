@@ -1,4 +1,4 @@
-import { beHidden, beVisible, haveText, beChecked, haveAttribute, haveClasses, haveValue, notBeChecked, notHaveAttribute, notHaveClasses, test, html } from '../../utils'
+import { beHidden, beVisible, haveText, beChecked, haveAttribute, haveClasses, haveProperty, haveValue, notBeChecked, notHaveAttribute, notHaveClasses, test, html } from '../../utils';
 
 test('sets attribute bindings on initialize',
     html`
@@ -391,8 +391,8 @@ test('x-bind object syntax event handlers defined as functions receive the event
         <script>
             window.data = () => { return {
                 button: {
-                    ['@click']() {
-                        this.$refs.span.innerText = this.$el.id
+                    ['@click'](event) {
+                        this.$refs.span.innerText = event.currentTarget.id
                     }
                 }
             }}
@@ -410,7 +410,7 @@ test('x-bind object syntax event handlers defined as functions receive the event
     }
 )
 
-test('x-bind object syntax event handlers defined as functions receive the event object as their first argument',
+test('x-bind object syntax event handlers defined as functions receive element bound magics',
     html`
         <script>
             window.data = () => { return {
@@ -450,5 +450,24 @@ test('Can retrieve Alpine bound data with global bound method',
         get('#4').should(haveText('true'))
         get('#5').should(haveText(''))
         get('#6').should(haveText('bar'))
+    }
+)
+
+test('x-bind updates checked attribute and property after user interaction',
+    html`
+        <div x-data="{ checked: true }">
+            <button @click="checked = !checked">toggle</button>
+            <input type="checkbox" x-bind:checked="checked" @change="checked = $event.target.checked" />
+        </div>
+    `,
+    ({ get }) => {
+        get('input').should(haveAttribute('checked', 'checked'))
+        get('input').should(haveProperty('checked', true))
+        get('input').click()
+        get('input').should(notHaveAttribute('checked'))
+        get('input').should(haveProperty('checked', false))
+        get('button').click()
+        get('input').should(haveAttribute('checked', 'checked'))
+        get('input').should(haveProperty('checked', true))
     }
 )

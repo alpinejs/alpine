@@ -22,6 +22,14 @@ export default function bind(el, name, value, modifiers = []) {
         case 'class':
             bindClasses(el, value)
             break;
+        
+        // 'selected' and 'checked' are special attributes that aren't necessarily
+        // synced with their corresponding properties when updated, so both the 
+        // attribute and property need to be updated when bound.
+        case 'selected':
+        case 'checked':
+            bindAttributeAndProperty(el, name, value)
+            break;
 
         default:
             bindAttribute(el, name, value)
@@ -78,6 +86,11 @@ function bindStyles(el, value) {
     el._x_undoAddedStyles = setStyles(el, value)
 }
 
+function bindAttributeAndProperty(el, name, value) {
+    bindAttribute(el, name, value)
+    setPropertyIfChanged(el, name, value)
+}
+
 function bindAttribute(el, name, value) {
     if ([null, undefined, false].includes(value) && attributeShouldntBePreservedIfFalsy(name)) {
         el.removeAttribute(name)
@@ -91,6 +104,12 @@ function bindAttribute(el, name, value) {
 function setIfChanged(el, attrName, value) {
     if (el.getAttribute(attrName) != value) {
         el.setAttribute(attrName, value)
+    }
+}
+
+function setPropertyIfChanged(el, propName, value) {
+    if (el[propName] !== value) {
+        el[propName] = value
     }
 }
 

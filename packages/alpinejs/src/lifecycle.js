@@ -4,7 +4,13 @@ import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
 
+let started = false
+
 export function start() {
+    if (started) warn('Alpine has already been initialized on this page. Calling Alpine.start() more than once can cause problems.')
+
+    started = true
+
     if (! document.body) warn('Unable to initialize. Trying to load Alpine before `<body>` is available. Did you forget to add `defer` in Alpine\'s `<script>` tag?')
 
     dispatch(document, 'alpine:init')

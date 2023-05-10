@@ -123,7 +123,7 @@ export function morph(from, toHtml, options) {
             let value = toAttributes[i].value
 
             if (from.getAttribute(name) !== value) {
-                from.setAttribute(name.replace(/^@/,Alpine.prefixed('on:')), value)
+                from.setAttribute(name, value)
             }
         }
     }

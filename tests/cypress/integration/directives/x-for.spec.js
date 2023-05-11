@@ -560,6 +560,27 @@ test('renders children using directives injected by x-html correctly',
     }
 )
 
+test(
+    'handles x-data directly inside x-for',
+    html`
+        <div x-data="{ items: [{x:0, k:1},{x:1, k:2}] }">
+            <button x-on:click="items = [{x:3, k:1},{x:4, k:2}]">update</button>
+            <template x-for="item in items" :key="item.k">
+                <div :id="'item-' + item.k" x-data="{ inner: true }">
+                    <span x-text="item.x.toString()"></span>:
+                    <span x-text="item.k"></span>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('#item-1 span:nth-of-type(1)').should(haveText('0'))
+        get('#item-2 span:nth-of-type(1)').should(haveText('1'))
+        get('button').click()
+        get('#item-1 span:nth-of-type(1)').should(haveText('3'))
+        get('#item-2 span:nth-of-type(1)').should(haveText('4'))
+})
+
 test('x-for throws descriptive error when key is undefined',
     html`
         <div x-data="{ items: [
@@ -581,7 +602,6 @@ test('x-for throws descriptive error when key is undefined',
             </template>
         </div>
     `,
-    ({ get }) => {
-    },
+    ({ get }) => {},
     true
 )

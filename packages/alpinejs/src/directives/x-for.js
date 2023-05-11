@@ -158,6 +158,8 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             let marker = document.createElement('div')
 
             mutateDom(() => {
+                if (! elForSpot) warn(`x-for ":key" is undefined or invalid`, templateEl)
+
                 elForSpot.after(marker)
                 elInSpot.after(elForSpot)
                 elForSpot._x_currentIfEl && elForSpot.after(elForSpot._x_currentIfEl)

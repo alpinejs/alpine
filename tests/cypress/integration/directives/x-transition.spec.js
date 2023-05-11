@@ -112,3 +112,31 @@ test('transition duration and delay with and without ms syntax',
         get('span.blank').should(haveComputedStyle('opacity', '1')) // Eventually opacity will be 1
     }
 )
+
+test(
+    'bound x-transition can handle empty string and true values',
+    html`
+        <script>
+            window.transitions = () => {
+                return {
+                    withEmptyString: {
+                        ["x-transition.opacity"]: "",
+                    },
+                    withBoolean: {
+                        ["x-transition.opacity"]: true,
+                    },
+                };
+            };
+        </script>
+        <div x-data="transitions()">
+            <button x-bind="withEmptyString"></button>
+            <span x-bind="withBoolean">thing</span>
+        </div>
+    `,
+    ({ get }) => 
+        {
+            get('span').should(beVisible())
+            get('span').should(beVisible())
+        }
+    
+);

@@ -7,8 +7,8 @@ import { once } from '../utils/once'
 
 directive('transition', (el, { value, modifiers, expression }, { evaluate }) => {
     if (typeof expression === 'function') expression = evaluate(expression)
-
-    if (! expression) {
+    if (expression === false) return
+    if (!expression || typeof expression === 'boolean') {
         registerTransitionsFromHelper(el, modifiers, value)
     } else {
         registerTransitionsFromClassString(el, expression, value)

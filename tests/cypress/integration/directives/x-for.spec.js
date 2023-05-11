@@ -559,3 +559,29 @@ test('renders children using directives injected by x-html correctly',
         get('p:nth-of-type(2) span').should(haveText('bar'))
     }
 )
+
+test('x-for throws descriptive error when key is undefined',
+    html`
+        <div x-data="{ items: [
+            {
+                id: 1,
+                name: 'foo',
+            },
+            {
+                id: 2,
+                name: 'bar',
+            },
+            {
+                id: 3,
+                name: 'baz',
+            },
+        ]}">
+            <template x-for="item in items" :key="item.doesntExist">
+                <span x-text="i"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+    },
+    true
+)

@@ -5,6 +5,8 @@ let resolveStep = () => {}
 let logger = () => {}
 
 export function morph(from, toHtml, options) {
+    monkeyPatchDomSetAttributeToAllowAtSymbols()
+
     // We're defining these globals and methods inside this function (instead of outside)
     // because it's an async function and if run twice, they would overwrite
     // each other.
@@ -382,5 +384,34 @@ function initializeAlpineOnTo(from, to, childrenOnly) {
         // Then temporarily clone it (with it's data) to the "to" element.
         // This should simulate backend Livewire being aware of Alpine changes.
         window.Alpine.clone(from, to)
+    }
+}
+
+let patched = false
+
+function monkeyPatchDomSetAttributeToAllowAtSymbols() {
+    if (patched) return
+
+    patched = true
+
+    // Because morphdom may add attributes to elements containing "@" symbols
+    // like in the case of an Alpine `@click` directive, we have to patch
+    // the standard Element.setAttribute method to allow this to work.
+    let original = Element.prototype.setAttribute
+
+    let hostDiv = document.createElement('div')
+
+    Element.prototype.setAttribute = function newSetAttribute(name, value) {
+        if (! name.includes('@')) {
+            return original.call(this, name, value)
+        }
+
+        hostDiv.innerHTML = `<span ${name}="${value}"></span>`
+
+        let attr = hostDiv.firstElementChild.getAttributeNode(name)
+
+        hostDiv.firstElementChild.removeAttributeNode(attr)
+
+        this.setAttributeNode(attr)
     }
 }

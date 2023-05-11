@@ -421,3 +421,23 @@ test('can morph with flat-nested conditional markers',
         get('div:nth-of-type(3) input').should(haveValue('bar'))
     },
 )
+
+// '@event' handlers cannot be assigned directly on the element without Alpine's internl monkey patching...
+test('can morph @event handlers', [
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <button x-text="foo"></button>
+        </div>
+    `],
+    ({ get, click }, reload, window, document) => {
+        let toHtml = html`
+            <button @click="foo = 'buzz'" x-text="foo"></button>
+        `;
+
+        get('button').should(haveText('bar'));
+
+        get('button').then(([el]) => window.Alpine.morph(el, toHtml));
+        get('button').click();
+        get('button').should(haveText('buzz'));
+    }
+);

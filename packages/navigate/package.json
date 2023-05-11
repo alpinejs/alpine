@@ -5,5 +5,8 @@
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",
-    "module": "dist/module.esm.js"
+    "module": "dist/module.esm.js",
+    "dependencies": {
+        "nprogress": "^0.2.0"
+    }
 }

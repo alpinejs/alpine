@@ -21,10 +21,7 @@ export function directive(name, callback) {
     return {
         before(directive) {
             if (!directiveHandlers[directive]) {
-                console.warn(
-                    "Cannot find directive `${directive}`. "
-                    + "`${name}` will use the default order of execution"
-                );
+                console.warn(String.raw`Cannot find directive \`${directive}\`. \`${name}\` will use the default order of execution`);
                 return;
             }
             const pos = directiveOrder.indexOf(directive);

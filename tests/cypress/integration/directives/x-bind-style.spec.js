@@ -40,7 +40,7 @@ test('style attribute object binding with CSS variable',
         </div>
     `,
     ({ get }) => {
-        get('div').should(haveAttribute('style', '--MyCSS-Variable: 0.25;'))
+        get('div').should(haveAttribute('style', '--MyCSS-Variable:0.25;'))
     }
 )
 
@@ -62,7 +62,7 @@ test('CSS custom properties are set',
         </div>
     `,
     ({ get }) => {
-        get('span').should(haveAttribute('style', 'color: var(--custom-prop); --custom-prop: #f00;'))
+        get('span').should(haveAttribute('style', 'color: var(--custom-prop); --custom-prop:#f00;'))
     }
 )
 
@@ -73,6 +73,6 @@ test('existing CSS custom properties are preserved',
         </div>
     `,
     ({ get }) => {
-        get('span').should(haveAttribute('style', 'color: var(--custom-prop-b); --custom-prop-a: red; --custom-prop-b: var(--custom-prop-a);'))
+        get('span').should(haveAttribute('style', 'color: var(--custom-prop-b); --custom-prop-a: red; --custom-prop-b:var(--custom-prop-a);'))
     }
 )

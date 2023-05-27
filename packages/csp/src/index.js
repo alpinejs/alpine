@@ -2,7 +2,7 @@ import Alpine from 'alpinejs/src/alpine'
 
 Alpine.setEvaluator(cspCompliantEvaluator)
 
-import { reactive, effect, stop, toRaw } from '@vue/reactivity'
+import { reactive, effect, stop, toRaw } from '@vue/reactivity/dist/reactivity.esm-browser'
 Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw })
 
 import 'alpinejs/src/magics/index'

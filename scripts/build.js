@@ -61,7 +61,6 @@ function bundleFile(package, file) {
                 entryPoints: [`packages/${package}/builds/${file}`],
                 outfile: `packages/${package}/dist/${file.replace('.js', '.esm.js')}`,
                 bundle: true,
-                packages: 'external',
                 platform: 'neutral',
                 mainFields: ['module', 'main'],
             })
@@ -70,7 +69,6 @@ function bundleFile(package, file) {
                 entryPoints: [`packages/${package}/builds/${file}`],
                 outfile: `packages/${package}/dist/${file.replace('.js', '.cjs.js')}`,
                 bundle: true,
-                packages: 'external',
                 target: ['node10.4'],
                 platform: 'node',
             }).then(() => {

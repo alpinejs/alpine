@@ -1,5 +1,5 @@
 import { createFocusTrap } from 'focus-trap'
-import { focusable, isFocusable, isTabbable } from 'tabbable'
+import { focusable, tabbable, isFocusable, isTabbable } from 'tabbable'
 
 export default function (Alpine) {
     let lastFocused
@@ -39,7 +39,7 @@ export default function (Alpine) {
             focusables() {
                 if (Array.isArray(within)) return within
 
-                return focusable(within, { displayCheck: 'none' })
+                return (this.__tabbableOnly ? tabbable : focusable)(within, { displayCheck: 'none' });
             },
             all() { return this.focusables() },
             isFirst(el) {

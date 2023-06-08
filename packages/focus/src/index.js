@@ -1,5 +1,5 @@
 import { createFocusTrap } from 'focus-trap'
-import { focusable, isFocusable } from 'tabbable'
+import { focusable, isFocusable, isTabbable } from 'tabbable'
 
 export default function (Alpine) {
     let lastFocused
@@ -16,13 +16,16 @@ export default function (Alpine) {
         return {
             __noscroll: false,
             __wrapAround: false,
+            __tabbableOnly: false,
             within(el) { within = el; return this },
             withoutScrolling() { this.__noscroll = true; return this },
             noscroll() { this.__noscroll = true; return this },
             withWrapAround() { this.__wrapAround = true; return this },
             wrap() { return this.withWrapAround() },
+            withTabbables() { this.__tabbableOnly = true; return this },
+            tabbables() { return this.withTabbables() },
             focusable(el) {
-                return isFocusable(el)
+                return __tabbableOnly ? isTabbable(el) : isFocusable(el)
             },
             previouslyFocused() {
                 return lastFocused

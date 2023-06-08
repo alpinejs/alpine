@@ -200,6 +200,19 @@ test('$focus.focusable',
     },
 )
 
+test('$focus.tabbables.focusable',
+    [html`
+        <div x-data>
+            <button id="1" tabindex="-1" x-text="$focus.tabbables().focusable($el)"></button>
+            <button id="2" x-text="$focus.tabbables().focusable($el)"></button>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveText('false'))
+        get('#2').should(haveText('true'))
+    },
+)
+
 test('$focus.focusables',
     [html`
         <div x-data>
@@ -207,6 +220,22 @@ test('$focus.focusables',
             <div x-ref="container">
                 <button>1</button>
                 <div>2</div>
+                <button>3</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('h1').should(haveText('2'))
+    },
+)
+
+test('$focus.tabbables.focusables',
+    [html`
+        <div x-data>
+            <h1 x-text="$focus.within($refs.container).tabbables().focusables().length"></h1>
+            <div x-ref="container">
+                <button>1</button>
+                <button tabindex="-1">2</button>
                 <button>3</button>
             </div>
         </div>

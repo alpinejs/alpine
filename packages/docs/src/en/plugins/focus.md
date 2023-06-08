@@ -311,6 +311,7 @@ This plugin offers many smaller utilities for managing focus within a page. Thes
 | `focus(el)`   | Focus the passed element (handling annoyances internally: using nextTick, etc.) |
 | `focusable(el)`   | Detect whether or not an element is focusable |
 | `focusables()`   | Get all "focusable" elements within the current element |
+| `tabbables()`   | Get all "tabbable" elements within the current element |
 | `focused()`   | Get the currently focused element on the page |
 | `lastFocused()`   | Get the last focused element on the page |
 | `within(el)`   | Specify an element to scope the `$focus` magic to (the current element by default) |

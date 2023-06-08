@@ -232,7 +232,7 @@ test('$focus.focusables',
 test('$focus.tabbables.focusables',
     [html`
         <div x-data>
-            <h1 x-text="$focus.within($refs.container).tabbables().focusables().length"></h1>
+            <h1 x-text="$focus.tabbables().within($refs.container).focusables().length"></h1>
             <div x-ref="container">
                 <button>1</button>
                 <button tabindex="-1">2</button>

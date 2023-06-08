@@ -25,7 +25,7 @@ export default function (Alpine) {
             withTabbables() { this.__tabbableOnly = true; return this },
             tabbables() { return this.withTabbables() },
             focusable(el) {
-                return __tabbableOnly ? isTabbable(el) : isFocusable(el)
+                return this.__tabbableOnly ? isTabbable(el) : isFocusable(el)
             },
             previouslyFocused() {
                 return lastFocused

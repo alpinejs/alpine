@@ -149,7 +149,6 @@ test('$watch ignores other dependencies',
     }
 )
 
-
 test('deep $watch',
     html`
         <div x-data="{ foo: { bar: 'baz'}, bob: 'lob' }" x-init="
@@ -170,3 +169,99 @@ test('deep $watch',
     }
 )
 
+test('$watch nested arrays',
+    html`
+        <div x-data="{ foo: [['one', 'two'], ['three']], bob: [['four', 'five'], ['six']], quzzy: [['four', 'five'], ['six']] }"
+            x-init="$watch('foo', (value, oldValue) => { bob = value; quzzy = oldValue; })">
+            <h1 x-text="foo[0][0]"></h1>
+            <h2 x-text="bob[0][0]"></h1>
+            <h3 x-text="quzzy[0][0]"></h1>
+            <button id="unshift" x-on:click="foo.unshift(['zero'])"></button>
+            <button id="assign" x-on:click="foo = [[2],[1],[3]]"></button>
+            <button id="sort" x-on:click="foo.sort()"></button>
+            <button id="reverse" x-on:click="foo.reverse()"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('one'))
+        get('h2').should(haveText('four'))
+        get('h3').should(haveText('four'))
+
+        get('button#unshift').click()
+        get('h1').should(haveText('zero'))
+        get('h2').should(haveText('zero'))
+        get('h3').should(haveText('one'))
+
+        get('button#assign').click()
+        get('h1').should(haveText('2'))
+        get('h2').should(haveText('2'))
+        get('h3').should(haveText('zero'))
+
+        get('button#sort').click()
+        get('h1').should(haveText('1'))
+        get('h2').should(haveText('1'))
+        get('h3').should(haveText('2'))
+
+        get('button#reverse').click()
+        get('h1').should(haveText('3'))
+        get('h2').should(haveText('3'))
+        get('h3').should(haveText('1'))
+    }
+)
+
+test('$watch nested objects with arrays',
+    html`
+    <div x-data="{ foo: { bar: { quzzy: [ {arr: 'baz'} ] } }, bob: { bar: { quzzy: [ {arr: 'lob'} ] } } }" x-init="
+        $watch('foo', value => { bob = value }, {deep: true});">
+      <h1 x-text="foo.bar.quzzy[0].arr"></h1>
+      <h2 x-text="bob.bar.quzzy[0].arr"></h2>
+      <button id="assign" x-on:click="foo.bar.quzzy[0].arr = 'law'">Assign</button>
+    </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('baz'))
+        get('h2').should(haveText('lob'))
+
+        get('button#assign').click()
+        get('h1').should(haveText('law'))
+        get('h2').should(haveText('law'))
+    }
+)
+
+test('$watch should not error on null object',
+    html`
+    <div x-data="{ foo: null, bob: 'lob' }" x-init="
+        $watch('foo', value => { bob = value }, {deep: true});">
+      <h1 x-text="foo"></h1>
+      <h2 x-text="bob"></h2>
+      <button id="assign" x-on:click="foo = 'law'">Assign</button>
+    </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText(''))
+        get('h2').should(haveText('lob'))
+
+        get('button#assign').click()
+        get('h1').should(haveText('law'))
+        get('h2').should(haveText('law'))
+    }
+)
+
+test('$watch should not error on assignment to null object',
+    html`
+    <div x-data="{ foo: 'law', bob: 'lob' }" x-init="
+        $watch('foo', value => { bob = value }, {deep: true});">
+      <h1 x-text="foo"></h1>
+      <h2 x-text="bob"></h2>
+      <button id="assign" x-on:click="foo = null">Assign</button>
+    </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('law'))
+        get('h2').should(haveText('lob'))
+
+        get('button#assign').click()
+        get('h1').should(haveText(''))
+        get('h2').should(haveText(''))
+    }
+)

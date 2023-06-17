@@ -605,3 +605,59 @@ test('x-for throws descriptive error when key is undefined',
     ({ get }) => {},
     true
 )
+test('x-for.hydrate hydrates existing elements by key',
+    html`
+        <div x-data="{ items: [{id: 1, name: 'Tony'}, {id: 2, name: 'Bob'}] }">
+            <template x-for.hydrate="user in items" :key="user.id">
+                <div x-text="user.name"></div>
+            </template>
+            <div key="1" x-text="user.name">Tony</div>
+            <div key="2" x-text="user.name">Bob</div>
+        </div>
+    `,
+    ({ get }) => {
+        get('div>div:nth-of-type(1)').should(haveText('Tony'))
+        get('div>div:nth-of-type(2)').should(haveText('Bob'))
+        get('div>div:nth-of-type(3)').should((el) => expect(el).to.not.exist)
+        get('div>div:nth-of-type(4)').should((el) => expect(el).to.not.exist)
+    },
+    true
+)
+test('x-for.hydrate reorders/corrects elements during hydration',
+    html`
+        <div x-data="{ items: [{id: 1, name: 'Tony'}, {id: 2, name: 'Bob'}] }">
+            <template x-for.hydrate="user in items" :key="user.id">
+                <div x-text="user.name"></div>
+            </template>
+            <div key="2" x-text="user.name">Bob</div>
+            <div key="1" x-text="user.name">Bob</div>
+        </div>
+    `,
+    ({ get }) => {
+        get('div>div:nth-of-type(1)').should(haveText('Tony'))
+        get('div>div:nth-of-type(2)').should(haveText('Bob'))
+        get('div>div:nth-of-type(3)').should((el) => expect(el).to.not.exist)
+        get('div>div:nth-of-type(4)').should((el) => expect(el).to.not.exist)
+    },
+    true
+)
+test('x-for.hydrate morphs existing elements to the template when Morph is present',
+    html`
+        <div x-data="{ items: [{id: 1, name: 'Tony'}, {id: 2, name: 'Bob'}] }">
+            <template x-for.hydrate="user in items" :key="user.id">
+                <div x-text="user.name"></div>
+            </template>
+            <div key="1">Tony</div>
+            <div key="2">Bob</div>
+        </div>
+    `,
+    ({ get }) => {
+        get('div>div:nth-of-type(1)').should(haveText('Tony'))
+        get('div>div:nth-of-type(1)').should((el) => expect(el).to.have.attr('x-text', 'user.name'))
+        get('div>div:nth-of-type(2)').should(haveText('Bob'))
+        get('div>div:nth-of-type(2)').should((el) => expect(el).to.have.attr('x-text', 'user.name'))
+        get('div>div:nth-of-type(3)').should((el) => expect(el).to.not.exist)
+        get('div>div:nth-of-type(4)').should((el) => expect(el).to.not.exist)
+    },
+    true
+)

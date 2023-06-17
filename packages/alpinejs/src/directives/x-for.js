@@ -4,11 +4,10 @@ import { directive } from '../directives'
 import { reactive } from '../reactivity'
 import { initTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
-import { flushJobs } from '../scheduler'
 import { warn } from '../utils/warn'
 import { dequeueJob } from '../scheduler'
 
-directive('for', (el, { expression }, { effect, cleanup }) => {
+directive('for', (el, { expression, modifiers }, { Alpine, effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)
 
     let evaluateItems = evaluateLater(el, iteratorNames.items)
@@ -20,6 +19,9 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     el._x_prevKeys = []
     el._x_lookup = {}
 
+    if (modifiers.includes('hydrate'))
+      hydrate(el, iteratorNames, evaluateItems, evaluateKey, Alpine);
+
     effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
 
     cleanup(() => {
@@ -30,49 +32,131 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     })
 })
 
-let shouldFastRender = true
+function isObject(i) {
+    return typeof i === 'object' && ! Array.isArray(i)
+}
 
-function loop(el, iteratorNames, evaluateItems, evaluateKey) {
-    let isObject = i => typeof i === 'object' && ! Array.isArray(i)
-    let templateEl = el
+function hydrate (
+    templateEl,
+    iteratorNames,
+    evaluateItems,
+    evaluateKey,
+    Alpine
+) {
+    evaluateItems((items) => {
+        const [scopes, keys] = getScopesFromItems(
+            items,
+            iteratorNames,
+            evaluateKey
+        );
+
+      // collect possible hydration targets
+        const hydratables = {};
+
+        let nextSibling = templateEl.nextElementSibling;
+        while (nextSibling) {
+            const key = nextSibling.getAttribute('key');
+            if (key) hydratables[key] = nextSibling;
+            nextSibling = nextSibling.nextElementSibling;
+        }
+
+        const lookup = templateEl._x_lookup;
+        const prevKeys = templateEl._x_prevKeys;
+
+        let lastEl = templateEl;
+        keys.forEach((key, index) => {
+            const hydrationTarget = hydratables[key];
+            if (!hydrationTarget) return;
+            const scope = scopes[index];
+            lookup[key] = hydrationTarget;
+            prevKeys.push(key);
+
+            addScopeToNode(hydrationTarget, reactive(scope), templateEl);
+            hydrationTarget._x_forScope = hydrationTarget._x_dataStack[0];
+
+            if ('morph' in Alpine)
+            mutateDom(() => {
+                hydrationTarget.removeAttribute('key');
+                Alpine.morph(
+                hydrationTarget,
+                document.importNode(templateEl.content, true).firstElementChild
+                    .outerHTML
+                );
+                initTree(hydrationTarget);
+            });
+
+            lastEl.after(hydrationTarget);
+            lastEl = hydrationTarget;
+        });
+    });
+};
+
+function getScopesFromItems (
+    items,
+    iteratorNames,
+    evaluateKey
+) {
+    const scopes = [];
+    const keys = [];
+
+    // Support number literals. Ex: x-for="i in 100"
+    if (isNumeric(items) && items >= 0)
+      items = Array.from({ length: items }, (_, i) => i + 1);
+
+    if (items === undefined) items = [];
+
+    // In order to preserve DOM elements (move instead of replace)
+    // we need to generate all the keys for every iteration up
+    // front. These will be our source of truth for diffing.
+    if (isObject(items)) {
+      items = Object.entries(items).map(([key, value]) => {
+        const scope = getIterationScopeVariables(
+          iteratorNames,
+          value,
+          key,
+          items
+        );
+
+        evaluateKey((value) => keys.push(value), {
+          scope: { index: key, ...scope },
+        });
+
+        scopes.push(scope);
+      });
+    } else {
+        items.forEach((item, index) => {
+            const scope = getIterationScopeVariables(
+            iteratorNames,
+            item,
+            index,
+            items
+            );
+
+            evaluateKey((value) => keys.push(value), {
+            scope: { index, ...scope },
+            });
+
+            scopes.push(scope);
+        });
+    }
+    return [scopes, keys];
+};
+
+function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
 
     evaluateItems(items => {
         // Prepare yourself. There's a lot going on here. Take heart,
         // every bit of complexity in this function was added for
         // the purpose of making Alpine fast with large datas.
 
-        // Support number literals. Ex: x-for="i in 100"
-        if (isNumeric(items) && items >= 0) {
-            items = Array.from(Array(items).keys(), i => i + 1)
-        }
+        const [scopes, keys] = getScopesFromItems(
+            items,
+            iteratorNames,
+            evaluateKey
+        );
 
-        if (items === undefined) items = []
-
-        let lookup = el._x_lookup
-        let prevKeys = el._x_prevKeys
-        let scopes = []
-        let keys = []
-
-        // In order to preserve DOM elements (move instead of replace)
-        // we need to generate all the keys for every iteration up
-        // front. These will be our source of truth for diffing.
-        if (isObject(items)) {
-            items = Object.entries(items).map(([key, value]) => {
-                let scope = getIterationScopeVariables(iteratorNames, value, key, items)
-
-                evaluateKey(value => keys.push(value), { scope: { index: key, ...scope} })
-
-                scopes.push(scope)
-            })
-        } else {
-            for (let i = 0; i < items.length; i++) {
-                let scope = getIterationScopeVariables(iteratorNames, items[i], i, items)
-
-                evaluateKey(value => keys.push(value), { scope: { index: i, ...scope} })
-
-                scopes.push(scope)
-            }
-        }
+        let lookup = templateEl._x_lookup
+        let prevKeys = templateEl._x_prevKeys
 
         // Rather than making DOM manipulations inside one large loop, we'll
         // instead track which mutations need to be made in the following

@@ -37,6 +37,7 @@ function bundleFile(package, file) {
                 outfile: `packages/${package}/dist/${file}`,
                 bundle: true,
                 platform: 'browser',
+                target: 'es2017',
                 define: { CDN: 'true' },
             })
 
@@ -47,6 +48,7 @@ function bundleFile(package, file) {
                 bundle: true,
                 minify: true,
                 platform: 'browser',
+                target: 'es2017',
                 define: { CDN: 'true' },
             }).then(() => {
                 outputSize(package, `packages/${package}/dist/${file.replace('.js', '.min.js')}`)

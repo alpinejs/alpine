@@ -8,7 +8,7 @@ import { flushJobs } from '../scheduler'
 import { warn } from '../utils/warn'
 import { dequeueJob } from '../scheduler'
 
-directive('for', (el, { expression }, { effect, cleanup }) => {
+directive('for', (el, { modifiers, expression }, { effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)
 
     let evaluateItems = evaluateLater(el, iteratorNames.items)
@@ -19,6 +19,22 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
 
     el._x_prevKeys = []
     el._x_lookup = {}
+
+    if (modifiers.includes('hydrate')) {
+        const intKey = modifiers[modifiers.indexOf('hydrate') + 1] === 'int'
+        let curEl = el;
+        while (curEl = curEl.nextElementSibling) {
+            const key = curEl.getAttribute(':key')
+                curEl.getAttribute(':key')
+            if (key === null) {
+                break
+            }
+
+            const castKey = intKey ? parseInt(key) : key
+            el._x_lookup[castKey] = curEl
+            el._x_prevKeys.push(castKey)
+        }
+    }
 
     effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
 
@@ -212,7 +228,26 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         // data it depends on in case the data has changed in an
         // "unobservable" way.
         for (let i = 0; i < sames.length; i++) {
-            lookup[sames[i]]._x_refreshXForScope(scopes[keys.indexOf(sames[i])])
+            let key = sames[i]
+            let index = keys.indexOf(key)
+
+            // Handle setting up the refresh for the case of hydration.
+            if (lookup[key]._x_refreshXForScope === undefined) {
+                let scope = scopes[index]
+                let element = lookup[key]
+
+                let reactiveScope = reactive(scope)
+
+                addScopeToNode(element, reactiveScope, templateEl)
+
+                lookup[key]._x_refreshXForScope = (newScope) => {
+                    Object.entries(newScope).forEach(([key, value]) => {
+                        reactiveScope[key] = value
+                    })
+                }
+            }
+
+            lookup[key]._x_refreshXForScope(scopes[index])
         }
 
         // Now we'll log the keys (and the order they're in) for comparing

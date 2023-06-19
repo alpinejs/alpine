@@ -605,3 +605,41 @@ test('x-for throws descriptive error when key is undefined',
     ({ get }) => {},
     true
 )
+
+test('x-for hydration of server side rendering',
+    html`
+        <div x-data="{ items: [{x:0, k:'a'},{x:1, k:'b'}] }">
+            <template x-for.hydrate="item in items" :key="item.k">
+                <span x-text="item.x"></span>
+            </template>
+            <span :key="a">0</span>
+            <span :key="b">1</span>
+            <span :key="c">2</span>
+            <span>Unmanaged!</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('0'))
+        get('span:nth-of-type(2)').should(haveText('1'))
+        get('span:nth-of-type(3)').should(haveText('Unmanaged!'))
+    }
+)
+
+test('x-for hydration of server side rendering with integer keys',
+    html`
+        <div x-data="{ items: [{x:0, k:1},{x:1, k:2}] }">
+            <template x-for.hydrate.int="item in items" :key="item.k">
+                <span x-text="item.x"></span>
+            </template>
+            <span :key="1">0</span>
+            <span :key="2">1</span>
+            <span :key="3">2</span>
+            <span>Unmanaged!</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('0'))
+        get('span:nth-of-type(2)').should(haveText('1'))
+        get('span:nth-of-type(3)').should(haveText('Unmanaged!'))
+    }
+)

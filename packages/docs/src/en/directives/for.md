@@ -107,3 +107,23 @@ but this code will work:
     </p>
 </template>
 ```
+
+<a name="hydrating-from-rendered-html"></a>
+## Hydrating from rendered HTML
+To allow server side rendering of the `x-for` loop, you can use the `.hydrate` modifier and `:key` on _both_ the template and the rendered elements as follows:
+```alpine
+<ul x-data="{ colors: [
+    { id: 1, label: 'Red' },
+    { id: 2, label: 'Orange' },
+    { id: 3, label: 'Yellow' },
+]}">
+    <template x-for="color in colors" :key="color.id">
+        <li x-text="color.label"></li>
+    </template>
+    <li :key="1">Red</li>
+    <li :key="2">Orange</li>
+    <li :key="3">Yellow</li>
+</ul>
+```
+
+On initialize, the `x-for` directive will find all continuous siblings of the `<template>` and populate the current state. It will then update the list with any differences to the data.

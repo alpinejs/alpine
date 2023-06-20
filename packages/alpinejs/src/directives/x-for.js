@@ -25,7 +25,6 @@ directive('for', (el, { modifiers, expression }, { Alpine, effect, cleanup }) =>
         let curEl = el;
         while (curEl = curEl.nextElementSibling) {
             const key = curEl.getAttribute(':key')
-                curEl.getAttribute(':key')
             if (key === null) {
                 break
             }

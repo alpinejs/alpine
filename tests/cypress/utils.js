@@ -36,6 +36,12 @@ test.retry = (count) => (name, template, callback, handleExpectedErrors = false)
     })
 }
 
+test.noMorph = (name, template, callback, handleExpectedErrors = false) => {
+    it(name, () => {
+        injectHtmlAndBootAlpine(cy, template, callback, __dirname+'/spec-no-morph.html', handleExpectedErrors)
+    })
+}
+
 test.csp = (name, template, callback, handleExpectedErrors = false) => {
     it(name, () => {
         injectHtmlAndBootAlpine(cy, template, callback, __dirname+'/spec-csp.html', handleExpectedErrors)

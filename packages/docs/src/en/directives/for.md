@@ -120,10 +120,31 @@ To allow server side rendering of the `x-for` loop, you can use the `.hydrate` m
     <template x-for="color in colors" :key="color.id">
         <li x-text="color.label"></li>
     </template>
-    <li :key="1">Red</li>
-    <li :key="2">Orange</li>
-    <li :key="3">Yellow</li>
+    <li :key="1" x-text="color.label">Red</li>
+    <li :key="2" x-text="color.label">Orange</li>
+    <li :key="3" x-text="color.label">Yellow</li>
 </ul>
 ```
 
 On initialize, the `x-for` directive will find all continuous siblings of the `<template>` and populate the current state. It will then update the list with any differences to the data.
+
+### Note on removed items
+Items that are not present in `x-data` will be automatically removed upon hydration. However, if those items contain directives that reference the loop variable, you will get errors. If you need to support that scenario, it is recommended that you use Morph (see below).
+
+### Using with Morph
+If you are using Morph, you should leave the directives off of the static markup and Morph will automatically add them for you. This is force the static markup to also have a matching layout to the template when difference exist, while still allowing you to server render the template.
+
+```alpine
+<ul x-data="{ colors: [
+    { id: 1, label: 'Red' },
+    { id: 2, label: 'Orange' },
+    { id: 3, label: 'Yellow' },
+]}">
+    <template x-for.hydrate="color in colors" :key="color.id">
+        <li x-text="color.label" style="color: blue"></li>
+    </template>
+    <li :key="2">Orange</li>
+    <li :key="3">Red</li>
+    <li :key="1">Red</li>
+</ul>
+```

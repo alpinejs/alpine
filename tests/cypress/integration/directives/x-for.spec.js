@@ -625,7 +625,7 @@ test('x-for hydration of server side rendering',
     }
 )
 
-test('x-for hydration of server side rendering with integer keys',
+test.noMorph('x-for hydration of server side rendering with integer keys without morph',
     html`
         <div x-data="{ items: [{x:0, k:1},{x:1, k:2}] }">
             <template x-for.hydrate.int="item in items" :key="item.k">
@@ -639,6 +639,82 @@ test('x-for hydration of server side rendering with integer keys',
     `,
     ({ get }) => {
         get('span:nth-of-type(1)').should(haveText('0'))
+        get('span:nth-of-type(1)').should((el) => expect(el).to.not.have.attr('x-text'))
+        get('span:nth-of-type(2)').should(haveText('1'))
+        get('span:nth-of-type(2)').should((el) => expect(el).to.not.have.attr('x-text'))
+        get('span:nth-of-type(3)').should(haveText('Unmanaged!'))
+    }
+)
+
+test.noMorph('x-for hydration reactivity on update without morph',
+    html`
+        <div x-data="{ items: [{x:0, k:'a'},{x:1, k:'b'}] }">
+            <button @click="items[0].x = 2">Update</button>
+            <template x-for.hydrate="item in items" :key="item.k">
+                <span x-text="item.x"></span>
+            </template>
+            <span :key="a" x-text="item.x">0</span>
+            <span :key="b" x-text="item.x">1</span>
+            <span>Unmanaged!</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('0'))
+        get('span:nth-of-type(2)').should(haveText('1'))
+        get('span:nth-of-type(3)').should(haveText('Unmanaged!'))
+        get('button').click()
+        get('span:nth-of-type(1)').should(haveText('2'))
+        get('span:nth-of-type(2)').should(haveText('1'))
+        get('span:nth-of-type(3)').should(haveText('Unmanaged!'))
+    }
+)
+
+test.noMorph('x-for hydration reactivity on update without morph with removals',
+    html`
+        <div x-data="{ items: [{x:0, k:'a'},{x:1, k:'b'}] }">
+            <button @click="items[0].x = 2">Update</button>
+            <template x-for.hydrate="item in items" :key="item.k">
+                <span x-text="item.x"></span>
+            </template>
+            <span :key="a" x-text="item.x">0</span>
+            <span :key="b" x-text="item.x">1</span>
+            <span :key="c" x-text="item.x">2</span>
+            <span>Unmanaged!</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('0'))
+        get('span:nth-of-type(2)').should(haveText('1'))
+        get('span:nth-of-type(3)').should(haveText('Unmanaged!'))
+        get('button').click()
+        get('span:nth-of-type(1)').should(haveText('2'))
+        get('span:nth-of-type(2)').should(haveText('1'))
+        get('span:nth-of-type(3)').should(haveText('Unmanaged!'))
+    },
+    true
+)
+
+test('x-for hydration reactivity on update with morph',
+    html`
+        <div x-data="{ items: [{x:0, k:'a'},{x:1, k:'b'}] }">
+            <button @click="items[0].x = 2">Update</button>
+            <template x-for.hydrate="item in items" :key="item.k">
+                <span x-text="item.x"></span>
+            </template>
+            <span :key="a">0</span>
+            <span :key="b">1</span>
+            <span :key="c">2</span>
+            <span>Unmanaged!</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('0'))
+        get('span:nth-of-type(1)').should((el) => expect(el).to.have.attr('x-text'))
+        get('span:nth-of-type(2)').should(haveText('1'))
+        get('span:nth-of-type(2)').should((el) => expect(el).to.have.attr('x-text'))
+        get('span:nth-of-type(3)').should(haveText('Unmanaged!'))
+        get('button').click()
+        get('span:nth-of-type(1)').should(haveText('2'))
         get('span:nth-of-type(2)').should(haveText('1'))
         get('span:nth-of-type(3)').should(haveText('Unmanaged!'))
     }

@@ -8,7 +8,7 @@ import { flushJobs } from '../scheduler'
 import { warn } from '../utils/warn'
 import { dequeueJob } from '../scheduler'
 
-directive('for', (el, { modifiers, expression }, { effect, cleanup }) => {
+directive('for', (el, { modifiers, expression }, { Alpine, effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)
 
     let evaluateItems = evaluateLater(el, iteratorNames.items)
@@ -36,7 +36,7 @@ directive('for', (el, { modifiers, expression }, { effect, cleanup }) => {
         }
     }
 
-    effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
+    effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey, Alpine))
 
     cleanup(() => {
         Object.values(el._x_lookup).forEach(el => el.remove())
@@ -48,7 +48,7 @@ directive('for', (el, { modifiers, expression }, { effect, cleanup }) => {
 
 let shouldFastRender = true
 
-function loop(el, iteratorNames, evaluateItems, evaluateKey) {
+function loop(el, iteratorNames, evaluateItems, evaluateKey, Alpine) {
     let isObject = i => typeof i === 'object' && ! Array.isArray(i)
     let templateEl = el
 
@@ -201,15 +201,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 
             let clone = document.importNode(templateEl.content, true).firstElementChild
 
-            let reactiveScope = reactive(scope)
-
-            addScopeToNode(clone, reactiveScope, templateEl)
-
-            clone._x_refreshXForScope = (newScope) => {
-                Object.entries(newScope).forEach(([key, value]) => {
-                    reactiveScope[key] = value
-                })
-            }
+            setupRefreshXForScope(clone, scope, templateEl)
 
             mutateDom(() => {
                 lastEl.after(clone)
@@ -228,21 +220,25 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         // data it depends on in case the data has changed in an
         // "unobservable" way.
         for (let i = 0; i < sames.length; i++) {
-            let key = sames[i]
-            let index = keys.indexOf(key)
+            const key = sames[i]
+            const index = keys.indexOf(key)
 
             // Handle setting up the refresh for the case of hydration.
             if (lookup[key]._x_refreshXForScope === undefined) {
-                let scope = scopes[index]
-                let element = lookup[key]
+                setupRefreshXForScope(lookup[key], scopes[index], templateEl)
 
-                let reactiveScope = reactive(scope)
-
-                addScopeToNode(element, reactiveScope, templateEl)
-
-                lookup[key]._x_refreshXForScope = (newScope) => {
-                    Object.entries(newScope).forEach(([key, value]) => {
-                        reactiveScope[key] = value
+                // If morph is available, mutate the element into the correct
+                // structure to enable all reactivity etc.
+                if ('morph' in Alpine) {
+                    mutateDom(() => {
+                        lookup[key].removeAttribute(':key')
+                        Alpine.morph(
+                            lookup[key],
+                            document.importNode(templateEl.content, true)
+                                .firstElementChild
+                                .outerHTML
+                        )
+                        initTree(lookup[key])
                     })
                 }
             }
@@ -315,4 +311,16 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
 
 function isNumeric(subject){
     return ! Array.isArray(subject) && ! isNaN(subject)
+}
+
+function setupRefreshXForScope(el, scope, templateEl) {
+    let reactiveScope = reactive(scope)
+
+    addScopeToNode(el, reactiveScope, templateEl)
+
+    el._x_refreshXForScope = (newScope) => {
+        Object.entries(newScope).forEach(([key, value]) => {
+            reactiveScope[key] = value
+        })
+    }
 }

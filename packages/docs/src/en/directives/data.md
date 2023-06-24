@@ -86,9 +86,9 @@ Let's refactor our component to use a getter called `isOpen` instead of accessin
 
 ```alpine
 <div x-data="{
-  open: false,
-  get isOpen() { return this.open },
-  toggle() { this.open = ! this.open },
+    open: false,
+    get isOpen() { return this.open },
+    toggle() { this.open = ! this.open },
 }">
     <button @click="toggle()">Toggle Content</button>
 

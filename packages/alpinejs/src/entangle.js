@@ -2,7 +2,7 @@ import { effect, release } from './reactivity'
 
 export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set: innerSet }) {
     let firstRun = true
-    let outerHash, innerHash
+    let outerHash, innerHash, outerHashLatest, innerHashLatest
 
     let reference = effect(() => {
         let outer, inner

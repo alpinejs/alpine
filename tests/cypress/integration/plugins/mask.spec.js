@@ -60,6 +60,19 @@ test('x-mask with x-model',
     },
 )
 
+test('x-mask with x-model with initial value',
+    [html`
+        <div x-data="{ value: '1234567890' }">
+            <input x-mask="(999) 999-9999" x-model="value" id="1">
+            <input id="2" x-model="value">
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('(123) 456-7890'))
+        get('#2').should(haveValue('(123) 456-7890'))
+    },
+)
+
 test('x-mask with a falsy input',
     [html`<input x-data x-mask="">`],
     ({ get }) => {
@@ -176,5 +189,37 @@ test('$money mask should remove letters or non numeric characters',
         get('input').type('$').should(haveValue(''))
         get('input').type('/').should(haveValue(''))
         get('input').type('40').should(haveValue('40'))
+    }
+)
+
+test('$money mask negative values',
+    [html`
+        <input id="1" x-data x-mask:dynamic="$money($input)" value="-1234.50" />
+        <input id="2" x-data x-mask:dynamic="$money($input)" />
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('-1,234.50'))
+        get('#2').type('-12.509').should(haveValue('-12.50'))
+        get('#2').type('{leftArrow}{leftArrow}{leftArrow}-').should(haveValue('-12.50'))
+        get('#2').type('{leftArrow}{leftArrow}{backspace}').should(haveValue('12.50'))
+        get('#2').type('{rightArrow}-').should(haveValue('12.50'))
+        get('#2').type('{rightArrow}-').should(haveValue('12.50'))
+        get('#2').type('{rightArrow}{rightArrow}{rightArrow}-').should(haveValue('12.50'))
+        get('#2').type('{leftArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}-').should(haveValue('-12.50'))
+    }
+)
+
+test('$money with custom decimal precision',
+    [html`
+        <input id="0" x-data x-mask:dynamic="$money($input, '.', ',', 0)" />
+        <input id="1" x-data x-mask:dynamic="$money($input, '.', ',', 1)" />
+        <input id="2" x-data x-mask:dynamic="$money($input, '.', ',', 2)" />
+        <input id="3" x-data x-mask:dynamic="$money($input, '.', ',', 3)" />
+    `],
+    ({ get }) => {
+        get('#0').type('1234.5678').should(haveValue('12,345,678'))
+        get('#1').type('1234.5678').should(haveValue('1,234.5'))
+        get('#2').type('1234.5678').should(haveValue('1,234.56'))
+        get('#3').type('1234.5678').should(haveValue('1,234.567'))
     }
 )

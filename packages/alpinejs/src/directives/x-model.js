@@ -5,6 +5,7 @@ import { nextTick } from '../nextTick'
 import bind from '../utils/bind'
 import on from '../utils/on'
 import { warn } from '../utils/warn'
+import { isCloning } from '../clone'
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
@@ -45,7 +46,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             })
         }
     }
-
+    
     if (typeof expression === 'string' && el.type === 'radio') {
         // Radio buttons only work properly when they share a name attribute.
         // People might assume we take care of that for them, because
@@ -62,10 +63,16 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         || modifiers.includes('lazy')
             ? 'change' : 'input'
 
-    let removeListener = on(el, event, modifiers, (e) => {
+    // We only want to register the event listener when we're not cloning, since the
+    // mutation observer handles initializing the x-model directive already when
+    // the element is inserted into the DOM. Otherwise we register it twice.
+    let removeListener = isCloning ? () => {} : on(el, event, modifiers, (e) => {
         setValue(getInputValue(el, modifiers, e, getValue()))
     })
-
+    
+    if (modifiers.includes('fill') && [null, ''].includes(getValue())) {
+        el.dispatchEvent(new Event(event, {}));
+    }
     // Register the listener removal callback on the element, so that
     // in addition to the cleanup function, x-modelable may call it.
     // Also, make this a keyed object if we decide to reintroduce
@@ -124,9 +131,9 @@ function getInputValue(el, modifiers, event, currentValue) {
         // Check for event.detail due to an issue where IE11 handles other events as a CustomEvent.
         // Safari autofill triggers event as CustomEvent and assigns value to target
         // so we return event.target.value instead of event.detail
-        if (event instanceof CustomEvent && event.detail !== undefined) {
-            return typeof event.detail != 'undefined' ? event.detail : event.target.value
-        } else if (el.type === 'checkbox') {
+        if (event instanceof CustomEvent && event.detail !== undefined)
+            return event.detail ?? event.target.value
+        else if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {
                 let newValue = modifiers.includes('number') ? safeParseNumber(event.target.value) : event.target.value

@@ -87,7 +87,7 @@ function injectHtmlAndBootAlpine(cy, templateAndPotentiallyScripts, callback, pa
     })
 }
 
-export let haveData = (key, value) => ([ el ]) => expect(root(el)._x_dataStack[0][key]).to.equal(value)
+export let haveData = (key, value) => ([el]) => expect(root(el)._x_dataStack[0][key]).to.deep.equal(value);
 
 export let haveFocus = () => el => expect(el).to.have.focus
 
@@ -96,6 +96,8 @@ export let notHaveFocus = () => el => expect(el).not.to.be.focused
 export let haveAttribute = (name, value) => el => expect(el).to.have.attr(name, value)
 
 export let notHaveAttribute = (name, value) => el => expect(el).not.to.have.attr(name, value)
+
+export let haveProperty = (name, value) => el => expect(el).to.have.prop(name, value)
 
 export let haveText = text => el => expect(el).to.have.text(text)
 

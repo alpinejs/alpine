@@ -1,4 +1,4 @@
-import { addScopeToNode, refreshScope } from '../scope'
+import { addScopeToNode } from '../scope'
 import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 import { reactive } from '../reactivity'
@@ -158,6 +158,8 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             let marker = document.createElement('div')
 
             mutateDom(() => {
+                if (! elForSpot) warn(`x-for ":key" is undefined or invalid`, templateEl)
+
                 elForSpot.after(marker)
                 elInSpot.after(elForSpot)
                 elForSpot._x_currentIfEl && elForSpot.after(elForSpot._x_currentIfEl)
@@ -166,7 +168,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
                 marker.remove()
             })
 
-            refreshScope(elForSpot, scopes[keys.indexOf(keyForSpot)])
+            elForSpot._x_refreshXForScope(scopes[keys.indexOf(keyForSpot)])
         }
 
         // We can now create and add new elements.
@@ -183,7 +185,15 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 
             let clone = document.importNode(templateEl.content, true).firstElementChild
 
-            addScopeToNode(clone, reactive(scope), templateEl)
+            let reactiveScope = reactive(scope)
+
+            addScopeToNode(clone, reactiveScope, templateEl)
+
+            clone._x_refreshXForScope = (newScope) => {
+                Object.entries(newScope).forEach(([key, value]) => {
+                    reactiveScope[key] = value
+                })
+            }
 
             mutateDom(() => {
                 lastEl.after(clone)
@@ -202,7 +212,7 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         // data it depends on in case the data has changed in an
         // "unobservable" way.
         for (let i = 0; i < sames.length; i++) {
-            refreshScope(lookup[sames[i]], scopes[keys.indexOf(sames[i])])
+            lookup[sames[i]]._x_refreshXForScope(scopes[keys.indexOf(sames[i])])
         }
 
         // Now we'll log the keys (and the order they're in) for comparing

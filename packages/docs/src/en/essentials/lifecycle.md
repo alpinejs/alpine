@@ -87,7 +87,7 @@ document.addEventListener('alpine:init', () => {
 <a name="alpine-initialized"></a>
 ### `alpine:initialized`
 
-Alpine also offers a hook that you can use to execute code After it's done initializing called `alpine:initialized`:
+Alpine also offers a hook that you can use to execute code AFTER it's done initializing called `alpine:initialized`:
 
 ```js
 document.addEventListener('alpine:initialized', () => {

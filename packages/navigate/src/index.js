@@ -1,68 +1,66 @@
-import { transition } from "alpinejs/src/directives/x-transition"
-import { finishAndHideProgressBar, showAndStartProgressBar } from "./bar"
-import { fetchHtml } from "./fetch"
 import { updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks, updateUrlAndStoreLatestHtmlForFutureBackButtons, whenTheBackOrForwardButtonIsClicked } from "./history"
-import { extractDestinationFromLink, hijackNewLinksOnThePage, whenALinkIsClicked, whenALinkIsHovered } from "./links"
-import { swapCurrentPageWithNewHtml } from "./page"
-import { putPersistantElementsBack, storePersistantElementsForLater } from "./persist"
 import { getPretchedHtmlOr, prefetchHtml, storeThePrefetchedHtmlForWhenALinkIsClicked } from "./prefetch"
+import { extractDestinationFromLink, whenThisLinkIsClicked, whenThisLinkIsHovered } from "./links"
 import { restoreScrollPosition, storeScrollInformationInHtmlBeforeNavigatingAway } from "./scroll"
+import { putPersistantElementsBack, storePersistantElementsForLater } from "./persist"
+import { finishAndHideProgressBar, showAndStartProgressBar } from "./bar"
+import { transition } from "alpinejs/src/directives/x-transition"
+import { swapCurrentPageWithNewHtml } from "./page"
+import { fetchHtml } from "./fetch"
 
-let enablePrefetch = true
 let enablePersist = true
 let showProgressBar = true
 let restoreScroll = true
 let autofocus = false
 
 export default function (Alpine) {
-    updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
+    Alpine.directive('navigate', (el, { value, expression, modifiers }, { evaluateLater, cleanup }) => {
+        let shouldPrefetch = modifiers.includes('prefetch')
 
-    enablePrefetch && whenALinkIsHovered((el) => {
-        let forDestination = extractDestinationFromLink(el)
+        shouldPrefetch && whenThisLinkIsHovered(el, () => {
+            let forDestination = extractDestinationFromLink(el)
 
-        prefetchHtml(forDestination, html => {
-            storeThePrefetchedHtmlForWhenALinkIsClicked(html, forDestination)
+            prefetchHtml(forDestination, html => {
+                storeThePrefetchedHtmlForWhenALinkIsClicked(html, forDestination)
+            })
         })
-    })
 
-    whenALinkIsClicked((el) => {
-        showProgressBar && showAndStartProgressBar()
+        whenThisLinkIsClicked(el, () => {
+            showProgressBar && showAndStartProgressBar()
 
-        let fromDestination = extractDestinationFromLink(el)
+            let fromDestination = extractDestinationFromLink(el)
 
-        fetchHtmlOrUsePrefetchedHtml(fromDestination, html => {
-            restoreScroll && storeScrollInformationInHtmlBeforeNavigatingAway()
+            fetchHtmlOrUsePrefetchedHtml(fromDestination, html => {
+                restoreScroll && storeScrollInformationInHtmlBeforeNavigatingAway()
 
-            showProgressBar && finishAndHideProgressBar()
+                showProgressBar && finishAndHideProgressBar()
 
-            updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
+                updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
 
-            preventAlpineFromPickingUpDomChanges(Alpine, andAfterAllThis => {
-                enablePersist && storePersistantElementsForLater()
+                preventAlpineFromPickingUpDomChanges(Alpine, andAfterAllThis => {
+                    enablePersist && storePersistantElementsForLater()
 
-                swapCurrentPageWithNewHtml(html, () => {
-                    enablePersist && putPersistantElementsBack()
+                    swapCurrentPageWithNewHtml(html, () => {
+                        enablePersist && putPersistantElementsBack()
 
-                    // Added setTimeout here to detect a currently hovered prefetch link...
-                    // (hack for laracon)
-                    setTimeout(() => hijackNewLinksOnThePage())
+                        restoreScroll && restoreScrollPosition()
 
-                    restoreScroll && restoreScrollPosition()
+                        fireEventForOtherLibariesToHookInto()
 
-                    fireEventForOtherLibariesToHookInto()
+                        updateUrlAndStoreLatestHtmlForFutureBackButtons(html, fromDestination)
 
-                    updateUrlAndStoreLatestHtmlForFutureBackButtons(html, fromDestination)
+                        andAfterAllThis(() => {
+                            autofocus && autofocusElementsWithTheAutofocusAttribute()
 
-                    andAfterAllThis(() => {
-                        autofocus && autofocusElementsWithTheAutofocusAttribute()
-
-                        nowInitializeAlpineOnTheNewPage(Alpine)
+                            nowInitializeAlpineOnTheNewPage(Alpine)
+                        })
                     })
                 })
-
             })
         })
     })
+
+    updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
 
     whenTheBackOrForwardButtonIsClicked((html) => {
         // @todo: see if there's a way to update the current HTML BEFORE

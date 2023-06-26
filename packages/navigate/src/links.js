@@ -1,51 +1,18 @@
 
-let handleLinkClick = () => {}
-let handleLinkHover = () => {}
+export function whenThisLinkIsClicked(el, callback) {
+    el.addEventListener('click', e => {
+        e.preventDefault()
 
-export function whenALinkIsClicked(callback) {
-    handleLinkClick = callback
-
-    initializeLinksForClicking()
+        callback(el)
+    })
 }
 
-export function whenALinkIsHovered(callback) {
-    handleLinkHover = callback
-
-    initializeLinksForHovering()
+export function whenThisLinkIsHovered(el, callback) {
+    el.addEventListener('mouseenter', e => {
+        callback(e)
+    })
 }
 
 export function extractDestinationFromLink(linkEl) {
     return new URL(linkEl.getAttribute('href'), document.baseURI)
 }
-
-export function hijackNewLinksOnThePage() {
-    initializeLinksForClicking()
-    initializeLinksForHovering()
-}
-
-function initializeLinksForClicking() {
-    getLinks().forEach(el => {
-        el.addEventListener('click', e => {
-            e.preventDefault()
-
-            handleLinkClick(el)
-        })
-    })
-}
-
-function initializeLinksForHovering() {
-    getLinks()
-        .filter(i => i.hasAttribute('wire:navigate.prefetch'))
-        .forEach(el => {
-            el.addEventListener('mouseenter', e => {
-                handleLinkHover(el)
-            })
-        })
-}
-
-function getLinks() {
-    return Array.from(document.links)
-        .filter(i => i.hasAttribute('wire:navigate')
-        || i.hasAttribute('wire:navigate.prefetch'))
-}
-

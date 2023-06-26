@@ -22,10 +22,12 @@ export default function (Alpine) {
             noscroll() { this.__noscroll = true; return this },
             withWrapAround() { this.__wrapAround = true; return this },
             wrap() { return this.withWrapAround() },
-            withTabbables() { this.__tabbableOnly = true; return this },
-            tabbables() { return this.withTabbables() },
+            onlyTabbables() { this.__tabbableOnly = true; return this },
             focusable(el) {
-                return this.__tabbableOnly ? isTabbable(el) : isFocusable(el)
+                return isFocusable(el)
+            },
+            tabbable(el) {
+                return isTabbable(el)
             },
             previouslyFocused() {
                 return lastFocused
@@ -39,9 +41,16 @@ export default function (Alpine) {
             focusables() {
                 if (Array.isArray(within)) return within
 
-                return (this.__tabbableOnly ? tabbable : focusable)(within, { displayCheck: 'none' });
+                return focusable(within, { displayCheck: 'none' })
             },
-            all() { return this.focusables() },
+            tabbables() {
+                if (Array.isArray(within)) return within
+
+                return tabbable(within, { displayCheck: 'none' })
+            },
+            all() {
+                return this.__tabbableOnly ? this.tabbables() : this.focusables()
+            },
             isFirst(el) {
                 let els = this.all()
 

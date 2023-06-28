@@ -6,6 +6,7 @@ export function swapCurrentPageWithNewHtml(html, andThen) {
     let newHead = document.adoptNode(newDocument.head)
 
     mergeNewHead(newHead)
+
     prepNewScriptTagsToRun(newBody)
 
     transitionOut(document.body)
@@ -42,7 +43,7 @@ function transitionIn(body) {
 
 function prepNewScriptTagsToRun(newBody) {
     newBody.querySelectorAll('script').forEach(i => {
-        if (i.hasAttribute('x-navigate:ignore')) return
+        if (i.hasAttribute('data-navigate-once')) return
 
         i.replaceWith(cloneScriptTag(i))
     })

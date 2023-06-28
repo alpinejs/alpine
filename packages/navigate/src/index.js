@@ -60,7 +60,6 @@ export default function (Alpine) {
         })
     })
 
-    updateCurrentPageHtmlInHistoryStateForLaterBackButtonClicks()
 
     whenTheBackOrForwardButtonIsClicked((html) => {
         // @todo: see if there's a way to update the current HTML BEFORE
@@ -73,8 +72,6 @@ export default function (Alpine) {
 
             swapCurrentPageWithNewHtml(html, andThen => {
                 enablePersist && putPersistantElementsBack()
-
-                hijackNewLinksOnThePage()
 
                 restoreScroll && restoreScrollPosition()
 

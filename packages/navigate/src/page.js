@@ -7,6 +7,8 @@ export function swapCurrentPageWithNewHtml(html, andThen) {
 
     mergeNewHead(newHead)
 
+    // mergeNewHead(newHead)
+
     prepNewScriptTagsToRun(newBody)
 
     transitionOut(document.body)
@@ -58,6 +60,12 @@ function mergeNewHead(newHead) {
     for (child of Array.from(newHead.children)) {
         if (isAsset(child)) {
             if (! headChildrenHtmlLookup.includes(child.outerHTML)) {
+                if (isTracked(child)) {
+                    setTimeout(() => window.location.reload())
+
+                    return
+                }
+
                 if (isScript(child)) {
                     document.head.appendChild(cloneScriptTag(child))
                 } else {
@@ -95,13 +103,17 @@ function cloneScriptTag(el) {
     return script
 }
 
-function isAsset (el) {
+function isTracked(el) {
+    return el.hasAttribute('data-navigate-track')
+}
+
+function isAsset(el) {
     return (el.tagName.toLowerCase() === 'link' && el.getAttribute('rel').toLowerCase() === 'stylesheet')
         || el.tagName.toLowerCase() === 'style'
         || el.tagName.toLowerCase() === 'script'
 }
 
-function isScript (el)   {
+function isScript(el)   {
     return el.tagName.toLowerCase() === 'script'
 }
 

@@ -178,7 +178,7 @@ function handleRoot(el, Alpine) {
                 __activateSelectedOrFirst(activateSelected = true) {
                     if (! this.__isOpen) return
 
-                    if (this.__context.hasActive()) return
+                    if (this.__context.hasActive() && this.__context.wasActivatedByKeyPress()) return
 
                     let firstSelectedValue
 

@@ -7,6 +7,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
         items: [],
         activeKey: null,
         orderedKeys: [],
+        activatedByKeyPress: false,
 
         /**
          *  Initialization...
@@ -66,7 +67,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
 
             let item = this.items.find(i => i.key === this.activeKey)
 
-            if (! item) return this.activeKey = null
+            if (! item) this.deactivateKey(this.activeKey)
 
             return item
         },
@@ -74,7 +75,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
         activateItem(item) {
             if (! item) return
 
-            this.activeKey = item.key
+            this.activateKey(item.key)
         },
 
         /**
@@ -98,7 +99,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
 
             // If there no longer is the active key in the items list, then
             // deactivate it...
-            if (! this.orderedKeys.includes(this.activeKey)) this.activeKey = null
+            if (! this.orderedKeys.includes(this.activeKey)) this.deactivateKey(this.activeKey)
         }),
 
         activeEl() {
@@ -127,7 +128,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
 
         scrollingCount: 0,
 
-        activateAndScrollToKey(key) {
+        activateAndScrollToKey(key, activatedByKeyPress) {
             if (! this.getItemByKey(key)) return
 
             // This addresses the following problem:
@@ -136,7 +137,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
             // This "isScrollingTo" is exposed to prevent that.
             this.scrollingCount++
 
-            this.activateKey(key)
+            this.activateKey(key, activatedByKeyPress)
 
             let targetEl = this.items.find(i => i.key === key).el
 
@@ -170,16 +171,28 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
          */
         hasActive() { return !! this.activeKey },
 
+        /**
+         * Return true if the latest active element was activated
+         * by the user (i.e. using the arrow keys) and false if was
+         * activated automatically by alpine (i.e. first element automatically
+         * activeted after filtering the list)
+         */
+        wasActivatedByKeyPress() {return this.activatedByKeyPress},
+
         isActiveKey(key) { return this.activeKey === key },
 
-        activateKey(key) {
+        activateKey(key, activatedByKeyPress = false) {
             if (this.isDisabled(key)) return
 
             this.activeKey = key
+            this.activatedByKeyPress = activatedByKeyPress
         },
 
         deactivateKey(key) {
-            if (this.activeKey === key) this.activeKey = null
+            if (this.activeKey === key) {
+                this.activeKey = null
+                this.activatedByKeyPress = false
+            }
         },
 
         deactivate() {
@@ -187,6 +200,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
             if (this.isScrollingTo) return
 
             this.activeKey = null
+            this.activatedByKeyPress = false
         },
 
         /**
@@ -242,6 +256,8 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
 
             setIsTyping(true)
 
+            let activatedByKeyPress = true
+
             switch (e.key) {
                 // case 'Backspace':
                 // case 'Delete':
@@ -291,6 +307,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
                     break;
 
                 default:
+                    activatedByKeyPress = this.activatedByKeyPress
                     if (searchable && e.key.length === 1) {
                         targetKey = this.searchKey(e.key)
                     }
@@ -298,7 +315,7 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
             }
 
             if (targetKey) {
-                this.activateAndScrollToKey(targetKey)
+                this.activateAndScrollToKey(targetKey, activatedByKeyPress)
             }
         }
     }

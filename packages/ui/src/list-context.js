@@ -51,7 +51,14 @@ export function generateContext(multiple, orientation, activateSelectedOrFirst) 
 
         getItemsByValues(values) {
             let rawValues = values.map(i => Alpine.raw(i));
-            return this.items.filter(i => rawValues.includes(Alpine.raw(i.value)))
+            let filteredValue = this.items.filter(i => rawValues.includes(Alpine.raw(i.value)))
+            filteredValue = filteredValue.slice().sort((a, b) => {
+                let position = a.el.compareDocumentPosition(b.el)
+                if (position & Node.DOCUMENT_POSITION_FOLLOWING) return -1
+                if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1
+                return 0
+            })
+            return filteredValue
         },
 
         getActiveItem() {

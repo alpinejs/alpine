@@ -161,13 +161,14 @@ function handleRoot(el, Alpine) {
                         }
                     }
 
-                    this.__activateSelectedOrFirst()
-
                     // Safari needs more of a "tick" for focusing after x-show for some reason.
                     // Probably because Alpine adds an extra tick when x-showing for @click.outside
                     let nextTick = callback => requestAnimationFrame(() => requestAnimationFrame(callback))
 
-                    nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
+                    nextTick(() => {
+                        this.$refs.__input.focus({ preventScroll: true })
+                        this.__activateSelectedOrFirst()
+                    })
                 },
                 __close() {
                     this.__isOpen = false

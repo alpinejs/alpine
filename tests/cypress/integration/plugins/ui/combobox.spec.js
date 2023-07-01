@@ -271,7 +271,7 @@ test('"name" prop',
     },
 );
 
-test('Preserves currenty active selection while options change from searching even if there\'s a selected option in the filtered results',
+test('Preserves currenty active keyboard selection while options change from searching even if there\'s a selected option in the filtered results',
     [html`
         <div
             x-data="{
@@ -358,6 +358,89 @@ test('Preserves currenty active selection while options change from searching ev
         get('input').type('d')
         get('input').trigger('change')
         cy.wait(100)
+        get('[option="1"]').should(contain('*'))
+    },
+);
+
+test('Ignore active selection while options change if not selected by a keyboard event',
+    [html`
+        <div
+            x-data="{
+                query: '',
+                selected: null,
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                },
+            }"
+        >
+            <div x-combobox x-model="selected">
+                <label x-combobox:label>Select person</label>
+
+                <div>
+                    <div>
+                        <input
+                            x-combobox:input
+                            :display-value="person => person.name"
+                            @change="query = $event.target.value"
+                            placeholder="Search..."
+                        />
+
+                        <button x-combobox:button>Toggle</button>
+                    </div>
+
+                    <div x-combobox:options>
+                        <ul>
+                            <template
+                                x-for="person in filteredPeople"
+                                :key="person.id"
+                                hidden
+                            >
+                                <li
+                                    x-combobox:option
+                                    :option="person.id"
+                                    :value="person"
+                                    :disabled="person.disabled"
+                                >
+                                    <span x-text="person.name"></span>
+                                    <span x-show="$comboboxOption.isActive">*</span>
+                                    <span x-show="$comboboxOption.isSelected">x</span>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <p x-show="filteredPeople.length == 0">No people match your query.</p>
+                    </div>
+                </div>
+            </div>
+
+            <article>lorem ipsum</article>
+        </div>
+    `],
+    ({ get }) => {
+        get('input').should(haveText(''))
+        get('button').click()
+        get('[option="1"]').should(contain('*'))
+        get('input').type('t')
+        get('input').trigger('change')
+        get('[option="4"]').should(contain('*'))
+        get('input').type('{backspace}')
+        get('input').trigger('change')
         get('[option="1"]').should(contain('*'))
     },
 );

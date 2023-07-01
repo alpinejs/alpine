@@ -85,24 +85,6 @@ function handleRoot(el, Alpine) {
                 __inputName: null,
                 __isTyping: false,
                 __hold: false,
-                __pointer: {
-                    lastPosition: [-1, -1],
-
-                    wasMoved(e) {
-                        let newPosition = [e.screenX, e.screenY]
-
-                        if (this.lastPosition[0] === newPosition[0] && this.lastPosition[1] === newPosition[1]) {
-                            return false
-                        }
-
-                        this.lastPosition = newPosition
-                        return true
-                    },
-
-                    update(e) {
-                        this.lastPosition = [e.screenX, e.screenY]
-                    },
-                },
 
                 /**
                  * Combobox initialization...
@@ -114,7 +96,7 @@ function handleRoot(el, Alpine) {
                     this.__nullable = Alpine.extractProp(el, 'nullable', false)
                     this.__compareBy = Alpine.extractProp(el, 'by')
 
-                    this.__context = generateContext(this.__isMultiple, 'vertical', () => this.$data.__activateSelectedOrFirst())
+                    this.__context = generateContext(this.__isMultiple, 'vertical', () => this.__activateSelectedOrFirst())
 
                     let defaultValue = Alpine.extractProp(el, 'default-value', this.__isMultiple ? [] : null)
 
@@ -134,24 +116,22 @@ function handleRoot(el, Alpine) {
                 __startTyping() {
                     this.__isTyping = true
                 },
-                __stopTyping(resetInput = true) {
+                __stopTyping() {
                     this.__isTyping = false
-
-                    if (resetInput) this.$data.__resetInput()
                 },
                 __resetInput() {
                     let input = this.$refs.__input
+
                     if (! input) return
 
-                    let value = this.$data.__getCurrentValue()
+                    let value = this.__getCurrentValue()
 
                     input.value = value
-                    input.dispatchEvent(new Event('change'))
                 },
                 __getCurrentValue() {
                     if (! this.$refs.__input) return ''
                     if (! this.__value) return ''
-                    if (this.$data.__displayValue && this.__value !== undefined) return this.$data.__displayValue(this.__value)
+                    if (this.__displayValue) return this.__displayValue(this.__value)
                     if (typeof this.__value === 'string') return this.__value
                     return ''
                 },
@@ -159,13 +139,36 @@ function handleRoot(el, Alpine) {
                     if (this.__isOpen) return
                     this.__isOpen = true
 
-                    this.__activateSelectedOrFirst()
+                    let input = this.$refs.__input
+
+                    // Make sure we always notify the parent component
+                    // that the starting value is the empty string
+                    // when we open the combobox (ignoring any existing value)
+                    // to avoid inconsistent displaying.
+                    // Setting the input to empty and back to the real value
+                    // also helps VoiceOver to annunce the content properly
+                    // See https://github.com/tailwindlabs/headlessui/pull/2153
+                    if (input) {
+                        let value = input.value
+                        let { selectionStart, selectionEnd, selectionDirection } = input
+                        input.value = ''
+                        input.dispatchEvent(new Event('change'))
+                        input.value = value
+                        if (selectionDirection !== null) {
+                            input.setSelectionRange(selectionStart, selectionEnd, selectionDirection)
+                        } else {
+                            input.setSelectionRange(selectionStart, selectionEnd)
+                        }
+                    }
 
                     // Safari needs more of a "tick" for focusing after x-show for some reason.
                     // Probably because Alpine adds an extra tick when x-showing for @click.outside
                     let nextTick = callback => requestAnimationFrame(() => requestAnimationFrame(callback))
 
-                    nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
+                    nextTick(() => {
+                        this.$refs.__input.focus({ preventScroll: true })
+                        this.__activateSelectedOrFirst()
+                    })
                 },
                 __close() {
                     this.__isOpen = false
@@ -175,31 +178,32 @@ function handleRoot(el, Alpine) {
                 __activateSelectedOrFirst(activateSelected = true) {
                     if (! this.__isOpen) return
 
-                    if (this.__context.activeKey) {
-                        this.__context.activateAndScrollToKey(this.__context.activeKey)
-                        return
-                    }
+                    if (this.__context.hasActive() && this.__context.wasActivatedByKeyPress()) return
 
                     let firstSelectedValue
 
                     if (this.__isMultiple) {
-                        firstSelectedValue = this.__value.find(i => {
-                            return !! this.__context.getItemByValue(i)
-                        })
+                        let selectedItem = this.__context.getItemsByValues(this.__value)
+
+                        firstSelectedValue = selectedItem.length ? selectedItem[0].value : null
                     } else {
                         firstSelectedValue = this.__value
                     }
 
+                    let firstSelected = null
                     if (activateSelected && firstSelectedValue) {
-                        let firstSelected = this.__context.getItemByValue(firstSelectedValue)
-
-                        firstSelected && this.__context.activateAndScrollToKey(firstSelected.key)
-                    } else {
-                        this.__context.activateAndScrollToKey(this.__context.firstKey())
+                        firstSelected = this.__context.getItemByValue(firstSelectedValue)
                     }
+
+                    if (firstSelected) {
+                        this.__context.activateAndScrollToKey(firstSelected.key)
+                        return
+                    }
+
+                    this.__context.activateAndScrollToKey(this.__context.firstKey())
                 },
                 __selectActive() {
-                    let active = this.$data.__context.getActiveItem()
+                    let active = this.__context.getActiveItem()
                     if (active) this.__toggleSelected(active.value)
                 },
                 __selectOption(el) {
@@ -249,7 +253,6 @@ function handleRoot(el, Alpine) {
                 },
             }
         },
-
         // Register event listeners..
         '@mousedown.window'(e) {
             if (
@@ -257,8 +260,8 @@ function handleRoot(el, Alpine) {
                 && ! this.$refs.__button.contains(e.target)
                 && ! this.$refs.__options.contains(e.target)
             ) {
-                this.$data.__resetInput()
-                this.$data.__close()
+                this.__close()
+                this.__resetInput()
             }
         }
     })
@@ -273,6 +276,8 @@ function handleInput(el, Alpine) {
         // Accessibility attributes...
         'role': 'combobox',
         'tabindex': '0',
+        'aria-autocomplete': 'list',
+
         // We need to defer this evaluation a bit because $refs that get declared later
         // in the DOM aren't available yet when x-ref is the result of an Alpine.bind object.
         async ':aria-controls'() { return await microtask(() => this.$refs.__options && this.$refs.__options.id) },
@@ -295,16 +300,19 @@ function handleInput(el, Alpine) {
 
         // Register listeners...
         '@input.stop'(e) {
-            this.$data.__open(); this.$dispatch('change')
+            if(this.$data.__isTyping) {
+                this.$data.__open();
+                this.$dispatch('change')
+            }
         },
         '@blur'() { this.$data.__stopTyping(false) },
         '@keydown'(e) {
             queueMicrotask(() => this.$data.__context.activateByKeyEvent(e, false, () => this.$data.__isOpen, () => this.$data.__open(), (state) => this.$data.__isTyping = state))
-         },
+        },
         '@keydown.enter.prevent.stop'() {
             this.$data.__selectActive()
 
-            this.$data.isTyping = false
+            this.$data.__stopTyping()
 
             if (! this.$data.__isMultiple) {
                 this.$data.__close()
@@ -314,15 +322,15 @@ function handleInput(el, Alpine) {
         '@keydown.escape.prevent'(e) {
             if (! this.$data.__static) e.stopPropagation()
 
-            this.$data.__close()
-
             this.$data.__stopTyping()
+            this.$data.__close()
+            this.$data.__resetInput()
+
         },
         '@keydown.tab'() {
             this.$data.__stopTyping()
-            this.$data.__resetInput()
-
             if (this.$data.__isOpen) { this.$data.__close() }
+            this.$data.__resetInput()
         },
         '@keydown.backspace'(e) {
             if (this.$data.__isMultiple) return
@@ -369,8 +377,8 @@ function handleButton(el, Alpine) {
         '@click'(e) {
             if (this.$data.__isDisabled) return
             if (this.$data.__isOpen) {
-                this.$data.__resetInput()
                 this.$data.__close()
+                this.$data.__resetInput()
             } else {
                 e.preventDefault()
                 this.$data.__open()
@@ -396,15 +404,8 @@ function handleOptions(el, Alpine) {
         ':id'() { return this.$id('alpine-combobox-options') },
 
         // Accessibility attributes...
-        'role': 'combobox',
+        'role': 'listbox',
         ':aria-labelledby'() { return this.$refs.__label ? this.$refs.__label.id : (this.$refs.__button ? this.$refs.__button.id : null) },
-        ':aria-activedescendant'() {
-            if (! this.$data.__context.hasActive()) return
-
-            let active = this.$data.__context.getActiveItem()
-
-            return active ? active.el.id : null
-        },
 
         // Initialize...
         'x-init'() {
@@ -428,28 +429,32 @@ function handleOption(el, Alpine) {
         // Accessibility attributes...
         'role': 'option',
         ':tabindex'() { return this.$comboboxOption.isDisabled ? undefined : '-1' },
-        ':aria-selected'() { return this.$comboboxOption.isSelected },
+
+        // Only the active element should have aria-selected="true"...
+        'x-effect'() {
+            this.$comboboxOption.isActive
+                ? el.setAttribute('aria-selected', true)
+                : el.removeAttribute('aria-selected')
+        },
+
         ':aria-disabled'() { return this.$comboboxOption.isDisabled },
 
         // Initialize...
         'x-data'() {
             return {
                 init() {
-                    let key = el.__optionKey = (Math.random() + 1).toString(36).substring(7)
+                    let key = this.$el.__optionKey = (Math.random() + 1).toString(36).substring(7)
 
-                    let value = Alpine.extractProp(el, 'value')
-                    let disabled = Alpine.extractProp(el, 'disabled', false, false)
+                    let value = Alpine.extractProp(this.$el, 'value')
+                    let disabled = Alpine.extractProp(this.$el, 'disabled', false, false)
 
-                    this.$data.__context.registerItem(key, el, value, disabled)
-
-                    // @todo: make sure the "destroy" hook is good enough and we don't need this...
-                    // el._x_forCleanup = () => {
-                        // this.$data.__context.unregisterItem(key)
-                    // }
+                    // memoize the context as it's not going to change
+                    // and calling this.$data on mouse action is expensive
+                    this.__context.registerItem(key, this.$el, value, disabled)
                 },
                 destroy() {
-                    this.$data.__context.unregisterItem(this.$el.__optionKey)
-                },
+                    this.__context.unregisterItem(this.$el.__optionKey)
+                }
             }
         },
 
@@ -457,33 +462,31 @@ function handleOption(el, Alpine) {
         '@click'() {
             if (this.$comboboxOption.isDisabled) return;
 
-            this.$data.__selectOption(el)
+            this.__selectOption(this.$el)
 
-            if (! this.$data.__isMultiple) {
-                this.$data.__resetInput()
-                this.$data.__close()
+            if (! this.__isMultiple) {
+                this.__close()
+                this.__resetInput()
             }
 
             this.$nextTick(() => this.$refs.__input.focus({ preventScroll: true }))
         },
-
-        // @todo: this is a memory leak for _x_cleanups...
         '@mouseenter'(e) {
-            this.$data.__pointer.update(e)
+            this.__context.activateEl(this.$el)
         },
         '@mousemove'(e) {
-            if (!this.$data.__pointer.wasMoved(e)) return
+            if (this.__context.isActiveEl(this.$el)) return
 
-            this.$data.__context.activateEl(el)
+            this.__context.activateEl(this.$el)
         },
         '@mouseleave'(e) {
-            if (!this.$data.__pointer.wasMoved(e)) return
-            if (this.$data.__hold) return
+            if (this.__hold) return
 
-            this.$data.__context.deactivate()
+            this.__context.deactivate()
         },
     })
 }
+
 
 // Little utility to defer a callback into the microtask queue...
 function microtask(callback) {

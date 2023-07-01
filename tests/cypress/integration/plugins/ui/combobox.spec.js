@@ -1,14 +1,9 @@
-import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, contain, notContain, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test, haveValue} from '../../../utils'
+import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, contain, notContain, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test, haveValue, haveLength} from '../../../utils'
 
-test.only('it works with x-model',
+test('it works with x-model',
     [html`
         <div
             x-data="{
-                init() {
-                    this.$watch('selected', (value) => {
-                        if (value) this.query = ''
-                    })
-                },
                 query: '',
                 selected: null,
                 people: [
@@ -276,6 +271,180 @@ test('"name" prop',
     },
 );
 
+test('Preserves currenty active keyboard selection while options change from searching even if there\'s a selected option in the filtered results',
+    [html`
+        <div
+            x-data="{
+                query: '',
+                selected: null,
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                },
+            }"
+        >
+            <div x-combobox x-model="selected">
+                <label x-combobox:label>Select person</label>
+
+                <div>
+                    <div>
+                        <input
+                            x-combobox:input
+                            :display-value="person => person.name"
+                            @change="query = $event.target.value"
+                            placeholder="Search..."
+                        />
+
+                        <button x-combobox:button>Toggle</button>
+                    </div>
+
+                    <div x-combobox:options>
+                        <ul>
+                            <template
+                                x-for="person in filteredPeople"
+                                :key="person.id"
+                                hidden
+                            >
+                                <li
+                                    x-combobox:option
+                                    :option="person.id"
+                                    :value="person"
+                                    :disabled="person.disabled"
+                                >
+                                    <span x-text="person.name"></span>
+                                    <span x-show="$comboboxOption.isActive">*</span>
+                                    <span x-show="$comboboxOption.isSelected">x</span>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <p x-show="filteredPeople.length == 0">No people match your query.</p>
+                    </div>
+                </div>
+            </div>
+
+            <article>lorem ipsum</article>
+        </div>
+    `],
+    ({ get }) => {
+        get('input').should(haveText(''))
+        get('button').click()
+        get('[option="3"]').click()
+        cy.wait(100)
+        get('input').type('{selectAll}{backspace}')
+        cy.wait(100)
+        get('input').type('{downArrow}')
+        cy.wait(100)
+        get('[option="3"]').should(contain('*'))
+        get('input').type('{upArrow}{upArrow}')
+        cy.wait(100)
+        get('[option="1"]').should(contain('*'))
+        cy.wait(100)
+        get('input').type('d')
+        get('input').trigger('change')
+        cy.wait(100)
+        get('[option="1"]').should(contain('*'))
+    },
+);
+
+test('Ignore active selection while options change if not selected by a keyboard event',
+    [html`
+        <div
+            x-data="{
+                query: '',
+                selected: null,
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                },
+            }"
+        >
+            <div x-combobox x-model="selected">
+                <label x-combobox:label>Select person</label>
+
+                <div>
+                    <div>
+                        <input
+                            x-combobox:input
+                            :display-value="person => person.name"
+                            @change="query = $event.target.value"
+                            placeholder="Search..."
+                        />
+
+                        <button x-combobox:button>Toggle</button>
+                    </div>
+
+                    <div x-combobox:options>
+                        <ul>
+                            <template
+                                x-for="person in filteredPeople"
+                                :key="person.id"
+                                hidden
+                            >
+                                <li
+                                    x-combobox:option
+                                    :option="person.id"
+                                    :value="person"
+                                    :disabled="person.disabled"
+                                >
+                                    <span x-text="person.name"></span>
+                                    <span x-show="$comboboxOption.isActive">*</span>
+                                    <span x-show="$comboboxOption.isSelected">x</span>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <p x-show="filteredPeople.length == 0">No people match your query.</p>
+                    </div>
+                </div>
+            </div>
+
+            <article>lorem ipsum</article>
+        </div>
+    `],
+    ({ get }) => {
+        get('input').should(haveText(''))
+        get('button').click()
+        get('[option="1"]').should(contain('*'))
+        get('input').type('t')
+        get('input').trigger('change')
+        get('[option="4"]').should(contain('*'))
+        get('input').type('{backspace}')
+        get('input').trigger('change')
+        get('[option="1"]').should(contain('*'))
+    },
+);
+
 test('"name" prop with object value',
     [html`
         <div
@@ -444,6 +613,11 @@ test('"multiple" prop',
         get('[option="4"]').click()
         get('button').should(haveText('2'))
         get('ul').should(beVisible())
+        get('input').type('Tom')
+        get('input').type('{enter}')
+        get('button').should(haveText('2,4'))
+        // input field doesn't reset when a new option is selected
+        get('input').should(haveValue('Tom'))
     },
 );
 
@@ -716,41 +890,49 @@ test('has accessibility attributes',
         </div>
     `],
     ({ get }) => {
+        get('input')
+            .should(haveAttribute('aria-expanded', 'false'))
+
         get('button')
             .should(haveAttribute('aria-haspopup', 'true'))
             .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1 alpine-combobox-button-1'))
             .should(haveAttribute('aria-expanded', 'false'))
             .should(notHaveAttribute('aria-controls'))
             .should(haveAttribute('id', 'alpine-combobox-button-1'))
+            .should(haveAttribute('tabindex', '-1'))
             .click()
             .should(haveAttribute('aria-expanded', 'true'))
             .should(haveAttribute('aria-controls', 'alpine-combobox-options-1'))
 
         get('[options]')
-            .should(haveAttribute('role', 'combobox'))
+            .should(haveAttribute('role', 'listbox'))
             .should(haveAttribute('id', 'alpine-combobox-options-1'))
             .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1'))
-            .should(notHaveAttribute('aria-activedescendant'))
-            .should(haveAttribute('aria-activedescendant', 'alpine-combobox-option-1'))
 
         get('[option="1"]')
             .should(haveAttribute('role', 'option'))
             .should(haveAttribute('id', 'alpine-combobox-option-1'))
             .should(haveAttribute('tabindex', '-1'))
-            .should(haveAttribute('aria-selected', 'false'))
+            .should(haveAttribute('aria-selected', 'true'))
 
         get('[option="2"]')
             .should(haveAttribute('role', 'option'))
             .should(haveAttribute('id', 'alpine-combobox-option-2'))
             .should(haveAttribute('tabindex', '-1'))
-            .should(haveAttribute('aria-selected', 'false'))
+            .should(notHaveAttribute('aria-selected'))
 
         get('input')
+            .should(haveAttribute('role', 'combobox'))
+            .should(haveAttribute('aria-autocomplete', 'list'))
+            .should(haveAttribute('tabindex', '0'))
+            .should(haveAttribute('aria-expanded', 'true'))
+            .should(haveAttribute('aria-labelledby', 'alpine-combobox-label-1'))
+            .should(haveAttribute('aria-controls', 'alpine-combobox-options-1'))
+            .should(haveAttribute('aria-activedescendant', 'alpine-combobox-option-1'))
             .type('{downarrow}')
             .should(haveAttribute('aria-activedescendant', 'alpine-combobox-option-2'))
 
         get('[option="2"]')
-            .click()
             .should(haveAttribute('aria-selected', 'true'))
     },
 )
@@ -806,4 +988,318 @@ test('"static" prop',
         get('ul').should(beVisible())
         get('[normal-toggle]').should(haveText('Arlene Mccoy'))
     },
+)
+
+test('input reset',
+    [html`
+        <div
+            x-data="{
+                query: '',
+                selected: null,
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                },
+            }"
+        >
+            <div x-combobox x-model="selected">
+                <label x-combobox:label>Select person</label>
+
+                <div>
+                    <div>
+                        <input
+                            x-combobox:input
+                            :display-value="person => person.name"
+                            @change="query = $event.target.value"
+                            placeholder="Search..."
+                        />
+
+                        <button x-combobox:button>Toggle</button>
+                    </div>
+
+                    <div x-combobox:options>
+                        <ul>
+                            <template
+                                x-for="person in filteredPeople"
+                                :key="person.id"
+                                hidden
+                            >
+                                <li
+                                    x-combobox:option
+                                    :option="person.id"
+                                    :value="person"
+                                    :disabled="person.disabled"
+                                    x-text="person.name"
+                                >
+                                </li>
+                            </template>
+                        </ul>
+
+                        <p x-show="filteredPeople.length == 0">No people match your query.</p>
+                    </div>
+                </div>
+            </div>
+
+            <article>lorem ipsum</article>
+        </div>
+    `],
+    ({ get }) => {
+        // Test after closing with button
+        get('button').click()
+        get('input').type('w')
+        get('button').click()
+        get('input').should(haveValue(''))
+
+        // Test correct state after closing with ESC
+        get('button').click()
+        get('input').type('w')
+        get('input').type('{esc}')
+        get('input').should(haveValue(''))
+
+        // Test correct state after closing with TAB
+        get('button').click()
+        get('input').type('w')
+        get('input').tab()
+        get('input').should(haveValue(''))
+
+        // Test correct state after closing with external click
+        get('button').click()
+        get('input').type('w')
+        get('article').click()
+        get('input').should(haveValue(''))
+
+        // Select something
+        get('button').click()
+        get('ul').should(beVisible())
+        get('[option="2"]').click()
+        get('input').should(haveValue('Arlene Mccoy'))
+
+        // Test after closing with button
+        get('button').click()
+        get('input').type('w')
+        get('button').click()
+        get('input').should(haveValue('Arlene Mccoy'))
+
+        // Test correct state after closing with ESC and reopening
+        get('button').click()
+        get('input').type('w')
+        get('input').type('{esc}')
+        get('input').should(haveValue('Arlene Mccoy'))
+
+        // Test correct state after closing with TAB and reopening
+        get('button').click()
+        get('input').type('w')
+        get('input').tab()
+        get('input').should(haveValue('Arlene Mccoy'))
+
+        // Test correct state after closing with external click and reopening
+        get('button').click()
+        get('input').type('w')
+        get('article').click()
+        get('input').should(haveValue('Arlene Mccoy'))
+    },
+)
+
+test('combobox shows all options when opening',
+    [html`
+        <div
+            x-data="{
+                query: '',
+                selected: null,
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                },
+            }"
+        >
+            <div x-combobox x-model="selected">
+                <label x-combobox:label>Select person</label>
+
+                <div>
+                    <div>
+                        <input
+                            x-combobox:input
+                            :display-value="person => person.name"
+                            @change="query = $event.target.value"
+                            placeholder="Search..."
+                        />
+
+                        <button x-combobox:button>Toggle</button>
+                    </div>
+
+                    <div x-combobox:options>
+                        <ul>
+                            <template
+                                x-for="person in filteredPeople"
+                                :key="person.id"
+                                hidden
+                            >
+                                <li
+                                    x-combobox:option
+                                    :option="person.id"
+                                    :value="person"
+                                    :disabled="person.disabled"
+                                    x-text="person.name"
+                                >
+                                </li>
+                            </template>
+                        </ul>
+
+                        <p x-show="filteredPeople.length == 0">No people match your query.</p>
+                    </div>
+                </div>
+            </div>
+
+            <article>lorem ipsum</article>
+        </div>
+    `],
+    ({ get }) => {
+        get('button').click()
+        get('li').should(haveLength('10'))
+
+        // Test after closing with button and reopening
+        get('input').type('w').trigger('input')
+        get('li').should(haveLength('2'))
+        get('button').click()
+        get('button').click()
+        get('li').should(haveLength('10'))
+
+        // Test correct state after closing with ESC and reopening
+        get('input').type('w').trigger('input')
+        get('li').should(haveLength('2'))
+        get('input').type('{esc}')
+        get('button').click()
+        get('li').should(haveLength('10'))
+
+        // Test correct state after closing with TAB and reopening
+        get('input').type('w').trigger('input')
+        get('li').should(haveLength('2'))
+        get('input').tab()
+        get('button').click()
+        get('li').should(haveLength('10'))
+
+        // Test correct state after closing with external click and reopening
+        get('input').type('w').trigger('input')
+        get('li').should(haveLength('2'))
+        get('article').click()
+        get('button').click()
+        get('li').should(haveLength('10'))
+    },
+)
+
+test('active element logic when opening a combobox',
+    [html`
+        <div
+            x-data="{
+                query: '',
+                selected: null,
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ],
+                get filteredPeople() {
+                    return this.query === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                },
+            }"
+        >
+            <div x-combobox x-model="selected">
+                <label x-combobox:label>Select person</label>
+
+                <div>
+                    <div>
+                        <input
+                            x-combobox:input
+                            :display-value="person => person.name"
+                            @change="query = $event.target.value"
+                            placeholder="Search..."
+                        />
+
+                        <button x-combobox:button>Toggle</button>
+                    </div>
+
+                    <div x-combobox:options>
+                        <ul>
+                            <template
+                                x-for="person in filteredPeople"
+                                :key="person.id"
+                                hidden
+                            >
+                                <li
+                                    x-combobox:option
+                                    :option="person.id"
+                                    :value="person"
+                                    :disabled="person.disabled"
+                                    x-text="person.name"
+                                >
+                                </li>
+                            </template>
+                        </ul>
+
+                        <p x-show="filteredPeople.length == 0">No people match your query.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('button').click()
+        // First option is selected on opening if no preselection
+        get('ul').should(beVisible())
+        get('[option="1"]').should(haveAttribute('aria-selected', 'true'))
+        // First match is selected while typing
+        get('[option="4"]').should(notHaveAttribute('aria-selected'))
+        get('input').type('T')
+        get('input').trigger('change')
+        get('[option="4"]').should(haveAttribute('aria-selected', 'true'))
+        // Reset state and select option 3
+        get('button').click()
+        get('button').click()
+        get('[option="3"]').click()
+        // Previous selection is selected
+        get('button').click()
+        get('[option="4"]').should(notHaveAttribute('aria-selected'))
+        get('[option="3"]').should(haveAttribute('aria-selected', 'true'))
+    }
 )

@@ -7,6 +7,7 @@ import { finishAndHideProgressBar, showAndStartProgressBar } from "./bar"
 import { transition } from "alpinejs/src/directives/x-transition"
 import { swapCurrentPageWithNewHtml } from "./page"
 import { fetchHtml } from "./fetch"
+import { prefix } from "alpinejs/src/directives"
 
 let enablePersist = true
 let showProgressBar = true
@@ -20,13 +21,12 @@ export default function (Alpine) {
         )
     }
 
+    Alpine.addInitSelector(() => `[${prefix('navigate')}]`)
+
     Alpine.directive('navigate', (el, { value, expression, modifiers }, { evaluateLater, cleanup }) => {
-        // "persisted" elements will be picked up by .querySelector, not this callback...
-        if (value === 'persist') return
+        let shouldPrefetchOnHover = modifiers.includes('hover')
 
-        let shouldPrefetch = modifiers.includes('prefetch') && modifiers.includes('hover')
-
-        shouldPrefetch && whenThisLinkIsHoveredFor(el, 60, () => {
+        shouldPrefetchOnHover && whenThisLinkIsHoveredFor(el, 60, () => {
             let destination = extractDestinationFromLink(el)
 
             prefetchHtml(destination, html => {

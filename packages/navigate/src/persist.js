@@ -5,8 +5,8 @@ let els = {}
 export function storePersistantElementsForLater() {
     els = {}
 
-    document.querySelectorAll('[x-navigate\\:persist]').forEach(i => {
-        els[i.getAttribute('x-navigate:persist')] = i
+    document.querySelectorAll('[x-persist]').forEach(i => {
+        els[i.getAttribute('x-persist')] = i
 
         Alpine.mutateDom(() => {
             i.remove()
@@ -15,8 +15,8 @@ export function storePersistantElementsForLater() {
 }
 
 export function putPersistantElementsBack() {
-    document.querySelectorAll('[x-navigate\\:persist]').forEach(i => {
-        let old = els[i.getAttribute('x-navigate:persist')]
+    document.querySelectorAll('[x-persist]').forEach(i => {
+        let old = els[i.getAttribute('x-persist')]
 
         old._x_wasPersisted = true
 

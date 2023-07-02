@@ -97,6 +97,26 @@ test('.stop modifier',
     }
 )
 
+
+test('.stop modifier with a .throttle',
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <button x-on:click="foo = 'baz'">
+                <h1>h1</h1>
+                <h2 @click.stop.throttle>h2</h2>
+            </button>
+        </div>
+    `,
+    ({ get }) => {
+        get('div').should(haveData('foo', 'bar'))
+        get('h2').click()
+        get('h2').click()
+        get('div').should(haveData('foo', 'bar'))
+        get('h1').click()
+        get('div').should(haveData('foo', 'baz'))
+    }
+)
+
 test('.capture modifier',
     html`
         <div x-data="{ foo: 'bar', count: 0 }">
@@ -173,6 +193,19 @@ test('.prevent modifier',
         </div>
     `,
     ({ get }) => {
+        get('input').check()
+        get('input').should(notBeChecked())
+    }
+)
+
+test('.prevent modifier with a .debounce',
+    html`
+        <div x-data="{}">
+            <input type="checkbox" x-on:click.prevent.debounce>
+        </div>
+    `,
+    ({ get }) => {
+        get('input').check()
         get('input').check()
         get('input').should(notBeChecked())
     }

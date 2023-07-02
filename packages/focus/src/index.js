@@ -102,12 +102,17 @@ export default function (Alpine) {
 
             let oldValue = false
 
-            let trap = createFocusTrap(el, {
+            let options = {
                 escapeDeactivates: false,
                 allowOutsideClick: true,
                 fallbackFocus: () => el,
-                initialFocus: el.querySelector('[autofocus]')
-            })
+            }
+
+            let autofocusEl = el.querySelector('[autofocus]')
+
+            if (autofocusEl) options.initialFocus = autofocusEl
+
+            let trap = createFocusTrap(el, options)
 
             let undoInert = () => {}
             let undoDisableScrolling = () => {}

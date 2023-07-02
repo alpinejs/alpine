@@ -151,5 +151,40 @@ test('x-model with fill modifier takes input value on null or empty string',
     }
 )
 
+test('x-model with fill modifier works with select/radio elements',
+    html`
+        <div x-data="{ a: null, b: null, c: null, d: null }">
+            <select x-model.fill="a">
+                <option value="123">123</option>
+                <option value="456" selected>456</option>
+            </select>
+            <select x-model.fill="b" multiple>
+                <option value="123" selected>123</option>
+                <option value="456" selected>456</option>
+            </select>
+        </div>
+    `,
+    ({ get }) => {
+        get('[x-data]').should(haveData('a', '456'));
+        get('[x-data]').should(haveData('b', ['123', '456']));
+    }
+);
+
+test('x-model with fill modifier respects number modifier',
+    html`
+        <div x-data="{ a: null, b: null, c: null, d: null }">
+            <input type="text" x-model.fill.number="a" value="456" / >
+            <select x-model.fill.number="b" multiple>
+                <option value="123" selected>123</option>
+                <option value="456" selected>456</option>
+            </select>
+        </div>
+    `,
+    ({ get }) => {
+        get('[x-data]').should(haveData('a', 456));
+        get('[x-data]').should(haveData('b', [123,456]));
+    }
+);
+
 
 

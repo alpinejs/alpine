@@ -15,14 +15,6 @@ export function hasScope(node) {
     return !! node._x_dataStack
 }
 
-export function refreshScope(element, scope) {
-    let existingScope = element._x_dataStack[0]
-
-    Object.entries(scope).forEach(([key, value]) => {
-        existingScope[key] = value
-    })
-}
-
 export function closestDataStack(node) {
     if (node._x_dataStack) return node._x_dataStack
 
@@ -60,7 +52,7 @@ export function mergeProxies(objects) {
                     if ((descriptor.get && descriptor.get._x_alreadyBound) || (descriptor.set && descriptor.set._x_alreadyBound)) {
                         return true
                     }
-                    
+
                     // Properly bind getters and setters to this wrapper Proxy.
                     if ((descriptor.get || descriptor.set) && descriptor.enumerable) {
                         // Only bind user-defined getters, not our magic properties.
@@ -81,7 +73,7 @@ export function mergeProxies(objects) {
                         })
                     }
 
-                    return true 
+                    return true
                 }
 
                 return false

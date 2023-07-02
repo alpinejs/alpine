@@ -30,16 +30,16 @@ export function whenThisLinkIsPressed(el, callback) {
 export function whenThisLinkIsHoveredFor(el, ms = 60, callback) {
     el.addEventListener('mouseenter', e => {
         let timeout = setTimeout(() => {
-            callback(e)
+
         }, ms)
 
         let handler = () => {
-            clearTimeout(timeout)
-
+            clear
             el.removeEventListener('mouseleave', handler)
         }
 
         el.addEventListener('mouseleave', handler)
+        callback(e)
     })
 }
 
@@ -50,35 +50,3 @@ export function extractDestinationFromLink(linkEl) {
 export function createUrlObjectFromString(urlString) {
     return new URL(urlString, document.baseURI)
 }
-
-let handleLinkClick = () => {}
-let handleLinkHover = () => {}
-
-export function whenALinkIsClicked(callback) {
-    handleLinkClick = callback
-
-    initializeLinksForClicking()
-}
-
-export function whenALinkIsHovered(callback) {
-    handleLinkHover = callback
-
-    initializeLinksForHovering()
-}
-
-export function extractDestinationFromLink(linkEl) {
-    return new URL(linkEl.getAttribute('href'), document.baseURI)
-}
-
-export function hijackNewLinksOnThePage() {
-    initializeLinksForClicking()
-    initializeLinksForHovering()
-}
-
-function initializeLinksForClicking() {
-    getLinks().forEach(el => {
-        el.addEventListener('click', e => {
-            e.preventDefault()
-
-            handleLinkClick(el)
-        }

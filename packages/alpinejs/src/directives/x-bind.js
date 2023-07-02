@@ -1,5 +1,5 @@
 import { directive, into, mapAttributes, prefix, startingWith } from '../directives'
-import { dontAutoEvaluateFunctions, evaluateLater } from '../evaluator'
+import { evaluateLater } from '../evaluator'
 import { mutateDom } from '../mutation'
 import bind from '../utils/bind'
 import { applyBindingsObject, injectBindingProviders } from '../binds'

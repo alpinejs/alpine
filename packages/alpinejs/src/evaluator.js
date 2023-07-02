@@ -45,7 +45,6 @@ export function normalEvaluator(el, expression) {
         ? generateEvaluatorFromFunction(dataStack, expression)
         : generateEvaluatorFromString(dataStack, expression, el)
 
-    return evaluator
     return tryCatch.bind(null, el, expression, evaluator)
 }
 

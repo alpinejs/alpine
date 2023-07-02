@@ -23,9 +23,9 @@ export default function bind(el, name, value, modifiers = []) {
         case 'class':
             bindClasses(el, value)
             break;
-        
+
         // 'selected' and 'checked' are special attributes that aren't necessarily
-        // synced with their corresponding properties when updated, so both the 
+        // synced with their corresponding properties when updated, so both the
         // attribute and property need to be updated when bound.
         case 'selected':
         case 'checked':

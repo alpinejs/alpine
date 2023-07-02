@@ -141,11 +141,6 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
                 lookup[key]._x_effects.forEach(dequeueJob)
             }
 
-            // An internal hook to unregister an item synchronously...
-            if (!! lookup[key]._x_forCleanup) {
-                lookup[key]._x_forCleanup()
-            }
-
             lookup[key].remove()
 
             lookup[key] = null

@@ -1,5 +1,5 @@
-import maskPlugin, { stripDown } from '../src/index.js'
+import mask, { stripDown } from '../src/index.js'
 
-export default maskPlugin
+export default mask
 
-export { stripDown }
+export { mask, stripDown }

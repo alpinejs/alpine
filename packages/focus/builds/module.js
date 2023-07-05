@@ -1,3 +1,5 @@
-import registerFocusPlugin from '../src/index.js'
+import focus from '../src/index.js'
 
-export default registerFocusPlugin
+export default focus
+
+export { focus }

@@ -57,7 +57,7 @@ function mergeNewHead(newHead) {
     // Only add scripts and styles that aren't already loaded on the page.
     let garbageCollector = document.createDocumentFragment()
 
-    for (child of Array.from(newHead.children)) {
+    for (let child of Array.from(newHead.children)) {
         if (isAsset(child)) {
             if (! headChildrenHtmlLookup.includes(child.outerHTML)) {
                 if (isTracked(child)) {
@@ -80,12 +80,12 @@ function mergeNewHead(newHead) {
     // How to free up the garbage collector?
 
     // Remove existing non-asset elements like meta, base, title, template.
-    for (child of Array.from(document.head.children)) {
+    for (let child of Array.from(document.head.children)) {
         if (! isAsset(child)) child.remove()
     }
 
     // Add new non-asset elements left over in the new head element.
-    for (child of Array.from(newHead.children)) {
+    for (let child of Array.from(newHead.children)) {
         document.head.appendChild(child)
     }
 }

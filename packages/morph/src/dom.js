@@ -14,11 +14,17 @@ export let dom = {
     replace(children, old, replacement) {
         let index = children.indexOf(old)
 
+        let replacementIndex = children.indexOf(old)
+
         if (index === -1) throw 'Cant find element in children'
 
         old.replaceWith(replacement)
 
         children[index] = replacement
+
+        if (replacementIndex) {
+            children.splice(replacementIndex, 1)
+        }
 
         return children
     },

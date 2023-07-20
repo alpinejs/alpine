@@ -33,10 +33,10 @@ directive('data', skipDuringClone((el, { expression }, { cleanup }) => {
 
     let initReturn;
     if ('init' in reactiveData) evaluate(el, function () { initReturn = reactiveData.init.call(this) })
-    console.error('initReturn', initReturn)
+
     cleanup(async () => {
         reactiveData['destroy'] && evaluate(el, reactiveData['destroy'])
-        console.error('cleaning up data')
+
         if (initReturn instanceof Promise) initReturn = await initReturn
         if (typeof initReturn === 'function') evaluate(el, initReturn)
 

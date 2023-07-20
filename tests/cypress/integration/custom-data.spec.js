@@ -141,6 +141,49 @@ test('init functions have access to the parent scope',
     }
 )
 
+test('methods returned from init functions are called during data cleanup', 
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('test', () => ({
+                    init() {
+                        return () => document.querySelector('span').textContent = 'cleanedup'
+                    },
+                }))
+            })
+        </script>
+        <span></span>
+        <div x-data="test">
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText(''))
+        get('div').then(el => el.remove())
+        get('span').should(haveText('cleanedup'))
+    }
+)
+test('methods returned from async init functions are called during data cleanup', 
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('test', () => ({
+                    async init() {
+                        return () => document.querySelector('span').textContent = 'cleanedup'
+                    },
+                }))
+            })
+        </script>
+        <span></span>
+        <div x-data="test">
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText(''))
+        get('div').then(el => el.remove())
+        get('span').should(haveText('cleanedup'))
+    }
+)
+
 test('destroy functions inside custom datas are called automatically',
     html`
         <script>

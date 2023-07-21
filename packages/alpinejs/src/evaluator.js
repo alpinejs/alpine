@@ -68,9 +68,9 @@ function generateFunctionFromString(expression, el) {
     // calling function so that we don't throw an error AND a "return" statement can b e used.
     let rightSideSafeExpression = 0
         // Support expressions starting with "if" statements like: "if (...) doSomething()"
-        || /^[\n\s]*if.*\(.*\)/.test(expression)
+        || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
         // Support expressions starting with "let/const" like: "let foo = 'bar'"
-        || /^(let|const)\s/.test(expression)
+        || /^(let|const)\s/.test(expression.trim())
             ? `(async()=>{ ${expression} })()`
             : expression
 

@@ -49,36 +49,22 @@ function prepNewScriptTagsToRun(newBody) {
 }
 
 function mergeNewHead(newHead) {
-    let headChildrenHtmlLookup = Array.from(document.head.children).map(i => i.outerHTML)
-
-    // Only add scripts and styles that aren't already loaded on the page.
-    let garbageCollector = document.createDocumentFragment()
-
-    for (const child of Array.from(newHead.children)) {
-        if (isAsset(child)) {
-            if (! headChildrenHtmlLookup.includes(child.outerHTML)) {
-                if (isScript(child)) {
-                    document.head.appendChild(cloneScriptTag(child))
-                } else {
-                    document.head.appendChild(child)
-                }
-            } else {
-                garbageCollector.appendChild(child)
-            }
-        }
-    }
-
-    // How to free up the garbage collector?
+    let headChildrenHtmlLookup = Array.prototype.map.call(
+        document.head.childNodes,
+        (i) => i.outerHTML
+    );
 
     // Remove existing non-asset elements like meta, base, title, template.
-    for (const child of Array.from(document.head.children)) {
-        if (! isAsset(child)) child.remove()
-    }
+    document.head.childNodes.forEach((child) => {
+        if (!isAsset(child)) child.remove();
+    });
 
-    // Add new non-asset elements left over in the new head element.
-    for (const child of Array.from(newHead.children)) {
-        document.head.appendChild(child)
-    }
+    newHead.childNodes.forEach((child) => {
+        if (!isAsset(child) || !headChildrenHtmlLookup.includes(child.outerHTML)) 
+            document.head.appendChild(
+                isScript(child) ? cloneScriptTag(child) : child
+            );
+    });
 }
 
 function cloneScriptTag(el) {
@@ -95,12 +81,12 @@ function cloneScriptTag(el) {
 }
 
 function isAsset (el) {
-    return (el.tagName.toLowerCase() === 'link' && el.getAttribute('rel').toLowerCase() === 'stylesheet')
-        || el.tagName.toLowerCase() === 'style'
-        || el.tagName.toLowerCase() === 'script'
+    return (el instanceof HTMLLinkElement && el.getAttribute('rel').toLowerCase() === 'stylesheet')
+        || el instanceof HTMLStyleElement
+        || el instanceof HTMLScriptElement
 }
 
 function isScript (el)   {
-    return el.tagName.toLowerCase() === 'script'
+    return el instanceof HTMLScriptElement
 }
 

@@ -9,9 +9,11 @@ export function dontAutoEvaluateFunctions(callback) {
 
     shouldAutoEvaluateFunctions = false
 
-    callback()
+    let result = callback()
 
     shouldAutoEvaluateFunctions = cache
+
+    return result
 }
 
 export function evaluate(el, expression, extras = {}) {

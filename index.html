@@ -1,51 +1,228 @@
 <html>
-    <!-- <script src="./packages/intersect/dist/cdn.js" defer></script>
-    <script src="./packages/morph/dist/cdn.js" defer></script>
-    <script src="./packages/history/dist/cdn.js"></script>
-    <script src="./packages/persist/dist/cdn.js"></script>
-    <script src="./packages/focus/dist/cdn.js"></script>
-    <script src="./packages/mask/dist/cdn.js"></script>
-    <script src="./packages/ui/dist/cdn.js" defer></script> -->
-    <script src="./packages/alpinejs/dist/cdn.js" defer></script>
-    <!-- <script src="//cdn.tailwindcss.com"></script> -->
-    <script src="//cdn.tailwindcss.com"></script>
+<script src="./packages/intersect/dist/cdn.js" defer></script>
+<script src="./packages/morph/dist/cdn.js" defer></script>
+<script src="./packages/history/dist/cdn.js"></script>
+<script src="./packages/persist/dist/cdn.js"></script>
+<script src="./packages/focus/dist/cdn.js"></script>
+<script src="./packages/mask/dist/cdn.js"></script>
+<script src="./packages/ui/dist/cdn.js" defer></script>
+<script src="./packages/alpinejs/dist/cdn.js" defer></script>
+<script src="//cdn.tailwindcss.com"></script>
 
-    <div x-data="{ users: [{ name: 'lebowski' }] }">
-        <template x-for="(user, idx) in users">
-            <span x-text="users[idx].name" x-yo></span>
-        </template>
+<div
+    x-data="{
+        query: '',
+        people: [
+            { id: 1, name: 'Wade Cooper' },
+            { id: 2, name: 'Arlene Mccoy' },
+            { id: 3, name: 'Devon Webb' },
+            { id: 4, name: 'Tom Cook' },
+            { id: 5, name: 'Tanya Fox' },
+            { id: 6, name: 'Hellen Schmidt' },
+            { id: 7, name: 'Caroline Schultz' },
+            { id: 8, name: 'Mason Heaney' },
+            { id: 9, name: 'Claudie Smitham' },
+            { id: 10, name: 'Emil Schaefer' },
+        ],
+        activePersons: [],
+        get queryPerson() {
+            if (! this.query) return null
 
-        <button @click="users = []">Reset</button>
+            return {
+                id: 11, name: this.query,
+            }
+        },
+        onSubmit(e) {
+            e.preventDefault()
+            console.log([...new FormData(e.currentTarget).entries()])
+        },
+        removePerson(person) {
+            this.activePersons = this.activePersons.filter((p) => p !== person)
+        }
+    }"
+    class="flex h-full w-screen justify-center space-x-4 bg-gray-50 p-12"
+>
+    <div class="w-full max-w-4xl">
+        <div class="space-y-1">
+            <form @submit="onSubmit">
+                <div x-combobox x-model="activePersons" name="people" multiple>
+                    <label x-combobox:label class="block text-sm font-medium leading-5 text-gray-700">
+                        Assigned to
+                    </label>
+
+                    <div class="relative">
+                        <div>Query: <span x-text="query"></span></div>
+                        <span class="inline-block w-full rounded-md shadow-sm">
+                            <div class="relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pl-2 pr-10 text-left transition duration-150 ease-in-out focus-within:border-blue-700 focus-within:outline-none focus-within:ring-1 focus-within:ring-blue-700 sm:text-sm sm:leading-5">
+                                <span class="block flex flex-wrap gap-2">
+                                    <span x-show="activePersons.length === 0" class="p-0.5">Empty</span>
+                                    <template x-for="person in activePersons" :key="person.id">
+                                        <span class="flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5">
+                                            <span x-text="person.name"></span>
+                                            <svg class="h-4 w-4 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" @click.stop.prevent="removePerson(person)">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </span>
+                                    </template>
+                                    <input x-combobox:input @change="query = $event.target.value" class="border-none p-0 focus:ring-0" placeholder="Search..." />
+                                </span>
+                                <button x-combobox:button class="absolute inset-y-0 right-0 flex items-center pr-2">
+                                    <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                                        <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </span>
+
+                        <div class="absolute mt-1 w-full rounded-md bg-white shadow-lg">
+                            <ul x-combobox:options hold class="shadow-xs max-h-60 overflow-auto rounded-md py-1 text-base leading-6 focus:outline-none sm:text-sm sm:leading-5">
+                                <template
+                                    x-for="person in people.filter((person) =>
+                                        person.name.toLowerCase().includes(query.toLowerCase())
+                                    )"
+                                    :key="person.id"
+                                >
+                                    <li x-combobox:option :value="person" class="relative cursor-default select-none py-2 pl-3 pr-9 focus:outline-none" :class="$comboboxOption.isActive ? 'bg-indigo-600 text-white' : 'text-gray-900'">
+                                        <span x-text="person.name" class="block truncate" :class="{ 'font-semibold': $comboboxOption.isSelected, 'font-normal': !$comboboxOption.isSelected }">
+                                        </span>
+                                        <span x-show="$comboboxOption.isSelected" class="absolute inset-y-0 right-0 flex items-center pr-4" :class="{ 'text-white': $comboboxOption.isActive, 'text-indigo-600': !$comboboxOption.isActive }">
+                                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </li>
+                                </template>
+
+                                <!-- <template x-if="queryPerson">
+                                    <li x-combobox:option :value="queryPerson" class="relative cursor-default select-none py-2 pl-3 pr-9 focus:outline-none" :class="$comboboxOption.isActive ? 'bg-indigo-600 text-white' : 'text-gray-900'">
+                                        <span x-text="'Create ' + queryPerson.name" class="block truncate" :class="{ 'font-semibold': $comboboxOption.isSelected, 'font-normal': !$comboboxOption.isSelected }">
+                                        </span>
+                                        <span x-show="$comboboxOption.isSelected" class="absolute inset-y-0 right-0 flex items-center pr-4" :class="{ 'text-white': $comboboxOption.isActive, 'text-indigo-600': !$comboboxOption.isActive }">
+                                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </span>
+                                    </li>
+                                </template> -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <button class="mt-2 inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    Submit
+                </button>
+            </form>
+        </div>
     </div>
+</div>
 
-    <!-- Play around here... -->
-
-    <div x-data>
-        <div id="thing" x-yo>i do not belong here...</div>
-
-        <br>
-        <br>
-        <br>
-        <br>
-
-        <button @click="document.getElementById('thing').remove()">remove</button>
-    </div>
-
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.directive('yo', (el, {}, { cleanup }) => {
-                cleanup(() => {
-                    console.log('removed')
+<div
+    x-data="{
+        query: '',
+        selected: null,
+        frameworks: [
+            {
+                id: 1,
+                name: 'Laravel',
+                disabled: false,
+            },
+            {
+                id: 2,
+                name: 'Ruby on Rails',
+                disabled: false,
+            },
+            {
+                id: 3,
+                name: 'Django',
+                disabled: false,
+            },
+            {
+                id: 4,
+                name: 'Express',
+                disabled: false,
+            },
+            {
+                id: 5,
+                name: 'Phoenix',
+                disabled: false,
+            },
+            {
+                id: 6,
+                name: 'Adonis',
+                disabled: false,
+            },
+            {
+                id: 7,
+                name: 'NextJS',
+                disabled: false,
+            },
+        ],
+        get filteredFrameworks() {
+            return this.query === ''
+                ? this.frameworks
+                : this.frameworks.filter((framework) => {
+                    return framework.name.toLowerCase().includes(this.query.toLowerCase())
                 })
-            })
-        })
-    </script>
+        }
+    }"
 
-    <div x-data="{ users: [{ name: 'lebowski' }] }">
-        <template x-for="(user, idx) in users">
-            <span x-text="users[idx].name" x-yo></span>
-        </template>
+    class="flex h-full w-screen justify-center bg-gray-50 p-12"
+>
+    <div x-combobox x-model="selected">
+        <label x-combobox:label class="block text-sm text-gray-600">
+            Select framework
+        </label>
 
-        <button @click="users = []">Reset</button>
+        <div class="mt-1 relative">
+            <div class="flex items-center justify-between gap-2 w-64 bg-white pl-5 pr-3 py-2.5 rounded-md shadow">
+                <input
+                    x-combobox:input
+                    :display-value="framework => framework.name"
+                    @change="query = $event.target.value"
+                    class="border-none p-0 focus:outline-none focus:ring-0"
+                    placeholder="Search..."
+                />
+                <button x-combobox:button class="absolute inset-y-0 right-0 flex items-center pr-2">
+                    <!-- Heroicons up/down -->
+                    <svg class="shrink-0 w-5 h-5 text-gray-500" viewBox="0 0 20 20" fill="none" stroke="currentColor"><path d="M7 7l3-3 3 3m0 6l-3 3-3-3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </button>
+            </div>
+
+            <div x-combobox:options x-cloak class="absolute right-0 w-64 max-h-60 mt-2 z-10 origin-top-right overflow-hidden bg-white border border-gray-200 rounded-md shadow-md outline-none" x-transition>
+                <ul class="divide-y divide-gray-100">
+                    <template
+                        x-for="framework in filteredFrameworks"
+                        :key="framework.id"
+                        hidden
+                    >
+                        <li
+                            x-combobox:option
+                            :value="framework"
+                            :disabled="framework.disabled"
+                            :class="{
+                                'bg-cyan-500/10 text-gray-900': $comboboxOption.isActive,
+                                'text-gray-600': ! $comboboxOption.isActive,
+                                'opacity-50 cursor-not-allowed': $comboboxOption.isDisabled,
+                            }"
+                            class="flex items-center cursor-default justify-between gap-2 w-full px-4 py-2 text-sm"
+                        >
+                            <span x-text="framework.name"></span>
+
+                            <span x-show="$comboboxOption.isSelected" class="text-cyan-600 font-bold">&check;</span>
+                        </li>
+                    </template>
+                </ul>
+
+                <p x-show="filteredFrameworks.length == 0" class="px-4 py-2 text-sm text-gray-600">No frameworks match your query.</p>
+            </div>
+        </div>
+        <div>local selected: <span x-text="selected?.name"></span></div>
+        <div>internal selected: <span x-text="$combobox.value?.name"></span></div>
+            <article x-text="$combobox.activeIndex"></article>
     </div>
+</div>
+
+
+
+
 </html>

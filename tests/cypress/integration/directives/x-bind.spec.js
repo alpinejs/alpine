@@ -453,6 +453,21 @@ test('Can retrieve Alpine bound data with global bound method',
     }
 )
 
+test('Can extract Alpine bound data as a data prop',
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <div id="1" x-data="{ init() { this.$el.textContent = Alpine.extractProp(this.$el, 'foo') }}" :foo="foo"></div>
+            <div id="2" x-data="{ init() { this.$el.textContent = Alpine.extractProp(this.$el, 'foo', null, false) }}" :foo="foo"></div>
+        </div>
+    `,
+    ({ get }) => {
+        get('#1').should(haveText('bar'))
+        get('#1').should(notHaveAttribute('foo'))
+        get('#2').should(haveText('bar'))
+        get('#2').should(haveAttribute('foo', 'bar'))
+    }
+)
+
 test('x-bind updates checked attribute and property after user interaction',
     html`
         <div x-data="{ checked: true }">

@@ -133,7 +133,6 @@ export function morph(from, toHtml, options) {
     }
 
     function patchChildren(fromChildren, toChildren, appendFn) {
-        // I think I can get rid of this for now:
         let fromKeyDomNodeMap = keyToMap(fromChildren)
         let fromKeyHoldovers = {}
 

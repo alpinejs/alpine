@@ -12,9 +12,13 @@ export function textOrComment(el) {
 
 export let dom = {
     replace(children, old, replacement) {
+        // Here's what's happening here:
+        // First, we're swapping the actual dom element with the new one
+        // Then, we're replaceing the old one with the new one in the children array
+        // Finally, because the old has been replaced by the new, we can remove the previous new element in it's old position...
         let index = children.indexOf(old)
 
-        let replacementIndex = children.indexOf(old)
+        let replacementIndex = children.indexOf(replacement)
 
         if (index === -1) throw 'Cant find element in children'
 

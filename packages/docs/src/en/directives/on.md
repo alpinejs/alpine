@@ -303,7 +303,7 @@ If you are listening for touch events, it's important to add `.passive` to your 
 
 Add this modifier if you want to execute this listener in the event's capturing phase, e.g. before the event bubbles from the target element up the DOM.
 
-```
+```alpine
 <div @click.capture="console.log('I will log first')">
     <button @click="console.log('I will log second')"></button>
 </div>

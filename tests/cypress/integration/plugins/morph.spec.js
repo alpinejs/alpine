@@ -247,6 +247,35 @@ test('can morph using a custom key function',
     },
 )
 
+test('can morph using keys with existing key to be moved up',
+    [html`
+        <ul>
+            <li key="1">foo<input></li>
+            <li key="2">bar<input></li>
+            <li key="3">baz<input></li>
+        </ul>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <ul>
+                <li key="1">foo<input></li>
+                <li key="3">baz<input></li>
+            </ul>
+        `
+
+        get('li:nth-of-type(1) input').type('foo')
+        get('li:nth-of-type(3) input').type('baz')
+
+        get('ul').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('li').should(haveLength(2))
+        get('li:nth-of-type(1)').should(haveText('foo'))
+        get('li:nth-of-type(2)').should(haveText('baz'))
+        get('li:nth-of-type(1) input').should(haveValue('foo'))
+        get('li:nth-of-type(2) input').should(haveValue('baz'))
+    },
+)
+
 test('can morph text nodes',
     [html`<h2>Foo <br> Bar</h2>`],
     ({ get }, reload, window, document) => {

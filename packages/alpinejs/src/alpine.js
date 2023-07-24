@@ -7,7 +7,7 @@ import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from
 import { transition } from './directives/x-transition'
 import { clone, skipDuringClone, onlyDuringClone } from './clone'
 import { interceptor } from './interceptor'
-import { getBinding as bound } from './utils/bind'
+import { getBinding as bound, extractProp } from './utils/bind'
 import { debounce } from './utils/debounce'
 import { throttle } from './utils/throttle'
 import { setStyles } from './utils/styles'
@@ -45,6 +45,7 @@ let Alpine = {
     interceptInit,
     setEvaluator,
     mergeProxies,
+    extractProp,
     findClosest,
     onElRemoved,
     closestRoot,

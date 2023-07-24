@@ -33,7 +33,7 @@ This is by far the simplest way to get started with Alpine. Include the followin
 Notice the `@3.x.x` in the provided CDN link. This will pull the latest version of Alpine version 3. For stability in production, it's recommended that you hardcode the latest version in the CDN link.
 
 ```alpine
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.2/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.3/dist/cdn.min.js"></script>
 ```
 
 That's it! Alpine is now available for use inside your page.

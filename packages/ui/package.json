@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/ui",
-    "version": "3.12.1-beta.0",
+    "version": "3.12.3-beta.0",
     "description": "Headless UI components for Alpine",
     "homepage": "https://alpinejs.dev/components#headless",
     "repository": {
@@ -13,5 +13,10 @@
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
-    "dependencies": {}
+    "devDependencies": {
+        "alpinejs": "file:../alpinejs"
+    },
+    "peerDependencies": {
+        "alpinejs": "^3.10.0"
+    }
 }

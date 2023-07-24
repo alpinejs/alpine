@@ -108,7 +108,7 @@ export default function (Alpine) {
     // Because DOMContentLoaded is fired on first load,
     // we should fire alpine:navigated as a replacement as well...
     setTimeout(() => {
-        fireEventForOtherLibariesToHookInto()
+        fireEventForOtherLibariesToHookInto(true)
     })
 }
 
@@ -130,8 +130,8 @@ function preventAlpineFromPickingUpDomChanges(Alpine, callback) {
     })
 }
 
-function fireEventForOtherLibariesToHookInto() {
-    document.dispatchEvent(new CustomEvent('alpine:navigated', { bubbles: true }))
+function fireEventForOtherLibariesToHookInto(init = false) {
+    document.dispatchEvent(new CustomEvent('alpine:navigated', { bubbles: true, detail: { init } }))
 }
 
 function nowInitializeAlpineOnTheNewPage(Alpine) {

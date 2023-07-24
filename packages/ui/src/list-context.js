@@ -1,3 +1,4 @@
+import Alpine from "alpinejs";
 
 export function generateContext(multiple, orientation, activateSelectedOrFirst) {
     return {

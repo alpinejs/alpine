@@ -13,5 +13,10 @@
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
-    "dependencies": {}
+    "devDependencies": {
+        "alpinejs": "file:../alpinejs"
+    },
+    "peerDependencies": {
+        "alpinejs": "^3.10.0"
+    }
 }

@@ -1,5 +1,4 @@
 <html>
-<<<<<<< HEAD
     <!-- <script src="./packages/intersect/dist/cdn.js" defer></script>
     <script src="./packages/morph/dist/cdn.js" defer></script>
     <script src="./packages/persist/dist/cdn.js"></script>
@@ -119,58 +118,6 @@
     </div>
 
     <!-- Play around here... -->
-=======
-<script src="./packages/intersect/dist/cdn.js" defer></script>
-<script src="./packages/morph/dist/cdn.js" defer></script>
-<script src="./packages/history/dist/cdn.js"></script>
-<script src="./packages/persist/dist/cdn.js"></script>
-<script src="./packages/focus/dist/cdn.js"></script>
-<script src="./packages/mask/dist/cdn.js"></script>
-<script src="./packages/ui/dist/cdn.js" defer></script>
-<script src="./packages/alpinejs/dist/cdn.js" defer></script>
-<script src="//cdn.tailwindcss.com"></script>
-
-<div
-    x-data="{
-        query: '',
-        people: [
-            { id: 1, name: 'Wade Cooper' },
-            { id: 2, name: 'Arlene Mccoy' },
-            { id: 3, name: 'Devon Webb' },
-            { id: 4, name: 'Tom Cook' },
-            { id: 5, name: 'Tanya Fox' },
-            { id: 6, name: 'Hellen Schmidt' },
-            { id: 7, name: 'Caroline Schultz' },
-            { id: 8, name: 'Mason Heaney' },
-            { id: 9, name: 'Claudie Smitham' },
-            { id: 10, name: 'Emil Schaefer' },
-        ],
-        activePersons: [],
-        get queryPerson() {
-            if (! this.query) return null
-
-            return {
-                id: 11, name: this.query,
-            }
-        },
-        onSubmit(e) {
-            e.preventDefault()
-            console.log([...new FormData(e.currentTarget).entries()])
-        },
-        removePerson(person) {
-            this.activePersons = this.activePersons.filter((p) => p !== person)
-        }
-    }"
-    class="flex h-full w-screen justify-center space-x-4 bg-gray-50 p-12"
->
-    <div class="w-full max-w-4xl">
-        <div class="space-y-1">
-            <form @submit="onSubmit">
-                <div x-combobox x-model="activePersons" name="people" multiple>
-                    <label x-combobox:label class="block text-sm font-medium leading-5 text-gray-700">
-                        Assigned to
-                    </label>
->>>>>>> main
 
                     <div class="relative">
                         <div>Query: <span x-text="query"></span></div>

@@ -1,6 +1,8 @@
 
 export function fetchHtml(destination, callback) {
-    fetch(destination.pathname).then(i => i.text()).then(html => {
+    let uri = destination.pathname + destination.search
+
+    fetch(uri).then(i => i.text()).then(html => {
         callback(html)
     })
 }

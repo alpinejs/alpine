@@ -22,21 +22,21 @@ export function storeThePrefetchedHtmlForWhenALinkIsClicked(html, destination) {
 }
 
 export function getPretchedHtmlOr(destination, receive, ifNoPrefetchExists) {
-    let path = destination.pathname
+    let uri = destination.pathname + destination.search
 
-    if (! prefetches[path]) return ifNoPrefetchExists()
+    if (! prefetches[uri]) return ifNoPrefetchExists()
 
-    if (prefetches[path].finished) {
-        let html = prefetches[path].html
+    if (prefetches[uri].finished) {
+        let html = prefetches[uri].html
 
-        delete prefetches[path]
+        delete prefetches[uri]
 
         return receive(html)
     } else {
-        prefetches[path].whenFinished = () => {
-            let html = prefetches[path].html
+        prefetches[uri].whenFinished = () => {
+            let html = prefetches[uri].html
 
-            delete prefetches[path]
+            delete prefetches[uri]
 
             receive(html)
         }

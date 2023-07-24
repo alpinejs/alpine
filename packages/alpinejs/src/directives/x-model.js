@@ -70,8 +70,10 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         setValue(getInputValue(el, modifiers, e, getValue()))
     })
     
-    if (modifiers.includes('fill') && [null, ''].includes(getValue())) {
-        el.dispatchEvent(new Event(event, {}));
+    if (modifiers.includes('fill'))
+        if ([null, ''].includes(getValue())
+            || (el.type === 'checkbox' && Array.isArray(getValue()))) {
+            el.dispatchEvent(new Event(event, {}));
     }
     // Register the listener removal callback on the element, so that
     // in addition to the cleanup function, x-modelable may call it.

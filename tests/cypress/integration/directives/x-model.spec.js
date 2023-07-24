@@ -186,5 +186,16 @@ test('x-model with fill modifier respects number modifier',
     }
 );
 
-
+test(
+    'x-model with fill applies on checkboxes bound to array',
+    html`
+        <div x-data="{ a: ['456'] }">
+            <input type="checkbox" x-model.fill="a" value="123" checked />
+            <input type="checkbox" x-model.fill="a" value="456" />
+        </div>
+    `,
+    ({ get }) => {
+        get('[x-data]').should(haveData('a', ['123']));
+    }
+);
 

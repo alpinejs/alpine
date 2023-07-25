@@ -21,6 +21,10 @@ export default function (Alpine) {
         )
     }
 
+    Alpine.navigate.disableProgressBar = () => {
+        showProgressBar = false
+    }
+
     Alpine.addInitSelector(() => `[${prefix('navigate')}]`)
 
     Alpine.directive('navigate', (el, { value, expression, modifiers }, { evaluateLater, cleanup }) => {

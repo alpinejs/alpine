@@ -5,11 +5,11 @@ export function swapCurrentPageWithNewHtml(html, andThen) {
     let newBody = document.adoptNode(newDocument.body)
     let newHead = document.adoptNode(newDocument.head)
 
+    let oldBodyScriptTagHashes = Array.from(document.body.querySelectorAll('script')).map(i => simpleHash(i.outerHTML))
+
     mergeNewHead(newHead)
 
-    // mergeNewHead(newHead)
-
-    prepNewScriptTagsToRun(newBody)
+    prepNewBodyScriptTagsToRun(newBody, oldBodyScriptTagHashes)
 
     transitionOut(document.body)
 
@@ -43,9 +43,17 @@ function transitionIn(body) {
     })
 }
 
-function prepNewScriptTagsToRun(newBody) {
+function prepNewBodyScriptTagsToRun(newBody, oldBodyScriptTagHashes) {
     newBody.querySelectorAll('script').forEach(i => {
-        if (i.hasAttribute('data-navigate-once')) return
+        // We don't want to re-run script tags marked as "data-navigate-once"...
+        if (i.hasAttribute('data-navigate-once')) {
+            // However, if they didn't exist on the previous page, we do.
+            // Therefore, we'll check the "old body script hashes" to
+            // see if it was already there before skipping it...
+            let hash = simpleHash(i.outerHTML)
+
+            if (oldBodyScriptTagHashes.includes(hash)) return
+        }
 
         i.replaceWith(cloneScriptTag(i))
     })
@@ -117,3 +125,10 @@ function isScript(el)   {
     return el.tagName.toLowerCase() === 'script'
 }
 
+function simpleHash(str) {
+    return str.split('').reduce((a, b) => {
+        a = ((a << 5) - a) + b.charCodeAt(0)
+
+        return a & a
+    }, 0);
+}

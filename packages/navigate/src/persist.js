@@ -18,6 +18,9 @@ export function putPersistantElementsBack() {
     document.querySelectorAll('[x-persist]').forEach(i => {
         let old = els[i.getAttribute('x-persist')]
 
+        // There might be a brand new x-persist element...
+        if (! old) return
+
         old._x_wasPersisted = true
 
         Alpine.mutateDom(() => {

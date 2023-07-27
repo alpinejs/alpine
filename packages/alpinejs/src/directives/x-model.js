@@ -134,7 +134,7 @@ function getInputValue(el, modifiers, event, currentValue) {
         // Safari autofill triggers event as CustomEvent and assigns value to target
         // so we return event.target.value instead of event.detail
         if (event instanceof CustomEvent && event.detail !== undefined)
-            return event.detail ?? event.target.value
+            return event.detail !== null && event.detail !== undefined ? event.detail : event.target.value
         else if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {

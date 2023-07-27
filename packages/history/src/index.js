@@ -13,6 +13,7 @@ export default function history(Alpine) {
             setter(initial)
 
             if (! usePush) {
+                console.log(getter())
                 Alpine.effect(() => replace(getter()))
             } else {
                 Alpine.effect(() => push(getter()))
@@ -216,6 +217,9 @@ function fromQueryString(search) {
     let data = {}
 
     entries.forEach(([key, value]) => {
+        // Query string params don't always have values... (`?foo=`)
+        if (! value) return
+
         value = decodeURIComponent(value.replaceAll('+', '%20'))
 
         if (! key.includes('[')) {

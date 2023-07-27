@@ -218,13 +218,13 @@ export function morph(from, toHtml, options) {
             }
 
             // Lookaheads should only apply to non-text-or-comment elements...
-            if (currentFrom.nodeType === 1 && lookahead) {
+            if (currentFrom.nodeType === 1 && lookahead && ! currentFrom.isEqualNode(currentTo)) {
                 let nextToElementSibling = dom.next(toChildren, currentTo)
 
                 let found = false
 
                 while (! found && nextToElementSibling) {
-                    if (currentFrom.isEqualNode(nextToElementSibling)) {
+                    if (nextToElementSibling.nodeType === 1 && currentFrom.isEqualNode(nextToElementSibling)) {
                         found = true; // This ";" needs to be here...
 
                         [fromChildren, currentFrom] = addNodeBefore(fromChildren, currentTo, currentFrom)

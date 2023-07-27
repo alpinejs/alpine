@@ -5,19 +5,43 @@
 
 <div id="before">
 <!-- Before markup goes here: -->
-<ul>
-    <li key="1">foo<input></li>
-    <li key="2">bar<input></li>
-    <li key="3">baz<input></li>
-</ul>
+<div>
+    <div>
+    </div>
+
+    <button type="button" wire:click="$refresh" dusk="refresh">
+        Refresh
+    </button>
+
+    <div dusk="child" key="foo">
+        <input type="text">
+        Child
+    </div>
+
+    <div>
+    </div>
+</div>
 </div>
 
 <div id="after" style="display: none;">
 <!-- After markup goes here: -->
-<ul>
-    <li key="1">foo<input></li>
-    <li key="3">baz<input></li>
-</ul>
+<div>
+    <div>
+    </div>
+
+    <button type="button" wire:click="$refresh" dusk="refresh">
+        Refresh
+    </button>
+
+    <div dusk="child" key="foo">
+        <input type="text">
+        Child
+    </div>
+
+    <div>
+    </div>
+</div>
+
 </div>
 
     <div style="display: flex;">

@@ -1,5 +1,6 @@
 import { effect, release, overrideEffect } from "./reactivity"
-import { initTree } from "./lifecycle"
+import { initTree, isRoot } from "./lifecycle"
+import { walk } from "./utils/walk"
 
 export let isCloning = false
 
@@ -11,7 +12,7 @@ export function onlyDuringClone(callback) {
     return (...args) => isCloning && callback(...args)
 }
 
-export function clone(from, to)
+export function cloneNode(from, to)
 {
     // Transfer over existing runtime Alpine state from
     // the existing dom tree over to the new one...
@@ -40,6 +41,40 @@ export function clone(from, to)
     isCloning = false
 }
 
+let isCloningLegacy = false
+
+/** deprecated */
+export function clone(oldEl, newEl) {
+    if (! newEl._x_dataStack) newEl._x_dataStack = oldEl._x_dataStack
+
+    isCloning = true
+    isCloningLegacy = true
+
+    dontRegisterReactiveSideEffects(() => {
+        cloneTree(newEl)
+    })
+
+    isCloning = false
+    isCloningLegacy = false
+}
+
+/** deprecated */
+export function cloneTree(el) {
+    let hasRunThroughFirstEl = false
+
+    let shallowWalker = (el, callback) => {
+        walk(el, (el, skip) => {
+            if (hasRunThroughFirstEl && isRoot(el)) return skip()
+
+            hasRunThroughFirstEl = true
+
+            callback(el, skip)
+        })
+    }
+
+    initTree(el, shallowWalker)
+}
+
 function dontRegisterReactiveSideEffects(callback) {
     let cache = effect
 
@@ -62,6 +97,7 @@ function dontRegisterReactiveSideEffects(callback) {
 // from the live tree before hydrating the clone tree.
 export function shouldSkipRegisteringDataDuringClone(el) {
     if (! isCloning) return false
+    if (isCloningLegacy) return true
 
     return el.hasAttribute('data-has-alpine-state')
 }

@@ -40,7 +40,7 @@ export function morph(from, toHtml, options) {
 
         // Initialize the server-side HTML element with Alpine...
         if (from.nodeType === 1 && window.Alpine) {
-            window.Alpine.clone(from, to)
+            window.Alpine.cloneNode(from, to)
         }
 
         if (textOrComment(to)) {
@@ -352,7 +352,7 @@ export function morph(from, toHtml, options) {
         toEl._x_dataStack = window.Alpine.closestDataStack(from)
 
         // We will kick off a clone on the root element.
-        toEl._x_dataStack && window.Alpine.clone(from, toEl)
+        toEl._x_dataStack && window.Alpine.cloneNode(from, toEl)
     }
 
     patch(from, toEl)

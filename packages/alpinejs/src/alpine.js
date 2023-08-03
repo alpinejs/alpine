@@ -68,7 +68,7 @@ let Alpine = {
     magic,
     store,
     start,
-    clone,
+    clone, // INTERNAL
     bound,
     $data,
     walk,

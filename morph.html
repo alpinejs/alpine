@@ -5,44 +5,21 @@
 
 <div id="before">
 <!-- Before markup goes here: -->
-<div>
-    <div>
-    </div>
-
-    <button type="button" wire:click="$refresh" dusk="refresh">
-        Refresh
-    </button>
-
-    <div dusk="child" key="foo">
-        <input type="text">
-        Child
-    </div>
-
-    <div>
-    </div>
-</div>
+<ul>
+    <li data-key="1">foo<input></li>
+</ul>
 </div>
 
 <div id="after" style="display: none;">
 <!-- After markup goes here: -->
-<div>
-    <div>
-    </div>
-
-    <button type="button" wire:click="$refresh" dusk="refresh">
-        Refresh
-    </button>
-
-    <div dusk="child" key="foo">
-        <input type="text">
-        Child
-    </div>
-
-    <div>
-    </div>
+<ul>
+    <li data-key="2">bar<input></li>
+    <li data-key="3">baz<input></li>
+    <li data-key="1">foo<input></li>
+</ul>
 </div>
 
-</div>
+<div id="b"></div>
 
     <div style="display: flex;">
         <pre id="log-from"></pre>
@@ -69,7 +46,7 @@
             Alpine.morph(
                 document.querySelector('#before').firstElementChild,
                 document.querySelector('#after').firstElementChild.outerHTML,
-                { debug: true }
+                { debug: true, key(el) { return el.dataset.key } }
             )
         }
 

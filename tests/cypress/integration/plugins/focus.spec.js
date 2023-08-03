@@ -29,7 +29,7 @@ test('can trap focus',
     },
 )
 
-test.only('works with clone',
+test('works with clone',
     [html`
         <div id="foo" x-data="{
             open: false,

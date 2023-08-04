@@ -18,7 +18,6 @@ export function morph(from, toHtml, options) {
         let defaultGetKey = el => el.getAttribute('key')
         let noop = () => {}
 
-        console.log(options.key)
         updating = options.updating || noop
         updated = options.updated || noop
         removing = options.removing || noop

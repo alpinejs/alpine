@@ -104,7 +104,7 @@ function cloneScriptTag(el) {
     script.textContent = el.textContent
     script.async = el.async
 
-    for (attr of el.attributes) {
+    for (let attr of el.attributes) {
         script.setAttribute(attr.name, attr.value)
     }
 

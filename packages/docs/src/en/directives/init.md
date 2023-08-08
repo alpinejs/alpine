@@ -72,3 +72,18 @@ Alpine.data('dropdown', () => ({
     },
 }))
 ```
+
+If you have both an `x-data` object containing an `init()` method and an `x-init` directive, the `x-data` method will be called before the directive.
+
+```alpine
+<div
+    x-data="{
+        init() {
+            console.log('I am called first')
+        }
+    }"
+    x-init="console.log('I am called second')"
+    >
+    ...
+</div>
+```

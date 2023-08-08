@@ -55,6 +55,8 @@ export default function (Alpine) {
         showProgressBar && showAndStartProgressBar()
 
         fetchHtmlOrUsePrefetchedHtml(destination, html => {
+            fireEventForOtherLibariesToHookInto('alpine:navigating')
+
             restoreScroll && storeScrollInformationInHtmlBeforeNavigatingAway()
 
             showProgressBar && finishAndHideProgressBar()
@@ -69,7 +71,7 @@ export default function (Alpine) {
 
                     restoreScroll && restoreScrollPosition()
 
-                    fireEventForOtherLibariesToHookInto()
+                    fireEventForOtherLibariesToHookInto('alpine:navigated')
 
                     updateUrlAndStoreLatestHtmlForFutureBackButtons(html, destination)
 
@@ -97,7 +99,7 @@ export default function (Alpine) {
 
                 restoreScroll && restoreScrollPosition()
 
-                fireEventForOtherLibariesToHookInto()
+                fireEventForOtherLibariesToHookInto('alpine:navigated')
 
                 andAfterAllThis(() => {
                     autofocus && autofocusElementsWithTheAutofocusAttribute()
@@ -112,7 +114,7 @@ export default function (Alpine) {
     // Because DOMContentLoaded is fired on first load,
     // we should fire alpine:navigated as a replacement as well...
     setTimeout(() => {
-        fireEventForOtherLibariesToHookInto(true)
+        fireEventForOtherLibariesToHookInto('alpine:navigated', true)
     })
 }
 
@@ -134,8 +136,8 @@ function preventAlpineFromPickingUpDomChanges(Alpine, callback) {
     })
 }
 
-function fireEventForOtherLibariesToHookInto(init = false) {
-    document.dispatchEvent(new CustomEvent('alpine:navigated', { bubbles: true, detail: { init } }))
+function fireEventForOtherLibariesToHookInto(eventName, init = false) {
+    document.dispatchEvent(new CustomEvent(eventName, { bubbles: true, detail: { init } }))
 }
 
 function nowInitializeAlpineOnTheNewPage(Alpine) {

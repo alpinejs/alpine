@@ -62,7 +62,8 @@ function prepNewBodyScriptTagsToRun(newBody, oldBodyScriptTagHashes) {
 }
 
 function mergeNewHead(newHead) {
-    let headChildrenHtmlLookup = Array.from(document.head.children).map(i => i.outerHTML)
+    let children = Array.from(document.head.children)
+    let headChildrenHtmlLookup = children.map(i => i.outerHTML)
 
     // Only add scripts and styles that aren't already loaded on the page.
     let garbageCollector = document.createDocumentFragment()
@@ -71,9 +72,9 @@ function mergeNewHead(newHead) {
         if (isAsset(child)) {
             if (! headChildrenHtmlLookup.includes(child.outerHTML)) {
                 if (isTracked(child)) {
-                    setTimeout(() => window.location.reload())
-
-                    return
+                    if (ifTheQueryStringChangedSinceLastRequest(child, children)) {
+                        setTimeout(() => window.location.reload())
+                    }
                 }
 
                 if (isScript(child)) {
@@ -115,6 +116,25 @@ function cloneScriptTag(el) {
 
 function isTracked(el) {
     return el.hasAttribute('data-navigate-track')
+}
+
+function ifTheQueryStringChangedSinceLastRequest(el, currentHeadChildren) {
+    let [uri, queryString] = extractUriAndQueryString(el)
+
+    return currentHeadChildren.some(child => {
+        if (! isTracked(child)) return false
+
+        let [currentUri, currentQueryString] = extractUriAndQueryString(child)
+
+        // Only consider a data-navigate-track element changed if the query string has changed (not the URI)...
+        if (currentUri === uri && queryString !== currentQueryString) return true
+    })
+}
+
+function extractUriAndQueryString(el) {
+    let url = isScript(el) ? el.src : el.href
+
+    return url.split('?')
 }
 
 function isAsset(el) {

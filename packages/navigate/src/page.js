@@ -1,11 +1,13 @@
 import Alpine from "alpinejs/src/alpine"
 
+let oldBodyScriptTagHashes = []
+
 export function swapCurrentPageWithNewHtml(html, andThen) {
     let newDocument = (new DOMParser()).parseFromString(html, "text/html")
     let newBody = document.adoptNode(newDocument.body)
     let newHead = document.adoptNode(newDocument.head)
 
-    let oldBodyScriptTagHashes = Array.from(document.body.querySelectorAll('script')).map(i => simpleHash(i.outerHTML))
+    oldBodyScriptTagHashes = oldBodyScriptTagHashes.concat(Array.from(document.body.querySelectorAll('script')).map(i => simpleHash(i.outerHTML)))
 
     mergeNewHead(newHead)
 

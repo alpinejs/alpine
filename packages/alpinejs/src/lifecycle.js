@@ -1,4 +1,4 @@
-import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes } from "./mutation"
+import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes, cleanupElement } from "./mutation"
 import { deferHandlingDirectives, directives } from "./directives"
 import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
@@ -94,5 +94,8 @@ export function initTree(el, walker = walk, intercept = () => {}) {
 }
 
 export function destroyTree(root) {
-    walk(root, el => cleanupAttributes(el))
+    walk(root, el => {
+        cleanupAttributes(el)
+        cleanupElement(el)
+    })
 }

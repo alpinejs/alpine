@@ -1,7 +1,11 @@
 
 let datas = {}
 
-export function data(name, callback) {
+export function data(name, callback = null) {
+    if (callback === null) {
+        return datas[name]
+    }
+
     datas[name] = callback
 }
 

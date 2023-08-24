@@ -55,52 +55,23 @@ export function mergeProxies(objects) {
 
         get: (target, name) => {
             if (name == "toJSON") return collapseProxies;
-            return (objects.find(obj => {
-                if (obj.hasOwnProperty(name)) {
-                    let descriptor = Object.getOwnPropertyDescriptor(obj, name)
-
-                    // If we already bound this getter, don't rebind.
-                    if ((descriptor.get && descriptor.get._x_alreadyBound) || (descriptor.set && descriptor.set._x_alreadyBound)) {
-                        return true
-                    }
-
-                    // Properly bind getters and setters to this wrapper Proxy.
-                    if ((descriptor.get || descriptor.set) && descriptor.enumerable) {
-                        // Only bind user-defined getters, not our magic properties.
-                        let getter = descriptor.get
-                        let setter = descriptor.set
-                        let property = descriptor
-
-                        getter = getter && getter.bind(thisProxy)
-                        setter = setter && setter.bind(thisProxy)
-
-                        if (getter) getter._x_alreadyBound = true
-                        if (setter) setter._x_alreadyBound = true
-
-                        Object.defineProperty(obj, name, {
-                            ...property,
-                            get: getter,
-                            set: setter,
-                        })
-                    }
-
-                    return true
-                }
-
-                return false
-            }) || {})[name]
+            return Reflect.get(
+                objects.find((obj) =>
+                    Object.prototype.hasOwnProperty.call(obj, name)
+                ) ?? {},
+                name,
+                thisProxy
+            );
         },
 
         set: (target, name, value) => {
-            let closestObjectWithKey = objects.find(obj => obj.hasOwnProperty(name))
-
-            if (closestObjectWithKey) {
-                closestObjectWithKey[name] = value
-            } else {
-                objects[objects.length - 1][name] = value
-            }
-
-            return true
+            return Reflect.set(
+                objects.find((obj) =>
+                    Object.prototype.hasOwnProperty.call(obj, name)
+                ) ?? objects[objects.length-1],
+                name,
+                value
+            );
         },
     })
 

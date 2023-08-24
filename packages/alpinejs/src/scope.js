@@ -74,7 +74,7 @@ const mergeTraps = {
         return Reflect.set(
             objs.find((obj) =>
                 Object.prototype.hasOwnProperty.call(obj, name)
-            ) || objs.at(-1),
+            ) || objs[objs.length-1],
             name,
             value
         );

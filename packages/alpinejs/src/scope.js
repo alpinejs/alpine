@@ -50,6 +50,7 @@ export function mergeProxies(objects) {
         },
 
         has: (target, name) => {
+            if (name == Symbol.unscopables) return false;
             return objects.some(obj => obj.hasOwnProperty(name))
         },
 

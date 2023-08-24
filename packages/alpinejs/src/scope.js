@@ -36,7 +36,6 @@ export function closestDataProxy(el) {
 function collapseProxies() {
     const keys = Reflect.ownKeys(this);
     const collapsed = keys.reduce((acc, key) => {
-        console.log(key);
         acc[key] = Reflect.get(this, key);
         return acc;
     }, {});

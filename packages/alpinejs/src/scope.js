@@ -43,38 +43,40 @@ function collapseProxies() {
     return collapsed;
 }
 
-export function mergeProxies(objects) {
-    let thisProxy = new Proxy({}, {
-        ownKeys: () => {
-            return Array.from(new Set(objects.flatMap(i => Object.keys(i))))
-        },
+export function mergeProxies (objects) {
+    const thisProxy = new Proxy({ objs: objects }, mergeTraps);
+    return thisProxy;
+};
 
-        has: (target, name) => {
-            if (name == Symbol.unscopables) return false;
-            return objects.some(obj => obj.hasOwnProperty(name))
-        },
-
-        get: (target, name) => {
-            if (name == "toJSON") return collapseProxies;
-            return Reflect.get(
-                objects.find((obj) =>
-                    Object.prototype.hasOwnProperty.call(obj, name)
-                ) ?? {},
-                name,
-                thisProxy
-            );
-        },
-
-        set: (target, name, value) => {
-            return Reflect.set(
-                objects.find((obj) =>
-                    Object.prototype.hasOwnProperty.call(obj, name)
-                ) ?? objects[objects.length-1],
-                name,
-                value
-            );
-        },
-    })
-
-    return thisProxy
-}
+const mergeTraps = {
+    ownKeys({ objs }) {
+        return Array.from(
+            new Set(objs.flatMap((i) => Object.keys(i)))
+        );
+    },
+    has({ objs }, name) {
+        if (name == Symbol.unscopables) return false;
+        return objs.some((obj) =>
+            Object.prototype.hasOwnProperty.call(obj, name)
+        );
+    },
+    get({ objs }, name, thisProxy) {
+        if (name == "toJSON") return collapseProxies;
+        return Reflect.get(
+            objs.find((obj) =>
+                Object.prototype.hasOwnProperty.call(obj, name)
+            ) || {},
+            name,
+            thisProxy
+        );
+    },
+    set({ objs }, name, value) {
+        return Reflect.set(
+            objs.find((obj) =>
+                Object.prototype.hasOwnProperty.call(obj, name)
+            ) || objs.at(-1),
+            name,
+            value
+        );
+    },
+};

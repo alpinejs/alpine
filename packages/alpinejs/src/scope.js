@@ -33,6 +33,16 @@ export function closestDataProxy(el) {
     return mergeProxies(closestDataStack(el))
 }
 
+function collapseProxies() {
+    const keys = Reflect.ownKeys(this);
+    const collapsed = keys.reduce((acc, key) => {
+        console.log(key);
+        acc[key] = Reflect.get(this, key);
+        return acc;
+    }, {});
+    return collapsed;
+}
+
 export function mergeProxies(objects) {
     let thisProxy = new Proxy({}, {
         ownKeys: () => {
@@ -44,6 +54,7 @@ export function mergeProxies(objects) {
         },
 
         get: (target, name) => {
+            if (name == "toJSON") return collapseProxies;
             return (objects.find(obj => {
                 if (obj.hasOwnProperty(name)) {
                     let descriptor = Object.getOwnPropertyDescriptor(obj, name)

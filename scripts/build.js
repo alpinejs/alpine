@@ -6,14 +6,14 @@ let zlib = require('zlib');
     // Packages:
     'alpinejs',
     'csp',
-    'history',
+    // 'history', - removed because this plugin has been moved to livewire/livewire until it's stable...
+    // 'navigate', - remove because this plugin has been moved to livewire/livewire until it's stable...
     'intersect',
     'persist',
     'collapse',
     'morph',
     'focus',
     'mask',
-    'navigate',
     'ui',
 ]).forEach(package => {
     if (! fs.existsSync(`./packages/${package}/dist`)) {

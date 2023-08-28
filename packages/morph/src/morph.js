@@ -403,7 +403,7 @@ class Block {
 
         let currentNode = this.startComment.nextSibling
 
-        while (currentNode !== undefined && currentNode !== this.endComment) {
+        while (currentNode && currentNode !== this.endComment) {
             children.push(currentNode)
 
             currentNode = currentNode.nextSibling

@@ -486,3 +486,16 @@ test('x-bind updates checked attribute and property after user interaction',
         get('input').should(haveProperty('checked', true))
     }
 )
+
+test('preserves bound modifiers', 
+    html`
+        <div x-data="{ props: {
+            'test:value.modifier': 'foobar'
+        } }">
+          <span x-bind="props"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveAttribute('test:value.modifier', 'foobar'))
+    }
+)

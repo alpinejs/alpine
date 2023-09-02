@@ -34,9 +34,19 @@ let handler = (el, { value, modifiers, expression, original }, { effect }) => {
             result = ''
         }
 
-        mutateDom(() => bind(el, value, result, modifiers))
+        const passThroughModifiers = modifiers.filter(mod => ! bindModifiers.includes(mod))
+        const boundModifiers = modifiers.filter(mod => bindModifiers.includes(mod))
+
+
+        mutateDom(() => bind(
+            el, 
+            [value, ...passThroughModifiers].join('.'), 
+            result, 
+            boundModifiers))
     }))
 }
+
+const bindModifiers = ['camel']
 
 // @todo: see if I can take advantage of the object created here inside the
 // non-inline handler above so we're not duplicating work twice...

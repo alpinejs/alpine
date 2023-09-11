@@ -7,38 +7,25 @@ magic('watch', (el, { evaluateLater, effect }) => (key, callback) => {
 
     let oldValue
 
-    const deepClone = (obj) => {
-        if (typeof obj !== 'object' || obj === null) {
-            return obj; // Return primitives and null as is
-        }
-
-        const clone = Array.isArray(obj) ? [] : {};
-
-        for (let key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                if (typeof obj[key] === 'function') {
-                    clone[key] = new Function('return ' + obj[key].toString())();
-                } else {
-                    clone[key] = deepClone(obj[key]);
-                }
-            }
-        }
-
-        return clone;
+    let deepClone = (obj) => {
+        return JSON.parse(JSON.stringify(obj))
     }
 
     let effectReference = effect(() => evaluate(value => {
-        // JSON.stringify touches every single property at any level enabling deep watching
+        // JSON.stringify touches every single property at any level enabling deep watching...
         JSON.stringify(value)
 
-        if (!firstTime) {
+        if (! firstTime) {
+            // We have to clone the value so that the "old"
+            // parameter doesn't hold the same reference...
+            let clonedValue = deepClone(value)
+
             // We have to queue this watcher as a microtask so that
-            // the watcher doesn't pick up its own dependencies.
-            const valueClone = deepClone(value)
+            // the watcher doesn't pick up its own dependencies...
             queueMicrotask(() => {
                 callback(value, oldValue)
 
-                oldValue = valueClone
+                oldValue = clonedValue
             })
         } else {
             oldValue = deepClone(value)

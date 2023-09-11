@@ -33,49 +33,54 @@ export function closestDataProxy(el) {
     return mergeProxies(closestDataStack(el))
 }
 
-function collapseProxies() {
-    const keys = Reflect.ownKeys(this);
-    const collapsed = keys.reduce((acc, key) => {
-        acc[key] = Reflect.get(this, key);
-        return acc;
-    }, {});
-    return collapsed;
+export function mergeProxies (objects) {
+    return new Proxy({ objects }, mergeProxyTrap);
 }
 
-export function mergeProxies (objects) {
-    const thisProxy = new Proxy({ objs: objects }, mergeTraps);
-    return thisProxy;
-};
-
-const mergeTraps = {
-    ownKeys({ objs }) {
+let mergeProxyTrap = {
+    ownKeys({ objects }) {
         return Array.from(
-            new Set(objs.flatMap((i) => Object.keys(i)))
-        );
+            new Set(objects.flatMap((i) => Object.keys(i)))
+        )
     },
-    has({ objs }, name) {
+
+    has({ objects }, name) {
         if (name == Symbol.unscopables) return false;
-        return objs.some((obj) =>
+
+        return objects.some((obj) =>
             Object.prototype.hasOwnProperty.call(obj, name)
         );
     },
-    get({ objs }, name, thisProxy) {
-        if (name == "toJSON") return collapseProxies;
+
+    get({ objects }, name, thisProxy) {
+        if (name == "toJSON") return collapseProxies
+
         return Reflect.get(
-            objs.find((obj) =>
+            objects.find((obj) =>
                 Object.prototype.hasOwnProperty.call(obj, name)
             ) || {},
             name,
             thisProxy
-        );
+        )
     },
-    set({ objs }, name, value) {
+
+    set({ objects }, name, value) {
         return Reflect.set(
-            objs.find((obj) =>
+            objects.find((obj) =>
                 Object.prototype.hasOwnProperty.call(obj, name)
-            ) || objs[objs.length-1],
+            ) || objects[objects.length-1],
             name,
             value
-        );
+        )
     },
-};
+}
+
+function collapseProxies() {
+    let keys = Reflect.ownKeys(this)
+
+    return keys.reduce((acc, key) => {
+        acc[key] = Reflect.get(this, key)
+
+        return acc;
+    }, {})
+}

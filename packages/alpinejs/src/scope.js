@@ -33,65 +33,54 @@ export function closestDataProxy(el) {
     return mergeProxies(closestDataStack(el))
 }
 
-export function mergeProxies(objects) {
-    let thisProxy = new Proxy({}, {
-        ownKeys: () => {
-            return Array.from(new Set(objects.flatMap(i => Object.keys(i))))
-        },
+export function mergeProxies (objects) {
+    return new Proxy({ objects }, mergeProxyTrap);
+}
 
-        has: (target, name) => {
-            return objects.some(obj => obj.hasOwnProperty(name))
-        },
+let mergeProxyTrap = {
+    ownKeys({ objects }) {
+        return Array.from(
+            new Set(objects.flatMap((i) => Object.keys(i)))
+        )
+    },
 
-        get: (target, name) => {
-            return (objects.find(obj => {
-                if (obj.hasOwnProperty(name)) {
-                    let descriptor = Object.getOwnPropertyDescriptor(obj, name)
+    has({ objects }, name) {
+        if (name == Symbol.unscopables) return false;
 
-                    // If we already bound this getter, don't rebind.
-                    if ((descriptor.get && descriptor.get._x_alreadyBound) || (descriptor.set && descriptor.set._x_alreadyBound)) {
-                        return true
-                    }
+        return objects.some((obj) =>
+            Object.prototype.hasOwnProperty.call(obj, name)
+        );
+    },
 
-                    // Properly bind getters and setters to this wrapper Proxy.
-                    if ((descriptor.get || descriptor.set) && descriptor.enumerable) {
-                        // Only bind user-defined getters, not our magic properties.
-                        let getter = descriptor.get
-                        let setter = descriptor.set
-                        let property = descriptor
+    get({ objects }, name, thisProxy) {
+        if (name == "toJSON") return collapseProxies
 
-                        getter = getter && getter.bind(thisProxy)
-                        setter = setter && setter.bind(thisProxy)
+        return Reflect.get(
+            objects.find((obj) =>
+                Object.prototype.hasOwnProperty.call(obj, name)
+            ) || {},
+            name,
+            thisProxy
+        )
+    },
 
-                        if (getter) getter._x_alreadyBound = true
-                        if (setter) setter._x_alreadyBound = true
+    set({ objects }, name, value) {
+        return Reflect.set(
+            objects.find((obj) =>
+                Object.prototype.hasOwnProperty.call(obj, name)
+            ) || objects[objects.length-1],
+            name,
+            value
+        )
+    },
+}
 
-                        Object.defineProperty(obj, name, {
-                            ...property,
-                            get: getter,
-                            set: setter,
-                        })
-                    }
+function collapseProxies() {
+    let keys = Reflect.ownKeys(this)
 
-                    return true
-                }
+    return keys.reduce((acc, key) => {
+        acc[key] = Reflect.get(this, key)
 
-                return false
-            }) || {})[name]
-        },
-
-        set: (target, name, value) => {
-            let closestObjectWithKey = objects.find(obj => obj.hasOwnProperty(name))
-
-            if (closestObjectWithKey) {
-                closestObjectWithKey[name] = value
-            } else {
-                objects[objects.length - 1][name] = value
-            }
-
-            return true
-        },
-    })
-
-    return thisProxy
+        return acc;
+    }, {})
 }

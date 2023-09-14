@@ -70,3 +70,24 @@ Alpine.data('counter', () => ({
     increment() { this.count++ }
 }))
 ```
+
+You also cannot pass arguments to methods, and cannot do equality checks inline.
+
+```alpine
+<!-- Bad -->
+<div x-data="tabs">
+
+    <button @click="showTab('first')">First</button>
+    <button @click="showTab('second')">Second</button>
+
+    <span x-show="tab === 'first'">First Tab Content</span>
+    <span x-show="tab === 'second'">Second Tab Content</span>
+</div>
+```
+```js
+Alpine.data('tabs', () => ({
+    tab: 'first',
+
+    showTab(tab) { this.tab = tab }
+}))
+```

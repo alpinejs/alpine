@@ -175,7 +175,7 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          * Return true if the latest active element was activated
          * by the user (i.e. using the arrow keys) and false if was
          * activated automatically by alpine (i.e. first element automatically
-         * activeted after filtering the list)
+         * activated after filtering the list)
          */
         wasActivatedByKeyPress() {return this.activatedByKeyPress},
 
@@ -204,7 +204,7 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
         },
 
         /**
-         * Handle active key traveral...
+         * Handle active key traversal...
          */
         nextKey() {
             if (! this.activeKey) return

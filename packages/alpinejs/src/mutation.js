@@ -155,11 +155,11 @@ function onMutate(mutations) {
             // New attribute.
             if (el.hasAttribute(name) && oldValue === null) {
                 add()
-            // Changed atttribute.
+            // Changed attribute.
             } else if (el.hasAttribute(name)) {
                 remove()
                 add()
-            // Removed atttribute.
+            // Removed attribute.
             } else {
                 remove()
             }

@@ -1,7 +1,25 @@
 export default function (Alpine) {
     let persist = () => {
         let alias
-        let storage = localStorage
+        let storage
+        try {
+            storage = localStorage
+        }
+        catch (e) {
+            console.error(e)
+            console.log(
+                '$persist is using temporary storage for default storage since localStorage is unavailable.')
+            storage = {
+                getItem(key) {
+                    window.tempStore = window.tempStore || {};
+                    return tempStore[key] ?? null;
+                },
+                setItem(key, value) {
+                    window.tempStore = window.tempStore || {};
+                    tempStore[key] = value;
+                }
+            }
+        }
 
         return Alpine.interceptor((initialValue, getter, setter, path, key) => {
             let lookup = alias || `_x_${path}`

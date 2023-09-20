@@ -9,15 +9,10 @@ export default function (Alpine) {
             console.error(e)
             console.log(
                 '$persist is using temporary storage for default storage since localStorage is unavailable.')
+            const dummy = new Map();
             storage = {
-                getItem(key) {
-                    window.tempStore = window.tempStore || {};
-                    return tempStore[key] ?? null;
-                },
-                setItem(key, value) {
-                    window.tempStore = window.tempStore || {};
-                    tempStore[key] = value;
-                }
+                getItem: dummy.get.bind(dummy),
+                setItem: dummy.set.bind(dummy)
             }
         }
 

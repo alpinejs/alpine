@@ -246,7 +246,11 @@ function handleRoot(el, Alpine) {
 
                     if (typeof by === 'string') {
                         let property = by
-                        by = (a, b) => a[property] === b[property]
+                        by = (a, b) => {
+                            if (typeof a !== 'object' || typeof b !== 'object') return Alpine.raw(a) === Alpine.raw(b)
+
+                            return a[property] === b[property];
+                        }
                     }
 
                     return by(a, b)

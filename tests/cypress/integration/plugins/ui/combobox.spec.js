@@ -781,6 +781,82 @@ test('"by" prop with string value',
     },
 );
 
+test('"by" prop with string value and "nullable"',
+    [html`
+        <div
+            x-data="{
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                    { id: 2, name: 'Arlene Mccoy' },
+                    { id: 3, name: 'Devon Webb' },
+                    { id: 4, name: 'Tom Cook' },
+                    { id: 5, name: 'Tanya Fox', disabled: true },
+                    { id: 6, name: 'Hellen Schmidt' },
+                    { id: 7, name: 'Caroline Schultz' },
+                    { id: 8, name: 'Mason Heaney' },
+                    { id: 9, name: 'Claudie Smitham' },
+                    { id: 10, name: 'Emil Schaefer' },
+                ]
+            }"
+            x-combobox
+            by="id"
+            default-value="5"
+            nullable
+        >
+            <label x-combobox:label>Assigned to</label>
+
+            <input x-combobox:input :display-value="(person) => person?.name" type="text">
+            <button x-combobox:button x-text="$combobox.value ? $combobox.value.name : 'Select People'"></button>
+
+            <ul x-combobox:options>
+                <template x-for="person in people" :key="person.id">
+                    <li
+                        :option="person.id"
+                        x-combobox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                        :class="{
+                            'selected': $comboboxOption.isSelected,
+                            'active': $comboboxOption.isActive,
+                        }"
+                    >
+                        <span x-text="person.name"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('ul').should(notBeVisible())
+        get('button').click()
+        get('ul').should(beVisible())
+        get('button').click()
+        get('ul').should(notBeVisible())
+        get('button').click()
+        get('[option="2"]').click()
+        get('ul').should(notBeVisible())
+        get('input').should(haveValue('Arlene Mccoy'))
+        get('button').should(haveText('Arlene Mccoy'))
+        get('button').click()
+        get('ul').should(contain('Wade Cooper'))
+            .should(contain('Arlene Mccoy'))
+            .should(contain('Devon Webb'))
+        get('[option="3"]').click()
+        get('ul').should(notBeVisible())
+        get('input').should(haveValue('Devon Webb'))
+        get('button').should(haveText('Devon Webb'))
+        get('button').click()
+        get('ul').should(contain('Wade Cooper'))
+            .should(contain('Arlene Mccoy'))
+            .should(contain('Devon Webb'))
+        get('[option="1"]').click()
+        get('ul').should(notBeVisible())
+        get('input').should(haveValue('Wade Cooper'))
+        get('button').should(haveText('Wade Cooper'))
+    },
+);
+
+
 test('keyboard controls',
     [html`
         <div

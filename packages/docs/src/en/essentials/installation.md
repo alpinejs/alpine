@@ -64,5 +64,7 @@ Alpine.start()
 
 > If you imported Alpine into a bundle, you have to make sure you are registering any extension code IN BETWEEN when you import the `Alpine` global object, and when you initialize Alpine by calling `Alpine.start()`.
 
+> Ensure that `Alpine.start()` is only called once per page. Calling it more than once will result in multiple "instances" of Alpine, and many problems.
+
 
 [→ Read more about extending Alpine](/advanced/extending)

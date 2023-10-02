@@ -61,10 +61,9 @@ Alpine.start()
 
 > The `window.Alpine = Alpine` bit is optional, but is nice to have for freedom and flexibility. Like when tinkering with Alpine from the devtools for example.
 
-
 > If you imported Alpine into a bundle, you have to make sure you are registering any extension code IN BETWEEN when you import the `Alpine` global object, and when you initialize Alpine by calling `Alpine.start()`.
 
-> Ensure that `Alpine.start()` is only called once per page. Calling it more than once will result in multiple "instances" of Alpine, and many problems.
+> Ensure that `Alpine.start()` is only called once per page. Calling it more than once will result in multiple "instances" of Alpine running at the same time.
 
 
 [→ Read more about extending Alpine](/advanced/extending)

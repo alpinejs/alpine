@@ -83,7 +83,7 @@ function generateFunctionFromString(expression, el) {
                 `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`
             );
             Object.defineProperty(func, "name", {
-                value: `ALPINE ${expression}`,
+                value: `[Alpine] ${expression}`,
             });
             return func;
         } catch ( error ) {

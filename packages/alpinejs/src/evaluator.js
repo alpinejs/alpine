@@ -78,7 +78,16 @@ function generateFunctionFromString(expression, el) {
 
     const safeAsyncFunction = () => {
         try {
-            return new AsyncFunction(['__self', 'scope'], `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`)
+            let func = new AsyncFunction(
+                ["__self", "scope"],
+                `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`
+            )
+            
+            Object.defineProperty(func, "name", {
+                value: `[Alpine] ${expression}`,
+            })
+            
+            return func
         } catch ( error ) {
             handleError( error, el, expression )
             return Promise.resolve()

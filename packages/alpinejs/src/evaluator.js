@@ -66,7 +66,7 @@ function generateFunctionFromString(expression, el) {
     let AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
 
     // Some expressions that are useful in Alpine are not valid as the right side of an expression.
-    // Here we'll detect if the expression isn't valid for an assignement and wrap it in a self-
+    // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
     // calling function so that we don't throw an error AND a "return" statement can b e used.
     let rightSideSafeExpression = 0
         // Support expressions starting with "if" statements like: "if (...) doSomething()"

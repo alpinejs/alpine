@@ -283,7 +283,7 @@ export function morph(from, toHtml, options) {
             currentFrom = currentFromNext
         }
 
-        // Cleanup extra froms.
+        // Cleanup extra forms.
         let removals = []
 
         // We need to collect the "removals" first before actually

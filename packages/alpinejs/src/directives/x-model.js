@@ -95,7 +95,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         cleanup(() => removeResetListener())
     }
 
-    // Allow programmatic overiding of x-model.
+    // Allow programmatic overriding of x-model.
     el._x_model = {
         get() {
             return getValue()

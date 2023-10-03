@@ -10,6 +10,7 @@ export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set:
         if (firstRun) {
             innerSet(outer)
             firstRun = false
+            outerHash = JSON.stringify(outer)
         } else {
             const outerHashLatest = JSON.stringify(outer)
 

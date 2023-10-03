@@ -2,36 +2,25 @@ import { effect, release } from './reactivity'
 
 export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set: innerSet }) {
     let firstRun = true
-    let outerHash, innerHash, outerHashLatest, innerHashLatest
+    let outerHash
 
     let reference = effect(() => {
-        let outer, inner
-
+        const outer = outerGet()
+        const inner = innerGet()
         if (firstRun) {
-            outer = outerGet()
-            innerSet(JSON.parse(JSON.stringify(outer))) // We need to break internal references using parse/stringify...
-            inner = innerGet()
+            innerSet(outer)
             firstRun = false
         } else {
-            outer = outerGet()
-            inner = innerGet()
-
-            outerHashLatest = JSON.stringify(outer)
-            innerHashLatest = JSON.stringify(inner)
+            const outerHashLatest = JSON.stringify(outer)
 
             if (outerHashLatest !== outerHash) { // If outer changed...
-                inner = innerGet()
                 innerSet(outer)
-                inner = outer // Assign inner to outer so that it can be serialized for diffing...
+                outerHash = outerHashLatest
             } else { // If inner changed...
-                outerSet(JSON.parse(innerHashLatest ?? null)) // We need to break internal references using parse/stringify...
-                outer = inner // Assign outer to inner so that it can be serialized for diffing...
+                outerSet(inner)
+                outerHash = JSON.stringify(inner)
             }
         }
-
-        // Re serialize values...
-        outerHash = JSON.stringify(outer)
-        innerHash = JSON.stringify(inner)
     })
 
     return () => {

@@ -69,3 +69,38 @@ test.skip('can release entanglement',
         get('input[outer]').should(haveValue('foobar'))
     }
 )
+
+test(
+    "can handle undefined",
+    [
+        html`
+            <div x-data="{ outer: undefined }">
+                <input x-model="outer" outer />
+
+                <div
+                    x-data="{ inner: 'bar' }"
+                    x-init="() => {}; Alpine.entangle(
+            {
+                get() { return outer },
+                set(value) { outer = value },
+            },
+            {
+                get() { return inner },
+                set(value) { inner = value },
+            }
+        )"
+                >
+                    <input x-model="inner" inner />
+                </div>
+            </div>
+        `,
+    ],
+    ({ get }) => {
+        get("input[outer]").should(haveValue(''));
+        get("input[inner]").should(haveValue(''));
+
+        get("input[inner]").type("bar");
+        get("input[inner]").should(haveValue("bar"));
+        get("input[outer]").should(haveValue("bar"));
+    }
+);

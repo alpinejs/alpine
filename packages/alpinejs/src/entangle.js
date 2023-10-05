@@ -22,6 +22,8 @@ export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set:
                 outerHash = JSON.stringify(inner)
             }
         }
+        JSON.stringify(innerGet())
+        JSON.stringify(outerGet())
     })
 
     return () => {
@@ -29,6 +31,8 @@ export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set:
     }
 }
 
-function cloneIfObject (value) {
-    return typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value
+function cloneIfObject(value) {
+    return typeof value === 'object'
+        ? JSON.parse(JSON.stringify(value))
+        : value
 }

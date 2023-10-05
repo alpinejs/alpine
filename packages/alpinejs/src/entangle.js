@@ -8,17 +8,17 @@ export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set:
         const outer = outerGet()
         const inner = innerGet()
         if (firstRun) {
-            innerSet(outer)
+            innerSet(cloneIfObject(outer))
             firstRun = false
             outerHash = JSON.stringify(outer)
         } else {
             const outerHashLatest = JSON.stringify(outer)
 
             if (outerHashLatest !== outerHash) { // If outer changed...
-                innerSet(outer)
+                innerSet(cloneIfObject(outer))
                 outerHash = outerHashLatest
             } else { // If inner changed...
-                outerSet(inner)
+                outerSet(cloneIfObject(inner))
                 outerHash = JSON.stringify(inner)
             }
         }
@@ -27,4 +27,8 @@ export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set:
     return () => {
         release(reference)
     }
+}
+
+function cloneIfObject (value) {
+    return typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value
 }

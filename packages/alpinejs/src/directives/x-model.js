@@ -46,7 +46,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             })
         }
     }
-    
+
     if (typeof expression === 'string' && el.type === 'radio') {
         // Radio buttons only work properly when they share a name attribute.
         // People might assume we take care of that for them, because
@@ -54,6 +54,36 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         mutateDom(() => {
             if (! el.hasAttribute('name')) el.setAttribute('name', expression)
         })
+    }
+
+    // autofill x-data attribute if variables are declared in the x-model directive, but not in x-data
+    if (typeof expression === 'string' && modifiers.includes('auto')) {
+        let parent = el.closest('[x-data]');
+        if (parent) {
+            let xData = Alpine.$data(parent),
+                value = xData[expression] || el.value || '';
+
+            if (modifiers.includes('number')) {
+                value = safeParseNumber(value);
+            }
+            if (el.type === 'radio') {
+                value = xData[expression] || ( el.checked ? el.value : '' );
+            }
+            if (el.type === 'checkbox') {
+                const attribute  = Object.keys(el._x_attributeCleanups).find(k => k.startsWith('x-model')).replace(/\./g, '\\.'),
+                    checkboxes = parent.querySelectorAll(`[${attribute}="${expression}"]`);
+
+                if (checkboxes.length > 1) {
+                    value = typeof xData[expression] === 'undefined' ? [] : xData[expression];
+                    if (el.checked) {
+                        value.push(el.value);
+                    }
+                } else {
+                    value = xData[expression] || el.checked;
+                }
+            }
+            xData[expression] = value;
+        }
     }
 
     // If the element we are binding to is a select, a radio, or checkbox
@@ -69,7 +99,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let removeListener = isCloning ? () => {} : on(el, event, modifiers, (e) => {
         setValue(getInputValue(el, modifiers, e, getValue()))
     })
-    
+
     if (modifiers.includes('fill'))
         if ([null, ''].includes(getValue())
             || (el.type === 'checkbox' && Array.isArray(getValue()))) {

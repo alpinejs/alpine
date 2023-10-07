@@ -89,6 +89,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
                         }
                     }
                     xData[expression] = value;
+                    console.log(xData[expression])
                 }
             }
         }

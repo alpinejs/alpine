@@ -205,40 +205,40 @@ test(
         <div x-data>
             <div>
                 Text
-                <input type="text" x-model.fill="test" placeholder="Enter text">
+                <input type="text" x-model.fill="test" placeholder="Enter text" value="String text input">
                 <span x-text="test"></span>
             </div>
             <br>
             <div>
                 Number
-                <input type="number" x-model.fill="years" placeholder="Enter number">
+                <input type="number" x-model.fill="years" placeholder="Enter number" value="55">
                 <span x-text="years"></span>
             </div>
             <br>
             <div>
                 Single checkbox with boolean
-                <input type="checkbox" value="red" x-model.fill="cb">
-                <span x-text="cb">false</span>
+                <input type="checkbox" value="red" x-model.fill="cb" checked>
+                <span x-text="cb"></span>
             </div>
             <br>
             <div>
                 Multiple checkboxes bound to array
                 <input type="checkbox" value="red" x-model.fill="colors">
-                <input type="checkbox" value="orange" x-model.fill="colors">
-                <input type="checkbox" value="yellow" x-model.fill="colors">
+                <input type="checkbox" value="orange" x-model.fill="colors" checked>
+                <input type="checkbox" value="yellow" x-model.fill="colors" checked>
                 <span x-text="colors"></span>
             </div>
             <br>
             <div>
                 Radio Button
-                <input type="radio" value="rb1" x-model.fill="radio" name="radio"> Radio Button 1
-                <input type="radio" value="rb2" x-model.fill="radio" name="radio"> Radio Button 2
+                <input type="radio" value="rb1" x-model.fill="radio"> Radio Button 1
+                <input type="radio" value="rb2" x-model.fill="radio" checked> Radio Button 2
                 <span x-text="radio"></span>
             </div>
             <br>
             <div>
                 Textarea
-                <textarea x-model.fill="textarea"></textarea>
+                <textarea x-model.fill="textarea">String textarea content</textarea>
                 <span x-text="textarea"></span>
             </div>
             <br>
@@ -248,7 +248,7 @@ test(
                     <option value="">Choose color</option>
                     <option value="red">Red</option>
                     <option value="orange">Orange</option>
-                    <option value="yellow">Yellow</option>
+                    <option value="yellow" selected>Yellow</option>
                 </select>
                 Color: <span x-text="color"></span>
             </div>
@@ -256,23 +256,22 @@ test(
             <div>
                 Multiple Select
                 <select x-model.fill="colorList" multiple="">
-                    <option>Red</option>
-                    <option>Orange</option>
-                    <option>Yellow</option>
+                    <option value="red">Red</option>
+                    <option value="orange" selected>Orange</option>
+                    <option value="yellow" selected>Yellow</option>
                 </select>
                 Color: <span x-text="colorList"></span>
             </div>
-            <br>
-            <div>
-                Dynamically populated Select Options
-                <select x-model.fill="dynamicallyColors">
-                    <template x-for="color in ['Red', 'Orange', 'Yellow']">
-                        <option :value="color" x-text="color"></option>
-                    </template><option :value="color" x-text="color" value="Red">Red</option><option :value="color" x-text="color" value="Orange">Orange</option><option :value="color" x-text="color" value="Yellow">Yellow</option>
-                </select>
-                Color: <span x-text="dynamicallyColors"></span>
-            </div>
         </div>
     `,
-    () => {}
+    ({ get }) => {
+        get('[x-data]').should(haveData('test', 'String text input'));
+        get('[x-data]').should(haveData('years', '55'));
+        get('[x-data]').should(haveData('cb', true));
+        get('[x-data]').should(haveData('colors', ['orange', 'yellow']));
+        get('[x-data]').should(haveData('radio', 'rb2'));
+        get('[x-data]').should(haveData('textarea', 'String textarea content'));
+        get('[x-data]').should(haveData('color', 'yellow'));
+        get('[x-data]').should(haveData('colorList', ['orange', 'yellow']));
+    }
 );

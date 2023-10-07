@@ -199,3 +199,80 @@ test(
     }
 );
 
+test(
+    'x-model with auto modifier',
+    html`
+        <div x-data>
+            <div>
+                Text
+                <input type="text" x-model.auto="test" placeholder="Enter text">
+                <span x-text="test"></span>
+            </div>
+            <br>
+            <div>
+                Number
+                <input type="number" x-model.auto="years" placeholder="Enter number">
+                <span x-text="years"></span>
+            </div>
+            <br>
+            <div>
+                Single checkbox with boolean
+                <input type="checkbox" value="red" x-model.auto="cb">
+                <span x-text="cb"></span>
+            </div>
+            <br>
+            <div>
+                Multiple checkboxes bound to array
+                <input type="checkbox" value="red" x-model.auto.lazy="colors">
+                <input type="checkbox" value="orange" x-model.auto.lazy="colors">
+                <input type="checkbox" value="yellow" x-model.auto.lazy="colors">
+                <span x-text="colors"></span>
+            </div>
+            <br>
+            <div>
+                Radio Button
+                <input type="radio" value="rb1" x-model.auto="radio"> Radio Button 1
+                <input type="radio" value="rb2" x-model.auto="radio"> Radio Button 2
+                <span x-text="radio"></span>
+            </div>
+            <br>
+            <div>
+                Textarea
+                <textarea x-model.auto="textarea"></textarea>
+                <span x-text="textarea"></span>
+            </div>
+            <br>
+            <div>
+                Select
+                <select x-model.auto="color">
+                    <option value="">Choose color</option>
+                    <option value="red">Red</option>
+                    <option value="orange">Orange</option>
+                    <option value="yellow">Yellow</option>
+                </select>
+                Color: <span x-text="color"></span>
+            </div>
+            <br>
+            <div>
+                Multiple Select
+                <select x-model.auto="colorList" multiple>
+                    <option>Red</option>
+                    <option>Orange</option>
+                    <option>Yellow</option>
+                </select>
+                Color: <span x-text="colorList"></span>
+            </div>
+            <br>
+            <div>
+                Dynamically populated Select Options
+                <select x-model.auto="dynamicallyColors">
+                    <template x-for="color in ['Red', 'Orange', 'Yellow']">
+                        <option :value="color" x-text="color"></option>
+                    </template>
+                </select>
+                Color: <span x-text="dynamicallyColors"></span>
+            </div>
+        </div>
+    `,
+    () => {}
+);

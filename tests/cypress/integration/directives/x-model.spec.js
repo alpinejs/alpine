@@ -202,49 +202,49 @@ test(
 test(
     'x-model with auto modifier',
     html`
-        <div x-data>
+        <div x-data="">
             <div>
                 Text
-                <input type="text" x-model.auto="test" placeholder="Enter text">
+                <input type="text" x-model.fill="test" placeholder="Enter text">
                 <span x-text="test"></span>
             </div>
             <br>
             <div>
                 Number
-                <input type="number" x-model.auto="years" placeholder="Enter number">
+                <input type="number" x-model.fill="years" placeholder="Enter number">
                 <span x-text="years"></span>
             </div>
             <br>
             <div>
                 Single checkbox with boolean
-                <input type="checkbox" value="red" x-model.auto="cb">
-                <span x-text="cb"></span>
+                <input type="checkbox" value="red" x-model.fill="cb">
+                <span x-text="cb">false</span>
             </div>
             <br>
             <div>
                 Multiple checkboxes bound to array
-                <input type="checkbox" value="red" x-model.auto.lazy="colors">
-                <input type="checkbox" value="orange" x-model.auto.lazy="colors">
-                <input type="checkbox" value="yellow" x-model.auto.lazy="colors">
+                <input type="checkbox" value="red" x-model.fill="colors">
+                <input type="checkbox" value="orange" x-model.fill="colors">
+                <input type="checkbox" value="yellow" x-model.fill="colors">
                 <span x-text="colors"></span>
             </div>
             <br>
             <div>
                 Radio Button
-                <input type="radio" value="rb1" x-model.auto="radio"> Radio Button 1
-                <input type="radio" value="rb2" x-model.auto="radio"> Radio Button 2
+                <input type="radio" value="rb1" x-model.fill="radio" name="radio"> Radio Button 1
+                <input type="radio" value="rb2" x-model.fill="radio" name="radio"> Radio Button 2
                 <span x-text="radio"></span>
             </div>
             <br>
             <div>
                 Textarea
-                <textarea x-model.auto="textarea"></textarea>
+                <textarea x-model.fill="textarea"></textarea>
                 <span x-text="textarea"></span>
             </div>
             <br>
             <div>
                 Select
-                <select x-model.auto="color">
+                <select x-model.fill="color">
                     <option value="">Choose color</option>
                     <option value="red">Red</option>
                     <option value="orange">Orange</option>
@@ -255,7 +255,7 @@ test(
             <br>
             <div>
                 Multiple Select
-                <select x-model.auto="colorList" multiple>
+                <select x-model.fill="colorList" multiple="">
                     <option>Red</option>
                     <option>Orange</option>
                     <option>Yellow</option>
@@ -265,10 +265,84 @@ test(
             <br>
             <div>
                 Dynamically populated Select Options
-                <select x-model.auto="dynamicallyColors">
+                <select x-model.fill="dynamicallyColors">
                     <template x-for="color in ['Red', 'Orange', 'Yellow']">
                         <option :value="color" x-text="color"></option>
-                    </template>
+                    </template><option :value="color" x-text="color" value="Red">Red</option><option :value="color" x-text="color" value="Orange">Orange</option><option :value="color" x-text="color" value="Yellow">Yellow</option>
+                </select>
+                Color: <span x-text="dynamicallyColors"></span>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <div x-data>
+            <div>
+                Text
+                <input type="text" value="Fill value" x-model.fill="test" placeholder="Enter text">
+                <span x-text="test">Fill value</span>
+            </div>
+            <br>
+            <div>
+                Number
+                <input type="number" value="77" x-model.fill="years" placeholder="Enter number">
+                <span x-text="years">77</span>
+            </div>
+            <br>
+            <div>
+                Single checkbox with boolean
+                <input type="checkbox" checked="" value="red" x-model.fill="cb">
+                <span x-text="cb">true</span>
+            </div>
+            <br>
+            <div>
+                Multiple checkboxes bound to array
+                <input type="checkbox" value="red" x-model.fill="colors">
+                <input type="checkbox" checked="" value="orange" x-model.fill="colors">
+                <input type="checkbox" value="yellow" x-model.fill="colors">
+                <span x-text="colors">orange</span>
+            </div>
+            <br>
+            <div>
+                Radio Button
+                <input type="radio" value="rb1" x-model.fill="radio" name="radio"> Radio Button 1
+                <input type="radio" checked="" value="rb2" x-model.fill="radio" name="radio"> Radio Button 2
+                <span x-text="radio">rb2</span>
+            </div>
+            <br>
+            <div>
+                Textarea
+                <textarea x-model.fill="textarea">My textarea content</textarea>
+                <span x-text="textarea">My textarea content</span>
+            </div>
+            <br>
+            <div>
+                Select
+                <select x-model.fill="color">
+                    <option value="">Choose color</option>
+                    <option value="red">Red</option>
+                    <option value="orange" selected="">Orange</option>
+                    <option value="yellow">Yellow</option>
+                </select>
+                Color: <span x-text="color">orange</span>
+            </div>
+            <br>
+            <div>
+                Multiple Select
+                <select x-model.fill="colorList" multiple="">
+                    <option>Red</option>
+                    <option selected="">Orange</option>
+                    <option>Yellow</option>
+                </select>
+                Color: <span x-text="colorList">Orange</span>
+            </div>
+            <br>
+            <div>
+                Dynamically populated Select Options
+                <select x-model.fill="dynamicallyColors">
+                    <template x-for="color in ['Red', 'Orange', 'Yellow']">
+                        <option :value="color" x-text="color" :selected="color === 'Orange'"></option>
+                    </template><option :value="color" x-text="color" :selected="color === 'Orange'" value="Red">Red</option><option :value="color" x-text="color" :selected="color === 'Orange'" value="Orange" selected="selected">Orange</option><option :value="color" x-text="color" :selected="color === 'Orange'" value="Yellow">Yellow</option>
                 </select>
                 Color: <span x-text="dynamicallyColors"></span>
             </div>

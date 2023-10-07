@@ -59,9 +59,9 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     // If the element we are binding to is a select, a radio, or checkbox
     // we'll listen for the change event instead of the "input" event.
     var event = (el.tagName.toLowerCase() === 'select')
-        || ['checkbox', 'radio'].includes(el.type)
-        || modifiers.includes('lazy')
-            ? 'change' : 'input'
+    || ['checkbox', 'radio'].includes(el.type)
+    || modifiers.includes('lazy')
+        ? 'change' : 'input'
 
     // We only want to register the event listener when we're not cloning, since the
     // mutation observer handles initializing the x-model directive already when
@@ -71,21 +71,25 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     })
 
     if (modifiers.includes('fill')) {
-        // autofill x-data attribute if variables are declared in the x-model directive, but not in x-data
+        // autofill x-data object
         if (typeof expression === 'string') {
             let parent = el.closest('[x-data]');
             if (parent) {
-                let xDataValue,
-                    xData = Alpine.$data(parent);
-                if (el.type === 'checkbox' || el.type === 'radio') {
-                    const attribute = Object.keys(el._x_attributeCleanups).find(k => k.startsWith('x-model')).replace(/\./g, '\\.'),
-                          items     = parent.querySelectorAll(`[${attribute}="${expression}"]`);
+                let xData = Alpine.$data(parent);
+                if (typeof xData[expression] === 'undefined') {
+                    let value = '';
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        const attribute = `x-model\\.${modifiers.join('\\.')}`,
+                            items     = parent.querySelectorAll(`[${attribute}="${expression}"]`);
 
-                    xDataValue = items.length > 1 ? Array.from(items).filter(item => item.checked).map(item => item.value) : el.checked;
-                } else {
-                    xDataValue = xData[expression] || ( el.value || '' );
+                        value = items.length > 1 ? [] : '';
+                        if (el.type === 'radio') {
+                            let radioBtn = Array.from(items).find(radio => radio.checked);
+                            value    = radioBtn ? radioBtn.value : [];
+                        }
+                    }
+                    xData[expression] = value;
                 }
-                xData[expression] = xDataValue;
             }
         }
 
@@ -93,6 +97,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             el.dispatchEvent(new Event(event, {}));
         }
     }
+
     // Register the listener removal callback on the element, so that
     // in addition to the cleanup function, x-modelable may call it.
     // Also, make this a keyed object if we decide to reintroduce

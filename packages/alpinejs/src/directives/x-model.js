@@ -73,24 +73,18 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     if (modifiers.includes('fill')) {
         // autofill x-data object
         if (typeof expression === 'string') {
-            let parent = el.closest('[x-data]');
-            if (parent) {
-                let xData = Alpine.$data(parent);
-                if (typeof xData[expression] === 'undefined') {
-                    let value = '';
-                    if (el.type === 'checkbox' || el.type === 'radio') {
-                        const attribute = `x-model\\.${modifiers.join('\\.')}`,
-                            items     = parent.querySelectorAll(`[${attribute}="${expression}"]`);
+            let value = '',
+                xData = Alpine.$data(el);
 
-                        value = items.length > 1 ? [] : '';
-                        if (el.type === 'radio') {
-                            let radioBtn = Array.from(items).find(radio => radio.checked);
-                            value    = radioBtn ? radioBtn.value : [];
-                        }
-                    }
-                    xData[expression] = value;
-                }
+            const [key, ...rest] = expression.split('.');
+            if (el.type === 'checkbox') {
+                value = typeof xData[key] === 'undefined' ? '' : Array.from(xData[key]);
+            } else if (el.type === 'radio') {
+                value = el.checked ? el.value : '';
+            } else {
+                value = xData[key] ?? '';
             }
+            xData[key] = rest.length > 0 ? rest.reduceRight((acc, key) => ({[key]: acc}), value) : value;
         }
 
         if ([null, ''].includes(getValue()) || (el.type === 'checkbox' && Array.isArray(getValue()))) {

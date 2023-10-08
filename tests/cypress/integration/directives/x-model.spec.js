@@ -204,6 +204,12 @@ test(
     html`
         <div x-data>
             <div>
+                Nested property
+                <input type="text" x-model.fill="post.data.name" placeholder="Enter text" value="Post ID">
+                <span x-text="post.data.name"></span>
+            </div>
+            <br>
+            <div>
                 Text
                 <input type="text" x-model.fill="test" placeholder="Enter text" value="String text input">
                 <span x-text="test"></span>
@@ -265,6 +271,7 @@ test(
         </div>
     `,
     ({ get }) => {
+        get('[x-data]').should(haveData('post', {data: {name: 'Post ID'}}));
         get('[x-data]').should(haveData('test', 'String text input'));
         get('[x-data]').should(haveData('years', '55'));
         get('[x-data]').should(haveData('cb', true));

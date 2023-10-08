@@ -342,11 +342,13 @@ The default throttle interval is 250 milliseconds, you can easily customize this
 
 By default, if an input has a value attribute, it is ignored by Alpine and instead, the value of the input is set to the value of the property bound using `x-model`.
 
-But if a bound property is empty, then you can use an input's value attribute to populate the property by adding the `.fill` modifier.
+But if a bound property is not declared, then you can use an input's value attribute to populate the property by adding the `.fill` modifier. Alpine will take over the formation of the data object, which eliminates the need to declare properties separately.
 
-<div x-data="{ message: null }">
+```alpine
+<div x-data>
   <input x-model.fill="message" value="This is the default message.">
 </div>
+```
 
 <a name="programmatic access"></a>
 ## Programmatic access

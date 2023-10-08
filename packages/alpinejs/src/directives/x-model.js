@@ -46,7 +46,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             })
         }
     }
-    
+
     if (typeof expression === 'string' && el.type === 'radio') {
         // Radio buttons only work properly when they share a name attribute.
         // People might assume we take care of that for them, because
@@ -59,9 +59,9 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     // If the element we are binding to is a select, a radio, or checkbox
     // we'll listen for the change event instead of the "input" event.
     var event = (el.tagName.toLowerCase() === 'select')
-        || ['checkbox', 'radio'].includes(el.type)
-        || modifiers.includes('lazy')
-            ? 'change' : 'input'
+    || ['checkbox', 'radio'].includes(el.type)
+    || modifiers.includes('lazy')
+        ? 'change' : 'input'
 
     // We only want to register the event listener when we're not cloning, since the
     // mutation observer handles initializing the x-model directive already when
@@ -69,12 +69,29 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let removeListener = isCloning ? () => {} : on(el, event, modifiers, (e) => {
         setValue(getInputValue(el, modifiers, e, getValue()))
     })
-    
-    if (modifiers.includes('fill'))
-        if ([null, ''].includes(getValue())
-            || (el.type === 'checkbox' && Array.isArray(getValue()))) {
+
+    if (modifiers.includes('fill')) {
+        // autofill x-data object
+        if (typeof expression === 'string') {
+            let value = '',
+                xData = Alpine.$data(el);
+
+            const [key, ...rest] = expression.split('.');
+            if (el.type === 'checkbox') {
+                value = typeof xData[key] === 'undefined' ? '' : Array.from(xData[key]);
+            } else if (el.type === 'radio') {
+                value = el.checked ? el.value : '';
+            } else {
+                value = xData[key] ?? '';
+            }
+            xData[key] = rest.length > 0 ? rest.reduceRight((acc, key) => ({[key]: acc}), value) : value;
+        }
+
+        if ([null, ''].includes(getValue()) || (el.type === 'checkbox' && Array.isArray(getValue()))) {
             el.dispatchEvent(new Event(event, {}));
+        }
     }
+
     // Register the listener removal callback on the element, so that
     // in addition to the cleanup function, x-modelable may call it.
     // Also, make this a keyed object if we decide to reintroduce

@@ -51,7 +51,7 @@ Initially, the duration is set to be 150 milliseconds when entering, and 75 mill
 You can configure the duration you want for a transition with the `.duration` modifier:
 
 ```alpine
-<div ... x-transition.duration.500ms>
+<div ... x-transition:duration.500ms>
 ```
 
 The above `<div>` will transition for 500 milliseconds when entering, and 500 milliseconds when leaving.

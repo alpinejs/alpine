@@ -14,7 +14,7 @@ In order to accommodate environments where this CSP is necessary, Alpine will of
 <a name="installation"></a>
 ## Installation
 
-The CSP build hasn’t been officially released yet. In the meantime, you may [build it from source](https://github.com/alpinejs/alpine/tree/main/packages/csp). Once released, like all Alpine extensions, you will be able to include this either via `<script>` tag or module import:
+The CSP build hasn't been officially released yet. In the meantime, you may [build it from source](https://github.com/alpinejs/alpine/tree/main/packages/csp). Once released, like all Alpine extensions, you will be able to include this either via `<script>` tag or module import:
 
 <a name="script-tag"></a>
 ### Script tag

@@ -2,14 +2,15 @@ export default function (Alpine) {
     let persist = () => {
         let alias
         let storage
+
         try {
             storage = localStorage
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e)
-            console.log(
-                '$persist is using temporary storage for default storage since localStorage is unavailable.')
-            const dummy = new Map();
+            console.warn('Alpine: $persist is using temporary storage since localStorage is unavailable.')
+
+            let dummy = new Map();
+
             storage = {
                 getItem: dummy.get.bind(dummy),
                 setItem: dummy.set.bind(dummy)

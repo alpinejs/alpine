@@ -446,8 +446,6 @@ function getFirstNode(parent) {
 function getNextSibling(parent, reference) {
     if (reference._x_teleport) {
         return reference._x_teleport
-    } else if (reference.teleportBack) {
-        return reference.teleportBack
     }
 
     let next

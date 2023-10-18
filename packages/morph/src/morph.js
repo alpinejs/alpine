@@ -156,8 +156,8 @@ export function morph(from, toHtml, options) {
             }
 
             // Handle conditional markers (presumably added by backends like Livewire)...
-            let isIf = node => node && node.nodeType === 8 && node.textContent === ' __BLOCK__ '
-            let isEnd = node => node && node.nodeType === 8 && node.textContent === ' __ENDBLOCK__ '
+            let isIf = node => node && node.nodeType === 8 && node.textContent === '[if BLOCK]><![endif]'
+            let isEnd = node => node && node.nodeType === 8 && node.textContent === '[if ENDBLOCK]><![endif]'
 
             if (isIf(currentTo) && isIf(currentFrom)) {
                 let nestedIfCount = 0
@@ -283,7 +283,7 @@ export function morph(from, toHtml, options) {
             currentFrom = currentFromNext
         }
 
-        // Cleanup extra froms.
+        // Cleanup extra forms.
         let removals = []
 
         // We need to collect the "removals" first before actually
@@ -446,8 +446,6 @@ function getFirstNode(parent) {
 function getNextSibling(parent, reference) {
     if (reference._x_teleport) {
         return reference._x_teleport
-    } else if (reference.teleportBack) {
-        return reference.teleportBack
     }
 
     let next

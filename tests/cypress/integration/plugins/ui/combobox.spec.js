@@ -271,7 +271,7 @@ test('"name" prop',
     },
 );
 
-test('Preserves currenty active keyboard selection while options change from searching even if there\'s a selected option in the filtered results',
+test('Preserves currently active keyboard selection while options change from searching even if there\'s a selected option in the filtered results',
     [html`
         <div
             x-data="{

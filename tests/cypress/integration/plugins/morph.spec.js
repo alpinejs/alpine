@@ -388,19 +388,19 @@ test('can morph table tr',
 test('can morph with conditional markers',
     [html`
         <main>
-            <!-- __BLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
             <div>foo<input></div>
-            <!-- __ENDBLOCK__ -->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>bar<input></div>
         </main>
     `],
     ({ get }, reload, window, document) => {
         let toHtml = html`
         <main>
-            <!-- __BLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
             <div>foo<input></div>
             <div>baz<input></div>
-            <!-- __ENDBLOCK__ -->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>bar<input></div>
         </main>
         `
@@ -419,23 +419,23 @@ test('can morph with conditional markers',
 test('can morph with flat-nested conditional markers',
     [html`
         <main>
-            <!-- __BLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
             <div>foo<input></div>
-            <!-- __BLOCK__ -->
-            <!-- __ENDBLOCK__ -->
-            <!-- __ENDBLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
+            <!--[if ENDBLOCK]><![endif]-->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>bar<input></div>
         </main>
     `],
     ({ get }, reload, window, document) => {
         let toHtml = html`
         <main>
-            <!-- __BLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
             <div>foo<input></div>
-            <!-- __BLOCK__ -->
-            <!-- __ENDBLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>baz<input></div>
-            <!-- __ENDBLOCK__ -->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>bar<input></div>
         </main>
         `

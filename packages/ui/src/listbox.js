@@ -13,16 +13,16 @@ export default function (Alpine) {
         let data = Alpine.$data(el)
 
         return {
-            // @todo: remove "selected" and "active" when 1.0 is tagged...
+            // @deprecated:
             get selected() {
                 return data.__value
             },
+            // @deprecated:
             get active() {
                 let active = data.__context.getActiveItem()
 
                 return active && active.value
             },
-
             get value() {
                 return data.__value
             },

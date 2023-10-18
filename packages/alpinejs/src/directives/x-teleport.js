@@ -61,6 +61,8 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
             placeInDom(el._x_teleport, target, modifiers)
         })
     }
+
+    cleanup(() => clone.remove())
 })
 
 let teleportContainerDuringClone = document.createElement('div')

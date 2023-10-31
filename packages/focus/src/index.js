@@ -139,10 +139,21 @@ export default function (Alpine) {
 
                     // Activate the trap after two ticks. (Needed to play nice with transitions...)
                     setTimeout(() => {
+                        trap.activate()
+
+                        // Set cursor to the end of the text in the input
+                        // Internally, the "focus-trap" package calls ".select()" when
+                        // focusing an input element as the first element.
+                        // This is odd behavior, this bit of code deselects the contents
+                        // and puts the cursor at the end...
                         setTimeout(() => {
-                            trap.activate()
+                            let node = document.activeElement
+                            if (node && node.tagName && node.tagName.toLowerCase() === 'input') {
+                                node.focus()
+                                node.setSelectionRange(node.value.length, node.value.length)
+                            }
                         })
-                    })
+                    }, 15)
                 }
 
                 // Stop trapping.

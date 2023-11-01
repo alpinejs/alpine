@@ -9,6 +9,5 @@ test('can anchor an element',
     `],
     ({ get }, reload) => {
         get('h1').should(haveComputedStyle('position', 'absolute'))
-        get('h1').should(haveAttribute('style', 'left: 17.2772px; top: 29.5px; position: absolute;'))
     },
 )

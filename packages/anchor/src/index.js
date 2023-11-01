@@ -19,6 +19,8 @@ export default function (Alpine) {
 
         let offsetValue = 0
 
+        let unstyled = modifiers.includes('unstyled')
+
         if (modifiers.includes('offset')) {
             let idx = modifiers.findIndex(i => i === 'offset')
 
@@ -34,6 +36,8 @@ export default function (Alpine) {
             }).then(({ x, y }) => {
                 // Only trigger Alpine reactivity when the value actually changes...
                 if (JSON.stringify({ x, y }) !== previousValue) {
+                    unstyled || setStyles(el, x, y)
+
                     el._x_anchor.x = x
                     el._x_anchor.y = y
                 }
@@ -43,5 +47,11 @@ export default function (Alpine) {
         })
 
         cleanup(() => release())
+    })
+}
+
+function setStyles(el, x, y) {
+    Object.assign(el.style, {
+        left: x+'px', top: y+'px', position: 'absolute',
     })
 }

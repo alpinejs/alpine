@@ -8,6 +8,7 @@
         "chalk": "^4.1.1",
         "cypress": "^7.0.0",
         "cypress-plugin-tab": "^1.0.5",
+        "@floating-ui/dom": "^1.5.3",
         "dot-json": "^1.2.2",
         "esbuild": "~0.16.17",
         "jest": "^26.6.3"

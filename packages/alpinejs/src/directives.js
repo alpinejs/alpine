@@ -203,6 +203,7 @@ let directiveOrder = [
     'ref',
     'data',
     'id',
+    'anchor',
     'bind',
     'init',
     'for',

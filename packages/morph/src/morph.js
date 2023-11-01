@@ -120,6 +120,11 @@ export function morph(from, toHtml, options) {
     }
 
     function patchChildren(from, to) {
+        // If we hit a <template x-teleport="body">,
+        // let's use the teleported nodes for this patch...
+        if (from._x_teleport) from = from._x_teleport
+        if (to._x_teleport) to = to._x_teleport
+
         let fromKeys = keyToMap(from.children)
         let fromKeyHoldovers = {}
 
@@ -444,10 +449,6 @@ function getFirstNode(parent) {
 }
 
 function getNextSibling(parent, reference) {
-    if (reference._x_teleport) {
-        return reference._x_teleport
-    }
-
     let next
 
     if (parent instanceof Block) {

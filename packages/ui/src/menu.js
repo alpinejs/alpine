@@ -30,8 +30,6 @@ function handleRoot(el, Alpine) {
                 __activeEl: null,
                 __isOpen: false,
                 __open(activationStrategy) {
-                    if (! activationStrategy) activationStrategy = dom.first
-
                     this.__isOpen = true
 
                     // Safari needs more of a "tick" for focusing after x-show for some reason.
@@ -42,7 +40,7 @@ function handleRoot(el, Alpine) {
                         this.$refs.__items.focus({ preventScroll: true })
 
                         // Activate the first item every time the menu is open...
-                        activationStrategy(Alpine, this.$refs.__items, el => el.__activate())
+                        activationStrategy && activationStrategy(Alpine, this.$refs.__items, el => el.__activate())
                     })
                 },
                 __close(focusAfter = true) {

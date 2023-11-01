@@ -29,14 +29,21 @@ function handleRoot(el, Alpine) {
                 __itemEls: [],
                 __activeEl: null,
                 __isOpen: false,
-                __open() {
+                __open(activationStrategy) {
+                    if (! activationStrategy) activationStrategy = dom.first
+
                     this.__isOpen = true
 
                     // Safari needs more of a "tick" for focusing after x-show for some reason.
                     // Probably because Alpine adds an extra tick when x-showing for @click.outside
                     let nextTick = callback => requestAnimationFrame(() => requestAnimationFrame(callback))
 
-                    nextTick(() => this.$refs.__items.focus({ preventScroll: true }))
+                    nextTick(() => {
+                        this.$refs.__items.focus({ preventScroll: true })
+
+                        // Activate the first item every time the menu is open...
+                        activationStrategy(Alpine, this.$refs.__items, el => el.__activate())
+                    })
                 },
                 __close(focusAfter = true) {
                     this.__isOpen = false
@@ -67,7 +74,7 @@ function handleButton(el, Alpine) {
         'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && ! this.$el.hasAttribute('type')) this.$el.type = 'button' },
         '@click'() { this.$data.__open() },
         '@keydown.down.stop.prevent'() { this.$data.__open() },
-        '@keydown.up.stop.prevent'() { this.$data.__open(dom.Alpine, last) },
+        '@keydown.up.stop.prevent'() { this.$data.__open(dom.last) },
         '@keydown.space.stop.prevent'() { this.$data.__open() },
         '@keydown.enter.stop.prevent'() { this.$data.__open() },
     })

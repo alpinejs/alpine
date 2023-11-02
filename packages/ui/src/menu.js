@@ -14,7 +14,7 @@ export default function (Alpine) {
                 return $data.__activeEl == $data.__itemEl
             },
             get isDisabled() {
-                return el.__isDisabled.value
+                return $data.__itemEl.__isDisabled.value
             },
         }
     })
@@ -77,6 +77,12 @@ function handleButton(el, Alpine) {
         '@keydown.enter.stop.prevent'() { this.$data.__open() },
     })
 }
+
+// When patching children:
+// The child isn't initialized until it is reached. This is normally fine
+// except when something like this happens where an "id" is added during the initializing phase
+// because the "to" element hasn't initialized yet, it doesn't have the ID, so there is a "key" mismatch
+
 
 function handleItems(el, Alpine) {
     Alpine.bind(el, {
@@ -158,10 +164,10 @@ function handleItem(el, Alpine) {
             },
             'x-id'() { return ['alpine-menu-item'] },
             ':id'() { return this.$id('alpine-menu-item') },
-            ':tabindex'() { return this.$el.__isDisabled.value ? false : '-1' },
+            ':tabindex'() { return this.__itemEl.__isDisabled.value ? false : '-1' },
             'role': 'menuitem',
-            '@mousemove'() { this.$el.__isDisabled.value || this.$menuItem.isActive || this.$el.__activate() },
-            '@mouseleave'() { this.$el.__isDisabled.value || ! this.$menuItem.isActive || this.$el.__deactivate() },
+            '@mousemove'() { this.__itemEl.__isDisabled.value || this.$menuItem.isActive || this.__itemEl.__activate() },
+            '@mouseleave'() { this.__itemEl.__isDisabled.value || ! this.$menuItem.isActive || this.__itemEl.__deactivate() },
         }
     })
 }

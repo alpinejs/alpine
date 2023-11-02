@@ -132,6 +132,10 @@ export function morph(from, toHtml, options) {
         let currentFrom = getFirstNode(from)
 
         while (currentTo) {
+            // If the "from" element has a dynamically bound "id" (x-bind:id="..."),
+            // Let's transfer it to the "to" element so that there isn't a key mismatch...
+            seedingMatchingId(currentTo, currentFrom)
+
             let toKey = getKey(currentTo)
             let fromKey = getKey(currentFrom)
 
@@ -485,4 +489,13 @@ function monkeyPatchDomSetAttributeToAllowAtSymbols() {
 
         this.setAttributeNode(attr)
     }
+}
+
+function seedingMatchingId(to, from) {
+    let fromId = from && from._x_bindings && from._x_bindings.id
+
+    if (! fromId) return
+
+    to.setAttribute('id', fromId)
+    to.id = fromId
 }

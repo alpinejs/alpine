@@ -19,7 +19,7 @@ export default function (Alpine) {
 
         let offsetValue = 0
 
-        let unstyled = modifiers.includes('unstyled')
+        let unstyled = modifiers.includes('no-style')
 
         if (modifiers.includes('offset')) {
             let idx = modifiers.findIndex(i => i === 'offset')

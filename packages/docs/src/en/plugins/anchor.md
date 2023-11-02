@@ -146,7 +146,7 @@ You can add an offset to your anchored element using the `.offset.[px value]` mo
 <a name="manual-styling"></a>
 ## Manual styling
 
-By default, `x-alpine` applies the positioning styles to your element under the hood. If you'd prefer full control over styling, you can pass the `.unstyled` modifer and use the `$anchor` magic to access the values inside another Alpine expression.
+By default, `x-alpine` applies the positioning styles to your element under the hood. If you'd prefer full control over styling, you can pass the `.no-style` modifer and use the `$anchor` magic to access the values inside another Alpine expression.
 
 Below is an example of bypassing `x-anchor`'s internal styling and instead applying the styles yourself using `x-bind:style`:
 
@@ -156,7 +156,7 @@ Below is an example of bypassing `x-anchor`'s internal styling and instead apply
 
     <div
         x-show="open"
-        x-anchor.unstyled="$refs.button"
+        x-anchor.no-style="$refs.button"
         x-bind:style="{ position: 'absolute', top: $anchor.y+'px', left: $anchor.x+'px' }"
     >
         Dropdown content
@@ -172,10 +172,40 @@ Below is an example of bypassing `x-anchor`'s internal styling and instead apply
 
     <div
         x-show="open"
-        x-anchor.unstyled="$refs.button"
+        x-anchor.no-style="$refs.button"
         x-bind:style="{ position: 'absolute', top: $anchor.y+'px', left: $anchor.x+'px' }"
         class="bg-white rounded p-4 border shadow"
     >
+        Dropdown content
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
+<a name="from-id"></a>
+## Anchor to an ID
+
+The examples thus far have all been anchoring to other elements using Alpine refs.
+
+Because `x-anchor` accepts a reference to any DOM element, you can use utilities like `document.getElementById()` to anchor to an element by its `id` attribute:
+
+```alpine
+<div x-data="{ open: false }">
+    <button id="trigger" @click="open = ! open">Toggle</button>
+
+    <div x-show="open" x-anchor="document.getElementById('#trigger')">
+        Dropdown content
+    </div>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div x-data="{ open: false }" class="demo overflow-hidden">
+    <div class="flex justify-center">
+        <button class="trigger" @click="open = ! open">Toggle</button>
+    </div>
+
+
+    <div x-show="open" x-anchor="document.querySelector('.trigger')">
         Dropdown content
     </div>
 </div>

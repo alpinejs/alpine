@@ -146,7 +146,7 @@ You can add an offset to your anchored element using the `.offset.[px value]` mo
 <a name="manual-styling"></a>
 ## Manual styling
 
-By default, `x-alpine` applies the positioning styles to your element under the hood. If you'd prefer full control over styling, you can pass the `.no-style` modifer and use the `$anchor` magic to access the values inside another Alpine expression.
+By default, `x-anchor` applies the positioning styles to your element under the hood. If you'd prefer full control over styling, you can pass the `.no-style` modifer and use the `$anchor` magic to access the values inside another Alpine expression.
 
 Below is an example of bypassing `x-anchor`'s internal styling and instead applying the styles yourself using `x-bind:style`:
 

@@ -76,7 +76,7 @@ For example, here's a simple dropdown anchored to the button that toggles it:
         <button x-ref="button" @click="open = ! open">Toggle</button>
     </div>
 
-    <div x-show="open" x-anchor="$refs.button" class="bg-white rounded p-4 border shadow">
+    <div x-show="open" x-anchor="$refs.button" class="bg-white rounded p-4 border shadow z-10">
         Dropdown content
     </div>
 </div>
@@ -110,7 +110,7 @@ Here is an example of using `.bottom-start` to position a dropdown below and to 
         <button x-ref="button" @click="open = ! open">Toggle</button>
     </div>
 
-    <div x-show="open" x-anchor.bottom-start="$refs.button" class="bg-white rounded p-4 border shadow">
+    <div x-show="open" x-anchor.bottom-start="$refs.button" class="bg-white rounded p-4 border shadow z-10">
         Dropdown content
     </div>
 </div>
@@ -137,7 +137,7 @@ You can add an offset to your anchored element using the `.offset.[px value]` mo
         <button x-ref="button" @click="open = ! open">Toggle</button>
     </div>
 
-    <div x-show="open" x-anchor.offset.10="$refs.button" class="bg-white rounded p-4 border shadow">
+    <div x-show="open" x-anchor.offset.10="$refs.button" class="bg-white rounded p-4 border shadow z-10">
         Dropdown content
     </div>
 </div>
@@ -174,7 +174,7 @@ Below is an example of bypassing `x-anchor`'s internal styling and instead apply
         x-show="open"
         x-anchor.no-style="$refs.button"
         x-bind:style="{ position: 'absolute', top: $anchor.y+'px', left: $anchor.x+'px' }"
-        class="bg-white rounded p-4 border shadow"
+        class="bg-white rounded p-4 border shadow z-10"
     >
         Dropdown content
     </div>

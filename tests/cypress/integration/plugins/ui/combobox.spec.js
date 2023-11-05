@@ -1062,13 +1062,13 @@ test('has accessibility attributes',
             .should(haveAttribute('role', 'option'))
             .should(haveAttribute('id', 'alpine-combobox-option-1'))
             .should(haveAttribute('tabindex', '-1'))
-            .should(haveAttribute('aria-selected', 'true'))
+            .should(haveAttribute('aria-selected', 'false'))
 
         get('[option="2"]')
             .should(haveAttribute('role', 'option'))
             .should(haveAttribute('id', 'alpine-combobox-option-2'))
             .should(haveAttribute('tabindex', '-1'))
-            .should(notHaveAttribute('aria-selected'))
+            .should(haveAttribute('aria-selected', 'false'))
 
         get('input')
             .should(haveAttribute('role', 'combobox'))
@@ -1080,9 +1080,13 @@ test('has accessibility attributes',
             .should(haveAttribute('aria-activedescendant', 'alpine-combobox-option-1'))
             .type('{downarrow}')
             .should(haveAttribute('aria-activedescendant', 'alpine-combobox-option-2'))
+            .type('{enter}')
 
         get('[option="2"]')
             .should(haveAttribute('aria-selected', 'true'))
+
+        get('[option="1"]')
+            .should(haveAttribute('aria-selected', 'false'))
     },
 )
 
@@ -1420,6 +1424,7 @@ test('active element logic when opening a combobox',
                                     :option="person.id"
                                     :value="person"
                                     :disabled="person.disabled"
+                                    :class="$comboboxOption.isActive ? 'active' : ''"
                                     x-text="person.name"
                                 >
                                 </li>
@@ -1436,19 +1441,22 @@ test('active element logic when opening a combobox',
         get('button').click()
         // First option is selected on opening if no preselection
         get('ul').should(beVisible())
-        get('[option="1"]').should(haveAttribute('aria-selected', 'true'))
+        get('[option="1"]').should(haveAttribute('aria-selected', 'false'))
+        get('[option="1"]').should(haveClasses(['active']))
         // First match is selected while typing
-        get('[option="4"]').should(notHaveAttribute('aria-selected'))
+        get('[option="4"]').should(haveAttribute('aria-selected', 'false'))
+        get('[option="4"]').should(notHaveClasses(['active']))
         get('input').type('T')
         get('input').trigger('change')
-        get('[option="4"]').should(haveAttribute('aria-selected', 'true'))
+        get('[option="4"]').should(haveAttribute('aria-selected', 'false'))
+        get('[option="4"]').should(haveClasses(['active']))
         // Reset state and select option 3
         get('button').click()
         get('button').click()
         get('[option="3"]').click()
         // Previous selection is selected
         get('button').click()
-        get('[option="4"]').should(notHaveAttribute('aria-selected'))
+        get('[option="4"]').should(haveAttribute('aria-selected', 'false'))
         get('[option="3"]').should(haveAttribute('aria-selected', 'true'))
     }
 )
@@ -1487,7 +1495,7 @@ test.only('can remove an option without other options getting removed',
             }
         }"
     >
-        <div x-combobox x-model="selected" multiple>
+        <div x-combobox x-model="selected" by="id" multiple>
             <div x-show="selected.length">
                 <template x-for="selectedFramework in selected" :key="selectedFramework.id">
                     <button x-on:click.prevent="remove(selectedFramework)" :remove-option="selectedFramework.id">
@@ -1544,7 +1552,7 @@ test.only('can remove an option without other options getting removed',
         get('[option="1"]').should(haveAttribute('aria-selected', 'true'))
         get('[option="2"]').should(haveAttribute('aria-selected', 'true'))
         get('[option="3"]').should(haveAttribute('aria-selected', 'false'))
-        get('button').click()
+        get('input').type('a').trigger('input')
         get('[check="1"]').should(beVisible())
         get('[check="2"]').should(beVisible())
         get('[check="3"]').should(notBeVisible())

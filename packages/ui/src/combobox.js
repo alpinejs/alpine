@@ -441,7 +441,7 @@ function handleOption(el, Alpine) {
         'x-effect'() {
             this.$comboboxOption.isSelected
                 ? el.setAttribute('aria-selected', true)
-                : el.removeAttribute('aria-selected')
+                : el.setAttribute('aria-selected', false)
         },
 
         ':aria-disabled'() { return this.$comboboxOption.isDisabled },

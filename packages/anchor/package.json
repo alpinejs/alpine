@@ -1,17 +1,17 @@
 {
-    "name": "@alpinejs/ui",
-    "version": "3.13.2-beta.0",
-    "description": "Headless UI components for Alpine",
-    "homepage": "https://alpinejs.dev/components#headless",
+    "name": "@alpinejs/anchor",
+    "version": "3.13.2",
+    "description": "Anchor an element's position relative to another",
+    "homepage": "https://alpinejs.dev/plugins/anchor",
     "repository": {
         "type": "git",
         "url": "https://github.com/alpinejs/alpine.git",
-        "directory": "packages/ui"
+        "directory": "packages/anchor"
     },
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
-    "devDependencies": {}
+    "dependencies": {}
 }

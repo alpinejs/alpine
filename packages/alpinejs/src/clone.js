@@ -12,18 +12,15 @@ export function onlyDuringClone(callback) {
     return (...args) => isCloning && callback(...args)
 }
 
+let interceptors = []
+
+export function interceptClone(callback) {
+    interceptors.push(callback)
+}
+
 export function cloneNode(from, to)
 {
-    // Transfer over existing runtime Alpine state from
-    // the existing dom tree over to the new one...
-    if (from._x_dataStack) {
-        to._x_dataStack = from._x_dataStack
-
-        // Set a flag to signify the new tree is using
-        // pre-seeded state (used so x-data knows when
-        // and when not to initialize state)...
-        to.setAttribute('data-has-alpine-state', true)
-    }
+    interceptors.forEach(i => i(from, to))
 
     isCloning = true
 
@@ -41,7 +38,7 @@ export function cloneNode(from, to)
     isCloning = false
 }
 
-let isCloningLegacy = false
+export let isCloningLegacy = false
 
 /** deprecated */
 export function clone(oldEl, newEl) {
@@ -90,15 +87,3 @@ function dontRegisterReactiveSideEffects(callback) {
 
     overrideEffect(cache)
 }
-
-// If we are cloning a tree, we only want to evaluate x-data if another
-// x-data context DOESN'T exist on the component.
-// The reason a data context WOULD exist is that we graft root x-data state over
-// from the live tree before hydrating the clone tree.
-export function shouldSkipRegisteringDataDuringClone(el) {
-    if (! isCloning) return false
-    if (isCloningLegacy) return true
-
-    return el.hasAttribute('data-has-alpine-state')
-}
-

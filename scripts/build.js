@@ -11,6 +11,7 @@ let zlib = require('zlib');
     'intersect',
     'persist',
     'collapse',
+    'anchor',
     'morph',
     'focus',
     'mask',

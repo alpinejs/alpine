@@ -439,7 +439,7 @@ function handleOption(el, Alpine) {
 
         // Only the active element should have aria-selected="true"...
         'x-effect'() {
-            this.$comboboxOption.isActive
+            this.$comboboxOption.isSelected
                 ? el.setAttribute('aria-selected', true)
                 : el.removeAttribute('aria-selected')
         },

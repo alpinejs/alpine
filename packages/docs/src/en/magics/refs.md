@@ -25,3 +25,19 @@ title: refs
 <!-- END_VERBATIM -->
 
 Now, when the `<button>` is pressed, the `<span>` will be removed.
+
+<a name="limitations"></a>
+### Limitations
+
+In V2 it was possible to bind `$refs` to elements dynamically, like seen below:
+
+```alpine
+<template x-for="item in items" :key="item.id" >
+    <div :x-ref="item.name">
+    some content ...
+    </div>
+</template>
+```
+
+However, in Alpine V3 you can only access `$refs` for elements created statically. For the example above, the `$refs` would not contain `item.name`.
+

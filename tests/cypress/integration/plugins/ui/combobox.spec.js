@@ -1452,3 +1452,101 @@ test('active element logic when opening a combobox',
         get('[option="3"]').should(haveAttribute('aria-selected', 'true'))
     }
 )
+
+test.only('can remove an option without other options getting removed',
+    [html`<div
+        x-data="{
+            query: '',
+            selected: [],
+            frameworks: [
+                {
+                    id: 1,
+                    name: 'Laravel',
+                    disabled: false,
+                },
+                {
+                    id: 2,
+                    name: 'Ruby on Rails',
+                    disabled: false,
+                },
+                {
+                    id: 3,
+                    name: 'Django',
+                    disabled: false,
+                },
+            ],
+            get filteredFrameworks() {
+                return this.query === ''
+                    ? this.frameworks
+                    : this.frameworks.filter((framework) => {
+                        return framework.name.toLowerCase().includes(this.query.toLowerCase())
+                    })
+            },
+            remove(framework) {
+                this.selected = this.selected.filter((i) => i !== framework)
+            }
+        }"
+    >
+        <div x-combobox x-model="selected" multiple>
+            <div x-show="selected.length">
+                <template x-for="selectedFramework in selected" :key="selectedFramework.id">
+                    <button x-on:click.prevent="remove(selectedFramework)" :remove-option="selectedFramework.id">
+                        <span x-text="selectedFramework.name"></span>
+                    </button>
+                </template>
+            </div>
+
+            <div>
+                <div>
+                    <input
+                        x-combobox:input
+                        @change="query = $event.target.value;"
+                        placeholder="Search..."
+                    />
+                    <button x-combobox:button>
+                        Show options
+                    </button>
+                </div>
+
+                <div x-combobox:options x-cloak x-transition.out.opacity>
+                    <ul>
+                        <template
+                            x-for="framework in filteredFrameworks"
+                            :key="framework.id"
+                            hidden
+                        >
+                            <li
+                                x-combobox:option
+                                :option="framework.id"
+                                :value="framework"
+                                :disabled="framework.disabled"
+                            >
+                                <span x-text="framework.name"></span>
+
+                                <span x-show="$comboboxOption.isSelected" :check="framework.id">&check;</span>
+                            </li>
+                        </template>
+                    </ul>
+
+                    <p x-show="filteredFrameworks.length == 0">No frameworks match your query.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    `],
+    ({ get }) => {
+        get('input').type('a').trigger('input')
+        cy.wait(100)
+        get('[option="1"]').click()
+        get('[option="2"]').click()
+        get('[option="3"]').click()
+        get('[remove-option="3"]').click()
+        get('[option="1"]').should(haveAttribute('aria-selected', 'true'))
+        get('[option="2"]').should(haveAttribute('aria-selected', 'true'))
+        get('[option="3"]').should(haveAttribute('aria-selected', 'false'))
+        get('button').click()
+        get('[check="1"]').should(beVisible())
+        get('[check="2"]').should(beVisible())
+        get('[check="3"]').should(notBeVisible())
+    },
+);

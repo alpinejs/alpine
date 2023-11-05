@@ -171,7 +171,7 @@ test('$money with different thousands separator',
     }
 );
 
-test('$money works with permenant inserted at beginning',
+test('$money works with permanent inserted at beginning',
     [html`<input x-data x-mask:dynamic="$money">`],
     ({ get }) => {
         get('input').type('40.00').should(haveValue('40.00'))

@@ -120,6 +120,11 @@ export function morph(from, toHtml, options) {
     }
 
     function patchChildren(from, to) {
+        // If we hit a <template x-teleport="body">,
+        // let's use the teleported nodes for this patch...
+        if (from._x_teleport) from = from._x_teleport
+        if (to._x_teleport) to = to._x_teleport
+
         let fromKeys = keyToMap(from.children)
         let fromKeyHoldovers = {}
 
@@ -127,6 +132,10 @@ export function morph(from, toHtml, options) {
         let currentFrom = getFirstNode(from)
 
         while (currentTo) {
+            // If the "from" element has a dynamically bound "id" (x-bind:id="..."),
+            // Let's transfer it to the "to" element so that there isn't a key mismatch...
+            seedingMatchingId(currentTo, currentFrom)
+
             let toKey = getKey(currentTo)
             let fromKey = getKey(currentFrom)
 
@@ -156,8 +165,8 @@ export function morph(from, toHtml, options) {
             }
 
             // Handle conditional markers (presumably added by backends like Livewire)...
-            let isIf = node => node && node.nodeType === 8 && node.textContent === ' __BLOCK__ '
-            let isEnd = node => node && node.nodeType === 8 && node.textContent === ' __ENDBLOCK__ '
+            let isIf = node => node && node.nodeType === 8 && node.textContent === '[if BLOCK]><![endif]'
+            let isEnd = node => node && node.nodeType === 8 && node.textContent === '[if ENDBLOCK]><![endif]'
 
             if (isIf(currentTo) && isIf(currentFrom)) {
                 let nestedIfCount = 0
@@ -283,7 +292,7 @@ export function morph(from, toHtml, options) {
             currentFrom = currentFromNext
         }
 
-        // Cleanup extra froms.
+        // Cleanup extra forms.
         let removals = []
 
         // We need to collect the "removals" first before actually
@@ -444,12 +453,6 @@ function getFirstNode(parent) {
 }
 
 function getNextSibling(parent, reference) {
-    if (reference._x_teleport) {
-        return reference._x_teleport
-    } else if (reference.teleportBack) {
-        return reference.teleportBack
-    }
-
     let next
 
     if (parent instanceof Block) {
@@ -486,4 +489,13 @@ function monkeyPatchDomSetAttributeToAllowAtSymbols() {
 
         this.setAttributeNode(attr)
     }
+}
+
+function seedingMatchingId(to, from) {
+    let fromId = from && from._x_bindings && from._x_bindings.id
+
+    if (! fromId) return
+
+    to.setAttribute('id', fromId)
+    to.id = fromId
 }

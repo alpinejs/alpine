@@ -5,7 +5,7 @@ import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMut
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope'
 import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from './evaluator'
 import { transition } from './directives/x-transition'
-import { clone, cloneNode, skipDuringClone, onlyDuringClone } from './clone'
+import { clone, cloneNode, skipDuringClone, onlyDuringClone, interceptClone } from './clone'
 import { interceptor } from './interceptor'
 import { getBinding as bound, extractProp } from './utils/bind'
 import { debounce } from './utils/debounce'
@@ -39,6 +39,7 @@ let Alpine = {
     onlyDuringClone,
     addRootSelector,
     addInitSelector,
+    interceptClone,
     addScopeToNode,
     deferMutations,
     mapAttributes,

@@ -64,14 +64,14 @@ let mergeProxyTrap = {
         )
     },
 
-    set({ objects }, name, value) {
-        return Reflect.set(
-            objects.find((obj) =>
+    set({ objects }, name, value, thisProxy) {
+        const target = objects.find((obj) =>
                 Object.prototype.hasOwnProperty.call(obj, name)
-            ) || objects[objects.length-1],
-            name,
-            value
-        )
+            ) || objects[objects.length - 1];
+        const descriptor = Object.getOwnPropertyDescriptor(target, name);
+        if (descriptor?.set && descriptor?.get)
+            return Reflect.set(target, name, value, thisProxy);
+        return Reflect.set(target, name, value);
     },
 }
 

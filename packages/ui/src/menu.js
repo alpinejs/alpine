@@ -14,7 +14,7 @@ export default function (Alpine) {
                 return $data.__activeEl == $data.__itemEl
             },
             get isDisabled() {
-                return el.__isDisabled.value
+                return $data.__itemEl.__isDisabled.value
             },
         }
     })
@@ -29,14 +29,19 @@ function handleRoot(el, Alpine) {
                 __itemEls: [],
                 __activeEl: null,
                 __isOpen: false,
-                __open() {
+                __open(activationStrategy) {
                     this.__isOpen = true
 
                     // Safari needs more of a "tick" for focusing after x-show for some reason.
                     // Probably because Alpine adds an extra tick when x-showing for @click.outside
                     let nextTick = callback => requestAnimationFrame(() => requestAnimationFrame(callback))
 
-                    nextTick(() => this.$refs.__items.focus({ preventScroll: true }))
+                    nextTick(() => {
+                        this.$refs.__items.focus({ preventScroll: true })
+
+                        // Activate the first item every time the menu is open...
+                        activationStrategy && activationStrategy(Alpine, this.$refs.__items, el => el.__activate())
+                    })
                 },
                 __close(focusAfter = true) {
                     this.__isOpen = false
@@ -67,11 +72,17 @@ function handleButton(el, Alpine) {
         'x-init'() { if (this.$el.tagName.toLowerCase() === 'button' && ! this.$el.hasAttribute('type')) this.$el.type = 'button' },
         '@click'() { this.$data.__open() },
         '@keydown.down.stop.prevent'() { this.$data.__open() },
-        '@keydown.up.stop.prevent'() { this.$data.__open(dom.Alpine, last) },
+        '@keydown.up.stop.prevent'() { this.$data.__open(dom.last) },
         '@keydown.space.stop.prevent'() { this.$data.__open() },
         '@keydown.enter.stop.prevent'() { this.$data.__open() },
     })
 }
+
+// When patching children:
+// The child isn't initialized until it is reached. This is normally fine
+// except when something like this happens where an "id" is added during the initializing phase
+// because the "to" element hasn't initialized yet, it doesn't have the ID, so there is a "key" mismatch
+
 
 function handleItems(el, Alpine) {
     Alpine.bind(el, {
@@ -153,10 +164,10 @@ function handleItem(el, Alpine) {
             },
             'x-id'() { return ['alpine-menu-item'] },
             ':id'() { return this.$id('alpine-menu-item') },
-            ':tabindex'() { return this.$el.__isDisabled.value ? false : '-1' },
+            ':tabindex'() { return this.__itemEl.__isDisabled.value ? false : '-1' },
             'role': 'menuitem',
-            '@mousemove'() { this.$el.__isDisabled.value || this.$menuItem.isActive || this.$el.__activate() },
-            '@mouseleave'() { this.$el.__isDisabled.value || ! this.$menuItem.isActive || this.$el.__deactivate() },
+            '@mousemove'() { this.__itemEl.__isDisabled.value || this.$menuItem.isActive || this.__itemEl.__activate() },
+            '@mouseleave'() { this.__itemEl.__isDisabled.value || ! this.$menuItem.isActive || this.__itemEl.__deactivate() },
         }
     })
 }

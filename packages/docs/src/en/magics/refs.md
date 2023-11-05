@@ -39,5 +39,4 @@ In V2 it was possible to bind `$refs` to elements dynamically, like seen below:
 </template>
 ```
 
-However, in Alpine V3 you can only access `$refs` for elements created statically. For the example above, the `$refs` would not contain `item.name`.
-
+However, in V3, `$refs` can only be accessed for elements that are created statically. So for the example above: if you were expecting the value of `item.name` inside of `$refs` to be something like *Batteries*, you should be aware that `$refs` will actually contain the literal string `'item.name'` and not *Batteries*.

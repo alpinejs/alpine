@@ -1461,7 +1461,7 @@ test('active element logic when opening a combobox',
     }
 )
 
-test.only('can remove an option without other options getting removed',
+test('can remove an option without other options getting removed',
     [html`<div
         x-data="{
             query: '',

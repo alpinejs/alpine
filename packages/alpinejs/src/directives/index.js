@@ -2,6 +2,7 @@ import { directive } from '../directives'
 import { warn } from '../utils/warn'
 
 import './x-transition'
+import './x-transition-group'
 import './x-modelable'
 import './x-teleport'
 import './x-ignore'

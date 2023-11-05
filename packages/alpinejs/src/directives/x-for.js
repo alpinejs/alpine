@@ -141,10 +141,18 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
                 lookup[key]._x_effects.forEach(dequeueJob)
             }
 
-            lookup[key].remove()
+            const removeElement = () => {
+                lookup[key].remove()
 
-            lookup[key] = null
-            delete lookup[key]
+                lookup[key] = null
+                delete lookup[key]
+            }
+
+            if (templateEl._x_transitionGroup) {
+                templateEl._x_removeElementWithTransition(key, removeElement)
+            } else {
+                removeElement();
+            }
         }
 
         // Here we'll move elements around, skipping
@@ -195,10 +203,18 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
                 })
             }
 
-            mutateDom(() => {
+            const addElement = () => {
                 lastEl.after(clone)
 
                 initTree(clone)
+            }
+
+            mutateDom(() => {
+                if (templateEl._x_transitionGroup) {
+                    templateEl._x_addElementWithTransition(clone, addElement)
+                } else {
+                    addElement();
+                }
             })
 
             if (typeof key === 'object') {

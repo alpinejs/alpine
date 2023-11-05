@@ -205,6 +205,7 @@ let directiveOrder = [
     'id',
     'bind',
     'init',
+    'transition-group',
     'for',
     'model',
     'modelable',

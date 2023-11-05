@@ -50,6 +50,10 @@ directive('show', (el, { modifiers, expression }, { effect }) => {
         }
     )
 
+    el._x_toggleShow = (value) => {
+        toggle(value)
+    }
+
     let oldValue
     let firstTime = true
 

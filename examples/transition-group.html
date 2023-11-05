@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Transition Group</title>
+    <script src="../packages/alpinejs/dist/cdn.js" defer></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .container {
+            position: relative;
+            margin-top: 15px;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+
+            padding: 5px 15px;
+            margin-bottom: 10px;
+
+            width: 100%;
+            height: 30px;
+
+            background-color: #f3f3f3;
+            border: 1px solid #666;
+            box-sizing: border-box;
+        }
+
+        /* 1. declare transition */
+        .fade-move,
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: all 1s cubic-bezier(0.55, 0, 0.1, 1);
+        }
+
+        /* 2. declare enter from and leave to state */
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+            transform: scaleY(0.01) translate(30px, 0);
+        }
+
+        /* 3. ensure leaving items are taken out of layout flow so that moving
+              animations can be calculated correctly. */
+        .fade-leave-active {
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+<div x-data="itemList">
+    <button @click="insert">Insert at random index</button>
+    <button @click="reset">Reset</button>
+    <div class="container">
+        <template x-for="item in items" :key="item" x-transition-group>
+            <div class="item">
+                <span x-text="item"></span>
+                <button @click="remove(item)">x</button>
+            </div>
+        </template>
+    </div>
+</div>
+<script>
+    const getInitialItems = () => [1, 2, 3, 4, 5];
+    document.addEventListener('alpine:init', () => Alpine.data('itemList', () => ({
+        items: [],
+        id: 0,
+        init() {
+            this.reset();
+        },
+        insert() {
+            const i = Math.round(Math.random() * this.items.length);
+            this.items.splice(i, 0, this.id++);
+        },
+        reset() {
+            this.items = getInitialItems();
+            this.id = this.items.length + 1;
+        },
+        remove(item) {
+            const i = this.items.indexOf(item);
+            if (i > -1) {
+                this.items.splice(i, 1);
+            }
+        }
+    })))
+</script>
+</body>
+</html>

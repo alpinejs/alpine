@@ -32,7 +32,7 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 
 ### Via NPM
 
-You can install Collapse from NPM for use inside your bundle like so:
+You can install Anchor from NPM for use inside your bundle like so:
 
 ```shell
 npm install @alpinejs/anchor

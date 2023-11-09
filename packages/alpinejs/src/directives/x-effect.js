@@ -1,3 +1,4 @@
+import { skipDuringClone } from '../clone'
 import { directive } from '../directives'
 import { evaluate, evaluateLater } from '../evaluator'
 

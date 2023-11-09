@@ -1,4 +1,6 @@
 import { directive } from '../directives'
-import { evaluateLater } from '../evaluator'
+import { evaluate, evaluateLater } from '../evaluator'
 
-directive('effect', (el, { expression }, { effect }) => effect(evaluateLater(el, expression)))
+directive('effect', skipDuringClone((el, { expression }, { effect }) => {
+    effect(evaluateLater(el,  expression))
+}))

@@ -2,39 +2,37 @@ import { effect, release } from './reactivity'
 
 export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set: innerSet }) {
     let firstRun = true
-    let outerHash, innerHash, outerHashLatest, innerHashLatest
+    let outerHash
 
     let reference = effect(() => {
-        let outer, inner
-
+        const outer = outerGet()
+        const inner = innerGet()
         if (firstRun) {
-            outer = outerGet()
-            innerSet(outer)
-            inner = innerGet()
+            innerSet(cloneIfObject(outer))
             firstRun = false
+            outerHash = JSON.stringify(outer)
         } else {
-            outer = outerGet()
-            inner = innerGet()
-
-            outerHashLatest = JSON.stringify(outer)
-            innerHashLatest = JSON.stringify(inner)
+            const outerHashLatest = JSON.stringify(outer)
 
             if (outerHashLatest !== outerHash) { // If outer changed...
-                inner = innerGet()
-                innerSet(outer)
-                inner = outer // Assign inner to outer so that it can be serialized for diffing...
+                innerSet(cloneIfObject(outer))
+                outerHash = outerHashLatest
             } else { // If inner changed...
-                outerSet(inner)
-                outer = inner // Assign outer to inner so that it can be serialized for diffing...
+                outerSet(cloneIfObject(inner))
+                outerHash = JSON.stringify(inner)
             }
         }
-
-        // Re serialize values...
-        outerHash = JSON.stringify(outer)
-        innerHash = JSON.stringify(inner)
+        JSON.stringify(innerGet())
+        JSON.stringify(outerGet())
     })
 
     return () => {
         release(reference)
     }
+}
+
+function cloneIfObject(value) {
+    return typeof value === 'object'
+        ? JSON.parse(JSON.stringify(value))
+        : value
 }

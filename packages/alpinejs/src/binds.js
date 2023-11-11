@@ -6,10 +6,12 @@ export function bind(name, bindings) {
     let getBindings = typeof bindings !== 'function' ? () => bindings : bindings
 
     if (name instanceof Element) {
-        applyBindingsObject(name, getBindings())
+        return applyBindingsObject(name, getBindings())
     } else {
         binds[name] = getBindings
     }
+
+    return () => {} // Null cleanup...
 }
 
 export function injectBindingProviders(obj) {
@@ -58,4 +60,8 @@ export function applyBindingsObject(el, obj, original) {
 
         handle()
     })
+
+    return () => {
+        while (cleanupRunners.length) cleanupRunners.pop()()
+    }
 }

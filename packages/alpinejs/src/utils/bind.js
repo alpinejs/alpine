@@ -1,3 +1,4 @@
+import { dontAutoEvaluateFunctions, evaluate } from '../evaluator'
 import { reactive } from '../reactivity'
 import { setClasses } from './classes'
 import { setStyles } from './styles'
@@ -21,6 +22,14 @@ export default function bind(el, name, value, modifiers = []) {
 
         case 'class':
             bindClasses(el, value)
+            break;
+
+        // 'selected' and 'checked' are special attributes that aren't necessarily
+        // synced with their corresponding properties when updated, so both the
+        // attribute and property need to be updated when bound.
+        case 'selected':
+        case 'checked':
+            bindAttributeAndProperty(el, name, value)
             break;
 
         default:
@@ -48,7 +57,7 @@ function bindInputValue(el, value) {
         // automatically.
         if (Number.isInteger(value)) {
             el.value = value
-        } else if (! Number.isInteger(value) && ! Array.isArray(value) && typeof value !== 'boolean' && ! [null, undefined].includes(value)) {
+        } else if (! Array.isArray(value) && typeof value !== 'boolean' && ! [null, undefined].includes(value)) {
             el.value = String(value)
         } else {
             if (Array.isArray(value)) {
@@ -62,7 +71,7 @@ function bindInputValue(el, value) {
     } else {
         if (el.value === value) return
 
-        el.value = value
+        el.value = value === undefined ? '' : value
     }
 }
 
@@ -78,6 +87,11 @@ function bindStyles(el, value) {
     el._x_undoAddedStyles = setStyles(el, value)
 }
 
+function bindAttributeAndProperty(el, name, value) {
+    bindAttribute(el, name, value)
+    setPropertyIfChanged(el, name, value)
+}
+
 function bindAttribute(el, name, value) {
     if ([null, undefined, false].includes(value) && attributeShouldntBePreservedIfFalsy(name)) {
         el.removeAttribute(name)
@@ -91,6 +105,12 @@ function bindAttribute(el, name, value) {
 function setIfChanged(el, attrName, value) {
     if (el.getAttribute(attrName) != value) {
         el.setAttribute(attrName, value)
+    }
+}
+
+function setPropertyIfChanged(el, propName, value) {
+    if (el[propName] !== value) {
+        el[propName] = value
     }
 }
 
@@ -132,6 +152,27 @@ export function getBinding(el, name, fallback) {
     // First let's get it out of Alpine bound data.
     if (el._x_bindings && el._x_bindings[name] !== undefined) return el._x_bindings[name]
 
+    return getAttributeBinding(el, name, fallback)
+}
+
+export function extractProp(el, name, fallback, extract = true) {
+    // First let's get it out of Alpine bound data.
+    if (el._x_bindings && el._x_bindings[name] !== undefined) return el._x_bindings[name]
+
+    if (el._x_inlineBindings && el._x_inlineBindings[name] !== undefined) {
+        let binding = el._x_inlineBindings[name]
+
+        binding.extract = extract
+
+        return dontAutoEvaluateFunctions(() => {
+            return evaluate(el, binding.expression)
+        })
+    }
+
+    return getAttributeBinding(el, name, fallback)
+}
+
+function getAttributeBinding(el, name, fallback) {
     // If not, we'll return the literal attribute.
     let attr = el.getAttribute(name)
 

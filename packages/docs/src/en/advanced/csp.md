@@ -14,14 +14,21 @@ In order to accommodate environments where this CSP is necessary, Alpine will of
 <a name="installation"></a>
 ## Installation
 
-The CSP build hasn’t been officially released yet. In the meantime, you may [build it from source](https://github.com/alpinejs/alpine/tree/main/packages/csp). Once released, like all Alpine extensions, you will be able to include this either via `<script>` tag or module import:
+The CSP build hasn’t been officially released yet. In the meantime, you may build it from source. To do this, clone the [`alpinejs/alpine`](https://github.com/alpinejs/alpine) repository and run:
+
+```shell
+npm install
+npm run build
+```
+
+This will generate a `/packages/csp/dist/` directory with the built files. After copying the appropriate file into your project, you can include it either via `<script>` tag or module import:
 
 <a name="script-tag"></a>
 ### Script tag
 
 ```alpine
 <html>
-    <script src="alpinejs/alpinejs-csp/cdn.js" defer></script>
+    <script src="/path/to/cdn.js" defer></script>
 </html>
 ```
 
@@ -29,7 +36,7 @@ The CSP build hasn’t been officially released yet. In the meantime, you may [b
 ### Module import
 
 ```js
-import Alpine from '@alpinejs/csp'
+import Alpine from './path/to/module.esm.js'
 
 window.Alpine = Alpine
 window.Alpine.start()

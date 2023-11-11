@@ -1,12 +1,12 @@
 {
-    "name": "@alpinejs/intersect",
+    "name": "@alpinejs/anchor",
     "version": "3.13.2",
-    "description": "Trigger JavaScript when an element enters the viewport",
-    "homepage": "https://alpinejs.dev/plugins/intersect",
+    "description": "Anchor an element's position relative to another",
+    "homepage": "https://alpinejs.dev/plugins/anchor",
     "repository": {
         "type": "git",
         "url": "https://github.com/alpinejs/alpine.git",
-        "directory": "packages/intersect"
+        "directory": "packages/anchor"
     },
     "author": "Caleb Porzio",
     "license": "MIT",

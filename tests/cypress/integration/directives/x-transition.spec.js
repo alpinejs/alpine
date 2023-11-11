@@ -80,3 +80,63 @@ test('transition:enter in nested x-show visually runs',
         get('h1').should(haveComputedStyle('opacity', '1')) // Eventually opacity will be 1
     }
 )
+
+test('transition duration and delay with and without ms syntax',
+    html`
+        <div x-data="{ showMs: false, showBlank: false }">
+
+            <span class="ms"
+                  x-show="showMs"
+                  x-transition.delay.80ms.duration.120ms>ms syntax</span>
+            <span class="blank"
+                  x-show="showBlank"
+                  x-transition.delay.80.duration.120>blank syntax</span>
+
+            <button class="ms"    x-on:click="showMs = true"></button>
+            <button class="blank" x-on:click="showBlank = true"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('span.ms').should(notBeVisible())
+        get('button.ms').click()
+        get('span.ms').should(notBeVisible()) // Not visible due to delay
+        get('span.ms').should(beVisible())
+        get('span.ms').should(notHaveComputedStyle('opacity', '1')) // We expect a value between 0 and 1
+        get('span.ms').should(haveComputedStyle('opacity', '1')) // Eventually opacity will be 1
+
+        get('span.blank').should(notBeVisible())
+        get('button.blank').click()
+        get('span.blank').should(notBeVisible()) // Not visible due to delay
+        get('span.blank').should(beVisible())
+        get('span.blank').should(notHaveComputedStyle('opacity', '1')) // We expect a value between 0 and 1
+        get('span.blank').should(haveComputedStyle('opacity', '1')) // Eventually opacity will be 1
+    }
+)
+
+test(
+    'bound x-transition can handle empty string and true values',
+    html`
+        <script>
+            window.transitions = () => {
+                return {
+                    withEmptyString: {
+                        ["x-transition.opacity"]: "",
+                    },
+                    withBoolean: {
+                        ["x-transition.opacity"]: true,
+                    },
+                };
+            };
+        </script>
+        <div x-data="transitions()">
+            <button x-bind="withEmptyString"></button>
+            <span x-bind="withBoolean">thing</span>
+        </div>
+    `,
+    ({ get }) => 
+        {
+            get('span').should(beVisible())
+            get('span').should(beVisible())
+        }
+    
+);

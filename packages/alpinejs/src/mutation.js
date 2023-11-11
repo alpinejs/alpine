@@ -1,3 +1,5 @@
+import { destroyTree } from "./lifecycle"
+
 let onAttributeAddeds = []
 let onElRemoveds = []
 let onElAddeds = []
@@ -37,6 +39,12 @@ export function cleanupAttributes(el, names) {
             delete el._x_attributeCleanups[name]
         }
     })
+}
+
+export function cleanupElement(el) {
+    if (el._x_cleanups) {
+        while (el._x_cleanups.length) el._x_cleanups.pop()()
+    }
 }
 
 let observer = new MutationObserver(onMutate)
@@ -147,11 +155,11 @@ function onMutate(mutations) {
             // New attribute.
             if (el.hasAttribute(name) && oldValue === null) {
                 add()
-            // Changed atttribute.
+            // Changed attribute.
             } else if (el.hasAttribute(name)) {
                 remove()
                 add()
-            // Removed atttribute.
+            // Removed attribute.
             } else {
                 remove()
             }
@@ -173,9 +181,7 @@ function onMutate(mutations) {
 
         onElRemoveds.forEach(i => i(node))
 
-        if (node._x_cleanups) {
-            while (node._x_cleanups.length) node._x_cleanups.pop()()
-        }
+        destroyTree(node)
     }
 
     // Mutations are bundled together by the browser but sometimes

@@ -18,6 +18,23 @@ export default function on (el, event, modifiers, callback) {
     if (modifiers.includes('capture')) options.capture = true
     if (modifiers.includes('window')) listenerTarget = window
     if (modifiers.includes('document')) listenerTarget = document
+
+    // By wrapping the handler with debounce & throttle first, we ensure that the wrapping logic itself is not
+    // throttled/debounced, only the user's callback is. This way, if the user expects
+    // `e.preventDefault()` to happen, it'll still happen even if their callback gets throttled.
+    if (modifiers.includes('debounce')) {
+        let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
+        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+
+        handler = debounce(handler, wait)
+    }
+    if (modifiers.includes('throttle')) {
+        let nextModifier = modifiers[modifiers.indexOf('throttle')+1] || 'invalid-wait'
+        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+
+        handler = throttle(handler, wait)
+    }
+
     if (modifiers.includes('prevent')) handler = wrapHandler(handler, (next, e) => { e.preventDefault(); next(e) })
     if (modifiers.includes('stop')) handler = wrapHandler(handler, (next, e) => { e.stopPropagation(); next(e) })
     if (modifiers.includes('self')) handler = wrapHandler(handler, (next, e) => { e.target === el && next(e) })
@@ -58,20 +75,6 @@ export default function on (el, event, modifiers, callback) {
 
         next(e)
     })
-
-    if (modifiers.includes('debounce')) {
-        let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
-        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
-
-        handler = debounce(handler, wait)
-    }
-
-    if (modifiers.includes('throttle')) {
-        let nextModifier = modifiers[modifiers.indexOf('throttle')+1] || 'invalid-wait'
-        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
-
-        handler = throttle(handler, wait)
-    }
 
     listenerTarget.addEventListener(event, handler, options)
 

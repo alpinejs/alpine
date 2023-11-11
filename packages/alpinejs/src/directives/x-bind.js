@@ -6,7 +6,7 @@ import { applyBindingsObject, injectBindingProviders } from '../binds'
 
 mapAttributes(startingWith(':', into(prefix('bind:'))))
 
-directive('bind', (el, { value, modifiers, expression, original }, { effect }) => {
+let handler = (el, { value, modifiers, expression, original }, { effect }) => {
     if (! value) {
         let bindingProviders = {}
         injectBindingProviders(bindingProviders)
@@ -22,6 +22,10 @@ directive('bind', (el, { value, modifiers, expression, original }, { effect }) =
 
     if (value === 'key') return storeKeyForXFor(el, expression)
 
+    if (el._x_inlineBindings && el._x_inlineBindings[value] && el._x_inlineBindings[value].extract) {
+        return
+    }
+
     let evaluate = evaluateLater(el, expression)
 
     effect(() => evaluate(result => {
@@ -32,7 +36,19 @@ directive('bind', (el, { value, modifiers, expression, original }, { effect }) =
 
         mutateDom(() => bind(el, value, result, modifiers))
     }))
-})
+}
+
+// @todo: see if I can take advantage of the object created here inside the
+// non-inline handler above so we're not duplicating work twice...
+handler.inline = (el, { value, modifiers, expression }) => {
+    if (! value) return;
+
+    if (! el._x_inlineBindings) el._x_inlineBindings = {}
+
+    el._x_inlineBindings[value] = { expression, extract: false }
+}
+
+directive('bind', handler)
 
 function storeKeyForXFor(el, expression) {
     el._x_keyExpression = expression

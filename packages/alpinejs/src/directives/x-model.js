@@ -47,10 +47,6 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         }
     }
 
-    if (modifiers.includes('fill') && el.hasAttribute('value') && (getValue() === null || getValue() === '')) {
-        setValue(el.value)
-    }
-
     if (typeof expression === 'string' && el.type === 'radio') {
         // Radio buttons only work properly when they share a name attribute.
         // People might assume we take care of that for them, because
@@ -74,6 +70,11 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         setValue(getInputValue(el, modifiers, e, getValue()))
     })
 
+    if (modifiers.includes('fill'))
+        if ([null, ''].includes(getValue())
+            || (el.type === 'checkbox' && Array.isArray(getValue()))) {
+            el.dispatchEvent(new Event(event, {}));
+    }
     // Register the listener removal callback on the element, so that
     // in addition to the cleanup function, x-modelable may call it.
     // Also, make this a keyed object if we decide to reintroduce
@@ -94,7 +95,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         cleanup(() => removeResetListener())
     }
 
-    // Allow programmatic overiding of x-model.
+    // Allow programmatic overriding of x-model.
     el._x_model = {
         get() {
             return getValue()
@@ -105,8 +106,6 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     }
 
     el._x_forceModelUpdate = (value) => {
-        value = value === undefined ? getValue() : value
-
         // If nested model key is undefined, set the default value to empty string.
         if (value === undefined && typeof expression === 'string' && expression.match(/\./)) value = ''
 
@@ -134,9 +133,9 @@ function getInputValue(el, modifiers, event, currentValue) {
         // Check for event.detail due to an issue where IE11 handles other events as a CustomEvent.
         // Safari autofill triggers event as CustomEvent and assigns value to target
         // so we return event.target.value instead of event.detail
-        if (event instanceof CustomEvent && event.detail !== undefined) {
-            return typeof event.detail != 'undefined' ? event.detail : event.target.value
-        } else if (el.type === 'checkbox') {
+        if (event instanceof CustomEvent && event.detail !== undefined)
+            return event.detail !== null && event.detail !== undefined ? event.detail : event.target.value
+        else if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {
                 let newValue = null;

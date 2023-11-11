@@ -174,7 +174,9 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
     if (input === '-') return '-'
     if (/^\D+$/.test(input)) return '9'
 
-    thousands = thousands ?? (delimiter === "," ? "." : ",")
+    if (thousands === null || thousands === undefined) {
+        thousands = delimiter === "," ? "." : ","
+    }
 
     let addThousands = (input, thousands) => {
         let output = ''

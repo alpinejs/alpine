@@ -7,8 +7,8 @@ import { once } from '../utils/once'
 
 directive('transition', (el, { value, modifiers, expression }, { evaluate }) => {
     if (typeof expression === 'function') expression = evaluate(expression)
-
-    if (! expression) {
+    if (expression === false) return
+    if (!expression || typeof expression === 'boolean') {
         registerTransitionsFromHelper(el, modifiers, value)
     } else {
         registerTransitionsFromClassString(el, expression, value)
@@ -50,7 +50,7 @@ function registerTransitionsFromHelper(el, modifiers, stage) {
     let wantsScale = wantsAll || modifiers.includes('scale')
     let opacityValue = wantsOpacity ? 0 : 1
     let scaleValue = wantsScale ? modifierValue(modifiers, 'scale', 95) / 100 : 1
-    let delay = modifierValue(modifiers, 'delay', 0)
+    let delay = modifierValue(modifiers, 'delay', 0) / 1000
     let origin = modifierValue(modifiers, 'origin', 'center')
     let property = 'opacity, transform'
     let durationIn = modifierValue(modifiers, 'duration', 150) / 1000
@@ -60,7 +60,7 @@ function registerTransitionsFromHelper(el, modifiers, stage) {
     if (transitioningIn) {
         el._x_transition.enter.during = {
             transformOrigin: origin,
-            transitionDelay: delay,
+            transitionDelay: `${delay}s`,
             transitionProperty: property,
             transitionDuration: `${durationIn}s`,
             transitionTimingFunction: easing,
@@ -80,7 +80,7 @@ function registerTransitionsFromHelper(el, modifiers, stage) {
     if (transitioningOut) {
         el._x_transition.leave.during = {
             transformOrigin: origin,
-            transitionDelay: delay,
+            transitionDelay: `${delay}s`,
             transitionProperty: property,
             transitionDuration: `${durationOut}s`,
             transitionTimingFunction: easing,
@@ -156,7 +156,7 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
         ? new Promise((resolve, reject) => {
             el._x_transition.out(() => {}, () => resolve(hide))
 
-            el._x_transitioning.beforeCancel(() => reject({ isFromCancelledTransition: true }))
+            el._x_transitioning && el._x_transitioning.beforeCancel(() => reject({ isFromCancelledTransition: true }))
         })
         : Promise.resolve(hide)
 
@@ -318,7 +318,7 @@ export function modifierValue(modifiers, key, fallback) {
         if (isNaN(rawValue)) return fallback
     }
 
-    if (key === 'duration') {
+    if (key === 'duration' || key === 'delay') {
         // Support x-transition.duration.500ms && duration.500
         let match = rawValue.match(/([0-9]+)ms/)
         if (match) return match[1]

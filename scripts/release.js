@@ -51,6 +51,9 @@ function writeNewAlpineVersion() {
     writeToPackageDotJson('collapse', 'version', version)
     console.log('Bumping @alpinejs/collapse package.json: '+version)
 
+    writeToPackageDotJson('anchor', 'version', version)
+    console.log('Bumping @alpinejs/anchor package.json: '+version)
+
     writeToPackageDotJson('morph', 'version', version)
     console.log('Bumping @alpinejs/morph package.json: '+version)
 
@@ -88,6 +91,9 @@ function publish() {
 
     console.log('Publishing @alpinejs/collapse on NPM...');
     runFromPackage('collapse', 'npm publish --access public')
+
+    console.log('Publishing @alpinejs/anchor on NPM...');
+    runFromPackage('anchor', 'npm publish --access public')
 
     console.log('Publishing @alpinejs/morph on NPM...');
     runFromPackage('morph', 'npm publish --access public')

@@ -154,12 +154,12 @@ function getInputValue(el, modifiers, event, currentValue) {
             }
         } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
             if (modifiers.includes('number')) {
-                Array.from(event.target.selectedOptions).map(option => {
+                return Array.from(event.target.selectedOptions).map(option => {
                     let rawValue = option.value || option.text
                     return safeParseNumber(rawValue)
                 })
             } else if (modifiers.includes('boolean')) {
-                Array.from(event.target.selectedOptions).map(option => {
+                return Array.from(event.target.selectedOptions).map(option => {
                     let rawValue = option.value || option.text
                     return safeParseBoolean(rawValue)
                 })
@@ -195,7 +195,7 @@ function safeParseBoolean(rawValue) {
         return false
     }
 
-    return rawValue ? rawValue : null
+    return rawValue ? Boolean(rawValue) : null
 }
 
 function checkedAttrLooseCompare(valueA, valueB) {

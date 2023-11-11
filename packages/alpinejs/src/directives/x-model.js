@@ -46,7 +46,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             })
         }
     }
-    
+
     if (typeof expression === 'string' && el.type === 'radio') {
         // Radio buttons only work properly when they share a name attribute.
         // People might assume we take care of that for them, because
@@ -69,7 +69,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let removeListener = isCloning ? () => {} : on(el, event, modifiers, (e) => {
         setValue(getInputValue(el, modifiers, e, getValue()))
     })
-    
+
     if (modifiers.includes('fill'))
         if ([null, ''].includes(getValue())
             || (el.type === 'checkbox' && Array.isArray(getValue()))) {
@@ -138,26 +138,44 @@ function getInputValue(el, modifiers, event, currentValue) {
         else if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {
-                let newValue = modifiers.includes('number') ? safeParseNumber(event.target.value) : event.target.value
+                let newValue = null;
+
+                if (modifiers.includes('number')) {
+                    newValue = safeParseNumber(event.target.value)
+                } else if (modifiers.includes('boolean')) {
+                    newValue = safeParseBoolean(event.target.value)
+                } else {
+                    newValue = event.target.value
+                }
 
                 return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(el => ! checkedAttrLooseCompare(el, newValue))
             } else {
                 return event.target.checked
             }
         } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
-            return modifiers.includes('number')
-                ? Array.from(event.target.selectedOptions).map(option => {
+            if (modifiers.includes('number')) {
+                return Array.from(event.target.selectedOptions).map(option => {
                     let rawValue = option.value || option.text
                     return safeParseNumber(rawValue)
                 })
-                : Array.from(event.target.selectedOptions).map(option => {
-                    return option.value || option.text
+            } else if (modifiers.includes('boolean')) {
+                return Array.from(event.target.selectedOptions).map(option => {
+                    let rawValue = option.value || option.text
+                    return safeParseBoolean(rawValue)
                 })
+            }
+
+            return Array.from(event.target.selectedOptions).map(option => {
+                return option.value || option.text
+            })
         } else {
-            let rawValue = event.target.value
-            return modifiers.includes('number')
-                ? safeParseNumber(rawValue)
-                : (modifiers.includes('trim') ? rawValue.trim() : rawValue)
+            if (modifiers.includes('number')) {
+                return safeParseNumber(event.target.value)
+            } else if (modifiers.includes('boolean')) {
+                return safeParseBoolean(event.target.value)
+            }
+
+            return modifiers.includes('trim') ? event.target.value.trim() : event.target.value
         }
     })
 }
@@ -166,6 +184,18 @@ function safeParseNumber(rawValue) {
     let number = rawValue ? parseFloat(rawValue) : null
 
     return isNumeric(number) ? number : rawValue
+}
+
+function safeParseBoolean(rawValue) {
+    if ([1, '1', 'true', true].includes(rawValue)) {
+        return true
+    }
+
+    if ([0, '0', 'false', false].includes(rawValue)) {
+        return false
+    }
+
+    return rawValue ? Boolean(rawValue) : null
 }
 
 function checkedAttrLooseCompare(valueA, valueB) {

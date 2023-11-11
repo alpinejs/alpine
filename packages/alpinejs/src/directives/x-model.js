@@ -2,7 +2,7 @@ import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 import { mutateDom } from '../mutation'
 import { nextTick } from '../nextTick'
-import bind from '../utils/bind'
+import bind, { safeParseBoolean } from '../utils/bind'
 import on from '../utils/on'
 import { warn } from '../utils/warn'
 import { isCloning } from '../clone'
@@ -184,18 +184,6 @@ function safeParseNumber(rawValue) {
     let number = rawValue ? parseFloat(rawValue) : null
 
     return isNumeric(number) ? number : rawValue
-}
-
-function safeParseBoolean(rawValue) {
-    if ([1, '1', 'true', true].includes(rawValue)) {
-        return true
-    }
-
-    if ([0, '0', 'false', false].includes(rawValue)) {
-        return false
-    }
-
-    return rawValue ? Boolean(rawValue) : null
 }
 
 function checkedAttrLooseCompare(valueA, valueB) {

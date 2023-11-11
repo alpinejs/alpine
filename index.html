@@ -10,18 +10,11 @@
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
 
-    <hr> <hr> <hr> <hr> <hr>
-    <div x-data>
-        <button id="target">Button</button>
-
-        <article
-            x-anchor.bottom
-            x-anchor:to="document.getElementById('target')"
-            :style="{ left: $anchor.x+'px', top: $anchor.y+'px' }"
-            style="position: absolute; left: 0;"
-        >
-            Tooltip contents
-        </article>
+    <div x-data="{ val: true }"
+    >
+   <input type="text" x-model.boolean="val">
+   <input type="checkbox" x-model.boolean="val">
+   <input type="radio" name="foo" value="true" x-model.boolean="val">
+   <input type="radio" name="foo" value="false" x-model.boolean="val">
     </div>
-    <hr> <hr> <hr> <hr> <hr>
 </html>

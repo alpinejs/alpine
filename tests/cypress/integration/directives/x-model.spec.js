@@ -1,4 +1,4 @@
-import { haveData, haveText, haveValue, html, test } from '../../utils'
+import { beChecked, haveData, haveText, haveValue, html, notBeChecked, test } from '../../utils'
 
 test('The name of the test',
     html`<h1 x-data x-text="'HEY'"></h1>`,
@@ -76,6 +76,24 @@ test('x-model with number modifier returns: null if empty, original value if cas
         get('div').should(haveData('bar', '-'))
         get('input:nth-of-type(2)').clear().type('-123')
         get('div').should(haveData('bar', -123))
+    }
+)
+
+test('x-model casts value to boolean initially for radios',
+    html`
+    <div x-data="{ foo: true }">
+        <input id="1" type="radio" value="true" name="foo" x-model.boolean="foo">
+        <input id="2" type="radio" value="false" name="foo" x-model.boolean="foo">
+    </div>
+    `,
+    ({ get }) => {
+        get('div').should(haveData('foo', true))
+        get('#1').should(beChecked())
+        get('#2').should(notBeChecked())
+        get('#2').click()
+        get('div').should(haveData('foo', false))
+        get('#1').should(notBeChecked())
+        get('#2').should(beChecked())
     }
 )
 

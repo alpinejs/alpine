@@ -49,7 +49,11 @@ function bindInputValue(el, value) {
 
         // @todo: yuck
         if (window.fromModel) {
-            el.checked = checkedAttrLooseCompare(el.value, value)
+            if (typeof value === 'boolean') {
+                el.checked = safeParseBoolean(el.value) === value
+            } else {
+                el.checked = checkedAttrLooseCompare(el.value, value)
+            }
         }
     } else if (el.type === 'checkbox') {
         // If we are explicitly binding a string to the :value, set the string,
@@ -128,6 +132,18 @@ function camelCase(subject) {
 
 function checkedAttrLooseCompare(valueA, valueB) {
     return valueA == valueB
+}
+
+export function safeParseBoolean(rawValue) {
+    if ([1, '1', 'true', true].includes(rawValue)) {
+        return true
+    }
+
+    if ([0, '0', 'false', false].includes(rawValue)) {
+        return false
+    }
+
+    return rawValue ? Boolean(rawValue) : null
 }
 
 function isBooleanAttr(attrName) {

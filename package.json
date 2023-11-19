@@ -16,7 +16,7 @@
     "scripts": {
         "build": "node ./scripts/build.js",
         "watch": "node ./scripts/build.js --watch",
-        "test": "cypress run",
+        "test": "cypress run --quiet",
         "cypress": "cypress open",
         "jest": "jest test",
         "update-docs": "node ./scripts/update-docs.js",

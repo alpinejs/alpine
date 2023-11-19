@@ -135,11 +135,11 @@ function checkedAttrLooseCompare(valueA, valueB) {
 }
 
 export function safeParseBoolean(rawValue) {
-    if ([1, '1', 'true', true].includes(rawValue)) {
+    if ([1, '1', 'true', 'on', 'yes', true].includes(rawValue)) {
         return true
     }
 
-    if ([0, '0', 'false', false].includes(rawValue)) {
+    if ([0, '0', 'false', 'off', 'no', false].includes(rawValue)) {
         return false
     }
 

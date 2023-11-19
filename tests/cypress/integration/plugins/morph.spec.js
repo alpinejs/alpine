@@ -494,7 +494,7 @@ test('can morph @event handlers', [
     }
 );
 
-test.only('can morph menu',
+test('can morph menu',
     [html`
         <main x-data>
             <article x-menu>

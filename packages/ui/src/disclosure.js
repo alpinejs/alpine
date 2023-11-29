@@ -75,7 +75,6 @@ function handlePanel(el, Alpine) {
             this.$data.__determineDefaultOpenState()
         },
         'x-show'() {
-           console.log('process show')
             return this.$data.__isOpen
         },
         ':id'() {

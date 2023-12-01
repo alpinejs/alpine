@@ -5,7 +5,7 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          * Main state...
          */
         items: [],
-        activeKey: null,
+        activeKey: switchboard(),
         orderedKeys: [],
         activatedByKeyPress: false,
 
@@ -65,9 +65,9 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
         getActiveItem() {
             if (! this.hasActive()) return null
 
-            let item = this.items.find(i => i.key === this.activeKey)
+            let item = this.items.find(i => i.key === this.activeKey.get())
 
-            if (! item) this.deactivateKey(this.activeKey)
+            if (! item) this.deactivateKey(this.activeKey.get())
 
             return item
         },
@@ -99,19 +99,19 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
 
             // If there no longer is the active key in the items list, then
             // deactivate it...
-            if (! this.orderedKeys.includes(this.activeKey)) this.deactivateKey(this.activeKey)
+            if (! this.orderedKeys.includes(this.activeKey.get())) this.deactivateKey(this.activeKey.get())
         }),
 
         activeEl() {
-            if (! this.activeKey) return
+            if (! this.activeKey.get()) return
 
-            return this.items.find(i => i.key === this.activeKey).el
+            return this.items.find(i => i.key === this.activeKey.get()).el
         },
 
         isActiveEl(el) {
             let key = this.items.find(i => i.el === el)
 
-            return this.activeKey === key
+            return this.activeKey.is(key)
         },
 
         activateEl(el) {
@@ -169,7 +169,7 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
         /**
          * Handle activated keys...
          */
-        hasActive() { return !! this.activeKey },
+        hasActive() { return !! this.activeKey.get() },
 
         /**
          * Return true if the latest active element was activated
@@ -179,27 +179,27 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          */
         wasActivatedByKeyPress() {return this.activatedByKeyPress},
 
-        isActiveKey(key) { return this.activeKey === key },
+        isActiveKey(key) { return this.activeKey.is(key) },
 
         activateKey(key, activatedByKeyPress = false) {
             if (this.isDisabled(key)) return
 
-            this.activeKey = key
+            this.activeKey.set(key)
             this.activatedByKeyPress = activatedByKeyPress
         },
 
         deactivateKey(key) {
-            if (this.activeKey === key) {
-                this.activeKey = null
+            if (this.activeKey.get() === key) {
+                this.activeKey.set(null)
                 this.activatedByKeyPress = false
             }
         },
 
         deactivate() {
-            if (! this.activeKey) return
+            if (! this.activeKey.get()) return
             if (this.isScrollingTo) return
 
-            this.activeKey = null
+            this.activeKey.set(null)
             this.activatedByKeyPress = false
         },
 
@@ -207,17 +207,17 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          * Handle active key traversal...
          */
         nextKey() {
-            if (! this.activeKey) return
+            if (! this.activeKey.get()) return
 
-            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey)
+            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey.get())
 
             return this.nonDisabledOrderedKeys[index + 1]
         },
 
         prevKey() {
-            if (! this.activeKey) return
+            if (! this.activeKey.get()) return
 
-            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey)
+            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey.get())
 
             return this.nonDisabledOrderedKeys[index - 1]
         },
@@ -381,4 +381,40 @@ function generateInputs(name, value, carry = []) {
 
 function isObjectOrArray(subject) {
     return typeof subject === 'object' && subject !== null
+}
+
+function switchboard(value) {
+    let lookup = {}
+
+    let current
+
+    let get = () => current
+
+    let set = (newValue) => {
+        if (newValue === current) return
+
+        if (current !== undefined) lookup[current].state = false
+
+        current = newValue
+
+        if (lookup[newValue] === undefined) {
+            lookup[newValue] = Alpine.reactive({ state: true })
+        } else {
+            lookup[newValue].state = true
+        }
+
+    }
+
+    let is = (comparisonValue) => {
+        if (lookup[comparisonValue] === undefined) {
+            lookup[comparisonValue] = Alpine.reactive({ state: false })
+            return lookup[comparisonValue].state
+        }
+
+        return !! lookup[comparisonValue].state
+    }
+
+    value === undefined || set(value)
+
+    return { get, set, is }
 }

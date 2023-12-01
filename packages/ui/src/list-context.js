@@ -130,6 +130,10 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
             if (! this.orderedKeys.includes(this.activeKey.get())) this.deactivateKey(this.activeKey.get())
         }),
 
+        getActiveKey() {
+            return this.activeKey.get()
+        },
+
         activeEl() {
             if (! this.activeKey.get()) return
 

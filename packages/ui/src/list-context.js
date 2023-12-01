@@ -27,15 +27,36 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
             this.activateSelectedOrFirst()
         },
 
+        unregisterKeysQueue: [],
+
         unregisterItem(key) {
-            let i = this.items.findIndex((i) => i.key === key)
-            if (i !== -1) this.items.splice(i, 1)
+            // This gets triggered when the mutation observer picks up DOM changes.
+            // It will get called for every row that gets removed. If there are
+            // 1000x rows, we want to trigger this cleanup when the first one
+            // is handled, let the others add their keys to the queue, then
+            // handle all the cleanup in bulk at the end. Big perf gain...
+            if (this.unregisterKeysQueue.length === 0) {
+                queueMicrotask(() => {
+                    if (this.unregisterKeysQueue.length > 0) {
+                        for (let i = 0; i < this.unregisterKeysQueue.length; i++) {
+                            let key = this.unregisterKeysQueue[i]
 
-            i = this.orderedKeys.indexOf(key)
-            if (i !== -1) this.orderedKeys.splice(i, 1)
+                            let j = this.items.findIndex((j) => j.key === key)
+                            if (j !== -1) this.items.splice(j, 1)
 
-            this.reorderKeys()
-            this.activateSelectedOrFirst()
+                            j = this.orderedKeys.indexOf(key)
+                            if (j !== -1) this.orderedKeys.splice(j, 1)
+                        }
+
+                        this.unregisterKeysQueue = []
+
+                        this.reorderKeys()
+                        this.activateSelectedOrFirst()
+                    }
+                })
+            }
+
+            this.unregisterKeysQueue.push(key)
         },
 
         getItemByKey(key) {
@@ -388,7 +409,16 @@ function switchboard(value) {
 
     let current
 
-    let get = () => current
+    let changeTracker = Alpine.reactive({ state: false })
+
+    let get = () => {
+        // Depend on the change tracker so reading "get" becomes reactive...
+        if (changeTracker.state) {
+            //
+        }
+
+        return current
+    }
 
     let set = (newValue) => {
         if (newValue === current) return
@@ -403,6 +433,7 @@ function switchboard(value) {
             lookup[newValue].state = true
         }
 
+        changeTracker.state = ! changeTracker.state
     }
 
     let is = (comparisonValue) => {

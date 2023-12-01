@@ -5,7 +5,7 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          * Main state...
          */
         items: [],
-        activeKey: null,
+        activeKey: switchboard(),
         orderedKeys: [],
         activatedByKeyPress: false,
 
@@ -16,26 +16,54 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
             activateSelectedOrFirst(false)
         }),
 
+        registerItemsQueue: [],
+
         registerItem(key, el, value, disabled) {
-            this.items.push({
+            // We need to queue up these additions to not slow down the
+            // init process for each row...
+            if (this.registerItemsQueue.length === 0) {
+                queueMicrotask(() => {
+                    if (this.registerItemsQueue.length > 0) {
+                        this.items = this.items.concat(this.registerItemsQueue)
+
+                        this.registerItemsQueue = []
+
+                        this.reorderKeys()
+                        this.activateSelectedOrFirst()
+                    }
+                })
+            }
+
+            let item = {
                 key, el, value, disabled
-            })
+            }
 
-            this.orderedKeys.push(key)
-
-            this.reorderKeys()
-            this.activateSelectedOrFirst()
+            this.registerItemsQueue.push(item)
         },
 
+        unregisterKeysQueue: [],
+
         unregisterItem(key) {
-            let i = this.items.findIndex((i) => i.key === key)
-            if (i !== -1) this.items.splice(i, 1)
+            // This gets triggered when the mutation observer picks up DOM changes.
+            // It will get called for every row that gets removed. If there are
+            // 1000x rows, we want to trigger this cleanup when the first one
+            // is handled, let the others add their keys to the queue, then
+            // handle all the cleanup in bulk at the end. Big perf gain...
+            if (this.unregisterKeysQueue.length === 0) {
+                queueMicrotask(() => {
+                    if (this.unregisterKeysQueue.length > 0) {
+                        this.items = this.items.filter(i => ! this.unregisterKeysQueue.includes(i.key))
+                        this.orderedKeys = this.orderedKeys.filter(i => ! this.unregisterKeysQueue.includes(i))
 
-            i = this.orderedKeys.indexOf(key)
-            if (i !== -1) this.orderedKeys.splice(i, 1)
+                        this.unregisterKeysQueue = []
 
-            this.reorderKeys()
-            this.activateSelectedOrFirst()
+                        this.reorderKeys()
+                        this.activateSelectedOrFirst()
+                    }
+                })
+            }
+
+            this.unregisterKeysQueue.push(key)
         },
 
         getItemByKey(key) {
@@ -65,9 +93,9 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
         getActiveItem() {
             if (! this.hasActive()) return null
 
-            let item = this.items.find(i => i.key === this.activeKey)
+            let item = this.items.find(i => i.key === this.activeKey.get())
 
-            if (! item) this.deactivateKey(this.activeKey)
+            if (! item) this.deactivateKey(this.activeKey.get())
 
             return item
         },
@@ -99,19 +127,23 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
 
             // If there no longer is the active key in the items list, then
             // deactivate it...
-            if (! this.orderedKeys.includes(this.activeKey)) this.deactivateKey(this.activeKey)
+            if (! this.orderedKeys.includes(this.activeKey.get())) this.deactivateKey(this.activeKey.get())
         }),
 
-        activeEl() {
-            if (! this.activeKey) return
+        getActiveKey() {
+            return this.activeKey.get()
+        },
 
-            return this.items.find(i => i.key === this.activeKey).el
+        activeEl() {
+            if (! this.activeKey.get()) return
+
+            return this.items.find(i => i.key === this.activeKey.get()).el
         },
 
         isActiveEl(el) {
             let key = this.items.find(i => i.el === el)
 
-            return this.activeKey === key
+            return this.activeKey.is(key)
         },
 
         activateEl(el) {
@@ -169,7 +201,7 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
         /**
          * Handle activated keys...
          */
-        hasActive() { return !! this.activeKey },
+        hasActive() { return !! this.activeKey.get() },
 
         /**
          * Return true if the latest active element was activated
@@ -179,27 +211,27 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          */
         wasActivatedByKeyPress() {return this.activatedByKeyPress},
 
-        isActiveKey(key) { return this.activeKey === key },
+        isActiveKey(key) { return this.activeKey.is(key) },
 
         activateKey(key, activatedByKeyPress = false) {
             if (this.isDisabled(key)) return
 
-            this.activeKey = key
+            this.activeKey.set(key)
             this.activatedByKeyPress = activatedByKeyPress
         },
 
         deactivateKey(key) {
-            if (this.activeKey === key) {
-                this.activeKey = null
+            if (this.activeKey.get() === key) {
+                this.activeKey.set(null)
                 this.activatedByKeyPress = false
             }
         },
 
         deactivate() {
-            if (! this.activeKey) return
+            if (! this.activeKey.get()) return
             if (this.isScrollingTo) return
 
-            this.activeKey = null
+            this.activeKey.set(null)
             this.activatedByKeyPress = false
         },
 
@@ -207,17 +239,17 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          * Handle active key traversal...
          */
         nextKey() {
-            if (! this.activeKey) return
+            if (! this.activeKey.get()) return
 
-            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey)
+            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey.get())
 
             return this.nonDisabledOrderedKeys[index + 1]
         },
 
         prevKey() {
-            if (! this.activeKey) return
+            if (! this.activeKey.get()) return
 
-            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey)
+            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey.get())
 
             return this.nonDisabledOrderedKeys[index - 1]
         },
@@ -381,4 +413,50 @@ function generateInputs(name, value, carry = []) {
 
 function isObjectOrArray(subject) {
     return typeof subject === 'object' && subject !== null
+}
+
+function switchboard(value) {
+    let lookup = {}
+
+    let current
+
+    let changeTracker = Alpine.reactive({ state: false })
+
+    let get = () => {
+        // Depend on the change tracker so reading "get" becomes reactive...
+        if (changeTracker.state) {
+            //
+        }
+
+        return current
+    }
+
+    let set = (newValue) => {
+        if (newValue === current) return
+
+        if (current !== undefined) lookup[current].state = false
+
+        current = newValue
+
+        if (lookup[newValue] === undefined) {
+            lookup[newValue] = Alpine.reactive({ state: true })
+        } else {
+            lookup[newValue].state = true
+        }
+
+        changeTracker.state = ! changeTracker.state
+    }
+
+    let is = (comparisonValue) => {
+        if (lookup[comparisonValue] === undefined) {
+            lookup[comparisonValue] = Alpine.reactive({ state: false })
+            return lookup[comparisonValue].state
+        }
+
+        return !! lookup[comparisonValue].state
+    }
+
+    value === undefined || set(value)
+
+    return { get, set, is }
 }

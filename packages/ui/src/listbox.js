@@ -159,8 +159,8 @@ function handleRoot(el, Alpine) {
                 __activateSelectedOrFirst(activateSelected = true) {
                     if (! this.__isOpen) return
 
-                    if (this.__context.activeKey) {
-                        this.__context.activateAndScrollToKey(this.__context.activeKey)
+                    if (this.__context.getActiveKey()) {
+                        this.__context.activateAndScrollToKey(this.__context.getActiveKey())
                         return
                     }
 

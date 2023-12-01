@@ -16,15 +16,29 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
             activateSelectedOrFirst(false)
         }),
 
+        registerItemsQueue: [],
+
         registerItem(key, el, value, disabled) {
-            this.items.push({
+            // We need to queue up these additions to not slow down the
+            // init process for each row...
+            if (this.registerItemsQueue.length === 0) {
+                queueMicrotask(() => {
+                    if (this.registerItemsQueue.length > 0) {
+                        this.items = this.items.concat(this.registerItemsQueue)
+
+                        this.registerItemsQueue = []
+
+                        this.reorderKeys()
+                        this.activateSelectedOrFirst()
+                    }
+                })
+            }
+
+            let item = {
                 key, el, value, disabled
-            })
+            }
 
-            this.orderedKeys.push(key)
-
-            this.reorderKeys()
-            this.activateSelectedOrFirst()
+            this.registerItemsQueue.push(item)
         },
 
         unregisterKeysQueue: [],

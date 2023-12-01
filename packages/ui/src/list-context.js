@@ -38,10 +38,10 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
             if (this.unregisterKeysQueue.length === 0) {
                 queueMicrotask(() => {
                     if (this.unregisterKeysQueue.length > 0) {
-                        this.unregisterKeysQueue = []
+                        this.items = this.items.filter(i => ! this.unregisterKeysQueue.includes(i.key))
+                        this.orderedKeys = this.orderedKeys.filter(i => ! this.unregisterKeysQueue.includes(i))
 
-                        this.items = this.items.filter(i => i.key === key)
-                        this.orderedKeys = this.orderedKeys.filter(i => i === key)
+                        this.unregisterKeysQueue = []
 
                         this.reorderKeys()
                         this.activateSelectedOrFirst()

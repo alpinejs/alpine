@@ -1,5 +1,8 @@
 
 export default function (Alpine) {
+    Alpine.signal = signal
+    Alpine.switchboard = switchboard
+
     Alpine.magic('signal', el => initial => {
         return signal(initial)
     })
@@ -42,7 +45,7 @@ export function signal(initialValue) {
     let value = initialValue;
     const subscribers = new Set();
 
-    const signalFunction = function(newValue) {
+    let signalFunction = function(newValue) {
         if (arguments.length === 0) {
             if (activeEffect) {
                 subscribers.add(activeEffect);
@@ -56,6 +59,15 @@ export function signal(initialValue) {
             subscribers.forEach(subscriber => subscriber());
         }
     };
+
+    Object.defineProperty(signalFunction, 'value', {
+        get: function() {
+            return value
+        },
+        set: function(newValue) {
+            value = newValue
+        }
+    })
 
     // Ignore this inside Vue reactivity...
     signalFunction.__v_skip = true
@@ -82,3 +94,50 @@ export function signalRelease(effectFn) {
     }
     effectsMap.delete(effectFn);
 }
+
+function switchboard(value) {
+    let lookup = {}
+
+    let current
+
+    let func = function (newValue) {
+        if (arguments.length === 0) {
+            return current
+        } else {
+            if (newValue === current) return
+
+            if (current !== undefined) lookup[current](false)
+
+            current = newValue
+
+            if (lookup[newValue] === undefined) {
+                lookup[newValue] = signal(true)
+            } else {
+                lookup[newValue](true)
+            }
+        }
+    }
+
+    func.matches = (comparisonValue) => {
+        if (lookup[comparisonValue] === undefined) {
+            lookup[comparisonValue] = signal(false)
+            return lookup[comparisonValue]()
+        }
+
+        return !! lookup[comparisonValue]()
+    }
+
+    Object.defineProperty(func, 'value', {
+        get: function() {
+            return current
+        },
+        set: function(newValue) {
+            throw 'havent implemented this yet'
+        }
+    })
+
+    value === undefined || func(value)
+
+    return func
+}
+

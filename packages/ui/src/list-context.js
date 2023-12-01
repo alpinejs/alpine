@@ -4,9 +4,9 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
         /**
          * Main state...
          */
-        items: [],
-        activeKey: null,
-        orderedKeys: [],
+        items: Alpine.signal([]),
+        activeKey: Alpine.switchboard(),
+        orderedKeys: Alpine.signal([]),
         activatedByKeyPress: false,
 
         /**
@@ -17,42 +17,42 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
         }),
 
         registerItem(key, el, value, disabled) {
-            this.items.push({
+            this.items.value.push({
                 key, el, value, disabled
             })
 
-            this.orderedKeys.push(key)
+            this.orderedKeys.value.push(key)
 
             this.reorderKeys()
             this.activateSelectedOrFirst()
         },
 
         unregisterItem(key) {
-            let i = this.items.findIndex((i) => i.key === key)
-            if (i !== -1) this.items.splice(i, 1)
+            let i = this.items.value.findIndex((i) => i.key === key)
+            if (i !== -1) this.items.value.splice(i, 1)
 
-            i = this.orderedKeys.indexOf(key)
-            if (i !== -1) this.orderedKeys.splice(i, 1)
+            i = this.orderedKeys.value.indexOf(key)
+            if (i !== -1) this.orderedKeys.value.splice(i, 1)
 
             this.reorderKeys()
             this.activateSelectedOrFirst()
         },
 
         getItemByKey(key) {
-            return this.items.find(i => i.key === key)
+            return this.items.value.find(i => i.key === key)
         },
 
         getItemByValue(value) {
-            return this.items.find(i => Alpine.raw(i.value) === Alpine.raw(value))
+            return this.items.value.find(i => Alpine.raw(i.value) === Alpine.raw(value))
         },
 
         getItemByEl(el) {
-            return this.items.find(i => i.el === el)
+            return this.items.value.find(i => i.el === el)
         },
 
         getItemsByValues(values) {
             let rawValues = values.map(i => Alpine.raw(i));
-            let filteredValue = this.items.filter(i => rawValues.includes(Alpine.raw(i.value)))
+            let filteredValue = this.items.value.filter(i => rawValues.includes(Alpine.raw(i.value)))
             filteredValue = filteredValue.slice().sort((a, b) => {
                 let position = a.el.compareDocumentPosition(b.el)
                 if (position & Node.DOCUMENT_POSITION_FOLLOWING) return -1
@@ -65,9 +65,9 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
         getActiveItem() {
             if (! this.hasActive()) return null
 
-            let item = this.items.find(i => i.key === this.activeKey)
+            let item = this.items.value.find(i => i.key === this.activeKey.value)
 
-            if (! item) this.deactivateKey(this.activeKey)
+            if (! item) this.deactivateKey(this.activeKey.value)
 
             return item
         },
@@ -82,46 +82,46 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          * Handle elements...
          */
          reorderKeys: Alpine.debounce(function () {
-            this.orderedKeys = this.items.map(i => i.key)
+            this.orderedKeys(this.items.value.map(i => i.key))
 
-            this.orderedKeys = this.orderedKeys.slice().sort((a, z) => {
+            this.orderedKeys(this.orderedKeys.value.slice().sort((a, z) => {
                 if (a === null || z === null) return 0
 
-                let aEl = this.items.find(i => i.key === a).el
-                let zEl = this.items.find(i => i.key === z).el
+                let aEl = this.items.value.find(i => i.key === a).el
+                let zEl = this.items.value.find(i => i.key === z).el
 
                 let position = aEl.compareDocumentPosition(zEl)
 
                 if (position & Node.DOCUMENT_POSITION_FOLLOWING) return -1
                 if (position & Node.DOCUMENT_POSITION_PRECEDING) return 1
                 return 0
-            })
+            }))
 
             // If there no longer is the active key in the items list, then
             // deactivate it...
-            if (! this.orderedKeys.includes(this.activeKey)) this.deactivateKey(this.activeKey)
+            if (! this.orderedKeys.value.includes(this.activeKey.value)) this.deactivateKey(this.activeKey.value)
         }),
 
         activeEl() {
-            if (! this.activeKey) return
+            if (! this.activeKey.value) return
 
-            return this.items.find(i => i.key === this.activeKey).el
+            return this.items.value.find(i => i.key === this.activeKey.value).el
         },
 
         isActiveEl(el) {
-            let key = this.items.find(i => i.el === el)
+            let key = this.items.value.find(i => i.el === el)
 
-            return this.activeKey === key
+            return this.activeKey.value === key
         },
 
         activateEl(el) {
-            let item = this.items.find(i => i.el === el)
+            let item = this.items.value.find(i => i.el === el)
 
             this.activateKey(item.key)
         },
 
         isDisabledEl(el) {
-            return this.items.find(i => i.el === el).disabled
+            return this.items.value.find(i => i.el === el).disabled
         },
 
         get isScrollingTo() { return this.scrollingCount > 0 },
@@ -139,7 +139,7 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
 
             this.activateKey(key, activatedByKeyPress)
 
-            let targetEl = this.items.find(i => i.key === key).el
+            let targetEl = this.items.value.find(i => i.key === key).el
 
             targetEl.scrollIntoView({ block: 'nearest' })
 
@@ -155,7 +155,7 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          * Handle disabled keys...
          */
         isDisabled(key) {
-            let item = this.items.find(i => i.key === key)
+            let item = this.items.value.find(i => i.key === key)
 
             if (! item) return false
 
@@ -163,13 +163,13 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
         },
 
         get nonDisabledOrderedKeys() {
-            return this.orderedKeys.filter(i => ! this.isDisabled(i))
+            return this.orderedKeys.value.filter(i => ! this.isDisabled(i))
         },
 
         /**
          * Handle activated keys...
          */
-        hasActive() { return !! this.activeKey },
+        hasActive() { return !! this.activeKey.value },
 
         /**
          * Return true if the latest active element was activated
@@ -179,27 +179,30 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          */
         wasActivatedByKeyPress() {return this.activatedByKeyPress},
 
-        isActiveKey(key) { return this.activeKey === key },
+        isActiveKey(key) { return this.activeKey.matches(key) },
 
         activateKey(key, activatedByKeyPress = false) {
             if (this.isDisabled(key)) return
 
-            this.activeKey = key
+            if (this.activeKey.value !== key) {
+                this.activeKey(key)
+            }
+
             this.activatedByKeyPress = activatedByKeyPress
         },
 
         deactivateKey(key) {
-            if (this.activeKey === key) {
-                this.activeKey = null
+            if (this.activeKey.value === key) {
+                this.activeKey(null)
                 this.activatedByKeyPress = false
             }
         },
 
         deactivate() {
-            if (! this.activeKey) return
+            if (! this.activeKey.value) return
             if (this.isScrollingTo) return
 
-            this.activeKey = null
+            this.activeKey(null)
             this.activatedByKeyPress = false
         },
 
@@ -207,17 +210,17 @@ export function generateContext(Alpine, multiple, orientation, activateSelectedO
          * Handle active key traversal...
          */
         nextKey() {
-            if (! this.activeKey) return
+            if (! this.activeKey.value) return
 
-            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey)
+            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey.value)
 
             return this.nonDisabledOrderedKeys[index + 1]
         },
 
         prevKey() {
-            if (! this.activeKey) return
+            if (! this.activeKey.value) return
 
-            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey)
+            let index = this.nonDisabledOrderedKeys.findIndex(i => i === this.activeKey.value)
 
             return this.nonDisabledOrderedKeys[index - 1]
         },

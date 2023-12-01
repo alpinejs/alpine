@@ -32,7 +32,7 @@ export default function (Alpine) {
                 let active = data.__context?.getActiveItem()
 
                 if (active) {
-                    return Object.values(Alpine.raw(data.__context.items)).findIndex(i => Alpine.raw(active) == Alpine.raw(i))
+                    return Object.values(Alpine.raw(data.__context.items())).findIndex(i => Alpine.raw(active) == Alpine.raw(i))
                 }
 
                 return null
@@ -97,6 +97,9 @@ function handleRoot(el, Alpine) {
                     this.__compareBy = Alpine.extractProp(el, 'by')
 
                     this.__context = generateContext(Alpine, this.__isMultiple, 'vertical', () => this.__activateSelectedOrFirst())
+                    // let context = generateContext(Alpine, this.__isMultiple, 'vertical', () => this.__activateSelectedOrFirst())
+                    // context.__v_skip = true
+                    // this.__context = context
 
                     let defaultValue = Alpine.extractProp(el, 'default-value', this.__isMultiple ? [] : null)
 

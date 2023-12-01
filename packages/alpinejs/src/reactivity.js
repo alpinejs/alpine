@@ -1,7 +1,7 @@
 
 import { scheduler } from './scheduler'
 
-let reactive, effect, release, raw
+let reactive, effect, release, raw, engine
 
 let shouldSchedule = true
 export function disableEffectScheduling(callback) {
@@ -12,17 +12,18 @@ export function disableEffectScheduling(callback) {
     shouldSchedule = true
 }
 
-export function setReactivityEngine(engine) {
-    reactive = engine.reactive
-    release = engine.release
-    effect = (callback) => engine.effect(callback, { scheduler: task => {
+export function setReactivityEngine(newEngine) {
+    engine = newEngine
+    reactive = newEngine.reactive
+    release = newEngine.release
+    effect = (callback) => newEngine.effect(callback, { scheduler: task => {
         if (shouldSchedule) {
             scheduler(task)
         } else {
             task()
         }
     } })
-    raw = engine.raw
+    raw = newEngine.raw
 }
 
 export function overrideEffect(override) { effect = override }
@@ -57,6 +58,7 @@ export function elementBoundEffect(el) {
 }
 
 export {
+    engine,
     release,
     reactive,
     effect,

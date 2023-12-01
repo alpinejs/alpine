@@ -6,15 +6,16 @@
     <script src="./packages/mask/dist/cdn.js"></script>
     <script src="./packages/ui/dist/cdn.js" defer></script> -->
     <script src="./packages/anchor/dist/cdn.js" defer></script>
+    <script src="./packages/signal/dist/cdn.js" defer></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
 
-    <div x-data="{ val: true }"
-    >
-   <input type="text" x-model.boolean="val">
-   <input type="checkbox" x-model.boolean="val">
-   <input type="radio" name="foo" value="true" x-model.boolean="val">
-   <input type="radio" name="foo" value="false" x-model.boolean="val">
+    <div x-data="{ count: $signal(0) }">
+        <h1 x-text="count()"></h1>
+
+        <h1 x-effect="console.log(count())"></h1>
+
+        <button @click="count(count() + 1)">Increment</button>
     </div>
 </html>

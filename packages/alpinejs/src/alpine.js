@@ -1,4 +1,4 @@
-import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw } from './reactivity'
+import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw, watch } from './reactivity'
 import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } from './directives'
 import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle'
 import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation'
@@ -73,6 +73,7 @@ let Alpine = {
     cloneNode, // INTERNAL
     bound,
     $data,
+    watch,
     walk,
     data,
     bind,

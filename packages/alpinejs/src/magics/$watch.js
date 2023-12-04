@@ -1,5 +1,5 @@
 import { magic } from '../magics'
-import { effect, release } from '../reactivity'
+import { effect, release, watch } from '../reactivity'
 
 magic('watch', (el, { evaluateLater, cleanup }) => (key, callback) => {
     let evaluate = evaluateLater(key)
@@ -12,9 +12,7 @@ magic('watch', (el, { evaluateLater, cleanup }) => (key, callback) => {
         return value
     }
 
-    let unwatch = watch(getter, () => {
-
-    })
+    let unwatch = watch(getter, callback)
 
     cleanup(unwatch)
 })

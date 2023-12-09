@@ -62,6 +62,7 @@ Now when the `<button>` is clicked, the input element's value will instantly be 
 * `<input type="checkbox">`
 * `<input type="radio">`
 * `<select>`
+* `<input type="range">`
 
 <a name="text-inputs"></a>
 ## Text inputs
@@ -281,6 +282,26 @@ Color: <span x-text="color"></span>
     </div>
 </div>
 <!-- END_VERBATIM -->
+
+<a name="range-inputs"></a>
+## Range inputs
+
+```alpine
+<input type="range" x-model="range" min="0" max="1" step="0.1">
+
+<span x-text="range"></span>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <div x-data="{ range: 0.5 }">
+        <input type="range" x-model="range" min="0" max="1" step="0.1">
+
+        <div class="pt-4" x-text="range"></div>
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
 
 <a name="modifiers"></a>
 ## Modifiers

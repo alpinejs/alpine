@@ -113,6 +113,8 @@ export let beSelected = () => el => expect(el).to.be.selected
 
 export let notBeSelected = () => el => expect(el).not.to.be.selected
 
+export let beChecked = () => el => expect(el).to.be.checked
+
 export let notBeChecked = () => el => expect(el).not.to.be.checked
 
 export let beVisible = () => el => expect(el).to.be.visible

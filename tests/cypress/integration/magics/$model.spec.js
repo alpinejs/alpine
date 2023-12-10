@@ -243,3 +243,30 @@ test('$model can be used as a getter/setter pair in x-data with an initial value
         get('h2').should(haveText('baz'))
     }
 )
+
+test('$model can be used as a getter/setter pair in x-data on the same element when defined within a custom directive binding',
+    [html`
+        <div x-data="{ foo: 'bar' }">
+            <div x-test x-model="foo">
+                <button @click="value = 'baz'">click me</button>
+                <h2 x-text="value"></h2>
+            </div>
+        </div>
+    `,
+    `
+        Alpine.directive('test', (el) => {
+            Alpine.bind(el, {
+                'x-data'() {
+                    return {
+                        value: this.$model.self
+                    }
+                }
+            })
+        })
+    `],
+    ({ get }) => {
+        get('h2').should(haveText('bar'))
+        get('button').click()
+        get('h2').should(haveText('baz'))
+    }
+)

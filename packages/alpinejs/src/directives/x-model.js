@@ -7,7 +7,7 @@ import on from '../utils/on'
 import { warn } from '../utils/warn'
 import { isCloning } from '../clone'
 
-function handler(el, { modifiers, expression }, { effect, cleanup }) {
+directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
 
     if (modifiers.includes('parent')) {
@@ -126,13 +126,7 @@ function handler(el, { modifiers, expression }, { effect, cleanup }) {
 
         el._x_forceModelUpdate(value)
     })
-}
-
-handler.inline = (el, { expression }, { cleanup }) => {
-    el._x_model = { get() {}, set() {} }
-}
-
-directive('model', handler)
+})
 
 function getInputValue(el, modifiers, event, currentValue) {
     return mutateDom(() => {

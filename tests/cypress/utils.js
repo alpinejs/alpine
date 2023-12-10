@@ -109,7 +109,9 @@ export let notContain = text => el => expect(el).not.to.contain(text)
 
 export let haveHtml = html => el => expect(el).to.have.html(html)
 
-export let beChecked = () => el => expect(el).to.be.checked
+export let beSelected = () => el => expect(el).to.be.selected
+
+export let notBeSelected = () => el => expect(el).not.to.be.selected
 
 export let notBeChecked = () => el => expect(el).not.to.be.checked
 

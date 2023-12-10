@@ -96,3 +96,39 @@ Although Alpine provides other methods to watch reactive values for changes, `$m
 Now everytime `count` changes, the newest count value will be logged to the console.
 
 Watchers registered using `$watch` will be automatically destroyed when the element they are declared on is removed from the DOM.
+
+## Using $model within x-data
+
+Rather than manually controlling the `x-model` value using `$model.get()` and `$model.set()`, you can alternatively use `$model` as an entirely new value inside `x-data`.
+
+For example:
+
+```alpine
+<div x-model="count">
+    <div x-data="{ value: $model }">
+        <button @click="value = value + 1">Increment</button>
+
+        Count: <span x-text="value"></span>
+    </div>
+</div>
+```
+
+This way you can freely use and modify the newly defined property `value` property within the nested component and `.get()` and `.set()` will be called internally.
+
+### Passing fallback state to $model
+
+In scenarios where you aren't sure if a parent `x-model` exists or you want to make `x-model` optional, you can pass initial state to `$model` as a function parameter.
+
+The following example will use the provided fallback value as the state if no `x-model` is present:
+
+```alpine
+<div>
+    <div x-data="{ value: $model(1) }">
+        <button @click="value = value + 1">Increment</button>
+
+        Count: <span x-text="value"></span>
+    </div>
+</div>
+```
+
+In the above example you can see that there is no `x-model` defined in the parent HTML heirarchy. When `$model(1)` is called, it will recognize this and instead pass through the initial state as a reactive value.

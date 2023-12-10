@@ -1,14 +1,16 @@
+import { accessor } from '../interceptor'
 import { findClosest } from '../lifecycle'
 import { magic } from '../magics'
+import { reactive } from '../reactivity'
 
 magic('model', (el, { cleanup }) => {
-    let accessor = generateModelAccessor(el.parentElement, cleanup)
+    let func = generateModelAccessor(el.parentElement, cleanup)
 
-    Object.defineProperty(accessor, 'self', { get() {
-        return generateModelAccessor(el, cleanup)
+    Object.defineProperty(func, 'self', { get() {
+        return accessor(generateModelAccessor(el, cleanup))
     }, })
 
-    return accessor
+    return accessor(func)
 })
 
 function generateModelAccessor(el, cleanup) {
@@ -19,7 +21,11 @@ function generateModelAccessor(el, cleanup) {
 
     // Instead of simply returning the get/set object, we'll create a wrapping function
     // so that we have the option to add additional APIs without breaking anything...
-    let accessor = function () {}
+    let accessor = function (fallbackStateInitialValue) {
+        if (closestModelEl) return this
+
+        return fallbackStateInitialValue
+    }
 
     accessor.exists = () => {
         return !! closestModelEl

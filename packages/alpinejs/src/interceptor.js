@@ -13,6 +13,11 @@ export function initInterceptors(data) {
 
             if (typeof value === 'object' && value !== null && value._x_interceptor) {
                 obj[key] = value.initialize(data, path, key)
+            } else if ((typeof value === 'object' || typeof value === 'function') && value !== null && value._x_accessor) {
+                Object.defineProperty(obj, key, {
+                    get() { return value.get() },
+                    set(val) { return value.set(val) },
+                })
             } else {
                 if (isObject(value) && value !== obj && ! (value instanceof Element)) {
                     recurse(value, path)
@@ -22,6 +27,12 @@ export function initInterceptors(data) {
     }
 
     return recurse(data)
+}
+
+export function accessor(obj) {
+    obj._x_accessor = true
+
+    return obj
 }
 
 export function interceptor(callback, mutateObj = () => {}) {

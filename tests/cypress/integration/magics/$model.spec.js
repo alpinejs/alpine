@@ -211,3 +211,35 @@ test('$model can watch for changing values and watcher gets cleaned up on elemen
         get('h1').should(haveText('bob'))
     }
 )
+
+test('$model can be used as a getter/setter pair in x-data',
+    html`
+        <div x-data="{ foo: 'bar' }" x-model="foo">
+            <div x-data="{ value: $model }">
+                <button @click="value = 'baz'">click me</button>
+                <h2 x-text="value"></h2>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('h2').should(haveText('bar'))
+        get('button').click()
+        get('h2').should(haveText('baz'))
+    }
+)
+
+test('$model can be used as a getter/setter pair in x-data with an initial value that makes x-model optional',
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <div x-data="{ value: $model('bar') }">
+                <button @click="value = 'baz'">click me</button>
+                <h2 x-text="value"></h2>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('h2').should(haveText('bar'))
+        get('button').click()
+        get('h2').should(haveText('baz'))
+    }
+)

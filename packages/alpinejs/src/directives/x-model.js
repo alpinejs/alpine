@@ -32,7 +32,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
 
         // The following code prevents an infinite loop when using:
         // x-model="$model" by retreiving an x-model higher in the tree...
-        if (result._x_modelAccessor) {
+        if (typeof result === 'object' && result !== null && result._x_modelAccessor) {
             return result._x_modelAccessor.closest
         }
 

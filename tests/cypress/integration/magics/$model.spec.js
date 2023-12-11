@@ -63,68 +63,6 @@ test('$model can be used with a getter and setter',
     }
 )
 
-test('$model can be used with optional internal state: with outer',
-    html`
-        <div x-data="{ foo: 'bar' }" x-model="foo">
-            <button @click="foo = 'baz'">click me</button>
-
-            <div x-data="{
-                internalValue: 'bob',
-                get value() {
-                    if (this.$model.exists()) return this.$model.get()
-
-                    return this.internalValue
-                },
-                set value(value) {
-                    if (this.$model.exists()) {
-                        this.$model.set(value)
-                    } else {
-                        this.internalValue = value
-                    }
-                }
-            }">
-                <h1 x-text="value"></h1>
-            </div>
-        </div>
-    `,
-    ({ get }) => {
-        get('h1').should(haveText('bar'))
-        get('button').click()
-        get('h1').should(haveText('baz'))
-    }
-)
-
-test('$model can be used with optional internal state: without outer',
-    html`
-        <div x-data>
-            <div x-data="{
-                internalValue: 'bar',
-                get value() {
-                    if (this.$model.exists()) return this.$model.get()
-
-                    return this.internalValue
-                },
-                set value(value) {
-                    if (this.$model.exists()) {
-                        this.$model.set(value)
-                    } else {
-                        this.internalValue = value
-                    }
-                }
-            }">
-                <button @click="value = 'baz'">click me</button>
-
-                <h1 x-text="value"></h1>
-            </div>
-        </div>
-    `,
-    ({ get }) => {
-        get('h1').should(haveText('bar'))
-        get('button').click()
-        get('h1').should(haveText('baz'))
-    }
-)
-
 test('$model can be used with another x-model',
     html`
         <div x-data="{ foo: 'bar' }" x-model="foo">
@@ -168,13 +106,13 @@ test('$model can be used on the same element as the corresponding x-model',
                     return {
                         internalValue: 'bob',
                         get value() {
-                            if (this.$model.self) return this.$model.self.get()
+                            if (this.$model) return this.$model.get()
 
                             return this.internalValue
                         },
                         set value(value) {
-                            if (this.$model.self) {
-                                this.$model.self.set(value)
+                            if (this.$model) {
+                                this.$model.set(value)
                             } else {
                                 this.internalValue = value
                             }
@@ -258,7 +196,7 @@ test('$model can be used as a getter/setter pair in x-data on the same element w
             Alpine.bind(el, {
                 'x-data'() {
                     return {
-                        value: this.$model.self
+                        value: this.$model
                     }
                 }
             })

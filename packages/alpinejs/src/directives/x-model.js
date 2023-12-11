@@ -25,18 +25,28 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         evaluateSet = () => {}
     }
 
-    let getValue = () => {
+    let getResult = () => {
         let result
 
         evaluateGet(value => result = value)
+
+        // The following code prevents an infinite loop when using:
+        // x-model="$model" by retreiving an x-model higher in the tree...
+        if (result._x_modelAccessor) {
+            return result._x_modelAccessor.closest
+        }
+
+        return result
+    }
+
+    let getValue = () => {
+        let result = getResult()
 
         return isGetterSetter(result) ? result.get() : result
     }
 
     let setValue = value => {
-        let result
-
-        evaluateGet(value => result = value)
+        let result = getResult()
 
         if (isGetterSetter(result)) {
             result.set(value)

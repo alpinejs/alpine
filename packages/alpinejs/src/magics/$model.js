@@ -4,11 +4,17 @@ import { magic } from '../magics'
 import { reactive } from '../reactivity'
 
 magic('model', (el, { cleanup }) => {
-    let func = generateModelAccessor(el.parentElement, cleanup)
+    let func = generateModelAccessor(el, cleanup)
 
-    Object.defineProperty(func, 'self', { get() {
-        return accessor(generateModelAccessor(el, cleanup))
+    Object.defineProperty(func, 'closest', { get() {
+        let func = generateModelAccessor(el.parentElement, cleanup)
+
+        func._x_modelAccessor = true
+
+        return accessor(func)
     }, })
+
+    func._x_modelAccessor = true
 
     return accessor(func)
 })
@@ -27,19 +33,23 @@ function generateModelAccessor(el, cleanup) {
         return fallbackStateInitialValue
     }
 
-    accessor.exists = () => {
-        return !! closestModelEl
+    let model = () => {
+        if (! closestModelEl) {
+            throw 'Cannot find an available x-model directive to reference from $model.'
+        }
+
+        return closestModelEl._x_model
     }
 
     accessor.get = () => {
-        return closestModelEl._x_model.get()
+        return model().get()
     }
 
     accessor.set = (value) => {
         if (typeof value === 'function') {
-            closestModelEl._x_model.set(value(accessor.get()))
+            model().set(value(accessor.get()))
         } else {
-            closestModelEl._x_model.set(value)
+            model().set(value)
         }
     }
 

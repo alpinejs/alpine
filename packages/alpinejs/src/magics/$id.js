@@ -5,7 +5,7 @@ import { interceptClone } from '../clone'
 magic('id', (el, { cleanup }) => (name, key = null) => {
     let cacheKey = `${name}${key ? `-${key}` : ''}`
 
-    return cacheIdByNameOnElement(el, cacheKey, cleanup, ()=> {
+    return cacheIdByNameOnElement(el, cacheKey, cleanup, () => {
         let root = closestIdRoot(el, name)
 
         let id = root
@@ -31,8 +31,8 @@ function cacheIdByNameOnElement(el, cacheKey, cleanup, callback)
 {
     if (! el._x_id) el._x_id = {}
 
-    // // We only want $id to run once per an element's lifecycle...
-    if (el._x_id[cacheKey]) return e._x_id[cacheKey]
+    // We only want $id to run once per an element's lifecycle...
+    if (el._x_id[cacheKey]) return el._x_id[cacheKey]
 
     let output = callback()
 

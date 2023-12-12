@@ -147,7 +147,7 @@ test('x-dialog:title',
     },
 )
 
-test.only('x-dialog:description',
+test('x-dialog:description',
     [html`
         <article x-data x-dialog>
             <p x-dialog:description>Dialog Title</p>

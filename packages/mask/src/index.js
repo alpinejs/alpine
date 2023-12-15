@@ -1,6 +1,6 @@
 
 export default function (Alpine) {
-    Alpine.directive('mask', (el, { value, expression }, { effect, evaluateLater }) => {
+    Alpine.directive('mask', (el, { value, expression }, { effect, evaluateLater, cleanup }) => {
         let templateFn = () => expression
         let lastInputValue = ''
 
@@ -43,10 +43,16 @@ export default function (Alpine) {
             if (el._x_model) el._x_model.set(el.value)
         })
 
-        el.addEventListener('input', () => processInputValue(el))
+        const controller = new AbortController()
+
+        cleanup(() => {
+            controller.abort()
+        })
+
+        el.addEventListener('input', () => processInputValue(el), { signal: controller.signal })
         // Don't "restoreCursorPosition" on "blur", because Safari
         // will re-focus the input and cause a focus trap.
-        el.addEventListener('blur', () => processInputValue(el, false))
+        el.addEventListener('blur', () => processInputValue(el, false), { signal: controller.signal })
 
         function processInputValue (el, shouldRestoreCursor = true) {
             let input = el.value

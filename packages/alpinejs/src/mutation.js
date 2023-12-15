@@ -65,27 +65,24 @@ export function stopObservingMutations() {
     currentlyObserving = false
 }
 
-let recordQueue = []
-let willProcessRecordQueue = false
+let queuedMutations = []
 
 export function flushObserver() {
-    recordQueue = recordQueue.concat(observer.takeRecords())
+    let records = observer.takeRecords()
 
-    if (recordQueue.length && ! willProcessRecordQueue) {
-        willProcessRecordQueue = true
+    queuedMutations.push(() => records.length > 0 && onMutate(records))
 
-        queueMicrotask(() => {
-            processRecordQueue()
+    let queueLengthWhenTriggered = queuedMutations.length
 
-            willProcessRecordQueue = false
-        })
-    }
-}
-
-function processRecordQueue() {
-     onMutate(recordQueue)
-
-     recordQueue.length = 0
+    queueMicrotask(() => {
+        // If these two lengths match, then we KNOW that this is the LAST
+        // flush in the current event loop. This way, we can process
+        // all mutations in one batch at the end of everything...
+        if (queuedMutations.length === queueLengthWhenTriggered) {
+            // Now Alpine can process all the mutations...
+            while (queuedMutations.length > 0) queuedMutations.shift()()
+        }
+    })
 }
 
 export function mutateDom(callback) {

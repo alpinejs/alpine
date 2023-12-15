@@ -37,7 +37,7 @@ As you can see we've extracted the properties and methods we would usually defin
 If you've chosen to use a build step for your Alpine code, you should register your components in the following way:
 
 ```js
-import Alpine from `alpinejs`
+import Alpine from 'alpinejs'
 import dropdown from './dropdown.js'
 
 Alpine.data('dropdown', dropdown)

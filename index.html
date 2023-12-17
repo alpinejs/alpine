@@ -10,6 +10,16 @@
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
 
+    <div x-data="{ foo: 'bar' }" x-model="foo">
+        <select x-model="$model">
+            <option>bar</option>
+            <option>baz</option>
+        </select>
+
+        <h1 x-text="foo"></h1>
+        <h2 x-text="$model.get()"></h2>
+    </div>
+
     <div x-data="{ count: 1 }">
         <div>
             <span x-text="count"></span>
@@ -17,7 +27,10 @@
             <main x-data="{ value: $model }" x-model="count">
                 Count: <h1 x-text="value"></h1>
 
-                <input type="text" x-model="value">
+                <div x-data="{ foo: 'bar' }">
+                    <input type="text" x-model="foo">
+                    Inner input: <span x-text="foo"></span>
+                </div>
             </main>
         </div>
     </div>

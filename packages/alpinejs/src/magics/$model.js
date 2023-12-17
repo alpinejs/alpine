@@ -9,16 +9,6 @@ magic('model', (el, { cleanup }) => {
 
     let func = generateModelAccessor(el, cleanup)
 
-    Object.defineProperty(func, 'closest', { get() {
-        let func = generateModelAccessor(el.parentElement, cleanup)
-
-        func._x_modelAccessor = true
-
-        return accessor(func)
-    }, })
-
-    func._x_modelAccessor = true
-
     return accessor(func)
 })
 
@@ -27,6 +17,8 @@ function generateModelAccessor(el, cleanup) {
     let closestModelEl = findClosest(el, i => {
         if (i._x_model) return true
     })
+
+    closestModelEl && destroyModelListeners(closestModelEl)
 
     // Instead of simply returning the get/set object, we'll create a wrapping function
     // so that we have the option to add additional APIs without breaking anything...
@@ -63,19 +55,11 @@ function generateModelAccessor(el, cleanup) {
     return accessor
 }
 
-let isInsideXData = false
-
-export function eagerlyRunXModelIfMagicModelIsUsedInsideThisExpression(callback) {
-    isInsideXData = true
-
-    callback()
-
-    isInsideXData = false
-}
-
 function eagerlyRunXModelIfNeeded(el) {
-    if (! isInsideXData) return
+    // Looks like x-model has already been run so we're good...
+    if (el._x_model) return
 
+    // We only care to run x-model on elements WITH x-model...
     if (! el.hasAttribute('x-model')) return
 
     let attribute = { name: 'x-model', value: el.getAttribute('x-model') }
@@ -83,4 +67,20 @@ function eagerlyRunXModelIfNeeded(el) {
     directives(el, [attribute]).forEach((handle) => {
         handle()
     })
+}
+
+function destroyModelListeners(modelEl) {
+    if (! modelEl._x_removeModelListeners) return
+
+    if (isInputyElement(modelEl)) return
+
+    modelEl._x_removeModelListeners['default']()
+}
+
+function isInputyElement(el) {
+    let tag = el.tagName.toLowerCase()
+
+    inputTags = ['input', 'textarea', 'select']
+
+    return inputTags.includes(tag)
 }

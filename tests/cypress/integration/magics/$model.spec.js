@@ -1,4 +1,4 @@
-import { beSelected, haveText, html, notBeSelected, test } from '../../utils'
+import { beSelected, haveText, haveValue, html, notBeSelected, test } from '../../utils'
 
 test('$model allows you to interact with parent x-model bindings explicitly',
     html`
@@ -63,6 +63,7 @@ test('$model can be used with a getter and setter',
     }
 )
 
+// @todo: this is failing...
 test('$model can be used with another x-model',
     html`
         <div x-data="{ foo: 'bar' }" x-model="foo">
@@ -89,7 +90,7 @@ test('$model can be used with another x-model',
     }
 )
 
-test.only('$model can be used on the same element as the corresponding x-model',
+test('$model can be used on the same element as the corresponding x-model',
     html`
         <div x-data="{ foo: 'bar' }">
             <button @click="foo = 'baz'">click me</button>
@@ -103,6 +104,41 @@ test.only('$model can be used on the same element as the corresponding x-model',
         get('h1').should(haveText('bar'))
         get('button').click()
         get('h1').should(haveText('baz'))
+    }
+)
+
+test('$model destroys x-model event listeners on initialization',
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <div x-data="{ value: $model }" x-model="foo">
+                <h1 x-text="value"></h1>
+
+                <input type="text">
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('bar'))
+        get('input').type('baz')
+        get('h1').should(haveText('bar'))
+    }
+)
+
+test('$model doesnt destroy x-model event listeners when on an input element',
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <div>
+                <h1 x-text="foo"></h1>
+
+                <input type="text" x-data="{ value: $model }" x-model="foo">
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('bar'))
+        get('input').should(haveValue('bar'))
+        get('input').type('baz')
+        get('h1').should(haveText('barbaz'))
     }
 )
 

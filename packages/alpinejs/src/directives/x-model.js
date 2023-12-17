@@ -133,12 +133,6 @@ function generateGetAndSet(evaluateLater, scopeTarget, expression) {
 
         evaluateGet(value => result = value)
 
-        // The following code prevents an infinite loop when using:
-        // x-model="$model" by retreiving an x-model higher in the tree...
-        if (typeof result === 'object' && result !== null && result._x_modelAccessor) {
-            return result._x_modelAccessor.closest
-        }
-
         return result
     }
 

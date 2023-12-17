@@ -22,11 +22,7 @@ directive('data', ((el, { expression }, { cleanup }) => {
     let dataProviderContext = {}
     injectDataProviders(dataProviderContext, magicContext)
 
-    let data
-
-    eagerlyRunXModelIfMagicModelIsUsedInsideThisExpression(() => {
-        data = evaluate(el, expression, { scope: dataProviderContext })
-    })
+    let data = evaluate(el, expression, { scope: dataProviderContext })
 
     if (data === undefined || data === true) data = {}
 

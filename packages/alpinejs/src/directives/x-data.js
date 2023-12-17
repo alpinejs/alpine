@@ -7,6 +7,7 @@ import { addScopeToNode } from '../scope'
 import { injectMagics, magic } from '../magics'
 import { reactive } from '../reactivity'
 import { evaluate } from '../evaluator'
+import { eagerlyRunXModelIfMagicModelIsUsedInsideThisExpression } from '../magics/$model'
 
 addRootSelector(() => `[${prefix('data')}]`)
 
@@ -21,7 +22,11 @@ directive('data', ((el, { expression }, { cleanup }) => {
     let dataProviderContext = {}
     injectDataProviders(dataProviderContext, magicContext)
 
-    let data = evaluate(el, expression, { scope: dataProviderContext })
+    let data
+
+    eagerlyRunXModelIfMagicModelIsUsedInsideThisExpression(() => {
+        data = evaluate(el, expression, { scope: dataProviderContext })
+    })
 
     if (data === undefined || data === true) data = {}
 

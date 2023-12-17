@@ -10,11 +10,15 @@
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
 
-    <div x-data="{ val: true }"
-    >
-   <input type="text" x-model.boolean="val">
-   <input type="checkbox" x-model.boolean="val">
-   <input type="radio" name="foo" value="true" x-model.boolean="val">
-   <input type="radio" name="foo" value="false" x-model.boolean="val">
+    <div x-data="{ count: 1 }">
+        <div>
+            <span x-text="count"></span>
+
+            <main x-data="{ value: $model }" x-model="count">
+                Count: <h1 x-text="value"></h1>
+
+                <input type="text" x-model="value">
+            </main>
+        </div>
     </div>
 </html>

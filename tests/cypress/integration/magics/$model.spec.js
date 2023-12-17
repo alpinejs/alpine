@@ -89,39 +89,16 @@ test('$model can be used with another x-model',
     }
 )
 
-test('$model can be used on the same element as the corresponding x-model',
-    [html`
+test.only('$model can be used on the same element as the corresponding x-model',
+    html`
         <div x-data="{ foo: 'bar' }">
             <button @click="foo = 'baz'">click me</button>
 
-            <div x-test x-model="foo">
+            <div x-data="{ value: $model }" x-model="foo">
                 <h1 x-text="value"></h1>
             </div>
         </div>
     `,
-    `
-        Alpine.directive('test', el => {
-            Alpine.bind(el, {
-                'x-data'() {
-                    return {
-                        internalValue: 'bob',
-                        get value() {
-                            if (this.$model) return this.$model.get()
-
-                            return this.internalValue
-                        },
-                        set value(value) {
-                            if (this.$model) {
-                                this.$model.set(value)
-                            } else {
-                                this.internalValue = value
-                            }
-                        }
-                    }
-                }
-            })
-        })
-    `],
     ({ get }) => {
         get('h1').should(haveText('bar'))
         get('button').click()

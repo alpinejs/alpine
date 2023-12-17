@@ -1,9 +1,12 @@
+import { directives } from '../directives'
 import { accessor } from '../interceptor'
 import { findClosest } from '../lifecycle'
 import { magic } from '../magics'
 import { reactive } from '../reactivity'
 
 magic('model', (el, { cleanup }) => {
+    eagerlyRunXModelIfNeeded(el)
+
     let func = generateModelAccessor(el, cleanup)
 
     Object.defineProperty(func, 'closest', { get() {
@@ -58,4 +61,26 @@ function generateModelAccessor(el, cleanup) {
     }
 
     return accessor
+}
+
+let isInsideXData = false
+
+export function eagerlyRunXModelIfMagicModelIsUsedInsideThisExpression(callback) {
+    isInsideXData = true
+
+    callback()
+
+    isInsideXData = false
+}
+
+function eagerlyRunXModelIfNeeded(el) {
+    if (! isInsideXData) return
+
+    if (! el.hasAttribute('x-model')) return
+
+    let attribute = { name: 'x-model', value: el.getAttribute('x-model') }
+
+    directives(el, [attribute]).forEach((handle) => {
+        handle()
+    })
 }

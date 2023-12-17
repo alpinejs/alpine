@@ -8,6 +8,10 @@ import { warn } from '../utils/warn'
 import { isCloning } from '../clone'
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
+    // Don't register x-model if it's already been registered on this element.
+    // This happens when $model eagerly evaluates x-model inside x-data...
+    if (el._x_model) return
+
     let scopeTarget = el
 
     if (modifiers.includes('parent')) scopeTarget = el.parentNode

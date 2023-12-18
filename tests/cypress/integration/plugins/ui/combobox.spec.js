@@ -66,6 +66,8 @@ test('it works with x-model',
 
                 <article x-text="selected?.name"></article>
             </div>
+
+            <a href="#" x-on:click.prevent="selected = { id: 7, name: 'Caroline Schultz' }">Set selected via code</a>
         </div>
     `],
     ({ get }) => {
@@ -95,6 +97,9 @@ test('it works with x-model',
         get('ul').should(notBeVisible())
         get('input').should(haveValue('Wade Cooper'))
         get('article').should(haveText('Wade Cooper'))
+        get('a').click()
+        get('input').should(haveValue('Caroline Schultz'))
+        get('article').should(haveText('Caroline Schultz'))
     },
 )
 
@@ -1209,6 +1214,7 @@ test('input reset',
             </div>
 
             <article>lorem ipsum</article>
+            <a x-on:click="selected = null">Clear</a>
         </div>
     `],
     ({ get }) => {
@@ -1265,6 +1271,10 @@ test('input reset',
         get('input').type('w')
         get('article').click()
         get('input').should(haveValue('Arlene Mccoy'))
+
+        // Test correct state after clearing selected via code
+        get('a').click()
+        get('input').should(haveValue(''))
     },
 )
 

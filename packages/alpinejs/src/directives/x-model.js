@@ -7,8 +7,13 @@ import on from '../utils/on'
 import { warn } from '../utils/warn'
 import { isCloning } from '../clone'
 
-directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
+directive('model', async (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
+
+    const tagName = el.tagName.toLowerCase()
+    if (tagName.includes("-") && !customElements.get(tagName)) {
+        await customElements.whenDefined(tagName);
+    }
 
     if (modifiers.includes('parent')) {
         scopeTarget = el.parentNode

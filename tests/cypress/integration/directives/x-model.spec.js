@@ -279,3 +279,34 @@ test(
     }
 );
 
+test(
+    'x-model with fill on undefined custom element',
+    html`
+        <script>
+            class CustomElement extends HTMLElement {
+                connectedCallback() {
+                    this.innerText = "Loaded"
+                }
+
+                get value() {
+                    return "This is the internal value"
+                }
+
+            }
+
+            setTimeout(() => {
+                customElements.define("custom-element", CustomElement)
+            }, 300)
+        </script>
+
+        <div x-data="{ a: null }">
+            <span x-text="a"></span>
+            <custom-element x-model.fill="a">Not loaded</custom-element>
+        </div>
+    `,
+    ({get}) => {
+        get("custom-element").should(haveText("Not loaded"))
+        get("custom-element").should(haveText("Loaded"))
+        get("span").should(haveText("This is the internal value"))
+    }
+)

@@ -4,36 +4,48 @@ export default function (Alpine) {
     // If we're using a "minimum height", we'll need to disable
     // x-show's default behavior of setting display: 'none'.
     collapse.inline = (el, { modifiers }) => {
+        let overflow = modifiers.includes('overflow') ? true : false
         if (! modifiers.includes('min')) return
 
         el._x_doShow = () => {}
         el._x_doHide = () => {}
+        if (overflow) {
+            el.style.overflow = 'clip'
+        }
     }
 
     function collapse(el, { modifiers }) {
         let duration = modifierValue(modifiers, 'duration', 250) / 1000
         let floor = modifierValue(modifiers, 'min', 0)
         let fullyHide = ! modifiers.includes('min')
+        // default direction is `vertical`
+        let direction = modifiers.includes('horizontal') ? 'horizontal' : 'vertical'
+        let overflow = modifiers.includes('overflow') ? true : false
 
         if (! el._x_isShown) el.style.height = `${floor}px`
+        if (! el._x_isShown) el.style.width = `${floor}px`
         // We use the hidden attribute for the benefit of Tailwind
         // users as the .space utility will ignore [hidden] elements.
         // We also use display:none as the hidden attribute has very
         // low CSS specificity and could be accidentally overridden
         // by a user.
         if (! el._x_isShown && fullyHide) el.hidden = true
-        if (! el._x_isShown) el.style.overflow = 'hidden'
+        if (! el._x_isShown) el.style.overflow = 'clip'
 
         // Override the setStyles function with one that won't
         // revert updates to the height style.
         let setFunction = (el, styles) => {
             let revertFunction = Alpine.setStyles(el, styles);
 
-            return styles.height ? () => {} : revertFunction
+            if (direction === 'vertical') {
+                return styles.height ? () => {} : revertFunction
+            } else {
+                return styles.width ? () => {} : revertFunction
+            }
         }
 
         let transitionStyles = {
-            transitionProperty: 'height',
+            transitionProperty: 'width, height',
             transitionDuration: `${duration}s`,
             transitionTimingFunction: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
         }
@@ -43,37 +55,45 @@ export default function (Alpine) {
                 if (fullyHide) el.hidden = false;
                 if (fullyHide) el.style.display = null
 
-                let current = el.getBoundingClientRect().height
-
-                el.style.height = 'auto'
-
-                let full = el.getBoundingClientRect().height
+                let current, full
+                if (direction === 'vertical') {
+                    current = el.getBoundingClientRect().height
+                    el.style.height = 'auto'
+                    full = el.getBoundingClientRect().height
+                } else {
+                    current = el.getBoundingClientRect().width
+                    el.style.width = 'auto'
+                    full = el.getBoundingClientRect().width
+                }
 
                 if (current === full) { current = floor }
 
                 Alpine.transition(el, Alpine.setStyles, {
                     during: transitionStyles,
-                    start: { height: current+'px' },
-                    end: { height: full+'px' },
+                    start: direction === 'vertical' ? { height: current+'px' } : { width: current+'px' },
+                    end: direction === 'vertical' ? { height: full+'px' } : { width: full+'px' },
                 }, () => el._x_isShown = true, () => {
-                    if (el.getBoundingClientRect().height == full) {
-                        el.style.overflow = null
+                    if (Math.round(el.getBoundingClientRect().height) == Math.round(full) || 
+                        Math.round(el.getBoundingClientRect().width) == Math.round(full)) {
+                        if (!overflow) {
+                            el.style.overflow = null
+                        }
                     }
                 })
             },
 
             out(before = () => {}, after = () => {}) {
-                let full = el.getBoundingClientRect().height
+                let full = direction === 'vertical' ? el.getBoundingClientRect().height : el.getBoundingClientRect().width
 
                 Alpine.transition(el, setFunction, {
                     during: transitionStyles,
-                    start: { height: full+'px' },
-                    end: { height: floor+'px' },
-                }, () => el.style.overflow = 'hidden', () => {
+                    start: direction === 'vertical' ? { height: full+'px' } : { width: full+'px' },
+                    end: direction === 'vertical' ? { height: floor+'px' } : {width: floor+'px' },
+                }, () => el.style.overflow = 'clip', () => {
                     el._x_isShown = false
 
                     // check if element is fully collapsed
-                    if (el.style.height == `${floor}px` && fullyHide) {
+                    if (el.style.height == `${floor}px` && fullyHide || el.style.width == `${floor}px` && fullyHide) {
                         el.style.display = 'none'
                         el.hidden = true
                     }

@@ -194,10 +194,6 @@ function onMutate(mutations) {
         node._x_ignore = true
     })
     for (let node of addedNodes) {
-        // If an element gets moved on a page, it's registered
-        // as both an "add" and "remove", so we want to skip those.
-        if (removedNodes.includes(node)) continue
-
         // If the node was eventually removed as part of one of his
         // parent mutations, skip it
         if (! node.isConnected) continue

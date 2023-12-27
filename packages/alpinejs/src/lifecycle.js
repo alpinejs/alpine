@@ -82,6 +82,9 @@ export function interceptInit(callback) { initInterceptors.push(callback) }
 export function initTree(el, walker = walk, intercept = () => {}) {
     deferHandlingDirectives(() => {
         walker(el, (el, skip) => {
+            if (el._x_isInit) return;
+            el._x_isInit = true
+
             intercept(el, skip)
 
             initInterceptors.forEach(i => i(el, skip))

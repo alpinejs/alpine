@@ -46,7 +46,7 @@ Alpine.start()
 <a name="basic-example"></a>
 ## Basic Example
 
-To provide a glimpse of how using the CSP build might feel, here is a copy-pastable HTML file with a working counter componennt using a common CSP setup:
+To provide a glimpse of how using the CSP build might feel, here is a copy-pastable HTML file with a working counter component using a common CSP setup:
 
 ```alpine
 <html>

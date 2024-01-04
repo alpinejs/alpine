@@ -58,7 +58,7 @@ To provide a glimpse of how using the CSP build might feel, here is a copy-pasta
 
     <body>
         <div x-data="counter">
-            <button x-on:click="count++"></button>
+            <button x-on:click="increment"></button>
 
             <span x-text="count"></span>
         </div>

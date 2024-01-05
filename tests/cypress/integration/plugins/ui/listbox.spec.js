@@ -626,6 +626,62 @@ test('"horizontal" keyboard controls',
     },
 )
 
+test('"by" prop with string value',
+    [html`
+        <div
+            x-data="{ active: null, people: [
+                { id: 1, name: 'Wade Cooper' },
+                { id: 2, name: 'Arlene Mccoy' },
+                { id: 3, name: 'Devon Webb', disabled: true },
+                { id: 4, name: 'Tom Cook' },
+                { id: 5, name: 'Tanya Fox', disabled: true },
+                { id: 6, name: 'Hellen Schmidt' },
+                { id: 7, name: 'Caroline Schultz' },
+                { id: 8, name: 'Mason Heaney' },
+                { id: 9, name: 'Claudie Smitham' },
+                { id: 10, name: 'Emil Schaefer' },
+            ]}"
+            x-listbox
+            x-model="active"
+            by="id"
+        >
+            <label x-listbox:label>Assigned to</label>
+
+            <button x-listbox:button x-text="active ? active.name : 'Select Person'"></button>
+
+            <ul x-listbox:options options>
+                <template x-for="person in people" :key="person.id">
+                    <li
+                        :option="person.id"
+                        x-listbox:option
+                        :value="person"
+                        :disabled="person.disabled"
+                        :class="{
+                            'selected': $listboxOption.isSelected,
+                            'active': $listboxOption.isActive,
+                        }"
+                    >
+                        <span x-text="person.name"></span>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('ul').should(notBeVisible())
+        get('button')
+            .should(haveText('Select Person'))
+            .click()
+        get('ul').should(beVisible())
+        get('button').click()
+        get('ul').should(notBeVisible())
+        get('button').click()
+        get('[option="2"]').click()
+        get('ul').should(notBeVisible())
+        get('button').should(haveText('Arlene Mccoy'))
+    },
+)
+
 test('search',
     [html`
         <div

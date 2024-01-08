@@ -48,19 +48,19 @@ export default function (Alpine) {
     Alpine.magic('listboxOption', (el) => {
         let data = Alpine.$data(el)
 
-        let optionEl = Alpine.findClosest(el, i => Alpine.$date(i).optionKey)
+        let optionEl = Alpine.findClosest(el, i => Alpine.$data(i).optionKey)
 
         if (! optionEl) throw 'No x-combobox:option directive found...'
 
         return {
             get isActive() {
-                return data.__context.isActiveKey(Alpine.$date(optionEl).optionKey)
+                return data.__context.isActiveKey(Alpine.$data(optionEl).optionKey)
             },
             get isSelected() {
                 return data.__isSelected(optionEl)
             },
             get isDisabled() {
-                return data.__context.isDisabled(Alpine.$date(optionEl).optionKey)
+                return data.__context.isDisabled(Alpine.$data(optionEl).optionKey)
             },
         }
     })

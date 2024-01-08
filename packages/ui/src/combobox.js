@@ -43,19 +43,19 @@ export default function (Alpine) {
     Alpine.magic('comboboxOption', el => {
         let data = Alpine.$data(el)
 
-        let optionEl = Alpine.findClosest(el, i => i.__optionKey)
+        let optionEl = Alpine.findClosest(el, i => Alpine.$data(i).optionKey)
 
         if (! optionEl) throw 'No x-combobox:option directive found...'
 
         return {
             get isActive() {
-                return data.__context.isActiveKey(optionEl.__optionKey)
+                return data.__context.isActiveKey(Alpine.$data(optionEl).optionKey)
             },
             get isSelected() {
                 return data.__isSelected(optionEl)
             },
             get isDisabled() {
-                return data.__context.isDisabled(optionEl.__optionKey)
+                return data.__context.isDisabled(Alpine.$data(optionEl).optionKey)
             },
         }
     })
@@ -450,18 +450,20 @@ function handleOption(el, Alpine) {
         // Initialize...
         'x-data'() {
             return {
+                'optionKey': null,
+
                 init() {
-                    let key = this.$el.__optionKey = (Math.random() + 1).toString(36).substring(7)
+                    this.optionKey = (Math.random() + 1).toString(36).substring(7)
 
                     let value = Alpine.extractProp(this.$el, 'value')
                     let disabled = Alpine.extractProp(this.$el, 'disabled', false, false)
 
                     // memoize the context as it's not going to change
                     // and calling this.$data on mouse action is expensive
-                    this.__context.registerItem(key, this.$el, value, disabled)
+                    this.__context.registerItem(this.optionKey, this.$el, value, disabled)
                 },
                 destroy() {
-                    this.__context.unregisterItem(this.$el.__optionKey)
+                    this.__context.unregisterItem(this.optionKey)
                 }
             }
         },

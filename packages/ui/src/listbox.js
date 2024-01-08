@@ -48,19 +48,19 @@ export default function (Alpine) {
     Alpine.magic('listboxOption', (el) => {
         let data = Alpine.$data(el)
 
-        let optionEl = Alpine.findClosest(el, i => i.__optionKey)
+        let optionEl = Alpine.findClosest(el, i => Alpine.$date(i).optionKey)
 
         if (! optionEl) throw 'No x-combobox:option directive found...'
 
         return {
             get isActive() {
-                return data.__context.isActiveKey(optionEl.__optionKey)
+                return data.__context.isActiveKey(Alpine.$date(optionEl).optionKey)
             },
             get isSelected() {
                 return data.__isSelected(optionEl)
             },
             get isDisabled() {
-                return data.__context.isDisabled(optionEl.__optionKey)
+                return data.__context.isDisabled(Alpine.$date(optionEl).optionKey)
             },
         }
     })
@@ -339,16 +339,18 @@ function handleOption(el, Alpine) {
             // Initialize...
             'x-data'() {
                 return {
+                    'optionKey': null,
+
                     init() {
-                        let key = el.__optionKey = (Math.random() + 1).toString(36).substring(7)
+                        this.optionKey = (Math.random() + 1).toString(36).substring(7)
 
                         let value = Alpine.extractProp(el, 'value')
                         let disabled = Alpine.extractProp(el, 'disabled', false, false)
 
-                        this.$data.__context.registerItem(key, el, value, disabled)
+                        this.$data.__context.registerItem(this.optionKey, el, value, disabled)
                     },
                     destroy() {
-                        this.$data.__context.unregisterItem(this.$el.__optionKey)
+                        this.$data.__context.unregisterItem(this.optionKey)
                     },
                 }
             },

@@ -50,7 +50,7 @@ export default function (Alpine) {
 
         let optionEl = Alpine.findClosest(el, i => i.__optionKey)
 
-        if (! optionEl) throw 'No x-combobox:option directive found...'
+        if (! optionEl) throw 'No x-listbox:option directive found...'
 
         return {
             get isActive() {

@@ -192,7 +192,7 @@ Because `x-anchor` accepts a reference to any DOM element, you can use utilities
 <div x-data="{ open: false }">
     <button id="trigger" @click="open = ! open">Toggle</button>
 
-    <div x-show="open" x-anchor="document.getElementById('#trigger')">
+    <div x-show="open" x-anchor="document.getElementById('trigger')">
         Dropdown content
     </div>
 </div>

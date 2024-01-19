@@ -88,6 +88,7 @@ export function initTree(el, walker = walk, intercept = () => {}) {
 
             directives(el, el.attributes).forEach(handle => handle())
 
+            el._x_isInit = true
             el._x_ignore && skip()
         })
     })

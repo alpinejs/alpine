@@ -194,14 +194,9 @@ function onMutate(mutations) {
         node._x_ignore = true
     })
     for (let node of addedNodes) {
-        // If the node is already init, it means it's a move operation
-        if (node._x_isInit) continue
-
         // If the node was eventually removed as part of one of his
         // parent mutations, skip it
         if (! node.isConnected) continue
-
-        node._x_isInit = true
 
         delete node._x_ignoreSelf
         delete node._x_ignore

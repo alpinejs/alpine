@@ -1,11 +1,11 @@
-import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw } from './reactivity'
+import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw, watch } from './reactivity'
 import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } from './directives'
 import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle'
-import { onElRemoved, onAttributeRemoved, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation'
+import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation'
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope'
 import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from './evaluator'
 import { transition } from './directives/x-transition'
-import { clone, skipDuringClone, onlyDuringClone } from './clone'
+import { clone, cloneNode, skipDuringClone, onlyDuringClone, interceptClone } from './clone'
 import { interceptor } from './interceptor'
 import { getBinding as bound, extractProp } from './utils/bind'
 import { debounce } from './utils/debounce'
@@ -33,11 +33,13 @@ let Alpine = {
     stopObservingMutations,
     setReactivityEngine,
     onAttributeRemoved,
+    onAttributesAdded,
     closestDataStack,
     skipDuringClone,
     onlyDuringClone,
     addRootSelector,
     addInitSelector,
+    interceptClone,
     addScopeToNode,
     deferMutations,
     mapAttributes,
@@ -67,9 +69,11 @@ let Alpine = {
     magic,
     store,
     start,
-    clone,
+    clone, // INTERNAL
+    cloneNode, // INTERNAL
     bound,
     $data,
+    watch,
     walk,
     data,
     bind,

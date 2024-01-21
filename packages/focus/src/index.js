@@ -134,12 +134,13 @@ export default function (Alpine) {
 
                 // Start trapping.
                 if (value && ! oldValue) {
-                    setTimeout(() => {
-                        if (modifiers.includes('inert')) undoInert = setInert(el)
-                        if (modifiers.includes('noscroll')) undoDisableScrolling = disableScrolling()
+                    if (modifiers.includes('noscroll')) undoDisableScrolling = disableScrolling()
+                    if (modifiers.includes('inert')) undoInert = setInert(el)
 
+                    // Activate the trap after a generous tick. (Needed to play nice with transitions...)
+                    setTimeout(() => {
                         trap.activate()
-                    });
+                    }, 15)
                 }
 
                 // Stop trapping.

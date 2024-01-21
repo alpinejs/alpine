@@ -156,7 +156,7 @@ window.Element.prototype._x_toggleAndCascadeWithTransitions = function (el, valu
         ? new Promise((resolve, reject) => {
             el._x_transition.out(() => {}, () => resolve(hide))
 
-            el._x_transitioning.beforeCancel(() => reject({ isFromCancelledTransition: true }))
+            el._x_transitioning && el._x_transitioning.beforeCancel(() => reject({ isFromCancelledTransition: true }))
         })
         : Promise.resolve(hide)
 

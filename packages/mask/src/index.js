@@ -1,6 +1,6 @@
 
 export default function (Alpine) {
-    Alpine.directive('mask', (el, { value, expression }, { effect, evaluateLater }) => {
+    Alpine.directive('mask', (el, { value, expression }, { effect, evaluateLater, cleanup }) => {
         let templateFn = () => expression
         let lastInputValue = ''
 
@@ -43,10 +43,22 @@ export default function (Alpine) {
             if (el._x_model) el._x_model.set(el.value)
         })
 
-        el.addEventListener('input', () => processInputValue(el))
+        const controller = new AbortController()
+
+        cleanup(() => {
+            controller.abort()
+        })
+
+        el.addEventListener('input', () => processInputValue(el), {
+            signal: controller.signal,
+            // Setting this as a capture phase listener to ensure it runs
+            // before wire:model or x-model added as a latent binding...
+            capture: true,
+        })
+
         // Don't "restoreCursorPosition" on "blur", because Safari
         // will re-focus the input and cause a focus trap.
-        el.addEventListener('blur', () => processInputValue(el, false))
+        el.addEventListener('blur', () => processInputValue(el, false), { signal: controller.signal })
 
         function processInputValue (el, shouldRestoreCursor = true) {
             let input = el.value
@@ -174,7 +186,9 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
     if (input === '-') return '-'
     if (/^\D+$/.test(input)) return '9'
 
-    thousands = thousands ?? (delimiter === "," ? "." : ",")
+    if (thousands === null || thousands === undefined) {
+        thousands = delimiter === "," ? "." : ","
+    }
 
     let addThousands = (input, thousands) => {
         let output = ''
@@ -201,7 +215,7 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
 
     template = `${minus}${addThousands(template, thousands)}`
 
-    if (precision > 0 && input.includes(delimiter)) 
+    if (precision > 0 && input.includes(delimiter))
         template += `${delimiter}` + '9'.repeat(precision)
 
     queueMicrotask(() => {

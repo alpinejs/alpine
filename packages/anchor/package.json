@@ -1,19 +1,17 @@
 {
-    "name": "alpinejs",
+    "name": "@alpinejs/anchor",
     "version": "3.13.3",
-    "description": "The rugged, minimal JavaScript framework",
-    "homepage": "https://alpinejs.dev",
+    "description": "Anchor an element's position relative to another",
+    "homepage": "https://alpinejs.dev/plugins/anchor",
     "repository": {
         "type": "git",
         "url": "https://github.com/alpinejs/alpine.git",
-        "directory": "packages/alpinejs"
+        "directory": "packages/anchor"
     },
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
-    "dependencies": {
-        "@vue/reactivity": "~3.1.1"
-    }
+    "dependencies": {}
 }

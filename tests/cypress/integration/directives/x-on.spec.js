@@ -585,6 +585,20 @@ test('.dot modifier correctly binds event listener',
         get('span').should(haveText('baz'))
     }
 )
+test('underscores are allowed in event names',
+    html`
+        <div x-data="{ foo: 'bar' }" x-on:event_name="foo = 'baz'">
+            <button x-on:click="$dispatch('event_name')"></button>
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('button').click()
+        get('span').should(haveText('baz'))
+    }
+)
 
 test('.dot modifier correctly binds event listener with namespace',
     html`

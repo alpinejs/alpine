@@ -2,7 +2,7 @@ import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 import { mutateDom } from '../mutation'
 import { nextTick } from '../nextTick'
-import bind from '../utils/bind'
+import bind, { safeParseBoolean } from '../utils/bind'
 import on from '../utils/on'
 import { warn } from '../utils/warn'
 import { isCloning } from '../clone'
@@ -46,7 +46,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             })
         }
     }
-    
+
     if (typeof expression === 'string' && el.type === 'radio') {
         // Radio buttons only work properly when they share a name attribute.
         // People might assume we take care of that for them, because
@@ -69,7 +69,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let removeListener = isCloning ? () => {} : on(el, event, modifiers, (e) => {
         setValue(getInputValue(el, modifiers, e, getValue()))
     })
-    
+
     if (modifiers.includes('fill'))
         if ([null, ''].includes(getValue())
             || (el.type === 'checkbox' && Array.isArray(getValue()))) {
@@ -95,7 +95,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         cleanup(() => removeResetListener())
     }
 
-    // Allow programmatic overiding of x-model.
+    // Allow programmatic overriding of x-model.
     el._x_model = {
         get() {
             return getValue()
@@ -134,30 +134,48 @@ function getInputValue(el, modifiers, event, currentValue) {
         // Safari autofill triggers event as CustomEvent and assigns value to target
         // so we return event.target.value instead of event.detail
         if (event instanceof CustomEvent && event.detail !== undefined)
-            return event.detail ?? event.target.value
+            return event.detail !== null && event.detail !== undefined ? event.detail : event.target.value
         else if (el.type === 'checkbox') {
             // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {
-                let newValue = modifiers.includes('number') ? safeParseNumber(event.target.value) : event.target.value
+                let newValue = null;
+
+                if (modifiers.includes('number')) {
+                    newValue = safeParseNumber(event.target.value)
+                } else if (modifiers.includes('boolean')) {
+                    newValue = safeParseBoolean(event.target.value)
+                } else {
+                    newValue = event.target.value
+                }
 
                 return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(el => ! checkedAttrLooseCompare(el, newValue))
             } else {
                 return event.target.checked
             }
         } else if (el.tagName.toLowerCase() === 'select' && el.multiple) {
-            return modifiers.includes('number')
-                ? Array.from(event.target.selectedOptions).map(option => {
+            if (modifiers.includes('number')) {
+                return Array.from(event.target.selectedOptions).map(option => {
                     let rawValue = option.value || option.text
                     return safeParseNumber(rawValue)
                 })
-                : Array.from(event.target.selectedOptions).map(option => {
-                    return option.value || option.text
+            } else if (modifiers.includes('boolean')) {
+                return Array.from(event.target.selectedOptions).map(option => {
+                    let rawValue = option.value || option.text
+                    return safeParseBoolean(rawValue)
                 })
+            }
+
+            return Array.from(event.target.selectedOptions).map(option => {
+                return option.value || option.text
+            })
         } else {
-            let rawValue = event.target.value
-            return modifiers.includes('number')
-                ? safeParseNumber(rawValue)
-                : (modifiers.includes('trim') ? rawValue.trim() : rawValue)
+            if (modifiers.includes('number')) {
+                return safeParseNumber(event.target.value)
+            } else if (modifiers.includes('boolean')) {
+                return safeParseBoolean(event.target.value)
+            }
+
+            return modifiers.includes('trim') ? event.target.value.trim() : event.target.value
         }
     })
 }

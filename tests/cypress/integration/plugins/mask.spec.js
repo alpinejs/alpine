@@ -60,6 +60,21 @@ test('x-mask with x-model',
     },
 )
 
+test('x-mask with latently bound x-model',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask="(999) 999-9999" x-bind="{ 'x-model': 'value' }" id="1">
+            <input id="2" x-model="value">
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').type('a').should(haveValue('('))
+        get('#2').should(haveValue('('))
+        get('#1').type('1').should(haveValue('(1'))
+        get('#2').should(haveValue('(1'))
+    },
+)
+
 test('x-mask with x-model with initial value',
     [html`
         <div x-data="{ value: '1234567890' }">
@@ -171,7 +186,7 @@ test('$money with different thousands separator',
     }
 );
 
-test('$money works with permenant inserted at beginning',
+test('$money works with permanent inserted at beginning',
     [html`<input x-data x-mask:dynamic="$money">`],
     ({ get }) => {
         get('input').type('40.00').should(haveValue('40.00'))

@@ -44,6 +44,7 @@ test('works with clone',
             }
         }">
             <button id="one" @click="open = true">Trap</button>
+
             <div x-trap="open">
                 <input type="text">
                 <button id="two" @click="triggerClone()">Test</button>

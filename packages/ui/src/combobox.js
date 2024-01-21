@@ -246,7 +246,15 @@ function handleRoot(el, Alpine) {
 
                     if (typeof by === 'string') {
                         let property = by
-                        by = (a, b) => a[property] === b[property]
+                        by = (a, b) => {
+                            // Handle null values
+                            if ((! a || typeof a !== 'object') || (! b || typeof b !== 'object')) {
+                                return Alpine.raw(a) === Alpine.raw(b)
+                            }
+
+
+                            return a[property] === b[property];
+                        }
                     }
 
                     return by(a, b)
@@ -432,9 +440,9 @@ function handleOption(el, Alpine) {
 
         // Only the active element should have aria-selected="true"...
         'x-effect'() {
-            this.$comboboxOption.isActive
+            this.$comboboxOption.isSelected
                 ? el.setAttribute('aria-selected', true)
-                : el.removeAttribute('aria-selected')
+                : el.setAttribute('aria-selected', false)
         },
 
         ':aria-disabled'() { return this.$comboboxOption.isDisabled },

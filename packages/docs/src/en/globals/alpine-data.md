@@ -37,7 +37,7 @@ As you can see we've extracted the properties and methods we would usually defin
 If you've chosen to use a build step for your Alpine code, you should register your components in the following way:
 
 ```js
-import Alpine from `alpinejs`
+import Alpine from 'alpinejs'
 import dropdown from './dropdown.js'
 
 Alpine.data('dropdown', dropdown)
@@ -85,6 +85,43 @@ Alpine.data('dropdown', () => ({
         // initializes the rest of the component.
     }
 }))
+```
+
+<a name="destroy-functions"></a>
+## Destroy functions
+
+If your component contains a `destroy()` method, Alpine will automatically execute it before cleaning up the component.
+
+A primary example for this is when registering an event handler with another library or a browser API that isn't available through Alpine.
+See the following example code on how to use the `destroy()` method to clean up such a handler.
+
+```js
+Alpine.data('timer', () => ({
+    timer: null,
+    counter: 0,
+    init() {
+      // Register an event handler that references the component instance
+      this.timer = setInterval(() => {
+        console.log('Increased counter to', ++this.counter);
+      }, 1000);
+    },
+    destroy() {
+        // Detach the handler, avoiding memory and side-effect leakage
+        clearInterval(this.timer);
+    },
+}))
+```
+
+An example where a component is destroyed is when using one inside an `x-if`:
+
+```html
+<span x-data="{ enabled: false }">
+    <button @click.prevent="enabled = !enabled">Toggle</button>
+
+    <template x-if="enabled">
+        <span x-data="timer" x-text="counter"></span>
+    </template>
+</span>
 ```
 
 <a name="using-magic-properties"></a>

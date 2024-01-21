@@ -13,16 +13,16 @@ export default function (Alpine) {
         let data = Alpine.$data(el)
 
         return {
-            // @todo: remove "selected" and "active" when 1.0 is tagged...
+            // @deprecated:
             get selected() {
                 return data.__value
             },
+            // @deprecated:
             get active() {
                 let active = data.__context.getActiveItem()
 
                 return active && active.value
             },
-
             get value() {
                 return data.__value
             },
@@ -159,8 +159,8 @@ function handleRoot(el, Alpine) {
                 __activateSelectedOrFirst(activateSelected = true) {
                     if (! this.__isOpen) return
 
-                    if (this.__context.activeKey) {
-                        this.__context.activateAndScrollToKey(this.__context.activeKey)
+                    if (this.__context.getActiveKey()) {
+                        this.__context.activateAndScrollToKey(this.__context.getActiveKey())
                         return
                     }
 

@@ -5,24 +5,21 @@
 
 <div id="before">
 <!-- Before markup goes here: -->
-<button>
-    <div>
-        <div>second</div>
-        <div>third</div>
-    </div>
-</button>
+<ul>
+    <li data-key="1">foo<input></li>
+</ul>
 </div>
 
 <div id="after" style="display: none;">
 <!-- After markup goes here: -->
-<button>
-    <div>first</div>
-    <div>
-        <div>second</div>
-        <div>third</div>
-    </div>
-</button>
+<ul>
+    <li data-key="2">bar<input></li>
+    <li data-key="3">baz<input></li>
+    <li data-key="1">foo<input></li>
+</ul>
 </div>
+
+<div id="b"></div>
 
     <div style="display: flex;">
         <pre id="log-from"></pre>
@@ -38,6 +35,7 @@
     <script>
         function start() {
             Alpine.morph.log((message, from, to) => {
+                console.log(message, from, to)
                 document.querySelector('#log-from').innerHTML = escape(from.outerHTML)
                 document.querySelector('#log-to').innerHTML = escape(to.outerHTML)
                 let li = document.createElement('li')
@@ -48,7 +46,7 @@
             Alpine.morph(
                 document.querySelector('#before').firstElementChild,
                 document.querySelector('#after').firstElementChild.outerHTML,
-                { debug: true }
+                { debug: true, key(el) { return el.dataset.key } }
             )
         }
 

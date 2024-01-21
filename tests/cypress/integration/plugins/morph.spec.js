@@ -337,6 +337,29 @@ test('can morph using different keys',
     },
 )
 
+test('can morph elements with dynamic ids',
+    [html`
+        <ul>
+            <li x-data x-bind:id="'1'" >foo<input></li>
+        </ul>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <ul>
+                <li x-data x-bind:id="'1'" >foo<input></li>
+            </ul>
+        `
+
+        get('input').type('foo')
+
+        get('ul').then(([el]) => window.Alpine.morph(el, toHtml, {
+            key(el) { return el.id }
+        }))
+
+        get('li:nth-of-type(1) input').should(haveValue('foo'))
+    },
+)
+
 test('can morph different inline nodes',
     [html`
     <div id="from">
@@ -388,19 +411,19 @@ test('can morph table tr',
 test('can morph with conditional markers',
     [html`
         <main>
-            <!-- __BLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
             <div>foo<input></div>
-            <!-- __ENDBLOCK__ -->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>bar<input></div>
         </main>
     `],
     ({ get }, reload, window, document) => {
         let toHtml = html`
         <main>
-            <!-- __BLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
             <div>foo<input></div>
             <div>baz<input></div>
-            <!-- __ENDBLOCK__ -->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>bar<input></div>
         </main>
         `
@@ -419,23 +442,23 @@ test('can morph with conditional markers',
 test('can morph with flat-nested conditional markers',
     [html`
         <main>
-            <!-- __BLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
             <div>foo<input></div>
-            <!-- __BLOCK__ -->
-            <!-- __ENDBLOCK__ -->
-            <!-- __ENDBLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
+            <!--[if ENDBLOCK]><![endif]-->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>bar<input></div>
         </main>
     `],
     ({ get }, reload, window, document) => {
         let toHtml = html`
         <main>
-            <!-- __BLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
             <div>foo<input></div>
-            <!-- __BLOCK__ -->
-            <!-- __ENDBLOCK__ -->
+            <!--[if BLOCK]><![endif]-->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>baz<input></div>
-            <!-- __ENDBLOCK__ -->
+            <!--[if ENDBLOCK]><![endif]-->
             <div>bar<input></div>
         </main>
         `
@@ -470,3 +493,47 @@ test('can morph @event handlers', [
         get('button').should(haveText('buzz'));
     }
 );
+
+test('can morph menu',
+    [html`
+        <main x-data>
+            <article x-menu>
+                <button data-trigger x-menu:button x-text="'ready'"></button>
+
+                <div x-menu:items>
+                    <button x-menu:item href="#edit">
+                        Edit
+                        <input>
+                    </button>
+                </div>
+            </article>
+        </main>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <main x-data>
+                <article x-menu>
+                    <button data-trigger x-menu:button x-text="'ready'"></button>
+
+                    <div x-menu:items>
+                        <button x-menu:item href="#edit">
+                            Edit
+                            <input>
+                        </button>
+                    </div>
+                </article>
+            </main>
+        `
+
+        get('[data-trigger]').should(haveText('ready'));
+        get('button[data-trigger').click()
+
+        get('input').type('foo')
+
+        get('main').then(([el]) => window.Alpine.morph(el, toHtml, {
+            key(el) { return el.id }
+        }))
+
+        get('input').should(haveValue('foo'))
+    },
+)

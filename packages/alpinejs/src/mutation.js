@@ -119,8 +119,8 @@ function onMutate(mutations) {
         return
     }
 
-    let addedNodes = []
-    let removedNodes = []
+    let addedNodes = new Set
+    let removedNodes = new Set
     let addedAttributes = new Map
     let removedAttributes = new Map
 
@@ -128,8 +128,8 @@ function onMutate(mutations) {
         if (mutations[i].target._x_ignoreMutationObserver) continue
 
         if (mutations[i].type === 'childList') {
-            mutations[i].addedNodes.forEach(node => node.nodeType === 1 && addedNodes.push(node))
-            mutations[i].removedNodes.forEach(node => node.nodeType === 1 && removedNodes.push(node))
+            mutations[i].addedNodes.forEach(node => node.nodeType === 1 && addedNodes.add(node))
+            mutations[i].removedNodes.forEach(node => node.nodeType === 1 && removedNodes.add(node))
         }
 
         if (mutations[i].type === 'attributes') {
@@ -171,10 +171,11 @@ function onMutate(mutations) {
         onAttributeAddeds.forEach(i => i(el, attrs))
     })
 
+    console.log(removedNodes, addedNodes)
     for (let node of removedNodes) {
         // If an element gets moved on a page, it's registered
         // as both an "add" and "remove", so we want to skip those.
-        if (addedNodes.includes(node)) continue
+        if (addedNodes.has(node)) continue
 
         onElRemoveds.forEach(i => i(node))
 
@@ -194,10 +195,6 @@ function onMutate(mutations) {
         node._x_ignore = true
     })
     for (let node of addedNodes) {
-        // If an element gets moved on a page, it's registered
-        // as both an "add" and "remove", so we want to skip those.
-        if (removedNodes.includes(node)) continue
-
         // If the node was eventually removed as part of one of his
         // parent mutations, skip it
         if (! node.isConnected) continue

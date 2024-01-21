@@ -369,3 +369,31 @@ test('focuses element with autofocus',
         get('#3').should(haveFocus())
     }
 )
+
+test('can disable x-trap autofocus with .noautofocus modifier',
+    [html`
+        <div x-data="{ open: false }">
+            <input type="text" id="1">
+            <button id="2" @click="open = true">open</button>
+            <div>
+                <div x-trap.noautofocus="open">
+                    <input type="text" id="3">
+                    <input autofocus type="text" id="4">
+                    <button @click="open = false" id="5">close</button>
+                </div>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').click()
+        get('#1').should(haveFocus())
+        get('#2').click()
+        get('#4').should(notHaveFocus())
+        cy.focused().tab()
+        get('#3').should(haveFocus())
+        cy.focused().tab({shift: true})
+        get('#5').should(haveFocus())
+        cy.focused().click()
+        get('#2').should(haveFocus())
+    }
+)

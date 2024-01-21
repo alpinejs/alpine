@@ -108,9 +108,13 @@ export default function (Alpine) {
                 fallbackFocus: () => el,
             }
 
-            let autofocusEl = el.querySelector('[autofocus]')
+            if (modifiers.includes('noautofocus')) {
+                options.initialFocus = false
+            } else {
+                let autofocusEl = el.querySelector('[autofocus]')
 
-            if (autofocusEl) options.initialFocus = autofocusEl
+                if (autofocusEl) options.initialFocus = autofocusEl
+            }
 
             let trap = createFocusTrap(el, options)
 

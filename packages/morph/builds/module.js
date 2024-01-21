@@ -1,5 +1,5 @@
-import morphPlugin, { morph } from '../src/index.js'
+import morph from '../src/index.js'
 
-export default morphPlugin
+export default morph
 
 export { morph }

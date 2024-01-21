@@ -98,6 +98,68 @@ test('it works with x-model',
     },
 )
 
+test('initial value is set from x-model',
+    [html`
+        <div
+            x-data="{
+                query: '',
+                selected: { id: 1, name: 'Wade Cooper' },
+                people: [
+                    { id: 1, name: 'Wade Cooper' },
+                ],
+                get filteredPeople() {
+                    return this.query === ''
+                        ? this.people
+                        : this.people.filter((person) => {
+                            return person.name.toLowerCase().includes(this.query.toLowerCase())
+                        })
+                },
+            }"
+        >
+            <div x-combobox x-model="selected">
+                <label x-combobox:label>Select person</label>
+
+                <div>
+                    <div>
+                        <input
+                            x-combobox:input
+                            :display-value="person => person.name"
+                            @change="query = $event.target.value"
+                            placeholder="Search..."
+                        />
+
+                        <button x-combobox:button>Toggle</button>
+                    </div>
+
+                    <div x-combobox:options>
+                        <ul>
+                            <template
+                                x-for="person in filteredPeople"
+                                :key="person.id"
+                                hidden
+                            >
+                                <li
+                                    x-combobox:option
+                                    :option="person.id"
+                                    :value="person"
+                                    :disabled="person.disabled"
+                                    x-text="person.name"
+                                >
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+
+                <article x-text="selected?.name"></article>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('input').should(haveValue('Wade Cooper'))
+    },
+)
+
 test('it works with internal state',
     [html`
         <div
@@ -581,7 +643,7 @@ test('"multiple" prop',
         >
             <label x-combobox:label>Assigned to</label>
 
-            <input x-combobox:input :display-value="(person) => person.name" type="text">
+            <input x-combobox:input type="text">
             <button x-combobox:button x-text="$combobox.value ? $combobox.value.join(',') : 'Select People'"></button>
 
             <ul x-combobox:options>

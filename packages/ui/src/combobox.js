@@ -106,6 +106,9 @@ function handleRoot(el, Alpine) {
                     // to settle up currently selected Values (this prevents this next bit
                     // of code from running multiple times on startup...)
                     queueMicrotask(() => {
+                        // Set initial combobox values in the input...
+                        queueMicrotask(() => this.__resetInput())
+
                         Alpine.effect(() => {
                             // Everytime the value changes, we need to re-render the hidden inputs,
                             // if a user passed the "name" prop...
@@ -304,7 +307,6 @@ function handleInput(el, Alpine) {
         'x-init'() {
             let displayValueFn = Alpine.extractProp(this.$el, 'display-value')
             if (displayValueFn) this.$data.__displayValue = displayValueFn
-            this.$data.__resetInput()
         },
 
         // Register listeners...

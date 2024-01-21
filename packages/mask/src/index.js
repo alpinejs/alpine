@@ -49,7 +49,13 @@ export default function (Alpine) {
             controller.abort()
         })
 
-        el.addEventListener('input', () => processInputValue(el), { signal: controller.signal })
+        el.addEventListener('input', () => processInputValue(el), {
+            signal: controller.signal,
+            // Setting this as a capture phase listener to ensure it runs
+            // before wire:model or x-model added as a latent binding...
+            capture: true,
+        })
+
         // Don't "restoreCursorPosition" on "blur", because Safari
         // will re-focus the input and cause a focus trap.
         el.addEventListener('blur', () => processInputValue(el, false), { signal: controller.signal })
@@ -209,7 +215,7 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
 
     template = `${minus}${addThousands(template, thousands)}`
 
-    if (precision > 0 && input.includes(delimiter)) 
+    if (precision > 0 && input.includes(delimiter))
         template += `${delimiter}` + '9'.repeat(precision)
 
     queueMicrotask(() => {

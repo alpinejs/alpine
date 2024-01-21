@@ -108,7 +108,7 @@ export default function (Alpine) {
                 fallbackFocus: () => el,
             }
 
-            if (modifiers.includes('noinitialfocus')) {
+            if (modifiers.includes('noautofocus')) {
                 options.initialFocus = false
             } else {
                 let autofocusEl = el.querySelector('[autofocus]')

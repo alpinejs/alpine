@@ -370,13 +370,13 @@ test('focuses element with autofocus',
     }
 )
 
-test('can trap with noinitialfocus',
+test('can disable x-trap autofocus with .noautofocus modifier',
     [html`
         <div x-data="{ open: false }">
             <input type="text" id="1">
             <button id="2" @click="open = true">open</button>
             <div>
-                <div x-trap.noinitialfocus="open">
+                <div x-trap.noautofocus="open">
                     <input type="text" id="3">
                     <input autofocus type="text" id="4">
                     <button @click="open = false" id="5">close</button>

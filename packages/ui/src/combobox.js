@@ -106,15 +106,13 @@ function handleRoot(el, Alpine) {
                     // to settle up currently selected Values (this prevents this next bit
                     // of code from running multiple times on startup...)
                     queueMicrotask(() => {
-                        // Set initial combobox values in the input...
-                        queueMicrotask(() => this.__resetInput())
-
                         Alpine.effect(() => {
                             // Everytime the value changes, we need to re-render the hidden inputs,
                             // if a user passed the "name" prop...
                             this.__inputName && renderHiddenInputs(Alpine, this.$el, this.__inputName, this.__value)
                         })
 
+                        // Set initial combobox values in the input and properly clear it when the value is reset programmatically...
                         Alpine.effect(() => ! this.__isMultiple && this.__resetInput())
                     })
                 },

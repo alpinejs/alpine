@@ -19,20 +19,3 @@ export function walk(el, callback) {
         node = node.nextElementSibling
     }
 }
-// export function walk(el, callback) {
-//     if (el instanceof ShadowRoot || el instanceof DocumentFragment) {
-//         Array.from(el.children).forEach(el => walk(el, callback))
-
-//         return
-//     }
-
-//     callback(el, () => {
-//         let node = el.firstElementChild
-
-//         while (node) {
-//             walk(node, callback)
-
-//             node = node.nextElementSibling
-//         }
-//     })
-// }

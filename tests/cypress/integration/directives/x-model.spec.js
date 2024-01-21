@@ -1,4 +1,4 @@
-import { haveData, haveText, haveValue, html, test } from '../../utils'
+import { beChecked, haveData, haveText, haveValue, html, notBeChecked, test } from '../../utils'
 
 test('The name of the test',
     html`<h1 x-data x-text="'HEY'"></h1>`,
@@ -76,6 +76,86 @@ test('x-model with number modifier returns: null if empty, original value if cas
         get('div').should(haveData('bar', '-'))
         get('input:nth-of-type(2)').clear().type('-123')
         get('div').should(haveData('bar', -123))
+    }
+)
+
+test('x-model casts value to boolean initially for radios',
+    html`
+    <div x-data="{ foo: true }">
+        <input id="1" type="radio" value="true" name="foo" x-model.boolean="foo">
+        <input id="2" type="radio" value="false" name="foo" x-model.boolean="foo">
+    </div>
+    `,
+    ({ get }) => {
+        get('div').should(haveData('foo', true))
+        get('#1').should(beChecked())
+        get('#2').should(notBeChecked())
+        get('#2').click()
+        get('div').should(haveData('foo', false))
+        get('#1').should(notBeChecked())
+        get('#2').should(beChecked())
+    }
+)
+
+test('x-model casts value to boolean if boolean modifier is present',
+    html`
+    <div x-data="{ foo: null, bar: null, baz: [] }">
+        <input type="text" x-model.boolean="foo"></input>
+        <input type="checkbox" x-model.boolean="foo"></input>
+        <input type="radio" name="foo" x-model.boolean="foo" value="true"></input>
+        <input type="radio" name="foo" x-model.boolean="foo" value="false"></input>
+        <select x-model.boolean="bar">
+            <option value="true">yes</option>
+            <option value="false">no</option>
+        </select>
+    </div>
+    `,
+    ({ get }) => {
+        get('input[type=text]').type('1')
+        get('div').should(haveData('foo', true))
+        get('input[type=text]').clear().type('0')
+        get('div').should(haveData('foo', false))
+
+        get('input[type=checkbox]').check()
+        get('div').should(haveData('foo', true))
+        get('input[type=checkbox]').uncheck()
+        get('div').should(haveData('foo', false))
+
+        get('input[type=radio][value="true"]').should(notBeChecked())
+        get('input[type=radio][value="false"]').should(beChecked())
+        get('input[type=radio][value="true"]').check()
+        get('div').should(haveData('foo', true))
+        get('input[type=radio][value="false"]').check()
+        get('div').should(haveData('foo', false))
+
+        get('select').select('false')
+        get('div').should(haveData('bar', false))
+        get('select').select('true')
+        get('div').should(haveData('bar', true))
+    }
+)
+
+test('x-model with boolean modifier returns: null if empty, original value if casting fails, numeric value if casting passes',
+    html`
+    <div x-data="{ foo: 0, bar: '' }">
+        <input x-model.boolean="foo"></input>
+    </div>
+    `,
+    ({ get }) => {
+        get('input').clear()
+        get('div').should(haveData('foo', null))
+        get('input').clear().type('bar')
+        get('div').should(haveData('foo', true))
+        get('input').clear().type('1')
+        get('div').should(haveData('foo', true))
+        get('input').clear().type('1').clear()
+        get('div').should(haveData('foo', null))
+        get('input').clear().type('0')
+        get('div').should(haveData('foo', false))
+        get('input').clear().type('bar')
+        get('div').should(haveData('foo', true))
+        get('input').clear().type('0').clear()
+        get('div').should(haveData('foo', null))
     }
 )
 
@@ -186,5 +266,16 @@ test('x-model with fill modifier respects number modifier',
     }
 );
 
-
+test(
+    'x-model with fill applies on checkboxes bound to array',
+    html`
+        <div x-data="{ a: ['456'] }">
+            <input type="checkbox" x-model.fill="a" value="123" checked />
+            <input type="checkbox" x-model.fill="a" value="456" />
+        </div>
+    `,
+    ({ get }) => {
+        get('[x-data]').should(haveData('a', ['123']));
+    }
+);
 

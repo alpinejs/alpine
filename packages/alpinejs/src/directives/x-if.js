@@ -5,8 +5,11 @@ import { initTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
 import { walk } from "../utils/walk"
 import { dequeueJob } from '../scheduler'
+import { warn } from "../utils/warn"
 
 directive('if', (el, { expression }, { effect, cleanup }) => {
+    if (el.tagName.toLowerCase() !== 'template') warn('x-if can only be used on a <template> tag', el)
+
     let evaluate = evaluateLater(el, expression)
 
     let show = () => {

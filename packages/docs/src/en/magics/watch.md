@@ -39,7 +39,7 @@ When the `<button>` is pressed, `foo.bar` will be set to "bob", and "bob" will b
 <a name="deep-watching"></a>
 ### Deep watching
 
-`$watch` will automatically watches from changes at any level but you should keep in mind that, when a change is detected, the watcher will return the value of the observed property, not the value of the subproperty that has changed.
+`$watch` automatically watches from changes at any level but you should keep in mind that, when a change is detected, the watcher will return the value of the observed property, not the value of the subproperty that has changed.
 
 ```alpine
 <div x-data="{ foo: { bar: 'baz' }}" x-init="$watch('foo', (value, oldValue) => console.log(value, oldValue))">

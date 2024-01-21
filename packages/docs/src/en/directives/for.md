@@ -25,6 +25,30 @@ Alpine's `x-for` directive allows you to create DOM elements by iterating throug
 </div>
 <!-- END_VERBATIM -->
 
+You may also pass objects to `x-for`.
+
+```alpine
+<ul x-data="{ car: { make: 'Jeep', model: 'Grand Cherokee', color: 'Black' } }">
+    <template x-for="(value, index) in car">
+        <li>
+            <span x-text="index"></span>: <span x-text="value"></span>
+        </li>
+    </template>
+</ul>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <ul x-data="{ car: { make: 'Jeep', model: 'Grand Cherokee', color: 'Black' } }">
+        <template x-for="(value, index) in car">
+            <li>
+                <span x-text="index"></span>: <span x-text="value"></span>
+            </li>
+        </template>
+    </ul>
+</div>
+<!-- END_VERBATIM -->
+
 There are two rules worth noting about `x-for`:
 
 >`x-for` MUST be declared on a `<template>` element

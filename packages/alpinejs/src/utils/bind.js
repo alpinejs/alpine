@@ -1,3 +1,4 @@
+import { dontAutoEvaluateFunctions, evaluate } from '../evaluator'
 import { reactive } from '../reactivity'
 import { setClasses } from './classes'
 import { setStyles } from './styles'
@@ -22,9 +23,9 @@ export default function bind(el, name, value, modifiers = []) {
         case 'class':
             bindClasses(el, value)
             break;
-        
+
         // 'selected' and 'checked' are special attributes that aren't necessarily
-        // synced with their corresponding properties when updated, so both the 
+        // synced with their corresponding properties when updated, so both the
         // attribute and property need to be updated when bound.
         case 'selected':
         case 'checked':
@@ -48,7 +49,11 @@ function bindInputValue(el, value) {
 
         // @todo: yuck
         if (window.fromModel) {
-            el.checked = checkedAttrLooseCompare(el.value, value)
+            if (typeof value === 'boolean') {
+                el.checked = safeParseBoolean(el.value) === value
+            } else {
+                el.checked = checkedAttrLooseCompare(el.value, value)
+            }
         }
     } else if (el.type === 'checkbox') {
         // If we are explicitly binding a string to the :value, set the string,
@@ -56,7 +61,7 @@ function bindInputValue(el, value) {
         // automatically.
         if (Number.isInteger(value)) {
             el.value = value
-        } else if (! Number.isInteger(value) && ! Array.isArray(value) && typeof value !== 'boolean' && ! [null, undefined].includes(value)) {
+        } else if (! Array.isArray(value) && typeof value !== 'boolean' && ! [null, undefined].includes(value)) {
             el.value = String(value)
         } else {
             if (Array.isArray(value)) {
@@ -70,7 +75,7 @@ function bindInputValue(el, value) {
     } else {
         if (el.value === value) return
 
-        el.value = value
+        el.value = value === undefined ? '' : value
     }
 }
 
@@ -129,6 +134,18 @@ function checkedAttrLooseCompare(valueA, valueB) {
     return valueA == valueB
 }
 
+export function safeParseBoolean(rawValue) {
+    if ([1, '1', 'true', 'on', 'yes', true].includes(rawValue)) {
+        return true
+    }
+
+    if ([0, '0', 'false', 'off', 'no', false].includes(rawValue)) {
+        return false
+    }
+
+    return rawValue ? Boolean(rawValue) : null
+}
+
 function isBooleanAttr(attrName) {
     // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
     // Array roughly ordered by estimated usage
@@ -151,6 +168,27 @@ export function getBinding(el, name, fallback) {
     // First let's get it out of Alpine bound data.
     if (el._x_bindings && el._x_bindings[name] !== undefined) return el._x_bindings[name]
 
+    return getAttributeBinding(el, name, fallback)
+}
+
+export function extractProp(el, name, fallback, extract = true) {
+    // First let's get it out of Alpine bound data.
+    if (el._x_bindings && el._x_bindings[name] !== undefined) return el._x_bindings[name]
+
+    if (el._x_inlineBindings && el._x_inlineBindings[name] !== undefined) {
+        let binding = el._x_inlineBindings[name]
+
+        binding.extract = extract
+
+        return dontAutoEvaluateFunctions(() => {
+            return evaluate(el, binding.expression)
+        })
+    }
+
+    return getAttributeBinding(el, name, fallback)
+}
+
+function getAttributeBinding(el, name, fallback) {
     // If not, we'll return the literal attribute.
     let attr = el.getAttribute(name)
 

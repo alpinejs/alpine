@@ -1,8 +1,9 @@
-import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes } from "./mutation"
+import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes, cleanupElement } from "./mutation"
 import { deferHandlingDirectives, directives } from "./directives"
 import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
+import Alpine from "./alpine"
 
 let started = false
 
@@ -26,7 +27,7 @@ export function start() {
     })
 
     let outNestedComponents = el => ! closestRoot(el.parentElement, true)
-    Array.from(document.querySelectorAll(allSelectors()))
+    Array.from(document.querySelectorAll(allSelectors().join(',')))
         .filter(outNestedComponents)
         .forEach(el => {
             initTree(el)
@@ -93,5 +94,8 @@ export function initTree(el, walker = walk, intercept = () => {}) {
 }
 
 export function destroyTree(root) {
-    walk(root, el => cleanupAttributes(el))
+    walk(root, el => {
+        cleanupAttributes(el)
+        cleanupElement(el)
+    })
 }

@@ -62,6 +62,7 @@ Now when the `<button>` is clicked, the input element's value will instantly be 
 * `<input type="checkbox">`
 * `<input type="radio">`
 * `<select>`
+* `<input type="range">`
 
 <a name="text-inputs"></a>
 ## Text inputs
@@ -282,6 +283,26 @@ Color: <span x-text="color"></span>
 </div>
 <!-- END_VERBATIM -->
 
+<a name="range-inputs"></a>
+## Range inputs
+
+```alpine
+<input type="range" x-model="range" min="0" max="1" step="0.1">
+
+<span x-text="range"></span>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <div x-data="{ range: 0.5 }">
+        <input type="range" x-model="range" min="0" max="1" step="0.1">
+
+        <div class="pt-4" x-text="range"></div>
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
+
 <a name="modifiers"></a>
 ## Modifiers
 
@@ -305,6 +326,19 @@ By default, any data stored in a property via `x-model` is stored as a string. T
 ```alpine
 <input type="text" x-model.number="age">
 <span x-text="typeof age"></span>
+```
+
+<a name="boolean"></a>
+### `.boolean`
+
+By default, any data stored in a property via `x-model` is stored as a string. To force Alpine to store the value as a JavaScript boolean, add the `.boolean` modifier. Both integers (1/0) and strings (true/false) are valid boolean values.
+
+```alpine
+<select x-model.boolean="isActive">
+    <option value="true">Yes</option>
+    <option value="false">No</option>
+</select>
+<span x-text="typeof isActive"></span>
 ```
 
 <a name="debounce"></a>

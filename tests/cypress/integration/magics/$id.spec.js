@@ -103,7 +103,7 @@ test('$id scopes can be reset',
             <div x-data>
                 <h1 :id="$id('foo')"></h1>
                 <h5 :id="$id('bar')"></h5>
-                
+
                 <div x-id="['foo']">
                     <h2 :aria-labelledby="$id('foo')"></h2>
                     <h6 :aria-labelledby="$id('bar')"></h6>
@@ -126,4 +126,35 @@ test('$id scopes can be reset',
         get('h5').should(haveAttribute('id', 'bar-1'))
         get('h6').should(haveAttribute('aria-labelledby', 'bar-1'))
     }
+)
+
+test('can be used with morph without losing track',
+    [html`
+        <div x-data>
+            <p x-id="['foo']">
+                <span :id="$id('foo')">bob</span>
+            </p>
+
+            <h1 :id="$id('bar')">lob</h1>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <div x-data>
+                <p x-id="['foo']">
+                    <span :id="$id('foo')">bob</span>
+                </p>
+
+                <h1 :id="$id('bar')">lob</h1>
+            </div>
+        `
+
+        get('span').should(haveAttribute('id', 'foo-1'))
+        get('h1').should(haveAttribute('id', 'bar-1'))
+
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('span').should(haveAttribute('id', 'foo-1'))
+        get('h1').should(haveAttribute('id', 'bar-1'))
+    },
 )

@@ -1,3 +1,5 @@
+import { destroyTree } from "./lifecycle"
+
 let onAttributeAddeds = []
 let onElRemoveds = []
 let onElAddeds = []
@@ -39,6 +41,12 @@ export function cleanupAttributes(el, names) {
     })
 }
 
+export function cleanupElement(el) {
+    if (el._x_cleanups) {
+        while (el._x_cleanups.length) el._x_cleanups.pop()()
+    }
+}
+
 let observer = new MutationObserver(onMutate)
 
 let currentlyObserving = false
@@ -57,27 +65,24 @@ export function stopObservingMutations() {
     currentlyObserving = false
 }
 
-let recordQueue = []
-let willProcessRecordQueue = false
+let queuedMutations = []
 
 export function flushObserver() {
-    recordQueue = recordQueue.concat(observer.takeRecords())
+    let records = observer.takeRecords()
 
-    if (recordQueue.length && ! willProcessRecordQueue) {
-        willProcessRecordQueue = true
+    queuedMutations.push(() => records.length > 0 && onMutate(records))
 
-        queueMicrotask(() => {
-            processRecordQueue()
+    let queueLengthWhenTriggered = queuedMutations.length
 
-            willProcessRecordQueue = false
-        })
-    }
-}
-
-function processRecordQueue() {
-     onMutate(recordQueue)
-
-     recordQueue.length = 0
+    queueMicrotask(() => {
+        // If these two lengths match, then we KNOW that this is the LAST
+        // flush in the current event loop. This way, we can process
+        // all mutations in one batch at the end of everything...
+        if (queuedMutations.length === queueLengthWhenTriggered) {
+            // Now Alpine can process all the mutations...
+            while (queuedMutations.length > 0) queuedMutations.shift()()
+        }
+    })
 }
 
 export function mutateDom(callback) {
@@ -147,11 +152,11 @@ function onMutate(mutations) {
             // New attribute.
             if (el.hasAttribute(name) && oldValue === null) {
                 add()
-            // Changed atttribute.
+            // Changed attribute.
             } else if (el.hasAttribute(name)) {
                 remove()
                 add()
-            // Removed atttribute.
+            // Removed attribute.
             } else {
                 remove()
             }
@@ -173,9 +178,7 @@ function onMutate(mutations) {
 
         onElRemoveds.forEach(i => i(node))
 
-        if (node._x_cleanups) {
-            while (node._x_cleanups.length) node._x_cleanups.pop()()
-        }
+        destroyTree(node)
     }
 
     // Mutations are bundled together by the browser but sometimes

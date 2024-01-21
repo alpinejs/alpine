@@ -71,7 +71,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     })
 
     if (modifiers.includes('fill'))
-        if ([null, ''].includes(getValue())
+        if ([undefined, null, ''].includes(getValue())
             || (el.type === 'checkbox' && Array.isArray(getValue()))) {
             el.dispatchEvent(new Event(event, {}));
     }

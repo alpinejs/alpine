@@ -43,7 +43,11 @@ export default function (Alpine) {
     Alpine.magic('comboboxOption', el => {
         let data = Alpine.$data(el)
 
-        let optionEl = Alpine.findClosest(el, i => data.__optionKey)
+        // It's not great depending on the existance of the attribute in the DOM
+        // but it's probably the fastest and most reliable at this point...
+        let optionEl = Alpine.findClosest(el, i => {
+            return i.hasAttribute('x-combobox:option')
+        })
 
         if (! optionEl) throw 'No x-combobox:option directive found...'
 

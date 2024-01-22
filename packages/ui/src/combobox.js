@@ -43,19 +43,23 @@ export default function (Alpine) {
     Alpine.magic('comboboxOption', el => {
         let data = Alpine.$data(el)
 
-        let optionEl = Alpine.findClosest(el, i => i.__optionKey)
+        // It's not great depending on the existance of the attribute in the DOM
+        // but it's probably the fastest and most reliable at this point...
+        let optionEl = Alpine.findClosest(el, i => {
+            return i.hasAttribute('x-combobox:option')
+        })
 
         if (! optionEl) throw 'No x-combobox:option directive found...'
 
         return {
             get isActive() {
-                return data.__context.isActiveKey(optionEl.__optionKey)
+                return data.__context.isActiveKey(Alpine.$data(optionEl).__optionKey)
             },
             get isSelected() {
                 return data.__isSelected(optionEl)
             },
             get isDisabled() {
-                return data.__context.isDisabled(optionEl.__optionKey)
+                return data.__context.isDisabled(Alpine.$data(optionEl).__optionKey)
             },
         }
     })
@@ -453,18 +457,20 @@ function handleOption(el, Alpine) {
         // Initialize...
         'x-data'() {
             return {
+                '__optionKey': null,
+
                 init() {
-                    let key = this.$el.__optionKey = (Math.random() + 1).toString(36).substring(7)
+                    this.__optionKey = (Math.random() + 1).toString(36).substring(7)
 
                     let value = Alpine.extractProp(this.$el, 'value')
                     let disabled = Alpine.extractProp(this.$el, 'disabled', false, false)
 
                     // memoize the context as it's not going to change
                     // and calling this.$data on mouse action is expensive
-                    this.__context.registerItem(key, this.$el, value, disabled)
+                    this.__context.registerItem(this.__optionKey, this.$el, value, disabled)
                 },
                 destroy() {
-                    this.__context.unregisterItem(this.$el.__optionKey)
+                    this.__context.unregisterItem(this.__optionKey)
                 }
             }
         },
@@ -497,7 +503,6 @@ function handleOption(el, Alpine) {
         },
     })
 }
-
 
 // Little utility to defer a callback into the microtask queue...
 function microtask(callback) {

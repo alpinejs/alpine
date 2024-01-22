@@ -1,4 +1,4 @@
-import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test} from '../../../utils'
+import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test, ensureNoConsoleWarns} from '../../../utils'
 
 test('it works with x-model',
     [html`
@@ -918,6 +918,42 @@ test('"static" prop',
         get('[option="2"]').click()
         get('ul').should(beVisible())
         get('[normal-toggle]').should(haveText('Arlene Mccoy'))
+    },
+)
+
+test('works with morph',
+    [html`
+    <div x-data="{ value: null }">
+        <div x-listbox x-model="value">
+            <button x-listbox:button>Select Framework</button>
+
+            <ul x-listbox:options>
+                <li x-listbox:option value="laravel">Laravel</li>
+            </ul>
+        </div>
+
+        Selected: <span x-text="value"></span>
+    </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <div x-data="{ value: null }">
+            <div x-listbox x-model="value">
+                <button x-listbox:button>Select Framework (updated)</button>
+
+                <ul x-listbox:options>
+                    <li x-listbox:option value="laravel">Laravel</li>
+                </ul>
+            </div>
+
+            Selected: <span x-text="value"></span>
+        </div>
+        `
+        ensureNoConsoleWarns()
+
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('button').should(haveText('Select Framework (updated)'))
     },
 )
 

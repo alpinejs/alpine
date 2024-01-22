@@ -1,4 +1,4 @@
-import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, contain, notContain, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test, haveValue, haveLength} from '../../../utils'
+import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, contain, notContain, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test, haveValue, haveLength, ensureNoConsoleWarns} from '../../../utils'
 
 test('it works with x-model',
     [html`
@@ -1630,3 +1630,39 @@ test('can remove an option without other options getting removed',
         get('[check="3"]').should(notBeVisible())
     },
 );
+
+test('works with morph',
+    [html`
+    <div x-data="{ value: null }">
+        <div x-combobox x-model="value">
+            <button x-combobox:button>Select Framework</button>
+
+            <ul x-combobox:options>
+                <li x-combobox:option value="laravel">Laravel</li>
+            </ul>
+        </div>
+
+        Selected: <span x-text="value"></span>
+    </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <div x-data="{ value: null }">
+            <div x-combobox x-model="value">
+                <button x-combobox:button>Select Framework (updated)</button>
+
+                <ul x-combobox:options>
+                    <li x-combobox:option value="laravel">Laravel</li>
+                </ul>
+            </div>
+
+            Selected: <span x-text="value"></span>
+        </div>
+        `
+        ensureNoConsoleWarns()
+
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('button').should(haveText('Select Framework (updated)'))
+    },
+)

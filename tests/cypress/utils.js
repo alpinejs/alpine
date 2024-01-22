@@ -5,6 +5,18 @@ export function html(strings) {
     return strings.raw[0]
 }
 
+export function ensureNoConsoleWarns() {
+    cy.window().then((win) => {
+        let cache = win.console.warn
+
+        win.console.warn = () => { throw new Error('Console warn was triggered') }
+
+        cy.on('window:before:unload', () => {
+            win.console.warn = cache
+        });
+    });
+}
+
 export let test = function (name, template, callback, handleExpectedErrors = false) {
     it(name, () => {
         injectHtmlAndBootAlpine(cy, template, callback, undefined, handleExpectedErrors)

@@ -48,19 +48,23 @@ export default function (Alpine) {
     Alpine.magic('listboxOption', (el) => {
         let data = Alpine.$data(el)
 
-        let optionEl = Alpine.findClosest(el, i => i.__optionKey)
+        // It's not great depending on the existance of the attribute in the DOM
+        // but it's probably the fastest and most reliable at this point...
+        let optionEl = Alpine.findClosest(el, i => {
+            return i.hasAttribute('x-listbox:option')
+        })
 
         if (! optionEl) throw 'No x-listbox:option directive found...'
 
         return {
             get isActive() {
-                return data.__context.isActiveKey(optionEl.__optionKey)
+                return data.__context.isActiveKey(Alpine.$data(optionEl).__optionKey)
             },
             get isSelected() {
                 return data.__isSelected(optionEl)
             },
             get isDisabled() {
-                return data.__context.isDisabled(optionEl.__optionKey)
+                return data.__context.isDisabled(Alpine.$data(optionEl).__optionKey)
             },
         }
     })
@@ -346,16 +350,18 @@ function handleOption(el, Alpine) {
             // Initialize...
             'x-data'() {
                 return {
+                    '__optionKey': null,
+
                     init() {
-                        let key = el.__optionKey = (Math.random() + 1).toString(36).substring(7)
+                        this.__optionKey = (Math.random() + 1).toString(36).substring(7)
 
                         let value = Alpine.extractProp(el, 'value')
                         let disabled = Alpine.extractProp(el, 'disabled', false, false)
 
-                        this.$data.__context.registerItem(key, el, value, disabled)
+                        this.$data.__context.registerItem(this.__optionKey, el, value, disabled)
                     },
                     destroy() {
-                        this.$data.__context.unregisterItem(this.$el.__optionKey)
+                        this.$data.__context.unregisterItem(this.__optionKey)
                     },
                 }
             },

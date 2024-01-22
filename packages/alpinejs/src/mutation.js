@@ -171,7 +171,6 @@ function onMutate(mutations) {
         onAttributeAddeds.forEach(i => i(el, attrs))
     })
 
-    console.log(removedNodes, addedNodes)
     for (let node of removedNodes) {
         // If an element gets moved on a page, it's registered
         // as both an "add" and "remove", so we want to skip those.

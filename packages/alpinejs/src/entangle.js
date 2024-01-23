@@ -6,15 +6,15 @@ export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set:
     let innerHash
 
     let reference = effect(() => {
-        const outer = outerGet()
-        const inner = innerGet()
+        let outer = outerGet()
+        let inner = innerGet()
 
         if (firstRun) {
             innerSet(cloneIfObject(outer))
             firstRun = false
         } else {
-            const outerHashLatest = JSON.stringify(outer)
-            const innerHashLatest = JSON.stringify(inner)
+            let outerHashLatest = JSON.stringify(outer)
+            let innerHashLatest = JSON.stringify(inner)
 
             if (outerHashLatest !== outerHash) { // If outer changed...
                 innerSet(cloneIfObject(outer))

@@ -3,27 +3,30 @@ import { effect, release } from './reactivity'
 export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set: innerSet }) {
     let firstRun = true
     let outerHash
+    let innerHash
 
     let reference = effect(() => {
         const outer = outerGet()
         const inner = innerGet()
+
         if (firstRun) {
             innerSet(cloneIfObject(outer))
             firstRun = false
-            outerHash = JSON.stringify(outer)
         } else {
             const outerHashLatest = JSON.stringify(outer)
+            const innerHashLatest = JSON.stringify(inner)
 
             if (outerHashLatest !== outerHash) { // If outer changed...
                 innerSet(cloneIfObject(outer))
-                outerHash = outerHashLatest
-            } else { // If inner changed...
+            } else if (outerHashLatest !== innerHashLatest) { // If inner changed...
                 outerSet(cloneIfObject(inner))
-                outerHash = JSON.stringify(inner)
+            } else { // If nothing changed...
+                // Prevent an infinite loop...
             }
         }
-        JSON.stringify(innerGet())
-        JSON.stringify(outerGet())
+
+        outerHash = JSON.stringify(outerGet())
+        innerHash = JSON.stringify(innerGet())
     })
 
     return () => {

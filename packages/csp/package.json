@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/csp",
-    "version": "3.13.4",
+    "version": "3.13.5",
     "description": "A CSP-friendly build of AlpineJS",
     "author": "Caleb Porzio",
     "license": "MIT",

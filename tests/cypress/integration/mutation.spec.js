@@ -219,3 +219,27 @@ test('no side effects when directives are added to an element that is removed af
         get('span').should(haveText('0'))
     }
 )
+test(
+    "previously initialized elements are not reinitialized on being moved",
+    html`
+        <script>
+            let count = 0;
+            document.addEventListener('alpine:init', () => {
+                Alpine.directive('test', el => {
+                    if (count++ > 3) return;
+                    el.textContent = count;
+                    let wrapper = document.createElement('div');
+                    wrapper.setAttribute('class', 'bg-blue-300 p-8');
+                    el.parentNode.replaceChild(wrapper, el);
+                    wrapper.appendChild(el);
+                });
+            });
+        </script>
+        <div x-data>
+            <div class="bg-red-300 w-32 h-32" x-test></div>
+        </div>
+    `,
+    ({ get }) => {
+        get("[x-test]").should(haveText("1"));
+    }
+);

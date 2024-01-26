@@ -95,7 +95,7 @@ function handleRoot(el, Alpine) {
                 __hold: false,
 
                 /**
-                 * Comobox initialization...
+                 * Listbox initialization...
                  */
                 init() {
                     this.__isMultiple = Alpine.extractProp(el, 'multiple', false)

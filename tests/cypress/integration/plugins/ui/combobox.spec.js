@@ -1666,3 +1666,144 @@ test('works with morph',
         get('button').should(haveText('Select Framework (updated)'))
     },
 )
+
+test('boolean option values',
+    [html`
+    <div x-data="{ value: null }">
+        <div x-combobox x-model="value">
+            <input x-combobox:input />
+            <button x-combobox:button>Select boolean</button>
+
+            <ul x-combobox:options>
+                <li
+                    option="boolean-true"
+                    x-combobox:option
+                    :value="true"
+                    :class="{
+                        'selected': $comboboxOption.isSelected,
+                        'active': $comboboxOption.isActive,
+                    }">
+                    <span>Yes</span>
+                </li>
+                <li
+                    option="boolean-false"
+                    x-combobox:option
+                    :value="false"
+                    :class="{
+                        'selected': $comboboxOption.isSelected,
+                        'active': $comboboxOption.isActive,
+                    }">
+                    <span>No</span>
+                </li>
+            </ul>
+        </div>
+
+        Selected: <p x-text="value?.toString()"></p>
+    </div>
+    `],
+    ({ get }) => {
+        get('ul').should(notBeVisible())
+        get('p').should(haveText(''))
+        get('button')
+            .should(haveText('Select boolean'))
+            .click()
+        get('ul').should(beVisible())
+        get('[option="boolean-true"]').should(notHaveClasses(['selected']))
+        get('[option="boolean-false"]').should(notHaveClasses(['selected']))
+        get('[option="boolean-true"]').click()
+        get('ul').should(notBeVisible())
+        get('p').should(haveText('true'))
+        get('button').click()
+        get('ul').should(beVisible())
+        get('[option="boolean-true"]').should(haveClasses(['selected']))
+        get('[option="boolean-false"]').should(notHaveClasses(['selected']))
+        get('[option="boolean-false"]').click()
+        get('ul').should(notBeVisible())
+        get('p').should(haveText('false'))
+        get('button').click()
+        get('ul').should(beVisible())
+        get('[option="boolean-true"]').should(notHaveClasses(['selected']))
+        get('[option="boolean-false"]').should(haveClasses(['selected']))
+    },
+)
+
+test('integer option values',
+    [html`
+    <div x-data="{ value: null }">
+        <div x-combobox x-model="value">
+            <input x-combobox:input />
+            <button x-combobox:button>Select number</button>
+
+            <ul x-combobox:options>
+                <li
+                    option="0"
+                    x-combobox:option
+                    :value="0"
+                    :class="{
+                        'selected': $comboboxOption.isSelected,
+                        'active': $comboboxOption.isActive,
+                    }">
+                    <span>0</span>
+                </li>
+                <li
+                    option="1"
+                    x-combobox:option
+                    :value="1"
+                    :class="{
+                        'selected': $comboboxOption.isSelected,
+                        'active': $comboboxOption.isActive,
+                    }">
+                    <span>1</span>
+                </li>
+                <li
+                    option="2"
+                    x-combobox:option
+                    :value="2"
+                    :class="{
+                        'selected': $comboboxOption.isSelected,
+                        'active': $comboboxOption.isActive,
+                    }">
+                    <span>2</span>
+                </li>
+            </ul>
+        </div>
+
+        Selected: <p x-text="value?.toString()"></p>
+    </div>
+    `],
+    ({ get }) => {
+        get('ul').should(notBeVisible())
+        get('p').should(haveText(''))
+        get('button')
+            .should(haveText('Select number'))
+            .click()
+        get('ul').should(beVisible())
+        get('[option="0"]').should(notHaveClasses(['selected']))
+        get('[option="1"]').should(notHaveClasses(['selected']))
+        get('[option="2"]').should(notHaveClasses(['selected']))
+        get('[option="1"]').click()
+        get('ul').should(notBeVisible())
+        get('p').should(haveText('1'))
+        get('button').click()
+        get('ul').should(beVisible())
+        get('[option="0"]').should(notHaveClasses(['selected']))
+        get('[option="1"]').should(haveClasses(['selected']))
+        get('[option="2"]').should(notHaveClasses(['selected']))
+        get('[option="0"]').click()
+        get('ul').should(notBeVisible())
+        get('p').should(haveText('0'))
+        get('button').click()
+        get('ul').should(beVisible())
+        get('[option="0"]').should(haveClasses(['selected']))
+        get('[option="1"]').should(notHaveClasses(['selected']))
+        get('[option="2"]').should(notHaveClasses(['selected']))
+        get('[option="2"]').click()
+        get('ul').should(notBeVisible())
+        get('p').should(haveText('2'))
+        get('button').click()
+        get('ul').should(beVisible())
+        get('[option="0"]').should(notHaveClasses(['selected']))
+        get('[option="1"]').should(notHaveClasses(['selected']))
+        get('[option="2"]').should(haveClasses(['selected']))
+    },
+)

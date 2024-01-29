@@ -222,7 +222,7 @@ function handleRoot(el, Alpine) {
                     let item = this.__context.getItemByEl(el)
 
                     if (! item) return false
-                    if (! item.value) return false
+                    if (item.value === null || item.value === undefined) return false
 
                     return this.__hasSelected(item.value)
                 },

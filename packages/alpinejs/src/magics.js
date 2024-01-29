@@ -1,4 +1,3 @@
-import Alpine from './alpine'
 import { getElementBoundUtilities } from './directives'
 import { interceptor } from './interceptor'
 import { onElRemoved } from './mutation'
@@ -17,14 +16,14 @@ export function injectMagics(obj, el) {
                 return memoizedUtilities;
             } else {
                 let [utilities, cleanup] = getElementBoundUtilities(el)
-                
+
                 memoizedUtilities = {interceptor, ...utilities}
-                
+
                 onElRemoved(el, cleanup)
                 return memoizedUtilities;
             }
         }
-        
+
         Object.defineProperty(obj, `$${name}`, {
             get() {
                 return callback(el, getUtilities());

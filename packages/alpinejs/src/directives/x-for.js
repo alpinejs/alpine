@@ -4,7 +4,6 @@ import { directive } from '../directives'
 import { reactive } from '../reactivity'
 import { initTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
-import { flushJobs } from '../scheduler'
 import { warn } from '../utils/warn'
 import { dequeueJob } from '../scheduler'
 

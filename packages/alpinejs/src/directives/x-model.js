@@ -4,7 +4,6 @@ import { mutateDom } from '../mutation'
 import { nextTick } from '../nextTick'
 import bind, { safeParseBoolean } from '../utils/bind'
 import on from '../utils/on'
-import { warn } from '../utils/warn'
 import { isCloning } from '../clone'
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {

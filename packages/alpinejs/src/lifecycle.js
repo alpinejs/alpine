@@ -3,7 +3,6 @@ import { deferHandlingDirectives, directives } from "./directives"
 import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
-import Alpine from "./alpine"
 
 let started = false
 

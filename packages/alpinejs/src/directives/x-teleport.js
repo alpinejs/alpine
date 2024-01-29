@@ -1,6 +1,6 @@
-import { onlyDuringClone, skipDuringClone } from "../clone"
+import { skipDuringClone } from "../clone"
 import { directive } from "../directives"
-import { addInitSelector, initTree } from "../lifecycle"
+import { initTree } from "../lifecycle"
 import { mutateDom } from "../mutation"
 import { addScopeToNode } from "../scope"
 import { warn } from "../utils/warn"

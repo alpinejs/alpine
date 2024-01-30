@@ -104,7 +104,7 @@ function handleRoot(el, Alpine) {
                     this.__compareBy = Alpine.extractProp(el, 'by')
                     this.__orientation = Alpine.extractProp(el, 'horizontal', false) ? 'horizontal' : 'vertical'
 
-                    this.__context = generateContext(Alpine, this.__isMultiple, this.__orientation, () => this.$data.__activateSelectedOrFirst())
+                    this.__context = generateContext(Alpine, this.__isMultiple, this.__orientation, () => this.__activateSelectedOrFirst())
 
                     let defaultValue = Alpine.extractProp(el, 'default-value', this.__isMultiple ? [] : null)
 

@@ -196,7 +196,6 @@ function onMutate(mutations) {
     for (let node of addedNodes) {
         // If the node was eventually removed as part of one of his
         // parent mutations, skip it
-        if (removedNodes.has(node)) continue
         if (! node.isConnected) continue
 
         delete node._x_ignoreSelf

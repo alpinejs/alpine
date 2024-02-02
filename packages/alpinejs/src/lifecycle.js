@@ -81,9 +81,8 @@ export function interceptInit(callback) { initInterceptors.push(callback) }
 export function initTree(el, walker = walk, intercept = () => {}) {
     deferHandlingDirectives(() => {
         walker(el, (el, skip) => {
-           // Prevent initing an element multiple times...
-           if (el._x_inited) {
-                el._x_ignore && skip()
+            if (el._x_inited) {
+                if (el._x_ignore) skip()
 
                 return
             }
@@ -94,9 +93,11 @@ export function initTree(el, walker = walk, intercept = () => {}) {
 
             directives(el, el.attributes).forEach(handle => handle())
 
-            el._x_ignore && skip()
-
-            el._x_inited = true
+            if (el._x_ignore) {
+                skip()
+            } else {
+                el._x_inited = true
+            }
         })
     })
 }
@@ -106,6 +107,6 @@ export function destroyTree(root) {
         cleanupAttributes(el)
         cleanupElement(el)
 
-        delete el._x_isInit
+        delete el._x_inited
     })
 }

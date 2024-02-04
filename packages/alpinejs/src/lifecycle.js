@@ -102,8 +102,8 @@ export function initTree(el, walker = walk, intercept = () => {}) {
     })
 }
 
-export function destroyTree(root) {
-    walk(root, el => {
+export function destroyTree(root, walker = walk) {
+    walker(root, el => {
         cleanupAttributes(el)
         cleanupElement(el)
 

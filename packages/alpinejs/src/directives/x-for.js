@@ -6,6 +6,7 @@ import { initTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
 import { warn } from '../utils/warn'
 import { dequeueJob } from '../scheduler'
+import { skipDuringClone } from '../clone'
 
 directive('for', (el, { expression }, { effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)
@@ -205,7 +206,8 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
             mutateDom(() => {
                 lastEl.after(clone)
 
-                initTree(clone)
+                // These nodes will be "inited" as morph walks the tree...
+                skipDuringClone(() => initTree(clone))()
             })
 
             if (typeof key === 'object') {

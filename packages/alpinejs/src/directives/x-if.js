@@ -6,6 +6,7 @@ import { mutateDom } from '../mutation'
 import { walk } from "../utils/walk"
 import { dequeueJob } from '../scheduler'
 import { warn } from "../utils/warn"
+import { skipDuringClone } from '../clone'
 
 directive('if', (el, { expression }, { effect, cleanup }) => {
     if (el.tagName.toLowerCase() !== 'template') warn('x-if can only be used on a <template> tag', el)
@@ -22,7 +23,8 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
         mutateDom(() => {
             el.after(clone)
 
-            initTree(clone)
+            // These nodes will be "inited" as morph walks the tree...
+            skipDuringClone(() => initTree(clone))()
         })
 
         el._x_currentIfEl = clone
@@ -33,7 +35,7 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
                     node._x_effects.forEach(dequeueJob)
                 }
             })
-            
+
             clone.remove();
 
             delete el._x_currentIfEl

@@ -89,7 +89,7 @@ You may choose to use this for clarity when also using the `:leave` suffix.
 <a name="x-intersect-leave"></a>
 ### x-intersect:leave
 
-Appending `:leave` runs your expression when the element leaves the viewport:
+Appending `:leave` runs your expression when the element leaves the viewport. By default, this means the element has left the viewport *completely*. Use `x-intersect:leave.full` to run your expression when the element *starts leaving* the viewport.
 
 ```alpine
 <div x-intersect:leave="shown = true">...</div>

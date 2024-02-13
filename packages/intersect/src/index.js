@@ -1,5 +1,5 @@
 export default function (Alpine) {
-    Alpine.directive('intersect', (el, { value, expression, modifiers }, { evaluateLater, cleanup }) => {
+    Alpine.directive('intersect', Alpine.skipDuringClone((el, { value, expression, modifiers }, { evaluateLater, cleanup }) => {
         let evaluate = evaluateLater(expression)
 
         let options = {
@@ -23,7 +23,7 @@ export default function (Alpine) {
         cleanup(() => {
             observer.disconnect()
         })
-    })
+    }))
 }
 
 function getThreshold(modifiers) {

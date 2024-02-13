@@ -219,6 +219,54 @@ test('keyboard controls',
     },
 )
 
+test('keyboard controls with x-teleport',
+    [html`
+        <div x-data x-menu>
+            <span>
+                <button x-menu:button trigger>
+                    <span>Options</span>
+                </button>
+            </span>
+
+            <template x-teleport="body">
+                <div x-menu:items items>
+                    <a x-menu:item href="#account-settings" :class="$menuItem.isActive && 'active'">
+                        Account settings
+                    </a>
+                    <a x-menu:item href="#support" :class="$menuItem.isActive && 'active'">
+                        Support
+                    </a>
+                </div>
+            </template>
+        </div>`],
+    ({ get }) => {
+        get('.active').should(notExist())
+        get('[trigger]').type(' ')
+        get('[items]')
+            .should(beVisible())
+            .should(haveFocus())
+            .type('{downarrow}')
+        get('[href="#account-settings"]')
+            .should(haveClasses(['active']))
+        get('[items]')
+            .type('{downarrow}')
+        get('[href="#support"]')
+            .should(haveClasses(['active']))
+            .type('{uparrow}')
+        get('[href="#account-settings"]')
+            .should(haveClasses(['active']))
+        get('[items]')
+            .tab()
+            .should(haveFocus())
+            .should(beVisible())
+            .tab({ shift: true})
+            .should(haveFocus())
+            .should(beVisible())
+            .type('{esc}')
+            .should(notBeVisible())
+    },
+)
+
 test('search',
     [html`
         <div x-data x-menu>

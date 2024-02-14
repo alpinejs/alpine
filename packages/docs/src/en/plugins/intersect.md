@@ -89,11 +89,14 @@ You may choose to use this for clarity when also using the `:leave` suffix.
 <a name="x-intersect-leave"></a>
 ### x-intersect:leave
 
-Appending `:leave` runs your expression when the element leaves the viewport:
+Appending `:leave` runs your expression when the element leaves the viewport.
 
 ```alpine
 <div x-intersect:leave="shown = true">...</div>
 ```
+> By default, this means the *whole element* is not in the viewport. Use `x-intersect:leave.full` to run your expression when only *parts of the element* are not in the viewport.
+
+[→ Read more about the underlying `IntersectionObserver` API](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
 
 <a name="modifiers"></a>
 ## Modifiers

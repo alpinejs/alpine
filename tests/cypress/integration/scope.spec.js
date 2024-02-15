@@ -101,3 +101,16 @@ test(
         get("span").should(haveText("false"));
     }
 );
+test(
+    "does expose data methods that match name of Object.prototype methods",
+    [
+        html`
+            <div x-data="{ valueOf: 'bar' }">
+                <span x-text="Reflect.has($data, 'valueOf')">
+            </div>
+        `,
+    ],
+    ({ get }) => {
+        get("span").should(haveText("true"));
+    }
+);

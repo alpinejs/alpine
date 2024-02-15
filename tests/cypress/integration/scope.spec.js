@@ -56,3 +56,32 @@ test(
         get("span#two").should(haveText("foobar"));
     }
 );
+
+test(
+    "allows accessing class methods",
+    [
+        html`
+            <script>
+                class Counter {
+                    value = 0;
+                    constructor() {}
+                    increment() {
+                        this.value++;
+                    }
+                }
+                document.addEventListener("alpine:init", () => 
+                    Alpine.data("counter", () => new Counter())
+                )
+            </script>
+            <div x-data="counter">
+                <button type="button" @click="increment" x-text=value></button>
+            </div>
+        `,
+    ],
+    ({ get }) => {
+        get("button").should(haveText("0"));
+        get("button").click();
+        get("button").should(haveText("1"));
+    }
+);
+

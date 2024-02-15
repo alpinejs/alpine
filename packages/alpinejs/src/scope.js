@@ -46,6 +46,7 @@ let mergeProxyTrap = {
 
     has({ objects }, name) {
         if (name == Symbol.unscopables) return false;
+        if (name in Object.prototype) return false;
 
         return objects.some((obj) =>
             Object.prototype.hasOwnProperty.call(obj, name)

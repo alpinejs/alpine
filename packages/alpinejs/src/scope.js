@@ -48,7 +48,7 @@ let mergeProxyTrap = {
         if (name == Symbol.unscopables) return false;
 
         return objects.some((obj) =>
-            Object.prototype.hasOwnProperty.call(obj, name)
+            Reflect.has(obj, name)
         );
     },
 
@@ -57,7 +57,7 @@ let mergeProxyTrap = {
 
         return Reflect.get(
             objects.find((obj) =>
-                Object.prototype.hasOwnProperty.call(obj, name)
+                Reflect.has(obj, name)
             ) || {},
             name,
             thisProxy
@@ -66,7 +66,7 @@ let mergeProxyTrap = {
 
     set({ objects }, name, value, thisProxy) {
         const target = objects.find((obj) =>
-                Object.prototype.hasOwnProperty.call(obj, name)
+               Reflect.has(obj, name)
             ) || objects[objects.length - 1];
         const descriptor = Object.getOwnPropertyDescriptor(target, name);
         if (descriptor?.set && descriptor?.get)

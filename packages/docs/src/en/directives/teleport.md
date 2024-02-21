@@ -11,8 +11,6 @@ The `x-teleport` directive allows you to transport part of your Alpine template 
 
 This is useful for things like modals (especially nesting them), where it's helpful to break out of the z-index of the current Alpine component.
 
-> Warning: if you are a [Livewire](https://livewire.laravel.com) user, this functionality does not currently work inside Livewire components. Support for this is on the roadmap.
-
 <a name="x-teleport"></a>
 ## x-teleport
 
@@ -115,7 +113,7 @@ Teleporting is especially helpful if you are trying to nest one modal within ano
     <template x-teleport="body">
         <div x-show="open">
             Modal contents...
-            
+
             <div x-data="{ open: false }">
                 <button @click="open = ! open">Toggle Nested Modal</button>
 
@@ -138,7 +136,7 @@ Teleporting is especially helpful if you are trying to nest one modal within ano
         <template x-teleport="#modal4">
             <div x-show="open">
                 <div class="py-4">Modal contents...</div>
-                
+
                 <div x-data="{ open: false }">
                     <button @click="open = ! open">Toggle Nested Modal</button>
 

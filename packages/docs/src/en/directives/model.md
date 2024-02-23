@@ -13,7 +13,7 @@ Here's a simple example of using `x-model` to bind the value of a text field to 
 <div x-data="{ message: '' }">
     <input type="text" x-model="message">
 
-    <span x-text="message">
+    <span x-text="message"></span>
 </div>
 ```
 

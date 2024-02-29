@@ -81,10 +81,20 @@ The above example will delay the transition and in and out of the element by 50 
 
 By default, Alpine's `x-transition` applies both a scale and opacity transition to achieve a "fade" effect.
 
-If you wish to only apply the opacity transition (no scale), you can accomplish that like so:
+If you wish to only apply an opacity transition (no scale), you can accomplish that like so:
 
 ```alpine
 <div ... x-transition.opacity>
+```
+
+To customize the opacity transition properties, you'd use the same modifiers as above, but preceded with `.opacity`, like so:
+
+```alpine
+<div ...
+    x-transition.opacity
+    x-transition.opacity.duration.500ms
+    x-transition.opacity.delay.50ms
+>
 ```
 
 <a name="customizing-scale"></a>
@@ -175,3 +185,54 @@ For direct control over exactly what goes into your transitions, you can apply C
 | `:leave`       | Applied during the entire leaving phase. |
 | `:leave-start` | Added immediately when a leaving transition is triggered, removed after one frame. |
 | `:leave-end`   | Added one frame after a leaving transition is triggered (at the same time `leave-start` is removed), removed when the transition/animation finishes.
+
+## Applying multiple transition directives
+
+Applying multiple transition directives can have unexpected results.
+
+In the example below we apply an opacity and scale default transition with `x-transition`. Then we also add a transition with our own classes.
+
+```alpine
+<div x-data="{ open: false }">
+    <button @click="open = ! open">Toggle</button>
+
+    <div
+        x-show="open"
+        x-transition
+        x-transition:enter="transition ease-out duration-300 transform"
+        x-transition:enter-start="-translate-x-full"
+        x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition ease-in duration-300 transform"
+        x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="-translate-x-full"
+    >Hello 👋</div>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <div x-data="{ open: false }">
+    <button @click="open = ! open">Toggle</button>
+
+    <div
+        x-show="open"
+        x-transition
+        x-transition:enter="transition ease-out duration-300 transform"
+        x-transition:enter-start="-translate-x-full"
+        x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition ease-in duration-300 transform"
+        x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="-translate-x-full"
+    >Hello 👋</div>
+
+</div>
+</div>
+<!-- END_VERBATIM -->
+
+Due to the way that transition classes are added, clicking the Toggle button results in the element appearing temporarily and then disappearing. This is why it is recommended to use `x-transition` to apply only **one** transition directive, with either:
+
+- `x-transition` for scale and opacity.
+- `x-transition.opacity` or `x-transition.scale` for either scale or opacity.
+- `x-transition:enter` and related directives for custom transitions.
+
+Note that using something like `x-transition:enter.scale` with `x-transition` is fine, as it just modifies the transition without adding a new one.

@@ -90,7 +90,7 @@ export default function (Alpine) {
                 setTimeout(() => {
                     if (! el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0')
 
-                    el.focus({ preventScroll: this._noscroll })
+                    el.focus({ preventScroll: this.__noscroll })
                 })
             }
         }

@@ -8,6 +8,7 @@ export function initInterceptors(data) {
         Object.entries(Object.getOwnPropertyDescriptors(obj)).forEach(([key, { value, enumerable }]) => {
             // Skip getters.
             if (enumerable === false || value === undefined) return
+            if (typeof value === 'object' && value !== null && value.__v_skip) return
 
             let path = basePath === '' ? key : `${basePath}.${key}`
 

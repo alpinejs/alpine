@@ -304,7 +304,7 @@ For example:
 <a name="noautofocus"></a>
 #### .noautofocus
 
-By default, when `x-trap` traps focous within an element, it focuses the first focussable element within that element. This is a sensible default, however there are times where you may want to disable this behavior and not automatically focus any elements when `x-trap` engages.
+By default, when `x-trap` traps focus within an element, it focuses the first focussable element within that element. This is a sensible default, however there are times where you may want to disable this behavior and not automatically focus any elements when `x-trap` engages.
 
 By adding `.noautofocus`, Alpine will not automatically focus any elements when trapping focus.
 

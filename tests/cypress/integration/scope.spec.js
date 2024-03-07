@@ -69,12 +69,16 @@ test(
                         this.value++;
                     }
                 }
-                document.addEventListener("alpine:init", () => 
+                document.addEventListener("alpine:init", () =>
                     Alpine.data("counter", () => new Counter())
-                )
+                );
             </script>
             <div x-data="counter">
-                <button type="button" @click="increment" x-text=value></button>
+                <button
+                    type="button"
+                    @click="increment"
+                    x-text="value"
+                ></button>
             </div>
         `,
     ],
@@ -85,3 +89,23 @@ test(
     }
 );
 
+test(
+    "setting value doesn't register a dependency",
+    [
+        html`
+            <div x-data="{ message: 'original' }">
+                <button
+                    x-effect="message = 'effected'"
+                    @click="message = 'clicked'"
+                    x-text="message"
+                ></button>
+            </div>
+            ;
+        `,
+    ],
+    ({ get }) => {
+        get("button").should(haveText("effected"));
+        get("button").click();
+        get("button").should(haveText("clicked"));
+    }
+);

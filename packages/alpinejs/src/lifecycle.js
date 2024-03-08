@@ -81,23 +81,13 @@ export function interceptInit(callback) { initInterceptors.push(callback) }
 export function initTree(el, walker = walk, intercept = () => {}) {
     deferHandlingDirectives(() => {
         walker(el, (el, skip) => {
-            if (el._x_inited) {
-                if (el._x_ignore) skip()
-
-                return
-            }
-
             intercept(el, skip)
 
             initInterceptors.forEach(i => i(el, skip))
 
             directives(el, el.attributes).forEach(handle => handle())
 
-            if (el._x_ignore) {
-                skip()
-            } else {
-                el._x_inited = true
-            }
+            el._x_ignore && skip()
         })
     })
 }
@@ -106,7 +96,5 @@ export function destroyTree(root, walker = walk) {
     walker(root, el => {
         cleanupAttributes(el)
         cleanupElement(el)
-
-        delete el._x_inited
     })
 }

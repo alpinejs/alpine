@@ -65,7 +65,12 @@ function storageHas(key, storage) {
 }
 
 function storageGet(key, storage) {
-    return JSON.parse(storage.getItem(key, storage))
+    try{
+      return JSON.parse(storage.getItem(key, storage));
+    }catch(e){
+      console.warn("Alpine: $persist "+key+" is not valid JSON");
+      return undefined; 
+    }
 }
 
 function storageSet(key, value, storage) {

@@ -42,14 +42,19 @@ test.csp = (name, template, callback, handleExpectedErrors = false) => {
     })
 }
 
-function injectHtmlAndBootAlpine(cy, templateAndPotentiallyScripts, callback, page, handleExpectedErrors = false) {
+function injectHtmlAndBootAlpine(cy, templateAndPotentiallyScripts, callback, page, errorHandler = false) {
     let [template, scripts] = Array.isArray(templateAndPotentiallyScripts)
         ? templateAndPotentiallyScripts
         : [templateAndPotentiallyScripts]
 
     cy.visit(page || __dirname+'/spec.html')
 
-    if( handleExpectedErrors ) {
+    if( errorHandler ) {
+      if (typeof errorHandler == 'function') {
+        cy.on( 'uncaught:exception', ( error ) => {
+          return errorHandler(error)
+      } );
+      } else {
         cy.on( 'uncaught:exception', ( error ) => {
             if( error.el === undefined && error.expression === undefined ) {
                 console.warn( 'Expected all errors originating from Alpine to have el and expression.  Letting cypress fail the test.', error )
@@ -57,6 +62,7 @@ function injectHtmlAndBootAlpine(cy, templateAndPotentiallyScripts, callback, pa
             }
             return false
         } );
+      }
     }
 
     cy.get('#root').then(([el]) => {

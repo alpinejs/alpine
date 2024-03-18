@@ -65,7 +65,11 @@ function storageHas(key, storage) {
 }
 
 function storageGet(key, storage) {
-    return JSON.parse(storage.getItem(key, storage))
+    let value = storage.getItem(key, storage)
+
+    if (value === undefined) return
+
+    return JSON.parse(value)
 }
 
 function storageSet(key, value, storage) {

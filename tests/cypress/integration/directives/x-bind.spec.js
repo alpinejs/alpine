@@ -46,6 +46,10 @@ test('non-boolean attributes set to null/undefined/false are removed from the el
             <span visible="true" x-bind:visible="null">null</span>
             <span visible="true" x-bind:visible="false">false</span>
             <span visible="true" x-bind:visible="undefined">undefined</span>
+
+            <span hidden="true" x-bind:hidden="null">null</span>
+            <span hidden="true" x-bind:hidden="false">false</span>
+            <span hidden="true" x-bind:hidden="undefined">undefined</span>
         </div>
     `,
     ({ get }) => {
@@ -55,6 +59,9 @@ test('non-boolean attributes set to null/undefined/false are removed from the el
         get('span:nth-of-type(1)').should(notHaveAttribute('visible'))
         get('span:nth-of-type(2)').should(notHaveAttribute('visible'))
         get('span:nth-of-type(3)').should(notHaveAttribute('visible'))
+        get('span:nth-of-type(4)').should(notHaveAttribute('hidden'))
+        get('span:nth-of-type(5)').should(notHaveAttribute('hidden'))
+        get('span:nth-of-type(6)').should(notHaveAttribute('hidden'))
     }
 )
 

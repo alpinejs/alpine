@@ -168,14 +168,16 @@ function getInputValue(el, modifiers, event, currentValue) {
                 return option.value || option.text
             })
         } else {
+            const newValue = event.target.value
+
             if (modifiers.includes('number')) {
-                return safeParseNumber(event.target.value)
+                return safeParseNumber(newValue)
             } else if (modifiers.includes('boolean')) {
-                return safeParseBoolean(event.target.value)
+                return safeParseBoolean(newValue)
             } else if (modifiers.includes('trim')) {
-                return event.target.value.trim()
+                return newValue.trim()
             } else {
-                return event.target.value
+                return newValue
             }
         }
     })

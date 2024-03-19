@@ -168,7 +168,17 @@ function getInputValue(el, modifiers, event, currentValue) {
                 return option.value || option.text
             })
         } else {
-            const newValue = event.target.value
+            let newValue
+
+            if (el.type === 'radio') {
+                if (event.target.checked) {
+                    newValue = event.target.value
+                } else {
+                    newValue = currentValue
+                }
+            } else {
+                newValue = event.target.value
+            }
 
             if (modifiers.includes('number')) {
                 return safeParseNumber(newValue)

@@ -172,9 +172,11 @@ function getInputValue(el, modifiers, event, currentValue) {
                 return safeParseNumber(event.target.value)
             } else if (modifiers.includes('boolean')) {
                 return safeParseBoolean(event.target.value)
+            } else if (modifiers.includes('trim')) {
+                return event.target.value.trim()
+            } else {
+                return event.target.value
             }
-
-            return modifiers.includes('trim') ? event.target.value.trim() : event.target.value
         }
     })
 }

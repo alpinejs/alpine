@@ -282,3 +282,15 @@ test(
     }
 );
 
+test(
+    'x-model with fill and debounce still fills value',
+    html`
+        <div x-data="{ a: '' }">
+            <input type="text" x-model.fill.debounce="a" value="hello" />
+        </div>
+    `,
+    ({ get }) => {
+        get('[x-data]').should(haveData('a', 'hello'));
+    }
+);
+

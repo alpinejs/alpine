@@ -27,13 +27,30 @@ test('style attribute bindings are added by string syntax',
     ({ get }) => get('span').should(haveClasses(['foo']))
 )
 
-test('aria-pressed/checked attribute boolean values are cast to a true/false string',
+test('aria-pressed/checked/expanded/selected attribute boolean values are cast to a true/false string',
     html`
         <div x-data="{ open: true }">
             <span x-bind:aria-pressed="open"></span>
+            <span x-bind:aria-checked="open"></span>
+            <span x-bind:aria-expanded="open"></span>
+            <span x-bind:aria-selected="open"></span>
+
+            <span x-bind:aria-pressed="false"></span>
+            <span x-bind:aria-checked="false"></span>
+            <span x-bind:aria-expanded="false"></span>
+            <span x-bind:aria-selected="false"></span>
         </div>
     `,
-    ({ get }) => get('span').should(haveAttribute('aria-pressed', 'true'))
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveAttribute('aria-pressed', 'true'))
+        get('span:nth-of-type(2)').should(haveAttribute('aria-checked', 'true'))
+        get('span:nth-of-type(3)').should(haveAttribute('aria-expanded', 'true'))
+        get('span:nth-of-type(4)').should(haveAttribute('aria-selected', 'true'))
+        get('span:nth-of-type(5)').should(haveAttribute('aria-pressed', 'false'))
+        get('span:nth-of-type(6)').should(haveAttribute('aria-checked', 'false'))
+        get('span:nth-of-type(7)').should(haveAttribute('aria-expanded', 'false'))
+        get('span:nth-of-type(8)').should(haveAttribute('aria-selected', 'false'))
+    }
 )
 
 test('non-boolean attributes set to null/undefined/false are removed from the element',
@@ -46,6 +63,10 @@ test('non-boolean attributes set to null/undefined/false are removed from the el
             <span visible="true" x-bind:visible="null">null</span>
             <span visible="true" x-bind:visible="false">false</span>
             <span visible="true" x-bind:visible="undefined">undefined</span>
+
+            <span hidden="true" x-bind:hidden="null">null</span>
+            <span hidden="true" x-bind:hidden="false">false</span>
+            <span hidden="true" x-bind:hidden="undefined">undefined</span>
         </div>
     `,
     ({ get }) => {
@@ -55,6 +76,9 @@ test('non-boolean attributes set to null/undefined/false are removed from the el
         get('span:nth-of-type(1)').should(notHaveAttribute('visible'))
         get('span:nth-of-type(2)').should(notHaveAttribute('visible'))
         get('span:nth-of-type(3)').should(notHaveAttribute('visible'))
+        get('span:nth-of-type(4)').should(notHaveAttribute('hidden'))
+        get('span:nth-of-type(5)').should(notHaveAttribute('hidden'))
+        get('span:nth-of-type(6)').should(notHaveAttribute('hidden'))
     }
 )
 

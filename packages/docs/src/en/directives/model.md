@@ -379,7 +379,7 @@ By default, if an input has a value attribute, it is ignored by Alpine and inste
 But if a bound property is empty, then you can use an input's value attribute to populate the property by adding the `.fill` modifier.
 
 <div x-data="{ message: null }">
-  <input x-model.fill="message" value="This is the default message.">
+  <input type="text" x-model.fill="message" value="This is the default message.">
 </div>
 
 <a name="programmatic access"></a>

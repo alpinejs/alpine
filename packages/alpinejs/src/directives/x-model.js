@@ -170,13 +170,27 @@ function getInputValue(el, modifiers, event, currentValue) {
                 return option.value || option.text
             })
         } else {
-            if (modifiers.includes('number')) {
-                return safeParseNumber(event.target.value)
-            } else if (modifiers.includes('boolean')) {
-                return safeParseBoolean(event.target.value)
+            let newValue
+
+            if (el.type === 'radio') {
+                if (event.target.checked) {
+                    newValue = event.target.value
+                } else {
+                    newValue = currentValue
+                }
+            } else {
+                newValue = event.target.value
             }
 
-            return modifiers.includes('trim') ? event.target.value.trim() : event.target.value
+            if (modifiers.includes('number')) {
+                return safeParseNumber(newValue)
+            } else if (modifiers.includes('boolean')) {
+                return safeParseBoolean(newValue)
+            } else if (modifiers.includes('trim')) {
+                return newValue.trim()
+            } else {
+                return newValue
+            }
         }
     })
 }

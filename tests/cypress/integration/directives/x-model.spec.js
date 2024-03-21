@@ -234,7 +234,7 @@ test('x-model with fill modifier takes input value on null, empty string or unde
     }
 )
 
-test('x-model with fill modifier works with select/radio elements',
+test('x-model with fill modifier works with select elements',
     html`
         <div x-data="{ a: null, b: null, c: null, d: null }">
             <select x-model.fill="a">
@@ -250,6 +250,35 @@ test('x-model with fill modifier works with select/radio elements',
     ({ get }) => {
         get('[x-data]').should(haveData('a', '456'));
         get('[x-data]').should(haveData('b', ['123', '456']));
+    }
+);
+
+test('x-model with fill modifier works with radio elements',
+    html`
+        <div x-data="{ a: null, b: null, c: '101112', d: null }">
+            <input x-model.fill="a" type="radio" value="123" />
+            <input x-model.fill="a" type="radio" value="456" checked />
+            <input x-model.fill="a" type="radio" value="789" />
+            <input x-model.fill="a" type="radio" value="101112" />
+            <input x-model.fill="a" type="radio" value="131415" />
+
+            <input x-model.fill="b" name="b" type="radio" value="123" />
+            <input x-model.fill="b" name="b" type="radio" value="456" />
+            <input x-model.fill="b" name="b" type="radio" value="789" checked />
+            <input x-model.fill="b" name="b" type="radio" value="101112" />
+            <input x-model.fill="b" name="b" type="radio" value="131415" />
+
+            <input x-model.fill="c" type="radio" value="123" />
+            <input x-model.fill="c" type="radio" value="456" />
+            <input x-model.fill="c" type="radio" value="789" />
+            <input x-model.fill="c" type="radio" value="101112" />
+            <input x-model.fill="c" type="radio" value="131415" />
+        </div>
+    `,
+    ({ get }) => {
+        get('[x-data]').should(haveData('a', '456'));
+        get('[x-data]').should(haveData('b', '789'));
+        get('[x-data]').should(haveData('c', '101112'));
     }
 );
 

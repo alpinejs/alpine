@@ -4,8 +4,7 @@ import { interceptClone } from '../clone'
 
 magic('id', (el, { cleanup }) => (name, key = null) => {
     let cacheKey = `${name}${key ? `-${key}` : ''}`
-
-    return cacheIdByNameOnElement(el, cacheKey, cleanup, () => {
+    const getId = () => {
         let root = closestIdRoot(el, name)
 
         let id = root
@@ -15,7 +14,9 @@ magic('id', (el, { cleanup }) => (name, key = null) => {
         return key
             ? `${name}-${id}-${key}`
             : `${name}-${id}`
-    })
+    }
+
+    return cacheIdByNameOnElement(el, cacheKey, cleanup, getId)
 })
 
 interceptClone((from, to) => {

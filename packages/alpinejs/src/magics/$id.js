@@ -2,8 +2,7 @@ import { magic } from '../magics'
 import { closestIdRoot, findAndIncrementId } from '../ids'
 import { interceptClone } from '../clone'
 
-magic('id', (el, { cleanup }) => (name, key = null) => {
-    let cacheKey = `${name}${key ? `-${key}` : ''}`
+magic('id', (el, { cleanup }) => (name, key = null, cache = true) => {
     const getId = () => {
         let root = closestIdRoot(el, name)
 
@@ -16,7 +15,13 @@ magic('id', (el, { cleanup }) => (name, key = null) => {
             : `${name}-${id}`
     }
 
-    return cacheIdByNameOnElement(el, cacheKey, cleanup, getId)
+    if (cache) {
+        let cacheKey = `${name}${key ? `-${key}` : ''}`
+
+        return cacheIdByNameOnElement(el, cacheKey, cleanup, getId)
+    } else {
+        return getId()
+    }
 })
 
 interceptClone((from, to) => {

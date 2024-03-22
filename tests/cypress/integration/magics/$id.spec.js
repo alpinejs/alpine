@@ -26,6 +26,47 @@ test('$id generates a unique id',
     }
 )
 
+test('$id can be forced to generate unique ids',
+    html`
+        <div x-data="{ heading: 'initial' }" id="1">
+            <h1 x-text="heading"></h1>
+
+            <button x-on:click="heading += ', ' + $id('cached')"></button>
+        </div>
+
+        <div x-data="{ heading: 'initial' }" id="2">
+            <h1 x-text="heading"></h1>
+
+            <button x-on:click="heading += ', ' + $id('not-cached', null, false)"></button>
+        </div>
+
+        <div x-data="{ heading: 'initial' }" id="3">
+            <h1 x-text="heading"></h1>
+
+            <button x-on:click="heading += ', ' + $id('not-cached-with-key', 'key', false)"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('#1 h1').should(haveText('initial'))
+        get('#1 button').click()
+        get('#1 h1').should(haveText('initial, cached-1'))
+        get('#1 button').click()
+        get('#1 h1').should(haveText('initial, cached-1, cached-1'))
+
+        get('#2 h1').should(haveText('initial'))
+        get('#2 button').click()
+        get('#2 h1').should(haveText('initial, not-cached-1'))
+        get('#2 button').click()
+        get('#2 h1').should(haveText('initial, not-cached-1, not-cached-2'))
+
+        get('#3 h1').should(haveText('initial'))
+        get('#3 button').click()
+        get('#3 h1').should(haveText('initial, not-cached-with-key-1-key'))
+        get('#3 button').click()
+        get('#3 h1').should(haveText('initial, not-cached-with-key-1-key, not-cached-with-key-2-key'))
+    }
+)
+
 test('$id works with keys and nested data scopes',
     html`
         <div x-data x-id="['foo']" id="1">

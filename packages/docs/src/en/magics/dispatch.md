@@ -8,7 +8,7 @@ title: dispatch
 `$dispatch` is a helpful shortcut for dispatching browser events.
 
 ```alpine
-<div @notify="alert('Hello World!')">
+<div x-data @notify="alert('Hello World!')">
     <button @click="$dispatch('notify')">
         Notify
     </button>
@@ -28,7 +28,7 @@ title: dispatch
 You can also pass data along with the dispatched event if you wish. This data will be accessible as the `.detail` property of the event:
 
 ```alpine
-<div @notify="alert($event.detail.message)">
+<div x-data @notify="alert($event.detail.message)">
     <button @click="$dispatch('notify', { message: 'Hello World!' })">
         Notify
     </button>

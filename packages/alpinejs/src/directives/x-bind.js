@@ -6,7 +6,7 @@ import { applyBindingsObject, injectBindingProviders } from '../binds'
 
 mapAttributes(startingWith(':', into(prefix('bind:'))))
 
-let handler = (el, { value, modifiers, expression, original }, { effect }) => {
+let handler = (el, { value, modifiers, expression, original }, { effect, cleanup }) => {
     if (! value) {
         let bindingProviders = {}
         injectBindingProviders(bindingProviders)
@@ -36,6 +36,11 @@ let handler = (el, { value, modifiers, expression, original }, { effect }) => {
 
         mutateDom(() => bind(el, value, result, modifiers))
     }))
+
+    cleanup(() => {
+        el._x_undoAddedClasses && el._x_undoAddedClasses()
+        el._x_undoAddedStyles && el._x_undoAddedStyles()
+    })
 }
 
 // @todo: see if I can take advantage of the object created here inside the

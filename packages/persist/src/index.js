@@ -73,5 +73,7 @@ function storageGet(key, storage) {
 }
 
 function storageSet(key, value, storage) {
+    if (value === undefined) value = null
+    
     storage.setItem(key, JSON.stringify(value))
 }

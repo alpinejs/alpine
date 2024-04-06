@@ -56,7 +56,7 @@ The primary API for using this plugin is the `x-anchor` directive.
 
 To use this plugin, add the `x-anchor` directive to any element and pass it a reference to the element you want to anchor it's position to (often a button on the page).
 
-By default, `x-anchor` will set the the element's CSS to `position: absolute` and the appropriate `top` and `left` values. If the anchored element is normally displayed below the reference element but doesn't have room on the page, it's styling will be adjusted to render above the element.
+By default, `x-anchor` will set the element's CSS to `position: absolute` and the appropriate `top` and `left` values. If the anchored element is normally displayed below the reference element but doesn't have room on the page, it's styling will be adjusted to render above the element.
 
 For example, here's a simple dropdown anchored to the button that toggles it:
 

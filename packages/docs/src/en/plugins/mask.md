@@ -116,7 +116,7 @@ Try it for yourself by typing a number that starts with "34" and one that doesn'
 </div>
 <!-- END_VERBATIM -->
 
-`x-mask:dynamic` also accepts a function as a result of the expression and will automatically pass it the `$input` as the the first parameter. For example:
+`x-mask:dynamic` also accepts a function as a result of the expression and will automatically pass it the `$input` as the first parameter. For example:
 
 ```alpine
 <input x-mask:dynamic="creditCardMask">

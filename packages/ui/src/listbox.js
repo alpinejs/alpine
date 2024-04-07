@@ -48,7 +48,7 @@ export default function (Alpine) {
     Alpine.magic('listboxOption', (el) => {
         let data = Alpine.$data(el)
 
-        // It's not great depending on the existance of the attribute in the DOM
+        // It's not great depending on the existence of the attribute in the DOM
         // but it's probably the fastest and most reliable at this point...
         let optionEl = Alpine.findClosest(el, i => {
             return i.hasAttribute('x-listbox:option')

@@ -1,3 +1,9 @@
+/**
+ * This entire file was coppied from the following github repo: https://github.com/4teamwork/cypress-drag-drop/blob/master/index.js
+ *
+ * Full credit to the "cypress-drag-drop" package...
+ */
+
 const dataTransfer = new DataTransfer()
 
 function omit(object = {}, keys = []) {

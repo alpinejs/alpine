@@ -16,6 +16,9 @@
 // Import commands.js using ES2015 syntax:
 import './commands'
 
+// Import drag and drop helpers (https://github.com/4teamwork/cypress-drag-drop/blob/master/index.js)
+import './drag'
+
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 require('cypress-plugin-tab')

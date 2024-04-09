@@ -14,6 +14,7 @@ let zlib = require('zlib');
     'anchor',
     'morph',
     'focus',
+    'sort',
     'mask',
     'ui',
 ]).forEach(package => {

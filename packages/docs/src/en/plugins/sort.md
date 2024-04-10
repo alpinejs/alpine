@@ -1,7 +1,7 @@
 ---
 order: 6
 title: Sort
-description: Easily re-order elements by dragging them with your mouse.
+description: Easily re-order elements by dragging them with your mouse
 graph_image: https://alpinejs.dev/social_sort.jpg
 ---
 

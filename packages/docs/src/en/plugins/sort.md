@@ -78,18 +78,16 @@ The primary API for using this plugin is the `x-sort` directive. By adding `x-so
 You can react to sorting changes by passing a handler function to `x-sort` and adding keys to each item using `x-sort:key`. Here is an example of a simple handler function that shows an alert dialog with the changed item's key and its new position:
 
 ```alpine
-<div x-data="{ handle(key, position) { alert(key + ' - ' + position)} }">
-    <ul x-sort="handle">
-        <li x-sort:key="1">foo</li>
-        <li x-sort:key="2">bar</li>
-        <li x-sort:key="3">baz</li>
-    </ul>
-</div>
+<ul x-sort="alert($key + ' - ' + $position)">
+    <li x-sort:key="1">foo</li>
+    <li x-sort:key="2">bar</li>
+    <li x-sort:key="3">baz</li>
+</ul>
 ```
 
 <!-- START_VERBATIM -->
-<div x-data="{ handle(key, position) { alert(key + ' - ' + position)} }">
-    <ul x-sort="handle">
+<div x-data>
+    <ul x-sort="alert($key + ' - ' + $position)">
         <li x-sort:key="1">foo</li>
         <li x-sort:key="2">bar</li>
         <li x-sort:key="3">baz</li>
@@ -97,7 +95,19 @@ You can react to sorting changes by passing a handler function to `x-sort` and a
 </div>
 <!-- END_VERBATIM -->
 
-As you can see, the `key` and `position` parameters are passed into the handler function on every sorting change. The `key` parameter is the value provided to `x-sort:key`, and the `position` parameter is its new position in the list of children (starting at index `0`).
+The `x-sort` handler will be called every time the sort order of the items change. The `$key` magic will contain the key of the sorted element (derived from `x-sort:key`), and `$position` will contain the new position of the item (staring at index `0`).
+
+You can also pass a handler function to `x-sort` and that function will receive the `key` and `position` as the first and second parameter:
+
+```alpine
+<div x-data="{ handle: (key, position) => { ... } }">
+    <ul x-sort="handle">
+        <li x-sort:key="1">foo</li>
+        <li x-sort:key="2">bar</li>
+        <li x-sort:key="3">baz</li>
+    </ul>
+</div>
+```
 
 Handler functions are often used to persist the new order of items in the database so that the sorting order of a list is preserved between page refreshes.
 

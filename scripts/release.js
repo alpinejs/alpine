@@ -62,6 +62,9 @@ function writeNewAlpineVersion() {
 
     writeToPackageDotJson('mask', 'version', version)
     console.log('Bumping @alpinejs/mask package.json: '+version)
+
+    writeToPackageDotJson('sort', 'version', version)
+    console.log('Bumping @alpinejs/sort package.json: '+version)
 }
 
 function writeNewDocsVersion() {
@@ -106,6 +109,9 @@ function publish() {
 
     console.log('Publishing @alpinejs/mask on NPM...');
     runFromPackage('mask', 'npm publish --access public')
+
+    console.log('Publishing @alpinejs/sort on NPM...');
+    runFromPackage('sort', 'npm publish --access public')
 
     log('\n\nFinished!')
 }

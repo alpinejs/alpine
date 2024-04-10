@@ -1,13 +1,13 @@
 ---
 order: 5
 title: Anchor
-description: Anchor an element's positioning to another element on the pageg
+description: Anchor an element's positioning to another element on the page
 graph_image: https://alpinejs.dev/social_anchor.jpg
 ---
 
 # Anchor Plugin
 
-Alpine's Anchor plugin allows you easily anchor an element's positioning to another element on the page.
+Alpine's Anchor plugin allows you to easily anchor an element's positioning to another element on the page.
 
 This functionality is useful when creating dropdown menus, popovers, dialogs, and tooltips with Alpine.
 

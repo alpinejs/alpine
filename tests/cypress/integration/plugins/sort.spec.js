@@ -4,9 +4,9 @@ test('basic drag sorting works',
     [html`
         <div x-data>
             <ul x-sort>
-                <li x-sort:item id="1">foo</li>
-                <li x-sort:item id="2">bar</li>
-                <li x-sort:item id="3">baz</li>
+                <li id="1">foo</li>
+                <li id="2">bar</li>
+                <li id="3">baz</li>
             </ul>
         </div>
     `],
@@ -33,8 +33,8 @@ test('can use a custom handle',
     [html`
         <div x-data>
             <ul x-sort>
-                <li x-sort:item id="1"><span x-sort:handle>handle</span> - foo</li>
-                <li x-sort:item id="2"><span x-sort:handle>handle</span> - bar</li>
+                <li id="1"><span x-sort:handle>handle</span> - foo</li>
+                <li id="2"><span x-sort:handle>handle</span> - bar</li>
             </ul>
         </div>
     `],
@@ -53,13 +53,13 @@ test('can move items between groups',
     [html`
         <div x-data>
             <ul x-sort.group.one>
-                <li x-sort:item id="1">foo</li>
-                <li x-sort:item id="2">bar</li>
+                <li id="1">foo</li>
+                <li id="2">bar</li>
             </ul>
 
             <ol x-sort.group.one>
-                <li x-sort:item id="3">oof</li>
-                <li x-sort:item id="4">rab</li>
+                <li id="3">oof</li>
+                <li id="4">rab</li>
             </ol>
         </div>
     `],
@@ -82,9 +82,9 @@ test('sort handle method',
     [html`
         <div x-data="{ handle(key, position) { $refs.outlet.textContent = key+'-'+position } }">
             <ul x-sort="handle">
-                <li x-sort:item="1" id="1">foo</li>
-                <li x-sort:item="2" id="2">bar</li>
-                <li x-sort:item="3" id="3">baz</li>
+                <li x-sort:key="1" id="1">foo</li>
+                <li x-sort:key="2" id="2">bar</li>
+                <li x-sort:key="3" id="3">baz</li>
             </ul>
 
             <h1 x-ref="outlet"></h1>
@@ -105,9 +105,9 @@ test('can access key and position in handler',
     [html`
         <div x-data="{ handle(key, position) { $refs.outlet.textContent = key+'-'+position } }">
             <ul x-sort="handle($position, $key)">
-                <li x-sort:item="1" id="1">foo</li>
-                <li x-sort:item="2" id="2">bar</li>
-                <li x-sort:item="3" id="3">baz</li>
+                <li x-sort:key="1" id="1">foo</li>
+                <li x-sort:key="2" id="2">bar</li>
+                <li x-sort:key="3" id="3">baz</li>
             </ul>
 
             <h1 x-ref="outlet"></h1>
@@ -128,9 +128,9 @@ test('can use custom sortablejs configuration',
     [html`
         <div x-data>
             <ul x-sort x-sort:config="{ filter: '[data-ignore]' }">
-                <li x-sort:item id="1" data-ignore>foo</li>
-                <li x-sort:item id="2">bar</li>
-                <li x-sort:item id="3">baz</li>
+                <li id="1" data-ignore>foo</li>
+                <li id="2">bar</li>
+                <li id="3">baz</li>
             </ul>
         </div>
     `],
@@ -158,9 +158,9 @@ test('works with Livewire morphing',
         <div x-data>
             <ul x-sort>
                 <!-- [if BLOCK]><![endif] -->
-                <li x-sort:item id="1">foo</li>
-                <li x-sort:item id="2">bar</li>
-                <li x-sort:item id="3">baz</li>
+                <li id="1">foo</li>
+                <li id="2">bar</li>
+                <li id="3">baz</li>
                 <!-- [if ENDBLOCK]><![endif] -->
             </ul>
         </div>

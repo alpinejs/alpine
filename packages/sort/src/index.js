@@ -10,7 +10,7 @@ export default function (Alpine) {
             return // This will get handled by the main directive...
         }
 
-        if (value === 'item') {
+        if (value === 'key') {
             if ([undefined, null, ''].includes(expression)) return
 
             el._x_sort_key = evaluate(expression)

@@ -11,7 +11,8 @@
         "cypress-plugin-tab": "^1.0.5",
         "dot-json": "^1.2.2",
         "esbuild": "~0.16.17",
-        "jest": "^26.6.3"
+        "jest": "^26.6.3",
+        "sortablejs": "^1.15.2"
     },
     "scripts": {
         "build": "node ./scripts/build.js",
@@ -21,8 +22,5 @@
         "jest": "jest test",
         "update-docs": "node ./scripts/update-docs.js",
         "release": "node ./scripts/release.js"
-    },
-    "dependencies": {
-        "sortablejs": "^1.15.2"
     }
 }

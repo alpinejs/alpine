@@ -169,6 +169,6 @@ test('works with Livewire morphing',
         await get('#1').drag('#3')
 
         // This is the easiest way I can think of to assert the order of HTML comments doesn't change...
-        get('ul').should('have.html', `\n                <!-- [if BLOCK]><![endif] -->\n                \n                <li x-sort:item="" id="2" style="">bar</li>\n                <li x-sort:item="" id="3" style="">baz</li>\n                \n            <li x-sort:item="" id="1" draggable="false" class="" style="opacity: 1;">foo</li><!-- [if ENDBLOCK]><![endif] -->`)
+        get('ul').should('have.html', `\n                <!-- [if BLOCK]><![endif] -->\n                \n                <li id="2" style="">bar</li>\n                <li id="3" style="">baz</li>\n                \n            <li id="1" draggable="false" class="" style="opacity: 1;">foo</li><!-- [if ENDBLOCK]><![endif] -->`)
     },
 )

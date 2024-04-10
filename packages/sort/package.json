@@ -1,0 +1,15 @@
+{
+    "name": "@alpinejs/sort",
+    "version": "3.13.8",
+    "description": "An Alpine plugin for drag sorting items on the page",
+    "homepage": "https://alpinejs.dev/plugins/sort",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git",
+        "directory": "packages/sort"
+    },
+    "author": "Caleb Porzio",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js"
+}

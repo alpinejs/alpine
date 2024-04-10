@@ -15,6 +15,8 @@ test('basic drag sorting works',
         get('ul li').eq(1).should(haveText('bar'))
         get('ul li').eq(2).should(haveText('baz'))
 
+        // Unfortunately, github actions doesn't like "async/await" here
+        // so we need to use .then() throughout this entire test...
         get('#1').drag('#3').then(() => {
             get('ul li').eq(0).should(haveText('bar'))
             get('ul li').eq(1).should(haveText('baz'))
@@ -38,14 +40,14 @@ test('can use a custom handle',
             </ul>
         </div>
     `],
-    async ({ get }) => {
+    ({ get }) => {
         get('ul li').eq(0).should(haveText('handle - foo'))
         get('ul li').eq(1).should(haveText('handle - bar'))
 
-        await get('#1 span').drag('#2')
-
-        get('ul li').eq(0).should(haveText('handle - bar'))
-        get('ul li').eq(1).should(haveText('handle - foo'))
+        get('#1 span').drag('#2').then(() => {
+            get('ul li').eq(0).should(haveText('handle - bar'))
+            get('ul li').eq(1).should(haveText('handle - foo'))
+        })
     },
 )
 
@@ -63,18 +65,18 @@ test('can move items between groups',
             </ol>
         </div>
     `],
-    async ({ get }) => {
+    ({ get }) => {
         get('ul li').eq(0).should(haveText('foo'))
         get('ul li').eq(1).should(haveText('bar'))
         get('ol li').eq(0).should(haveText('oof'))
         get('ol li').eq(1).should(haveText('rab'))
 
-        await get('#1').drag('#4')
-
-        get('ul li').eq(0).should(haveText('bar'))
-        get('ol li').eq(0).should(haveText('oof'))
-        get('ol li').eq(1).should(haveText('foo'))
-        get('ol li').eq(2).should(haveText('rab'))
+        get('#1').drag('#4').then(() => {
+            get('ul li').eq(0).should(haveText('bar'))
+            get('ol li').eq(0).should(haveText('oof'))
+            get('ol li').eq(1).should(haveText('foo'))
+            get('ol li').eq(2).should(haveText('rab'))
+        })
     },
 )
 
@@ -90,14 +92,14 @@ test('sort handle method',
             <h1 x-ref="outlet"></h1>
         </div>
     `],
-    async ({ get }) => {
-        await get('#1').drag('#3')
+    ({ get }) => {
+        get('#1').drag('#3').then(() => {
+            get('h1').should(haveText('1-2'))
 
-        get('h1').should(haveText('1-2'))
-
-        await get('#3').drag('#1')
-
-        get('h1').should(haveText('3-2'))
+            get('#3').drag('#1').then(() => {
+                get('h1').should(haveText('3-2'))
+            })
+        })
     },
 )
 
@@ -113,14 +115,14 @@ test('can access key and position in handler',
             <h1 x-ref="outlet"></h1>
         </div>
     `],
-    async ({ get }) => {
-        await get('#1').drag('#3')
+    ({ get }) => {
+        get('#1').drag('#3').then(() => {
+            get('h1').should(haveText('2-1'))
 
-        get('h1').should(haveText('2-1'))
-
-        await get('#3').drag('#1')
-
-        get('h1').should(haveText('2-3'))
+            get('#3').drag('#1').then(() => {
+                get('h1').should(haveText('2-3'))
+            })
+        })
     },
 )
 
@@ -134,22 +136,22 @@ test('can use custom sortablejs configuration',
             </ul>
         </div>
     `],
-    async ({ get }) => {
+    ({ get }) => {
         get('ul li').eq(0).should(haveText('foo'))
         get('ul li').eq(1).should(haveText('bar'))
         get('ul li').eq(2).should(haveText('baz'))
 
-        await get('#1').drag('#3')
+        get('#1').drag('#3').then(() => {
+            get('ul li').eq(0).should(haveText('foo'))
+            get('ul li').eq(1).should(haveText('bar'))
+            get('ul li').eq(2).should(haveText('baz'))
 
-        get('ul li').eq(0).should(haveText('foo'))
-        get('ul li').eq(1).should(haveText('bar'))
-        get('ul li').eq(2).should(haveText('baz'))
-
-        await get('#3').drag('#1')
-
-        get('ul li').eq(0).should(haveText('baz'))
-        get('ul li').eq(1).should(haveText('foo'))
-        get('ul li').eq(2).should(haveText('bar'))
+            get('#3').drag('#1').then(() => {
+                get('ul li').eq(0).should(haveText('baz'))
+                get('ul li').eq(1).should(haveText('foo'))
+                get('ul li').eq(2).should(haveText('bar'))
+            })
+        })
     },
 )
 
@@ -165,10 +167,10 @@ test('works with Livewire morphing',
             </ul>
         </div>
     `],
-    async ({ get }) => {
-        await get('#1').drag('#3')
-
-        // This is the easiest way I can think of to assert the order of HTML comments doesn't change...
-        get('ul').should('have.html', `\n                <!-- [if BLOCK]><![endif] -->\n                \n                <li id="2" style="">bar</li>\n                <li id="3" style="">baz</li>\n                \n            <li id="1" draggable="false" class="" style="opacity: 1;">foo</li><!-- [if ENDBLOCK]><![endif] -->`)
+    ({ get }) => {
+        get('#1').drag('#3').then(() => {
+            // This is the easiest way I can think of to assert the order of HTML comments doesn't change...
+            get('ul').should('have.html', `\n                <!-- [if BLOCK]><![endif] -->\n                \n                <li id="2" style="">bar</li>\n                <li id="3" style="">baz</li>\n                \n            <li id="1" draggable="false" class="" style="opacity: 1;">foo</li><!-- [if ENDBLOCK]><![endif] -->`)
+        })
     },
 )

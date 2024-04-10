@@ -10,22 +10,22 @@ test('basic drag sorting works',
             </ul>
         </div>
     `],
-    async ({ get }) => {
+    ({ get }) => {
         get('ul li').eq(0).should(haveText('foo'))
         get('ul li').eq(1).should(haveText('bar'))
         get('ul li').eq(2).should(haveText('baz'))
 
-        await get('#1').drag('#3')
+        get('#1').drag('#3').then(() => {
+            get('ul li').eq(0).should(haveText('bar'))
+            get('ul li').eq(1).should(haveText('baz'))
+            get('ul li').eq(2).should(haveText('foo'))
 
-        get('ul li').eq(0).should(haveText('bar'))
-        get('ul li').eq(1).should(haveText('baz'))
-        get('ul li').eq(2).should(haveText('foo'))
-
-        await get('#3').drag('#1')
-
-        get('ul li').eq(0).should(haveText('bar'))
-        get('ul li').eq(1).should(haveText('foo'))
-        get('ul li').eq(2).should(haveText('baz'))
+            get('#3').drag('#1').then(() => {
+                get('ul li').eq(0).should(haveText('bar'))
+                get('ul li').eq(1).should(haveText('foo'))
+                get('ul li').eq(2).should(haveText('baz'))
+            })
+        })
     },
 )
 

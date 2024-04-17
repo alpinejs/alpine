@@ -186,6 +186,27 @@ test('.self modifier',
     }
 )
 
+test(
+    ".self.once modifiers",
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <h1 x-on:click.self.once="foo = 'baz'" id="selfTarget">
+                content
+                <button>click</button>
+                content
+            </h1>
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get("span").should(haveText("bar"));
+        get("button").click();
+        get("span").should(haveText("bar"));
+        get("h1").click();
+        get("span").should(haveText("baz"));
+    }
+);
+
 test('.prevent modifier',
     html`
         <div x-data="{}">

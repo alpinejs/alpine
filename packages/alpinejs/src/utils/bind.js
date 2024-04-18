@@ -74,7 +74,7 @@ function bindInputValue(el, value) {
         updateSelect(el, value)
     } else {
         if (el.value === value) return
-
+        if (value === null) return el.removeAttribute('value')
         el.value = value === undefined ? '' : value
     }
 }

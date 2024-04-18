@@ -66,7 +66,7 @@ Notice that, because of [event bubbling](https://en.wikipedia.org/wiki/Event_bub
 </div>
 ```
 
-> The first example won't work because when `custom-event` is dispatched, it'll propagate to its common ancestor, the `div`, not its sibling, the `<span>`. The second example will work because the sibling is listening for `notify` at the `window` level, which the custom event will eventually bubble up to.
+> The first example won't work because when `notify` is dispatched, it'll propagate to its common ancestor, the `div`, not its sibling, the `<span>`. The second example will work because the sibling is listening for `notify` at the `window` level, which the custom event will eventually bubble up to.
 
 <a name="dispatching-to-components"></a>
 ## Dispatching to other components

@@ -1,5 +1,3 @@
-import { destroyTree } from "./lifecycle"
-
 let onAttributeAddeds = []
 let onElRemoveds = []
 let onElAddeds = []
@@ -177,8 +175,6 @@ function onMutate(mutations) {
         if (addedNodes.has(node)) continue
 
         onElRemoveds.forEach(i => i(node))
-
-        destroyTree(node)
     }
 
     // Mutations are bundled together by the browser but sometimes

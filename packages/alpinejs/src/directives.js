@@ -30,6 +30,10 @@ export function directive(name, callback) {
     }
 }
 
+export function directiveExists(name) {
+    return Object.keys(directiveHandlers).includes(name)
+}
+
 export function directives(el, attributes, originalAttributeOverride) {
     attributes = Array.from(attributes)
 

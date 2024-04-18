@@ -1,5 +1,5 @@
 import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes, cleanupElement } from "./mutation"
-import { deferHandlingDirectives, directives } from "./directives"
+import { deferHandlingDirectives, directiveExists, directives } from "./directives"
 import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
@@ -33,6 +33,10 @@ export function start() {
         })
 
     dispatch(document, 'alpine:initialized')
+
+    setTimeout(() => {
+        warnAboutMissingPlugins()
+    })
 }
 
 let rootSelectorCallbacks = []
@@ -96,5 +100,25 @@ export function destroyTree(root, walker = walk) {
     walker(root, el => {
         cleanupAttributes(el)
         cleanupElement(el)
+    })
+}
+
+function warnAboutMissingPlugins() {
+    let pluginDirectives = [
+        [ 'ui', 'dialog', ['[x-dialog], [x-popover]'] ],
+        [ 'anchor', 'anchor', ['[x-anchor]'] ],
+        [ 'sort', 'sort', ['[x-sort]'] ],
+    ]
+
+    pluginDirectives.forEach(([ plugin, directive, selectors ]) => {
+        if (directiveExists(directive)) return
+
+        selectors.some(selector => {
+            if (document.querySelector(selector)) {
+                warn(`found "${selector}", but missing ${plugin} plugin`)
+
+                return true
+            }
+        })
     })
 }

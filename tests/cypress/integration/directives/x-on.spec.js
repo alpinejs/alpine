@@ -513,6 +513,25 @@ test('@click.away',
     }
 )
 
+test('@click.away.once works after clicking inside',
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <h1 @click.away.once="foo = 'baz'">h1</h1>
+
+            <h2>h2</h2>
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('h1').click()
+        get('span').should(haveText('bar'))
+        get('h2').click()
+        get('span').should(haveText('baz'))
+    }
+)
+
 test('@click.away with x-show (prevent race condition)',
     html`
         <div x-data="{ show: false }">

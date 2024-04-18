@@ -38,6 +38,14 @@ export default function on (el, event, modifiers, callback) {
     if (modifiers.includes('prevent')) handler = wrapHandler(handler, (next, e) => { e.preventDefault(); next(e) })
     if (modifiers.includes('stop')) handler = wrapHandler(handler, (next, e) => { e.stopPropagation(); next(e) })
 
+    if (modifiers.includes("once")) {
+        handler = wrapHandler(handler, (next, e) => {
+            next(e);
+
+            listenerTarget.removeEventListener(event, handler, options);
+        });
+    }
+
     if (modifiers.includes('away') || modifiers.includes('outside')) {
         listenerTarget = document
 
@@ -53,14 +61,6 @@ export default function on (el, event, modifiers, callback) {
             if (el._x_isShown === false) return
 
             next(e)
-        })
-    }
-
-    if (modifiers.includes('once')) {
-        handler = wrapHandler(handler, (next, e) => {
-            next(e)
-
-            listenerTarget.removeEventListener(event, handler, options)
         })
     }
 

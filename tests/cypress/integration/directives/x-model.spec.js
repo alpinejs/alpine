@@ -210,6 +210,169 @@ test('x-model updates value when the form is reset',
     }
 )
 
+test(
+    "x-model radio updates value when the form is reset",
+    html`
+    <div x-data="{ foo: undefined }">
+        <form>
+            <input type="radio" value="radio1" x-model.fill="foo"></input>
+            <input type="radio" value="radio2" x-model.fill="foo" checked></input>
+            <input type="radio" value="radio3" x-model.fill="foo"></input>
+            <button type="reset">Reset</button>
+        </form>
+        <span x-text="foo"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get("span").should(haveText("radio2"));
+        get("input[value='radio1']").click();
+        get("span").should(haveText("radio1"));
+        get("button").click();
+        get("span").should(haveText("radio2"));
+    }
+);
+
+test(
+    "x-model.number radio updates value when the form is reset",
+    html`
+    <div x-data="{ foo: undefined }">
+        <form>
+            <input type="radio" value="1" x-model.number.fill="foo"></input>
+            <input type="radio" value="2" x-model.number.fill="foo" checked></input>
+            <input type="radio" value="3" x-model.number.fill="foo"></input>
+            <button type="reset">Reset</button>
+        </form>
+    </div>
+    `,
+    ({ get }) => {
+        get("[x-data]").should(haveData("foo", 2));
+        get("input[value='1']").click();
+        get("[x-data]").should(haveData("foo", 1));
+        get("button").click();
+        get("[x-data]").should(haveData("foo", 2));
+    }
+);
+
+test(
+    "x-model.boolean radio updates value when the form is reset",
+    html`
+    <div x-data="{ foo: undefined }">
+        <form>
+            <input type="radio" value="true" x-model.boolean.fill="foo" checked></input>
+            <input type="radio" value="false" x-model.boolean.fill="foo"></input>
+            <button type="reset">Reset</button>
+        </form>
+    </div>
+    `,
+    ({ get }) => {
+        get("[x-data]").should(haveData("foo", true));
+        get("input[value='false']").click();
+        get("[x-data]").should(haveData("foo", false));
+        get("button").click();
+        get("[x-data]").should(haveData("foo", true));
+    }
+);
+
+test(
+    "x-model checkbox array updates value when the form is reset",
+    html`
+    <div x-data="{ foo: [] }">
+        <form>
+            <input type="checkbox" value="checkbox1" x-model.fill="foo"></input>
+            <input type="checkbox" value="checkbox2" x-model.fill="foo" checked></input>
+            <input type="checkbox" value="checkbox3" x-model.fill="foo" checked></input>
+            <input type="checkbox" value="checkbox4" x-model.fill="foo"></input>
+            <button type="reset">Reset</button>
+        </form>
+        <span x-text="foo"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get("span").should(haveText("checkbox2,checkbox3"));
+        get("input[value='checkbox1']").click();
+        get("span").should(haveText("checkbox2,checkbox3,checkbox1"));
+        get("input[value='checkbox3']").click();
+        get("span").should(haveText("checkbox2,checkbox1"));
+        get("button").click();
+        get("span").should(haveText("checkbox2,checkbox3"));
+    }
+);
+
+test(
+    "x-model.number checkbox array updates value when the form is reset",
+    html`
+    <div x-data="{ foo: [] }">
+        <form>
+            <input type="checkbox" value="1" x-model.number.fill="foo"></input>
+            <input type="checkbox" value="2" x-model.number.fill="foo" checked></input>
+            <input type="checkbox" value="3" x-model.number.fill="foo" checked></input>
+            <input type="checkbox" value="4" x-model.number.fill="foo"></input>
+            <button type="reset">Reset</button>
+        </form>
+    </div>
+    `,
+    ({ get }) => {
+        get("[x-data]").should(haveData("foo", [2, 3]));
+        get("input[value='1']").click();
+        get("[x-data]").should(haveData("foo", [2, 3, 1]));
+        get("input[value='3']").click();
+        get("[x-data]").should(haveData("foo", [2, 1]));
+        get("button").click();
+        get("[x-data]").should(haveData("foo", [2, 3]));
+    }
+);
+
+test(
+    "x-model select updates value when the form is reset",
+    html`
+        <div x-data="{ a: null, b: null, c: null, d: null }">
+            <form>
+                <select id="a" x-model.fill="a">
+                    <option value="123">123</option>
+                    <option value="456" selected>456</option>
+                    <option value="789">789</option>
+                </select>
+                <select id="b" x-model.fill="b" multiple>
+                    <option value="123" selected>123</option>
+                    <option value="456">456</option>
+                    <option value="789" selected>789</option>
+                </select>
+                <select id="c" x-model.number.fill="c">
+                    <option value="123">123</option>
+                    <option value="456" selected>456</option>
+                    <option value="789">789</option>
+                </select>
+                <select id="d" x-model.number.fill="d" multiple>
+                    <option value="123" selected>123</option>
+                    <option value="456">456</option>
+                    <option value="789" selected>789</option>
+                </select>
+                <button type="reset">Reset</button>
+            </form>
+        </div>
+    `,
+    ({ get }) => {
+        get("[x-data]").should(haveData("a", "456"));
+        get("[x-data]").should(haveData("b", ["123", "789"]));
+        get("[x-data]").should(haveData("c", 456));
+        get("[x-data]").should(haveData("d", [123, 789]));
+        get("select#a").select("789");
+        get("select#b").select("456");
+        get("select#c").select("789");
+        get("select#d").select("456");
+        get("[x-data]").should(haveData("a", "789"));
+        get("[x-data]").should(haveData("b", ["456"]));
+        get("[x-data]").should(haveData("c", 789));
+        get("[x-data]").should(haveData("d", [456]));
+        get("button").click();
+        get("[x-data]").should(haveData("a", "456"));
+        get("[x-data]").should(haveData("b", ["123", "789"]));
+        get("[x-data]").should(haveData("c", 456));
+        get("[x-data]").should(haveData("d", [123, 789]));
+    }
+);
+
+
 test('x-model with fill modifier takes input value on null, empty string or undefined',
     html`
     <div x-data="{ a: 123, b: 0, c: '', d: null, e: {} }">
@@ -236,7 +399,7 @@ test('x-model with fill modifier takes input value on null, empty string or unde
 
 test('x-model with fill modifier works with select elements',
     html`
-        <div x-data="{ a: null, b: null, c: null, d: null }">
+        <div x-data="{ a: null, b: null, c: null, d: null, e: null, f: null }">
             <select x-model.fill="a">
                 <option value="123">123</option>
                 <option value="456" selected>456</option>
@@ -245,11 +408,31 @@ test('x-model with fill modifier works with select elements',
                 <option value="123" selected>123</option>
                 <option value="456" selected>456</option>
             </select>
+            <select x-model.number.fill="c">
+                <option value="123">123</option>
+                <option value="456" selected>456</option>
+            </select>
+            <select x-model.number.fill="d" multiple>
+                <option value="123" selected>123</option>
+                <option value="456" selected>456</option>
+            </select>
+            <select x-model.boolean.fill="e">
+                <option value="true" selected>true</option>
+                <option value="false">false</option>
+            </select>
+            <select x-model.boolean.fill="f" multiple>
+                <option value="true" selected>true</option>
+                <option value="false" selected>false</option>
+            </select>
         </div>
     `,
     ({ get }) => {
         get('[x-data]').should(haveData('a', '456'));
         get('[x-data]').should(haveData('b', ['123', '456']));
+        get('[x-data]').should(haveData('c', 456));
+        get('[x-data]').should(haveData('d', [123, 456]));
+        get('[x-data]').should(haveData('e', true));
+        get('[x-data]').should(haveData('f', [true, false]));
     }
 );
 

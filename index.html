@@ -6,9 +6,16 @@
     <script src="./packages/mask/dist/cdn.js"></script>
     <script src="./packages/ui/dist/cdn.js" defer></script> -->
     <script src="./packages/anchor/dist/cdn.js" defer></script>
+    <script src="./packages/sort/dist/cdn.js" defer></script>
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
+
+    <div x-data x-sort>
+        <div x-sort:item >foo</div>
+        <div >foo</div>
+        <div x-sort:item >foo</div>
+    </div>
 
     <div x-data="{ val: true }"
     >

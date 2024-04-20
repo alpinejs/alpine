@@ -233,6 +233,84 @@ This makes it easy to add any custom styling you would like:
 </div>
 <!-- END_VERBATIM -->
 
+<a name="sorting-class"></a>
+## Sorting class on body
+
+While an element is being dragged around, Alpine will automatically add a `.sorting` class to the `<body>` element of the page.
+
+This is useful for styling any element on the page conditionally using only CSS.
+
+For example you could have a warning that only displays while a user is sorting items:
+
+```html
+<div id="sort-warning">
+    Page functionality is limited while sorting
+</div>
+```
+
+To show this only while sorting, you can use the `body.sorting` CSS selector:
+
+```css
+#sort-warning {
+    display: none;
+}
+
+body.sorting #sort-warning {
+    display:
+}
+```
+
+<a name="css-hover-bug"></a>
+## CSS hover bug
+
+Currently, there is a [bug in Chrome and Safari](https://issues.chromium.org/issues/41129937) (not Firefox) that causes issues with hover styles.
+
+Consider HTML like the following, where each item in the list is styled differently based on a hover state (here we're using Tailwind's `.hover` class to conditionally add a border):
+
+```html
+<div x-sort>
+    <div class="hover:border">foo</div>
+    <div class="hover:border">bar</div>
+    <div class="hover:border">baz</div>
+</div>
+```
+
+If you drag one of the elements in the list below you will see that the hover effect will be errantly applied to any element in the original element's place:
+
+<!-- START_VERBATIM -->
+<div x-data>
+    <ul x-sort class="flex flex-col items-start">
+        <li class="hover:border border-black">foo</li>
+        <li class="hover:border border-black">bar</li>
+        <li class="hover:border border-black">baz</li>
+    </ul>
+</div>
+<!-- END_VERBATIM -->
+
+To fix this, you can leverage the `.sorting` class applied to the body while sorting to limit the hover effect to only be applied while `.sorting` does NOT exist on `body`.
+
+Here is how you can do this directly inline using Tailwind arbitrary variants:
+
+```html
+<div x-sort>
+    <div class="[body:not(.sorting)_&]:hover:border">foo</div>
+    <div class="[body:not(.sorting)_&]:hover:border">bar</div>
+    <div class="[body:not(.sorting)_&]:hover:border">baz</div>
+</div>
+```
+
+Now you can see below that the hover effect is only applied to the dragging element and not the others in the list.
+
+<!-- START_VERBATIM -->
+<div x-data>
+    <ul x-sort class="flex flex-col items-start">
+        <li class="[body:not(.sorting)_&]:hover:border border-black">foo</li>
+        <li class="[body:not(.sorting)_&]:hover:border border-black">bar</li>
+        <li class="[body:not(.sorting)_&]:hover:border border-black">baz</li>
+    </ul>
+</div>
+<!-- END_VERBATIM -->
+
 <a name="custom-configuration"></a>
 ## Custom configuration
 

@@ -95,6 +95,8 @@ function initSortable(el, config, preferences, handle) {
         },
 
         onStart() {
+            document.body.classList.add('sorting')
+
             ghostRef = document.querySelector('.sortable-ghost')
 
             if (preferences.hideGhost && ghostRef) ghostRef.style.opacity = '0'
@@ -102,6 +104,8 @@ function initSortable(el, config, preferences, handle) {
 
 
         onEnd() {
+            document.body.classList.remove('sorting')
+
             if (preferences.hideGhost && ghostRef) ghostRef.style.opacity = '1'
 
             ghostRef = undefined

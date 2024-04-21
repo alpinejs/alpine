@@ -10,7 +10,12 @@ export default function (Alpine) {
             return // This will get handled by the main directive...
         }
 
-        if (value === 'key') {
+        if (value === 'group') {
+            return // This will get handled by the main directive...
+        }
+
+        // Supporting both `x-sort:item` AND `x-sort:key` (key for BC)...
+        if (value === 'key' || value === 'item') {
             if ([undefined, null, ''].includes(expression)) return
 
             el._x_sort_key = evaluate(expression)
@@ -21,7 +26,7 @@ export default function (Alpine) {
         let preferences = {
             hideGhost: ! modifiers.includes('ghost'),
             useHandles: !! el.querySelector('[x-sort\\:handle]'),
-            group: modifiers.indexOf('group') !== -1 ? modifiers[modifiers.indexOf('group') + 1] : null,
+            group: getGroupName(el, modifiers),
         }
 
         let handleSort = generateSortHandler(expression, evaluateLater)
@@ -52,7 +57,9 @@ function generateSortHandler(expression, evaluateLater) {
                 },
                 // Provide $key and $position to the scope in case they want to call their own function...
                 { scope: {
+                    // Supporting both `$item` AND `$key` ($key for BC)...
                     $key: key,
+                    $item: key,
                     $position: position,
                 } },
             )
@@ -77,6 +84,17 @@ function initSortable(el, config, preferences, handle) {
 
         group: preferences.group,
 
+        filter(e) {
+            // Normally, we would just filter out any elements without `[x-sort:item]`
+            // on them, however for backwards compatibility (when we didn't require
+            // `[x-sort:item]`) we will check for x-sort\\:item being used at all
+            if (! el.querySelector('[x-sort\\:item]')) return false
+
+            let itemHasAttribute = e.target.closest('[x-sort\\:item]')
+
+            return itemHasAttribute ? false : true
+        },
+
         onSort(e) {
             // If item has been dragged between groups...
             if (e.from !== e.to) {
@@ -95,13 +113,16 @@ function initSortable(el, config, preferences, handle) {
         },
 
         onStart() {
+            document.body.classList.add('sorting')
+
             ghostRef = document.querySelector('.sortable-ghost')
 
             if (preferences.hideGhost && ghostRef) ghostRef.style.opacity = '0'
         },
 
-
         onEnd() {
+            document.body.classList.remove('sorting')
+
             if (preferences.hideGhost && ghostRef) ghostRef.style.opacity = '1'
 
             ghostRef = undefined
@@ -124,4 +145,13 @@ function keepElementsWithinMorphMarkers(el) {
 
         cursor = cursor.nextSibling
     }
+}
+
+function getGroupName(el, modifiers)
+{
+    if (el.hasAttribute('x-sort:group')) {
+        return el.getAttribute('x-sort:group')
+    }
+
+    return modifiers.indexOf('group') !== -1 ? modifiers[modifiers.indexOf('group') + 1] : null
 }

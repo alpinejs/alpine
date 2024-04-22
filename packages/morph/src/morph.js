@@ -353,7 +353,7 @@ export function morph(from, toHtml, options) {
     toEl = typeof toHtml === 'string' ? createElement(toHtml) : toHtml
 
     if (window.Alpine && window.Alpine.closestDataStack && ! from._x_dataStack) {
-        // Just in case a part of this {template} uses Alpine scope from somewhere
+        // Just in case a part of this template uses Alpine scope from somewhere
         // higher in the DOM tree, we'll find that state and replace it on the root
         // element so everything is synced up accurately.
         toEl._x_dataStack = window.Alpine.closestDataStack(from)

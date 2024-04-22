@@ -71,7 +71,8 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
 
     if (modifiers.includes('fill'))
         if ([undefined, null, ''].includes(getValue())
-            || (el.type === 'checkbox' && Array.isArray(getValue()))) {
+            || (el.type === 'checkbox' && Array.isArray(getValue()))
+            || (el.tagName.toLowerCase() === 'select' && el.multiple)) {
         setValue(
             getInputValue(el, modifiers, { target: el }, getValue())
         );
@@ -91,7 +92,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     // on nextTick so the page doesn't end up out of sync
     if (el.form) {
         let removeResetListener = on(el.form, 'reset', [], (e) => {
-            nextTick(() => el._x_model && el._x_model.set(el.value))
+            nextTick(() => el._x_model && el._x_model.set(getInputValue(el, modifiers, { target: el }, getValue())))
         })
         cleanup(() => removeResetListener())
     }
@@ -149,7 +150,7 @@ function getInputValue(el, modifiers, event, currentValue) {
                     newValue = event.target.value
                 }
 
-                return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter(el => ! checkedAttrLooseCompare(el, newValue))
+                return event.target.checked ? (currentValue.includes(newValue) ? currentValue : currentValue.concat([newValue])) : currentValue.filter(el => !checkedAttrLooseCompare(el, newValue));
             } else {
                 return event.target.checked
             }

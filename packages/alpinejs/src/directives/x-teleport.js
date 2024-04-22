@@ -49,7 +49,7 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
     mutateDom(() => {
         placeInDom(clone, target, modifiers)
 
-        initTree(clone)
+        skipDuringClone(() => initTree(clone))()
 
         clone._x_ignore = true
     })

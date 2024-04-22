@@ -537,3 +537,44 @@ test('can morph menu',
         get('input').should(haveValue('foo'))
     },
 )
+
+test('can morph teleports with x-for',
+    [html`
+    <main x-data>
+        <template x-teleport="body">
+            <article>
+                <template x-for="item in 3" :key="item">
+                    <span x-text="item"></span>
+                </template>
+            </article>
+        </template>
+
+        <button x-data="{ count: 1 }" x-text="count" x-on:click="count++" type="button"></button>
+    </main>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+        <main x-data>
+            <template x-teleport="body">
+                <article>
+                    <template x-for="item in 3" :key="item">
+                        <span x-text="item"></span>
+                    </template>
+                </article>
+            </template>
+
+            <button x-data="{ count: 1 }" x-text="count" x-on:click="count++" type="button"></button>
+        </main>
+        `
+
+        get('button').should(haveText('1'));
+        get('button').click()
+        get('button').should(haveText('2'));
+
+        get('main').then(([el]) => window.Alpine.morph(el, toHtml));
+
+        get('button').should(haveText('2'));
+        get('button').click()
+        get('button').should(haveText('3'));
+    },
+)

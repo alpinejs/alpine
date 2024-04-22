@@ -77,6 +77,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             getInputValue(el, modifiers, { target: el }, getValue())
         );
     }
+
     // Register the listener removal callback on the element, so that
     // in addition to the cleanup function, x-modelable may call it.
     // Also, make this a keyed object if we decide to reintroduce
@@ -150,7 +151,9 @@ function getInputValue(el, modifiers, event, currentValue) {
                     newValue = event.target.value
                 }
 
-                return event.target.checked ? (currentValue.includes(newValue) ? currentValue : currentValue.concat([newValue])) : currentValue.filter(el => !checkedAttrLooseCompare(el, newValue));
+                return event.target.checked
+                    ? (currentValue.includes(newValue) ? currentValue : currentValue.concat([newValue]))
+                    : currentValue.filter(el => ! checkedAttrLooseCompare(el, newValue));
             } else {
                 return event.target.checked
             }

@@ -40,6 +40,10 @@ export function morph(from, toHtml, options) {
         // Initialize the server-side HTML element with Alpine...
         if (from.nodeType === 1 && window.Alpine) {
             window.Alpine.cloneNode(from, to)
+
+            if (from._x_teleport && to._x_teleport) {
+                patch(from._x_teleport, to._x_teleport)
+            }
         }
 
         if (textOrComment(to)) {
@@ -120,11 +124,6 @@ export function morph(from, toHtml, options) {
     }
 
     function patchChildren(from, to) {
-        // If we hit a <template x-teleport="body">,
-        // let's use the teleported nodes for this patch...
-        if (from._x_teleport) from = from._x_teleport
-        if (to._x_teleport) to = to._x_teleport
-
         let fromKeys = keyToMap(from.children)
         let fromKeyHoldovers = {}
 

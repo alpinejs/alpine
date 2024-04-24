@@ -169,6 +169,7 @@ function keyToModifiers(key) {
         'left': 'arrow-left',
         'right': 'arrow-right',
         'period': '.',
+        'comma': ',',
         'equal': '=',
         'minus': '-',
         'underscore': '_',

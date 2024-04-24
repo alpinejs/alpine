@@ -397,6 +397,7 @@ test('keydown modifiers',
                 x-on:keydown.slash="count++"
                 x-on:keydown.period="count++"
                 x-on:keydown.equal="count++"
+                x-on:keydown.comma="count++"
             >
 
             <span x-text="count"></span>
@@ -430,6 +431,8 @@ test('keydown modifiers',
         get('span').should(haveText('25'))
         get('input').type('.')
         get('span').should(haveText('27'))
+        get('input').type(',')
+        get('span').should(haveText('29'))
     }
 )
 

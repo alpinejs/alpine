@@ -65,9 +65,9 @@ The primary API for using this plugin is the `x-sort` directive. By adding `x-so
 <!-- START_VERBATIM -->
 <div x-data>
     <ul x-sort>
-        <li x-sort:item>foo</li>
-        <li x-sort:item>bar</li>
-        <li x-sort:item>baz</li>
+        <li x-sort:item class="cursor-pointer">foo</li>
+        <li x-sort:item class="cursor-pointer">bar</li>
+        <li x-sort:item class="cursor-pointer">baz</li>
     </ul>
 </div>
 <!-- END_VERBATIM -->
@@ -88,9 +88,9 @@ You can react to sorting changes by passing a handler function to `x-sort` and a
 <!-- START_VERBATIM -->
 <div x-data>
     <ul x-sort="alert($item + ' - ' + $position)">
-        <li x-sort:item="1">foo</li>
-        <li x-sort:item="2">bar</li>
-        <li x-sort:item="3">baz</li>
+        <li x-sort:item="1" class="cursor-pointer">foo</li>
+        <li x-sort:item="2" class="cursor-pointer">bar</li>
+        <li x-sort:item="3" class="cursor-pointer">baz</li>
     </ul>
 </div>
 <!-- END_VERBATIM -->
@@ -161,13 +161,13 @@ By default, each `x-sort:item` element is draggable by clicking and dragging any
 <div x-data>
     <ul x-sort>
         <li x-sort:item>
-            <span x-sort:handle> - </span>foo
+            <span x-sort:handle class="cursor-pointer"> - </span>foo
         </li>
         <li x-sort:item>
-            <span x-sort:handle> - </span>bar
+            <span x-sort:handle class="cursor-pointer"> - </span>bar
         </li>
         <li x-sort:item>
-            <span x-sort:handle> - </span>baz
+            <span x-sort:handle class="cursor-pointer"> - </span>baz
         </li>
     </ul>
 </div>
@@ -195,9 +195,9 @@ If you would like to show a "ghost" of the original element in its place instead
 <!-- START_VERBATIM -->
 <div x-data>
     <ul x-sort.ghost>
-        <li x-sort:item>foo</li>
-        <li x-sort:item>bar</li>
-        <li x-sort:item>baz</li>
+        <li x-sort:item class="cursor-pointer">foo</li>
+        <li x-sort:item class="cursor-pointer">bar</li>
+        <li x-sort:item class="cursor-pointer">baz</li>
     </ul>
 </div>
 <!-- END_VERBATIM -->
@@ -226,9 +226,9 @@ This makes it easy to add any custom styling you would like:
 <!-- START_VERBATIM -->
 <div x-data>
     <ul x-sort.ghost x-sort:config="{ ghostClass: 'opacity-50' }">
-        <li x-sort:item>foo</li>
-        <li x-sort:item>bar</li>
-        <li x-sort:item>baz</li>
+        <li x-sort:item class="cursor-pointer">foo</li>
+        <li x-sort:item class="cursor-pointer">bar</li>
+        <li x-sort:item class="cursor-pointer">baz</li>
     </ul>
 </div>
 <!-- END_VERBATIM -->
@@ -280,9 +280,9 @@ If you drag one of the elements in the list below you will see that the hover ef
 <!-- START_VERBATIM -->
 <div x-data>
     <ul x-sort class="flex flex-col items-start">
-        <li x-sort:item class="hover:border border-black">foo</li>
-        <li x-sort:item class="hover:border border-black">bar</li>
-        <li x-sort:item class="hover:border border-black">baz</li>
+        <li x-sort:item class="hover:border border-black cursor-pointer">foo</li>
+        <li x-sort:item class="hover:border border-black cursor-pointer">bar</li>
+        <li x-sort:item class="hover:border border-black cursor-pointer">baz</li>
     </ul>
 </div>
 <!-- END_VERBATIM -->
@@ -304,9 +304,9 @@ Now you can see below that the hover effect is only applied to the dragging elem
 <!-- START_VERBATIM -->
 <div x-data>
     <ul x-sort class="flex flex-col items-start">
-        <li x-sort:item class="[body:not(.sorting)_&]:hover:border border-black">foo</li>
-        <li x-sort:item class="[body:not(.sorting)_&]:hover:border border-black">bar</li>
-        <li x-sort:item class="[body:not(.sorting)_&]:hover:border border-black">baz</li>
+        <li x-sort:item class="[body:not(.sorting)_&]:hover:border border-black cursor-pointer">foo</li>
+        <li x-sort:item class="[body:not(.sorting)_&]:hover:border border-black cursor-pointer">bar</li>
+        <li x-sort:item class="[body:not(.sorting)_&]:hover:border border-black cursor-pointer">baz</li>
     </ul>
 </div>
 <!-- END_VERBATIM -->
@@ -327,9 +327,9 @@ Alpine chooses sensible defaults for configuring [SortableJS](https://github.com
 <!-- START_VERBATIM -->
 <div x-data>
     <ul x-sort x-sort:config="{ animation: 0 }">
-        <li x-sort:item>foo</li>
-        <li x-sort:item>bar</li>
-        <li x-sort:item>baz</li>
+        <li x-sort:item class="cursor-pointer">foo</li>
+        <li x-sort:item class="cursor-pointer">bar</li>
+        <li x-sort:item class="cursor-pointer">baz</li>
     </ul>
 </div>
 <!-- END_VERBATIM -->

@@ -1,4 +1,4 @@
-import { haveValue, html, test } from '../../utils'
+import { haveData, haveValue, html, test } from '../../utils'
 
 test('x-mask',
     [html`<input x-data x-mask="(999) 999-9999">`],
@@ -251,5 +251,6 @@ test('$mask should process the value when updated by x-model',
         get('input').should(haveValue('55,555'))
         get('button').click()
         get('input').should(haveValue('23,420'))
+        get('div').should(haveData('value', '23,420'))
     }
 )

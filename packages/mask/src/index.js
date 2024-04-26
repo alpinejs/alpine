@@ -40,7 +40,15 @@ export default function (Alpine) {
             }
 
             // Override x-model's initial value...
-            if (el._x_model) el._x_model.set(el.value)
+            if (el._x_model) {
+                el._x_model.set(el.value)
+                const updater = el._x_forceModelUpdate;
+                el._x_forceModelUpdate = (value) => {
+                    updater(value);
+                    processInputValue(el, false, true);
+                    el._x_model.set(el.value);
+                };
+            }
         })
 
         const controller = new AbortController()
@@ -60,7 +68,7 @@ export default function (Alpine) {
         // will re-focus the input and cause a focus trap.
         el.addEventListener('blur', () => processInputValue(el, false), { signal: controller.signal })
 
-        function processInputValue (el, shouldRestoreCursor = true) {
+        function processInputValue (el, shouldRestoreCursor = true, forceFormat = false) {
             let input = el.value
 
             let template = templateFn(input)
@@ -69,7 +77,7 @@ export default function (Alpine) {
             if(!template || template === 'false') return false
 
             // If they hit backspace, don't process input.
-            if (lastInputValue.length - el.value.length === 1) {
+            if (lastInputValue.length - el.value.length === 1 && !forceFormat) {
                 return lastInputValue = el.value
             }
 

@@ -67,7 +67,6 @@ function bundleFile(package, file) {
                 mainFields: ['module', 'main'],
             })
 
-            // Build a minified version.
             build({
                 entryPoints: [`packages/${package}/builds/${file}`],
                 outfile: `packages/${package}/dist/${file.replace('.js', '.esm.min.js')}`,
@@ -75,8 +74,6 @@ function bundleFile(package, file) {
                 minify: true,
                 platform: 'neutral',
                 mainFields: ['module', 'main'],
-            }).then(() => {
-                outputSize(package, `packages/${package}/dist/${file.replace('.js', '.esm.min.js')}`)
             })
 
             build({

@@ -120,10 +120,10 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     // Allow programmatic overriding of x-model.
     el._x_model = {
         get() {
-            return getValue();
+            return getValue()
         },
         set(value) {
-            setValue(value);
+            setValue(value)
         },
 
         setWithModifiers: setWithModifiers,

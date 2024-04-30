@@ -4,7 +4,10 @@ import { mutateDom } from '../mutation'
 import { nextTick } from '../nextTick'
 import bind, { safeParseBoolean } from '../utils/bind'
 import on from '../utils/on'
+import { debounce } from '../utils/debounce'
+import { throttle } from '../utils/throttle'
 import { isCloning } from '../clone'
+
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
@@ -98,15 +101,34 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         cleanup(() => removeResetListener())
     }
 
+    let setWithModifiers = setValue
+
+    // Allow for Modifiers such as debounce to be respected by modelable
+    if (modifiers.includes('debounce')) {
+        let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
+        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+
+        setWithModifiers = debounce(setWithModifiers, wait)
+    }
+    if (modifiers.includes('throttle')) {
+        let nextModifier = modifiers[modifiers.indexOf('throttle')+1] || 'invalid-wait'
+        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+
+        setWithModifiers = throttle(setWithModifiers, wait)
+    }
+
     // Allow programmatic overriding of x-model.
     el._x_model = {
         get() {
-            return getValue()
+            return getValue();
         },
         set(value) {
-            setValue(value)
+            setValue(value);
         },
-    }
+
+        setWithModifiers: setWithModifiers,
+    };
+
 
     el._x_forceModelUpdate = (value) => {
         // If nested model key is undefined, set the default value to empty string.

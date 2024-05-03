@@ -75,7 +75,7 @@ The primary API for using this plugin is the `x-sort` directive. By adding `x-so
 <a name="sort-handlers"></a>
 ## Sort handlers
 
-You can react to sorting changes by passing a handler function to `x-sort` and adding keys to each item using `x-sort:item`. Here is an example of a simple handler function that shows an alert dialog with the changed item's key and its new position:
+You can react to sorting changes by passing a handler function to `x-sort` and adding keys to each item using `x-sort:item` or `x-sort:key`. Here is an example of a simple handler function that shows an alert dialog with the changed item's key and its new position:
 
 ```alpine
 <ul x-sort="alert($item + ' - ' + $position)">
@@ -94,6 +94,17 @@ You can react to sorting changes by passing a handler function to `x-sort` and a
     </ul>
 </div>
 <!-- END_VERBATIM -->
+
+Example with `x-sort:key`:
+
+```alpine
+<ul x-sort="alert($item + ' - ' + $position)">
+    <li x-sort:key="'ACF48F36-326F-44B6-AE3F-77009A052902'">foo</li>
+    <li x-sort:key="'413969A6-B762-4239-949A-6E5C6F55D85C'">bar</li>
+    <li x-sort:key="'EB06E2CF-E9D3-480F-B40E-AB592EDEE1B6'">baz</li>
+</ul>
+```
+
 
 The `x-sort` handler will be called every time the sort order of the items change. The `$item` magic will contain the key of the sorted element (derived from `x-sort:item`), and `$position` will contain the new position of the item (staring at index `0`).
 

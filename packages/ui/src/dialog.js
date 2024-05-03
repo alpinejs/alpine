@@ -3,6 +3,7 @@ export default function (Alpine) {
     Alpine.directive('dialog', (el, directive) => {
         if      (directive.value === 'overlay')     handleOverlay(el, Alpine)
         else if (directive.value === 'panel')       handlePanel(el, Alpine)
+        else if (directive.value === 'panelWithoutClose') handlePanelWithoutClose(el, Alpine)
         else if (directive.value === 'title')       handleTitle(el, Alpine)
         else if (directive.value === 'description') handleDescription(el, Alpine)
         else                                        handleRoot(el, Alpine)
@@ -77,6 +78,12 @@ function handleOverlay(el, Alpine) {
 function handlePanel(el, Alpine) {
     Alpine.bind(el, {
         '@click.outside'() { this.$data.__close() },
+        'x-show'() { return this.$data.__isOpen },
+    })
+}
+
+function handlePanelWithoutClose(el, Alpine) {
+    Alpine.bind(el, {
         'x-show'() { return this.$data.__isOpen },
     })
 }

@@ -96,7 +96,7 @@ When a `click` event happens, Alpine will call the associated JavaScript express
 ### Reacting to changes
 
 ```alpine
-<h1 x-text="count"></h1>
+<span x-text="count"></span>
 ```
 
 `x-text` is an Alpine directive you can use to set the text content of an element to the result of a JavaScript expression.

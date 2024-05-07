@@ -96,14 +96,14 @@ When a `click` event happens, Alpine will call the associated JavaScript express
 ### Reacting to changes
 
 ```alpine
-<h1 x-text="count"></h1>
+<span x-text="count"></span>
 ```
 
 `x-text` is an Alpine directive you can use to set the text content of an element to the result of a JavaScript expression.
 
-In this case, we're telling Alpine to always make sure that the contents of this `h1` tag reflect the value of the `count` property.
+In this case, we're telling Alpine to always make sure that the contents of this `span` tag reflect the value of the `count` property.
 
-In case it's not clear, `x-text`, like most directives accepts a plain JavaScript expression as an argument. So for example, you could instead set its contents to: `x-text="count * 2"` and the text content of the `h1` will now always be 2 times the value of `count`.
+In case it's not clear, `x-text`, like most directives accepts a plain JavaScript expression as an argument. So for example, you could instead set its contents to: `x-text="count * 2"` and the text content of the `span` will now always be 2 times the value of `count`.
 
 [→ Read more about `x-text`](/directives/text)
 

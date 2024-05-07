@@ -4,6 +4,8 @@ import { mutateDom } from '../mutation'
 import { nextTick } from '../nextTick'
 import bind, { safeParseBoolean } from '../utils/bind'
 import on from '../utils/on'
+import { debounce } from '../utils/debounce'
+import { throttle } from '../utils/throttle'
 import { isCloning } from '../clone'
 
 
@@ -66,17 +68,9 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     // We only want to register the event listener when we're not cloning, since the
     // mutation observer handles initializing the x-model directive already when
     // the element is inserted into the DOM. Otherwise we register it twice.
-    let inputListener = () => {};
-    let modelableListener = () => {};
-
-    if (! isCloning){
-        inputListener = on(el, event, modifiers, (e) => {
-            setValue(getInputValue(el, modifiers, e, getValue()))
-        })
-        modelableListener = on(el, 'x-modelable-input', modifiers, (e) => {
-            setValue(e.detail)
-        })
-    }
+    let removeListener = isCloning ? () => {} : on(el, event, modifiers, (e) => {
+        setValue(getInputValue(el, modifiers, e, getValue()))
+    })
 
     if (modifiers.includes('fill'))
         if ([undefined, null, ''].includes(getValue())
@@ -92,8 +86,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     // Also, make this a keyed object if we decide to reintroduce
     // "named modelables" some time in a future Alpine version.
     if (! el._x_removeModelListeners) el._x_removeModelListeners = {}
-    el._x_removeModelListeners['default'] = () => {inputListener(); modelableListener();}
-    el._x_removeModelListeners['input'] = inputListener
+    el._x_removeModelListeners['default'] = removeListener
 
     cleanup(() => el._x_removeModelListeners['default']())
 
@@ -108,6 +101,22 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         cleanup(() => removeResetListener())
     }
 
+    let setWithModifiers = setValue
+
+    // Allow for Modifiers such as debounce to be respected by modelable
+    if (modifiers.includes('debounce')) {
+        let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
+        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+
+        setWithModifiers = debounce(setWithModifiers, wait)
+    }
+    if (modifiers.includes('throttle')) {
+        let nextModifier = modifiers[modifiers.indexOf('throttle')+1] || 'invalid-wait'
+        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+
+        setWithModifiers = throttle(setWithModifiers, wait)
+    }
+
     // Allow programmatic overriding of x-model.
     el._x_model = {
         get() {
@@ -116,6 +125,8 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         set(value) {
             setValue(value)
         },
+
+        setWithModifiers: setWithModifiers,
     };
 
 

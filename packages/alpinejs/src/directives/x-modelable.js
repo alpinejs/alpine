@@ -1,6 +1,5 @@
-import { directive } from '../directives';
+import { directive } from '../directives'
 import { entangle } from '../entangle';
-import { dispatch } from '../utils/dispatch';
 
 directive('modelable', (el, { expression }, { effect, evaluateLater, cleanup }) => {
     let func = evaluateLater(expression)
@@ -19,10 +18,10 @@ directive('modelable', (el, { expression }, { effect, evaluateLater, cleanup }) 
         // The reason for this is that it's often useful to wrap <input> elements
         // in x-modelable/model, but the input events from the native input
         // override any functionality added by x-modelable causing confusion.
-        el._x_removeModelListeners['input']()
+        el._x_removeModelListeners['default']()
 
         let outerGet = el._x_model.get
-        let outerSet = (value) => {dispatch(el, 'x-modelable-input', value);}
+        let outerSet = el._x_model.setWithModifiers
 
         let releaseEntanglement = entangle(
             {

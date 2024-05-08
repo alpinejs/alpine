@@ -3,11 +3,14 @@ import { magic } from "../magics";
 magic('mixin', () => (...datas) => {
     let inits = []
     let destroys = []
+    const mixed = {}
 
-    const mixed = datas.reduce((acc, data) => {
+    for (let data of datas) {
         if (typeof data === 'function') {
             data = data()
         }
+
+        if (typeof data !== 'object') continue
 
         if (typeof data.init === 'function') {
             inits.push(data.init)
@@ -17,20 +20,15 @@ magic('mixin', () => (...datas) => {
             destroys.push(data.destroy)
         }
 
-        if (typeof data === 'object') {
-            return { ...acc, ...data }
-        }
+        Object.defineProperties(mixed, Object.getOwnPropertyDescriptors(data));
+    }
 
-        return acc
-    }, {})
-
-    return {
-        ...mixed,
+    return Object.defineProperties(mixed, Object.getOwnPropertyDescriptors({
         init() {
-            inits.forEach(init => init.call(this))
+            inits.forEach((init) => init.call(this));
         },
         destroy() {
-            destroys.forEach(destroy => destroy.call(this))
-        }
-    }
+            destroys.forEach((destroy) => destroy.call(this));
+        },
+    }));
 })

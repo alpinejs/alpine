@@ -110,3 +110,40 @@ test(
         get("#2").should(haveText("bar"));
     }
 );
+
+test(
+    '$mixin maintains getters and setters',
+    html`
+        <div x-data="$mixin(
+            {
+                _foo: 'bar',
+                get foo() {
+                    return this._foo + '!'
+                },
+                set foo(value) {
+                    this._foo = value
+                }
+            },
+            {
+                _baz: 'qux',
+                get baz() {
+                    return this._baz + '!'
+                },
+                set baz(value) {
+                    this._baz = value
+                }
+            }
+        )">
+            <button id="1" x-on:click="foo = 'BAR'"></button>
+            <span id="2" x-text="foo"></span>
+            <button id="3" x-on:click="baz = 'QUX'"></button>
+            <span id="4" x-text="baz"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('#1').click()
+        get('#2').should(haveText('BAR!'))
+        get('#3').click()
+        get('#4').should(haveText('QUX!'))
+    },
+)

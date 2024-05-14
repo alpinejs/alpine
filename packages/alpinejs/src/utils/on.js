@@ -106,13 +106,14 @@ function kebabCase(subject) {
 function isKeyEvent(event) {
     return ['keydown', 'keyup'].includes(event)
 }
+
 function isClickEvent(event) {
-    return ['click', 'auxclick'].includes(event)
+    return ['contextmenu','click','mouse'].some(i => event.includes(i))
 }
 
 function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
-        return ! ['window', 'document', 'prevent', 'stop', 'once', 'capture', 'self', 'away', 'outside'].includes(i)
+        return ! ['window', 'document', 'prevent', 'stop', 'once', 'capture', 'self', 'away', 'outside', 'passive'].includes(i)
     })
 
     if (keyModifiers.includes('debounce')) {
@@ -148,8 +149,8 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
         // If all the modifiers selected are pressed, ...
         if (activelyPressedKeyModifiers.length === selectedSystemKeyModifiers.length) {
 
-            // AND the event is a click. It's a press.
-            if (['click', 'auxclick'].includes(e.type)) return false
+            // AND the event is a click. It's a pass.
+            if (isClickEvent(e.type)) return false
 
             // OR the remaining key is pressed as well. It's a press.
             if (keyToModifiers(e.key).includes(keyModifiers[0])) return false

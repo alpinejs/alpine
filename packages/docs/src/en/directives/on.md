@@ -131,7 +131,7 @@ Here's an example of a button that changes behaviour when the `Shift` key is hel
 </div>
 <!-- END_VERBATIM -->
 
-> Note: Normal click events with some modifiers (like `ctrl`) will automatically become `context` events in most browsers. Similarly, `right-click` events will trigger a `context` event, but will also trigger an `auxclick` event if the `context` event is prevented.
+> Note: Normal click events with some modifiers (like `ctrl`) will automatically become `contextmenu` events in most browsers. Similarly, `right-click` events will trigger a `contextmenu` event, but will also trigger an `auxclick` event if the `contextmenu` event is prevented.
 
 <a name="custom-events"></a>
 ## Custom events

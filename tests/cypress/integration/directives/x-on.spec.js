@@ -737,9 +737,9 @@ test(
         } }">
             <button type=button
                 @click.capture="Object.keys(keys).forEach(key => keys[key] = false)"
-                @click.meta="keys.meta = true"
-                @click.ctrl="keys.ctrl = true"
                 @click.shift="keys.shift = true"
+                @click.ctrl="keys.ctrl = true"
+                @click.meta="keys.meta = true"
                 @click.alt="keys.alt = true"
                 @click.cmd="keys.cmd = true">
                     change
@@ -775,5 +775,55 @@ test(
         get("@meta").as("meta").should(beChecked());
         get("@alt").as("alt").should(beChecked());
         get("@cmd").as("cmd").should(beChecked());
+    }
+);
+
+test(
+    "handles all mouse events with modifiers",
+    html`
+        <div x-data="{ keys: {
+            shift: false,
+            ctrl: false,
+            meta: false,
+            alt: false,
+            cmd: false
+        } }">
+            <button type=button
+                @click.capture="Object.keys(keys).forEach(key => keys[key] = false)"
+                @contextmenu.prevent.shift="keys.shift = true"
+                @auxclick.ctrl="keys.ctrl = true"
+                @dblclick.meta="keys.meta = true"
+                @mouseenter.alt="keys.alt = true"
+                @mousemove.cmd="keys.cmd = true">
+                    change
+            </button>
+            <template x-for="key in Object.keys(keys)" :key="key">
+                <input type="checkbox" :name="key" x-model="keys[key]">
+            </template>
+        </div>
+    `,({ get }) => {
+        get("input[name=shift]").as('shift').should(notBeChecked());
+        get("input[name=ctrl]").as('ctrl').should(notBeChecked());
+        get("input[name=meta]").as('meta').should(notBeChecked());
+        get("input[name=alt]").as('alt').should(notBeChecked());
+        get("input[name=cmd]").as('cmd').should(notBeChecked());
+        get("button").as('button').trigger("contextmenu", { shiftKey: true });
+        get('@shift').should(beChecked());
+        get("@button").trigger("click");
+        get("@button").trigger("auxclick", { ctrlKey: true });
+        get("@shift").should(notBeChecked());
+        get("@ctrl").should(beChecked());
+        get("@button").trigger("click");
+        get("@button").trigger("dblclick", { metaKey: true });
+        get("@ctrl").should(notBeChecked());
+        get("@meta").should(beChecked());
+        get("@button").trigger("click");
+        get("@button").trigger("mouseenter", { altKey: true });
+        get("@meta").should(notBeChecked());
+        get("@alt").should(beChecked());
+        get("@button").trigger("click");
+        get("@button").trigger("mousemove", { metaKey: true });
+        get("@alt").should(notBeChecked());
+        get("@cmd").should(beChecked());
     }
 );

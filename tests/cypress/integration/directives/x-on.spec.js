@@ -1,4 +1,4 @@
-import { beChecked, notBeChecked, haveAttribute, haveData, haveText, test, beVisible, notBeVisible, html } from '../../utils'
+import { beChecked, contain, notBeChecked, haveAttribute, haveData, haveText, test, beVisible, notBeVisible, html } from '../../utils'
 
 test('data modified in event listener updates affected attribute bindings',
     html`
@@ -671,3 +671,56 @@ test('handles await in handlers with invalid right hand expressions',
         get('span').should(haveText('new string'))
     }
 )
+
+test(
+    "handles system modifier keys on key events",
+    html`
+        <div x-data="{ keys: {
+            shift: false,
+            ctrl: false,
+            meta: false,
+            alt: false,
+            cmd: false
+        } }">
+            <input type="text"
+                @keydown.capture="Object.keys(keys).forEach(key => keys[key] = false)"
+                @keydown.meta.space="keys.meta = true"
+                @keydown.ctrl.space="keys.ctrl = true"
+                @keydown.shift.space="keys.shift = true"
+                @keydown.alt.space="keys.alt = true"
+                @keydown.cmd.space="keys.cmd = true"
+            />
+            <template x-for="key in Object.keys(keys)" :key="key">
+                <input type="checkbox" :name="key" x-model="keys[key]">
+            </template>
+        </div>
+    `,({ get }) => {
+        get("input[name=shift]").as('shift').should(notBeChecked());
+        get("input[name=ctrl]").as('ctrl').should(notBeChecked());
+        get("input[name=meta]").as('meta').should(notBeChecked());
+        get("input[name=alt]").as('alt').should(notBeChecked());
+        get("input[name=cmd]").as('cmd').should(notBeChecked());
+        get("input[type=text]").as('input').trigger("keydown", { key: 'space', shiftKey: true });
+        get('@shift').should(beChecked());
+        get("@input").trigger("keydown", { key: 'space', ctrlKey: true });
+        get("@shift").should(notBeChecked());
+        get("@ctrl").should(beChecked());
+        get("@input").trigger("keydown", { key: 'space', metaKey: true });
+        get("@ctrl").should(notBeChecked());
+        get("@meta").should(beChecked());
+        get("@cmd").should(beChecked());
+        get("@input").trigger("keydown", { key: 'space', altKey: true });
+        get("@meta").should(notBeChecked());
+        get("@cmd").should(notBeChecked());
+        get("@alt").should(beChecked());
+        get("@input").trigger("keydown", { key: 'space' });
+        get("@alt").should(notBeChecked());
+        get("@input").trigger("keydown", { key: 'space',
+        ctrlKey: true, shiftKey: true, metaKey: true, altKey: true });
+        get("input[name=shift]").as("shift").should(beChecked());
+        get("input[name=ctrl]").as("ctrl").should(beChecked());
+        get("input[name=meta]").as("meta").should(beChecked());
+        get("input[name=alt]").as("alt").should(beChecked());
+        get("input[name=cmd]").as("cmd").should(beChecked());
+    }
+);

@@ -21,9 +21,9 @@ The simplest way to achieve a transition using Alpine is by adding `x-transition
 <div x-data="{ open: false }">
     <button @click="open = ! open">Toggle</button>
 
-    <span x-show="open" x-transition>
+    <div x-show="open" x-transition>
         Hello 👋
-    </span>
+    </div>
 </div>
 ```
 
@@ -32,9 +32,9 @@ The simplest way to achieve a transition using Alpine is by adding `x-transition
     <div x-data="{ open: false }">
         <button @click="open = ! open">Toggle</button>
 
-        <span x-show="open" x-transition>
+        <div x-show="open" x-transition>
             Hello 👋
-        </span>
+        </div>
     </div>
 </div>
 <!-- END_VERBATIM -->

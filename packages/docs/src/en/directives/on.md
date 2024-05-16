@@ -13,7 +13,7 @@ Here's an example of simple button that shows an alert when clicked.
 <button x-on:click="alert('Hello World!')">Say Hi</button>
 ```
 
-> `x-on` can only listen for events with lower case names, as HTML attributes are case-insensitive. Writing `x-on:CLICK` will listen for an event named `click`. If you need to listen for a custom event with a camelCase name, you can use the [`.camel` helper](#camel) to work around this limitation. Alternatively, you can use  [`x-bind`](/directives/bind#bind-directives) to attach an `x-on` directive to an element in javascript code (where case will be preserved).
+> `x-on` can only listen for events with lower case names, as HTML attributes are case-insensitive. Writing `x-on:CLICK` will listen for an event named `click`. If you need to listen for a custom event with a camelCase name, you can use the [`.camel` helper](#camel) to work around this limitation. Alternatively, you can use [`x-bind`](/directives/bind#bind-directives) to attach an `x-on` directive to an element in javascript code (where case will be preserved).
 
 <a name="shorthand-syntax"></a>
 ## Shorthand syntax
@@ -74,23 +74,64 @@ You can directly use any valid key names exposed via [`KeyboardEvent.key`](https
 
 For easy reference, here is a list of common keys you may want to listen for.
 
-| Modifier                   | Keyboard Key                |
-| -------------------------- | --------------------------- |
-| `.shift`                    | Shift                       |
-| `.enter`                    | Enter                       |
-| `.space`                    | Space                       |
-| `.ctrl`                     | Ctrl                        |
-| `.cmd`                      | Cmd                         |
-| `.meta`                     | Cmd on Mac, Windows key on Windows |
-| `.alt`                      | Alt                         |
-| `.up` `.down` `.left` `.right` | Up/Down/Left/Right arrows   |
-| `.escape`                   | Escape                      |
-| `.tab`                      | Tab                         |
-| `.caps-lock`                | Caps Lock                   |
-| `.equal`                    | Equal, `=`                  |
-| `.period`                   | Period, `.`                 |
-| `.comma`                    | Comma, `,`                  |
-| `.slash`                    | Forward Slash, `/`           |
+| Modifier                       | Keyboard Key                       |
+| ------------------------------ | ---------------------------------- |
+| `.shift`                       | Shift                              |
+| `.enter`                       | Enter                              |
+| `.space`                       | Space                              |
+| `.ctrl`                        | Ctrl                               |
+| `.cmd`                         | Cmd                                |
+| `.meta`                        | Cmd on Mac, Windows key on Windows |
+| `.alt`                         | Alt                                |
+| `.up` `.down` `.left` `.right` | Up/Down/Left/Right arrows          |
+| `.escape`                      | Escape                             |
+| `.tab`                         | Tab                                |
+| `.caps-lock`                   | Caps Lock                          |
+| `.equal`                       | Equal, `=`                         |
+| `.period`                      | Period, `.`                        |
+| `.comma`                       | Comma, `,`                         |
+| `.slash`                       | Forward Slash, `/`                 |
+
+<a name="mouse-events"></a>
+## Mouse events
+
+Like the above Keyboard Events, Alpine allows the use of some key modifiers for handling `click` events.
+
+| Modifier | Event Key |
+| -------- | --------- |
+| `.shift` | shiftKey  |
+| `.ctrl`  | ctrlKey   |
+| `.cmd`   | metaKey   |
+| `.meta`  | metaKey   |
+| `.alt`   | altKey    |
+
+These work on `click`, `auxclick`, `context` and `dblclick` events, and even `mouseover`, `mousemove`, `mouseenter`, `mouseleave`, `mouseout`, `mouseup` and `mousedown`.
+
+Here's an example of a button that changes behaviour when the `Shift` key is held down.
+
+```alpine
+<button type="button"
+    @click="message = 'selected'"
+    @click.shift="message = 'added to selection'">
+    @mousemove.shift="message = 'add to selection'"
+    @mouseout="message = 'select'"
+    x-text="message"></button>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <div x-data="{ message: '' }">
+        <button type="button"
+            @click="message = 'selected'"
+            @click.shift="message = 'added to selection'"
+            @mousemove.shift="message = 'add to selection'"
+            @mouseout="message = 'select'"
+            x-text="message"></button>
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
+> Note: Normal click events with some modifiers (like `ctrl`) will automatically become `contextmenu` events in most browsers. Similarly, `right-click` events will trigger a `contextmenu` event, but will also trigger an `auxclick` event if the `contextmenu` event is prevented.
 
 <a name="custom-events"></a>
 ## Custom events
@@ -311,4 +352,3 @@ Add this modifier if you want to execute this listener in the event's capturing 
 ```
 
 [→ Read more about the capturing and bubbling phase of events](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#usecapture)
-

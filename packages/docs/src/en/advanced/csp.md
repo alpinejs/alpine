@@ -118,3 +118,26 @@ Alpine.data('counter', () => ({
     },
 }))
 ```
+
+The CSP build supports accessing nested properties (property accessors) using the dot notation.
+
+```alpine
+<!-- This works too -->
+<div x-data="counter">
+    <button @click="foo.increment">Increment</button>
+
+    <span x-text="foo.count"></span>
+</div>
+```
+
+```js
+Alpine.data('counter', () => ({
+    foo: {
+        count: 1,
+
+        increment() {
+            this.count++
+        },
+    },
+}))
+```

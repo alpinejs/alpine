@@ -28,11 +28,18 @@ function generateEvaluator(el, expression, dataStack) {
     return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
         let completeScope = mergeProxies([scope, ...dataStack])
 
-        if (completeScope[expression] === undefined) {
-            throwExpressionError(el, expression)
-        }
+        let evaluatedExpression = expression.split('.').reduce(
+            (currentScope, currentExpression) => {
+                if (currentScope[currentExpression] === undefined) {
+                    throwExpressionError(el, expression)
+                }
 
-        runIfTypeOfFunction(receiver, completeScope[expression], completeScope, params)
+                return currentScope[currentExpression]
+            },
+            completeScope,
+        );
+
+        runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params)
     }
 }
 

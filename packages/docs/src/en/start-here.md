@@ -307,6 +307,40 @@ Also notice that `x-for` is declared on a `<template>` element and not directly 
 
 Now any element inside the `<template>` tag will be repeated for every item inside `filteredItems` and all expressions evaluated inside the loop will have direct access to the iteration variable (`item` in this case).
 
+When using `x-for`, it is important that there is only one root element in your loop. Consider the following example:
+
+```alpine
+<div x-data="{ items: [1, 2, 3, 4, 5, 6] }">
+    <template x-for="index in items">
+        <template x-if="index % 2 === 0">
+            <p>Even, I will render</p>
+        </template>
+        <template x-if="index % 2 !== 0">
+            <p>Odd, I will *not* render!</p>
+        </template>
+    </template>
+</div>
+```
+
+The first `<template>` in the loop will render fine. But you will get an error for the second one telling you that `index` is "undefined".
+
+We can fix this by adding only a single root element inside our loop so that everything will work as expected.
+
+```alpine
+<div x-data="{ items: [1, 2, 3, 4, 5, 6] }">
+    <template x-for="index in items">
+        <div>
+            <template x-if="index % 2 === 0">
+                <p>Even, I will render</p>
+            </template>
+            <template x-if="index % 2 !== 0">
+                <p>Odd, I will render</p>
+            </template>
+        </div>
+    </template>
+</div>
+```
+
 [→ Read more about `x-for`](/directives/for)
 
 <a name="recap"></a>

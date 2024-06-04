@@ -11,6 +11,7 @@ test('strip-down functionality', async () => {
     expect(stripDown('(999) 999-9999', '716 2256108')).toEqual('7162256108')
     expect(stripDown('(999) 999-9999', '(716) 2256108')).toEqual('7162256108')
     expect(stripDown('(999) 999-9999', '(716) 2-25--6108')).toEqual('7162256108')
+    expect(stripDown('+1 (999) 999-9999', '7162256108')).toEqual('7162256108')
 })
 
 test('formatMoney functionality', async () => {

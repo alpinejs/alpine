@@ -137,7 +137,7 @@ export function stripDown(template, input) {
         }
 
         for (let j = 0; j < inputToBeStripped.length; j++) {
-            if (inputToBeStripped[j] === template[i]) {
+            if (inputToBeStripped[j] === template[i] && template[i] !== inputToBeStripped[i]) {
                 inputToBeStripped = inputToBeStripped.slice(0, j) + inputToBeStripped.slice(j+1)
 
                 break;

@@ -127,7 +127,48 @@ export function stripDown(template, input) {
         '*': /[a-zA-Z0-9]/,
     }
 
-    let wildcardTemplate = ''
+				//Case 1: template and input are the same length (Autocomplete case 1)
+				if (template.length === input.length)	{
+							for (let i = 0; i < template.length; i++)	{
+
+										if (template[i] !== input[i] || ["9", "a", "*"].includes(template[i]))	{
+
+													if (["9", "a", "*"].includes(template[i]) && regexes[template[i]].test(input[i])) {
+
+																output += input[i];
+													}
+										}
+						}
+
+						return output;
+				}
+
+				let wildcardTemplate = "";
+
+				for(let i	= 0; i < template.length; i++) {
+							if (["9", "a", "*"].includes(template[i])) {
+											wildcardTemplate += template[i];
+							}
+				}
+
+				// Case 2: We have a match on the wildcard template length to the input	length (Autocomplete case 2)
+
+				if (wildcardTemplate.length === input.length)	{
+
+								for (let i = 0; i < wildcardTemplate.length; i++)	{
+
+												if (regexes[wildcardTemplate[i]].test(input[i])){
+
+													output += input[i];
+
+												}
+								}
+
+					return output;
+				}
+
+				// Case 3: We do not have a length match, lets do our best to transform into the template...
+    wildcardTemplate = ''
 
     // Strip away non wildcard template characters.
     for (let i = 0; i < template.length; i++) {
@@ -137,11 +178,10 @@ export function stripDown(template, input) {
         }
 
         for (let j = 0; j < inputToBeStripped.length; j++) {
-            if (inputToBeStripped[j] === template[i] && template[i] !== inputToBeStripped[i]) {
-                inputToBeStripped = inputToBeStripped.slice(0, j) + inputToBeStripped.slice(j+1)
-
-                break;
-            }
+												if (inputToBeStripped[j] === template[i]) {
+																inputToBeStripped = inputToBeStripped.slice(0, j) + inputToBeStripped.slice(j+1)
+																break;
+												}
         }
     }
 

@@ -123,65 +123,82 @@ export function stripDown(template, input) {
     let output = ''
     let regexes = {
         '9': /[0-9]/,
+        '¤': /[0-9]/,
         'a': /[a-zA-Z]/,
         '*': /[a-zA-Z0-9]/,
     }
+    let wildcardTemplate = "";
 
-				//Case 1: template and input are the same length (Autocomplete case 1)
-				if (template.length === input.length)	{
-							for (let i = 0; i < template.length; i++)	{
+    // Check for money format and skip over autocomplete cases (as sufficiently handled by formatMoney)
+    if (!template.includes('¤')) {
 
-										if (template[i] !== input[i] || ["9", "a", "*"].includes(template[i]))	{
+        //Case 1: template and input are the same length (Autocomplete case 1)
+        if (template.length === input.length) {
+            for (let i = 0; i < template.length; i++) {
 
-													if (["9", "a", "*"].includes(template[i]) && regexes[template[i]].test(input[i])) {
+                if (template[i] !== input[i] || ["9", "a", "*"].includes(template[i])) {
 
-																output += input[i];
-													}
-										}
-						}
+                    if (["9", "a", "*"].includes(template[i]) && regexes[template[i]].test(input[i])) {
 
-						return output;
-				}
+                        output += input[i];
+                    }
+                }
+            }
 
-				let wildcardTemplate = "";
+            return output;
 
-				for(let i	= 0; i < template.length; i++) {
-							if (["9", "a", "*"].includes(template[i])) {
-											wildcardTemplate += template[i];
-							}
-				}
+        }
 
-				// Case 2: We have a match on the wildcard template length to the input	length (Autocomplete case 2)
+        // Case 2: We have a match on the wildcard template length to the input	length (Autocomplete case 2)
 
-				if (wildcardTemplate.length === input.length)	{
 
-								for (let i = 0; i < wildcardTemplate.length; i++)	{
+        for (let i = 0; i < template.length; i++) {
+            if (["9", "a", "*"].includes(template[i])) {
+                wildcardTemplate += template[i];
+            }
+        }
 
-												if (regexes[wildcardTemplate[i]].test(input[i])){
+        if (wildcardTemplate.length === input.length) {
 
-													output += input[i];
+            for (let i = 0; i < wildcardTemplate.length; i++) {
 
-												}
-								}
+                if (regexes[wildcardTemplate[i]].test(input[i])) {
 
-					return output;
-				}
+                    output += input[i];
 
-				// Case 3: We do not have a length match, lets do our best to transform into the template...
+                    continue;
+
+                }
+
+                // If any character does not match, the autocomplete does not match the template
+                break;
+            }
+
+            // If the output length matches the wildcard template length, we have a verified match and can return the output
+            if(output.length === wildcardTemplate.length) {
+                return output;
+            }
+
+        }
+    }
+
     wildcardTemplate = ''
+    output = ''
+
 
     // Strip away non wildcard template characters.
     for (let i = 0; i < template.length; i++) {
-        if (['9', 'a', '*'].includes(template[i])) {
+        if (['9', 'a', '*', '¤'].includes(template[i])) {
             wildcardTemplate += template[i]
             continue;
         }
 
         for (let j = 0; j < inputToBeStripped.length; j++) {
-												if (inputToBeStripped[j] === template[i]) {
-																inputToBeStripped = inputToBeStripped.slice(0, j) + inputToBeStripped.slice(j+1)
-																break;
-												}
+            if (inputToBeStripped[j] === template[i]) {
+                inputToBeStripped = inputToBeStripped.slice(0, j) + inputToBeStripped.slice(j+1)
+
+                break;
+            }
         }
     }
 
@@ -191,7 +208,7 @@ export function stripDown(template, input) {
         for (let j = 0; j < inputToBeStripped.length; j++) {
             if (regexes[wildcardTemplate[i]].test(inputToBeStripped[j])) {
                 output += inputToBeStripped[j]
-                inputToBeStripped = inputToBeStripped.slice(0, j) + inputToBeStripped.slice(j+1)
+                inputToBeStripped = inputToBeStripped.slice(j+1)
 
                 found = true
                 break;
@@ -209,7 +226,7 @@ export function buildUp(template, input) {
     let output = ''
 
     for (let i = 0; i < template.length; i++) {
-        if (! ['9', 'a', '*'].includes(template[i])) {
+        if (!['9', 'a', '*', '¤'].includes(template[i])) {
             output += template[i]
             continue;
         }
@@ -224,7 +241,7 @@ export function buildUp(template, input) {
 
 export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
     if (input === '-') return '-'
-    if (/^\D+$/.test(input)) return '9'
+    if (/^\D+$/.test(input)) return '¤'
 
     if (thousands === null || thousands === undefined) {
         thousands = delimiter === "," ? "." : ","
@@ -251,12 +268,12 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
 
     let minus = input.startsWith('-') ? '-' : ''
     let strippedInput = input.replaceAll(new RegExp(`[^0-9\\${delimiter}]`, 'g'), '')
-    let template = Array.from({ length: strippedInput.split(delimiter)[0].length }).fill('9').join('')
+    let template = Array.from({length: strippedInput.split(delimiter)[0].length}).fill('¤').join('')
 
     template = `${minus}${addThousands(template, thousands)}`
 
     if (precision > 0 && input.includes(delimiter))
-        template += `${delimiter}` + '9'.repeat(precision)
+        template += `${delimiter}` + '¤'.repeat(precision)
 
     queueMicrotask(() => {
         if (this.el.value.endsWith(delimiter)) return

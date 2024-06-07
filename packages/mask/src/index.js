@@ -20,10 +20,10 @@ export default function (Alpine) {
                             evaluator(value => {
                                 result = typeof value === 'function' ? value(input) : value
                             }, { scope: {
-                                // These are "magics" we'll make available to the x-mask:function:
-                                '$input': input,
-                                '$money': formatMoney.bind({ el }),
-                            }})
+                                    // These are "magics" we'll make available to the x-mask:function:
+                                    '$input': input,
+                                    '$money': formatMoney.bind({ el }),
+                                }})
                         })
 
                         return result
@@ -132,31 +132,30 @@ export function stripDown(template, input) {
     // Check for money format and skip over autocomplete cases (as sufficiently handled by formatMoney)
     if (!template.includes('¤')) {
 
-        //Case 1: template and input are the same length (Autocomplete case 1)
-        if (template.length === input.length) {
-            for (let i = 0; i < template.length; i++) {
-
-                if (template[i] !== input[i] || ["9", "a", "*"].includes(template[i])) {
-
-                    if (["9", "a", "*"].includes(template[i]) && regexes[template[i]].test(input[i])) {
-
-                        output += input[i];
-                    }
-                }
-            }
-
-            return output;
-
-        }
-
-        // Case 2: We have a match on the wildcard template length to the input	length (Autocomplete case 2)
-
-
+        // Compile wildcard template
         for (let i = 0; i < template.length; i++) {
             if (["9", "a", "*"].includes(template[i])) {
                 wildcardTemplate += template[i];
             }
         }
+
+        //Case 1: template and input are the same length (Autocomplete case 1)
+        if (template.length === input.length) {
+            for (let i = 0; i < template.length; i++) {
+
+                if (["9", "a", "*"].includes(template[i]) && regexes[template[i]].test(input[i])) {
+
+                    output += input[i];
+                }
+            }
+
+            if(output.length === wildcardTemplate.length) {
+                return output;
+            }
+
+        }
+
+        // Case 2: We have a match on the wildcard template length to the input	length (Autocomplete case 2)
 
         if (wildcardTemplate.length === input.length) {
 
@@ -174,7 +173,6 @@ export function stripDown(template, input) {
                 break;
             }
 
-            // If the output length matches the wildcard template length, we have a verified match and can return the output
             if(output.length === wildcardTemplate.length) {
                 return output;
             }

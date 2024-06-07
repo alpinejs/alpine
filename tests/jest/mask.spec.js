@@ -1,4 +1,4 @@
-let {stripDown, formatMoney, buildUp} = require('../../packages/mask/dist/module.cjs');
+let { stripDown, formatMoney, buildUp } = require('../../packages/mask/dist/module.cjs');
 
 test('strip-down functionality', async () => {
     expect(stripDown('(***) ***-****', '7162256108')).toEqual('7162256108')

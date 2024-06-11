@@ -111,15 +111,6 @@ let regexes = {
     'a': /[a-zA-Z]/,
     '*': /[a-zA-Z0-9]/,
 };
-export function stripDown(template, input) {
-    let output = ''
-    for (let i = 0; i < template.length; i++) {
-        if (template[i] in regexes) output += input[i]
-    }
-
-    return output
-}
-
 export function formatInput (template, input) {
     let output = ''
     let imark = 0

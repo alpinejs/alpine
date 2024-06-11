@@ -74,7 +74,7 @@ export default function (Alpine) {
             }
 
             let setInput = () => {
-                lastInputValue = el.value = formatInput(input, template)
+                lastInputValue = el.value = formatInput(template,input)
             }
 
             if (shouldRestoreCursor) {
@@ -88,16 +88,6 @@ export default function (Alpine) {
                 setInput()
             }
         }
-
-        function formatInput(input, template) {
-            // Let empty inputs be empty inputs.
-            if (input === '') return ''
-
-            let strippedDownInput = stripDown(template, input)
-            let rebuiltInput = buildUp(template, strippedDownInput)
-
-            return rebuiltInput
-        }
     }).before('model')
 }
 
@@ -109,137 +99,52 @@ export function restoreCursorPosition(el, template, callback) {
 
     let beforeLeftOfCursorBeforeFormatting = unformattedValue.slice(0, cursorPosition)
 
-    let newPosition = buildUp(
-        template, stripDown(
+    let newPosition = formatInput(
             template, beforeLeftOfCursorBeforeFormatting
-        )
     ).length
 
     el.setSelectionRange(newPosition, newPosition)
 }
 
+let regexes = {
+    '9': /[0-9]/,
+    'a': /[a-zA-Z]/,
+    '*': /[a-zA-Z0-9]/,
+};
 export function stripDown(template, input) {
-    let inputToBeStripped = input
     let output = ''
-    let regexes = {
-        '9': /[0-9]/,
-        '¤': /[0-9]/,
-        'a': /[a-zA-Z]/,
-        '*': /[a-zA-Z0-9]/,
-    }
-    let wildcardTemplate = "";
-
-    // Check for money format and skip over autocomplete cases (as sufficiently handled by formatMoney)
-    if (!template.includes('¤')) {
-
-        // Compile wildcard template
-        for (let i = 0; i < template.length; i++) {
-            if (["9", "a", "*"].includes(template[i])) {
-                wildcardTemplate += template[i];
-            }
-        }
-
-        //Case 1: template and input are the same length (Autocomplete case 1)
-        if (template.length === input.length) {
-            for (let i = 0; i < template.length; i++) {
-
-                if (["9", "a", "*"].includes(template[i]) && regexes[template[i]].test(input[i])) {
-
-                    output += input[i];
-                }
-            }
-
-            if(output.length === wildcardTemplate.length) {
-                return output;
-            }
-
-        }
-
-        // Case 2: We have a match on the wildcard template length to the input	length (Autocomplete case 2)
-
-        if (wildcardTemplate.length === input.length) {
-
-            for (let i = 0; i < wildcardTemplate.length; i++) {
-
-                if (regexes[wildcardTemplate[i]].test(input[i])) {
-
-                    output += input[i];
-
-                    continue;
-
-                }
-
-                // If any character does not match, the autocomplete does not match the template
-                break;
-            }
-
-            if(output.length === wildcardTemplate.length) {
-                return output;
-            }
-
-        }
-    }
-
-    wildcardTemplate = ''
-    output = ''
-
-
-    // Strip away non wildcard template characters.
     for (let i = 0; i < template.length; i++) {
-        if (['9', 'a', '*', '¤'].includes(template[i])) {
-            wildcardTemplate += template[i]
-            continue;
-        }
-
-        for (let j = 0; j < inputToBeStripped.length; j++) {
-            if (inputToBeStripped[j] === template[i]) {
-                inputToBeStripped = inputToBeStripped.slice(0, j) + inputToBeStripped.slice(j+1)
-
-                break;
-            }
-        }
-    }
-
-    for (let i = 0; i < wildcardTemplate.length; i++) {
-        let found = false
-
-        for (let j = 0; j < inputToBeStripped.length; j++) {
-            if (regexes[wildcardTemplate[i]].test(inputToBeStripped[j])) {
-                output += inputToBeStripped[j]
-                inputToBeStripped = inputToBeStripped.slice(j+1)
-
-                found = true
-                break;
-            }
-        }
-
-        if (! found) break;
+        if (template[i] in regexes) output += input[i]
     }
 
     return output
 }
 
-export function buildUp(template, input) {
-    let clean = Array.from(input)
+export function formatInput (template, input) {
     let output = ''
-
-    for (let i = 0; i < template.length; i++) {
-        if (!['9', 'a', '*', '¤'].includes(template[i])) {
-            output += template[i]
-            continue;
+    let imark = 0
+    let tmark = 0
+    while (tmark < template.length && imark < input.length) {
+        const char = template[tmark]
+        const ichar = input[imark]
+        if (char in regexes) {
+            if (regexes[char].test(ichar)) {
+                output += ichar
+                tmark++
+            }
+            imark++
+        } else {
+            output += char
+            tmark++
+            if (char === input[imark]) imark++
         }
-
-        if (clean.length === 0) break;
-
-        output += clean.shift()
     }
-
     return output
 }
 
 export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
     if (input === '-') return '-'
-    if (/^\D+$/.test(input)) return '¤'
+    if (/^\D+$/.test(input)) return '9'
 
     if (thousands === null || thousands === undefined) {
         thousands = delimiter === "," ? "." : ","
@@ -266,12 +171,12 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
 
     let minus = input.startsWith('-') ? '-' : ''
     let strippedInput = input.replaceAll(new RegExp(`[^0-9\\${delimiter}]`, 'g'), '')
-    let template = Array.from({length: strippedInput.split(delimiter)[0].length}).fill('¤').join('')
+    let template = Array.from({length: strippedInput.split(delimiter)[0].length}).fill('9').join('')
 
     template = `${minus}${addThousands(template, thousands)}`
 
     if (precision > 0 && input.includes(delimiter))
-        template += `${delimiter}` + '¤'.repeat(precision)
+        template += `${delimiter}` + '9'.repeat(precision)
 
     queueMicrotask(() => {
         if (this.el.value.endsWith(delimiter)) return

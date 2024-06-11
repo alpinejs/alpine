@@ -32,6 +32,30 @@ test('x-mask',
     },
 )
 
+test('x-mask autocomplete',
+    [html`<input x-data x-mask="+1 (999) 999-9999">`],
+    ({ get }) => {
+        // Type a phone number:
+        get('input').type('21').should(haveValue('+1 (21'))
+        get('input').type('3 ').should(haveValue('+1 (213) '))
+        get('input').type('4567890').should(haveValue('+1 (213) 456-7890'))
+        // Clear it & paste formatted version in:
+        get('input').type('{selectAll}{backspace}')
+        get('input').invoke('val', '+1 (213) 456-7890').trigger('blur')
+        get('input').should(haveValue('+1 (213) 456-7890'))
+        // Clear it & paste un-formatted version in:
+        get('input').type('{selectAll}{backspace}')
+        get('input').invoke('val', '2134567890').trigger('blur')
+        get('input').should(haveValue('+1 (213) 456-7890'))
+        // Clear it and start with an area code starting with 1:
+        get('input').type('{selectAll}{backspace}')
+        get('input').type('1 ').should(haveValue('+1 '))
+        get('input').type('2').should(haveValue('+1 (2'))
+        get('input').type('13 ').should(haveValue('+1 (213) '))
+        get('input').type('456 78-90').should(haveValue('+1 (213) 456-7890'))
+    },
+)
+
 test('x-mask with x-model',
     [html`
         <div x-data="{ value: '' }">

@@ -72,7 +72,8 @@ let mergeProxyTrap = {
             ) || objects[objects.length - 1];
         const descriptor = Object.getOwnPropertyDescriptor(target, name);
         if (descriptor?.set && descriptor?.get)
-            return Reflect.set(target, name, value, thisProxy);
+            // Can't use Reflect.set here due to [upstream bug](https://github.com/vuejs/core/blob/31abdc8adad569d83b476c340e678c4daa901545/packages/reactivity/src/baseHandlers.ts#L148) in @vue/reactivity
+            return descriptor.set.call(thisProxy, value) || true;
         return Reflect.set(target, name, value);
     },
 }

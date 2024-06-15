@@ -109,3 +109,51 @@ test(
         get("button").should(haveText("clicked"));
     }
 );
+
+test(
+    "properly merges the datastack with nested data",
+    [
+        html`
+            <div x-data="{ foo: { bar: 'fizz' } }">
+                <div x-data="{ bar: 'buzz' }">
+                    <span
+                        id="1"
+                        x-text="foo.bar + bar"
+                        @click="foo.bar = foo.bar + bar"
+                    ></span>
+                </div>
+                <span id="2" x-text="foo.bar"></span>
+            </div>
+        `,
+    ],
+    ({ get }) => {
+        get("span#1").should(haveText("fizzbuzz"));
+        get("span#2").should(haveText("fizz"));
+        get("span#1").click();
+        get("span#1").should(haveText("fizzbuzzbuzz"));
+        get("span#2").should(haveText("fizzbuzz"));
+    }
+);
+
+test(
+    "handles getter setter pairs of object",
+    [
+        html`
+            <div x-data="{ foo:  { bar: 'fizzbuzz' } }">
+                <div
+                    x-data="{ get bar() { return this.foo.bar }, set bar(value) { this.foo.bar = value } }"
+                >
+                    <span id="one" x-text="bar" @click="bar = 'foobar'"></span>
+                </div>
+                <span id="two" x-text="foo.bar"></span>
+            </div>
+        `,
+    ],
+    ({ get }) => {
+        get("span#one").should(haveText("fizzbuzz"));
+        get("span#two").should(haveText("fizzbuzz"));
+        get("span#one").click();
+        get("span#one").should(haveText("foobar"));
+        get("span#two").should(haveText("foobar"));
+    }
+);

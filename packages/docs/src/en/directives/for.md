@@ -51,7 +51,7 @@ You may also pass objects to `x-for`.
 
 There are two rules worth noting about `x-for`:
 
->`x-for` MUST be declared on a `<template>` element
+>`x-for` MUST be declared on a `<template>` element.
 > That `<template>` element MUST contain only one root element
 
 <a name="keys"></a>

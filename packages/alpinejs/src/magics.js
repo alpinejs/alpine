@@ -7,7 +7,7 @@ export function magic(name, callback) {
 }
 
 export function injectMagics(obj, el) {
-    let memoizedUtilities = getUtilities();
+    let memoizedUtilities = getUtilities(el);
 
     Object.entries(magics).forEach(([name, callback]) => {
         Object.defineProperty(obj, `$${name}`, {

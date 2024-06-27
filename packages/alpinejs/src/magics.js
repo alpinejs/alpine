@@ -1,4 +1,6 @@
-import { getUtilities } from "./utils/get-utlilties";
+import { getElementBoundUtilities } from "./directives";
+import { interceptor } from "./interceptor";
+import { onElRemoved } from "./mutation";
 
 let magics = {}
 
@@ -19,4 +21,14 @@ export function injectMagics(obj, el) {
     })
 
     return obj
+}
+
+export function getUtilities(el) {
+    let [utilities, cleanup] = getElementBoundUtilities(el)
+
+    let utils = { interceptor, ...utilities }
+
+    onElRemoved(el, cleanup)
+
+    return utils;
 }

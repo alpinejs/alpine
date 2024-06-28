@@ -227,6 +227,25 @@ test('can persist using global Alpine.$persist within Alpine.store',
     },
 )
 
+test('persist in Stores is available in init call',
+    [html`
+        <div x-data>
+            <span x-text="$store.name.name"></span>
+        </div>
+    `, `
+        Alpine.store('name', {
+            firstName: Alpine.$persist('Daniel').as('dev-name'),
+            name: null,
+            init() {
+                this.name = String(this.firstName)
+            }
+        })
+    `],
+    ({ get }) => {
+        get('span').should(haveText('Daniel'))
+    },
+)
+
 test('multiple aliases work when using global Alpine.$persist',
     [html`
         <div x-data>

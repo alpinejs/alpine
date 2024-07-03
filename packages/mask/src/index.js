@@ -110,26 +110,37 @@ let regexes = {
     '9': /[0-9]/,
     'a': /[a-zA-Z]/,
     '*': /[a-zA-Z0-9]/,
-};
-export function formatInput (template, input) {
+}
+
+export function formatInput(template, input) {
+    let templateMark = 0
+    let inputMark = 0
     let output = ''
-    let imark = 0
-    let tmark = 0
-    while (tmark < template.length && imark < input.length) {
-        const char = template[tmark]
-        const ichar = input[imark]
-        if (char in regexes) {
-            if (regexes[char].test(ichar)) {
-                output += ichar
-                tmark++
+
+    // Walk the template and input chars simultaneously one by one...
+    while (templateMark < template.length && inputMark < input.length) {
+        let templateChar = template[templateMark]
+        let inputChar = input[inputMark]
+
+        // We've encountered a template placeholder...
+        if (templateChar in regexes) {
+            // If the input is "allowed" based on the placeholder...
+            if (regexes[templateChar].test(inputChar)) {
+                output += inputChar
+
+                templateMark++
             }
-            imark++
-        } else {
-            output += char
-            tmark++
-            if (char === input[imark]) imark++
+
+            inputMark++
+        } else { // We've encountered a template literal...
+            output += templateChar
+
+            templateMark++
+
+            if (templateChar === input[inputMark]) inputMark++
         }
     }
+
     return output
 }
 

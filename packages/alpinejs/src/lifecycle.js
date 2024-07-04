@@ -6,7 +6,7 @@ import { warn } from './utils/warn'
 
 let started = false
 
-export function start() {
+export function start(observeFullDocument = true) {
     if (started) warn('Alpine has already been initialized on this page. Calling Alpine.start() more than once can cause problems.')
 
     started = true
@@ -16,7 +16,7 @@ export function start() {
     dispatch(document, 'alpine:init')
     dispatch(document, 'alpine:initializing')
 
-    startObservingMutations()
+    startObservingMutations(observeFullDocument)
 
     onElAdded(el => initTree(el, walk))
     onElRemoved(el => destroyTree(el))

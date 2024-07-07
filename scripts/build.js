@@ -55,6 +55,29 @@ function bundleFile(package, file) {
             })
 
         },
+        // This output file is meant to be loaded in a browser's <script> tag but without auto Alpine.start()
+        'cdn.no-start.js': () => {
+            build({
+                entryPoints: [`packages/${package}/builds/${file}`],
+                outfile: `packages/${package}/dist/${file}`,
+                bundle: true,
+                platform: 'browser',
+                define: { CDN: 'true' },
+            })
+
+            // Build a minified version.
+            build({
+                entryPoints: [`packages/${package}/builds/${file}`],
+                outfile: `packages/${package}/dist/${file.replace('.js', '.min.js')}`,
+                bundle: true,
+                minify: true,
+                platform: 'browser',
+                define: { CDN: 'true' },
+            }).then(() => {
+                outputSize(package, `packages/${package}/dist/${file.replace('.js', '.min.js')}`)
+            })
+
+        },
         // This file outputs two files: an esm module and a cjs module.
         // The ESM one is meant for "import" statements (bundlers and new browsers)
         // and the cjs one is meant for "require" statements (node).

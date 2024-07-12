@@ -1,10 +1,8 @@
 import { evaluateLater } from '../evaluator'
 import { addScopeToNode } from '../scope'
 import { directive } from '../directives'
-import { initTree } from '../lifecycle'
+import { initTree, destroyTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
-import { walk } from "../utils/walk"
-import { dequeueJob } from '../scheduler'
 import { warn } from "../utils/warn"
 import { skipDuringClone } from '../clone'
 
@@ -30,13 +28,10 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
         el._x_currentIfEl = clone
 
         el._x_undoIf = () => {
-            walk(clone, (node) => {
-                if (!!node._x_effects) {
-                    node._x_effects.forEach(dequeueJob)
-                }
+            mutateDom(() => {
+                destroyTree(clone)
+                clone.remove()
             })
-
-            clone.remove();
 
             delete el._x_currentIfEl
         }
@@ -45,7 +40,7 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
     }
 
     let hide = () => {
-        if (! el._x_undoIf) return
+        if (!el._x_undoIf) return
 
         el._x_undoIf()
 

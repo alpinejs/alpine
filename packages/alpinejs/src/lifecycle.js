@@ -3,6 +3,7 @@ import { deferHandlingDirectives, directiveExists, directives } from "./directiv
 import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
+import { dequeueJob } from './scheduler'
 
 let started = false
 
@@ -98,6 +99,9 @@ export function initTree(el, walker = walk, intercept = () => {}) {
 
 export function destroyTree(root, walker = walk) {
     walker(root, el => {
+        walk(el, (node) => {
+            node._x_effects?.forEach(dequeueJob)
+        })
         cleanupAttributes(el)
         cleanupElement(el)
     })

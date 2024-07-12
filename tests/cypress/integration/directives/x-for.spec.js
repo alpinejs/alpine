@@ -605,3 +605,37 @@ test('x-for throws descriptive error when key is undefined',
     ({ get }) => {},
     true
 )
+
+// If x-for removes a child, all cleanups in the tree should be handled.
+test('x-for eagerly cleans tree',
+    html`
+        <div x-data="{ show: 0, count: 0, items: [1,2,3] }">
+            <button id="toggle" @click="show^=true" x-text="count">Toggle</button>
+            <button id="remove" @click="items.pop()">Remove</button>
+            <template x-for="num in items" :key="num">
+                <div>
+                <template x-for="n in show">
+                    <p x-effect="if (n) count+=num">
+                    hello
+                    </p>
+                </template>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('#toggle').should(haveText('0'))
+        get('#toggle').click()
+        get('#toggle').should(haveText('6'))
+        get('#toggle').click()
+        get('#toggle').should(haveText('6'))
+        get('#toggle').click()
+        get('#toggle').should(haveText('12'))
+        get('#remove').click()
+        get('#toggle').should(haveText('12'))
+        get('#toggle').click()
+        get('#toggle').should(haveText('12'))
+        get('#toggle').click()
+        get('#toggle').should(haveText('15'))
+    }
+)

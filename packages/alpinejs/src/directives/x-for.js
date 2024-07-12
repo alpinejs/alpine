@@ -2,10 +2,9 @@ import { addScopeToNode } from '../scope'
 import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 import { reactive } from '../reactivity'
-import { initTree } from '../lifecycle'
+import { initTree, destroyTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
 import { warn } from '../utils/warn'
-import { dequeueJob } from '../scheduler'
 import { skipDuringClone } from '../clone'
 
 directive('for', (el, { expression }, { effect, cleanup }) => {
@@ -23,7 +22,11 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
 
     cleanup(() => {
-        Object.values(el._x_lookup).forEach(el => el.remove())
+        Object.values(el._x_lookup).forEach(el => 
+            mutateDom(() => {
+                destroyTree(el)
+                el.remove()
+            }))
 
         delete el._x_prevKeys
         delete el._x_lookup
@@ -143,15 +146,12 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         // clean up any side effects they had.
         for (let i = 0; i < removes.length; i++) {
             let key = removes[i]
+            if (!(key in lookup)) continue
+            mutateDom(() => {
+                destroyTree(lookup[key])
+                lookup[key].remove()
+            })
 
-            // Remove any queued effects that might run after the DOM node has been removed.
-            if (!! lookup[key]._x_effects) {
-                lookup[key]._x_effects.forEach(dequeueJob)
-            }
-
-            lookup[key].remove()
-
-            lookup[key] = null
             delete lookup[key]
         }
 

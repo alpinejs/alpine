@@ -1,5 +1,5 @@
 ---
-order: 3
+order: 5
 title: Focus
 description: Easily manage focus within the page
 graph_image: https://alpinejs.dev/social_focus.jpg

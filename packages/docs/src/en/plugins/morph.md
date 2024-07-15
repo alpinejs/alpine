@@ -1,5 +1,5 @@
 ---
-order: 6
+order: 8
 title: Morph
 description: Morph an element into the provided HTML
 graph_image: https://alpinejs.dev/social_morph.jpg

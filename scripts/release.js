@@ -45,6 +45,9 @@ function writeNewAlpineVersion() {
     writeToPackageDotJson('intersect', 'version', version)
     console.log('Bumping @alpinejs/intersect package.json: '+version)
 
+    writeToPackageDotJson('resize', 'version', version)
+    console.log('Bumping @alpinejs/resize package.json: '+version)
+
     writeToPackageDotJson('persist', 'version', version)
     console.log('Bumping @alpinejs/persist package.json: '+version)
 
@@ -91,6 +94,9 @@ function publish() {
 
     console.log('Publishing @alpinejs/intersect on NPM...');
     runFromPackage('intersect', 'npm publish --access public')
+
+    console.log('Publishing @alpinejs/resize on NPM...');
+    runFromPackage('resize', 'npm publish --access public')
 
     console.log('Publishing @alpinejs/persist on NPM...');
     runFromPackage('persist', 'npm publish --access public')

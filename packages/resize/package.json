@@ -1,0 +1,17 @@
+{
+    "name": "@alpinejs/resize",
+    "version": "3.14.1",
+    "description": "Trigger JavaScript when an element is resized on the page",
+    "homepage": "https://alpinejs.dev/plugins/intersect",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git",
+        "directory": "packages/resize"
+    },
+    "author": "Caleb Porzio",
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js",
+    "unpkg": "dist/cdn.min.js",
+    "dependencies": {}
+}

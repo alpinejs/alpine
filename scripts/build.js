@@ -9,8 +9,9 @@ let zlib = require('zlib');
     // 'history', - removed because this plugin has been moved to livewire/livewire until it's stable...
     // 'navigate', - remove because this plugin has been moved to livewire/livewire until it's stable...
     'intersect',
-    'persist',
     'collapse',
+    'persist',
+    'resize',
     'anchor',
     'morph',
     'focus',

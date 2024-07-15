@@ -1,5 +1,5 @@
 ---
-order: 6
+order: 9
 title: Sort
 description: Easily re-order elements by dragging them with your mouse
 graph_image: https://alpinejs.dev/social_sort.jpg

@@ -22,11 +22,13 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
 
     cleanup(() => {
-        Object.values(el._x_lookup).forEach(el => 
+        Object.values(el._x_lookup).forEach(el =>
             mutateDom(() => {
                 destroyTree(el)
+
                 el.remove()
-            }))
+            }
+        ))
 
         delete el._x_prevKeys
         delete el._x_lookup
@@ -142,13 +144,15 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         // for browser performance.
 
         // We'll remove all the nodes that need to be removed,
-        // letting the mutation observer pick them up and
-        // clean up any side effects they had.
+        // and clean up any side effects they had.
         for (let i = 0; i < removes.length; i++) {
             let key = removes[i]
-            if (!(key in lookup)) continue
+
+            if (! (key in lookup)) continue
+
             mutateDom(() => {
                 destroyTree(lookup[key])
+
                 lookup[key].remove()
             })
 

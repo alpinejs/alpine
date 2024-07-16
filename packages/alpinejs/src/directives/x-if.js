@@ -30,6 +30,7 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
         el._x_undoIf = () => {
             mutateDom(() => {
                 destroyTree(clone)
+
                 clone.remove()
             })
 
@@ -40,7 +41,7 @@ directive('if', (el, { expression }, { effect, cleanup }) => {
     }
 
     let hide = () => {
-        if (!el._x_undoIf) return
+        if (! el._x_undoIf) return
 
         el._x_undoIf()
 

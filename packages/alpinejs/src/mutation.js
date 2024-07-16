@@ -1,3 +1,4 @@
+import { dequeueJob } from "./scheduler";
 let onAttributeAddeds = []
 let onElRemoveds = []
 let onElAddeds = []
@@ -40,9 +41,9 @@ export function cleanupAttributes(el, names) {
 }
 
 export function cleanupElement(el) {
-    if (el._x_cleanups) {
-        while (el._x_cleanups.length) el._x_cleanups.pop()()
-    }
+    el._x_effects?.forEach(dequeueJob)
+
+    while (el._x_cleanups?.length) el._x_cleanups.pop()()
 }
 
 let observer = new MutationObserver(onMutate)

@@ -42,6 +42,7 @@ export function cleanupAttributes(el, names) {
 
 export function cleanupElement(el) {
     el._x_effects?.forEach(dequeueJob)
+
     while (el._x_cleanups?.length) el._x_cleanups.pop()()
 }
 

@@ -26,6 +26,8 @@ Here's the same component as above, but using the shorthand syntax instead:
 <button @click="alert('Hello World!')">Say Hi</button>
 ```
 
+> Despite not being included in the above snippet, `x-on` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)
+
 <a name="the-event-object"></a>
 ## The event object
 

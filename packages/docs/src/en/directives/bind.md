@@ -24,6 +24,8 @@ If `x-bind:` is too verbose for your liking, you can use the shorthand: `:`. For
 <input type="text" :placeholder="placeholder">
 ```
 
+> Despite not being included in the above snippet, `x-bind` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)
+
 <a name="binding-classes"></a>
 ## Binding classes
 

@@ -107,7 +107,7 @@ function handleRoot(el, Alpine) {
                     let option = this.__active
                     let all = this.__optionValues.filter(i => !this.__disabledOptions.has(i))
                     let index = all.indexOf(option)
-                    let next = all.length > index + 1 ? all[index + 1] : all[0]
+                    let next = all[(index + 1 + all.length) % all.length]
 
                     this.__optionElsByValue.get(next).focus()
                     this.__change(next)
@@ -116,7 +116,7 @@ function handleRoot(el, Alpine) {
                     let option = this.__active
                     let all = this.__optionValues.filter(i => !this.__disabledOptions.has(i))
                     let index = all.indexOf(option)
-                    let prev = index >= 1 ? all[all.indexOf(option) - 1] : all.slice(-1)[0]
+                    let prev = all[(index - 1 + all.length) % all.length]
 
                     this.__optionElsByValue.get(prev).focus()
                     this.__change(prev)

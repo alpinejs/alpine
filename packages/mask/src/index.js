@@ -16,14 +16,15 @@ export default function (Alpine) {
 
                         // We need to prevent "auto-evaluation" of functions like
                         // x-on expressions do so that we can use them as mask functions.
-                        Alpine.dontAutoEvaluateFunctions(() => {
-                            evaluator(value => {
-                                result = typeof value === 'function' ? value(input) : value
-                            }, { scope: {
+                        evaluator(value => {
+                            result = typeof value === 'function' ? value(input) : value
+                        }, {
+                            scope: {
                                 // These are "magics" we'll make available to the x-mask:function:
                                 '$input': input,
                                 '$money': formatMoney.bind({ el }),
-                            }})
+                            },
+                            autoEvaluateFunctions: false
                         })
 
                         return result

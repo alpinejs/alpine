@@ -3,7 +3,7 @@ import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } fro
 import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle'
 import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation'
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope'
-import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions, runIfTypeOfFunction } from './evaluator'
+import { setEvaluator, evaluate, evaluateLater } from './evaluator'
 import { transition } from './directives/x-transition'
 import { clone, cloneNode, skipDuringClone, onlyDuringClone, interceptClone } from './clone'
 import { injectMagics, magic } from './magics'
@@ -27,12 +27,10 @@ let Alpine = {
     get raw() { return raw },
     version: ALPINE_VERSION,
     flushAndStopDeferringMutations,
-    dontAutoEvaluateFunctions,
     disableEffectScheduling,
     startObservingMutations,
     stopObservingMutations,
     setReactivityEngine,
-    runIfTypeOfFunction,
     onAttributeRemoved,
     onAttributesAdded,
     closestDataStack,

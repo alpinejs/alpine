@@ -90,7 +90,7 @@ In V3, Alpine will automatically call `init()` methods on data objects.
 <a name="need-to-call-alpine-start"></a>
 ### Need to call Alpine.start() after import
 
-If you were importing Alpine V2 from NPM, you will now need to manually call `Alpine.start()` for V3. This doesn't affect you if you use Alpine's build file or CDN from a `<template>` tag.
+If you were importing Alpine V2 from a package manager, you will now need to manually call `Alpine.start()` for V3. This doesn't affect you if you use Alpine's build file or CDN from a `<template>` tag.
 
 ```js
 // 🚫 Before

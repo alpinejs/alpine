@@ -14,7 +14,7 @@ In order to accommodate environments where this CSP is necessary, Alpine offer's
 <a name="installation"></a>
 ## Installation
 
-You can use this build by either including it from a `<script>` tag or installing it via NPM:
+You can use this build by either including it from a `<script>` tag or installing it via a package manager:
 
 ### Via CDN
 
@@ -25,12 +25,13 @@ You can include this build's CDN as a `<script>` tag just like you would normall
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/csp@3.x.x/dist/cdn.min.js"></script>
 ```
 
-### Via NPM
+### Via Package Manager
 
-You can alternatively install this build from NPM for use inside your bundle like so:
+You can alternatively install this build from a package manager for use inside your bundle like so:
 
 ```shell
 npm install @alpinejs/csp
+bun install @alpinejs/csp
 ```
 
 Then initialize it from your bundle:

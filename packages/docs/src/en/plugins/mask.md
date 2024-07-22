@@ -20,7 +20,7 @@ This is useful for many different types of inputs: phone numbers, credit cards, 
 <div x-show="! expanded" class="absolute inset-0 flex justify-start items-end bg-gradient-to-t from-white to-[#ffffff66]"></div>
 <div x-show="expanded" x-collapse.min.80px class="markdown">
 
-You can use this plugin by either including it from a `<script>` tag or installing it via NPM:
+You can use this plugin by either including it from a `<script>` tag or installing it via a package manager:
 
 ### Via CDN
 
@@ -34,12 +34,13 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 ```
 
-### Via NPM
+### Via Package Manager
 
-You can install Mask from NPM for use inside your bundle like so:
+You can install Mask from a package manager for use inside your bundle like so:
 
 ```shell
 npm install @alpinejs/mask
+bun install @alpinejs/mask
 ```
 
 Then initialize it from your bundle:

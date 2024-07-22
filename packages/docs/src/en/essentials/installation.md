@@ -43,12 +43,13 @@ Note that you will still need to define a component with `x-data` in order for a
 <a name="as-a-module"></a>
 ## As a module
 
-If you prefer the more robust approach, you can install Alpine via NPM and import it into a bundle.
+If you prefer the more robust approach, you can install Alpine via a package manager and import it into a bundle.
 
-Run the following command to install it.
+Run one of the following commands to install it.
 
 ```shell
 npm install alpinejs
+bun install alpinejs
 ```
 
 Now import Alpine into your bundle and initialize it like so:

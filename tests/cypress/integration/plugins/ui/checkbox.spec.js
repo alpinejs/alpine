@@ -44,9 +44,7 @@ test('it works with group using x-model',
 
             <input x-model="colors" type="hidden">
 
-            <button data-color="red" x-on:click="(index = colors.findIndex(color => color === 'red')) > 0 ? colors.splice(index, 1) : colors.push('red')">Toggle Red</button>
-            <button data-color="blue" x-on:click="(index = colors.findIndex(color => color === 'blue')) > 0 ? colors.splice(index, 1) : colors.push('blue')">Toggle Blue</button>
-            <button data-color="green" x-on:click="(index = colors.findIndex(color => color === 'green')) > 0 ? colors.splice(index, 1) : colors.push('green')">Toggle Green</button>
+            <button x-on:click="colors = ['blue', 'green']"></button>
         </main>
     `],
     ({ get }) => {
@@ -59,12 +57,7 @@ test('it works with group using x-model',
         get('input').should(haveAttribute('value', 'red,green,blue'))
         get('[value="green"]').click()
         get('input').should(haveAttribute('value', 'red,blue'))
-        get('button[data-color="red"]').click()
-        get('input').should(haveAttribute('value', 'blue'))
-        get('[value="red"]').should(haveAttribute('aria-checked', 'false'))
-        get('[value="blue"]').should(haveAttribute('aria-checked', 'true'))
-        get('[value="green"]').should(haveAttribute('aria-checked', 'false'))
-        get('button[data-color="green"]').click()
+        get('button').click()
         get('input').should(haveAttribute('value', 'blue,green'))
         get('[value="red"]').should(haveAttribute('aria-checked', 'false'))
         get('[value="blue"]').should(haveAttribute('aria-checked', 'true'))

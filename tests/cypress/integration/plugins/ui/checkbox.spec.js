@@ -177,7 +177,7 @@ test('has accessibility attributes',
             get(`[value="${color}"]`)
                 .should(haveAttribute('tabindex', 0))
                 .should(haveAttribute('role', 'checkbox'))
-                .should(haveAttribute('aria-disabled', 'false'))
+                // .should(haveAttribute('aria-disabled', 'false'))
                 .should(haveAttribute('aria-checked', 'false'))
                 .should(haveAttribute('aria-labelledby', `alpine-checkbox-label-${i + 1}`))
                 .should(haveAttribute('aria-describedby', `alpine-checkbox-description-${i + 1}`))

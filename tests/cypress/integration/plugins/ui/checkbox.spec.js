@@ -152,3 +152,43 @@ test('keyboard navigation works',
         get('[value="green"]').should(haveAttribute('aria-checked', 'false'))
     },
 )
+
+test('has accessibility attributes',
+    [html`
+        <main x-data="{ colors: [] }">
+            <div x-checkbox:group x-model="colors">
+                <div x-checkbox value="red">
+                    <span label="red" x-checkbox:label>Red</span>
+                    <span description="red" x-checkbox:description>The beautiful color "red"</span>
+                </div>
+                <div x-checkbox value="blue">
+                    <span label="blue" x-checkbox:label>Blue</span>
+                    <span description="blue" x-checkbox:description>The amazing color "blue"</span>
+                </div>
+                <div x-checkbox value="green">
+                    <span label="green" x-checkbox:label>Green</span>
+                    <span description="green" x-checkbox:description>The cool color "green"</span>
+                </div>
+            </div>
+        </main>
+    `],
+    ({ get }) => {
+        ['red', 'blue', 'green'].forEach((color, i) => {
+            get(`[value="${color}"]`)
+                .should(haveAttribute('tabindex', 0))
+                .should(haveAttribute('role', 'checkbox'))
+                .should(haveAttribute('aria-disabled', 'false'))
+                .should(haveAttribute('aria-checked', 'false'))
+                .should(haveAttribute('aria-labelledby', `alpine-checkbox-label-${i + 1}`))
+                .should(haveAttribute('aria-describedby', `alpine-checkbox-description-${i + 1}`))
+            get(`[label="${color}"]`)
+                .should(haveAttribute('id', `alpine-checkbox-label-${i + 1}`))
+            get(`[description="${color}"]`)
+                .should(haveAttribute('id', `alpine-checkbox-description-${i + 1}`))
+        })
+
+        get('[value="blue"]')
+            .click()
+            .should(haveAttribute('aria-checked', 'true'))
+    },
+)

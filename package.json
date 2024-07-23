@@ -1,4 +1,5 @@
 {
+    "name": "alpine",
     "private": true,
     "workspaces": [
         "packages/*"

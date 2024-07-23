@@ -1,4 +1,4 @@
-import { haveAttribute, haveFocus, html, haveClasses, notHaveClasses, test, haveText, notExist, beHidden, } from '../../../utils'
+import { haveAttribute, notHaveAttribute, haveFocus, html, haveClasses, notHaveClasses, test, haveText, notExist, beHidden, } from '../../../utils'
 
 test('it works without group using x-model',
     [html`

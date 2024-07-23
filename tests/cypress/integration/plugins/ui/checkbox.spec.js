@@ -239,7 +239,7 @@ test('$checkbox.isActive, $checkbox.isChecked, $checkbox.isDisabled work',
             .should(notHaveClasses(['checked']))
             .type(' ')
             .should(haveClasses(['active', 'checked']))
-            .type('{downarrow}')
+            .tab()
         get('[value="blue"]')
             .should(haveClasses(['active']))
             .should(notHaveClasses(['checked', 'disabled']))

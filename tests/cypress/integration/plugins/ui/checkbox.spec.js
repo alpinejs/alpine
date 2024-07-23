@@ -3,7 +3,7 @@ import { haveAttribute, haveFocus, html, haveClasses, notHaveClasses, test, have
 test('it works without group using x-model',
     [html`
         <main x-data="{ active: false }">
-            <div x-checkbox x-model="active>
+            <div x-checkbox x-model="active">
                 <span x-checkbox:label>Terms & Conditions</span>
                 <span x-checkbox:description>I accept the terms and conditions of this application.</span>
             </div>

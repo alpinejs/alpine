@@ -122,3 +122,33 @@ test('cannot check disabled checkbox',
         get('input').should(haveAttribute('value', 'red,green'))
     },
 )
+
+test('keyboard navigation works',
+    [html`
+        <main x-data="{ colors: [] }">
+            <div x-checkbox:group x-model="colors">
+                <div x-checkbox value="red">
+                    <span x-checkbox:label>Red</span>
+                </div>
+                <div x-checkbox value="blue">
+                    <span x-checkbox:label>Blue</span>
+                </div>
+                <div x-checkbox value="green">
+                    <span x-checkbox:label>Green</span>
+                </div>
+            </div>
+
+            <input x-model="colors" type="hidden">
+        </main>
+    `],
+    ({ get }) => {
+        get('input').should(haveAttribute('value', ''))
+        get('[value="red"]').focus().tab()
+        get('[value="blue"]').should(haveFocus()).tab()
+        get('[value="green"]').should(haveFocus()).tab()
+        get('input').should(haveAttribute('value', ''))
+        get('[value="red"]').should(haveAttribute('aria-checked', 'false'))
+        get('[value="blue"]').should(haveAttribute('aria-checked', 'false'))
+        get('[value="green"]').should(haveAttribute('aria-checked', 'false'))
+    },
+)

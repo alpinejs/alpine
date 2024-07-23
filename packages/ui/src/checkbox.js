@@ -37,9 +37,13 @@ function handleGroup(el, Alpine) {
             return {
                 __values: [],
                 __compareBy: undefined,
+                __rootDisabled: false,
 
                 init() {
-                    this.__compareBy = Alpine.extractProp(el, 'by')
+                    queueMicrotask(() => {
+                        this.__compareBy = Alpine.extractProp(el, 'by')
+                        this.__rootDisabled = Alpine.bound(el, 'disabled', false);
+                    });
                 },
 
                 __toggleValue(value) {
@@ -95,8 +99,10 @@ function handleRoot(el, Alpine) {
                 __active: false,
 
                 init() {
-                    this.__disabled = Alpine.bound(el, 'disabled', false)
-                    this.__value = Alpine.bound(el, 'value')
+                    queueMicrotask(() => {
+                        this.__disabled = Alpine.bound(el, 'disabled', false)
+                        this.__value = Alpine.bound(el, 'value')
+                    })
                 },
                 __toggle() {
                     if (groupEl) {

@@ -245,6 +245,6 @@ test('$checkbox.isActive, $checkbox.isChecked, $checkbox.isDisabled work',
             .should(notHaveClasses(['checked', 'disabled']))
         get('[value="green"]')
             .should(haveClasses(['disabled']))
-            .should(notHaveClasses(['checked', 'disabled']))
+            .should(notHaveClasses(['active', 'checked']))
     },
 )

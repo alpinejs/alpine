@@ -246,5 +246,6 @@ test('$checkbox.isActive, $checkbox.isChecked, $checkbox.isDisabled work',
         get('[value="green"]')
             .should(haveClasses(['disabled']))
             .should(notHaveClasses(['active', 'checked']))
+            .should(haveAttribute('aria-disabled', 'true'))
     },
 )

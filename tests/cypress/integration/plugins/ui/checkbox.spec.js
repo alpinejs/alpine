@@ -192,3 +192,59 @@ test('has accessibility attributes',
             .should(haveAttribute('aria-checked', 'true'))
     },
 )
+
+test('$checkbox.isActive, $checkbox.isChecked, $checkbox.isDisabled work',
+    [html`
+        <main x-data="{ colors: [] }">
+            <div x-checkbox:group x-model="colors">
+                <div
+                    x-checkbox
+                    value="red"
+                    :class="{
+                        'active': $checkbox.isActive,
+                        'checked': $checkbox.isChecked,
+                        'disabled': $checkbox.isDisabled,
+                    }
+                >
+                </div>
+                <div
+                    x-checkbox
+                    value="blue"
+                    :class="{
+                        'active': $checkbox.isActive,
+                        'checked': $checkbox.isChecked,
+                        'disabled': $checkbox.isDisabled,
+                    }
+                >
+                </div>
+                <div
+                    x-checkbox
+                    value="green"
+                    disabled
+                    :class="{
+                        'active': $checkbox.isActive,
+                        'checked': $checkbox.isChecked,
+                        'disabled': $checkbox.isDisabled,
+                    }
+                >
+                </div>
+            </div>
+        </main>
+    `],
+    ({ get }) => {
+        get('[value="red"]')
+            .should(notHaveClasses(['active', 'checked', 'disabled']))
+            .focus()
+            .should(haveClasses(['active']))
+            .should(notHaveClasses(['checked']))
+            .type(' ')
+            .should(haveClasses(['active', 'checked']))
+            .type('{downarrow}')
+        get('[value="blue"]')
+            .should(haveClasses(['active']))
+            .should(notHaveClasses(['checked', 'disabled']))
+        get('[value="green"]')
+            .should(haveClasses(['disabled']))
+            .should(notHaveClasses(['checked', 'disabled']))
+    },
+)

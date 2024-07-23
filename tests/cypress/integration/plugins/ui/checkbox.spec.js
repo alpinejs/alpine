@@ -43,9 +43,6 @@ test('it works with group using x-model',
             </div>
 
             <input x-model="colors" type="hidden">
-            <button data-color="red" x-on:click="(index = colors.findIndex(color => color === 'red')) > 0 ? colors.splice(index, 1)" : colors.push('red')">Toggle Red</button>
-            <button data-color="blue" x-on:click="(index = colors.findIndex(color => color === 'blue')) > 0 ? colors.splice(index, 1)" : colors.push('blue')">Toggle Blue</button>
-            <button data-color="green" x-on:click="(index = colors.findIndex(color => color === 'green')) > 0 ? colors.splice(index, 1)" : colors.push('green')">Toggle Green</button>
         </main>
     `],
     ({ get }) => {

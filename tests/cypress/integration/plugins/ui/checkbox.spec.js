@@ -204,7 +204,7 @@ test('$checkbox.isActive, $checkbox.isChecked, $checkbox.isDisabled work',
                         'active': $checkbox.isActive,
                         'checked': $checkbox.isChecked,
                         'disabled': $checkbox.isDisabled,
-                    }
+                    }"
                 >
                 </div>
                 <div
@@ -214,7 +214,7 @@ test('$checkbox.isActive, $checkbox.isChecked, $checkbox.isDisabled work',
                         'active': $checkbox.isActive,
                         'checked': $checkbox.isChecked,
                         'disabled': $checkbox.isDisabled,
-                    }
+                    }"
                 >
                 </div>
                 <div
@@ -225,7 +225,7 @@ test('$checkbox.isActive, $checkbox.isChecked, $checkbox.isDisabled work',
                         'active': $checkbox.isActive,
                         'checked': $checkbox.isChecked,
                         'disabled': $checkbox.isDisabled,
-                    }
+                    }"
                 >
                 </div>
             </div>

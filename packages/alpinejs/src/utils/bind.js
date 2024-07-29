@@ -146,18 +146,39 @@ export function safeParseBoolean(rawValue) {
     return rawValue ? Boolean(rawValue) : null
 }
 
-function isBooleanAttr(attrName) {
-    // As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
-    // Array roughly ordered by estimated usage
-    const booleanAttributes = [
-        'disabled','checked','required','readonly','open', 'selected',
-        'autofocus', 'itemscope', 'multiple', 'novalidate','allowfullscreen',
-        'allowpaymentrequest', 'formnovalidate', 'autoplay', 'controls', 'loop',
-        'muted', 'playsinline', 'default', 'ismap', 'reversed', 'async', 'defer',
-        'nomodule'
-    ]
+// As per HTML spec table https://html.spec.whatwg.org/multipage/indices.html#attributes-3:boolean-attribute
+const booleanAttributes = new Set([
+    'allowfullscreen',
+    'async',
+    'autofocus',
+    'autoplay',
+    'checked',
+    'controls',
+    'default',
+    'defer',
+    'disabled',
+    'formnovalidate',
+    'inert',
+    'ismap',
+    'itemscope',
+    'loop',
+    'multiple',
+    'muted',
+    'nomodule',
+    'novalidate',
+    'open',
+    'playsinline',
+    'readonly',
+    'required',
+    'reversed',
+    'selected',
+    'shadowrootclonable',
+    'shadowrootdelegatesfocus',
+    'shadowrootserializable',
+])
 
-    return booleanAttributes.includes(attrName)
+function isBooleanAttr(attrName) {
+    return booleanAttributes.has(attrName)
 }
 
 function attributeShouldntBePreservedIfFalsy(name) {

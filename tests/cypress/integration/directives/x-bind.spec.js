@@ -105,10 +105,12 @@ test('boolean attribute values are set to their attribute name if true and remov
             <option x-bind:selected="isSet"></option>
             <textarea x-bind:autofocus="isSet"></textarea>
             <dl x-bind:itemscope="isSet"></dl>
-            <form x-bind:novalidate="isSet"></form>
+            <form 
+                x-bind:novalidate="isSet"
+                x-bind:inert="isSet"
+            ></form>
             <iframe
                 x-bind:allowfullscreen="isSet"
-                x-bind:allowpaymentrequest="isSet"
             ></iframe>
             <button x-bind:formnovalidate="isSet"></button>
             <audio
@@ -121,6 +123,11 @@ test('boolean attribute values are set to their attribute name if true and remov
             <track x-bind:default="isSet" />
             <img x-bind:ismap="isSet" />
             <ol x-bind:reversed="isSet"></ol>
+            <template 
+                x-bind:shadowrootclonable="isSet"
+                x-bind:shadowrootdelegatesfocus="isSet"
+                x-bind:shadowrootserializable="isSet"
+            ></template>
         </div>
     `,
     ({ get }) => {
@@ -135,7 +142,6 @@ test('boolean attribute values are set to their attribute name if true and remov
         get('dl').should(haveAttribute('itemscope', 'itemscope'))
         get('form').should(haveAttribute('novalidate', 'novalidate'))
         get('iframe').should(haveAttribute('allowfullscreen', 'allowfullscreen'))
-        get('iframe').should(haveAttribute('allowpaymentrequest', 'allowpaymentrequest'))
         get('button').should(haveAttribute('formnovalidate', 'formnovalidate'))
         get('audio').should(haveAttribute('autoplay', 'autoplay'))
         get('audio').should(haveAttribute('controls', 'controls'))
@@ -145,6 +151,9 @@ test('boolean attribute values are set to their attribute name if true and remov
         get('track').should(haveAttribute('default', 'default'))
         get('img').should(haveAttribute('ismap', 'ismap'))
         get('ol').should(haveAttribute('reversed', 'reversed'))
+        get('template').should(haveAttribute('shadowrootclonable', 'shadowrootclonable'))
+        get('template').should(haveAttribute('shadowrootdelegatesfocus', 'shadowrootdelegatesfocus'))
+        get('template').should(haveAttribute('shadowrootserializable', 'shadowrootserializable'))
 
         get('#setToFalse').click()
 

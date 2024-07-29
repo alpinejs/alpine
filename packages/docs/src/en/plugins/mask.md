@@ -69,7 +69,7 @@ The primary API for using this plugin is the `x-mask` directive.
 Let's start by looking at the following simple example of a date field:
 
 ```alpine
-<input x-mask="99/99/9999" placeholder="MM/DD/YYYY">
+<input x-data x-mask="99/99/9999" placeholder="MM/DD/YYYY">
 ```
 
 <!-- START_VERBATIM -->
@@ -97,7 +97,7 @@ Sometimes simple mask literals (i.e. `(999) 999-9999`) are not sufficient. In th
 Here's an example of a credit card input that needs to change it's mask based on if the number starts with the numbers "34" or "37" (which means it's an Amex card and therefore has a different format).
 
 ```alpine
-<input x-mask:dynamic="
+<input x-data x-mask:dynamic="
     $input.startsWith('34') || $input.startsWith('37')
         ? '9999 999999 99999' : '9999 9999 9999 9999'
 ">
@@ -119,7 +119,7 @@ Try it for yourself by typing a number that starts with "34" and one that doesn'
 `x-mask:dynamic` also accepts a function as a result of the expression and will automatically pass it the `$input` as the first parameter. For example:
 
 ```alpine
-<input x-mask:dynamic="creditCardMask">
+<input x-data x-mask:dynamic="creditCardMask">
 
 <script>
 function creditCardMask(input) {
@@ -139,7 +139,7 @@ Because writing your own dynamic mask expression for money inputs is fairly comp
 Here is a fully functioning money input mask:
 
 ```alpine
-<input x-mask:dynamic="$money($input)">
+<input x-data x-mask:dynamic="$money($input)">
 ```
 
 <!-- START_VERBATIM -->
@@ -151,7 +151,7 @@ Here is a fully functioning money input mask:
 If you wish to swap the periods for commas and vice versa (as is required in certain currencies), you can do so using the second optional parameter:
 
 ```alpine
-<input x-mask:dynamic="$money($input, ',')">
+<input x-data x-mask:dynamic="$money($input, ',')">
 ```
 
 <!-- START_VERBATIM -->
@@ -163,7 +163,7 @@ If you wish to swap the periods for commas and vice versa (as is required in cer
 You may also choose to override the thousands separator by supplying a third optional argument:
 
 ```alpine
-<input x-mask:dynamic="$money($input, '.', ' ')">
+<input x-data x-mask:dynamic="$money($input, '.', ' ')">
 ```
 
 <!-- START_VERBATIM -->
@@ -176,7 +176,7 @@ You may also choose to override the thousands separator by supplying a third opt
 You can also override the default precision of 2 digits by using any desired number of digits as the fourth optional argument:
 
 ```alpine
-<input x-mask:dynamic="$money($input, '.', ',', 4)">
+<input x-data x-mask:dynamic="$money($input, '.', ',', 4)">
 ```
 
 <!-- START_VERBATIM -->

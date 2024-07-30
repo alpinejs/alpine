@@ -17,7 +17,7 @@
     "scripts": {
         "build": "node ./scripts/build.js",
         "watch": "node ./scripts/build.js --watch",
-        "test": "cypress run --quiet",
+        "test": "cypress run --quiet --spec **/checkbox.spec.js",
         "cypress": "cypress open",
         "jest": "jest test",
         "update-docs": "node ./scripts/update-docs.js",

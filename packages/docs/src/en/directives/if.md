@@ -15,6 +15,10 @@ Because of this difference in behavior, `x-if` should not be applied directly to
 </template>
 ```
 
-> Unlike `x-show`, `x-if`, does NOT support transitioning toggles with `x-transition`.
+> Despite not being included in the above snippet, `x-if` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)
 
-> Remember: `<template>` tags can only contain one root level element.
+## Caveats
+
+Unlike `x-show`, `x-if`, does NOT support transitioning toggles with `x-transition`.
+
+`<template>` tags can only contain one root element.

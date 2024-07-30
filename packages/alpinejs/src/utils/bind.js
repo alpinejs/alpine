@@ -1,4 +1,4 @@
-import { dontAutoEvaluateFunctions, evaluate } from '../evaluator'
+import { evaluate } from '../evaluator'
 import { reactive } from '../reactivity'
 import { setClasses } from './classes'
 import { setStyles } from './styles'
@@ -201,9 +201,7 @@ export function extractProp(el, name, fallback, extract = true) {
 
         binding.extract = extract
 
-        return dontAutoEvaluateFunctions(() => {
-            return evaluate(el, binding.expression)
-        })
+        return evaluate(el, binding.expression, { autoEvaluateFunctions: false })
     }
 
     return getAttributeBinding(el, name, fallback)

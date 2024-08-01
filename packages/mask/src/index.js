@@ -40,7 +40,17 @@ export default function (Alpine) {
             }
 
             // Override x-model's initial value...
-            if (el._x_model) el._x_model.set(el.value)
+            if (el._x_model) {
+                el._x_model.set(el.value)
+                const updater = el._x_forceModelUpdate;
+                el._x_forceModelUpdate = (value) => {
+                    value = String(value);
+                    value = formatInput(value, templateFn(value));
+                    lastInputValue = value;
+                    updater(value);
+                    el._x_model.set(value);
+                };
+            }
         })
 
         const controller = new AbortController()

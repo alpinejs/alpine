@@ -1,4 +1,4 @@
-import { haveValue, html, test } from '../../utils'
+import { haveData, haveValue, html, test } from '../../utils'
 
 test('x-mask',
     [html`<input x-data x-mask="(999) 999-9999">`],
@@ -61,7 +61,7 @@ test('x-mask with x-model',
 )
 
 // This passes locally but fails in CI...
-test.skip('x-mask with latently bound x-model',
+test('x-mask with latently bound x-model',
     [html`
         <div x-data="{ value: '' }">
             <input x-mask="(999) 999-9999" x-bind="{ 'x-model': 'value' }" id="1">
@@ -237,5 +237,20 @@ test('$money with custom decimal precision',
         get('#1').type('1234.5678').should(haveValue('1,234.5'))
         get('#2').type('1234.5678').should(haveValue('1,234.56'))
         get('#3').type('1234.5678').should(haveValue('1,234.567'))
+    }
+)
+
+test('$mask should process the value when updated by x-model',
+    [html`
+        <div x-data="{value:55555}">
+            <input type="text" x-model=value x-mask:dynamic="$money($input)">
+            <button @click="value = 23420">Change</button>
+        </div>
+    `],
+    ({ get }) => {
+        get('input').should(haveValue('55,555'))
+        get('button').click()
+        get('input').should(haveValue('23,420'))
+        get('div').should(haveData('value', '23,420'))
     }
 )

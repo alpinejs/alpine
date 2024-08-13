@@ -122,6 +122,37 @@ test('removing teleport source removes teleported target',
     },
 )
 
+test(
+    'immediately cleans up the clone when the original template is removed',
+    [
+        html`
+            <div x-data="{ show: true, shown: 'original' }">
+                <span x-text="shown"></span>
+                <template x-if="show">
+                    <div>
+                    <template x-teleport="#target">
+                        <button x-data="{ 
+                            init() { this.shown = 'cloned' }, 
+                            destroy() { this.shown = 'destroyed' }
+                        }" @click="show = false">remove</button>
+                    </template>
+                    </div>
+                </template>
+                <section id="target"></section>
+            </div>
+        `,
+    ],
+    ({ get }) => {
+        get('section').should(haveText('remove'));
+        get("button").should(exist());
+        get('span').should(haveText('cloned'));
+        get('button').click();
+        get('section').should(haveText(''));
+        get('button').should(notExist());
+        get('span').should(haveText('destroyed'));
+    }
+);
+
 test('$refs inside teleport can be accessed outside',
     [html`
         <div x-data="{ count: 1 }" id="a">

@@ -51,7 +51,7 @@ You may also pass objects to `x-for`.
 
 There are two rules worth noting about `x-for`:
 
->`x-for` MUST be declared on a `<template>` element.
+> `x-for` MUST be declared on a `<template>` element.
 > That `<template>` element MUST contain only one root element
 
 <a name="keys"></a>
@@ -109,6 +109,8 @@ If you need to simply loop `n` number of times, rather than iterate through an a
 ```
 
 `i` in this case can be named anything you like.
+
+> Despite not being included in the above snippet, `x-for` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)
 
 <a name="contents-of-a-template"></a>
 ## Contents of a `<template>`

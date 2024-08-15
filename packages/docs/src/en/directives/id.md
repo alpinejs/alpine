@@ -4,6 +4,7 @@ title: id
 ---
 
 # x-id
+
 `x-id` allows you to declare a new "scope" for any new IDs generated using `$id()`. It accepts an array of strings (ID names) and adds a suffix to each `$id('...')` generated within it that is unique to other IDs on the page.
 
 `x-id` is meant to be used in conjunction with the `$id(...)` magic.
@@ -30,4 +31,4 @@ Here's a brief example of this directive in use:
 </div>
 ```
 
-
+> Despite not being included in the above snippet, `x-id` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)

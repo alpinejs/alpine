@@ -22,3 +22,5 @@ title: ref
     </div>
 </div>
 <!-- END_VERBATIM -->
+
+> Despite not being included in the above snippet, `x-ref` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)

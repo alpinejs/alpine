@@ -3,8 +3,9 @@ import { directive } from '../directives'
 import { mutateDom } from '../mutation'
 import { nextTick } from '../nextTick'
 import bind, { safeParseBoolean } from '../utils/bind'
-import on from '../utils/on'
+import on, { addDebounceOrThrottle } from '../utils/on'
 import { isCloning } from '../clone'
+
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
@@ -106,7 +107,11 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         set(value) {
             setValue(value)
         },
-    }
+        
+        // Allow for Modifiers such as debounce to be respected by modelable
+        setWithModifiers: addDebounceOrThrottle(modifiers, setValue),
+    };
+
 
     el._x_forceModelUpdate = (value) => {
         // If nested model key is undefined, set the default value to empty string.

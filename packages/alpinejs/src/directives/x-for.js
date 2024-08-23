@@ -11,226 +11,152 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)
 
     let evaluateItems = evaluateLater(el, iteratorNames.items)
-    let evaluateKey = evaluateLater(el,
+    let evaluateKey = evaluateLater(
+        el,
         // the x-bind:key expression is stored for our use instead of evaluated.
         el._x_keyExpression || 'index'
     )
 
-    el._x_prevKeys = []
-    el._x_lookup = {}
+    el._x_lookup = new Map()
 
     effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
 
     cleanup(() => {
-        Object.values(el._x_lookup).forEach(el =>
+        Object.values(el._x_lookup).forEach((el) =>
             mutateDom(() => {
                 destroyTree(el)
 
                 el.remove()
-            }
-        ))
+            })
+        )
 
         delete el._x_prevKeys
         delete el._x_lookup
     })
 })
 
-let shouldFastRender = true
 
-function loop(el, iteratorNames, evaluateItems, evaluateKey) {
-    let isObject = i => typeof i === 'object' && ! Array.isArray(i)
-    let templateEl = el
+const makeRefresher = (scope) => (newScope) => {
+    Object.entries(newScope).forEach(([key, value]) => {
+        scope[key] = value
+    })
+}
 
+function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
     evaluateItems(items => {
         // Prepare yourself. There's a lot going on here. Take heart,
         // every bit of complexity in this function was added for
         // the purpose of making Alpine fast with large datas.
 
-        // Support number literals. Ex: x-for="i in 100"
-        if (isNumeric(items) && items >= 0) {
-            items = Array.from(Array(items).keys(), i => i + 1)
-        }
+        // Support number literals. Ex: x-for='i in 100'
+        if (isNumeric(items))
+            items = Array.from({ length: items }, (_, i) => i + 1)
 
         if (items === undefined) items = []
 
-        let lookup = el._x_lookup
-        let prevKeys = el._x_prevKeys
-        let scopes = []
-        let keys = []
+        const oldLookup = templateEl._x_lookup
+        const lookup = new Map()
+        templateEl._x_lookup = lookup
+        const scopeEntries = []
 
-        // In order to preserve DOM elements (move instead of replace)
-        // we need to generate all the keys for every iteration up
-        // front. These will be our source of truth for diffing.
         if (isObject(items)) {
-            items = Object.entries(items).map(([key, value]) => {
-                let scope = getIterationScopeVariables(iteratorNames, value, key, items)
+            // In order to preserve DOM elements (move instead of replace)
+            // we need to generate all the keys for every iteration up
+            // front. These will be our source of truth for diffing.
+            Object.entries(items).forEach(([prop, value]) => {
+                const scope = getIterationScopeVariables(
+                    iteratorNames,
+                    value,
+                    prop,
+                    items
+                )
 
-                evaluateKey(value => {
-                    if (keys.includes(value)) warn('Duplicate key on x-for', el)
-
-                    keys.push(value)
-                }, { scope: { index: key, ...scope} })
-
-                scopes.push(scope)
+                evaluateKey(
+                    key => {
+                        if (oldLookup.has(key)) {
+                            lookup.set(key, oldLookup.get(key))
+                            oldLookup.delete(key)
+                        }
+                        scopeEntries.push([key, scope])
+                    },
+                    {
+                        scope: { index: prop, ...scope },
+                    }
+                )
             })
         } else {
-            for (let i = 0; i < items.length; i++) {
-                let scope = getIterationScopeVariables(iteratorNames, items[i], i, items)
+            items.forEach((item, index) => {
+                const scope = getIterationScopeVariables(
+                    iteratorNames,
+                    item,
+                    index,
+                    items
+                )
 
-                evaluateKey(value => {
-                    if (keys.includes(value)) warn('Duplicate key on x-for', el)
+                evaluateKey(
+                    key => {
+                        if (typeof key === 'object')
+                            warn(
+                                'x-for key cannot be an object, it must be a string or an integer',
+                                templateEl
+                            )
 
-                    keys.push(value)
-                }, { scope: { index: i, ...scope} })
-
-                scopes.push(scope)
-            }
+                        if (oldLookup.has(key)) {
+                            lookup.set(key, oldLookup.get(key))
+                            oldLookup.delete(key)
+                        }
+                        scopeEntries.push([key, scope])
+                    },
+                    {
+                        scope: { index, ...scope },
+                    }
+                )
+            })
         }
 
-        // Rather than making DOM manipulations inside one large loop, we'll
-        // instead track which mutations need to be made in the following
-        // arrays. After we're finished, we can batch them at the end.
-        let adds = []
-        let moves = []
-        let removes = []
-        let sames = []
-
-        // First, we track elements that will need to be removed.
-        for (let i = 0; i < prevKeys.length; i++) {
-            let key = prevKeys[i]
-
-            if (keys.indexOf(key) === -1) removes.push(key)
-        }
-
-        // Notice we're mutating prevKeys as we go. This makes it
-        // so that we can efficiently make incremental comparisons.
-        prevKeys = prevKeys.filter(key => ! removes.includes(key))
-
-        let lastKey = 'template'
-
-        // This is the important part of the diffing algo. Identifying
-        // which keys (future DOM elements) are new, which ones have
-        // or haven't moved (noting where they moved to / from).
-        for (let i = 0; i < keys.length; i++) {
-            let key = keys[i]
-
-            let prevIndex = prevKeys.indexOf(key)
-
-            if (prevIndex === -1) {
-                // New key found.
-                prevKeys.splice(i, 0, key)
-
-                adds.push([lastKey, i])
-            } else if (prevIndex !== i) {
-                // A key has moved.
-                let keyInSpot = prevKeys.splice(i, 1)[0]
-                let keyForSpot = prevKeys.splice(prevIndex - 1, 1)[0]
-
-                prevKeys.splice(i, 0, keyForSpot)
-                prevKeys.splice(prevIndex, 0, keyInSpot)
-
-                moves.push([keyInSpot, keyForSpot])
-            } else {
-                // This key hasn't moved, but we'll still keep track
-                // so that we can refresh it later on.
-                sames.push(key)
-            }
-
-            lastKey = key
-        }
-
-        // Now that we've done the diffing work, we can apply the mutations
-        // in batches for both separating types work and optimizing
-        // for browser performance.
-
-        // We'll remove all the nodes that need to be removed,
-        // and clean up any side effects they had.
-        for (let i = 0; i < removes.length; i++) {
-            let key = removes[i]
-
-            if (! (key in lookup)) continue
-
-            mutateDom(() => {
-                destroyTree(lookup[key])
-
-                lookup[key].remove()
+        mutateDom(() => {
+            oldLookup.forEach((el) => {
+                destroyTree(el)
+                el.remove()
             })
 
-            delete lookup[key]
-        }
+            const added = new Set()
 
-        // Here we'll move elements around, skipping
-        // mutation observer triggers by using "mutateDom".
-        for (let i = 0; i < moves.length; i++) {
-            let [keyInSpot, keyForSpot] = moves[i]
+            let prev = templateEl
+            scopeEntries.forEach(([key, scope]) => {
+                if (lookup.has(key)) {
+                    const el = lookup.get(key)
+                    el._x_refreshXForScope(scope)
+                    if (prev.nextElementSibling !== el) {
+                        if (prev.nextElementSibling)
+                            el.replaceWith(prev.nextElementSibling)
+                        prev.after(el)
+                    }
+                    prev = el
+                    if (el._x_currentIfEl) {
+                        if (el.nextElementSibling !== el._x_currentIfEl)
+                            prev.after(el._x_currentIfEl)
+                        prev = el._x_currentIfEl
+                    }
+                    return
+                }
 
-            let elInSpot = lookup[keyInSpot]
-            let elForSpot = lookup[keyForSpot]
+                const clone = document.importNode(
+                    templateEl.content,
+                    true
+                ).firstElementChild
+                const reactiveScope = reactive(scope)
+                addScopeToNode(clone, reactiveScope, templateEl)
+                clone._x_refreshXForScope = makeRefresher(reactiveScope)
 
-            let marker = document.createElement('div')
+                lookup.set(key, clone)
+                added.add(clone)
 
-            mutateDom(() => {
-                if (! elForSpot) warn(`x-for ":key" is undefined or invalid`, templateEl, keyForSpot, lookup)
-
-                elForSpot.after(marker)
-                elInSpot.after(elForSpot)
-                elForSpot._x_currentIfEl && elForSpot.after(elForSpot._x_currentIfEl)
-                marker.before(elInSpot)
-                elInSpot._x_currentIfEl && elInSpot.after(elInSpot._x_currentIfEl)
-                marker.remove()
+                prev.after(clone)
+                prev = clone
             })
-
-            elForSpot._x_refreshXForScope(scopes[keys.indexOf(keyForSpot)])
-        }
-
-        // We can now create and add new elements.
-        for (let i = 0; i < adds.length; i++) {
-            let [lastKey, index] = adds[i]
-
-            let lastEl = (lastKey === 'template') ? templateEl : lookup[lastKey]
-            // If the element is a x-if template evaluated to true,
-            // point lastEl to the if-generated node
-            if (lastEl._x_currentIfEl) lastEl = lastEl._x_currentIfEl
-
-            let scope = scopes[index]
-            let key = keys[index]
-
-            let clone = document.importNode(templateEl.content, true).firstElementChild
-
-            let reactiveScope = reactive(scope)
-
-            addScopeToNode(clone, reactiveScope, templateEl)
-
-            clone._x_refreshXForScope = (newScope) => {
-                Object.entries(newScope).forEach(([key, value]) => {
-                    reactiveScope[key] = value
-                })
-            }
-
-            mutateDom(() => {
-                lastEl.after(clone)
-
-                // These nodes will be "inited" as morph walks the tree...
-                skipDuringClone(() => initTree(clone))()
-            })
-
-            if (typeof key === 'object') {
-                warn('x-for key cannot be an object, it must be a string or an integer', templateEl)
-            }
-
-            lookup[key] = clone
-        }
-
-        // If an element hasn't changed, we still want to "refresh" the
-        // data it depends on in case the data has changed in an
-        // "unobservable" way.
-        for (let i = 0; i < sames.length; i++) {
-            lookup[sames[i]]._x_refreshXForScope(scopes[keys.indexOf(sames[i])])
-        }
-
-        // Now we'll log the keys (and the order they're in) for comparing
-        // against next time.
-        templateEl._x_prevKeys = keys
+            skipDuringClone(() => added.forEach((clone) => initTree(clone)))()
+        })
     })
 }
 
@@ -241,7 +167,7 @@ function parseForExpression(expression) {
     let forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
     let inMatch = expression.match(forAliasRE)
 
-    if (! inMatch) return
+    if (!inMatch) return
 
     let res = {}
     res.items = inMatch[2].trim()
@@ -268,14 +194,25 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
 
     // Support array destructuring ([foo, bar]).
     if (/^\[.*\]$/.test(iteratorNames.item) && Array.isArray(item)) {
-        let names = iteratorNames.item.replace('[', '').replace(']', '').split(',').map(i => i.trim())
+        let names = iteratorNames.item
+            .replace('[', '')
+            .replace(']', '')
+            .split(',')
+            .map((i) => i.trim())
 
         names.forEach((name, i) => {
             scopeVariables[name] = item[i]
         })
-    // Support object destructuring ({ foo: 'oof', bar: 'rab' }).
-    } else if (/^\{.*\}$/.test(iteratorNames.item) && ! Array.isArray(item) && typeof item === 'object') {
-        let names = iteratorNames.item.replace('{', '').replace('}', '').split(',').map(i => i.trim())
+        // Support object destructuring ({ foo: 'oof', bar: 'rab' }).
+    } else if (
+        /^\{.*\}$/.test(iteratorNames.item) &&
+        isObject(item)
+    ) {
+        let names = iteratorNames.item
+            .replace('{', '')
+            .replace('}', '')
+            .split(',')
+            .map((i) => i.trim())
 
         names.forEach(name => {
             scopeVariables[name] = item[name]
@@ -286,11 +223,16 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
 
     if (iteratorNames.index) scopeVariables[iteratorNames.index] = index
 
-    if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items
+    if (iteratorNames.collection)
+        scopeVariables[iteratorNames.collection] = items
 
     return scopeVariables
 }
 
-function isNumeric(subject){
-    return ! Array.isArray(subject) && ! isNaN(subject)
+function isNumeric(subject) {
+    return !Array.isArray(subject) && !isNaN(subject)
+}
+
+function isObject(subject) { 
+    return typeof subject === "object" && !Array.isArray(subject)
 }

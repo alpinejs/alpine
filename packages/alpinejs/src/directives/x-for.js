@@ -54,15 +54,17 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
 
         if (items === undefined) items = []
 
+        /**
+         * In order to remove Elements early we need to generate the key/scope pairs
+         * up front, moving existing elements from the old lookup and to the new.
+         * This leaves only the Elements to be removed in the old lookup.
+         */
         const oldLookup = templateEl._x_lookup
         const lookup = new Map()
         templateEl._x_lookup = lookup
         const scopeEntries = []
 
         if (isObject(items)) {
-            // In order to preserve DOM elements (move instead of replace)
-            // we need to generate all the keys for every iteration up
-            // front. These will be our source of truth for diffing.
             Object.entries(items).forEach(([prop, value]) => {
                 const scope = getIterationScopeVariables(
                     iteratorNames,
@@ -127,12 +129,14 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                 if (lookup.has(key)) {
                     const el = lookup.get(key)
                     el._x_refreshXForScope(scope)
+
                     if (prev.nextElementSibling !== el) {
                         if (prev.nextElementSibling)
                             el.replaceWith(prev.nextElementSibling)
                         prev.after(el)
                     }
                     prev = el
+
                     if (el._x_currentIfEl) {
                         if (el.nextElementSibling !== el._x_currentIfEl)
                             prev.after(el._x_currentIfEl)
@@ -233,6 +237,6 @@ function isNumeric(subject) {
     return !Array.isArray(subject) && !isNaN(subject)
 }
 
-function isObject(subject) { 
-    return typeof subject === "object" && !Array.isArray(subject)
+function isObject(subject) {
+    return typeof subject === 'object' && !Array.isArray(subject)
 }

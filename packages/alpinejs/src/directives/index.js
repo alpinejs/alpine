@@ -17,6 +17,8 @@ import './x-show'
 import './x-for'
 import './x-ref'
 import './x-if'
+import './x-else-if';
+import './x-else';
 import './x-id'
 import './x-on'
 

@@ -63,58 +63,35 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
         const lookup = new Map()
         templateEl._x_lookup = lookup
         const scopeEntries = []
+        const hasStringKeys = isObject(items)
+        Object.entries(items).forEach(([index, item]) => {
+            if (!hasStringKeys) index = parseInt(index)
+            const scope = getIterationScopeVariables(
+                iteratorNames,
+                item,
+                index,
+                items
+            )
 
-        if (isObject(items)) {
-            Object.entries(items).forEach(([prop, value]) => {
-                const scope = getIterationScopeVariables(
-                    iteratorNames,
-                    value,
-                    prop,
-                    items
-                )
+            evaluateKey(
+                key => {
+                    if (typeof key === 'object')
+                        warn(
+                            'x-for key cannot be an object, it must be a string or an integer',
+                            templateEl
+                        )
 
-                evaluateKey(
-                    key => {
-                        if (oldLookup.has(key)) {
-                            lookup.set(key, oldLookup.get(key))
-                            oldLookup.delete(key)
-                        }
-                        scopeEntries.push([key, scope])
-                    },
-                    {
-                        scope: { index: prop, ...scope },
+                    if (oldLookup.has(key)) {
+                        lookup.set(key, oldLookup.get(key))
+                        oldLookup.delete(key)
                     }
-                )
-            })
-        } else {
-            items.forEach((item, index) => {
-                const scope = getIterationScopeVariables(
-                    iteratorNames,
-                    item,
-                    index,
-                    items
-                )
-
-                evaluateKey(
-                    key => {
-                        if (typeof key === 'object')
-                            warn(
-                                'x-for key cannot be an object, it must be a string or an integer',
-                                templateEl
-                            )
-
-                        if (oldLookup.has(key)) {
-                            lookup.set(key, oldLookup.get(key))
-                            oldLookup.delete(key)
-                        }
-                        scopeEntries.push([key, scope])
-                    },
-                    {
-                        scope: { index, ...scope },
-                    }
-                )
-            })
-        }
+                    scopeEntries.push([key, scope])
+                },
+                {
+                    scope: { index, ...scope },
+                }
+            )
+        })
 
         mutateDom(() => {
             oldLookup.forEach((el) => {

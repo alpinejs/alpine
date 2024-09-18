@@ -205,7 +205,7 @@ Because `x-anchor` accepts a reference to any DOM element, you can use utilities
     </div>
 
 
-    <div x-show="open" x-anchor="document.querySelector('.trigger')">
+    <div x-show="open" x-anchor="document.querySelector('.trigger')" class="bg-white rounded p-4 border shadow z-10">
         Dropdown content
     </div>
 </div>

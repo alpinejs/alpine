@@ -62,9 +62,9 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
         const oldLookup = templateEl._x_lookup
         const lookup = new Map()
         templateEl._x_lookup = lookup
-        const scopeEntries = []
+        
         const hasStringKeys = isObject(items)
-        Object.entries(items).forEach(([index, item]) => {
+        const scopeEntries = Object.entries(items).map(([index, item]) => {
             if (!hasStringKeys) index = parseInt(index)
             const scope = getIterationScopeVariables(
                 iteratorNames,
@@ -72,25 +72,26 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                 index,
                 items
             )
-
+            let key;
             evaluateKey(
-                key => {
-                    if (typeof key === 'object')
+                innerKey => {
+                    if (typeof innerKey === 'object')
                         warn(
                             'x-for key cannot be an object, it must be a string or an integer',
                             templateEl
                         )
 
-                    if (oldLookup.has(key)) {
-                        lookup.set(key, oldLookup.get(key))
-                        oldLookup.delete(key)
+                    if (oldLookup.has(innerKey)) {
+                        lookup.set(innerKey, oldLookup.get(innerKey))
+                        oldLookup.delete(innerKey)
                     }
-                    scopeEntries.push([key, scope])
+                    key = innerKey
                 },
                 {
                     scope: { index, ...scope },
                 }
             )
+            return [key, scope];
         })
 
         mutateDom(() => {

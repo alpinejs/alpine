@@ -22,7 +22,7 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
 
     cleanup(() => {
-        Object.values(el._x_lookup).forEach((el) =>
+        Object.values(el._x_lookup).forEach(el =>
             mutateDom(() => {
                 destroyTree(el)
 
@@ -36,7 +36,7 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
 })
 
 
-const makeRefresher = (scope) => (newScope) => {
+const makeRefresher = scope => newScope => {
     Object.entries(newScope).forEach(([key, value]) => {
         scope[key] = value
     })
@@ -66,15 +66,9 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
         const hasStringKeys = isObject(items)
         const scopeEntries = Object.entries(items).map(([index, item]) => {
             if (!hasStringKeys) index = parseInt(index)
-            const scope = getIterationScopeVariables(
-                iteratorNames,
-                item,
-                index,
-                items
-            )
+            const scope = getIterationScopeVariables(iteratorNames, item, index, items)
             let key;
-            evaluateKey(
-                innerKey => {
+            evaluateKey(innerKey => {
                     if (typeof innerKey === 'object')
                         warn(
                             'x-for key cannot be an object, it must be a string or an integer',
@@ -86,10 +80,7 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                         oldLookup.delete(innerKey)
                     }
                     key = innerKey
-                },
-                {
-                    scope: { index, ...scope },
-                }
+                },{ scope: { index, ...scope } }
             )
             return [key, scope];
         })
@@ -123,10 +114,7 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                     return
                 }
 
-                const clone = document.importNode(
-                    templateEl.content,
-                    true
-                ).firstElementChild
+                const clone = document.importNode(templateEl.content, true).firstElementChild
                 const reactiveScope = reactive(scope)
                 addScopeToNode(clone, reactiveScope, templateEl)
                 clone._x_refreshXForScope = makeRefresher(reactiveScope)
@@ -137,7 +125,7 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                 prev.after(clone)
                 prev = clone
             })
-            skipDuringClone(() => added.forEach((clone) => initTree(clone)))()
+            skipDuringClone(() => added.forEach(clone => initTree(clone)))()
         })
     })
 }
@@ -176,25 +164,15 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
 
     // Support array destructuring ([foo, bar]).
     if (/^\[.*\]$/.test(iteratorNames.item) && Array.isArray(item)) {
-        let names = iteratorNames.item
-            .replace('[', '')
-            .replace(']', '')
-            .split(',')
-            .map((i) => i.trim())
+        let names = iteratorNames.item.replace('[', '').replace(']', '').split(',').map(i => i.trim())
 
         names.forEach((name, i) => {
             scopeVariables[name] = item[i]
         })
         // Support object destructuring ({ foo: 'oof', bar: 'rab' }).
-    } else if (
-        /^\{.*\}$/.test(iteratorNames.item) &&
-        isObject(item)
+    } else if (/^\{.*\}$/.test(iteratorNames.item) && isObject(item)
     ) {
-        let names = iteratorNames.item
-            .replace('{', '')
-            .replace('}', '')
-            .split(',')
-            .map((i) => i.trim())
+        let names = iteratorNames.item.replace('{', '').replace('}', '').split(',').map(i => i.trim())
 
         names.forEach(name => {
             scopeVariables[name] = item[name]
@@ -205,8 +183,7 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
 
     if (iteratorNames.index) scopeVariables[iteratorNames.index] = index
 
-    if (iteratorNames.collection)
-        scopeVariables[iteratorNames.collection] = items
+    if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items
 
     return scopeVariables
 }

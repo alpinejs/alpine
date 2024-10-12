@@ -14,7 +14,7 @@ Because this behavior and implementation differs from Alpine's standard transiti
 <a name="installation"></a>
 ## Installation
 
-You can use this plugin by either including it from a `<script>` tag or installing it via NPM:
+You can use this plugin by either including it from a `<script>` tag or installing it via a package manager:
 
 ### Via CDN
 
@@ -28,12 +28,13 @@ You can include the CDN build of this plugin as a `<script>` tag, just make sure
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 ```
 
-### Via NPM
+### Via Package Manager
 
-You can install Collapse from NPM for use inside your bundle like so:
+You can install Collapse from a package manager for use inside your bundle like so:
 
 ```shell
 npm install @alpinejs/collapse
+bun install @alpinejs/collapse
 ```
 
 Then initialize it from your bundle:

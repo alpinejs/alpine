@@ -83,6 +83,8 @@ Now when the `<button>` is clicked, the input element's value will instantly be 
 </div>
 <!-- END_VERBATIM -->
 
+> Despite not being included in the above snippet, `x-model` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)
+
 <a name="textarea-inputs"></a>
 ## Textarea inputs
 

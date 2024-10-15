@@ -1,10 +1,10 @@
+import bind, { isCheckbox, isRadio, safeParseBoolean } from '../utils/bind'
 import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 import { mutateDom } from '../mutation'
 import { nextTick } from '../nextTick'
-import bind, { safeParseBoolean } from '../utils/bind'
-import on from '../utils/on'
 import { isCloning } from '../clone'
+import on from '../utils/on'
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
@@ -71,7 +71,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
 
     if (modifiers.includes('fill'))
         if ([undefined, null, ''].includes(getValue())
-            || (el.type === 'checkbox' && Array.isArray(getValue()))
+            || (isCheckbox(el) && Array.isArray(getValue()))
             || (el.tagName.toLowerCase() === 'select' && el.multiple)) {
         setValue(
             getInputValue(el, modifiers, { target: el }, getValue())
@@ -138,7 +138,7 @@ function getInputValue(el, modifiers, event, currentValue) {
         // so we return event.target.value instead of event.detail
         if (event instanceof CustomEvent && event.detail !== undefined)
             return event.detail !== null && event.detail !== undefined ? event.detail : event.target.value
-        else if (el.type === 'checkbox') {
+        else if (isCheckbox(el)) {
             // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {
                 let newValue = null;
@@ -176,7 +176,7 @@ function getInputValue(el, modifiers, event, currentValue) {
         } else {
             let newValue
 
-            if (el.type === 'radio') {
+            if (isRadio(el)) {
                 if (event.target.checked) {
                     newValue = event.target.value
                 } else {

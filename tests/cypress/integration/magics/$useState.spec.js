@@ -6,7 +6,6 @@ test('useState initializes state with the given initial value',
         </div>
     `,
     ({ get }) => {
-        cy.wait(1000) // Espera 1 segundo para asegurarte de que Alpine.js se haya inicializado
         get('[x-data]').should(haveAttr('x-data', 'testValue'))
     }
 )
@@ -18,7 +17,6 @@ test('useState updates state correctly',
         </div>
     `,
     ({ get }) => {
-        cy.wait(1000) // Espera 1 segundo para asegurarte de que Alpine.js se haya inicializado
         get('[x-data]').should(haveAttr('x-data', 'initialValue'))
         get('button').click()
         get('[x-data]').should(haveAttr('x-data', 'updatedValue'))

@@ -147,6 +147,7 @@ export function morph(from, toHtml, options) {
                     from.appendChild(holdover)
 
                     currentFrom = holdover
+                    fromKey = getKey(currentFrom)
                 } else {
                     if(! shouldSkip(adding, currentTo)) {
                         // Add element...
@@ -256,6 +257,7 @@ export function morph(from, toHtml, options) {
                         // No "from" key...
                         currentFrom.replaceWith(fromKeys[toKey])
                         currentFrom = fromKeys[toKey]
+                        fromKey = getKey(currentFrom)
                     }
                 }
 
@@ -267,6 +269,7 @@ export function morph(from, toHtml, options) {
                         fromKeyHoldovers[fromKey] = currentFrom
                         currentFrom.replaceWith(fromKeyNode)
                         currentFrom = fromKeyNode
+                        fromKey = getKey(currentFrom)
                     } else {
                         // Swap elements with keys...
                         fromKeyHoldovers[fromKey] = currentFrom; // This ";" needs to be here...

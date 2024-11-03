@@ -83,6 +83,9 @@ let initInterceptors = []
 export function interceptInit(callback) { initInterceptors.push(callback) }
 
 export function initTree(el, walker = walk, intercept = () => {}) {
+    // Don't init a tree within a parent that is being ignored.
+    if (findClosest(el, i => i._x_ignore)) return
+
     deferHandlingDirectives(() => {
         walker(el, (el, skip) => {
             intercept(el, skip)

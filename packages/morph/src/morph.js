@@ -497,6 +497,7 @@ function seedingMatchingId(to, from) {
     let fromId = from && from._x_bindings && from._x_bindings.id
 
     if (! fromId) return
+    if (! to.setAttribute) return
 
     to.setAttribute('id', fromId)
     to.id = fromId

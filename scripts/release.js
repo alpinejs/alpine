@@ -39,6 +39,9 @@ function writeNewAlpineVersion() {
     writeToPackageDotJson('alpinejs', 'version', version)
     console.log('Bumping alpinejs package.json: '+version)
 
+    writeToPackageDotJson('ui', 'version', version)
+    console.log('Bumping @alpinejs/ui package.json: '+version)
+
     writeToPackageDotJson('csp', 'version', version)
     console.log('Bumping @alpinejs/csp package.json: '+version)
 
@@ -85,6 +88,9 @@ function buildAssets() {
 function publish() {
     console.log('Publishing alpinejs on NPM...');
     runFromPackage('alpinejs', 'npm publish')
+
+    console.log('Publishing @alpinejs/ui on NPM...');
+    runFromPackage('ui', 'npm publish --access public')
 
     console.log('Publishing @alpinejs/csp on NPM...');
     runFromPackage('csp', 'npm publish --access public')

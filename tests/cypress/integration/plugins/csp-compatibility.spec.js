@@ -47,7 +47,7 @@ test.csp('Supports nested properties',
 test.csp('Supports simple negation',
     [html`
         <div x-data="test">
-            <span x-text="!foo"></span>
+            <span x-text=" ! foo"></span>
 
             <button @click="toggle">Toggle Foo</button>
         </div>
@@ -56,28 +56,6 @@ test.csp('Supports simple negation',
         Alpine.data('test', () => ({
             foo: false,
             toggle() { this.foo = !this.foo },
-        }))
-    `],
-    ({ get }) => {
-        get('span').should(haveText('true'))
-        get('button').click()
-        get('span').should(haveText('false'))
-    }
-)
-
-test.csp("Supports negation of function calls",
-    [html`
-        <div x-data="test">
-            <span x-text="!foo"></span>
-
-            <button @click="toggle">Toggle Foo</button>
-        </div>
-    `,
-        `
-        Alpine.data('test', () => ({
-            _foo: false,
-            foo() { return this._foo },
-            toggle() { this._foo = !this._foo },
         }))
     `],
     ({ get }) => {

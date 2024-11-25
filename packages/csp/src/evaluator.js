@@ -29,7 +29,7 @@ function generateEvaluator(el, expression, dataStack) {
         let completeScope = mergeProxies([scope, ...dataStack])
 
         let isNegated = expression.trim().charAt(0) === '!'
-        let expressionToEvaluate = isNegated ? expression.trim().slice(1) : expression.trim()
+        let expressionToEvaluate = isNegated ? expression.trim().slice(1).trim() : expression.trim()
 
         let evaluatedExpression = expressionToEvaluate.split('.').reduce(
             (currentScope, currentExpression) => {
@@ -42,11 +42,9 @@ function generateEvaluator(el, expression, dataStack) {
             completeScope,
         );
 
-        function handleResult(result) {
-            receiver(isNegated ? !result : result)
-        }
+        evaluatedExpression = isNegated ? !evaluatedExpression : evaluatedExpression
 
-        runIfTypeOfFunction(handleResult, evaluatedExpression, completeScope, params)
+        runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params)
     }
 }
 

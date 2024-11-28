@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/resize",
-    "version": "3.14.4",
+    "version": "3.14.5",
     "description": "Trigger JavaScript when an element is resized on the page",
     "homepage": "https://alpinejs.dev/plugins/intersect",
     "repository": {

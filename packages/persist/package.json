@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/persist",
-    "version": "3.14.4",
+    "version": "3.14.5",
     "description": "Persist Alpine data across page loads",
     "homepage": "https://alpinejs.dev/plugins/persist",
     "repository": {

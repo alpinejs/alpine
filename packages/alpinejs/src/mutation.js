@@ -112,6 +112,8 @@ export function flushAndStopDeferringMutations() {
 }
 
 function onMutate(mutations) {
+    console.log(mutations);
+
     if (isCollecting) {
         deferredMutations = deferredMutations.concat(mutations)
 
@@ -119,7 +121,7 @@ function onMutate(mutations) {
     }
 
     let addedNodes = []
-    let removedNodes = []
+    let removedNodes = new Set
     let addedAttributes = new Map
     let removedAttributes = new Map
 
@@ -129,13 +131,25 @@ function onMutate(mutations) {
         if (mutations[i].type === 'childList') {
             mutations[i].removedNodes.forEach(node => {
                 if (node.nodeType !== 1) return
+
+                // No need to process removed nodes that haven't been initialized by Alpine...
                 if (! node._x_marker) return
 
-                removedNodes.push(node)
+                removedNodes.add(node)
             })
 
             mutations[i].addedNodes.forEach(node => {
                 if (node.nodeType !== 1) return
+
+                // If the node is a removal as well, that means it's a "move" operation and we'll leave it alone...
+                if (removedNodes.has(node)) {
+                    removedNodes.delete(node)
+
+                    return
+                }
+
+                // If the node has already been initialized, we'll leave it alone...
+                if (node._x_marker) return;
 
                 addedNodes.push(node)
             })
@@ -197,7 +211,7 @@ function onMutate(mutations) {
 
     for (let node of addedNodes) {
         if (! node.isConnected) continue
-        if (node._x_marker) return;
+
         onElAddeds.forEach(i => i(node))
     }
 

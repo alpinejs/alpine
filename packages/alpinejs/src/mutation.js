@@ -136,7 +136,6 @@ function onMutate(mutations) {
 
             mutations[i].addedNodes.forEach(node => {
                 if (node.nodeType !== 1) return
-                if (node._x_marker) return
 
                 addedNodes.push(node)
             })
@@ -198,7 +197,7 @@ function onMutate(mutations) {
 
     for (let node of addedNodes) {
         if (! node.isConnected) continue
-
+        if (node._x_marker) return;
         onElAddeds.forEach(i => i(node))
     }
 

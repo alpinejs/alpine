@@ -770,11 +770,11 @@ test(
         get("@button").trigger("click", {});
         get("@alt").should(notBeChecked());
         get("@button").trigger("click", { ctrlKey: true, shiftKey: true, metaKey: true, altKey: true });
-        get("@shift").as("shift").should(beChecked());
-        get("@ctrl").as("ctrl").should(beChecked());
-        get("@meta").as("meta").should(beChecked());
-        get("@alt").as("alt").should(beChecked());
-        get("@cmd").as("cmd").should(beChecked());
+        get("@shift").should(beChecked());
+        get("@ctrl").should(beChecked());
+        get("@meta").should(beChecked());
+        get("@alt").should(beChecked());
+        get("@cmd").should(beChecked());
     }
 );
 

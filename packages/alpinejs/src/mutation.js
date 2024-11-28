@@ -112,8 +112,6 @@ export function flushAndStopDeferringMutations() {
 }
 
 function onMutate(mutations) {
-    console.log(mutations);
-
     if (isCollecting) {
         deferredMutations = deferredMutations.concat(mutations)
 

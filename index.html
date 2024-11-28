@@ -11,25 +11,17 @@
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
 
-    <script>
-        let count = 0;
-        document.addEventListener("alpine:init", () => {
-            Alpine.directive("test", (el, _, { cleanup }) => {
-                el.textContent = "Initialized";
-                cleanup(() => {
-                    el.textContent = "Cleaned up";
-                });
-                // Alpine.nextTick(() => {
-                //     el.parentNode.replaceChildren(el);
-                // })
-            });
-        });
-    </script>
-    <div x-data>
-        <div x-ref="anchor"></div>
+    <div x-data x-sort>
+        <div x-sort:item >foo</div>
+        <div >foo</div>
+        <div x-sort:item >foo</div>
+    </div>
 
-        <div x-ref="target" class="bg-red-300 w-32 h-32" x-test></div>
-
-        <button @click="$refs.anchor.before($refs.target)">Move</button>
+    <div x-data="{ val: true }"
+    >
+   <input type="text" x-model.boolean="val">
+   <input type="checkbox" x-model.boolean="val">
+   <input type="radio" name="foo" value="true" x-model.boolean="val">
+   <input type="radio" name="foo" value="false" x-model.boolean="val">
     </div>
 </html>

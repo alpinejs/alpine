@@ -27,7 +27,7 @@ test('x-ignore.self',
     }
 )
 
-test('can lazyload component',
+test('can lazyload a component',
     html`
         <div x-data="{ lazyLoad() {$el.querySelector('#lazy').removeAttribute('x-ignore'); Alpine.nextTick(() => Alpine.initTree($el.querySelector('#lazy')))} }">
             <button @click="lazyLoad">Load</button>

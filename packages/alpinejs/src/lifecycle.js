@@ -93,16 +93,16 @@ export function initTree(el, walker = walk, intercept = () => {}) {
             // If the element has a marker, it's already been initialized...
             if (el._x_marker) return
 
-            // Add a marker to the element so we can tell if it's been initialized...
-            // This is important so that we can prevent double-initialization of
-            // elements that are moved around on the page.
-            el._x_marker = markerDispenser++
-
             intercept(el, skip)
 
             initInterceptors.forEach(i => i(el, skip))
 
             directives(el, el.attributes).forEach(handle => handle())
+
+            // Add a marker to the element so we can tell if it's been initialized...
+            // This is important so that we can prevent double-initialization of
+            // elements that are moved around on the page.
+            if (!el._x_ignore) el._x_marker = markerDispenser++
 
             el._x_ignore && skip()
         })

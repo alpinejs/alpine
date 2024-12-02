@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/sort",
-    "version": "3.14.5",
+    "version": "3.14.6",
     "description": "An Alpine plugin for drag sorting items on the page",
     "homepage": "https://alpinejs.dev/plugins/sort",
     "repository": {

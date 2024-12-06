@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/anchor",
-    "version": "3.14.6",
+    "version": "3.14.7",
     "description": "Anchor an element's position relative to another",
     "homepage": "https://alpinejs.dev/plugins/anchor",
     "repository": {

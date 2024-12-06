@@ -204,3 +204,26 @@ test('$id honors x-id outside teleport',
         get('#b h1').should(haveText('foo-1'))
     },
 )
+
+test('conditionally added elements get initialised inside teleport',
+    [html`
+        <div x-data="{ show: false }" id="a">
+            <button @click="show = true">Show Teleport Content</button>
+
+            <template x-teleport="#b">
+                <div>
+                    <template x-if="show" >
+                        <p x-text="'Teleport content initialised'">Teleport content waiting</p>
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <div id="b"></div>
+    `],
+    ({ get }) => {
+        get('#b p').should('not.exist')
+        get('button').click()
+        get('#b p').should('exist').and('have.text', 'Teleport content initialised')
+    },
+)

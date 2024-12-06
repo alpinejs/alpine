@@ -85,9 +85,6 @@ export function interceptInit(callback) { initInterceptors.push(callback) }
 let markerDispenser = 1
 
 export function initTree(el, walker = walk, intercept = () => {}) {
-    // Don't init a tree within a parent that is being ignored...
-    if (findClosest(el, i => i._x_ignore)) return
-
     deferHandlingDirectives(() => {
         walker(el, (el, skip) => {
             // If the element has a marker, it's already been initialized...

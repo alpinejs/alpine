@@ -47,8 +47,8 @@ If you want to extract your extension code into an external file, you will need 
 </html>
 ```
 
-<a name="via-npm"></a>
-### Via an NPM module
+<a name="via-package-manager"></a>
+### Via a package manager module
 
 If you imported Alpine into a bundle, you have to make sure you are registering any extension code IN BETWEEN when you import the `Alpine` global object, and when you initialize Alpine by calling `Alpine.start()`. For example:
 
@@ -307,7 +307,7 @@ Alpine.magic('clipboard', () => subject => {
 <a name="writing-and-sharing-plugins"></a>
 ## Writing and sharing plugins
 
-By now you should see how friendly and simple it is to register your own custom directives and magics in your application, but what about sharing that functionality with others via an NPM package or something?
+By now you should see how friendly and simple it is to register your own custom directives and magics in your application, but what about sharing that functionality with others via a package manager or something?
 
 You can get started quickly with Alpine's official "plugin-blueprint" package. It's as simple as cloning the repository and running `npm install && npm run build` to get a plugin authored.
 
@@ -348,7 +348,7 @@ That's it! Authoring a plugin for inclusion via a script tag is extremely simple
 <a name="bundle-module"></a>
 ### Bundle module
 
-Now let's say you wanted to author a plugin that someone could install via NPM and include into their bundle.
+Now let's say you wanted to author a plugin that someone could install via a package manager and include into their bundle.
 
 Like the last example, we'll walk through this in reverse, starting with what it will look like to consume this plugin:
 

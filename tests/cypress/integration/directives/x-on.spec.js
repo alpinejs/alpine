@@ -79,6 +79,23 @@ test('.passive modifier should disable e.preventDefault()',
     }
 )
 
+test('.passive.false modifier should enable e.preventDefault()',
+    html`
+        <div
+            x-data="{ defaultPrevented: null }"
+            x-on:touchmove.passive.false="
+                $event.preventDefault();
+                defaultPrevented = $event.defaultPrevented;
+            ">
+            <br>
+        </div>
+    `,
+    ({ get }) => {
+        get('div').trigger('touchmove')
+        get('div').should(haveData('defaultPrevented', true))
+    }
+)
+
 test('.stop modifier',
     html`
         <div x-data="{ foo: 'bar' }">

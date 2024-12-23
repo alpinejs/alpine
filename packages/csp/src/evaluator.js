@@ -25,10 +25,13 @@ function generateDataStack(el) {
 }
 
 function generateEvaluator(el, expression, dataStack) {
-    return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+    return (receiver = () => { }, { scope = {}, params = [] } = {}) => {
         let completeScope = mergeProxies([scope, ...dataStack])
 
-        let evaluatedExpression = expression.split('.').reduce(
+        let isNegated = expression.trim().charAt(0) === '!'
+        let expressionToEvaluate = isNegated ? expression.trim().slice(1).trim() : expression.trim()
+
+        let evaluatedExpression = expressionToEvaluate.split('.').reduce(
             (currentScope, currentExpression) => {
                 if (currentScope[currentExpression] === undefined) {
                     throwExpressionError(el, expression)
@@ -39,19 +42,21 @@ function generateEvaluator(el, expression, dataStack) {
             completeScope,
         );
 
+        evaluatedExpression = isNegated ? !evaluatedExpression : evaluatedExpression
+
         runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params)
     }
 }
 
 function throwExpressionError(el, expression) {
     console.warn(
-`Alpine Error: Alpine is unable to interpret the following expression using the CSP-friendly build:
+        `Alpine Error: Alpine is unable to interpret the following expression using the CSP-friendly build:
 
 "${expression}"
 
 Read more about the Alpine's CSP-friendly build restrictions here: https://alpinejs.dev/advanced/csp
 
 `,
-el
+        el
     )
 }

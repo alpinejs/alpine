@@ -164,10 +164,12 @@ function handleItem(el, Alpine) {
             },
             'x-id'() { return ['alpine-menu-item'] },
             ':id'() { return this.$id('alpine-menu-item') },
-            ':tabindex'() { return this.__itemEl.__isDisabled.value ? false : '-1' },
+            ':tabindex'() { return this.__itemEl.__isDisabled.value ? '-1' : false },
             'role': 'menuitem',
             '@mousemove'() { this.__itemEl.__isDisabled.value || this.$menuItem.isActive || this.__itemEl.__activate() },
             '@mouseleave'() { this.__itemEl.__isDisabled.value || ! this.$menuItem.isActive || this.__itemEl.__deactivate() },
+            '@focusin'() { this.__itemEl.__isDisabled.value || this.$menuItem.isActive || this.__itemEl.__activate() },
+            '@focusout'() { this.__itemEl.__isDisabled.value || ! this.$menuItem.isActive || this.__itemEl.__deactivate() }
         }
     })
 }

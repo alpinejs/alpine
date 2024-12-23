@@ -20,10 +20,10 @@ export default function (Alpine) {
                             evaluator(value => {
                                 result = typeof value === 'function' ? value(input) : value
                             }, { scope: {
-                                // These are "magics" we'll make available to the x-mask:function:
-                                '$input': input,
-                                '$money': formatMoney.bind({ el }),
-                            }})
+                                    // These are "magics" we'll make available to the x-mask:function:
+                                    '$input': input,
+                                    '$money': formatMoney.bind({ el }),
+                                }})
                         })
 
                         return result
@@ -83,7 +83,7 @@ export default function (Alpine) {
             }
 
             let setInput = () => {
-                lastInputValue = el.value = formatInput(input, template)
+                lastInputValue = el.value = formatInput(template,input)
             }
 
             if (shouldRestoreCursor) {
@@ -97,16 +97,6 @@ export default function (Alpine) {
                 setInput()
             }
         }
-
-        function formatInput(input, template) {
-            // Let empty inputs be empty inputs.
-            if (input === '') return ''
-
-            let strippedDownInput = stripDown(template, input)
-            let rebuiltInput = buildUp(template, strippedDownInput)
-
-            return rebuiltInput
-        }
     }).before('model')
 }
 
@@ -118,74 +108,46 @@ export function restoreCursorPosition(el, template, callback) {
 
     let beforeLeftOfCursorBeforeFormatting = unformattedValue.slice(0, cursorPosition)
 
-    let newPosition = buildUp(
-        template, stripDown(
+    let newPosition = formatInput(
             template, beforeLeftOfCursorBeforeFormatting
-        )
     ).length
 
     el.setSelectionRange(newPosition, newPosition)
 }
 
-export function stripDown(template, input) {
-    let inputToBeStripped = input
-    let output = ''
-    let regexes = {
-        '9': /[0-9]/,
-        'a': /[a-zA-Z]/,
-        '*': /[a-zA-Z0-9]/,
-    }
-
-    let wildcardTemplate = ''
-
-    // Strip away non wildcard template characters.
-    for (let i = 0; i < template.length; i++) {
-        if (['9', 'a', '*'].includes(template[i])) {
-            wildcardTemplate += template[i]
-            continue;
-        }
-
-        for (let j = 0; j < inputToBeStripped.length; j++) {
-            if (inputToBeStripped[j] === template[i]) {
-                inputToBeStripped = inputToBeStripped.slice(0, j) + inputToBeStripped.slice(j+1)
-
-                break;
-            }
-        }
-    }
-
-    for (let i = 0; i < wildcardTemplate.length; i++) {
-        let found = false
-
-        for (let j = 0; j < inputToBeStripped.length; j++) {
-            if (regexes[wildcardTemplate[i]].test(inputToBeStripped[j])) {
-                output += inputToBeStripped[j]
-                inputToBeStripped = inputToBeStripped.slice(0, j) + inputToBeStripped.slice(j+1)
-
-                found = true
-                break;
-            }
-        }
-
-        if (! found) break;
-    }
-
-    return output
+let regexes = {
+    '9': /[0-9]/,
+    'a': /[a-zA-Z]/,
+    '*': /[a-zA-Z0-9]/,
 }
 
-export function buildUp(template, input) {
-    let clean = Array.from(input)
+export function formatInput(template, input) {
+    let templateMark = 0
+    let inputMark = 0
     let output = ''
 
-    for (let i = 0; i < template.length; i++) {
-        if (! ['9', 'a', '*'].includes(template[i])) {
-            output += template[i]
-            continue;
+    // Walk the template and input chars simultaneously one by one...
+    while (templateMark < template.length && inputMark < input.length) {
+        let templateChar = template[templateMark]
+        let inputChar = input[inputMark]
+
+        // We've encountered a template placeholder...
+        if (templateChar in regexes) {
+            // If the input is "allowed" based on the placeholder...
+            if (regexes[templateChar].test(inputChar)) {
+                output += inputChar
+
+                templateMark++
+            }
+
+            inputMark++
+        } else { // We've encountered a template literal...
+            output += templateChar
+
+            templateMark++
+
+            if (templateChar === input[inputMark]) inputMark++
         }
-
-        if (clean.length === 0) break;
-
-        output += clean.shift()
     }
 
     return output
@@ -220,7 +182,7 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
 
     let minus = input.startsWith('-') ? '-' : ''
     let strippedInput = input.replaceAll(new RegExp(`[^0-9\\${delimiter}]`, 'g'), '')
-    let template = Array.from({ length: strippedInput.split(delimiter)[0].length }).fill('9').join('')
+    let template = Array.from({length: strippedInput.split(delimiter)[0].length}).fill('9').join('')
 
     template = `${minus}${addThousands(template, thousands)}`
 

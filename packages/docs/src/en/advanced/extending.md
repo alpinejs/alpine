@@ -69,7 +69,7 @@ Now that we know where to use these extension APIs, let's look more closely at h
 Alpine allows you to register your own custom directives using the `Alpine.directive()` API.
 
 <a name="method-signature"></a>
-### Method Signature
+### Directive Method Signature
 
 ```js
 Alpine.directive('[name]', (el, { value, modifiers, expression }, { Alpine, effect, cleanup }) => {})
@@ -248,7 +248,7 @@ Alpine.directive('foo', (el, { value, modifiers, expression }) => {
 Alpine allows you to register custom "magics" (properties or methods) using `Alpine.magic()`. Any magic you register will be available to all your application's Alpine code with the `$` prefix.
 
 <a name="method-signature"></a>
-### Method Signature
+### Magic Method Signature
 
 ```js
 Alpine.magic('[name]', (el, { Alpine }) => {})

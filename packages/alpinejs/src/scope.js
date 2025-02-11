@@ -37,6 +37,13 @@ export function mergeProxies (objects) {
     return new Proxy({ objects }, mergeProxyTrap);
 }
 
+function keyInPrototypeChain(obj, key) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) return true
+
+    const proto = Object.getPrototypeOf(obj)
+    return  proto && keyInPrototypeChain(proto, key)
+}
+
 let mergeProxyTrap = {
     ownKeys({ objects }) {
         return Array.from(
@@ -68,7 +75,7 @@ let mergeProxyTrap = {
     set({ objects }, name, value, thisProxy) {
         const target =
             objects.find((obj) =>
-                Object.prototype.hasOwnProperty.call(obj, name)
+                keyInPrototypeChain(obj, name)
             ) || objects[objects.length - 1];
         const descriptor = Object.getOwnPropertyDescriptor(target, name);
         if (descriptor?.set && descriptor?.get)

@@ -157,3 +157,41 @@ test(
         get("span#two").should(haveText("foobar"));
     }
 );
+
+test(
+    "allows class setters invocation on nested data",
+    [
+        html`
+            <script>
+                class BaseHandler {
+                    _propValue = "bar";
+                    
+                    get value() {
+                        return this._propValue;
+                    }
+
+                    set value(v) {
+                        this._propValue = v;
+                    }
+                }
+                document.addEventListener("alpine:init", () =>
+                    Alpine.data("handler", () => new BaseHandler())
+                );
+            </script>
+            <div x-data>
+                <div x-data="handler">
+                    <button
+                        type="button"
+                        @click="value = 'foo'"
+                        x-text="value"
+                    ></button>
+                </div>
+            </div>
+        `,
+    ],
+    ({ get }) => {
+        get("button").should(haveText("bar"));
+        get("button").click();
+        get("button").should(haveText("foo"));
+    }
+);

@@ -195,3 +195,39 @@ test(
         get("button").should(haveText("foo"));
     }
 );
+
+test(
+    "allows class setters to reference other objects from the data stack",
+    [
+        html`
+            <script>
+                class BaseHandler {
+                    get value() {
+                        return this.foo.bar;
+                    }
+
+                    set value(v) {
+                        this.foo.bar = v;
+                    }
+                }
+                document.addEventListener("alpine:init", () =>
+                    Alpine.data("handler", () => new BaseHandler())
+                );
+            </script>
+            <div x-data="{ foo:  { bar: 'fizzbuzz' } }">
+                <div x-data="handler">
+                    <button
+                        type="button"
+                        @click="value = 'foo'"
+                        x-text="value"
+                    ></button>
+                </div>
+            </div>
+        `,
+    ],
+    ({ get }) => {
+        get("button").should(haveText("fizzbuzz"));
+        get("button").click();
+        get("button").should(haveText("foo"));
+    }
+);

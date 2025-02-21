@@ -28,7 +28,7 @@ export function evaluateLater(...args) {
     return theEvaluatorFunction(...args)
 }
 
-let theEvaluatorFunction = normalEvaluator
+let theEvaluatorFunction = () => {}
 
 export function setEvaluator(newEvaluator) {
     theEvaluatorFunction = newEvaluator
@@ -82,11 +82,11 @@ function generateFunctionFromString(expression, el) {
                 ["__self", "scope"],
                 `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`
             )
-            
+
             Object.defineProperty(func, "name", {
                 value: `[Alpine] ${expression}`,
             })
-            
+
             return func
         } catch ( error ) {
             handleError( error, el, expression )

@@ -13,5 +13,7 @@
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
-    "dependencies": {}
+    "dependencies": {
+        "@floating-ui/dom": "^1.5.3"
+    }
 }

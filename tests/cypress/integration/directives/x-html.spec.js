@@ -49,3 +49,25 @@ test('x-html runs even after x-if or x-for',
         get('span').should(haveText('bar'))
     }
 )
+
+test('x-html sets HTML to a blank string when value is `null`',
+    html`
+        <div x-data="{ html: null }">
+            <span x-html="html">original HTML</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText(''))
+    }
+)
+
+test('x-html sets HTML to a blank string when value is `undefined`',
+    html`
+        <div x-data="{ html: undefined }">
+            <span x-html="html">original HTML</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText(''))
+    }
+)

@@ -11,5 +11,8 @@
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",
-    "module": "dist/module.esm.js"
+    "module": "dist/module.esm.js",
+    "dependencies": {
+        "sortablejs": "^1.15.2"
+    }
 }

@@ -10,8 +10,8 @@ title: bind
 For example, here's a component where we will use `x-bind` to set the placeholder value of an input.
 
 ```alpine
-<div x-data="{ placeholder: 'Type here...' }">
-    <input type="text" x-bind:placeholder="placeholder">
+<div x-data="{ placeholder_text: 'Type here...' }">
+    <input type="text" x-bind:placeholder="placeholder_text">
 </div>
 ```
 
@@ -21,7 +21,7 @@ For example, here's a component where we will use `x-bind` to set the placeholde
 If `x-bind:` is too verbose for your liking, you can use the shorthand: `:`. For example, here is the same input element as above, but refactored to use the shorthand syntax.
 
 ```alpine
-<input type="text" :placeholder="placeholder">
+<input type="text" :placeholder="placeholder_text">
 ```
 
 > Despite not being included in the above snippet, `x-bind` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)

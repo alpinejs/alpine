@@ -8,7 +8,7 @@ test.csp('Can use components and basic expressions with CSP-compatible build',
             <button @click="change">Change Foo</button>
         </div>
     `,
-    `
+        `
         Alpine.data('test', () => ({
             foo: 'bar',
             change() { this.foo = 'baz' },
@@ -29,7 +29,7 @@ test.csp('Supports nested properties',
             <button @click="foo.change">Change Foo</button>
         </div>
     `,
-    `
+        `
         Alpine.data('test', () => ({
             foo: {
                 bar: 'baz',
@@ -41,5 +41,26 @@ test.csp('Supports nested properties',
         get('span').should(haveText('baz'))
         get('button').click()
         get('span').should(haveText('qux'))
+    }
+)
+
+test.csp('Supports simple negation',
+    [html`
+        <div x-data="test">
+            <span x-text=" ! foo"></span>
+
+            <button @click="toggle">Toggle Foo</button>
+        </div>
+    `,
+        `
+        Alpine.data('test', () => ({
+            foo: false,
+            toggle() { this.foo = !this.foo },
+        }))
+    `],
+    ({ get }) => {
+        get('span').should(haveText('true'))
+        get('button').click()
+        get('span').should(haveText('false'))
     }
 )

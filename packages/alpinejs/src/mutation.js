@@ -118,7 +118,7 @@ function onMutate(mutations) {
         return
     }
 
-    let addedNodes = new Set
+    let addedNodes = []
     let removedNodes = new Set
     let addedAttributes = new Map
     let removedAttributes = new Map
@@ -127,8 +127,30 @@ function onMutate(mutations) {
         if (mutations[i].target._x_ignoreMutationObserver) continue
 
         if (mutations[i].type === 'childList') {
-            mutations[i].addedNodes.forEach(node => node.nodeType === 1 && addedNodes.add(node))
-            mutations[i].removedNodes.forEach(node => node.nodeType === 1 && removedNodes.add(node))
+            mutations[i].removedNodes.forEach(node => {
+                if (node.nodeType !== 1) return
+
+                // No need to process removed nodes that haven't been initialized by Alpine...
+                if (! node._x_marker) return
+
+                removedNodes.add(node)
+            })
+
+            mutations[i].addedNodes.forEach(node => {
+                if (node.nodeType !== 1) return
+
+                // If the node is a removal as well, that means it's a "move" operation and we'll leave it alone...
+                if (removedNodes.has(node)) {
+                    removedNodes.delete(node)
+
+                    return
+                }
+
+                // If the node has already been initialized, we'll leave it alone...
+                if (node._x_marker) return;
+
+                addedNodes.push(node)
+            })
         }
 
         if (mutations[i].type === 'attributes') {
@@ -170,42 +192,26 @@ function onMutate(mutations) {
         onAttributeAddeds.forEach(i => i(el, attrs))
     })
 
+    // There are two special scenarios we need to account for when using the mutation
+    // observer to init and destroy elements. First, when a node is "moved" on the page,
+    // it's registered as both an "add" and a "remove", so we want to skip those.
+    // (This is handled above by the ._x_marker conditionals...)
+    // Second, when a node is "wrapped", it gets registered as a "removal" and the wrapper
+    // as an "addition". We don't want to remove, then re-initialize the node, so we look
+    // and see if it's inside any added nodes (wrappers) and skip it.
+    // (This is handled below by the .contains conditional...)
+
     for (let node of removedNodes) {
-        // If an element gets moved on a page, it's registered
-        // as both an "add" and "remove", so we want to skip those.
-        if (addedNodes.has(node)) continue
+        if (addedNodes.some(i => i.contains(node))) continue
 
         onElRemoveds.forEach(i => i(node))
     }
 
-    // Mutations are bundled together by the browser but sometimes
-    // for complex cases, there may be javascript code adding a wrapper
-    // and then an alpine component as a child of that wrapper in the same
-    // function and the mutation observer will receive 2 different mutations.
-    // when it comes time to run them, the dom contains both changes so the child
-    // element would be processed twice as Alpine calls initTree on
-    // both mutations. We mark all nodes as _x_ignored and only remove the flag
-    // when processing the node to avoid those duplicates.
-    addedNodes.forEach((node) => {
-        node._x_ignoreSelf = true
-        node._x_ignore = true
-    })
     for (let node of addedNodes) {
-        // If the node was eventually removed as part of one of his
-        // parent mutations, skip it
-        if (removedNodes.has(node)) continue
         if (! node.isConnected) continue
 
-        delete node._x_ignoreSelf
-        delete node._x_ignore
         onElAddeds.forEach(i => i(node))
-        node._x_ignore = true
-        node._x_ignoreSelf = true
     }
-    addedNodes.forEach((node) => {
-        delete node._x_ignoreSelf
-        delete node._x_ignore
-    })
 
     addedNodes = null
     removedNodes = null

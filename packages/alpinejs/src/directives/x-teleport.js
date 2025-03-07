@@ -51,8 +51,6 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
 
         skipDuringClone(() => {
             initTree(clone)
-
-            clone._x_ignore = true
         })()
     })
 

@@ -34,8 +34,9 @@ export function morph(from, toHtml, options) {
         }
 
         let updateChildrenOnly = false
+        let skipChildren = false
 
-        if (shouldSkip(updating, from, to, () => updateChildrenOnly = true)) return
+        if (shouldSkip(updating, from, to, () => updateChildrenOnly = true, () => skipChildren = true)) return
 
         // Initialize the server-side HTML element with Alpine...
         if (from.nodeType === 1 && window.Alpine) {
@@ -60,7 +61,9 @@ export function morph(from, toHtml, options) {
 
         updated(from, to)
 
-        patchChildren(from, to)
+        if (! skipChildren) {
+            patchChildren(from, to)
+        }
     }
 
     function differentElementNamesTypesOrKeys(from, to) {

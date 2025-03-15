@@ -2,20 +2,6 @@ import { closestDataStack, mergeProxies } from './scope'
 import { injectMagics } from './magics'
 import { tryCatch, handleError } from './utils/error'
 
-let shouldAutoEvaluateFunctions = true
-
-export function dontAutoEvaluateFunctions(callback) {
-    let cache = shouldAutoEvaluateFunctions
-
-    shouldAutoEvaluateFunctions = false
-
-    let result = callback()
-
-    shouldAutoEvaluateFunctions = cache
-
-    return result
-}
-
 export function evaluate(el, expression, extras = {}) {
     let result
 
@@ -49,10 +35,10 @@ export function normalEvaluator(el, expression) {
 }
 
 export function generateEvaluatorFromFunction(dataStack, func) {
-    return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+    return (receiver = () => {}, { scope = {}, params = [], autoEvaluateFunctions = true } = {}) => {
         let result = func.apply(mergeProxies([scope, ...dataStack]), params)
 
-        runIfTypeOfFunction(receiver, result)
+        handleEvalResult(autoEvaluateFunctions, receiver, result)
     }
 }
 
@@ -103,7 +89,7 @@ function generateFunctionFromString(expression, el) {
 function generateEvaluatorFromString(dataStack, expression, el) {
     let func = generateFunctionFromString(expression, el)
 
-    return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+    return (receiver = () => {}, { scope = {}, params = [], autoEvaluateFunctions = true } = {}) => {
         func.result = undefined
         func.finished = false
 
@@ -117,7 +103,7 @@ function generateEvaluatorFromString(dataStack, expression, el) {
             // Check if the function ran synchronously,
             if (func.finished) {
                 // Return the immediate result.
-                runIfTypeOfFunction(receiver, func.result, completeScope, params, el)
+                handleEvalResult(autoEvaluateFunctions, receiver, func.result, completeScope, params, el)
                 // Once the function has run, we clear func.result so we don't create
                 // memory leaks. func is stored in the evaluatorMemo and every time
                 // it runs, it assigns the evaluated expression to result which could
@@ -126,7 +112,7 @@ function generateEvaluatorFromString(dataStack, expression, el) {
             } else {
                 // If not, return the result when the promise resolves.
                 promise.then(result => {
-                    runIfTypeOfFunction(receiver, result, completeScope, params, el)
+                    handleEvalResult(autoEvaluateFunctions, receiver, result, completeScope, params, el)
                 }).catch( error => handleError( error, el, expression ) )
                 .finally( () => func.result = undefined )
             }
@@ -134,18 +120,14 @@ function generateEvaluatorFromString(dataStack, expression, el) {
     }
 }
 
-export function runIfTypeOfFunction(receiver, value, scope, params, el) {
-    if (shouldAutoEvaluateFunctions && typeof value === 'function') {
-        let result = value.apply(scope, params)
+export function handleEvalResult(autoEvaluateFunctions, receiver, value, scope, params, el) {
+    const shouldCallFunc = autoEvaluateFunctions && typeof value === 'function'
 
-        if (result instanceof Promise) {
-            result.then(i => runIfTypeOfFunction(receiver, i, scope, params)).catch( error => handleError( error, el, value ) )
-        } else {
-            receiver(result)
-        }
-    } else if (typeof value === 'object' && value instanceof Promise) {
-        value.then(i => receiver(i))
+    const result = shouldCallFunc ? value.apply(scope, params) : value
+
+    if (result instanceof Promise) {
+        result.then(i => receiver(i)).catch( error => handleError( error, el, value ) )
     } else {
-        receiver(value)
+        receiver(result)
     }
 }

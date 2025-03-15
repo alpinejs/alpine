@@ -1,4 +1,4 @@
-import { generateEvaluatorFromFunction, runIfTypeOfFunction } from 'alpinejs/src/evaluator'
+import { generateEvaluatorFromFunction, handleEvalResult } from 'alpinejs/src/evaluator'
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { tryCatch } from 'alpinejs/src/utils/error'
 import { injectMagics } from 'alpinejs/src/magics'
@@ -25,7 +25,7 @@ function generateDataStack(el) {
 }
 
 function generateEvaluator(el, expression, dataStack) {
-    return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+    return (receiver = () => {}, { scope = {}, params = [], autoEvaluateFunctions = true } = {}) => {
         let completeScope = mergeProxies([scope, ...dataStack])
 
         let evaluatedExpression = expression.split('.').reduce(
@@ -39,7 +39,7 @@ function generateEvaluator(el, expression, dataStack) {
             completeScope,
         );
 
-        runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params)
+        handleEvalResult(autoEvaluateFunctions, receiver, evaluatedExpression, completeScope, params)
     }
 }
 

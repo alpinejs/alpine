@@ -106,8 +106,8 @@ function handleRoot(el, Alpine) {
                 __focusOptionNext() {
                     let option = this.__active
                     let all = this.__optionValues.filter(i => !this.__disabledOptions.has(i))
-                    let next = all[this.__optionValues.indexOf(option) + 1]
-                    next = next || all[0]
+                    let index = all.indexOf(option)
+                    let next = all[(index + 1 + all.length) % all.length]
 
                     this.__optionElsByValue.get(next).focus()
                     this.__change(next)
@@ -115,8 +115,8 @@ function handleRoot(el, Alpine) {
                 __focusOptionPrev() {
                     let option = this.__active
                     let all = this.__optionValues.filter(i => !this.__disabledOptions.has(i))
-                    let prev = all[all.indexOf(option) - 1]
-                    prev = prev || all.slice(-1)[0]
+                    let index = all.indexOf(option)
+                    let prev = all[(index - 1 + all.length) % all.length]
 
                     this.__optionElsByValue.get(prev).focus()
                     this.__change(prev)

@@ -117,7 +117,7 @@ export default function (Alpine) {
             }
 
             if (modifiers.includes('preventscroll')) {
-                options.preventScroll = false
+                options.preventScroll = true
             }
 
             let trap = createFocusTrap(el, options)

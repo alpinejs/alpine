@@ -110,8 +110,7 @@ export default function (Alpine) {
 
             if (modifiers.includes('noautofocus')) {
                 options.initialFocus = false
-            }
-            else {
+            } else {
                 let autofocusEl = el.querySelector('[autofocus]')
 
                 if (autofocusEl) options.initialFocus = autofocusEl

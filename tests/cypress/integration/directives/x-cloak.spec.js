@@ -1,4 +1,4 @@
-import { html, notHaveAttribute, test } from '../../utils'
+import { html, notHaveAttribute, test } from '../../utils.js'
 
 test('x-cloak is removed',
     html`

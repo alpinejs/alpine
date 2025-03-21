@@ -1,4 +1,4 @@
-import { haveText, notHaveText, html, test } from '../../utils'
+import { haveText, notHaveText, html, test } from '../../utils.js'
 
 test('sets html on init',
     html`

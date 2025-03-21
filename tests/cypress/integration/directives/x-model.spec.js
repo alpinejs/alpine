@@ -1,4 +1,4 @@
-import { beChecked, haveData, haveText, haveValue, html, notBeChecked, test } from '../../utils'
+import { beChecked, haveData, haveText, haveValue, html, notBeChecked, test } from '../../utils.js'
 
 test('The name of the test',
     html`<h1 x-data x-text="'HEY'"></h1>`,

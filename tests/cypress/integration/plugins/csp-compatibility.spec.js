@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../../utils'
+import { haveText, html, test } from '../../utils.js'
 
 test.csp('Can use components and basic expressions with CSP-compatible build',
     [html`

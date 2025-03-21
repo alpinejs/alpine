@@ -1,4 +1,4 @@
-import { haveAttribute, haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
+import { haveAttribute, haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils.js'
 
 test('can morph components and preserve Alpine state',
     [html`

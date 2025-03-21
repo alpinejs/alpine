@@ -1,4 +1,4 @@
-import { beHidden, beVisible, haveClasses, haveComputedStyle, html, notBeVisible, notHaveClasses, notHaveComputedStyle, test } from '../../utils'
+import { beHidden, beVisible, haveClasses, haveComputedStyle, html, notBeVisible, notHaveClasses, notHaveComputedStyle, test } from '../../utils.js'
 
 test('transition in',
     html`

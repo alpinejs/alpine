@@ -1,5 +1,5 @@
-import { debounce } from './debounce'
-import { throttle } from './throttle'
+import { debounce } from './debounce.js'
+import { throttle } from './throttle.js'
 
 export default function on (el, event, modifiers, callback) {
     let listenerTarget = el

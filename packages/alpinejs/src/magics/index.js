@@ -1,15 +1,15 @@
-import { warn } from '../utils/warn'
-import { magic } from '../magics'
+import { warn } from '../utils/warn.js'
+import { magic } from '../magics.js'
 
-import './$nextTick'
-import './$dispatch'
-import './$watch'
-import './$store'
-import './$data'
-import './$root'
-import './$refs'
-import './$id'
-import './$el'
+import './$nextTick.js'
+import './$dispatch.js'
+import './$watch.js'
+import './$store.js'
+import './$data.js'
+import './$root.js'
+import './$refs.js'
+import './$id.js'
+import './$el.js'
 
 // Register warnings for people using plugin syntaxes and not loading the plugin itself:
 warnMissingPluginMagic('Focus', 'focus', 'focus')

@@ -1,5 +1,5 @@
 
-import { scheduler } from './scheduler'
+import { scheduler } from './scheduler.js'
 
 let reactive, effect, release, raw
 

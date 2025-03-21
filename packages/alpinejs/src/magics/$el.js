@@ -1,3 +1,3 @@
-import { magic } from "../magics";
+import { magic } from "../magics.js";
 
 magic('el', el => el)

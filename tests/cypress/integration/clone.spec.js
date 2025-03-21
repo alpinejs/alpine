@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../utils'
+import { haveText, html, test } from '../utils.js'
 
 test('can clone a component',
     html`

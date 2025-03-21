@@ -1,6 +1,6 @@
-import { magic } from '../magics'
-import { closestIdRoot, findAndIncrementId } from '../ids'
-import { interceptClone } from '../clone'
+import { magic } from '../magics.js'
+import { closestIdRoot, findAndIncrementId } from '../ids.js'
+import { interceptClone } from '../clone.js'
 
 magic('id', (el, { cleanup }) => (name, key = null) => {
     let cacheKey = `${name}${key ? `-${key}` : ''}`

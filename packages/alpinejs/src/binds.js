@@ -1,4 +1,4 @@
-import { attributesOnly, directives } from "./directives"
+import { attributesOnly, directives } from "./directives.js"
 
 let binds = {}
 

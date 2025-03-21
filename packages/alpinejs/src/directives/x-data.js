@@ -1,12 +1,12 @@
-import { directive, prefix } from '../directives'
-import { initInterceptors } from '../interceptor'
-import { injectDataProviders } from '../datas'
-import { addRootSelector } from '../lifecycle'
-import { interceptClone, isCloning, isCloningLegacy } from '../clone'
-import { addScopeToNode } from '../scope'
-import { injectMagics, magic } from '../magics'
-import { reactive } from '../reactivity'
-import { evaluate } from '../evaluator'
+import { directive, prefix } from '../directives.js'
+import { initInterceptors } from '../interceptor.js'
+import { injectDataProviders } from '../datas.js'
+import { addRootSelector } from '../lifecycle.js'
+import { interceptClone, isCloning, isCloningLegacy } from '../clone.js'
+import { addScopeToNode } from '../scope.js'
+import { injectMagics, magic } from '../magics.js'
+import { reactive } from '../reactivity.js'
+import { evaluate } from '../evaluator.js'
 
 addRootSelector(() => `[${prefix('data')}]`)
 

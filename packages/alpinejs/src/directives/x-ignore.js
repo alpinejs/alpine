@@ -1,4 +1,4 @@
-import { directive } from "../directives"
+import { directive } from "../directives.js"
 
 let handler = () => {}
 

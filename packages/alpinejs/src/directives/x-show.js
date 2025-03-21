@@ -1,7 +1,7 @@
-import { evaluateLater } from '../evaluator'
-import { directive } from '../directives'
-import { mutateDom } from '../mutation'
-import { once } from '../utils/once'
+import { evaluateLater } from '../evaluator.js'
+import { directive } from '../directives.js'
+import { mutateDom } from '../mutation.js'
+import { once } from '../utils/once.js'
 
 directive('show', (el, { modifiers, expression }, { effect }) => {
     let evaluate = evaluateLater(el, expression)

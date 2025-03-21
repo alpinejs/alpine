@@ -1,5 +1,5 @@
-import { initInterceptors } from "./interceptor";
-import { reactive } from "./reactivity"
+import { initInterceptors } from "./interceptor.js";
+import { reactive } from "./reactivity.js"
 
 let stores = {}
 let isReactive = false

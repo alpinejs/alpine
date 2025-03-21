@@ -1,4 +1,4 @@
-import { haveValue, html, test } from '../utils'
+import { haveValue, html, test } from '../utils.js'
 
 test.skip('can entangle to getter/setter pairs',
     [html`

@@ -1,7 +1,7 @@
-import { dontAutoEvaluateFunctions, evaluate } from '../evaluator'
-import { reactive } from '../reactivity'
-import { setClasses } from './classes'
-import { setStyles } from './styles'
+import { dontAutoEvaluateFunctions, evaluate } from '../evaluator.js'
+import { reactive } from '../reactivity.js'
+import { setClasses } from './classes.js'
+import { setStyles } from './styles.js'
 
 export default function bind(el, name, value, modifiers = []) {
     // Register bound data as pure observable data for other APIs to use.

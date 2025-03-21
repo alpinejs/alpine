@@ -1,8 +1,8 @@
-import { directive, into, mapAttributes, prefix, startingWith } from '../directives'
-import { evaluateLater } from '../evaluator'
-import { mutateDom } from '../mutation'
-import bind from '../utils/bind'
-import { applyBindingsObject, injectBindingProviders } from '../binds'
+import { directive, into, mapAttributes, prefix, startingWith } from '../directives.js'
+import { evaluateLater } from '../evaluator.js'
+import { mutateDom } from '../mutation.js'
+import bind from '../utils/bind.js'
+import { applyBindingsObject, injectBindingProviders } from '../binds.js'
 
 mapAttributes(startingWith(':', into(prefix('bind:'))))
 

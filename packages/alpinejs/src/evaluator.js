@@ -1,6 +1,6 @@
-import { closestDataStack, mergeProxies } from './scope'
-import { injectMagics } from './magics'
-import { tryCatch, handleError } from './utils/error'
+import { closestDataStack, mergeProxies } from './scope.js'
+import { injectMagics } from './magics.js'
+import { tryCatch, handleError } from './utils/error.js'
 
 let shouldAutoEvaluateFunctions = true
 

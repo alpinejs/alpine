@@ -1,4 +1,4 @@
-import { beVisible, haveClasses, haveAttribute, html, notBeVisible, notHaveClasses, test } from '../../../utils'
+import { beVisible, haveClasses, haveAttribute, html, notBeVisible, notHaveClasses, test } from '../../../utils.js'
 
 test('has accessibility attributes',
     [html`

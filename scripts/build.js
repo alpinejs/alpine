@@ -1,4 +1,4 @@
-let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils');
+let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils.js');
 let fs = require('fs');
 let zlib = require('zlib');
 

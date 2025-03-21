@@ -1,4 +1,4 @@
-import { beVisible, haveClasses, haveFocus, html, notBeVisible, notHaveClasses, test } from '../../../utils'
+import { beVisible, haveClasses, haveFocus, html, notBeVisible, notHaveClasses, test } from '../../../utils.js'
 
 test('can use tabs to toggle panels',
     [html`

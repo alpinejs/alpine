@@ -1,4 +1,4 @@
-import { haveText, test, html, haveFocus, notHaveAttribute, haveAttribute, notHaveFocus, notHaveText } from '../../utils'
+import { haveText, test, html, haveFocus, notHaveAttribute, haveAttribute, notHaveFocus, notHaveText } from '../../utils.js'
 
 test('can trap focus',
     [html`

@@ -1,4 +1,4 @@
-import Alpine from "./alpine";
+import Alpine from "./alpine.js";
 
 export function plugin(callback) {
     let callbacks = Array.isArray(callback) ? callback : [callback]

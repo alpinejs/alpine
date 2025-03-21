@@ -1,4 +1,4 @@
-import { haveClasses, haveText, html, notHaveClasses, notHaveText, test } from '../../utils'
+import { haveClasses, haveText, html, notHaveClasses, notHaveText, test } from '../../utils.js'
 
 test('x-ignore',
     html`

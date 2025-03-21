@@ -1,5 +1,5 @@
-import { directive } from '../directives'
-import { mutateDom } from '../mutation'
+import { directive } from '../directives.js'
+import { mutateDom } from '../mutation.js'
 
 directive('text', (el, { expression }, { effect, evaluateLater }) => {
     let evaluate = evaluateLater(expression)

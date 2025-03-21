@@ -1,8 +1,8 @@
-import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes, cleanupElement } from "./mutation"
-import { deferHandlingDirectives, directiveExists, directives } from "./directives"
-import { dispatch } from './utils/dispatch'
-import { walk } from "./utils/walk"
-import { warn } from './utils/warn'
+import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes, cleanupElement } from "./mutation.js"
+import { deferHandlingDirectives, directiveExists, directives } from "./directives.js"
+import { dispatch } from './utils/dispatch.js'
+import { walk } from "./utils/walk.js"
+import { warn } from './utils/warn.js'
 
 let started = false
 

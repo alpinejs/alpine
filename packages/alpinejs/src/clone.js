@@ -1,6 +1,6 @@
-import { effect, release, overrideEffect } from "./reactivity"
-import { initTree, isRoot } from "./lifecycle"
-import { walk } from "./utils/walk"
+import { effect, release, overrideEffect } from "./reactivity.js"
+import { initTree, isRoot } from "./lifecycle.js"
+import { walk } from "./utils/walk.js"
 
 export let isCloning = false
 

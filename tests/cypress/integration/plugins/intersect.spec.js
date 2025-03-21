@@ -1,4 +1,4 @@
-import { haveText, test, html } from '../../utils'
+import { haveText, test, html } from '../../utils.js'
 
 test('can intersect',
     [html`

@@ -1,6 +1,6 @@
-import { directive } from '../directives'
-import { initTree } from '../lifecycle'
-import { mutateDom } from '../mutation'
+import { directive } from '../directives.js'
+import { initTree } from '../lifecycle.js'
+import { mutateDom } from '../mutation.js'
 
 directive('html', (el, { expression }, { effect, evaluateLater }) => {
     let evaluate = evaluateLater(expression)

@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../../utils'
+import { haveText, html, test } from '../../utils.js'
 
 /**
  * Skipping all these tests because they are flaky in CI.

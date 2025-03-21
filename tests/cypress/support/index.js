@@ -14,10 +14,10 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
+import './commands.js'
 
 // Import drag and drop helpers (https://github.com/4teamwork/cypress-drag-drop/blob/master/index.js)
-import './drag'
+import './drag.js'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

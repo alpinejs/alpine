@@ -1,4 +1,4 @@
-import { nextTick } from '../nextTick'
-import { magic } from '../magics'
+import { nextTick } from '../nextTick.js'
+import { magic } from '../magics.js'
 
 magic('nextTick', () => nextTick)

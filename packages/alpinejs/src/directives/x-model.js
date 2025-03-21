@@ -1,10 +1,10 @@
-import bind, { isCheckbox, isRadio, safeParseBoolean } from '../utils/bind'
-import { evaluateLater } from '../evaluator'
-import { directive } from '../directives'
-import { mutateDom } from '../mutation'
-import { nextTick } from '../nextTick'
-import { isCloning } from '../clone'
-import on from '../utils/on'
+import bind, { isCheckbox, isRadio, safeParseBoolean } from '../utils/bind.js'
+import { evaluateLater } from '../evaluator.js'
+import { directive } from '../directives.js'
+import { mutateDom } from '../mutation.js'
+import { nextTick } from '../nextTick.js'
+import { isCloning } from '../clone.js'
+import on from '../utils/on.js'
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el

@@ -1,4 +1,4 @@
-import { haveAttribute, haveComputedStyle, html, notHaveAttribute, test } from '../../utils'
+import { haveAttribute, haveComputedStyle, html, notHaveAttribute, test } from '../../utils.js'
 
 test('can collapse and expand element',
     [html`

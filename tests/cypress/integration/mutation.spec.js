@@ -1,4 +1,4 @@
-import { beVisible, haveText, html, test } from '../utils'
+import { beVisible, haveText, html, test } from '../utils.js'
 
 test('element side effects are cleaned up after the elements are removed',
     html`

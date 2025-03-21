@@ -1,6 +1,6 @@
-import { interceptClone } from "../clone"
-import { directive } from "../directives"
-import { setIdRoot } from '../ids'
+import { interceptClone } from "../clone.js"
+import { directive } from "../directives.js"
+import { setIdRoot } from '../ids.js'
 
 directive('id', (el, { expression }, { evaluate }) => {
     let names = evaluate(expression)

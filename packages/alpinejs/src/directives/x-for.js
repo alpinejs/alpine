@@ -1,11 +1,11 @@
-import { addScopeToNode } from '../scope'
-import { evaluateLater } from '../evaluator'
-import { directive } from '../directives'
-import { reactive } from '../reactivity'
-import { initTree, destroyTree } from '../lifecycle'
-import { mutateDom } from '../mutation'
-import { warn } from '../utils/warn'
-import { skipDuringClone } from '../clone'
+import { addScopeToNode } from '../scope.js'
+import { evaluateLater } from '../evaluator.js'
+import { directive } from '../directives.js'
+import { reactive } from '../reactivity.js'
+import { initTree, destroyTree } from '../lifecycle.js'
+import { mutateDom } from '../mutation.js'
+import { warn } from '../utils/warn.js'
+import { skipDuringClone } from '../clone.js'
 
 directive('for', (el, { expression }, { effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)

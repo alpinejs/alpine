@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../../utils'
+import { haveText, html, test } from '../../utils.js'
 
 test('$data returns the current scope (with cascading)',
     html`

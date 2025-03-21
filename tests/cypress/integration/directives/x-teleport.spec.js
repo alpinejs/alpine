@@ -1,4 +1,4 @@
-import { exist, haveText, html, notExist, test } from '../../utils'
+import { exist, haveText, html, notExist, test } from '../../utils.js'
 
 test('can use a x-teleport',
     [html`

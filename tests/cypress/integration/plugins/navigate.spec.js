@@ -1,4 +1,4 @@
-import { beEqualTo, beVisible, haveAttribute, haveFocus, haveText, html, notBeVisible, test } from '../../utils'
+import { beEqualTo, beVisible, haveAttribute, haveFocus, haveText, html, notBeVisible, test } from '../../utils.js'
 
 // Skipping these tests because the plugin has been moved to livewire/livewire until it's stablhese tests because the plugin has been moved to livewire/livewire until it's stable...
 describe.skip('Navigate tests', function () {

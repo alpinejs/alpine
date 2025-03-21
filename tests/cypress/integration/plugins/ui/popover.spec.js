@@ -1,4 +1,4 @@
-import { beVisible, haveAttribute, html, notBeVisible, notHaveAttribute, test } from '../../../utils'
+import { beVisible, haveAttribute, html, notBeVisible, notHaveAttribute, test } from '../../../utils.js'
 
 test('button toggles panel',
     [html`

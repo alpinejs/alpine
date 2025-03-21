@@ -1,9 +1,9 @@
-import { releaseNextTicks, holdNextTicks } from '../nextTick'
-import { setClasses } from '../utils/classes'
-import { setStyles } from '../utils/styles'
-import { directive } from '../directives'
-import { mutateDom } from '../mutation'
-import { once } from '../utils/once'
+import { releaseNextTicks, holdNextTicks } from '../nextTick.js'
+import { setClasses } from '../utils/classes.js'
+import { setStyles } from '../utils/styles.js'
+import { directive } from '../directives.js'
+import { mutateDom } from '../mutation.js'
+import { once } from '../utils/once.js'
 
 directive('transition', (el, { value, modifiers, expression }, { evaluate }) => {
     if (typeof expression === 'function') expression = evaluate(expression)

@@ -1,4 +1,4 @@
-let { runFromPackage, getFromPackageDotJson, writeToPackageDotJson, ask } = require('./utils')
+let { runFromPackage, getFromPackageDotJson, writeToPackageDotJson, ask } = require('./utils.js')
 
 let version = getFromPackageDotJson('docs', 'version')
 

@@ -1,4 +1,4 @@
-let { runFromPackage, writeToPackageDotJson, ask, run, getFromPackageDotJson } = require('./utils')
+let { runFromPackage, writeToPackageDotJson, ask, run, getFromPackageDotJson } = require('./utils.js')
 let chalk = require('chalk');
 let log = message => console.log(chalk.green(message))
 let version = process.argv[2]
@@ -82,7 +82,7 @@ function writeNewDocsVersion() {
 
 function buildAssets() {
     console.log('Building assets...')
-    require('./build')
+    require('./build.js')
 }
 
 function publish() {

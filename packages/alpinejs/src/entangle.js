@@ -1,4 +1,4 @@
-import { effect, release } from './reactivity'
+import { effect, release } from './reactivity.js'
 
 export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set: innerSet }) {
     let firstRun = true

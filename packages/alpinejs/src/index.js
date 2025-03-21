@@ -12,7 +12,7 @@
  * For starters, we'll import Alpine's core. This is the
  * object that will expose all of Alpine's public API.
  */
-import Alpine from './alpine'
+import Alpine from './alpine.js'
 
 /**
  * _______________________________________________________
@@ -23,7 +23,7 @@ import Alpine from './alpine'
  * It's the function that converts raw JavaScript string
  * expressions like @click="toggle()", into actual JS.
  */
-import { normalEvaluator } from './evaluator'
+import { normalEvaluator } from './evaluator.js'
 
 Alpine.setEvaluator(normalEvaluator)
 
@@ -49,7 +49,7 @@ Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw })
  * These are the properties that are magically available
  * to all the Alpine expressions, within your web app.
  */
-import './magics/index'
+import './magics/index.js'
 
 /**
  * _______________________________________________________
@@ -60,7 +60,7 @@ import './magics/index'
  * directives like x-text or x-on that form the basis of
  * how Alpine adds behavior to an app's static markup.
  */
-import './directives/index'
+import './directives/index.js'
 
 /**
  * _______________________________________________________

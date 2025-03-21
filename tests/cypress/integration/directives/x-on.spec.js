@@ -1,4 +1,4 @@
-import { beChecked, contain, notBeChecked, haveAttribute, haveData, haveText, test, beVisible, notBeVisible, html } from '../../utils'
+import { beChecked, contain, notBeChecked, haveAttribute, haveData, haveText, test, beVisible, notBeVisible, html } from '../../utils.js'
 
 test('data modified in event listener updates affected attribute bindings',
     html`

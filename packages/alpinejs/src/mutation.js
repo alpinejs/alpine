@@ -1,4 +1,4 @@
-import { dequeueJob } from "./scheduler";
+import { dequeueJob } from "./scheduler.js";
 let onAttributeAddeds = []
 let onElRemoveds = []
 let onElAddeds = []

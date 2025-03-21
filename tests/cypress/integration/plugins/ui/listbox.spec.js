@@ -1,4 +1,4 @@
-import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test, ensureNoConsoleWarns} from '../../../utils'
+import { beVisible, beHidden, haveAttribute, haveClasses, notHaveClasses, haveText, html, notBeVisible, notHaveAttribute, notExist, haveFocus, test, ensureNoConsoleWarns} from '../../../utils.js'
 
 test('it works with x-model',
     [html`

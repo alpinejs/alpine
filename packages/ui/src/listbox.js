@@ -1,4 +1,4 @@
-import { generateContext, renderHiddenInputs } from './list-context'
+import { generateContext, renderHiddenInputs } from './list-context.js'
 
 export default function (Alpine) {
     Alpine.directive('listbox', (el, directive) => {

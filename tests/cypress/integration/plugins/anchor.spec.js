@@ -1,4 +1,4 @@
-import { haveAttribute, haveComputedStyle, html, notHaveAttribute, test } from '../../utils'
+import { haveAttribute, haveComputedStyle, html, notHaveAttribute, test } from '../../utils.js'
 
 test('can anchor an element',
     [html`

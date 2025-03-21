@@ -1,6 +1,6 @@
-import { directive, prefix } from "../directives";
-import { addInitSelector } from "../lifecycle";
-import { skipDuringClone } from "../clone";
+import { directive, prefix } from "../directives.js";
+import { addInitSelector } from "../lifecycle.js";
+import { skipDuringClone } from "../clone.js";
 
 addInitSelector(() => `[${prefix('init')}]`)
 

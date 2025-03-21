@@ -1,4 +1,4 @@
-import { exist, haveLength, haveText, html, notExist, test } from '../../utils'
+import { exist, haveLength, haveText, html, notExist, test } from '../../utils.js'
 
 test('renders loops with x-for',
     html`

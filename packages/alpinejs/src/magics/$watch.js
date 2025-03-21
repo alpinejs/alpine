@@ -1,5 +1,5 @@
-import { magic } from '../magics'
-import { watch } from '../reactivity'
+import { magic } from '../magics.js'
+import { watch } from '../reactivity.js'
 
 magic('watch', (el, { evaluateLater, cleanup }) => (key, callback) => {
     let evaluate = evaluateLater(key)

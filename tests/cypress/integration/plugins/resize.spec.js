@@ -1,4 +1,4 @@
-import { haveText, test, html, notHaveText } from '../../utils'
+import { haveText, test, html, notHaveText } from '../../utils.js'
 
 test('can react to the resizing of an element',
     [html`

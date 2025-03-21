@@ -1,4 +1,4 @@
-import { haveAttribute, haveText, html, test } from '../../utils'
+import { haveAttribute, haveText, html, test } from '../../utils.js'
 
 test('$id generates a unique id',
     html`

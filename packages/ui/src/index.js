@@ -1,12 +1,12 @@
-import combobox from './combobox'
-import dialog from './dialog'
-import disclosure from './disclosure'
-import listbox from './listbox'
-import popover from './popover'
-import menu from './menu'
-import notSwitch from './switch'
-import radio from './radio'
-import tabs from './tabs'
+import combobox from './combobox.js'
+import dialog from './dialog.js'
+import disclosure from './disclosure.js'
+import listbox from './listbox.js'
+import popover from './popover.js'
+import menu from './menu.js'
+import notSwitch from './switch.js'
+import radio from './radio.js'
+import tabs from './tabs.js'
 
 export default function (Alpine) {
     combobox(Alpine)

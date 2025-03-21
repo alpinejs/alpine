@@ -1,4 +1,4 @@
-import { haveValue, html, test } from '../../utils'
+import { haveValue, html, test } from '../../utils.js'
 
 test('x-mask',
     [html`<input x-data x-mask="(999) 999-9999">`],

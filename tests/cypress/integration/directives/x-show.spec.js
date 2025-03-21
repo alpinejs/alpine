@@ -1,4 +1,4 @@
-import { beHidden, beVisible, haveAttribute, html, test } from '../../utils'
+import { beHidden, beVisible, haveAttribute, html, test } from '../../utils.js'
 
 test('x-show toggles display: none; with no other style attributes',
     html`

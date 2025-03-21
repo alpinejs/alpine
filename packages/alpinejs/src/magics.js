@@ -1,6 +1,6 @@
-import { getElementBoundUtilities } from './directives'
-import { interceptor } from './interceptor'
-import { onElRemoved } from './mutation'
+import { getElementBoundUtilities } from './directives.js'
+import { interceptor } from './interceptor.js'
+import { onElRemoved } from './mutation.js'
 
 let magics = {}
 

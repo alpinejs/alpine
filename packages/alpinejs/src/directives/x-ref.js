@@ -1,5 +1,5 @@
-import { closestRoot } from '../lifecycle'
-import { directive } from '../directives'
+import { closestRoot } from '../lifecycle.js'
+import { directive } from '../directives.js'
 
 function handler () {}
 

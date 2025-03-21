@@ -1,6 +1,6 @@
-import { closestRoot, findClosest } from '../lifecycle'
-import { mergeProxies } from '../scope'
-import { magic } from '../magics'
+import { closestRoot, findClosest } from '../lifecycle.js'
+import { mergeProxies } from '../scope.js'
+import { magic } from '../magics.js'
 
 magic('refs', el => {
     if (el._x_refs_proxy) return el._x_refs_proxy

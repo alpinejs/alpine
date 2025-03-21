@@ -1,5 +1,5 @@
-import { directive } from '../directives'
-import { entangle } from '../entangle';
+import { directive } from '../directives.js'
+import { entangle } from '../entangle.js';
 
 directive('modelable', (el, { expression }, { effect, evaluateLater, cleanup }) => {
     let func = evaluateLater(expression)

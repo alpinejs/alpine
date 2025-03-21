@@ -1,9 +1,9 @@
-import { skipDuringClone } from "../clone"
-import { directive } from "../directives"
-import { initTree, destroyTree } from "../lifecycle"
-import { mutateDom } from "../mutation"
-import { addScopeToNode } from "../scope"
-import { warn } from "../utils/warn"
+import { skipDuringClone } from "../clone.js"
+import { directive } from "../directives.js"
+import { initTree, destroyTree } from "../lifecycle.js"
+import { mutateDom } from "../mutation.js"
+import { addScopeToNode } from "../scope.js"
+import { warn } from "../utils/warn.js"
 
 directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
     if (el.tagName.toLowerCase() !== 'template') warn('x-teleport can only be used on a <template> tag', el)

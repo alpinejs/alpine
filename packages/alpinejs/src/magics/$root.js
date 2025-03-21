@@ -1,4 +1,4 @@
-import { closestRoot } from "../lifecycle";
-import { magic } from "../magics";
+import { closestRoot } from "../lifecycle.js";
+import { magic } from "../magics.js";
 
 magic('root', el => closestRoot(el))

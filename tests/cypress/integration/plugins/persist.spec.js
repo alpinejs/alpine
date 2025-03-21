@@ -1,4 +1,4 @@
-import { beEqualTo, exist, haveText, html, notExist, test } from '../../utils'
+import { beEqualTo, exist, haveText, html, notExist, test } from '../../utils.js'
 
 test('can persist number',
     [html`

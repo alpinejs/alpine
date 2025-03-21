@@ -17,7 +17,7 @@ import Alpine from 'alpinejs/src/alpine'
  * interpret strings as runtime JS. We're going to use
  * a more CSP-friendly evaluator for this instead.
  */
-import { cspEvaluator } from './evaluator'
+import { cspEvaluator } from './evaluator.js'
 
 Alpine.setEvaluator(cspEvaluator)
 

@@ -1,4 +1,4 @@
-import { morph } from './morph'
+import { morph } from './morph.js'
 
 export default function (Alpine) {
     Alpine.morph = morph

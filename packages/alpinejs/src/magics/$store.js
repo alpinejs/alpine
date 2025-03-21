@@ -1,4 +1,4 @@
-import { getStores } from '../store'
-import { magic } from '../magics'
+import { getStores } from '../store.js'
+import { magic } from '../magics.js'
 
 magic('store', getStores)

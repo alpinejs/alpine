@@ -1,4 +1,4 @@
-import { beHidden, beVisible, haveText, beChecked, haveAttribute, haveClasses, haveProperty, haveValue, notBeChecked, notHaveAttribute, notHaveClasses, test, html } from '../../utils';
+import { beHidden, beVisible, haveText, beChecked, haveAttribute, haveClasses, haveProperty, haveValue, notBeChecked, notHaveAttribute, notHaveClasses, test, html } from '../../utils.js';
 
 test('sets attribute bindings on initialize',
     html`

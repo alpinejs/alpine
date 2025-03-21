@@ -1,7 +1,7 @@
-import { onAttributeRemoved, onElRemoved } from './mutation'
-import { evaluate, evaluateLater } from './evaluator'
-import { elementBoundEffect } from './reactivity'
-import Alpine from './alpine'
+import { onAttributeRemoved, onElRemoved } from './mutation.js'
+import { evaluate, evaluateLater } from './evaluator.js'
+import { elementBoundEffect } from './reactivity.js'
+import Alpine from './alpine.js'
 
 let prefixAsString = 'x-'
 

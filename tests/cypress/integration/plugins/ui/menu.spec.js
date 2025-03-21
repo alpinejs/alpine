@@ -1,4 +1,4 @@
-import { haveClasses, beVisible, haveAttribute, haveText, html, notBeVisible, notExist, test, haveFocus, notHaveClasses, notHaveAttribute } from '../../../utils'
+import { haveClasses, beVisible, haveAttribute, haveText, html, notBeVisible, notExist, test, haveFocus, notHaveClasses, notHaveAttribute } from '../../../utils.js'
 
 test('it works',
     [html`

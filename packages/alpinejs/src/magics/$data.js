@@ -1,4 +1,4 @@
-import { scope } from '../scope'
-import { magic } from '../magics'
+import { scope } from '../scope.js'
+import { magic } from '../magics.js'
 
 magic('data', el => scope(el))

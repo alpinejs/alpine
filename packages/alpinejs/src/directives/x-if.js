@@ -1,10 +1,10 @@
-import { evaluateLater } from '../evaluator'
-import { addScopeToNode } from '../scope'
-import { directive } from '../directives'
-import { initTree, destroyTree } from '../lifecycle'
-import { mutateDom } from '../mutation'
-import { warn } from "../utils/warn"
-import { skipDuringClone } from '../clone'
+import { evaluateLater } from '../evaluator.js'
+import { addScopeToNode } from '../scope.js'
+import { directive } from '../directives.js'
+import { initTree, destroyTree } from '../lifecycle.js'
+import { mutateDom } from '../mutation.js'
+import { warn } from "../utils/warn.js"
+import { skipDuringClone } from '../clone.js'
 
 directive('if', (el, { expression }, { effect, cleanup }) => {
     if (el.tagName.toLowerCase() !== 'template') warn('x-if can only be used on a <template> tag', el)

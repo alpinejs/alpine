@@ -1,4 +1,4 @@
-import Alpine from './../src/index'
+import Alpine from './../src/index.js'
 
 window.Alpine = Alpine
 

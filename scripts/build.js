@@ -40,6 +40,7 @@ function bundleFile(package, file) {
                 outfile: `packages/${package}/dist/${file}`,
                 bundle: true,
                 platform: 'browser',
+                sourcemap: true,
                 define: { CDN: 'true' },
             })
 
@@ -49,6 +50,7 @@ function bundleFile(package, file) {
                 outfile: `packages/${package}/dist/${file.replace('.js', '.min.js')}`,
                 bundle: true,
                 minify: true,
+                sourcemap: true,
                 platform: 'browser',
                 define: { CDN: 'true' },
             }).then(() => {

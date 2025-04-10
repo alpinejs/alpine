@@ -30,6 +30,21 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
             })
         })
     }
+    
+    // Add x-teleport @event listeners to the cloned node
+    // This ensures template click handlers etc. still work with our new directive order
+    Array.from(el.attributes)
+        .filter(attr => attr.name.startsWith('@'))
+        .forEach(attr => {
+            const eventName = attr.name.replace('@', '')
+            
+            clone.addEventListener(eventName, e => {
+                e.stopPropagation()
+                
+                // Dispatch the event on the original element
+                el.dispatchEvent(new e.constructor(e.type, e))
+            })
+        })
 
     addScopeToNode(clone, {}, el)
 

@@ -200,6 +200,7 @@ function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) 
 const DEFAULT = 'DEFAULT'
 
 let directiveOrder = [
+    'teleport',
     'ignore',
     'ref',
     'data',
@@ -214,7 +215,6 @@ let directiveOrder = [
     'show',
     'if',
     DEFAULT,
-    'teleport',
 ]
 
 function byPriority(a, b) {

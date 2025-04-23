@@ -34,8 +34,17 @@ export function morph(from, toHtml, options) {
         }
 
         let updateChildrenOnly = false
+        let skipChildren = false
 
-        if (shouldSkip(updating, from, to, () => updateChildrenOnly = true)) return
+        // If we used `shouldSkip()` here and append the `skipChildren` function on the end, it will cause the signature of the `updating`
+        // hook to change. For example, when it was `shouldSkip()` the signature was `updating: (el, toEl, childrenOnly, skip)`. But if
+        // we append `skipChildren()`, it would make the signature `updating: (el, toEl, childrenOnly, skipChildren, skip)`. This is
+        // a breaking change due to how the `shouldSkip()` function is structured.
+        // 
+        // So we're using `shouldSkipChildren()` instead which doesn't have this problem as it allows us to pass in the `skipChildren()` 
+        // function as an earlier parameter and then append it to the `updating` hook signature manually. The signature of `updating`
+        // hook is now `updating: (el, toEl, childrenOnly, skip, skipChildren)`.
+        if (shouldSkipChildren(updating, () => skipChildren = true, from, to, () => updateChildrenOnly = true)) return
 
         // Initialize the server-side HTML element with Alpine...
         if (from.nodeType === 1 && window.Alpine) {
@@ -60,7 +69,9 @@ export function morph(from, toHtml, options) {
 
         updated(from, to)
 
-        patchChildren(from, to)
+        if (! skipChildren) {
+            patchChildren(from, to)
+        }
     }
 
     function differentElementNamesTypesOrKeys(from, to) {
@@ -382,6 +393,19 @@ function shouldSkip(hook, ...args) {
     let skip = false
 
     hook(...args, () => skip = true)
+
+    return skip
+}
+
+// Due to the structure of the `shouldSkip()` function, we can't pass in the `skipChildren`
+// function as an argument as it would change the signature of the existing hooks. So we
+// are using this function instead which doesn't have this problem as we can pass the 
+// `skipChildren` function in as an earlier argument and then append it to the end
+// of the hook signature manually.
+function shouldSkipChildren(hook, skipChildren, ...args) {
+    let skip = false
+
+    hook(...args, () => skip = true, skipChildren)
 
     return skip
 }

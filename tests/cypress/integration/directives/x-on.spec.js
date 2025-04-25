@@ -60,7 +60,7 @@ test('nested data modified in event listener updates affected attribute bindings
     }
 )
 
-test('.passive modifier should disable e.preventDefault()',
+test.only('.passive modifier should disable e.preventDefault()',
     html`
         <div x-data="{ defaultPrevented: null }">
             <button
@@ -76,6 +76,23 @@ test('.passive modifier should disable e.preventDefault()',
     ({ get }) => {
         get('button').click()
         get('div').should(haveData('defaultPrevented', false))
+    }
+)
+
+test.only('.passive.false modifier should enable e.preventDefault()',
+    html`
+        <div
+            x-data="{ defaultPrevented: null }"
+            x-on:touchmove.passive.false="
+                $event.preventDefault();
+                defaultPrevented = $event.defaultPrevented;
+            ">
+            <br>
+        </div>
+    `,
+    ({ get }) => {
+        get('div').trigger('touchmove')
+        get('div').should(haveData('defaultPrevented', true))
     }
 )
 

@@ -60,7 +60,7 @@ test('nested data modified in event listener updates affected attribute bindings
     }
 )
 
-test.only('.passive modifier should disable e.preventDefault()',
+test('.passive modifier should disable e.preventDefault()',
     html`
         <div x-data="{ defaultPrevented: null }">
             <button
@@ -79,7 +79,7 @@ test.only('.passive modifier should disable e.preventDefault()',
     }
 )
 
-test.only('.passive.false modifier should enable e.preventDefault()',
+test('.passive.false modifier should enable e.preventDefault()',
     html`
         <div
             x-data="{ defaultPrevented: null }"

@@ -3,20 +3,24 @@
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
-<div id="before">
-<!-- Before markup goes here: -->
-<ul>
-    <li data-key="1">foo<input></li>
-</ul>
+<div id="container">
+    <h2>Static Header (won't change)</h2>
+
+    <!-- Initial content with boundaries around li elements: -->
+    <ul>
+        <!-- [MORPH_START] -->
+        <li data-key="1">foo<input></li>
+        <!-- [MORPH_END] -->
+    </ul>
+
+    <p>Static Footer (won't change)</p>
 </div>
 
-<div id="after" style="display: none;">
-<!-- After markup goes here: -->
-<ul>
-    <li data-key="2">bar<input></li>
-    <li data-key="3">baz<input></li>
-    <li data-key="1">foo<input></li>
-</ul>
+<div id="new-content" style="display: none;">
+<!-- New li content to morph to (between boundaries): -->
+<li data-key="2">bar<input></li>
+<li data-key="3">baz<input></li>
+<li data-key="1">foo<input></li>
 </div>
 
 <div id="b"></div>
@@ -28,31 +32,96 @@
     </div>
 
     <div style="position: absolute; bottom: 0; left: 0; padding: 1rem; width: 100vw; background: gray; box-sizing: border-box;">
-        <button onclick="start()">Start</button>
+        <button onclick="start()">Start morphBetween</button>
         <button onclick="next()">Next Step</button>
+        <button onclick="reset()">Reset</button>
     </div>
 
     <script>
+        let startBoundary, endBoundary;
+
+        function findBoundaries() {
+            const container = document.querySelector('#container');
+            const walker = document.createTreeWalker(
+                container,
+                NodeFilter.SHOW_COMMENT,
+                null,
+                false
+            );
+
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.textContent.trim() === '[MORPH_START]') {
+                    startBoundary = node;
+                } else if (node.textContent.trim() === '[MORPH_END]') {
+                    endBoundary = node;
+                }
+            }
+        }
+
         function start() {
+            findBoundaries();
+
+            if (!startBoundary || !endBoundary) {
+                console.error('Could not find boundary comments');
+                return;
+            }
+
             Alpine.morph.log((message, from, to) => {
                 console.log(message, from, to)
-                document.querySelector('#log-from').innerHTML = escape(from.outerHTML)
-                document.querySelector('#log-to').innerHTML = escape(to.outerHTML)
+                if (from && from.outerHTML) {
+                    document.querySelector('#log-from').innerHTML = escape(from.outerHTML)
+                }
+                if (to && to.outerHTML) {
+                    document.querySelector('#log-to').innerHTML = escape(to.outerHTML)
+                }
                 let li = document.createElement('li')
                 li.textContent = message
                 message && document.querySelector('#log-message').appendChild(li)
             })
 
-            Alpine.morph(
-                document.querySelector('#before').firstElementChild,
-                document.querySelector('#after').firstElementChild.outerHTML,
-                { debug: true, key(el) { return el.dataset.key } }
-            )
+            // Get the new content HTML
+            const newContentHtml = document.querySelector('#new-content').innerHTML;
+
+            // Use morphBetween to morph content between the boundaries
+            Alpine.morphBetween(
+                startBoundary,
+                endBoundary,
+                newContentHtml,
+                {
+                    debug: true,
+                    key(el) { return el.dataset.key }
+                }
+            );
         }
 
         function next() {
             Alpine.morph.step()
             setTimeout(() => window.dispatchEvent(new CustomEvent('refresh', { bubbles: true })))
+        }
+
+        function reset() {
+            // Reset to original state
+            findBoundaries();
+            if (startBoundary && endBoundary) {
+                const originalContent = `
+                    <ul>
+                        <li data-key="1">foo<input></li>
+                    </ul>
+                `;
+
+                Alpine.morphBetween(
+                    startBoundary,
+                    endBoundary,
+                    originalContent,
+                    { key(el) { return el.dataset.key } }
+                );
+            }
+
+            // Clear logs
+            document.querySelector('#log-from').innerHTML = '';
+            document.querySelector('#log-to').innerHTML = '';
+            document.querySelector('#log-message').innerHTML = '';
         }
 
         function escape(unsafe) {

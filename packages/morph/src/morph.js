@@ -1,4 +1,3 @@
-
 let resolveStep = () => {}
 
 let logger = () => {}
@@ -40,8 +39,8 @@ export function morph(from, toHtml, options) {
         // hook to change. For example, when it was `shouldSkip()` the signature was `updating: (el, toEl, childrenOnly, skip)`. But if
         // we append `skipChildren()`, it would make the signature `updating: (el, toEl, childrenOnly, skipChildren, skip)`. This is
         // a breaking change due to how the `shouldSkip()` function is structured.
-        // 
-        // So we're using `shouldSkipChildren()` instead which doesn't have this problem as it allows us to pass in the `skipChildren()` 
+        //
+        // So we're using `shouldSkipChildren()` instead which doesn't have this problem as it allows us to pass in the `skipChildren()`
         // function as an earlier parameter and then append it to the `updating` hook signature manually. The signature of `updating`
         // hook is now `updating: (el, toEl, childrenOnly, skip, skipChildren)`.
         if (shouldSkipChildren(updating, () => skipChildren = true, from, to, () => updateChildrenOnly = true)) return
@@ -399,7 +398,7 @@ function shouldSkip(hook, ...args) {
 
 // Due to the structure of the `shouldSkip()` function, we can't pass in the `skipChildren`
 // function as an argument as it would change the signature of the existing hooks. So we
-// are using this function instead which doesn't have this problem as we can pass the 
+// are using this function instead which doesn't have this problem as we can pass the
 // `skipChildren` function in as an earlier argument and then append it to the end
 // of the hook signature manually.
 function shouldSkipChildren(hook, skipChildren, ...args) {
@@ -525,4 +524,29 @@ function seedingMatchingId(to, from) {
 
     to.setAttribute('id', fromId)
     to.id = fromId
+}
+
+export function morphBetween(startMarker, endMarker, toHtml, options = {}) {
+    // Create a temporary container for the new content
+    let tempContainer = document.createElement('div')
+    tempContainer.innerHTML = toHtml
+
+    // Create a wrapper element to hold the current DOM content between markers
+    let fromWrapper = document.createElement('div')
+
+    // Move all nodes between markers into the wrapper (not clones, actual nodes)
+    let current = startMarker.nextSibling
+    while (current && current !== endMarker) {
+        let next = current.nextSibling
+        fromWrapper.appendChild(current)
+        current = next
+    }
+
+    // Morph the wrapper with the new content
+    morph(fromWrapper, tempContainer, options)
+
+    // Move the morphed content back between the markers
+    while (fromWrapper.firstChild) {
+        endMarker.parentNode.insertBefore(fromWrapper.firstChild, endMarker)
+    }
 }

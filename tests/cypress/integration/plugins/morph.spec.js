@@ -727,7 +727,7 @@ test('morphBetween preserves Alpine state',
         `)
 
         get('p').should(haveText('2'))
-        get('div').should(haveText('New element'))
+        get('div:not([x-data]) div').should(haveText('New element'))
         get('input').should(haveValue('2'))
         get('input').clear().type('5')
         get('p').should(haveText('5'))
@@ -772,8 +772,10 @@ test('morphBetween with keyed elements',
         get('li:nth-of-type(1)').should(haveText('baz'))
         get('li:nth-of-type(2)').should(haveText('foo'))
         get('li:nth-of-type(3)').should(haveText('bar'))
-        get('li:nth-of-type(2) input').should(haveValue('first'))
-        get('li:nth-of-type(3) input').should(haveValue('second'))
+        // Need to verify by the key attribute since the elements have been reordered
+        get('li[key="1"] input').should(haveValue('first'))
+        get('li[key="2"] input').should(haveValue('second'))
+        get('li[key="3"] input').should(haveValue(''))
     },
 )
 
@@ -863,7 +865,7 @@ test('morphBetween with hooks',
         })
 
         get('p').should(haveText('New paragraph'))
-        get('div').should(haveText('New div'))
+        get('body > div > div').should(haveText('New div'))
 
         // Check hooks were called
         cy.wrap(removedElements).should('deep.equal', ['SPAN'])

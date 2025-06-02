@@ -312,14 +312,19 @@ export function morphBetween(startMarker, endMarker, toHtml, options = {}) {
     let fromBlock = new Block(startMarker, endMarker)
 
     // Create a temporary container for the new content
-    let tempContainer = document.createElement('div')
+    let tempContainer = typeof toHtml === 'string'
+        ? (() => {
+            let container = document.createElement('div')
+            container.insertAdjacentHTML('beforeend', toHtml)
+            return container
+        })()
+        : toHtml
 
     // Add markers around the new content to create a Block
     let toStartMarker = document.createComment('[morph-start]')
     let toEndMarker = document.createComment('[morph-end]')
 
-    tempContainer.appendChild(toStartMarker)
-    tempContainer.insertAdjacentHTML('beforeend', toHtml)
+    tempContainer.insertBefore(toStartMarker, tempContainer.firstChild)
     tempContainer.appendChild(toEndMarker)
 
     let toBlock = new Block(toStartMarker, toEndMarker)

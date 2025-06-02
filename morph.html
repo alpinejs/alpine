@@ -3,24 +3,25 @@
     <script src="./packages/alpinejs/dist/cdn.js" defer></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.0.0/dist/cdn.min.js" defer></script> -->
 
-<div id="container">
+<div id="container" x-data="{ count: 0 }">
     <h2>Static Header (won't change)</h2>
 
     <!-- Initial content with boundaries around li elements: -->
     <ul>
         <!-- [MORPH_START] -->
         <li data-key="1">foo<input></li>
+        <li data-key="2">bar<input></li>
         <!-- [MORPH_END] -->
     </ul>
 
     <p>Static Footer (won't change)</p>
 </div>
 
-<div id="new-content" style="display: none;">
 <!-- New li content to morph to (between boundaries): -->
-<li data-key="2">bar<input></li>
-<li data-key="3">baz<input></li>
-<li data-key="1">foo<input></li>
+<div id="new-content" style="display: none;">
+    <li data-key="3">baz<input></li>
+    <li data-key="1">foo<input></li>
+    <li data-key="2">bar<input></li>
 </div>
 
 <div id="b"></div>

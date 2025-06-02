@@ -722,12 +722,12 @@ test('morphBetween preserves Alpine state',
 
         window.Alpine.morphBetween(startMarker, endMarker, `
             <p x-text="count"></p>
-            <div>New element</div>
+            <article>New element</article>
             <input x-model="count">
         `)
 
         get('p').should(haveText('2'))
-        get('div:not([x-data]) div').should(haveText('New element'))
+        get('article').should(haveText('New element'))
         get('input').should(haveValue('2'))
         get('input').clear().type('5')
         get('p').should(haveText('5'))
@@ -762,11 +762,11 @@ test('morphBetween with keyed elements',
         get('li:nth-of-type(1) input').type('first')
         get('li:nth-of-type(2) input').type('second')
 
-        window.Alpine.morphBetween(startMarker, endMarker, `
+        get('ul').then(([el]) => window.Alpine.morphBetween(startMarker, endMarker, `
             <li key="3">baz<input></li>
             <li key="1">foo<input></li>
             <li key="2">bar<input></li>
-        `)
+        `, { key(el) { return el.getAttribute('key') } }))
 
         get('li').should(haveLength(3))
         get('li:nth-of-type(1)').should(haveText('baz'))
@@ -854,7 +854,7 @@ test('morphBetween with hooks',
 
         window.Alpine.morphBetween(startMarker, endMarker, `
             <p>New paragraph</p>
-            <div>New div</div>
+            <article>New article</article>
         `, {
             removing(el) {
                 if (el.nodeType === 1) removedElements.push(el.tagName)
@@ -865,11 +865,11 @@ test('morphBetween with hooks',
         })
 
         get('p').should(haveText('New paragraph'))
-        get('body > div > div').should(haveText('New div'))
+        get('article').should(haveText('New article'))
 
         // Check hooks were called
         cy.wrap(removedElements).should('deep.equal', ['SPAN'])
-        cy.wrap(addedElements).should('deep.equal', ['DIV'])
+        cy.wrap(addedElements).should('deep.equal', ['ARTICLE'])
     },
 )
 

@@ -250,3 +250,15 @@ By adding keys to each node, we can accomplish this like so:
 Now that there are "keys" on the `<li>`s, Morph will match them in both trees and move them accordingly.
 
 You can configure what Morph considers a "key" with the `key:` configuration option. [More on that here](#lifecycle-hooks)
+
+<a name="alpine-morph-between"></a>
+## Alpine.morphBetween()
+
+The `Alpine.morphBetween(startMarker, endMarker, newHtml, options)` method allows you to morph a range of DOM nodes between two marker elements based on passed in HTML. This is useful when you want to update only a specific section of the DOM without providing a single root node.
+
+| Parameter | Description |
+| ---       | --- |
+| `startMarker` | A DOM node (typically a comment node) that marks the beginning of the range to morph |
+| `endMarker` | A DOM node (typically a comment node) that marks the end of the range to morph |
+| `newHtml` | A string of HTML or a DOM element to replace the content between the markers |
+| `options` | An object of options (same as `Alpine.morph()`) |

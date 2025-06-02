@@ -652,3 +652,365 @@ test('can morph teleports with root-level state',
         get('h1').should(haveText('bar'));
     },
 )
+
+test('can use morphBetween with comment markers',
+    [html`
+        <div>
+            <h2>Header</h2>
+            <!--start-->
+            <p>Original content</p>
+            <!--end-->
+            <h2>Footer</h2>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        // Find the comment markers
+        let startMarker, endMarker;
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent === 'start') startMarker = node;
+            if (node.textContent === 'end') endMarker = node;
+        }
+
+        window.Alpine.morphBetween(startMarker, endMarker, '<p>New content</p><p>More content</p>')
+
+        get('h2:nth-of-type(1)').should(haveText('Header'))
+        get('h2:nth-of-type(2)').should(haveText('Footer'))
+        get('p').should(haveLength(2))
+        get('p:nth-of-type(1)').should(haveText('New content'))
+        get('p:nth-of-type(2)').should(haveText('More content'))
+    },
+)
+
+test('morphBetween preserves Alpine state',
+    [html`
+        <div x-data="{ count: 1 }">
+            <button @click="count++">Inc</button>
+            <!--morph-start-->
+            <p x-text="count"></p>
+            <input x-model="count">
+            <!--morph-end-->
+            <span>Static content</span>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        // Find markers
+        let startMarker, endMarker;
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent === 'morph-start') startMarker = node;
+            if (node.textContent === 'morph-end') endMarker = node;
+        }
+
+        get('p').should(haveText('1'))
+        get('button').click()
+        get('p').should(haveText('2'))
+
+        window.Alpine.morphBetween(startMarker, endMarker, `
+            <p x-text="count"></p>
+            <article>New element</article>
+            <input x-model="count">
+        `)
+
+        get('p').should(haveText('2'))
+        get('article').should(haveText('New element'))
+        get('input').should(haveValue('2'))
+        get('input').clear().type('5')
+        get('p').should(haveText('5'))
+    },
+)
+
+test('morphBetween with keyed elements',
+    [html`
+        <ul>
+            <!--items-start-->
+            <li key="1">foo<input></li>
+            <li key="2">bar<input></li>
+            <!--items-end-->
+        </ul>
+    `],
+    ({ get }, reload, window, document) => {
+        // Find markers
+        let startMarker, endMarker;
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent === 'items-start') startMarker = node;
+            if (node.textContent === 'items-end') endMarker = node;
+        }
+
+        get('li:nth-of-type(1) input').type('first')
+        get('li:nth-of-type(2) input').type('second')
+
+        get('ul').then(([el]) => window.Alpine.morphBetween(startMarker, endMarker, `
+            <li key="3">baz<input></li>
+            <li key="1">foo<input></li>
+            <li key="2">bar<input></li>
+        `, { key(el) { return el.getAttribute('key') } }))
+
+        get('li').should(haveLength(3))
+        get('li:nth-of-type(1)').should(haveText('baz'))
+        get('li:nth-of-type(2)').should(haveText('foo'))
+        get('li:nth-of-type(3)').should(haveText('bar'))
+        // Need to verify by the key attribute since the elements have been reordered
+        get('li[key="1"] input').should(haveValue('first'))
+        get('li[key="2"] input').should(haveValue('second'))
+        get('li[key="3"] input').should(haveValue(''))
+    },
+)
+
+test('morphBetween with custom key function',
+    [html`
+        <div>
+            <!--start-->
+            <div data-id="a">Item A<input></div>
+            <div data-id="b">Item B<input></div>
+            <!--end-->
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        // Find markers
+        let startMarker, endMarker;
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent === 'start') startMarker = node;
+            if (node.textContent === 'end') endMarker = node;
+        }
+
+        get('div[data-id="a"] input').type('aaa')
+        get('div[data-id="b"] input').type('bbb')
+
+        window.Alpine.morphBetween(startMarker, endMarker, `
+            <div data-id="b">Item B Updated<input></div>
+            <div data-id="c">Item C<input></div>
+            <div data-id="a">Item A Updated<input></div>
+        `, {
+            key(el) { return el.dataset.id }
+        })
+
+        get('div[data-id]').should(haveLength(3))
+        get('div[data-id="b"]').should(haveText('Item B Updated'))
+        get('div[data-id="a"]').should(haveText('Item A Updated'))
+        get('div[data-id="a"] input').should(haveValue('aaa'))
+        get('div[data-id="b"] input').should(haveValue('bbb'))
+        get('div[data-id="c"] input').should(haveValue(''))
+    },
+)
+
+test('morphBetween with hooks',
+    [html`
+        <div>
+            <!--region-start-->
+            <p>Old paragraph</p>
+            <span>Old span</span>
+            <!--region-end-->
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        // Find markers
+        let startMarker, endMarker;
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent === 'region-start') startMarker = node;
+            if (node.textContent === 'region-end') endMarker = node;
+        }
+
+        let removedElements = []
+        let addedElements = []
+
+        window.Alpine.morphBetween(startMarker, endMarker, `
+            <p>New paragraph</p>
+            <article>New article</article>
+        `, {
+            removing(el) {
+                if (el.nodeType === 1) removedElements.push(el.tagName)
+            },
+            adding(el) {
+                if (el.nodeType === 1) addedElements.push(el.tagName)
+            }
+        })
+
+        get('p').should(haveText('New paragraph'))
+        get('article').should(haveText('New article'))
+
+        // Check hooks were called
+        cy.wrap(removedElements).should('deep.equal', ['SPAN'])
+        cy.wrap(addedElements).should('deep.equal', ['ARTICLE'])
+    },
+)
+
+test('morphBetween with empty content',
+    [html`
+        <div>
+            <h3>Title</h3>
+            <!--content-start-->
+            <p>Content 1</p>
+            <p>Content 2</p>
+            <!--content-end-->
+            <h3>End</h3>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        // Find markers
+        let startMarker, endMarker;
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent === 'content-start') startMarker = node;
+            if (node.textContent === 'content-end') endMarker = node;
+        }
+
+        window.Alpine.morphBetween(startMarker, endMarker, '')
+
+        get('h3').should(haveLength(2))
+        get('p').should(haveLength(0))
+
+        // Verify markers are still there
+        let found = false;
+        const walker2 = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+        while (node = walker2.nextNode()) {
+            if (node.textContent === 'content-start' || node.textContent === 'content-end') {
+                found = true;
+            }
+        }
+        cy.wrap(found).should('be.true')
+    },
+)
+
+test('morphBetween with nested Alpine components',
+    [html`
+        <div x-data="{ outer: 'foo' }">
+            <!--nested-start-->
+            <div x-data="{ inner: 'bar' }">
+                <span x-text="outer"></span>
+                <span x-text="inner"></span>
+                <input x-model="inner">
+            </div>
+            <!--nested-end-->
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        // Find markers
+        let startMarker, endMarker;
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent === 'nested-start') startMarker = node;
+            if (node.textContent === 'nested-end') endMarker = node;
+        }
+
+        get('span:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(2)').should(haveText('bar'))
+        get('input').clear().type('baz')
+        get('span:nth-of-type(2)').should(haveText('baz'))
+
+        window.Alpine.morphBetween(startMarker, endMarker, `
+            <div x-data="{ inner: 'bar' }">
+                <h4>New heading</h4>
+                <span x-text="outer"></span>
+                <span x-text="inner"></span>
+                <input x-model="inner">
+            </div>
+        `)
+
+        get('h4').should(haveText('New heading'))
+        get('span:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(2)').should(haveText('baz'))
+        get('input').should(haveValue('baz'))
+    },
+)
+
+test('morphBetween with conditional blocks',
+    [html`
+        <main>
+            <!--section-start-->
+            <!--[if BLOCK]><![endif]-->
+            <div>conditional content<input></div>
+            <!--[if ENDBLOCK]><![endif]-->
+            <p>regular content<input></p>
+            <!--section-end-->
+        </main>
+    `],
+    ({ get }, reload, window, document) => {
+        // Find markers
+        let startMarker, endMarker;
+        const walker = document.createTreeWalker(
+            document.body,
+            NodeFilter.SHOW_COMMENT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.textContent === 'section-start') startMarker = node;
+            if (node.textContent === 'section-end') endMarker = node;
+        }
+
+        get('div input').type('div-value')
+        get('p input').type('p-value')
+
+        window.Alpine.morphBetween(startMarker, endMarker, `
+            <!--[if BLOCK]><![endif]-->
+            <div>conditional content<input></div>
+            <span>new conditional<input></span>
+            <!--[if ENDBLOCK]><![endif]-->
+            <p>regular content<input></p>
+        `)
+
+        get('div input').should(haveValue('div-value'))
+        get('span input').should(haveValue(''))
+        get('p input').should(haveValue('p-value'))
+    },
+)

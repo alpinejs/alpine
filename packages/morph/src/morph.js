@@ -1,4 +1,3 @@
-
 let resolveStep = () => {}
 
 let logger = () => {}
@@ -10,27 +9,80 @@ export function morph(from, toHtml, options) {
     // because it's an async function and if run twice, they would overwrite
     // each other.
 
-    let fromEl
-    let toEl
-    let key, lookahead, updating, updated, removing, removed, adding, added
+    let context = createMorphContext(options)
 
-    function assignOptions(options = {}) {
-        let defaultGetKey = el => el.getAttribute('key')
-        let noop = () => {}
+    // Finally we morph the element
 
-        updating = options.updating || noop
-        updated = options.updated || noop
-        removing = options.removing || noop
-        removed = options.removed || noop
-        adding = options.adding || noop
-        added = options.added || noop
-        key = options.key || defaultGetKey
-        lookahead = options.lookahead || false
+    let toEl = typeof toHtml === 'string' ? createElement(toHtml) : toHtml
+
+    if (window.Alpine && window.Alpine.closestDataStack && ! from._x_dataStack) {
+        // Just in case a part of this template uses Alpine scope from somewhere
+        // higher in the DOM tree, we'll find that state and replace it on the root
+        // element so everything is synced up accurately.
+        toEl._x_dataStack = window.Alpine.closestDataStack(from)
+
+        // We will kick off a clone on the root element.
+        toEl._x_dataStack && window.Alpine.cloneNode(from, toEl)
     }
 
-    function patch(from, to) {
-        if (differentElementNamesTypesOrKeys(from, to)) {
-            return swapElements(from, to)
+    context.patch(from, toEl)
+
+    return from
+}
+
+export function morphBetween(startMarker, endMarker, toHtml, options = {}) {
+    monkeyPatchDomSetAttributeToAllowAtSymbols()
+
+    let context = createMorphContext(options)
+
+    // Setup from block...
+    let fromContainer = startMarker.parentNode
+    let fromBlock = new Block(startMarker, endMarker)
+
+    // Setup to block...
+    let toContainer = typeof toHtml === 'string'
+        ? (() => {
+            let container = document.createElement('div')
+            container.insertAdjacentHTML('beforeend', toHtml)
+            return container
+        })()
+        : toHtml
+
+    let toStartMarker = document.createComment('[morph-start]')
+    let toEndMarker = document.createComment('[morph-end]')
+
+    toContainer.insertBefore(toStartMarker, toContainer.firstChild)
+    toContainer.appendChild(toEndMarker)
+
+    let toBlock = new Block(toStartMarker, toEndMarker)
+
+    if (window.Alpine && window.Alpine.closestDataStack) {
+        toContainer._x_dataStack = window.Alpine.closestDataStack(fromContainer)
+        toContainer._x_dataStack && window.Alpine.cloneNode(fromContainer, toContainer)
+    }
+
+    // Run the patch
+    context.patchChildren(fromBlock, toBlock)
+}
+
+function createMorphContext(options = {}) {
+    let defaultGetKey = el => el.getAttribute('key')
+    let noop = () => {}
+
+    let context = {
+        key: options.key || defaultGetKey,
+        lookahead: options.lookahead || false,
+        updating: options.updating || noop,
+        updated: options.updated || noop,
+        removing: options.removing || noop,
+        removed: options.removed || noop,
+        adding: options.adding || noop,
+        added: options.added || noop
+    }
+
+    context.patch = function(from, to) {
+        if (context.differentElementNamesTypesOrKeys(from, to)) {
+            return context.swapElements(from, to)
         }
 
         let updateChildrenOnly = false
@@ -40,60 +92,60 @@ export function morph(from, toHtml, options) {
         // hook to change. For example, when it was `shouldSkip()` the signature was `updating: (el, toEl, childrenOnly, skip)`. But if
         // we append `skipChildren()`, it would make the signature `updating: (el, toEl, childrenOnly, skipChildren, skip)`. This is
         // a breaking change due to how the `shouldSkip()` function is structured.
-        // 
-        // So we're using `shouldSkipChildren()` instead which doesn't have this problem as it allows us to pass in the `skipChildren()` 
+        //
+        // So we're using `shouldSkipChildren()` instead which doesn't have this problem as it allows us to pass in the `skipChildren()`
         // function as an earlier parameter and then append it to the `updating` hook signature manually. The signature of `updating`
         // hook is now `updating: (el, toEl, childrenOnly, skip, skipChildren)`.
-        if (shouldSkipChildren(updating, () => skipChildren = true, from, to, () => updateChildrenOnly = true)) return
+        if (shouldSkipChildren(context.updating, () => skipChildren = true, from, to, () => updateChildrenOnly = true)) return
 
         // Initialize the server-side HTML element with Alpine...
         if (from.nodeType === 1 && window.Alpine) {
             window.Alpine.cloneNode(from, to)
 
             if (from._x_teleport && to._x_teleport) {
-                patch(from._x_teleport, to._x_teleport)
+                context.patch(from._x_teleport, to._x_teleport)
             }
         }
 
         if (textOrComment(to)) {
-            patchNodeValue(from, to)
+            context.patchNodeValue(from, to)
 
-            updated(from, to)
+            context.updated(from, to)
 
             return
         }
 
         if (! updateChildrenOnly) {
-            patchAttributes(from, to)
+            context.patchAttributes(from, to)
         }
 
-        updated(from, to)
+        context.updated(from, to)
 
         if (! skipChildren) {
-            patchChildren(from, to)
+            context.patchChildren(from, to)
         }
     }
 
-    function differentElementNamesTypesOrKeys(from, to) {
+    context.differentElementNamesTypesOrKeys = function(from, to) {
         return from.nodeType != to.nodeType
             || from.nodeName != to.nodeName
-            || getKey(from) != getKey(to)
+            || context.getKey(from) != context.getKey(to)
     }
 
-    function swapElements(from, to) {
-        if (shouldSkip(removing, from)) return
+    context.swapElements = function(from, to) {
+        if (shouldSkip(context.removing, from)) return
 
         let toCloned = to.cloneNode(true)
 
-        if (shouldSkip(adding, toCloned)) return
+        if (shouldSkip(context.adding, toCloned)) return
 
         from.replaceWith(toCloned)
 
-        removed(from)
-        added(toCloned)
+        context.removed(from)
+        context.added(toCloned)
     }
 
-    function patchNodeValue(from, to) {
+    context.patchNodeValue = function(from, to) {
         let value = to.nodeValue
 
         if (from.nodeValue !== value) {
@@ -102,7 +154,7 @@ export function morph(from, toHtml, options) {
         }
     }
 
-    function patchAttributes(from, to) {
+    context.patchAttributes = function(from, to) {
         if (from._x_transitioning) return
 
         if (from._x_isShown && ! to._x_isShown) {
@@ -134,8 +186,8 @@ export function morph(from, toHtml, options) {
         }
     }
 
-    function patchChildren(from, to) {
-        let fromKeys = keyToMap(from.children)
+    context.patchChildren = function(from, to) {
+        let fromKeys = context.keyToMap(from.children)
         let fromKeyHoldovers = {}
 
         let currentTo = getFirstNode(to)
@@ -146,8 +198,8 @@ export function morph(from, toHtml, options) {
             // Let's transfer it to the "to" element so that there isn't a key mismatch...
             seedingMatchingId(currentTo, currentFrom)
 
-            let toKey = getKey(currentTo)
-            let fromKey = getKey(currentFrom)
+            let toKey = context.getKey(currentTo)
+            let fromKey = context.getKey(currentFrom)
 
             // Add new elements...
             if (! currentFrom) {
@@ -158,15 +210,15 @@ export function morph(from, toHtml, options) {
                     from.appendChild(holdover)
 
                     currentFrom = holdover
-                    fromKey = getKey(currentFrom)
+                    fromKey = context.getKey(currentFrom)
                 } else {
-                    if(! shouldSkip(adding, currentTo)) {
+                    if(! shouldSkip(context.adding, currentTo)) {
                         // Add element...
                         let clone = currentTo.cloneNode(true)
 
                         from.appendChild(clone)
 
-                        added(clone)
+                        context.added(clone)
                     }
 
                     currentTo = getNextSibling(to, currentTo)
@@ -227,13 +279,13 @@ export function morph(from, toHtml, options) {
                 let fromBlock = new Block(fromBlockStart, fromBlockEnd)
                 let toBlock = new Block(toBlockStart, toBlockEnd)
 
-                patchChildren(fromBlock, toBlock)
+                context.patchChildren(fromBlock, toBlock)
 
                 continue
             }
 
             // Lookaheads should only apply to non-text-or-comment elements...
-            if (currentFrom.nodeType === 1 && lookahead && ! currentFrom.isEqualNode(currentTo)) {
+            if (currentFrom.nodeType === 1 && context.lookahead && ! currentFrom.isEqualNode(currentTo)) {
                 let nextToElementSibling = getNextSibling(to, currentTo)
 
                 let found = false
@@ -242,9 +294,9 @@ export function morph(from, toHtml, options) {
                     if (nextToElementSibling.nodeType === 1 && currentFrom.isEqualNode(nextToElementSibling)) {
                         found = true; // This ";" needs to be here...
 
-                        currentFrom = addNodeBefore(from, currentTo, currentFrom)
+                        currentFrom = context.addNodeBefore(from, currentTo, currentFrom)
 
-                        fromKey = getKey(currentFrom)
+                        fromKey = context.getKey(currentFrom)
                     }
 
                     nextToElementSibling = getNextSibling(to, nextToElementSibling)
@@ -255,7 +307,7 @@ export function morph(from, toHtml, options) {
                 if (! toKey && fromKey) {
                     // No "to" key...
                     fromKeyHoldovers[fromKey] = currentFrom; // This ";" needs to be here...
-                    currentFrom = addNodeBefore(from, currentTo, currentFrom)
+                    currentFrom = context.addNodeBefore(from, currentTo, currentFrom)
                     fromKeyHoldovers[fromKey].remove()
                     currentFrom = getNextSibling(from, currentFrom)
                     currentTo = getNextSibling(to, currentTo)
@@ -268,7 +320,7 @@ export function morph(from, toHtml, options) {
                         // No "from" key...
                         currentFrom.replaceWith(fromKeys[toKey])
                         currentFrom = fromKeys[toKey]
-                        fromKey = getKey(currentFrom)
+                        fromKey = context.getKey(currentFrom)
                     }
                 }
 
@@ -280,11 +332,11 @@ export function morph(from, toHtml, options) {
                         fromKeyHoldovers[fromKey] = currentFrom
                         currentFrom.replaceWith(fromKeyNode)
                         currentFrom = fromKeyNode
-                        fromKey = getKey(currentFrom)
+                        fromKey = context.getKey(currentFrom)
                     } else {
                         // Swap elements with keys...
                         fromKeyHoldovers[fromKey] = currentFrom; // This ";" needs to be here...
-                        currentFrom = addNodeBefore(from, currentTo, currentFrom)
+                        currentFrom = context.addNodeBefore(from, currentTo, currentFrom)
                         fromKeyHoldovers[fromKey].remove()
                         currentFrom = getNextSibling(from, currentFrom)
                         currentTo = getNextSibling(to, currentTo)
@@ -298,7 +350,7 @@ export function morph(from, toHtml, options) {
             let currentFromNext = currentFrom && getNextSibling(from, currentFrom) //dom.next(from, fromChildren, currentFrom))
 
             // Patch elements
-            patch(currentFrom, currentTo)
+            context.patch(currentFrom, currentTo)
 
             currentTo = currentTo && getNextSibling(to, currentTo) // dom.next(from, toChildren, currentTo))
 
@@ -311,7 +363,7 @@ export function morph(from, toHtml, options) {
         // We need to collect the "removals" first before actually
         // removing them so we don't mess with the order of things.
         while (currentFrom) {
-            if (! shouldSkip(removing, currentFrom)) removals.push(currentFrom)
+            if (! shouldSkip(context.removing, currentFrom)) removals.push(currentFrom)
 
             // currentFrom = dom.next(fromChildren, currentFrom)
             currentFrom = getNextSibling(from, currentFrom)
@@ -323,19 +375,19 @@ export function morph(from, toHtml, options) {
 
             domForRemoval.remove()
 
-            removed(domForRemoval)
+            context.removed(domForRemoval)
         }
     }
 
-    function getKey(el) {
-        return el && el.nodeType === 1 && key(el)
+    context.getKey = function(el) {
+        return el && el.nodeType === 1 && context.key(el)
     }
 
-    function keyToMap(els) {
+    context.keyToMap = function(els) {
         let map = {}
 
         for (let el of els) {
-            let theKey = getKey(el)
+            let theKey = context.getKey(el)
 
             if (theKey) {
                 map[theKey] = el
@@ -345,13 +397,13 @@ export function morph(from, toHtml, options) {
         return map
     }
 
-    function addNodeBefore(parent, node, beforeMe) {
-        if(! shouldSkip(adding, node)) {
+    context.addNodeBefore = function(parent, node, beforeMe) {
+        if(! shouldSkip(context.adding, node)) {
             let clone = node.cloneNode(true)
 
             parent.insertBefore(clone, beforeMe)
 
-            added(clone)
+            context.added(clone)
 
             return clone
         }
@@ -359,30 +411,7 @@ export function morph(from, toHtml, options) {
         return node
     }
 
-    // Finally we morph the element
-
-    assignOptions(options)
-
-    fromEl = from
-    toEl = typeof toHtml === 'string' ? createElement(toHtml) : toHtml
-
-    if (window.Alpine && window.Alpine.closestDataStack && ! from._x_dataStack) {
-        // Just in case a part of this template uses Alpine scope from somewhere
-        // higher in the DOM tree, we'll find that state and replace it on the root
-        // element so everything is synced up accurately.
-        toEl._x_dataStack = window.Alpine.closestDataStack(from)
-
-        // We will kick off a clone on the root element.
-        toEl._x_dataStack && window.Alpine.cloneNode(from, toEl)
-    }
-
-    patch(from, toEl)
-
-    // Release these for the garbage collector.
-    fromEl = undefined
-    toEl = undefined
-
-    return from
+    return context
 }
 
 // These are legacy holdovers that don't do anything anymore...
@@ -399,7 +428,7 @@ function shouldSkip(hook, ...args) {
 
 // Due to the structure of the `shouldSkip()` function, we can't pass in the `skipChildren`
 // function as an argument as it would change the signature of the existing hooks. So we
-// are using this function instead which doesn't have this problem as we can pass the 
+// are using this function instead which doesn't have this problem as we can pass the
 // `skipChildren` function in as an earlier argument and then append it to the end
 // of the hook signature manually.
 function shouldSkipChildren(hook, skipChildren, ...args) {

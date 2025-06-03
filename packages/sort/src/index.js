@@ -49,21 +49,22 @@ function generateSortHandler(expression, evaluateLater) {
 
     return (key, position) => {
         // In the case of `x-sort="handleSort"`, let us call it manually...
-        Alpine.dontAutoEvaluateFunctions(() => {
-            handle(
-                // If a function is returned, call it with the key/position params...
-                received => {
-                    if (typeof received === 'function') received(key, position)
-                },
-                // Provide $key and $position to the scope in case they want to call their own function...
-                { scope: {
+        handle(
+            // If a function is returned, call it with the key/position params...
+            received => {
+                if (typeof received === 'function') received(key, position)
+            },
+            // Provide $key and $position to the scope in case they want to call their own function...
+            {
+                scope: {
                     // Supporting both `$item` AND `$key` ($key for BC)...
                     $key: key,
                     $item: key,
                     $position: position,
-                } },
-            )
-        })
+                },
+                autoEvaluateFunctions: false
+            },
+        )
     }
 }
 

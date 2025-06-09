@@ -1014,3 +1014,50 @@ test('morphBetween with conditional blocks',
         get('p input').should(haveValue('p-value'))
     },
 )
+
+test('can ignore region between comment markers using skipUntil',
+    [html`
+        <ul>
+            <li>foo</li>
+            <!-- [Slot] -->
+            <li>bar</li>
+            <li>baz</li>
+            <!-- [EndSlot] -->
+            <!-- bob -->
+        </ul>
+    `],
+    ({ get }, reload, window, document) => {
+        // Generate "to" html without the items between Slot markers
+        let toHtml = html`
+            <ul>
+                <li>foo</li>
+                <!-- [Slot] -->
+                <!-- [EndSlot] -->
+                <!-- bob -->
+            </ul>
+        `
+
+        // The original list should have 3 li's
+        get('li').should(haveLength(3))
+        get('li:nth-of-type(1)').should(haveText('foo'))
+        get('li:nth-of-type(2)').should(haveText('bar'))
+        get('li:nth-of-type(3)').should(haveText('baz'))
+
+        // Run morph with custom updating hook that calls skipUntil
+        let isStart = node => node && node.nodeType === 8 && node.textContent.trim() === '[Slot]'
+        let isEnd   = node => node && node.nodeType === 8 && node.textContent.trim() === '[EndSlot]'
+
+        get('ul').then(([el]) => window.Alpine.morph(el, toHtml, {
+            updating(from, to, childrenOnly, skip, skipChildren, skipUntil) {
+                if (isStart(from) && isStart(to)) {
+                    skipUntil(node => isEnd(node))
+                }
+            },
+        }))
+
+        // After morph, the list should still contain the items inside the slot
+        get('li').should(haveLength(3))
+        get('li:nth-of-type(2)').should(haveText('bar'))
+        get('li:nth-of-type(3)').should(haveText('baz'))
+    },
+)

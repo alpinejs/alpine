@@ -96,7 +96,10 @@ function createMorphContext(options = {}) {
         // So we're using `shouldSkipChildren()` instead which doesn't have this problem as it allows us to pass in the `skipChildren()`
         // function as an earlier parameter and then append it to the `updating` hook signature manually. The signature of `updating`
         // hook is now `updating: (el, toEl, childrenOnly, skip, skipChildren)`.
-        if (shouldSkipChildren(context.updating, () => skipChildren = true, from, to, () => updateChildrenOnly = true)) return
+
+        let skipUntil = predicate => context.skipUntilCondition = predicate
+
+        if (shouldSkipChildren(context.updating, () => skipChildren = true, skipUntil, from, to, () => updateChildrenOnly = true)) return
 
         // Initialize the server-side HTML element with Alpine...
         if (from.nodeType === 1 && window.Alpine) {
@@ -200,6 +203,18 @@ function createMorphContext(options = {}) {
 
             let toKey = context.getKey(currentTo)
             let fromKey = context.getKey(currentFrom)
+
+            if (context.skipUntilCondition) {
+                let fromDone = ! currentFrom || context.skipUntilCondition(currentFrom)
+                let toDone   = ! currentTo   || context.skipUntilCondition(currentTo)
+                if (fromDone && toDone) {
+                    context.skipUntilCondition = null
+                } else {
+                    if (! fromDone) currentFrom = currentFrom && getNextSibling(from, currentFrom)
+                    if (! toDone)   currentTo   = currentTo   && getNextSibling(to, currentTo)
+                    continue
+                }
+            }
 
             // Add new elements...
             if (! currentFrom) {
@@ -431,11 +446,9 @@ function shouldSkip(hook, ...args) {
 // are using this function instead which doesn't have this problem as we can pass the
 // `skipChildren` function in as an earlier argument and then append it to the end
 // of the hook signature manually.
-function shouldSkipChildren(hook, skipChildren, ...args) {
+function shouldSkipChildren(hook, skipChildren, skipUntil, ...args) {
     let skip = false
-
-    hook(...args, () => skip = true, skipChildren)
-
+    hook(...args, () => skip = true, skipChildren, skipUntil)
     return skip
 }
 

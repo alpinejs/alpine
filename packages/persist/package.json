@@ -13,5 +13,9 @@
     "main": "dist/module.cjs.js",
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
+    "exports": {
+        "import": "./dist/module.esm.js",
+        "require": "./dist/module.cjs.js"
+    },
     "dependencies": {}
 }

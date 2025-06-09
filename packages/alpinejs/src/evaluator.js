@@ -49,7 +49,7 @@ export function normalEvaluator(el, expression) {
 }
 
 export function generateEvaluatorFromFunction(dataStack, func) {
-    return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+    return (receiver = () => {}, { scope = {}, params = [], context } = {}) => {
         let result = func.apply(mergeProxies([scope, ...dataStack]), params)
 
         runIfTypeOfFunction(receiver, result)
@@ -82,11 +82,11 @@ function generateFunctionFromString(expression, el) {
                 ["__self", "scope"],
                 `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`
             )
-            
+
             Object.defineProperty(func, "name", {
                 value: `[Alpine] ${expression}`,
             })
-            
+
             return func
         } catch ( error ) {
             handleError( error, el, expression )
@@ -103,7 +103,7 @@ function generateFunctionFromString(expression, el) {
 function generateEvaluatorFromString(dataStack, expression, el) {
     let func = generateFunctionFromString(expression, el)
 
-    return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
+    return (receiver = () => {}, { scope = {}, params = [], context } = {}) => {
         func.result = undefined
         func.finished = false
 
@@ -112,7 +112,7 @@ function generateEvaluatorFromString(dataStack, expression, el) {
         let completeScope = mergeProxies([ scope, ...dataStack ])
 
         if (typeof func === 'function' ) {
-            let promise = func(func, completeScope).catch((error) => handleError(error, el, expression))
+            let promise = func.call(context, func, completeScope).catch((error) => handleError(error, el, expression))
 
             // Check if the function ran synchronously,
             if (func.finished) {

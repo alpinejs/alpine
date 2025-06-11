@@ -49,3 +49,23 @@ test('x-html runs even after x-if or x-for',
         get('span').should(haveText('bar'))
     }
 )
+
+test('x-html ignores nullish values when requested',
+    html`
+        <div x-data="{ html: '<span x-text=&quot;foo&quot;></span>', foo: 'bar', baz: 'quux', nullishHtml: null }">
+            <header x-html.ignore-nullish="html"></header>
+            <section x-html.ignore-nullish="nullishHtml">original html</section>
+
+            <button x-on:click="(html = null) || (nullishHtml = '<h3 x-text=&quot;baz&quot;></h3>')"
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('section').should(haveText('original html'))
+
+        get('button').click()
+
+        get('span').should(haveText('bar'))
+        get('h3').should(haveText('quux'))
+    }
+)

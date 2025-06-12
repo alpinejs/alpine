@@ -116,6 +116,10 @@ export default function (Alpine) {
                 if (autofocusEl) options.initialFocus = autofocusEl
             }
 
+            if (modifiers.includes('preventscroll')) {
+                options.preventScroll = true
+            }
+
             let trap = createFocusTrap(el, options)
 
             let undoInert = () => {}

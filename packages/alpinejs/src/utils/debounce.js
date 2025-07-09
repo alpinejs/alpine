@@ -1,11 +1,11 @@
 
 export function debounce(func, wait) {
-    var timeout
+    let timeout
 
     return function() {
-        var context = this, args = arguments
+        const context = this, args = arguments
 
-        var later = function () {
+        const later = function () {
             timeout = null
 
             func.apply(context, args)

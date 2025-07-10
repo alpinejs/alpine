@@ -113,7 +113,7 @@ function isClickEvent(event) {
 
 function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
-        return ! ['window', 'document', 'prevent', 'stop', 'once', 'capture', 'self', 'away', 'outside', 'passive'].includes(i)
+        return ! ['window', 'document', 'prevent', 'stop', 'once', 'capture', 'self', 'away', 'outside', 'passive', 'preserve-scroll'].includes(i)
     })
 
     if (keyModifiers.includes('debounce')) {

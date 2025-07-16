@@ -57,7 +57,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
 
     // If the element we are binding to is a select, a radio, or checkbox
     // we'll listen for the change event instead of the "input" event.
-    var event = (el.tagName.toLowerCase() === 'select')
+    let event = (el.tagName.toLowerCase() === 'select')
         || ['checkbox', 'radio'].includes(el.type)
         || modifiers.includes('lazy')
             ? 'change' : 'input'

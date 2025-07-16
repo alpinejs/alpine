@@ -113,6 +113,7 @@ function isClickEvent(event) {
 
 function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
+        // `preserve-scroll` is specifically for Livewire and is not used by Alpine...
         return ! ['window', 'document', 'prevent', 'stop', 'once', 'capture', 'self', 'away', 'outside', 'passive', 'preserve-scroll'].includes(i)
     })
 

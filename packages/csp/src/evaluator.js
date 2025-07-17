@@ -30,7 +30,7 @@ function generateEvaluator(el, expression, dataStack) {
 
         let evaluatedExpression = expression.split('.').reduce(
             (currentScope, currentExpression) => {
-                if (currentScope[currentExpression] === undefined) {
+                if (currentExpression !== '{}' && currentScope[currentExpression] === undefined) {
                     throwExpressionError(el, expression)
                 }
 

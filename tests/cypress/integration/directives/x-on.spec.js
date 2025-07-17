@@ -247,6 +247,21 @@ test('.window modifier',
     }
 )
 
+test('.viewport modifier',
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <div x-on:resize.visual="foo = window.visualViewport.width"></div>
+            <span x-text="foo"></span>
+        </div>
+
+    `,
+    ({ get, viewport }) => {
+        get('span').should(haveText('bar'))
+        viewport('iphone-6')
+        get('span').should(haveText('375'))
+    }
+)
+
 test('expressions can start with if',
     html`
         <div x-data="{ foo: 'bar' }">

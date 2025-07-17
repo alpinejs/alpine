@@ -253,6 +253,49 @@ test('keyboard navigation works',
     },
 )
 
+test('keyboard navigation works when first option has null as value',
+    [html`
+        <main x-data="{ active: null }">
+            <div x-radio x-model="active">
+                <div x-radio:option option="option-null" :value="null"></div>
+                <div x-radio:option option="option-1" value="1"></div>
+                <div x-radio:option option="option-2" value="2"></div>
+            </div>
+
+            <input x-model="active" type="hidden">
+        </main>
+    `],
+    ({ get }) => {
+        get('[option="option-1"]').focus().type('{downarrow}')
+        get('[option="option-2"]').should(haveFocus()).type('{uparrow}')
+        get('[option="option-1"]').should(haveFocus()).type('{uparrow}')
+        get('[option="option-null"]').should(haveFocus()).type('{uparrow}')
+        get('[option="option-2"]').should(haveFocus()).type('{downarrow}')
+        get('[option="option-null"]').should(haveFocus())
+    },
+)
+
+test('keyboard navigation works when last option has null as value',
+    [html`
+        <main x-data="{ active: null }">
+            <div x-radio x-model="active">
+                <div x-radio:option option="option-1" value="1"></div>
+                <div x-radio:option option="option-2" value="2"></div>
+                <div x-radio:option option="option-null" :value="null"></div>
+            </div>
+
+            <input x-model="active" type="hidden">
+        </main>
+    `],
+    ({ get }) => {
+        get('[option="option-1"]').focus().type('{downarrow}')
+        get('[option="option-2"]').should(haveFocus()).type('{downarrow}')
+        get('[option="option-null"]').should(haveFocus()).type('{downarrow}')
+        get('[option="option-1"]').should(haveFocus()).type('{uparrow}')
+        get('[option="option-null"]').should(haveFocus())
+    },
+)
+
 test('has accessibility attributes',
     [html`
         <main x-data="{ active: null, access: [

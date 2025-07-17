@@ -199,8 +199,16 @@ function disableScrolling() {
     let paddingRight = document.documentElement.style.paddingRight
 
     let scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+    let scrollbarGutter = window.getComputedStyle(document.documentElement).scrollbarGutter
 
     document.documentElement.style.overflow = 'hidden'
+
+    if (scrollbarGutter && scrollbarGutter !== 'auto') {
+        return () => {
+            document.documentElement.style.overflow = overflow
+        }
+    }
+
     document.documentElement.style.paddingRight = `${scrollbarWidth}px`
 
     return () => {

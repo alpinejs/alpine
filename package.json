@@ -7,7 +7,7 @@
         "@floating-ui/dom": "^1.5.3",
         "axios": "^0.21.1",
         "chalk": "^4.1.1",
-        "cypress": "^7.0.0",
+        "cypress": "^14.5.2",
         "cypress-plugin-tab": "^1.0.5",
         "dot-json": "^1.2.2",
         "esbuild": "~0.16.17",

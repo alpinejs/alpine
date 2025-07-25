@@ -16,11 +16,13 @@ export default function (Alpine) {
         return {
             __noscroll: false,
             __wrapAround: false,
+            __displayCheck: 'none',
             within(el) { within = el; return this },
             withoutScrolling() { this.__noscroll = true; return this },
             noscroll() { this.__noscroll = true; return this },
             withWrapAround() { this.__wrapAround = true; return this },
             wrap() { return this.withWrapAround() },
+            displayCheck(value) { this.__displayCheck = value; return this },
             focusable(el) {
                 return isFocusable(el)
             },
@@ -36,7 +38,7 @@ export default function (Alpine) {
             focusables() {
                 if (Array.isArray(within)) return within
 
-                return focusable(within, { displayCheck: 'none' })
+                return focusable(within, { displayCheck: this.__displayCheck })
             },
             all() { return this.focusables() },
             isFirst(el) {

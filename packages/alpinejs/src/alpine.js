@@ -8,6 +8,7 @@ import { transition } from './directives/x-transition'
 import { clone, cloneNode, skipDuringClone, onlyDuringClone, interceptClone } from './clone'
 import { interceptor } from './interceptor'
 import { getBinding as bound, extractProp } from './utils/bind'
+import { setErrorHandler } from './utils/error'
 import { debounce } from './utils/debounce'
 import { throttle } from './utils/throttle'
 import { setStyles } from './utils/styles'
@@ -39,6 +40,7 @@ let Alpine = {
     onlyDuringClone,
     addRootSelector,
     addInitSelector,
+    setErrorHandler,
     interceptClone,
     addScopeToNode,
     deferMutations,

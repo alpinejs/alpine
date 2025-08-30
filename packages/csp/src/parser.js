@@ -1,0 +1,528 @@
+
+export function convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP(expression) {
+    return (scope = {}, params = [], context = null) => {
+        // Handle basic literals
+        if (expression === 'true') return true
+        if (expression === 'false') return false
+        if (expression === 'null') return null
+        if (expression === 'undefined') return undefined
+
+        // Handle numbers
+        if (!isNaN(expression) && expression.trim() !== '') {
+            return Number(expression)
+        }
+
+        // Handle strings (quoted)
+        if ((expression.startsWith('"') && expression.endsWith('"')) ||
+            (expression.startsWith("'") && expression.endsWith("'"))) {
+            return expression.slice(1, -1)
+        }
+
+        // Handle variable access (simple identifiers)
+        if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(expression)) {
+            // Handle 'this' keyword
+            if (expression === 'this') return context
+            return scope[expression]
+        }
+
+        // Handle dot notation (e.g., user.name, this.value)
+        if (expression.includes('.') && !expression.includes(' ') && !expression.includes('(')) {
+            const parts = expression.split('.')
+            let obj
+            if (parts[0] === 'this') {
+                obj = context
+            } else {
+                obj = scope[parts[0]]
+            }
+
+            return parts.slice(1).reduce((currentObj, prop) => {
+                return currentObj ? currentObj[prop] : undefined
+            }, obj)
+        }
+
+        // Handle expressions with operators
+        return evaluateExpression(expression, scope, params, context)
+    }
+}
+
+function evaluateExpression(expression, scope, params, context) {
+    const tokens = tokenize(expression)
+    return evaluateTokens(tokens, scope, params, context)
+}
+
+function tokenize(expression) {
+    const tokens = []
+    let current = ''
+    let i = 0
+    let inString = false
+    let stringQuote = null
+
+    while (i < expression.length) {
+        const char = expression[i]
+
+        // Handle string literals
+        if ((char === '"' || char === "'") && !inString) {
+            inString = true
+            stringQuote = char
+            if (current) {
+                tokens.push(current)
+                current = ''
+            }
+            current += char
+        } else if (char === stringQuote && inString) {
+            inString = false
+            current += char
+            tokens.push(current)
+            current = ''
+            stringQuote = null
+        } else if (inString) {
+            current += char
+        } else if (char === ' ') {
+            if (current) {
+                tokens.push(current)
+                current = ''
+            }
+        } else if ('+-*/()<>=!&|,[]{}:'.includes(char)) {
+            if (current) {
+                tokens.push(current)
+                current = ''
+            }
+
+            // Handle multi-character operators
+            if (i + 2 < expression.length) {
+                const threeChar = expression.slice(i, i + 3)
+                if (threeChar === '===' || threeChar === '!==') {
+                    tokens.push(threeChar)
+                    i += 2
+                    i++
+                    continue
+                }
+            }
+
+            if (i + 1 < expression.length) {
+                const twoChar = expression.slice(i, i + 2)
+                if (twoChar === '<=' || twoChar === '>=' || twoChar === '&&' || twoChar === '||' || twoChar === '++' || twoChar === '--') {
+                    tokens.push(twoChar)
+                    i++
+                    i++
+                    continue
+                }
+            }
+
+            tokens.push(char)
+        } else {
+            current += char
+        }
+
+        i++
+    }
+
+    if (current) {
+        tokens.push(current)
+    }
+
+    return tokens
+}
+
+function evaluateTokens(tokens, scope, params, context) {
+    // Handle array access first
+    tokens = evaluateArrayAccess(tokens, scope, params, context)
+
+    // Handle function calls
+    tokens = evaluateFunctionCalls(tokens, scope, params, context)
+
+    // Handle object literals
+    tokens = evaluateObjectLiterals(tokens, scope, params, context)
+
+    // Handle unary operators
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === '!') {
+            const operand = getValue(tokens[i + 1], scope, params, context)
+            tokens.splice(i, 2, !operand)
+        }
+    }
+
+    // Handle prefix increment/decrement before arithmetic (higher precedence)
+    for (let i = 0; i < tokens.length - 1; i++) {
+        if ((tokens[i] === '++' || tokens[i] === '--') && i + 1 < tokens.length) {
+            // Only process if the next token is a valid variable name
+            const nextToken = tokens[i + 1]
+            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(nextToken)) {
+                const variableName = nextToken
+                const currentValue = getValueForIncrement(variableName, scope, params, context)
+
+                if (typeof currentValue !== 'number') {
+                    throw new Error(`Cannot increment/decrement non-numeric value: ${variableName}`)
+                }
+
+                const newValue = tokens[i] === '++' ? currentValue + 1 : currentValue - 1
+
+                // Update the variable in scope
+                scope[variableName] = newValue
+
+                // For prefix, return the new value
+                tokens.splice(i, 2, newValue)
+                i--
+            }
+        }
+    }
+
+    // Handle arithmetic operators
+    for (let i = 1; i < tokens.length - 1; i += 2) {
+        const left = getValue(tokens[i - 1], scope, params, context)
+        const operator = tokens[i]
+        const right = getValue(tokens[i + 1], scope, params, context)
+
+        let result
+        switch (operator) {
+            case '+': result = left + right; break
+            case '-': result = left - right; break
+            case '*': result = left * right; break
+            case '/': result = left / right; break
+            case '<': result = left < right; break
+            case '>': result = left > right; break
+            case '<=': result = left <= right; break
+            case '>=': result = left >= right; break
+            case '===': result = left === right; break
+            case '!==': result = left !== right; break
+            case '&&': result = left && right; break
+            case '||': result = left || right; break
+            default: continue
+        }
+
+        tokens.splice(i - 1, 3, result)
+        i -= 2
+    }
+
+    // Handle postfix increment/decrement after arithmetic (lower precedence)
+    for (let i = 0; i < tokens.length; i++) {
+        if ((tokens[i] === '++' || tokens[i] === '--') && i > 0) {
+            // Handle postfix increment/decrement (e.g., foo++)
+            // Only process if the previous token is a valid variable name
+            const previousToken = tokens[i - 1]
+            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(previousToken)) {
+                const variableName = previousToken
+                const currentValue = getValueForIncrement(variableName, scope, params, context)
+
+                if (typeof currentValue !== 'number') {
+                    throw new Error(`Cannot increment/decrement non-numeric value: ${variableName}`)
+                }
+
+                const newValue = tokens[i] === '++' ? currentValue + 1 : currentValue - 1
+
+                // Update the variable in scope
+                scope[variableName] = newValue
+
+                // For postfix, return the original value, but update the variable
+                tokens.splice(i - 1, 2, currentValue)
+                i--
+            }
+        }
+    }
+
+    // If we have a single token, make sure it's properly evaluated
+    if (tokens.length === 1) {
+        return getValue(tokens[0], scope, params, context)
+    }
+
+    return tokens[0]
+}
+
+function evaluateArrayAccess(tokens, scope, params, context) {
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === '[') {
+            // Find the matching closing bracket
+            let bracketCount = 1
+            let j = i + 1
+            while (j < tokens.length && bracketCount > 0) {
+                if (tokens[j] === '[') bracketCount++
+                else if (tokens[j] === ']') bracketCount--
+                j++
+            }
+
+            if (bracketCount === 0) {
+                // Check if this is actually array access (not object literal)
+                if (i > 0 && tokens[i - 1] !== ':') {
+                    const arrayName = tokens[i - 1]
+                    const indexTokens = tokens.slice(i + 1, j - 1)
+                    const index = evaluateTokens(indexTokens, scope, params, context)
+
+                    // Get the array from scope or params
+                    let array
+                    if (arrayName === 'params') {
+                        array = params
+                    } else {
+                        array = getValue(arrayName, scope, params, context)
+                    }
+
+                    if (Array.isArray(array)) {
+                        const result = array[index]
+                        tokens.splice(i - 1, j - i + 1, result)
+                        i = i - 1
+                    } else {
+                        throw new Error(`'${arrayName}' is not an array`)
+                    }
+                }
+            }
+        }
+    }
+
+    return tokens
+}
+
+function evaluateFunctionCalls(tokens, scope, params, context) {
+    let i = 0
+    while (i < tokens.length) {
+        if (tokens[i] === '(') {
+            // Find the matching closing parenthesis
+            let parenCount = 1
+            let j = i + 1
+            while (j < tokens.length && parenCount > 0) {
+                if (tokens[j] === '(') parenCount++
+                if (tokens[j] === ')') parenCount--
+                j++
+            }
+
+            if (parenCount === 0) {
+                // This is a function call
+                const functionName = tokens[i - 1]
+                const argsTokens = tokens.slice(i + 1, j - 1)
+
+                // Evaluate arguments first
+                const args = parseArguments(argsTokens, scope, params, context)
+
+                // Get the function from scope
+                const func = getValue(functionName, scope, params, context)
+
+                if (typeof func === 'function') {
+                    const result = func.apply(context, args)
+                    tokens.splice(i - 1, j - i + 1, result)
+                    i = i - 1
+                } else {
+                    throw new Error(`'${functionName}' is not a function`)
+                }
+            }
+        }
+        i++
+    }
+    return tokens
+}
+
+function parseArguments(argsTokens, scope, params, context) {
+    if (argsTokens.length === 0) return []
+
+    const args = []
+    let currentArg = []
+    let parenCount = 0
+    let bracketCount = 0
+
+    for (let i = 0; i < argsTokens.length; i++) {
+        const token = argsTokens[i]
+
+        if (token === '(') parenCount++
+        else if (token === ')') parenCount--
+        else if (token === '[') bracketCount++
+        else if (token === ']') bracketCount--
+        else if (token === ',' && parenCount === 0 && bracketCount === 0) {
+            // End of current argument
+            if (currentArg.length > 0) {
+                const evaluatedArg = evaluateTokens([...currentArg], scope, params, context)
+                args.push(evaluatedArg)
+                currentArg = []
+            }
+            continue
+        }
+
+        currentArg.push(token)
+    }
+
+    // Add the last argument
+    if (currentArg.length > 0) {
+        const evaluatedArg = evaluateTokens([...currentArg], scope, params, context)
+        args.push(evaluatedArg)
+    }
+
+    return args
+}
+
+function evaluateObjectLiterals(tokens, scope, params, context) {
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === '{') {
+            // Find the matching closing brace
+            let braceCount = 1
+            let j = i + 1
+            while (j < tokens.length && braceCount > 0) {
+                if (tokens[j] === '{') braceCount++
+                else if (tokens[j] === '}') braceCount--
+                j++
+            }
+
+            if (braceCount === 0) {
+                // Extract the object literal content
+                const objectTokens = tokens.slice(i + 1, j - 1)
+                const object = parseObjectLiteral(objectTokens, scope, params, context)
+
+                // Replace the object literal with the parsed object
+                tokens.splice(i, j - i, object)
+            }
+        }
+    }
+
+    return tokens
+}
+
+function parseObjectLiteral(tokens, scope, params, context) {
+    if (tokens.length === 0) {
+        return {}
+    }
+
+    const object = {}
+    let i = 0
+
+    while (i < tokens.length) {
+        // Skip whitespace and commas
+        while (i < tokens.length && (tokens[i] === ',' || tokens[i].trim() === '')) {
+            i++
+        }
+
+        if (i >= tokens.length) break
+
+        // Parse key
+        let key
+        if (tokens[i].startsWith('"') && tokens[i].endsWith('"')) {
+            // Quoted key
+            key = tokens[i].slice(1, -1)
+            i++
+        } else if (tokens[i].startsWith("'") && tokens[i].endsWith("'")) {
+            // Single quoted key
+            key = tokens[i].slice(1, -1)
+            i++
+        } else if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(tokens[i])) {
+            // Identifier key
+            key = tokens[i]
+            i++
+        } else {
+            throw new Error(`Invalid object key: ${tokens[i]}`)
+        }
+
+        // Expect colon
+        if (i >= tokens.length || tokens[i] !== ':') {
+            throw new Error('Expected colon after object key')
+        }
+        i++
+
+        // Parse value - collect tokens until we hit a comma at the top level
+        let valueTokens = []
+        let parenCount = 0
+        let bracketCount = 0
+        let braceCount = 0
+
+        while (i < tokens.length) {
+            const token = tokens[i]
+
+            if (token === '(') parenCount++
+            else if (token === ')') parenCount--
+            else if (token === '[') bracketCount++
+            else if (token === ']') bracketCount--
+            else if (token === '{') braceCount++
+            else if (token === '}') braceCount--
+            else if (token === ',' && parenCount === 0 && bracketCount === 0 && braceCount === 0) {
+                i++
+                break
+            }
+
+            valueTokens.push(token)
+            i++
+        }
+
+        // Evaluate the value
+        const value = evaluateTokens(valueTokens, scope, params, context)
+        object[key] = value
+    }
+
+    return object
+}
+
+function getValue(token, scope, params, context) {
+    // If it's already a value (number, boolean, object, array), return it
+    if (typeof token === 'number' || typeof token === 'boolean' ||
+        typeof token === 'object' || Array.isArray(token)) {
+        return token
+    }
+
+    // Handle literals
+    if (token === 'true') return true
+    if (token === 'false') return false
+    if (token === 'null') return null
+    if (token === 'undefined') return undefined
+
+    // Handle numbers
+    if (!isNaN(token) && token.trim() !== '') {
+        return Number(token)
+    }
+
+    // Handle strings (quoted)
+    if ((token.startsWith('"') && token.endsWith('"')) ||
+        (token.startsWith("'") && token.endsWith("'"))) {
+        return token.slice(1, -1)
+    }
+
+    // Handle 'this' keyword
+    if (token === 'this') return context
+
+    // Handle variable access
+    if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(token)) {
+        return scope[token]
+    }
+
+    // Handle dot notation
+    if (token.includes('.')) {
+        return token.split('.').reduce((obj, prop) => {
+            return obj ? obj[prop] : undefined
+        }, scope)
+    }
+
+    return token
+}
+
+function getValueForIncrement(token, scope, params, context) {
+    // Special version of getValue for increment/decrement that throws better errors
+    if (token === undefined || token === null) {
+        throw new Error('Cannot increment/decrement undefined or null value')
+    }
+
+    if (typeof token === 'number' || typeof token === 'boolean') {
+        return token
+    }
+
+    // Handle numbers
+    if (!isNaN(token) && token.trim() !== '') {
+        return Number(token)
+    }
+
+    // Handle strings (quoted)
+    if ((token.startsWith('"') && token.endsWith('"')) ||
+        (token.startsWith("'") && token.endsWith("'"))) {
+        return token.slice(1, -1)
+    }
+
+    // Handle 'this' keyword
+    if (token === 'this') return context
+
+    // Handle variable access
+    if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(token)) {
+        if (scope[token] === undefined) {
+            throw new Error(`Variable not found: ${token}`)
+        }
+        return scope[token]
+    }
+
+    // Handle dot notation
+    if (token.includes('.')) {
+        return token.split('.').reduce((obj, prop) => {
+            return obj ? obj[prop] : undefined
+        }, scope)
+    }
+
+    return token
+}

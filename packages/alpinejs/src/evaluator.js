@@ -2,7 +2,7 @@ import { closestDataStack, mergeProxies } from './scope'
 import { injectMagics } from './magics'
 import { tryCatch, handleError } from './utils/error'
 
-let shouldAutoEvaluateFunctions = true
+export let shouldAutoEvaluateFunctions = true
 
 export function dontAutoEvaluateFunctions(callback) {
     let cache = shouldAutoEvaluateFunctions

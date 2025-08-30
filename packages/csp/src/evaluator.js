@@ -1,7 +1,8 @@
-import { generateEvaluatorFromFunction, runIfTypeOfFunction } from 'alpinejs/src/evaluator'
+import { generateEvaluatorFromFunction, shouldAutoEvaluateFunctions } from 'alpinejs/src/evaluator'
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { tryCatch } from 'alpinejs/src/utils/error'
 import { injectMagics } from 'alpinejs/src/magics'
+import { convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP } from './parser'
 
 export function cspEvaluator(el, expression) {
     let dataStack = generateDataStack(el)
@@ -28,18 +29,23 @@ function generateEvaluator(el, expression, dataStack) {
     return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
         let completeScope = mergeProxies([scope, ...dataStack])
 
-        let evaluatedExpression = expression.split('.').reduce(
-            (currentScope, currentExpression) => {
-                if (currentScope[currentExpression] === undefined) {
-                    throwExpressionError(el, expression)
-                }
+        let evaluate = convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP(expression)
 
-                return currentScope[currentExpression]
-            },
-            completeScope,
-        );
+        let returnValue = evaluate(completeScope, params)
 
-        runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params)
+        if (shouldAutoEvaluateFunctions && typeof returnValue === 'function') {
+            let nextReturnValue = returnValue()
+
+            if (nextReturnValue instanceof Promise) {
+                nextReturnValue.then(i =>  receiver(i))
+            } else {
+                receiver(nextReturnValue)
+            }
+        } else if (typeof returnValue === 'object' && returnValue instanceof Promise) {
+            returnValue.then(i => receiver(i))
+        } else {
+            receiver(returnValue)
+        }
     }
 }
 

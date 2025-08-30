@@ -1,8 +1,8 @@
 import { generateEvaluatorFromFunction, shouldAutoEvaluateFunctions } from 'alpinejs/src/evaluator'
+import { convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP } from './parser'
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { tryCatch } from 'alpinejs/src/utils/error'
 import { injectMagics } from 'alpinejs/src/magics'
-import { convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP } from './parser'
 
 window.parse = convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP
 

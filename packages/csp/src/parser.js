@@ -31,6 +31,7 @@ function tokenize(expression) {
     let i = 0
     let inString = false
     let stringQuote = null
+    let bracketCount = 0
 
     while (i < expression.length) {
         const char = expression[i]
@@ -61,6 +62,16 @@ function tokenize(expression) {
             if (current) {
                 tokens.push(current)
                 current = ''
+            }
+
+            // Track bracket count for validation
+            if (char === '[') {
+                bracketCount++
+            } else if (char === ']') {
+                bracketCount--
+                if (bracketCount < 0) {
+                    throw new Error('Unexpected closing bracket')
+                }
             }
 
             // Handle multi-character operators
@@ -96,6 +107,11 @@ function tokenize(expression) {
         tokens.push(current)
     }
 
+    // Check for unmatched brackets
+    if (bracketCount > 0) {
+        throw new Error('Missing closing bracket')
+    }
+
     return tokens
 }
 
@@ -126,6 +142,134 @@ function assignToNestedProperty(path, scope, newValue) {
 
     obj[lastPart] = newValue
     return newValue
+}
+
+function assignToArrayNotation(tokens, scope, params, context) {
+    // Look for patterns like: objectName[key] = value
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === '=') {
+            const leftTokens = tokens.slice(0, i)
+            const rightTokens = tokens.slice(i + 1)
+
+            // Check if left side contains array notation
+            if (leftTokens.some(token => token === '[')) {
+                // Find the array notation pattern: objectName[key]
+                let objectName = null
+                let key = null
+                let bracketStart = -1
+                let bracketEnd = -1
+
+                // Find the last bracket pair for nested array notation
+                for (let j = leftTokens.length - 1; j >= 0; j--) {
+                    if (leftTokens[j] === ']') {
+                        bracketEnd = j
+                        // Find the matching opening bracket
+                        let bracketCount = 1
+                        for (let k = j - 1; k >= 0; k--) {
+                            if (leftTokens[k] === ']') {
+                                bracketCount++
+                            } else if (leftTokens[k] === '[') {
+                                bracketCount--
+                                if (bracketCount === 0) {
+                                    bracketStart = k
+                                    objectName = leftTokens[k - 1]
+                                    break
+                                }
+                            }
+                        }
+                        break
+                    }
+                }
+
+                if (bracketStart !== -1 && bracketEnd !== -1) {
+                    // Extract the key
+                    const keyTokens = leftTokens.slice(bracketStart + 1, bracketEnd)
+                    key = evaluateTokens(keyTokens, scope, params, context)
+
+                    // Evaluate the right side
+                    const rightValue = evaluateTokens(rightTokens, scope, params, context)
+
+                    // Get the object
+                    let object
+                    if (objectName === 'params') {
+                        object = params
+                    } else if (typeof objectName === 'object' && objectName !== null) {
+                        // Object is already resolved (e.g., from previous array access)
+                        object = objectName
+                    } else {
+                        object = getValue(objectName, scope, params, context)
+                    }
+
+                    // Assign the value
+                    if (object && typeof object === 'object') {
+                        object[key] = rightValue
+                        return rightValue
+                    } else {
+                        throw new Error(`Cannot assign to property of ${objectName} (not an object)`)
+                    }
+                }
+            }
+        }
+    }
+
+    return null // No array notation assignment found
+}
+
+function evaluateDotNotation(tokens, scope, params, context) {
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === '.' && i > 0 && i + 1 < tokens.length) {
+            const objectToken = tokens[i - 1]
+            const propertyToken = tokens[i + 1]
+
+            // Get the object
+            let object
+            if (objectToken === 'this') {
+                object = context
+            } else if (typeof objectToken === 'object' && objectToken !== null) {
+                // Object is already resolved (e.g., from array access)
+                object = objectToken
+            } else {
+                // Object token is a string, resolve it
+                object = getValue(objectToken, scope, params, context)
+            }
+
+            // Get the property value
+            if (object && typeof object === 'object') {
+                const result = object[propertyToken]
+                tokens.splice(i - 1, 3, result)
+                i = i - 1
+            } else {
+                throw new Error(`Cannot access property '${propertyToken}' of ${objectToken} (not an object)`)
+            }
+        } else if (typeof tokens[i] === 'string' && tokens[i].startsWith('.') && i > 0) {
+            // Handle tokens like '.profile' - extract the property name and process it
+            const objectToken = tokens[i - 1]
+            const propertyName = tokens[i].substring(1) // Remove the leading dot
+
+            // Get the object
+            let object
+            if (objectToken === 'this') {
+                object = context
+            } else if (typeof objectToken === 'object' && objectToken !== null) {
+                // Object is already resolved (e.g., from array access)
+                object = objectToken
+            } else {
+                // Object token is a string, resolve it
+                object = getValue(objectToken, scope, params, context)
+            }
+
+            // Get the property value
+            if (object && typeof object === 'object') {
+                const result = object[propertyName]
+                tokens.splice(i - 1, 2, result) // Replace both tokens with the result
+                i = i - 1
+            } else {
+                throw new Error(`Cannot access property '${propertyName}' of ${objectToken} (not an object)`)
+            }
+        }
+    }
+
+    return tokens
 }
 
 function evaluateTokens(tokens, scope, params, context) {
@@ -178,8 +322,27 @@ function evaluateTokens(tokens, scope, params, context) {
         return getValue(token, scope, params, context)
     }
 
-    // Handle array access first
-    tokens = evaluateArrayAccess(tokens, scope, params, context)
+    // Handle array notation assignment before array access
+    const arrayNotationResult = assignToArrayNotation(tokens, scope, params, context)
+    if (arrayNotationResult !== null) {
+        return arrayNotationResult
+    }
+
+    // Handle array access and dot notation alternately until no changes
+    let changed = true
+    while (changed) {
+        changed = false
+
+        // Handle array access
+        const arrayTokensBefore = tokens.length
+        tokens = evaluateArrayAccess(tokens, scope, params, context)
+        if (tokens.length !== arrayTokensBefore) changed = true
+
+        // Handle dot notation
+        const dotTokensBefore = tokens.length
+        tokens = evaluateDotNotation(tokens, scope, params, context)
+        if (tokens.length !== dotTokensBefore) changed = true
+    }
 
     // Handle function calls (before object literals)
     tokens = evaluateFunctionCalls(tokens, scope, params, context)
@@ -298,7 +461,7 @@ function evaluateTokens(tokens, scope, params, context) {
             const rightValue = evaluateTokens(rightTokens, scope, params, context)
 
             // Check if left side is a valid assignment target
-            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(leftToken)) {
+            if (leftToken && /^[a-zA-Z_$][a-zA-Z0-9_$]*(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(leftToken)) {
                 // Handle nested property assignment
                 if (leftToken.includes('.')) {
                     assignToNestedProperty(leftToken, scope, rightValue)
@@ -366,38 +529,66 @@ function evaluateTokensWithTernary(tokens, scope, params, context) {
 }
 
 function evaluateArrayAccess(tokens, scope, params, context) {
-    for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i] === '[') {
-            // Find the matching closing bracket
-            let bracketCount = 1
-            let j = i + 1
-            while (j < tokens.length && bracketCount > 0) {
-                if (tokens[j] === '[') bracketCount++
-                else if (tokens[j] === ']') bracketCount--
-                j++
-            }
+    let changed = true
+    while (changed) {
+        changed = false
+        for (let i = 0; i < tokens.length; i++) {
+            if (tokens[i] === '[') {
+                // Find the matching closing bracket
+                let bracketCount = 1
+                let j = i + 1
+                while (j < tokens.length && bracketCount > 0) {
+                    if (tokens[j] === '[') bracketCount++
+                    else if (tokens[j] === ']') bracketCount--
+                    j++
+                }
 
-            if (bracketCount === 0) {
-                // Check if this is actually array access (not object literal)
-                if (i > 0 && tokens[i - 1] !== ':') {
-                    const arrayName = tokens[i - 1]
-                    const indexTokens = tokens.slice(i + 1, j - 1)
-                    const index = evaluateTokens(indexTokens, scope, params, context)
+                if (bracketCount > 0) {
+                    // Missing closing bracket
+                    throw new Error('Missing closing bracket in array notation')
+                }
 
-                    // Get the array from scope or params
-                    let array
-                    if (arrayName === 'params') {
-                        array = params
-                    } else {
-                        array = getValue(arrayName, scope, params, context)
-                    }
+                if (bracketCount === 0) {
+                    // Check if this is actually array access (not object literal)
+                    if (i > 0 && tokens[i - 1] !== ':') {
+                        const objectName = tokens[i - 1]
+                        const keyTokens = tokens.slice(i + 1, j - 1)
 
-                    if (Array.isArray(array)) {
-                        const result = array[index]
-                        tokens.splice(i - 1, j - i + 1, result)
-                        i = i - 1
-                    } else {
-                        throw new Error(`'${arrayName}' is not an array`)
+                        // Check for empty brackets
+                        if (keyTokens.length === 0) {
+                            throw new Error('Empty brackets in array notation')
+                        }
+
+                        const key = evaluateTokens(keyTokens, scope, params, context)
+
+                        // Get the object from scope or params
+                        let object
+                        if (objectName === 'params') {
+                            object = params
+                        } else if (typeof objectName === 'string' && objectName.startsWith('.')) {
+                            // Handle dot notation like '.profile' - this should be processed by dot notation evaluation
+                            // Skip this array access for now
+                            continue
+                        } else {
+                            object = getValue(objectName, scope, params, context)
+                        }
+
+                        // Handle both array indexing and object property access
+                        if (Array.isArray(object)) {
+                            // Array indexing
+                            const result = object[key]
+                            tokens.splice(i - 1, j - i + 1, result)
+                            i = i - 1
+                            changed = true
+                        } else if (object && typeof object === 'object') {
+                            // Object property access
+                            const result = object[key]
+                            tokens.splice(i - 1, j - i + 1, result)
+                            i = i - 1
+                            changed = true
+                        } else {
+                            throw new Error(`Cannot access property of ${objectName} (not an object or array)`)
+                        }
                     }
                 }
             }

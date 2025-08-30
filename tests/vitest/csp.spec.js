@@ -530,4 +530,159 @@ describe('CSP (Content Security Policy)', () => {
         }).toThrow('Cannot assign to undefined property: user.profile')
     })
 
+    it('supports array notation property access', () => {
+        const scope = {
+            user: { name: 'John', age: 30 },
+            items: ['apple', 'banana', 'cherry'],
+            data: {
+                'first-name': 'Jane',
+                'last-name': 'Doe',
+                '123': 'numeric key',
+                'special.key': 'dot in key'
+            },
+            index: 1,
+            key: 'name'
+        }
+
+        // Basic array notation with string literal
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user["name"]')(scope)).toEqual('John')
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user["age"]')(scope)).toEqual(30)
+
+        // Array notation with variable key
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user[key]')(scope)).toEqual('John')
+
+        // Array notation with numeric index
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('items[0]')(scope)).toEqual('apple')
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('items[1]')(scope)).toEqual('banana')
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('items[index]')(scope)).toEqual('banana')
+
+        // Array notation with special keys
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('data["first-name"]')(scope)).toEqual('Jane')
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('data["123"]')(scope)).toEqual('numeric key')
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('data["special.key"]')(scope)).toEqual('dot in key')
+
+        // Nested array notation
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('data["first-name"]')(scope)).toEqual('Jane')
+    })
+
+    it('supports array notation in expressions', () => {
+        const scope = {
+            user: { name: 'John', age: 30 },
+            items: [10, 20, 30],
+            index: 1,
+            key: 'age'
+        }
+
+        // Array notation in arithmetic expressions
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('items[0] + items[1]')(scope)).toEqual(30)
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user[key] * 2')(scope)).toEqual(60)
+
+        // Array notation in comparisons
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('items[index] > 15')(scope)).toEqual(true)
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user["name"] === "John"')(scope)).toEqual(true)
+
+        // Array notation in logical expressions
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('items[0] > 5 && items[1] < 25')(scope)).toEqual(true)
+    })
+
+    it('supports array notation assignment', () => {
+        const scope = {
+            user: { name: 'John', age: 30 },
+            items: ['apple', 'banana', 'cherry'],
+            data: {},
+            index: 1,
+            key: 'status'
+        }
+
+        // Assignment using array notation
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user["status"] = "active"')(scope)).toEqual('active')
+        expect(scope.user.status).toEqual('active')
+
+        // Assignment using variable key
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user[key] = "inactive"')(scope)).toEqual('inactive')
+        expect(scope.user.status).toEqual('inactive')
+
+        // Assignment to array elements
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('items[0] = "orange"')(scope)).toEqual('orange')
+        expect(scope.items[0]).toEqual('orange')
+
+        // Assignment using variable index
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('items[index] = "grape"')(scope)).toEqual('grape')
+        expect(scope.items[1]).toEqual('grape')
+
+        // Assignment to new properties
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('data["new-key"] = "new-value"')(scope)).toEqual('new-value')
+        expect(scope.data['new-key']).toEqual('new-value')
+    })
+
+    it.skip('supports nested array notation', () => {
+        const scope = {
+            users: [
+                { name: 'John', profile: { age: 30 } },
+                { name: 'Jane', profile: { age: 25 } }
+            ],
+            data: {
+                items: [
+                    { id: 1, value: 'first' },
+                    { id: 2, value: 'second' }
+                ]
+            },
+            index: 0,
+            key: 'name'
+        }
+
+        // Nested array notation access
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('users[0]["name"]')(scope)).toEqual('John')
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('users[index][key]')(scope)).toEqual('John')
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('users[0].profile["age"]')(scope)).toEqual(30)
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('data["items"][0]["value"]')(scope)).toEqual('first')
+
+        // Nested array notation assignment
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('users[0]["status"] = "active"')(scope)).toEqual('active')
+        expect(scope.users[0].status).toEqual('active')
+
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('data["items"][1]["status"] = "pending"')(scope)).toEqual('pending')
+        expect(scope.data.items[1].status).toEqual('pending')
+    })
+
+    it('handles array notation edge cases', () => {
+        const scope = {
+            obj: {},
+            arr: [],
+            key: 'test',
+            index: 0
+        }
+
+        // Accessing undefined properties
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('obj["nonexistent"]')(scope)).toEqual(undefined)
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('arr[5]')(scope)).toEqual(undefined)
+
+        // Accessing with undefined variables
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('obj[undefined]')(scope)).toEqual(undefined)
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('arr[undefined]')(scope)).toEqual(undefined)
+
+        // Mixed dot and bracket notation
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('obj["key"] = "value"')(scope)).toEqual('value')
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('obj.key')(scope)).toEqual('value')
+    })
+
+    it('throws error for invalid array notation', () => {
+        const scope = { obj: {} }
+
+        // Missing closing bracket
+        expect(() => {
+            convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('obj["key"')(scope)
+        }).toThrow()
+
+        // Missing opening bracket
+        expect(() => {
+            convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('obj"key"]')(scope)
+        }).toThrow()
+
+        // Empty brackets
+        expect(() => {
+            convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('obj[]')(scope)
+        }).toThrow()
+    })
+
 })

@@ -657,6 +657,16 @@ class Evaluator {
                     }
                     return value;
                 }
+                
+                // Fallback to globals - let CSP catch dangerous ones at runtime
+                if (typeof globalThis[node.name] !== 'undefined') {
+                    const value = globalThis[node.name];
+                    if (typeof value === 'function') {
+                        return value.bind(globalThis);
+                    }
+                    return value;
+                }
+                
                 throw new Error(`Undefined variable: ${node.name}`);
 
             case 'MemberExpression':
@@ -693,9 +703,12 @@ class Evaluator {
                 if (node.callee.type === 'MemberExpression') {
                     thisContext = this.evaluate(node.callee.object, scope, context);
                 } else if (node.callee.type === 'Identifier' && context !== null) {
-                    // For direct function calls from scope, use provided context if available
-                    // Get the original unbound function to apply the context to
-                    const originalFunction = scope[node.callee.name];
+                    // For direct function calls, use provided context if available
+                    // Check scope first, then globals
+                    let originalFunction = scope[node.callee.name];
+                    if (!originalFunction) {
+                        originalFunction = globalThis[node.callee.name];
+                    }
                     if (typeof originalFunction === 'function') {
                         return originalFunction.apply(context, args);
                     }

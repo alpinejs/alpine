@@ -112,6 +112,17 @@ The CSP build supports most JavaScript expressions you'd want to use in Alpine:
 </div>
 ```
 
+### Global Variables and Functions
+```alpine
+<!-- ✅ These work -->
+<div x-data="{ count: 42 }">
+    <button x-on:click="console.log('Count is:', count)">Log Count</button>
+    <span x-text="Math.max(count, 100)"></span>
+    <span x-text="parseInt('123') + count"></span>
+    <span x-text="JSON.stringify({ value: count })"></span>
+</div>
+```
+
 <a name="whats-not-supported"></a>
 ## What's Not Supported
 

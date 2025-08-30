@@ -12,7 +12,23 @@
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
     <!-- <script src="//cdn.tailwindcss.com"></script> -->
 
-    <div x-data="{ show: false, message: 'hey' }">
-        <span x-text="message"></span>
+    <div x-data="counter">
+        <button x-on:click="increment"></button>
+
+        <span x-text="count"></span>
     </div>
+
+    <script nonce="a23gbfz9e">
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('counter', () => {
+                return {
+                    count: 1,
+
+                    increment() {
+                        this.count++;
+                    },
+                }
+            })
+        })
+    </script>
 </html>

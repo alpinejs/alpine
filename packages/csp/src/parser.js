@@ -128,11 +128,14 @@ function evaluateTokens(tokens, scope, params, context) {
     // Handle array access first
     tokens = evaluateArrayAccess(tokens, scope, params, context)
 
-    // Handle function calls
-    tokens = evaluateFunctionCalls(tokens, scope, params, context)
-
-    // Handle object literals
+    // Handle object literals (before function calls)
     tokens = evaluateObjectLiterals(tokens, scope, params, context)
+
+    // Handle array literals
+    tokens = evaluateArrayLiterals(tokens, scope, params, context)
+
+    // Handle function calls (after object literals)
+    tokens = evaluateFunctionCalls(tokens, scope, params, context)
 
     // Handle unary operators
     for (let i = 0; i < tokens.length; i++) {
@@ -179,6 +182,7 @@ function evaluateTokens(tokens, scope, params, context) {
             case '-': result = left - right; break
             case '*': result = left * right; break
             case '/': result = left / right; break
+            case '%': result = left % right; break
             case '<': result = left < right; break
             case '>': result = left > right; break
             case '<=': result = left <= right; break
@@ -271,25 +275,24 @@ function evaluateArrayAccess(tokens, scope, params, context) {
 }
 
 function evaluateFunctionCalls(tokens, scope, params, context) {
-    let i = 0
-    while (i < tokens.length) {
-        if (tokens[i] === '(') {
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === '(' && i > 0) {
+            // This is a function call
+            const functionName = tokens[i - 1]
+
             // Find the matching closing parenthesis
             let parenCount = 1
             let j = i + 1
             while (j < tokens.length && parenCount > 0) {
                 if (tokens[j] === '(') parenCount++
-                if (tokens[j] === ')') parenCount--
+                else if (tokens[j] === ')') parenCount--
                 j++
             }
 
             if (parenCount === 0) {
-                // This is a function call
-                const functionName = tokens[i - 1]
-                const argsTokens = tokens.slice(i + 1, j - 1)
-
-                // Evaluate arguments first
-                const args = parseArguments(argsTokens, scope, params, context)
+                // Extract the arguments
+                const argTokens = tokens.slice(i + 1, j - 1)
+                const args = parseArguments(argTokens, scope, params, context)
 
                 // Get the function from scope
                 const func = getValue(functionName, scope, params, context)
@@ -303,8 +306,8 @@ function evaluateFunctionCalls(tokens, scope, params, context) {
                 }
             }
         }
-        i++
     }
+
     return tokens
 }
 
@@ -435,12 +438,106 @@ function parseObjectLiteral(tokens, scope, params, context) {
             i++
         }
 
-        // Evaluate the value
-        const value = evaluateTokens(valueTokens, scope, params, context)
+        // Evaluate the value as a complete expression
+        let value
+        if (valueTokens.length === 0) {
+            value = undefined
+        } else if (valueTokens.length === 1) {
+            // Single token - use getValue for efficiency
+            value = getValue(valueTokens[0], scope, params, context)
+        } else {
+            // Multiple tokens - evaluate as expression (this will handle function calls)
+            value = evaluateTokens(valueTokens, scope, params, context)
+        }
+
         object[key] = value
     }
 
     return object
+}
+
+function evaluateArrayLiterals(tokens, scope, params, context) {
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === '[') {
+            // Find the matching closing bracket
+            let bracketCount = 1
+            let j = i + 1
+            while (j < tokens.length && bracketCount > 0) {
+                if (tokens[j] === '[') bracketCount++
+                else if (tokens[j] === ']') bracketCount--
+                j++
+            }
+
+            if (bracketCount === 0) {
+                // Extract the array literal content
+                const arrayTokens = tokens.slice(i + 1, j - 1)
+                const array = parseArrayLiteral(arrayTokens, scope, params, context)
+
+                // Replace the array literal with the parsed array
+                tokens.splice(i, j - i, array)
+            }
+        }
+    }
+
+    return tokens
+}
+
+function parseArrayLiteral(tokens, scope, params, context) {
+    if (tokens.length === 0) {
+        return []
+    }
+
+    const array = []
+    let i = 0
+
+    while (i < tokens.length) {
+        // Skip whitespace and commas
+        while (i < tokens.length && (tokens[i] === ',' || tokens[i].trim() === '')) {
+            i++
+        }
+
+        if (i >= tokens.length) break
+
+        // Parse array element - collect tokens until we hit a comma at the top level
+        let elementTokens = []
+        let parenCount = 0
+        let bracketCount = 0
+        let braceCount = 0
+
+        while (i < tokens.length) {
+            const token = tokens[i]
+
+            if (token === '(') parenCount++
+            else if (token === ')') parenCount--
+            else if (token === '[') bracketCount++
+            else if (token === ']') bracketCount--
+            else if (token === '{') braceCount++
+            else if (token === '}') braceCount--
+            else if (token === ',' && parenCount === 0 && bracketCount === 0 && braceCount === 0) {
+                i++
+                break
+            }
+
+            elementTokens.push(token)
+            i++
+        }
+
+        // Evaluate the element as a complete expression
+        let element
+        if (elementTokens.length === 0) {
+            element = undefined
+        } else if (elementTokens.length === 1) {
+            // Single token - use getValue for efficiency
+            element = getValue(elementTokens[0], scope, params, context)
+        } else {
+            // Multiple tokens - evaluate as expression
+            element = evaluateTokens(elementTokens, scope, params, context)
+        }
+
+        array.push(element)
+    }
+
+    return array
 }
 
 function getValue(token, scope, params, context) {

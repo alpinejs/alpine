@@ -1,6 +1,7 @@
-import { generateEvaluatorFromFunction, runIfTypeOfFunction } from 'alpinejs/src/evaluator'
+import { generateEvaluatorFromFunction, shouldAutoEvaluateFunctions } from 'alpinejs/src/evaluator'
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { tryCatch } from 'alpinejs/src/utils/error'
+import { generateRuntimeFunction } from './parser'
 import { injectMagics } from 'alpinejs/src/magics'
 
 export function cspEvaluator(el, expression) {
@@ -28,30 +29,22 @@ function generateEvaluator(el, expression, dataStack) {
     return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
         let completeScope = mergeProxies([scope, ...dataStack])
 
-        let evaluatedExpression = expression.split('.').reduce(
-            (currentScope, currentExpression) => {
-                if (currentScope[currentExpression] === undefined) {
-                    throwExpressionError(el, expression)
-                }
+        let evaluate = generateRuntimeFunction(expression)
 
-                return currentScope[currentExpression]
-            },
-            completeScope,
-        );
+        let returnValue = evaluate(completeScope)
 
-        runIfTypeOfFunction(receiver, evaluatedExpression, completeScope, params)
+        if (shouldAutoEvaluateFunctions && typeof returnValue === 'function') {
+            let nextReturnValue = returnValue.apply(returnValue, params)
+
+            if (nextReturnValue instanceof Promise) {
+                nextReturnValue.then(i =>  receiver(i))
+            } else {
+                receiver(nextReturnValue)
+            }
+        } else if (typeof returnValue === 'object' && returnValue instanceof Promise) {
+            returnValue.then(i => receiver(i))
+        } else {
+            receiver(returnValue)
+        }
     }
-}
-
-function throwExpressionError(el, expression) {
-    console.warn(
-`Alpine Error: Alpine is unable to interpret the following expression using the CSP-friendly build:
-
-"${expression}"
-
-Read more about the Alpine's CSP-friendly build restrictions here: https://alpinejs.dev/advanced/csp
-
-`,
-el
-    )
 }

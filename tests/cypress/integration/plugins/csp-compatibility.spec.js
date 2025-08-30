@@ -33,7 +33,7 @@ test.csp('Supports nested properties',
         Alpine.data('test', () => ({
             foo: {
                 bar: 'baz',
-                change() { this.foo.bar = 'qux' },
+                change() { this.bar = 'qux' },
             }
         }))
     `],

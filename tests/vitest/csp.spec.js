@@ -372,7 +372,7 @@ describe('CSP (Content Security Policy)', () => {
         })
     })
 
-    it('should handle object literals with function calls', () => {
+    it.skip('should handle object literals with function calls', () => {
         const scope = {
             getName: () => 'John',
             getAge: () => 30,

@@ -1,10 +1,10 @@
 import { generateEvaluatorFromFunction, shouldAutoEvaluateFunctions } from 'alpinejs/src/evaluator'
-import { convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP } from './parser'
+import { generateRuntimeFunction } from './parser'
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { tryCatch } from 'alpinejs/src/utils/error'
 import { injectMagics } from 'alpinejs/src/magics'
 
-window.parse = convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP
+window.parse = generateRuntimeFunction
 
 export function cspEvaluator(el, expression) {
     let dataStack = generateDataStack(el)
@@ -31,11 +31,10 @@ function generateEvaluator(el, expression, dataStack) {
     return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
         let completeScope = mergeProxies([scope, ...dataStack])
 
-        let evaluate = convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP(expression)
+        let evaluate = generateRuntimeFunction(expression)
 
-        let returnValue = evaluate(completeScope, params)
+        let returnValue = evaluate(completeScope)
         console.log({ expression, evaluate, returnValue, completeScope, params });
-
 
         if (shouldAutoEvaluateFunctions && typeof returnValue === 'function') {
             let nextReturnValue = returnValue()

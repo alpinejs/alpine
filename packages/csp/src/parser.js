@@ -1,956 +1,815 @@
+class Token {
+    constructor(type, value, start, end) {
+        this.type = type;
+        this.value = value;
+        this.start = start;
+        this.end = end;
+    }
+}
 
-export function convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP(expression) {
-    const tokens = tokenize(expression)
-
-    // Check if expression starts with 'await'
-    const isAsync = tokens[0] === 'await'
-    if (isAsync) {
-        tokens.shift() // Remove 'await' keyword
+class Tokenizer {
+    constructor(input) {
+        this.input = input;
+        this.position = 0;
+        this.tokens = [];
     }
 
-    return (scope = {}, params = [], context = null) => {
-        const result = evaluateTokens(tokens, scope, params, context)
+    tokenize() {
+        while (this.position < this.input.length) {
+            this.skipWhitespace();
+            if (this.position >= this.input.length) break;
 
-        // If expression started with 'await', wrap result in Promise
-        if (isAsync) {
-            return Promise.resolve(result)
+            const char = this.input[this.position];
+
+            if (this.isDigit(char)) {
+                this.readNumber();
+            } else if (this.isAlpha(char) || char === '_' || char === '$') {
+                this.readIdentifierOrKeyword();
+            } else if (char === '"' || char === "'") {
+                this.readString();
+            } else if (char === '/' && this.peek() === '/') {
+                this.skipLineComment();
+            } else {
+                this.readOperatorOrPunctuation();
+            }
         }
 
-        return result
+        this.tokens.push(new Token('EOF', null, this.position, this.position));
+        return this.tokens;
     }
-}
 
-function evaluateExpression(expression, scope, params, context) {
-    const tokens = tokenize(expression)
-    return evaluateTokens(tokens, scope, params, context)
-}
+    skipWhitespace() {
+        while (this.position < this.input.length && /\s/.test(this.input[this.position])) {
+            this.position++;
+        }
+    }
 
-function tokenize(expression) {
-    const tokens = []
-    let current = ''
-    let i = 0
-    let inString = false
-    let stringQuote = null
-    let bracketCount = 0
+    skipLineComment() {
+        while (this.position < this.input.length && this.input[this.position] !== '\n') {
+            this.position++;
+        }
+    }
 
-    while (i < expression.length) {
-        const char = expression[i]
+    isDigit(char) {
+        return /[0-9]/.test(char);
+    }
 
-        // Handle string literals
-        if ((char === '"' || char === "'") && !inString) {
-            inString = true
-            stringQuote = char
-            if (current) {
-                tokens.push(current)
-                current = ''
+    isAlpha(char) {
+        return /[a-zA-Z]/.test(char);
+    }
+
+    isAlphaNumeric(char) {
+        return /[a-zA-Z0-9_$]/.test(char);
+    }
+
+    peek(offset = 1) {
+        return this.input[this.position + offset] || '';
+    }
+
+    readNumber() {
+        const start = this.position;
+        let hasDecimal = false;
+
+        while (this.position < this.input.length) {
+            const char = this.input[this.position];
+            if (this.isDigit(char)) {
+                this.position++;
+            } else if (char === '.' && !hasDecimal) {
+                hasDecimal = true;
+                this.position++;
+            } else {
+                break;
             }
-            current += char
-        } else if (char === stringQuote && inString) {
-            inString = false
-            current += char
-            tokens.push(current)
-            current = ''
-            stringQuote = null
-        } else if (inString) {
-            current += char
-        } else if (char === ' ') {
-            if (current) {
-                tokens.push(current)
-                current = ''
-            }
-        } else if ('+-*/()<>=!&|,[]{}:'.includes(char)) {
-            if (current) {
-                tokens.push(current)
-                current = ''
-            }
+        }
 
-            // Track bracket count for validation
-            if (char === '[') {
-                bracketCount++
-            } else if (char === ']') {
-                bracketCount--
-                if (bracketCount < 0) {
-                    throw new Error('Unexpected closing bracket')
-                }
-            }
+        const value = this.input.slice(start, this.position);
+        this.tokens.push(new Token('NUMBER', parseFloat(value), start, this.position));
+    }
 
-            // Handle multi-character operators
-            if (i + 2 < expression.length) {
-                const threeChar = expression.slice(i, i + 3)
-                if (threeChar === '===' || threeChar === '!==') {
-                    tokens.push(threeChar)
-                    i += 2
-                    i++
-                    continue
-                }
-            }
+    readIdentifierOrKeyword() {
+        const start = this.position;
 
-            if (i + 1 < expression.length) {
-                const twoChar = expression.slice(i, i + 2)
-                if (twoChar === '<=' || twoChar === '>=' || twoChar === '&&' || twoChar === '||' || twoChar === '++' || twoChar === '--') {
-                    tokens.push(twoChar)
-                    i++
-                    i++
-                    continue
-                }
-            }
+        while (this.position < this.input.length && this.isAlphaNumeric(this.input[this.position])) {
+            this.position++;
+        }
 
-            tokens.push(char)
+        const value = this.input.slice(start, this.position);
+        const keywords = ['true', 'false', 'null', 'undefined', 'new', 'typeof', 'void', 'delete', 'in', 'instanceof'];
+
+        if (keywords.includes(value)) {
+            if (value === 'true' || value === 'false') {
+                this.tokens.push(new Token('BOOLEAN', value === 'true', start, this.position));
+            } else if (value === 'null') {
+                this.tokens.push(new Token('NULL', null, start, this.position));
+            } else if (value === 'undefined') {
+                this.tokens.push(new Token('UNDEFINED', undefined, start, this.position));
+            } else {
+                this.tokens.push(new Token('KEYWORD', value, start, this.position));
+            }
         } else {
-            current += char
+            this.tokens.push(new Token('IDENTIFIER', value, start, this.position));
+        }
+    }
+
+    readString() {
+        const start = this.position;
+        const quote = this.input[this.position];
+        this.position++; // Skip opening quote
+
+        let value = '';
+        let escaped = false;
+
+        while (this.position < this.input.length) {
+            const char = this.input[this.position];
+
+            if (escaped) {
+                switch (char) {
+                    case 'n': value += '\n'; break;
+                    case 't': value += '\t'; break;
+                    case 'r': value += '\r'; break;
+                    case '\\': value += '\\'; break;
+                    case quote: value += quote; break;
+                    default: value += char;
+                }
+                escaped = false;
+            } else if (char === '\\') {
+                escaped = true;
+            } else if (char === quote) {
+                this.position++; // Skip closing quote
+                this.tokens.push(new Token('STRING', value, start, this.position));
+                return;
+            } else {
+                value += char;
+            }
+
+            this.position++;
         }
 
-        i++
+        throw new Error(`Unterminated string starting at position ${start}`);
     }
 
-    if (current) {
-        tokens.push(current)
-    }
+    readOperatorOrPunctuation() {
+        const start = this.position;
+        const char = this.input[this.position];
+        const next = this.peek();
+        const nextNext = this.peek(2);
 
-    // Check for unmatched brackets
-    if (bracketCount > 0) {
-        throw new Error('Missing closing bracket')
+        // Three-character operators
+        if (char === '=' && next === '=' && nextNext === '=') {
+            this.position += 3;
+            this.tokens.push(new Token('OPERATOR', '===', start, this.position));
+        } else if (char === '!' && next === '=' && nextNext === '=') {
+            this.position += 3;
+            this.tokens.push(new Token('OPERATOR', '!==', start, this.position));
+        }
+        // Two-character operators
+        else if (char === '=' && next === '=') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '==', start, this.position));
+        } else if (char === '!' && next === '=') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '!=', start, this.position));
+        } else if (char === '<' && next === '=') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '<=', start, this.position));
+        } else if (char === '>' && next === '=') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '>=', start, this.position));
+        } else if (char === '&' && next === '&') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '&&', start, this.position));
+        } else if (char === '|' && next === '|') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '||', start, this.position));
+        } else if (char === '+' && next === '+') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '++', start, this.position));
+        } else if (char === '-' && next === '-') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '--', start, this.position));
+        }
+        // Single-character operators and punctuation
+        else {
+            this.position++;
+            const type = '()[]{},.;:?'.includes(char) ? 'PUNCTUATION' : 'OPERATOR';
+            this.tokens.push(new Token(type, char, start, this.position));
+        }
     }
-
-    return tokens
 }
 
-function updateNestedProperty(path, scope, newValue) {
-    const parts = path.split('.')
-    const lastPart = parts.pop()
-    const obj = parts.reduce((currentObj, prop) => {
-        return currentObj ? currentObj[prop] : undefined
-    }, scope)
-
-    if (obj === undefined) {
-        throw new Error(`Cannot update property: ${path}`)
+class Parser {
+    constructor(tokens) {
+        this.tokens = tokens;
+        this.position = 0;
     }
 
-    obj[lastPart] = newValue
-}
-
-function assignToNestedProperty(path, scope, newValue) {
-    const parts = path.split('.')
-    const lastPart = parts.pop()
-    const obj = parts.reduce((currentObj, prop) => {
-        return currentObj ? currentObj[prop] : undefined
-    }, scope)
-
-    if (obj === undefined) {
-        throw new Error(`Cannot assign to undefined property: ${parts.join('.')}`)
+    parse() {
+        if (this.isAtEnd()) {
+            throw new Error('Empty expression');
+        }
+        const expr = this.parseExpression();
+        
+        // Allow optional trailing semicolon
+        this.match('PUNCTUATION', ';');
+        
+        if (!this.isAtEnd()) {
+            throw new Error(`Unexpected token: ${this.current().value}`);
+        }
+        return expr;
     }
 
-    obj[lastPart] = newValue
-    return newValue
-}
+    parseExpression() {
+        return this.parseAssignment();
+    }
 
-function assignToArrayNotation(tokens, scope, params, context) {
-    // Look for patterns like: objectName[key] = value
-    for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i] === '=') {
-            const leftTokens = tokens.slice(0, i)
-            const rightTokens = tokens.slice(i + 1)
+    parseAssignment() {
+        const expr = this.parseTernary();
 
-            // Check if left side contains array notation
-            if (leftTokens.some(token => token === '[')) {
-                // Find the array notation pattern: objectName[key]
-                let objectName = null
-                let key = null
-                let bracketStart = -1
-                let bracketEnd = -1
+        if (this.match('OPERATOR', '=')) {
+            const value = this.parseAssignment();
+            if (expr.type === 'Identifier' || expr.type === 'MemberExpression') {
+                return {
+                    type: 'AssignmentExpression',
+                    left: expr,
+                    operator: '=',
+                    right: value
+                };
+            }
+            throw new Error('Invalid assignment target');
+        }
 
-                // Find the last bracket pair for nested array notation
-                for (let j = leftTokens.length - 1; j >= 0; j--) {
-                    if (leftTokens[j] === ']') {
-                        bracketEnd = j
-                        // Find the matching opening bracket
-                        let bracketCount = 1
-                        for (let k = j - 1; k >= 0; k--) {
-                            if (leftTokens[k] === ']') {
-                                bracketCount++
-                            } else if (leftTokens[k] === '[') {
-                                bracketCount--
-                                if (bracketCount === 0) {
-                                    bracketStart = k
-                                    objectName = leftTokens[k - 1]
-                                    break
-                                }
-                            }
-                        }
-                        break
+        return expr;
+    }
+
+    parseTernary() {
+        const expr = this.parseLogicalOr();
+
+        if (this.match('PUNCTUATION', '?')) {
+            const consequent = this.parseExpression();
+            this.consume('PUNCTUATION', ':');
+            const alternate = this.parseExpression();
+            return {
+                type: 'ConditionalExpression',
+                test: expr,
+                consequent,
+                alternate
+            };
+        }
+
+        return expr;
+    }
+
+    parseLogicalOr() {
+        let expr = this.parseLogicalAnd();
+
+        while (this.match('OPERATOR', '||')) {
+            const operator = this.previous().value;
+            const right = this.parseLogicalAnd();
+            expr = {
+                type: 'BinaryExpression',
+                operator,
+                left: expr,
+                right
+            };
+        }
+
+        return expr;
+    }
+
+    parseLogicalAnd() {
+        let expr = this.parseEquality();
+
+        while (this.match('OPERATOR', '&&')) {
+            const operator = this.previous().value;
+            const right = this.parseEquality();
+            expr = {
+                type: 'BinaryExpression',
+                operator,
+                left: expr,
+                right
+            };
+        }
+
+        return expr;
+    }
+
+    parseEquality() {
+        let expr = this.parseRelational();
+
+        while (this.match('OPERATOR', '==', '!=', '===', '!==')) {
+            const operator = this.previous().value;
+            const right = this.parseRelational();
+            expr = {
+                type: 'BinaryExpression',
+                operator,
+                left: expr,
+                right
+            };
+        }
+
+        return expr;
+    }
+
+    parseRelational() {
+        let expr = this.parseAdditive();
+
+        while (this.match('OPERATOR', '<', '>', '<=', '>=')) {
+            const operator = this.previous().value;
+            const right = this.parseAdditive();
+            expr = {
+                type: 'BinaryExpression',
+                operator,
+                left: expr,
+                right
+            };
+        }
+
+        return expr;
+    }
+
+    parseAdditive() {
+        let expr = this.parseMultiplicative();
+
+        while (this.match('OPERATOR', '+', '-')) {
+            const operator = this.previous().value;
+            const right = this.parseMultiplicative();
+            expr = {
+                type: 'BinaryExpression',
+                operator,
+                left: expr,
+                right
+            };
+        }
+
+        return expr;
+    }
+
+    parseMultiplicative() {
+        let expr = this.parseUnary();
+
+        while (this.match('OPERATOR', '*', '/', '%')) {
+            const operator = this.previous().value;
+            const right = this.parseUnary();
+            expr = {
+                type: 'BinaryExpression',
+                operator,
+                left: expr,
+                right
+            };
+        }
+
+        return expr;
+    }
+
+    parseUnary() {
+        // Handle prefix increment/decrement
+        if (this.match('OPERATOR', '++', '--')) {
+            const operator = this.previous().value;
+            const argument = this.parseUnary();
+            return {
+                type: 'UpdateExpression',
+                operator,
+                argument,
+                prefix: true
+            };
+        }
+
+        // Handle other unary operators
+        if (this.match('OPERATOR', '!', '-', '+')) {
+            const operator = this.previous().value;
+            const argument = this.parseUnary();
+            return {
+                type: 'UnaryExpression',
+                operator,
+                argument,
+                prefix: true
+            };
+        }
+
+        return this.parsePostfix();
+    }
+
+    parsePostfix() {
+        let expr = this.parseMember();
+
+        // Handle postfix increment/decrement
+        if (this.match('OPERATOR', '++', '--')) {
+            const operator = this.previous().value;
+            return {
+                type: 'UpdateExpression',
+                operator,
+                argument: expr,
+                prefix: false
+            };
+        }
+
+        return expr;
+    }
+
+    parseMember() {
+        let expr = this.parsePrimary();
+
+        while (true) {
+            if (this.match('PUNCTUATION', '.')) {
+                const property = this.consume('IDENTIFIER');
+                expr = {
+                    type: 'MemberExpression',
+                    object: expr,
+                    property: { type: 'Identifier', name: property.value },
+                    computed: false
+                };
+            } else if (this.match('PUNCTUATION', '[')) {
+                const property = this.parseExpression();
+                this.consume('PUNCTUATION', ']');
+                expr = {
+                    type: 'MemberExpression',
+                    object: expr,
+                    property,
+                    computed: true
+                };
+            } else if (this.match('PUNCTUATION', '(')) {
+                const args = this.parseArguments();
+                expr = {
+                    type: 'CallExpression',
+                    callee: expr,
+                    arguments: args
+                };
+            } else {
+                break;
+            }
+        }
+
+        return expr;
+    }
+
+    parseArguments() {
+        const args = [];
+
+        if (!this.check('PUNCTUATION', ')')) {
+            do {
+                args.push(this.parseExpression());
+            } while (this.match('PUNCTUATION', ','));
+        }
+
+        this.consume('PUNCTUATION', ')');
+        return args;
+    }
+
+    parsePrimary() {
+        // Numbers
+        if (this.match('NUMBER')) {
+            return { type: 'Literal', value: this.previous().value };
+        }
+
+        // Strings
+        if (this.match('STRING')) {
+            return { type: 'Literal', value: this.previous().value };
+        }
+
+        // Booleans
+        if (this.match('BOOLEAN')) {
+            return { type: 'Literal', value: this.previous().value };
+        }
+
+        // Null
+        if (this.match('NULL')) {
+            return { type: 'Literal', value: null };
+        }
+
+        // Undefined
+        if (this.match('UNDEFINED')) {
+            return { type: 'Literal', value: undefined };
+        }
+
+        // Identifiers
+        if (this.match('IDENTIFIER')) {
+            return { type: 'Identifier', name: this.previous().value };
+        }
+
+        // Grouping expressions
+        if (this.match('PUNCTUATION', '(')) {
+            const expr = this.parseExpression();
+            this.consume('PUNCTUATION', ')');
+            return expr;
+        }
+
+        // Array literals
+        if (this.match('PUNCTUATION', '[')) {
+            return this.parseArrayLiteral();
+        }
+
+        // Object literals
+        if (this.match('PUNCTUATION', '{')) {
+            return this.parseObjectLiteral();
+        }
+
+        throw new Error(`Unexpected token: ${this.current().type} "${this.current().value}"`);
+    }
+
+    parseArrayLiteral() {
+        const elements = [];
+
+        while (!this.check('PUNCTUATION', ']') && !this.isAtEnd()) {
+            elements.push(this.parseExpression());
+            if (this.match('PUNCTUATION', ',')) {
+                // Handle trailing comma
+                if (this.check('PUNCTUATION', ']')) {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+
+        this.consume('PUNCTUATION', ']');
+        return {
+            type: 'ArrayExpression',
+            elements
+        };
+    }
+
+    parseObjectLiteral() {
+        const properties = [];
+
+        while (!this.check('PUNCTUATION', '}') && !this.isAtEnd()) {
+            let key;
+            let computed = false;
+
+            if (this.match('STRING')) {
+                key = { type: 'Literal', value: this.previous().value };
+            } else if (this.match('IDENTIFIER')) {
+                const name = this.previous().value;
+                key = { type: 'Identifier', name };
+            } else if (this.match('PUNCTUATION', '[')) {
+                key = this.parseExpression();
+                computed = true;
+                this.consume('PUNCTUATION', ']');
+            } else {
+                throw new Error('Expected property key');
+            }
+
+            this.consume('PUNCTUATION', ':');
+            const value = this.parseExpression();
+
+            properties.push({
+                type: 'Property',
+                key,
+                value,
+                computed,
+                shorthand: false
+            });
+
+            if (this.match('PUNCTUATION', ',')) {
+                // Handle trailing comma
+                if (this.check('PUNCTUATION', '}')) {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+
+        this.consume('PUNCTUATION', '}');
+        return {
+            type: 'ObjectExpression',
+            properties
+        };
+    }
+
+    match(...args) {
+        for (let i = 0; i < args.length; i++) {
+            const arg = args[i];
+            if (i === 0 && args.length > 1) {
+                // First arg is type when multiple args provided
+                const type = arg;
+                for (let j = 1; j < args.length; j++) {
+                    if (this.check(type, args[j])) {
+                        this.advance();
+                        return true;
                     }
                 }
-
-                if (bracketStart !== -1 && bracketEnd !== -1) {
-                    // Extract the key
-                    const keyTokens = leftTokens.slice(bracketStart + 1, bracketEnd)
-                    key = evaluateTokens(keyTokens, scope, params, context)
-
-                    // Evaluate the right side
-                    const rightValue = evaluateTokens(rightTokens, scope, params, context)
-
-                    // Get the object
-                    let object
-                    if (objectName === 'params') {
-                        object = params
-                    } else if (typeof objectName === 'object' && objectName !== null) {
-                        // Object is already resolved (e.g., from previous array access)
-                        object = objectName
-                    } else {
-                        object = getValue(objectName, scope, params, context)
-                    }
-
-                    // Assign the value
-                    if (object && typeof object === 'object') {
-                        object[key] = rightValue
-                        return rightValue
-                    } else {
-                        throw new Error(`Cannot assign to property of ${objectName} (not an object)`)
-                    }
+                return false;
+            } else if (args.length === 1) {
+                // Single arg is just type
+                if (this.checkType(arg)) {
+                    this.advance();
+                    return true;
                 }
+                return false;
             }
         }
+        return false;
     }
 
-    return null // No array notation assignment found
+    check(type, value) {
+        if (this.isAtEnd()) return false;
+        if (value !== undefined) {
+            return this.current().type === type && this.current().value === value;
+        }
+        return this.current().type === type;
+    }
+
+    checkType(type) {
+        if (this.isAtEnd()) return false;
+        return this.current().type === type;
+    }
+
+    advance() {
+        if (!this.isAtEnd()) this.position++;
+        return this.previous();
+    }
+
+    isAtEnd() {
+        return this.current().type === 'EOF';
+    }
+
+    current() {
+        return this.tokens[this.position];
+    }
+
+    previous() {
+        return this.tokens[this.position - 1];
+    }
+
+    consume(type, value) {
+        if (value !== undefined) {
+            if (this.check(type, value)) return this.advance();
+            throw new Error(`Expected ${type} "${value}" but got ${this.current().type} "${this.current().value}"`);
+        }
+        if (this.check(type)) return this.advance();
+        throw new Error(`Expected ${type} but got ${this.current().type} "${this.current().value}"`);
+    }
 }
 
-function evaluateDotNotation(tokens, scope, params, context) {
-    for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i] === '.' && i > 0 && i + 1 < tokens.length) {
-            const objectToken = tokens[i - 1]
-            const propertyToken = tokens[i + 1]
+class Evaluator {
+    evaluate(node, scope = {}, context = null) {
+        switch (node.type) {
+            case 'Literal':
+                return node.value;
 
-            // Get the object
-            let object
-            if (objectToken === 'this') {
-                object = context
-            } else if (typeof objectToken === 'object' && objectToken !== null) {
-                // Object is already resolved (e.g., from array access)
-                object = objectToken
-            } else {
-                // Object token is a string, resolve it
-                object = getValue(objectToken, scope, params, context)
-            }
+            case 'Identifier':
+                if (node.name in scope) {
+                    return scope[node.name];
+                }
+                throw new Error(`Undefined variable: ${node.name}`);
 
-            // Get the property value
-            if (object && typeof object === 'object') {
-                const result = object[propertyToken]
-                tokens.splice(i - 1, 3, result)
-                i = i - 1
-            } else {
-                throw new Error(`Cannot access property '${propertyToken}' of ${objectToken} (not an object)`)
-            }
-        } else if (typeof tokens[i] === 'string' && tokens[i].startsWith('.') && i > 0) {
-            // Handle tokens like '.profile' - extract the property name and process it
-            const objectToken = tokens[i - 1]
-            const propertyName = tokens[i].substring(1) // Remove the leading dot
-
-            // Get the object
-            let object
-            if (objectToken === 'this') {
-                object = context
-            } else if (typeof objectToken === 'object' && objectToken !== null) {
-                // Object is already resolved (e.g., from array access)
-                object = objectToken
-            } else {
-                // Object token is a string, resolve it
-                object = getValue(objectToken, scope, params, context)
-            }
-
-            // Get the property value
-            if (object && typeof object === 'object') {
-                const result = object[propertyName]
-                tokens.splice(i - 1, 2, result) // Replace both tokens with the result
-                i = i - 1
-            } else {
-                throw new Error(`Cannot access property '${propertyName}' of ${objectToken} (not an object)`)
-            }
-        }
-    }
-
-    return tokens
-}
-
-function evaluateTokens(tokens, scope, params, context) {
-    // Handle single token literals first
-    if (tokens.length === 1) {
-        const token = tokens[0]
-
-        // Handle basic literals
-        if (token === 'true') return true
-        if (token === 'false') return false
-        if (token === 'null') return null
-        if (token === 'undefined') return undefined
-
-        // Handle numbers
-        if (typeof token === 'string' && !isNaN(token) && token.trim() !== '') {
-            return Number(token)
-        }
-
-        // Handle strings (quoted)
-        if (typeof token === 'string' &&
-            ((token.startsWith('"') && token.endsWith('"')) ||
-             (token.startsWith("'") && token.endsWith("'")))) {
-            return token.slice(1, -1)
-        }
-
-        // Handle variable access (simple identifiers)
-        if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(token)) {
-            // Handle 'this' keyword
-            if (token === 'this') return context
-            const value = scope[token]
-            return value !== undefined ? value : token
-        }
-
-        // Handle dot notation (e.g., user.name, this.value)
-        if (typeof token === 'string' && token.includes('.') && !token.includes(' ') && !token.includes('(')) {
-            const parts = token.split('.')
-            let obj
-            if (parts[0] === 'this') {
-                obj = context
-            } else {
-                obj = scope[parts[0]]
-            }
-
-            return parts.slice(1).reduce((currentObj, prop) => {
-                return currentObj ? currentObj[prop] : undefined
-            }, obj)
-        }
-
-        // Use getValue for any other single token
-        return getValue(token, scope, params, context)
-    }
-
-    // Handle array notation assignment before array access
-    const arrayNotationResult = assignToArrayNotation(tokens, scope, params, context)
-    if (arrayNotationResult !== null) {
-        return arrayNotationResult
-    }
-
-    // Handle array access and dot notation alternately until no changes
-    let changed = true
-    while (changed) {
-        changed = false
-
-        // Handle array access
-        const arrayTokensBefore = tokens.length
-        tokens = evaluateArrayAccess(tokens, scope, params, context)
-        if (tokens.length !== arrayTokensBefore) changed = true
-
-        // Handle dot notation
-        const dotTokensBefore = tokens.length
-        tokens = evaluateDotNotation(tokens, scope, params, context)
-        if (tokens.length !== dotTokensBefore) changed = true
-    }
-
-    // Handle function calls (before object literals)
-    tokens = evaluateFunctionCalls(tokens, scope, params, context)
-
-    // Handle object literals (after function calls)
-    tokens = evaluateObjectLiterals(tokens, scope, params, context)
-
-    // Handle array literals
-    tokens = evaluateArrayLiterals(tokens, scope, params, context)
-
-    // Handle unary operators
-    for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i] === '!') {
-            const operand = getValue(tokens[i + 1], scope, params, context)
-            tokens.splice(i, 2, !operand)
-        } else if (tokens[i] === '-' && i === 0) {
-            // Handle unary minus at the start
-            const operand = getValue(tokens[i + 1], scope, params, context)
-            tokens.splice(i, 2, -operand)
-        } else if (tokens[i] === '-' && i > 0 &&
-                   (tokens[i - 1] === '+' || tokens[i - 1] === '-' || tokens[i - 1] === '*' ||
-                    tokens[i - 1] === '/' || tokens[i - 1] === '%' || tokens[i - 1] === '(' ||
-                    tokens[i - 1] === '[' || tokens[i - 1] === '{' || tokens[i - 1] === ',')) {
-            // Handle unary minus after operators or opening brackets
-            const operand = getValue(tokens[i + 1], scope, params, context)
-            tokens.splice(i, 2, -operand)
-        }
-    }
-
-    // Handle prefix increment/decrement before arithmetic (higher precedence)
-    for (let i = 0; i < tokens.length - 1; i++) {
-        if ((tokens[i] === '++' || tokens[i] === '--') && i + 1 < tokens.length) {
-            // Process if the next token is a valid variable name or dot notation
-            const nextToken = tokens[i + 1]
-            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(nextToken)) {
-                const variablePath = nextToken
-                const currentValue = getValueForIncrement(variablePath, scope, params, context)
-
-                if (typeof currentValue !== 'number') {
-                    throw new Error(`Cannot increment/decrement non-numeric value: ${variablePath}`)
+            case 'MemberExpression':
+                const object = this.evaluate(node.object, scope, context);
+                if (object == null) {
+                    throw new Error('Cannot read property of null or undefined');
                 }
 
-                const newValue = tokens[i] === '++' ? currentValue + 1 : currentValue - 1
-
-                // Update the variable in scope (handles nested properties)
-                updateNestedProperty(variablePath, scope, newValue)
-
-                // For prefix, return the new value
-                tokens.splice(i, 2, newValue)
-                i--
-            }
-        }
-    }
-
-    // Handle arithmetic operators
-    for (let i = 1; i < tokens.length - 1; i += 2) {
-        const left = getValue(tokens[i - 1], scope, params, context)
-        const operator = tokens[i]
-        const right = getValue(tokens[i + 1], scope, params, context)
-
-        let result
-        switch (operator) {
-            case '+': result = left + right; break
-            case '-': result = left - right; break
-            case '*': result = left * right; break
-            case '/': result = left / right; break
-            case '%': result = left % right; break
-            case '<': result = left < right; break
-            case '>': result = left > right; break
-            case '<=': result = left <= right; break
-            case '>=': result = left >= right; break
-            case '===': result = left === right; break
-            case '!==': result = left !== right; break
-            case '&&': result = left && right; break
-            case '||': result = left || right; break
-            default: continue
-        }
-
-        tokens.splice(i - 1, 3, result)
-        i -= 2
-    }
-
-    // Handle postfix increment/decrement after arithmetic (lower precedence)
-    for (let i = 0; i < tokens.length; i++) {
-        if ((tokens[i] === '++' || tokens[i] === '--') && i > 0) {
-            // Handle postfix increment/decrement (e.g., foo++)
-            // Process if the previous token is a valid variable name or dot notation
-            const previousToken = tokens[i - 1]
-            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(previousToken)) {
-                const variablePath = previousToken
-                const currentValue = getValueForIncrement(variablePath, scope, params, context)
-
-                if (typeof currentValue !== 'number') {
-                    throw new Error(`Cannot increment/decrement non-numeric value: ${variablePath}`)
-                }
-
-                const newValue = tokens[i] === '++' ? currentValue + 1 : currentValue - 1
-
-                // Update the variable in scope (handles nested properties)
-                updateNestedProperty(variablePath, scope, newValue)
-
-                // For postfix, return the original value, but update the variable
-                tokens.splice(i - 1, 2, currentValue)
-                i--
-            }
-        }
-    }
-
-    // Handle assignment operators (lowest precedence)
-    for (let i = 1; i < tokens.length - 1; i += 2) {
-        if (tokens[i] === '=') {
-            const leftToken = tokens[i - 1]
-
-            // Evaluate the right side as an expression
-            const rightTokens = tokens.slice(i + 1)
-            const rightValue = evaluateTokens(rightTokens, scope, params, context)
-
-            // Check if left side is a valid assignment target
-            if (leftToken && /^[a-zA-Z_$][a-zA-Z0-9_$]*(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(leftToken)) {
-                // Handle nested property assignment
-                if (leftToken.includes('.')) {
-                    assignToNestedProperty(leftToken, scope, rightValue)
+                if (node.computed) {
+                    const property = this.evaluate(node.property, scope, context);
+                    return object[property];
                 } else {
-                    // Simple variable assignment
-                    scope[leftToken] = rightValue
+                    return object[node.property.name];
                 }
 
-                // Replace the assignment with the actual value (not the token)
-                tokens.splice(i - 1, tokens.length - i + 1, rightValue)
-                i -= 2
-            } else {
-                throw new Error(`Invalid assignment target: ${leftToken}`)
-            }
-        }
-    }
-
-    // If we have a single token, make sure it's properly evaluated
-    if (tokens.length === 1) {
-        return getValue(tokens[0], scope, params, context)
-    }
-
-    return tokens[0]
-}
-
-function evaluateTokensWithTernary(tokens, scope, params, context) {
-    // First handle ternary operators
-    for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i] === '?') {
-            // Find the condition (everything before the ?)
-            const conditionTokens = tokens.slice(0, i)
-
-            // Find the colon (separates then and else parts)
-            let colonIndex = -1
-            for (let j = i + 1; j < tokens.length; j++) {
-                if (tokens[j] === ':') {
-                    colonIndex = j
-                    break
-                }
-            }
-
-            if (colonIndex === -1) {
-                throw new Error('Missing colon in ternary operator')
-            }
-
-            // Extract then and else parts
-            const thenTokens = tokens.slice(i + 1, colonIndex)
-            const elseTokens = tokens.slice(colonIndex + 1)
-
-            // Evaluate condition
-            const condition = evaluateTokens(conditionTokens, scope, params, context)
-
-            // Evaluate then and else parts
-            const thenValue = evaluateTokens(thenTokens, scope, params, context)
-            const elseValue = evaluateTokens(elseTokens, scope, params, context)
-
-            // Return the result
-            return condition ? thenValue : elseValue
-        }
-    }
-
-    // If no ternary operator found, use regular evaluation
-    const result = evaluateTokens(tokens, scope, params, context)
-    return result
-}
-
-function evaluateArrayAccess(tokens, scope, params, context) {
-    let changed = true
-    while (changed) {
-        changed = false
-        for (let i = 0; i < tokens.length; i++) {
-            if (tokens[i] === '[') {
-                // Find the matching closing bracket
-                let bracketCount = 1
-                let j = i + 1
-                while (j < tokens.length && bracketCount > 0) {
-                    if (tokens[j] === '[') bracketCount++
-                    else if (tokens[j] === ']') bracketCount--
-                    j++
+            case 'CallExpression':
+                const callee = this.evaluate(node.callee, scope, context);
+                if (typeof callee !== 'function') {
+                    throw new Error('Value is not a function');
                 }
 
-                if (bracketCount > 0) {
-                    // Missing closing bracket
-                    throw new Error('Missing closing bracket in array notation')
+                const args = node.arguments.map(arg => this.evaluate(arg, scope, context));
+
+                // Determine the correct 'this' context
+                let thisContext = context;
+                if (node.callee.type === 'MemberExpression') {
+                    thisContext = this.evaluate(node.callee.object, scope, context);
                 }
 
-                if (bracketCount === 0) {
-                    // Check if this is actually array access (not object literal)
-                    if (i > 0 && tokens[i - 1] !== ':') {
-                        const objectName = tokens[i - 1]
-                        const keyTokens = tokens.slice(i + 1, j - 1)
+                return callee.apply(thisContext, args);
 
-                        // Check for empty brackets
-                        if (keyTokens.length === 0) {
-                            throw new Error('Empty brackets in array notation')
-                        }
+            case 'UnaryExpression':
+                const argument = this.evaluate(node.argument, scope, context);
+                switch (node.operator) {
+                    case '!': return !argument;
+                    case '-': return -argument;
+                    case '+': return +argument;
+                    default:
+                        throw new Error(`Unknown unary operator: ${node.operator}`);
+                }
 
-                        const key = evaluateTokens(keyTokens, scope, params, context)
-
-                        // Get the object from scope or params
-                        let object
-                        if (objectName === 'params') {
-                            object = params
-                        } else if (typeof objectName === 'string' && objectName.startsWith('.')) {
-                            // Handle dot notation like '.profile' - this should be processed by dot notation evaluation
-                            // Skip this array access for now
-                            continue
-                        } else {
-                            object = getValue(objectName, scope, params, context)
-                        }
-
-                        // Handle both array indexing and object property access
-                        if (Array.isArray(object)) {
-                            // Array indexing
-                            const result = object[key]
-                            tokens.splice(i - 1, j - i + 1, result)
-                            i = i - 1
-                            changed = true
-                        } else if (object && typeof object === 'object') {
-                            // Object property access
-                            const result = object[key]
-                            tokens.splice(i - 1, j - i + 1, result)
-                            i = i - 1
-                            changed = true
-                        } else {
-                            throw new Error(`Cannot access property of ${objectName} (not an object or array)`)
-                        }
+            case 'UpdateExpression':
+                if (node.argument.type === 'Identifier') {
+                    const name = node.argument.name;
+                    if (!(name in scope)) {
+                        throw new Error(`Undefined variable: ${name}`);
                     }
+
+                    const oldValue = scope[name];
+                    if (node.operator === '++') {
+                        scope[name] = oldValue + 1;
+                    } else if (node.operator === '--') {
+                        scope[name] = oldValue - 1;
+                    }
+
+                    return node.prefix ? scope[name] : oldValue;
+                } else if (node.argument.type === 'MemberExpression') {
+                    const obj = this.evaluate(node.argument.object, scope, context);
+                    const prop = node.argument.computed
+                        ? this.evaluate(node.argument.property, scope, context)
+                        : node.argument.property.name;
+
+                    const oldValue = obj[prop];
+                    if (node.operator === '++') {
+                        obj[prop] = oldValue + 1;
+                    } else if (node.operator === '--') {
+                        obj[prop] = oldValue - 1;
+                    }
+
+                    return node.prefix ? obj[prop] : oldValue;
                 }
-            }
-        }
-    }
+                throw new Error('Invalid update expression target');
 
-    return tokens
-}
+            case 'BinaryExpression':
+                const left = this.evaluate(node.left, scope, context);
+                const right = this.evaluate(node.right, scope, context);
 
-function evaluateFunctionCalls(tokens, scope, params, context) {
-    for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i] === '(' && i > 0) {
-            // This is a function call
-            const functionName = tokens[i - 1]
-
-            // Find the matching closing parenthesis
-            let parenCount = 1
-            let j = i + 1
-            while (j < tokens.length && parenCount > 0) {
-                if (tokens[j] === '(') parenCount++
-                else if (tokens[j] === ')') parenCount--
-                j++
-            }
-
-            if (parenCount === 0) {
-                // Extract the arguments
-                const argTokens = tokens.slice(i + 1, j - 1)
-                const args = parseArguments(argTokens, scope, params, context)
-
-                // Get the function from scope
-                const func = getValue(functionName, scope, params, context)
-
-                if (typeof func === 'function') {
-                    const result = func.apply(context, args)
-                    tokens.splice(i - 1, j - i + 1, result)
-                    i = i - 1
-                } else {
-                    throw new Error(`'${functionName}' is not a function`)
+                switch (node.operator) {
+                    case '+': return left + right;
+                    case '-': return left - right;
+                    case '*': return left * right;
+                    case '/': return left / right;
+                    case '%': return left % right;
+                    case '==': return left == right;
+                    case '!=': return left != right;
+                    case '===': return left === right;
+                    case '!==': return left !== right;
+                    case '<': return left < right;
+                    case '>': return left > right;
+                    case '<=': return left <= right;
+                    case '>=': return left >= right;
+                    case '&&': return left && right;
+                    case '||': return left || right;
+                    default:
+                        throw new Error(`Unknown binary operator: ${node.operator}`);
                 }
-            }
+
+            case 'ConditionalExpression':
+                const test = this.evaluate(node.test, scope, context);
+                return test
+                    ? this.evaluate(node.consequent, scope, context)
+                    : this.evaluate(node.alternate, scope, context);
+
+            case 'AssignmentExpression':
+                const value = this.evaluate(node.right, scope, context);
+
+                if (node.left.type === 'Identifier') {
+                    scope[node.left.name] = value;
+                    return value;
+                } else if (node.left.type === 'MemberExpression') {
+                    const obj = this.evaluate(node.left.object, scope, context);
+                    if (node.left.computed) {
+                        const prop = this.evaluate(node.left.property, scope, context);
+                        obj[prop] = value;
+                    } else {
+                        obj[node.left.property.name] = value;
+                    }
+                    return value;
+                }
+                throw new Error('Invalid assignment target');
+
+            case 'ArrayExpression':
+                return node.elements.map(el => this.evaluate(el, scope, context));
+
+            case 'ObjectExpression':
+                const result = {};
+                for (const prop of node.properties) {
+                    const key = prop.computed
+                        ? this.evaluate(prop.key, scope, context)
+                        : prop.key.type === 'Identifier'
+                            ? prop.key.name
+                            : this.evaluate(prop.key, scope, context);
+                    const value = this.evaluate(prop.value, scope, context);
+                    result[key] = value;
+                }
+                return result;
+
+            default:
+                throw new Error(`Unknown node type: ${node.type}`);
         }
     }
-
-    return tokens
 }
 
-function parseArguments(argsTokens, scope, params, context) {
-    if (argsTokens.length === 0) return []
+export function generateRuntimeFunction(expression) {
+    try {
+        const tokenizer = new Tokenizer(expression);
+        const tokens = tokenizer.tokenize();
+        const parser = new Parser(tokens);
+        const ast = parser.parse();
+        const evaluator = new Evaluator();
 
-    const args = []
-    let currentArg = []
-    let parenCount = 0
-    let bracketCount = 0
-
-    for (let i = 0; i < argsTokens.length; i++) {
-        const token = argsTokens[i]
-
-        if (token === '(') parenCount++
-        else if (token === ')') parenCount--
-        else if (token === '[') bracketCount++
-        else if (token === ']') bracketCount--
-        else if (token === ',' && parenCount === 0 && bracketCount === 0) {
-            // End of current argument
-            if (currentArg.length > 0) {
-                const evaluatedArg = evaluateTokens([...currentArg], scope, params, context)
-                args.push(evaluatedArg)
-                currentArg = []
-            }
-            continue
-        }
-
-        currentArg.push(token)
+        return function(scope = {}, context = null) {
+            // Use the scope directly - mutations are expected for assignments
+            return evaluator.evaluate(ast, scope, context);
+        };
+    } catch (error) {
+        throw new Error(`CSP Parser Error: ${error.message}`);
     }
-
-    // Add the last argument
-    if (currentArg.length > 0) {
-        const evaluatedArg = evaluateTokens([...currentArg], scope, params, context)
-        args.push(evaluatedArg)
-    }
-
-    return args
 }
 
-function evaluateObjectLiterals(tokens, scope, params, context) {
-    for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i] === '{') {
-            // Find the matching closing brace
-            let braceCount = 1
-            let j = i + 1
-            while (j < tokens.length && braceCount > 0) {
-                if (tokens[j] === '{') braceCount++
-                else if (tokens[j] === '}') braceCount--
-                j++
-            }
-
-            if (braceCount > 0) {
-                // Missing closing brace
-                throw new Error('Missing closing brace in object literal')
-            }
-
-            if (braceCount === 0) {
-                // Extract the object literal content
-                const objectTokens = tokens.slice(i + 1, j - 1)
-                const object = parseObjectLiteral(objectTokens, scope, params, context)
-
-                // Replace the object literal with the parsed object
-                tokens.splice(i, j - i, object)
-            }
-        }
-    }
-
-    return tokens
-}
-
-function parseObjectLiteral(tokens, scope, params, context) {
-    if (tokens.length === 0) {
-        return {}
-    }
-
-    const object = {}
-    let i = 0
-
-    while (i < tokens.length) {
-        // Skip whitespace and commas
-        while (i < tokens.length && (tokens[i] === ',' || tokens[i].trim() === '')) {
-            i++
-        }
-
-        if (i >= tokens.length) break
-
-        // Parse key
-        let key
-        if (tokens[i].startsWith('"') && tokens[i].endsWith('"')) {
-            // Quoted key
-            key = tokens[i].slice(1, -1)
-            i++
-        } else if (tokens[i].startsWith("'") && tokens[i].endsWith("'")) {
-            // Single quoted key
-            key = tokens[i].slice(1, -1)
-            i++
-        } else if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(tokens[i])) {
-            // Identifier key
-            key = tokens[i]
-            i++
-        } else {
-            throw new Error(`Invalid object key: ${tokens[i]}`)
-        }
-
-        // Expect colon
-        if (i >= tokens.length || tokens[i] !== ':') {
-            throw new Error('Expected colon after object key')
-        }
-        i++
-
-        // Parse value - collect tokens until we hit a comma at the top level
-        let valueTokens = []
-        let parenCount = 0
-        let bracketCount = 0
-        let braceCount = 0
-
-        while (i < tokens.length) {
-            const token = tokens[i]
-
-            if (token === '(') parenCount++
-            else if (token === ')') parenCount--
-            else if (token === '[') bracketCount++
-            else if (token === ']') bracketCount--
-            else if (token === '{') braceCount++
-            else if (token === '}') braceCount--
-            else if (token === ',' && parenCount === 0 && bracketCount === 0 && braceCount === 0) {
-                i++
-                break
-            }
-
-            valueTokens.push(token)
-            i++
-        }
-
-        // Evaluate the value as a complete expression
-        let value
-        if (valueTokens.length === 0) {
-            value = undefined
-        } else if (valueTokens.length === 1) {
-            // Single token - use getValue for efficiency
-            value = getValue(valueTokens[0], scope, params, context)
-        } else {
-            // Multiple tokens - evaluate as expression (this will handle function calls)
-            value = evaluateTokensWithTernary(valueTokens, scope, params, context)
-        }
-
-        object[key] = value
-    }
-
-    return object
-}
-
-function evaluateArrayLiterals(tokens, scope, params, context) {
-    for (let i = 0; i < tokens.length; i++) {
-        if (tokens[i] === '[') {
-            // Find the matching closing bracket
-            let bracketCount = 1
-            let j = i + 1
-            while (j < tokens.length && bracketCount > 0) {
-                if (tokens[j] === '[') bracketCount++
-                else if (tokens[j] === ']') bracketCount--
-                j++
-            }
-
-            if (bracketCount === 0) {
-                // Extract the array literal content
-                const arrayTokens = tokens.slice(i + 1, j - 1)
-                const array = parseArrayLiteral(arrayTokens, scope, params, context)
-
-                // Replace the array literal with the parsed array
-                tokens.splice(i, j - i, array)
-            }
-        }
-    }
-
-    return tokens
-}
-
-function parseArrayLiteral(tokens, scope, params, context) {
-    if (tokens.length === 0) {
-        return []
-    }
-
-    const array = []
-    let i = 0
-
-    while (i < tokens.length) {
-        // Skip whitespace and commas
-        while (i < tokens.length && (tokens[i] === ',' || tokens[i].trim() === '')) {
-            i++
-        }
-
-        if (i >= tokens.length) break
-
-        // Parse array element - collect tokens until we hit a comma at the top level
-        let elementTokens = []
-        let parenCount = 0
-        let bracketCount = 0
-        let braceCount = 0
-
-        while (i < tokens.length) {
-            const token = tokens[i]
-
-            if (token === '(') parenCount++
-            else if (token === ')') parenCount--
-            else if (token === '[') bracketCount++
-            else if (token === ']') bracketCount--
-            else if (token === '{') braceCount++
-            else if (token === '}') braceCount--
-            else if (token === ',' && parenCount === 0 && bracketCount === 0 && braceCount === 0) {
-                i++
-                break
-            }
-
-            elementTokens.push(token)
-            i++
-        }
-
-        // Evaluate the element as a complete expression
-        let element
-        if (elementTokens.length === 0) {
-            element = undefined
-        } else if (elementTokens.length === 1) {
-            // Single token - use getValue for efficiency
-            element = getValue(elementTokens[0], scope, params, context)
-        } else {
-            // Multiple tokens - evaluate as expression
-            element = evaluateTokens(elementTokens, scope, params, context)
-        }
-
-        array.push(element)
-    }
-
-    return array
-}
-
-function getValue(token, scope, params, context) {
-    // If it's already a value (number, boolean, object, array), return it
-    if (typeof token === 'number' || typeof token === 'boolean' ||
-        typeof token === 'object' || Array.isArray(token)) {
-        return token
-    }
-
-    // Handle literals
-    if (token === 'true') return true
-    if (token === 'false') return false
-    if (token === 'null') return null
-    if (token === 'undefined') return undefined
-
-    // Handle numbers
-    if (typeof token === 'string' && !isNaN(token) && token.trim() !== '') {
-        return Number(token)
-    }
-
-    // Handle strings (quoted)
-    if (typeof token === 'string' &&
-        ((token.startsWith('"') && token.endsWith('"')) ||
-         (token.startsWith("'") && token.endsWith("'")))) {
-        return token.slice(1, -1)
-    }
-
-    // Handle 'this' keyword
-    if (token === 'this') return context
-
-    // Handle variable access
-    if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(token)) {
-        const value = scope[token]
-        return value !== undefined ? value : token
-    }
-
-    // Handle dot notation
-    if (typeof token === 'string' && token.includes('.')) {
-        return token.split('.').reduce((obj, prop) => {
-            return obj ? obj[prop] : undefined
-        }, scope)
-    }
-
-    return token
-}
-
-function getValueForIncrement(token, scope, params, context) {
-    // Special version of getValue for increment/decrement that throws better errors
-    if (token === undefined || token === null) {
-        throw new Error('Cannot increment/decrement undefined or null value')
-    }
-
-    if (typeof token === 'number' || typeof token === 'boolean') {
-        return token
-    }
-
-    // Handle numbers
-    if (typeof token === 'string' && !isNaN(token) && token.trim() !== '') {
-        return Number(token)
-    }
-
-    // Handle strings (quoted)
-    if ((token.startsWith('"') && token.endsWith('"')) ||
-        (token.startsWith("'") && token.endsWith("'"))) {
-        return token.slice(1, -1)
-    }
-
-    // Handle 'this' keyword
-    if (token === 'this') return context
-
-    // Handle variable access
-    if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(token)) {
-        if (scope[token] === undefined) {
-            throw new Error(`Variable not found: ${token}`)
-        }
-        return scope[token]
-    }
-
-    // Handle dot notation
-    if (token.includes('.')) {
-        return token.split('.').reduce((obj, prop) => {
-            return obj ? obj[prop] : undefined
-        }, scope)
-    }
-
-    return token
-}
+// Also export the individual components for testing
+export { Tokenizer, Parser, Evaluator };

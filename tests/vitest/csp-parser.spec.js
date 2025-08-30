@@ -147,17 +147,17 @@ describe('CSP Parser', () => {
 
         it('should call methods with scope', () => {
             const scope = {
-                nested: {
-                    count: 1,
-                    increment() { this.count++; }
+                foo: {
+                    bar: 'baz',
+                    change() { this.bar = 'qux' }
                 }
             };
 
-            let incrementFn = generateRuntimeFunction('nested.increment')(scope)
+            let fn = generateRuntimeFunction('foo.change')(scope)
 
-            incrementFn.apply(incrementFn, [])
+            fn.apply(fn, [])
 
-            expect(scope.nested.count).toEqual(2);
+            expect(scope.foo.bar).toEqual('qux');
         });
     });
 

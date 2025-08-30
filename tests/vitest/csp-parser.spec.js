@@ -128,14 +128,19 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('api.users.get(1)')(scope)).toEqual({ id: 1, name: 'User1' });
         });
 
-        it('should call nested methods', () => {
+        it('should call methods with scope', () => {
             const scope = {
-                count: 1,
-                increment() { this.count++; }
+                nested: {
+                    count: 1,
+                    increment() { this.count++; }
+                }
             };
-            generateRuntimeFunction('count++')(scope)
 
-            expect(scope.count).toEqual(2);
+            let incrementFn = generateRuntimeFunction('nested.increment')(scope)
+
+            incrementFn.apply(incrementFn, [])
+
+            expect(scope.nested.count).toEqual(2);
         });
     });
 
@@ -581,7 +586,7 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('2 + 3;')()).toBe(5);
             expect(generateRuntimeFunction('10 > 5;')()).toBe(true);
             expect(generateRuntimeFunction('false || true;')()).toBe(true);
-            
+
             const scope = { name: 'world' };
             expect(generateRuntimeFunction('"hello " + name;')(scope)).toBe('hello world');
         });
@@ -594,27 +599,27 @@ describe('CSP Parser', () => {
                     name: 'test'
                 }
             };
-            
+
             expect(generateRuntimeFunction('getValue();')(scope)).toBe(42);
             expect(generateRuntimeFunction('obj.method();')(scope)).toBe('test');
         });
 
         it('should handle assignments with trailing semicolons', () => {
             const scope = { x: 0, obj: { prop: 5 } };
-            
+
             expect(generateRuntimeFunction('x = 10;')(scope)).toBe(10);
             expect(scope.x).toBe(10);
-            
+
             expect(generateRuntimeFunction('obj.prop = 20;')(scope)).toBe(20);
             expect(scope.obj.prop).toBe(20);
         });
 
         it('should handle increment/decrement with trailing semicolons', () => {
             const scope = { count: 5 };
-            
+
             expect(generateRuntimeFunction('++count;')(scope)).toBe(6);
             expect(scope.count).toBe(6);
-            
+
             expect(generateRuntimeFunction('count--;')(scope)).toBe(6);
             expect(scope.count).toBe(5);
         });
@@ -622,7 +627,7 @@ describe('CSP Parser', () => {
         it('should work with ternary expressions and trailing semicolons', () => {
             expect(generateRuntimeFunction('true ? "yes" : "no";')()).toBe('yes');
             expect(generateRuntimeFunction('false ? 1 : 2;')()).toBe(2);
-            
+
             const scope = { age: 25 };
             expect(generateRuntimeFunction('age >= 18 ? "adult" : "minor";')(scope)).toBe('adult');
         });

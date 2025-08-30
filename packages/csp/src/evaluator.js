@@ -1,10 +1,8 @@
 import { generateEvaluatorFromFunction, shouldAutoEvaluateFunctions } from 'alpinejs/src/evaluator'
-import { generateRuntimeFunction } from './parser'
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { tryCatch } from 'alpinejs/src/utils/error'
+import { generateRuntimeFunction } from './parser'
 import { injectMagics } from 'alpinejs/src/magics'
-
-window.parse = generateRuntimeFunction
 
 export function cspEvaluator(el, expression) {
     let dataStack = generateDataStack(el)
@@ -34,10 +32,9 @@ function generateEvaluator(el, expression, dataStack) {
         let evaluate = generateRuntimeFunction(expression)
 
         let returnValue = evaluate(completeScope)
-        console.log({ expression, evaluate, returnValue, completeScope, params });
 
         if (shouldAutoEvaluateFunctions && typeof returnValue === 'function') {
-            let nextReturnValue = returnValue()
+            let nextReturnValue = returnValue.apply(returnValue, params)
 
             if (nextReturnValue instanceof Promise) {
                 nextReturnValue.then(i =>  receiver(i))
@@ -50,17 +47,4 @@ function generateEvaluator(el, expression, dataStack) {
             receiver(returnValue)
         }
     }
-}
-
-function throwExpressionError(el, expression) {
-    console.warn(
-`Alpine Error: Alpine is unable to interpret the following expression using the CSP-friendly build:
-
-"${expression}"
-
-Read more about the Alpine's CSP-friendly build restrictions here: https://alpinejs.dev/advanced/csp
-
-`,
-el
-    )
 }

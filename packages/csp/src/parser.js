@@ -208,10 +208,10 @@ class Parser {
             throw new Error('Empty expression');
         }
         const expr = this.parseExpression();
-        
+
         // Allow optional trailing semicolon
         this.match('PUNCTUATION', ';');
-        
+
         if (!this.isAtEnd()) {
             throw new Error(`Unexpected token: ${this.current().value}`);
         }
@@ -649,7 +649,13 @@ class Evaluator {
 
             case 'Identifier':
                 if (node.name in scope) {
-                    return scope[node.name];
+                    const value = scope[node.name];
+                    // If it's a function and we're accessing it directly (not calling it),
+                    // bind it to scope to preserve 'this' context for later calls
+                    if (typeof value === 'function') {
+                        return value.bind(scope);
+                    }
+                    return value;
                 }
                 throw new Error(`Undefined variable: ${node.name}`);
 
@@ -659,12 +665,20 @@ class Evaluator {
                     throw new Error('Cannot read property of null or undefined');
                 }
 
+                let memberValue;
                 if (node.computed) {
                     const property = this.evaluate(node.property, scope, context);
-                    return object[property];
+                    memberValue = object[property];
                 } else {
-                    return object[node.property.name];
+                    memberValue = object[node.property.name];
                 }
+
+                // If the accessed value is a function, bind it to its object to preserve 'this' context
+                if (typeof memberValue === 'function') {
+                    return memberValue.bind(object);
+                }
+
+                return memberValue;
 
             case 'CallExpression':
                 const callee = this.evaluate(node.callee, scope, context);
@@ -678,6 +692,27 @@ class Evaluator {
                 let thisContext = context;
                 if (node.callee.type === 'MemberExpression') {
                     thisContext = this.evaluate(node.callee.object, scope, context);
+                } else if (node.callee.type === 'Identifier' && context !== null) {
+                    // For direct function calls from scope, use provided context if available
+                    // Get the original unbound function to apply the context to
+                    const originalFunction = scope[node.callee.name];
+                    if (typeof originalFunction === 'function') {
+                        return originalFunction.apply(context, args);
+                    }
+                } else if (node.callee.type === 'MemberExpression' && context !== null) {
+                    // For member expression calls with explicit context, 
+                    // get the original function and apply the explicit context
+                    const obj = this.evaluate(node.callee.object, scope, context);
+                    let originalFunction;
+                    if (node.callee.computed) {
+                        const prop = this.evaluate(node.callee.property, scope, context);
+                        originalFunction = obj[prop];
+                    } else {
+                        originalFunction = obj[node.callee.property.name];
+                    }
+                    if (typeof originalFunction === 'function') {
+                        return originalFunction.apply(context, args);
+                    }
                 }
 
                 return callee.apply(thisContext, args);

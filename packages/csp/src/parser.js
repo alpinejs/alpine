@@ -128,14 +128,14 @@ function evaluateTokens(tokens, scope, params, context) {
     // Handle array access first
     tokens = evaluateArrayAccess(tokens, scope, params, context)
 
-    // Handle object literals (before function calls)
+    // Handle function calls (before object literals)
+    tokens = evaluateFunctionCalls(tokens, scope, params, context)
+
+    // Handle object literals (after function calls)
     tokens = evaluateObjectLiterals(tokens, scope, params, context)
 
     // Handle array literals
     tokens = evaluateArrayLiterals(tokens, scope, params, context)
-
-    // Handle function calls (after object literals)
-    tokens = evaluateFunctionCalls(tokens, scope, params, context)
 
     // Handle unary operators
     for (let i = 0; i < tokens.length; i++) {
@@ -230,6 +230,47 @@ function evaluateTokens(tokens, scope, params, context) {
     }
 
     return tokens[0]
+}
+
+function evaluateTokensWithTernary(tokens, scope, params, context) {
+    // First handle ternary operators
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === '?') {
+            // Find the condition (everything before the ?)
+            const conditionTokens = tokens.slice(0, i)
+
+            // Find the colon (separates then and else parts)
+            let colonIndex = -1
+            for (let j = i + 1; j < tokens.length; j++) {
+                if (tokens[j] === ':') {
+                    colonIndex = j
+                    break
+                }
+            }
+
+            if (colonIndex === -1) {
+                throw new Error('Missing colon in ternary operator')
+            }
+
+            // Extract then and else parts
+            const thenTokens = tokens.slice(i + 1, colonIndex)
+            const elseTokens = tokens.slice(colonIndex + 1)
+
+            // Evaluate condition
+            const condition = evaluateTokens(conditionTokens, scope, params, context)
+
+            // Evaluate then and else parts
+            const thenValue = evaluateTokens(thenTokens, scope, params, context)
+            const elseValue = evaluateTokens(elseTokens, scope, params, context)
+
+            // Return the result
+            return condition ? thenValue : elseValue
+        }
+    }
+
+    // If no ternary operator found, use regular evaluation
+    const result = evaluateTokens(tokens, scope, params, context)
+    return result
 }
 
 function evaluateArrayAccess(tokens, scope, params, context) {
@@ -360,6 +401,11 @@ function evaluateObjectLiterals(tokens, scope, params, context) {
                 j++
             }
 
+            if (braceCount > 0) {
+                // Missing closing brace
+                throw new Error('Missing closing brace in object literal')
+            }
+
             if (braceCount === 0) {
                 // Extract the object literal content
                 const objectTokens = tokens.slice(i + 1, j - 1)
@@ -447,7 +493,7 @@ function parseObjectLiteral(tokens, scope, params, context) {
             value = getValue(valueTokens[0], scope, params, context)
         } else {
             // Multiple tokens - evaluate as expression (this will handle function calls)
-            value = evaluateTokens(valueTokens, scope, params, context)
+            value = evaluateTokensWithTernary(valueTokens, scope, params, context)
         }
 
         object[key] = value

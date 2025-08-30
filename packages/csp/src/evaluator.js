@@ -4,6 +4,8 @@ import { tryCatch } from 'alpinejs/src/utils/error'
 import { injectMagics } from 'alpinejs/src/magics'
 import { convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP } from './parser'
 
+window.parse = convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP
+
 export function cspEvaluator(el, expression) {
     let dataStack = generateDataStack(el)
 
@@ -32,6 +34,8 @@ function generateEvaluator(el, expression, dataStack) {
         let evaluate = convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP(expression)
 
         let returnValue = evaluate(completeScope, params)
+        console.log({ expression, evaluate, returnValue, completeScope, params });
+
 
         if (shouldAutoEvaluateFunctions && typeof returnValue === 'function') {
             let nextReturnValue = returnValue()

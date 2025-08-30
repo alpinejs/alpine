@@ -1,47 +1,22 @@
 
 export function convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP(expression) {
+    const tokens = tokenize(expression)
+
+    // Check if expression starts with 'await'
+    const isAsync = tokens[0] === 'await'
+    if (isAsync) {
+        tokens.shift() // Remove 'await' keyword
+    }
+
     return (scope = {}, params = [], context = null) => {
-        // Handle basic literals
-        if (expression === 'true') return true
-        if (expression === 'false') return false
-        if (expression === 'null') return null
-        if (expression === 'undefined') return undefined
+        const result = evaluateTokens(tokens, scope, params, context)
 
-        // Handle numbers
-        if (!isNaN(expression) && expression.trim() !== '') {
-            return Number(expression)
+        // If expression started with 'await', wrap result in Promise
+        if (isAsync) {
+            return Promise.resolve(result)
         }
 
-        // Handle strings (quoted)
-        if ((expression.startsWith('"') && expression.endsWith('"')) ||
-            (expression.startsWith("'") && expression.endsWith("'"))) {
-            return expression.slice(1, -1)
-        }
-
-        // Handle variable access (simple identifiers)
-        if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(expression)) {
-            // Handle 'this' keyword
-            if (expression === 'this') return context
-            return scope[expression]
-        }
-
-        // Handle dot notation (e.g., user.name, this.value)
-        if (expression.includes('.') && !expression.includes(' ') && !expression.includes('(')) {
-            const parts = expression.split('.')
-            let obj
-            if (parts[0] === 'this') {
-                obj = context
-            } else {
-                obj = scope[parts[0]]
-            }
-
-            return parts.slice(1).reduce((currentObj, prop) => {
-                return currentObj ? currentObj[prop] : undefined
-            }, obj)
-        }
-
-        // Handle expressions with operators
-        return evaluateExpression(expression, scope, params, context)
+        return result
     }
 }
 
@@ -124,7 +99,85 @@ function tokenize(expression) {
     return tokens
 }
 
+function updateNestedProperty(path, scope, newValue) {
+    const parts = path.split('.')
+    const lastPart = parts.pop()
+    const obj = parts.reduce((currentObj, prop) => {
+        return currentObj ? currentObj[prop] : undefined
+    }, scope)
+
+    if (obj === undefined) {
+        throw new Error(`Cannot update property: ${path}`)
+    }
+
+    obj[lastPart] = newValue
+}
+
+function assignToNestedProperty(path, scope, newValue) {
+    const parts = path.split('.')
+    const lastPart = parts.pop()
+    const obj = parts.reduce((currentObj, prop) => {
+        return currentObj ? currentObj[prop] : undefined
+    }, scope)
+
+    if (obj === undefined) {
+        throw new Error(`Cannot assign to undefined property: ${parts.join('.')}`)
+    }
+
+    obj[lastPart] = newValue
+    return newValue
+}
+
 function evaluateTokens(tokens, scope, params, context) {
+    // Handle single token literals first
+    if (tokens.length === 1) {
+        const token = tokens[0]
+
+        // Handle basic literals
+        if (token === 'true') return true
+        if (token === 'false') return false
+        if (token === 'null') return null
+        if (token === 'undefined') return undefined
+
+        // Handle numbers
+        if (typeof token === 'string' && !isNaN(token) && token.trim() !== '') {
+            return Number(token)
+        }
+
+        // Handle strings (quoted)
+        if (typeof token === 'string' &&
+            ((token.startsWith('"') && token.endsWith('"')) ||
+             (token.startsWith("'") && token.endsWith("'")))) {
+            return token.slice(1, -1)
+        }
+
+        // Handle variable access (simple identifiers)
+        if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(token)) {
+            // Handle 'this' keyword
+            if (token === 'this') return context
+            const value = scope[token]
+            return value !== undefined ? value : token
+        }
+
+        // Handle dot notation (e.g., user.name, this.value)
+        if (typeof token === 'string' && token.includes('.') && !token.includes(' ') && !token.includes('(')) {
+            const parts = token.split('.')
+            let obj
+            if (parts[0] === 'this') {
+                obj = context
+            } else {
+                obj = scope[parts[0]]
+            }
+
+            return parts.slice(1).reduce((currentObj, prop) => {
+                return currentObj ? currentObj[prop] : undefined
+            }, obj)
+        }
+
+        // Use getValue for any other single token
+        return getValue(token, scope, params, context)
+    }
+
     // Handle array access first
     tokens = evaluateArrayAccess(tokens, scope, params, context)
 
@@ -142,26 +195,37 @@ function evaluateTokens(tokens, scope, params, context) {
         if (tokens[i] === '!') {
             const operand = getValue(tokens[i + 1], scope, params, context)
             tokens.splice(i, 2, !operand)
+        } else if (tokens[i] === '-' && i === 0) {
+            // Handle unary minus at the start
+            const operand = getValue(tokens[i + 1], scope, params, context)
+            tokens.splice(i, 2, -operand)
+        } else if (tokens[i] === '-' && i > 0 &&
+                   (tokens[i - 1] === '+' || tokens[i - 1] === '-' || tokens[i - 1] === '*' ||
+                    tokens[i - 1] === '/' || tokens[i - 1] === '%' || tokens[i - 1] === '(' ||
+                    tokens[i - 1] === '[' || tokens[i - 1] === '{' || tokens[i - 1] === ',')) {
+            // Handle unary minus after operators or opening brackets
+            const operand = getValue(tokens[i + 1], scope, params, context)
+            tokens.splice(i, 2, -operand)
         }
     }
 
     // Handle prefix increment/decrement before arithmetic (higher precedence)
     for (let i = 0; i < tokens.length - 1; i++) {
         if ((tokens[i] === '++' || tokens[i] === '--') && i + 1 < tokens.length) {
-            // Only process if the next token is a valid variable name
+            // Process if the next token is a valid variable name or dot notation
             const nextToken = tokens[i + 1]
-            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(nextToken)) {
-                const variableName = nextToken
-                const currentValue = getValueForIncrement(variableName, scope, params, context)
+            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(nextToken)) {
+                const variablePath = nextToken
+                const currentValue = getValueForIncrement(variablePath, scope, params, context)
 
                 if (typeof currentValue !== 'number') {
-                    throw new Error(`Cannot increment/decrement non-numeric value: ${variableName}`)
+                    throw new Error(`Cannot increment/decrement non-numeric value: ${variablePath}`)
                 }
 
                 const newValue = tokens[i] === '++' ? currentValue + 1 : currentValue - 1
 
-                // Update the variable in scope
-                scope[variableName] = newValue
+                // Update the variable in scope (handles nested properties)
+                updateNestedProperty(variablePath, scope, newValue)
 
                 // For prefix, return the new value
                 tokens.splice(i, 2, newValue)
@@ -202,24 +266,52 @@ function evaluateTokens(tokens, scope, params, context) {
     for (let i = 0; i < tokens.length; i++) {
         if ((tokens[i] === '++' || tokens[i] === '--') && i > 0) {
             // Handle postfix increment/decrement (e.g., foo++)
-            // Only process if the previous token is a valid variable name
+            // Process if the previous token is a valid variable name or dot notation
             const previousToken = tokens[i - 1]
-            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(previousToken)) {
-                const variableName = previousToken
-                const currentValue = getValueForIncrement(variableName, scope, params, context)
+            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(previousToken)) {
+                const variablePath = previousToken
+                const currentValue = getValueForIncrement(variablePath, scope, params, context)
 
                 if (typeof currentValue !== 'number') {
-                    throw new Error(`Cannot increment/decrement non-numeric value: ${variableName}`)
+                    throw new Error(`Cannot increment/decrement non-numeric value: ${variablePath}`)
                 }
 
                 const newValue = tokens[i] === '++' ? currentValue + 1 : currentValue - 1
 
-                // Update the variable in scope
-                scope[variableName] = newValue
+                // Update the variable in scope (handles nested properties)
+                updateNestedProperty(variablePath, scope, newValue)
 
                 // For postfix, return the original value, but update the variable
                 tokens.splice(i - 1, 2, currentValue)
                 i--
+            }
+        }
+    }
+
+    // Handle assignment operators (lowest precedence)
+    for (let i = 1; i < tokens.length - 1; i += 2) {
+        if (tokens[i] === '=') {
+            const leftToken = tokens[i - 1]
+
+            // Evaluate the right side as an expression
+            const rightTokens = tokens.slice(i + 1)
+            const rightValue = evaluateTokens(rightTokens, scope, params, context)
+
+            // Check if left side is a valid assignment target
+            if (/^[a-zA-Z_$][a-zA-Z0-9_$]*(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(leftToken)) {
+                // Handle nested property assignment
+                if (leftToken.includes('.')) {
+                    assignToNestedProperty(leftToken, scope, rightValue)
+                } else {
+                    // Simple variable assignment
+                    scope[leftToken] = rightValue
+                }
+
+                // Replace the assignment with the actual value (not the token)
+                tokens.splice(i - 1, tokens.length - i + 1, rightValue)
+                i -= 2
+            } else {
+                throw new Error(`Invalid assignment target: ${leftToken}`)
             }
         }
     }
@@ -600,13 +692,14 @@ function getValue(token, scope, params, context) {
     if (token === 'undefined') return undefined
 
     // Handle numbers
-    if (!isNaN(token) && token.trim() !== '') {
+    if (typeof token === 'string' && !isNaN(token) && token.trim() !== '') {
         return Number(token)
     }
 
     // Handle strings (quoted)
-    if ((token.startsWith('"') && token.endsWith('"')) ||
-        (token.startsWith("'") && token.endsWith("'"))) {
+    if (typeof token === 'string' &&
+        ((token.startsWith('"') && token.endsWith('"')) ||
+         (token.startsWith("'") && token.endsWith("'")))) {
         return token.slice(1, -1)
     }
 
@@ -615,11 +708,12 @@ function getValue(token, scope, params, context) {
 
     // Handle variable access
     if (/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(token)) {
-        return scope[token]
+        const value = scope[token]
+        return value !== undefined ? value : token
     }
 
     // Handle dot notation
-    if (token.includes('.')) {
+    if (typeof token === 'string' && token.includes('.')) {
         return token.split('.').reduce((obj, prop) => {
             return obj ? obj[prop] : undefined
         }, scope)
@@ -639,7 +733,7 @@ function getValueForIncrement(token, scope, params, context) {
     }
 
     // Handle numbers
-    if (!isNaN(token) && token.trim() !== '') {
+    if (typeof token === 'string' && !isNaN(token) && token.trim() !== '') {
         return Number(token)
     }
 

@@ -212,11 +212,15 @@ describe('CSP (Content Security Policy)', () => {
     })
 
     it('should handle increment and decrement operators', () => {
-        const scope = { count: 5, index: 0, value: 10 }
+        const scope = { count: 5, index: 0, value: 10, nested: { count: 10 } }
 
         // Postfix increment (returns original value, then increments)
         expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('count++')(scope)).toEqual(5)
         expect(scope.count).toEqual(6) // Variable should be updated
+
+        // Nested increment
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('nested.count++')(scope)).toEqual(10)
+        expect(scope.nested.count).toEqual(11) // Variable should be updated
 
         // Postfix decrement
         expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('count--')(scope)).toEqual(6)
@@ -450,6 +454,80 @@ describe('CSP (Content Security Policy)', () => {
         expect(() => {
             convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('{name: "John"')()
         }).toThrow()
+    })
+
+    it('supports string concatenation', () => {
+        const result = convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('"Hello " + "World"')()
+
+        expect(result).toEqual('Hello World')
+    })
+
+    it('supports async/await', async () => {
+        let scope = {
+            getName: async () => 'John'
+        }
+
+        // assert "await getName()" returns a promise that resolves to "John"
+        const result = await convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('await getName()')(scope)
+        expect(result).toEqual('John')
+    })
+
+    it('supports assignment operations', () => {
+        const scope = {
+            name: 'John',
+            age: 30,
+            user: { profile: { name: 'Alice' } },
+            nested: { deep: { value: 42 } }
+        }
+
+        // Simple assignment
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('name = "Jane"')(scope)).toEqual('Jane')
+        expect(scope.name).toEqual('Jane')
+
+        // Assignment with variable
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('age = 25')(scope)).toEqual(25)
+        expect(scope.age).toEqual(25)
+
+        // Assignment with expression
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('age = age + 5')(scope)).toEqual(30)
+        expect(scope.age).toEqual(30)
+
+        // Nested property assignment
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user.profile.name = "Bob"')(scope)).toEqual('Bob')
+        expect(scope.user.profile.name).toEqual('Bob')
+
+        // Deep nested assignment
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('nested.deep.value = 100')(scope)).toEqual(100)
+        expect(scope.nested.deep.value).toEqual(100)
+
+        // Assignment with complex expression
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('age = age * 2')(scope)).toEqual(60)
+        expect(scope.age).toEqual(60)
+    })
+
+    it('supports assignment with function calls', () => {
+        const scope = {
+            getName: () => 'John',
+            getAge: () => 25,
+            user: { profile: {} }
+        }
+
+        // Assignment with function call
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('name = getName()')(scope)).toEqual('John')
+        expect(scope.name).toEqual('John')
+
+        // Nested assignment with function call
+        expect(convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user.profile.age = getAge()')(scope)).toEqual(25)
+        expect(scope.user.profile.age).toEqual(25)
+    })
+
+    it('throws error for assignment to undefined nested property', () => {
+        const scope = { user: {} }
+
+        // Should throw when trying to assign to undefined nested property
+        expect(() => {
+            convertJsExpressionIntoRuntimeFunctionWithoutViolatingCSP('user.profile.name = "John"')(scope)
+        }).toThrow('Cannot assign to undefined property: user.profile')
     })
 
 })

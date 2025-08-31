@@ -25,12 +25,16 @@ When evaluating pull requests for Alpine.js, assess the following:
 - Does it follow Alpine's philosophy of simplicity?
 - Could it be implemented more simply?
 
-### 5. Description Quality
+### 5. Precedent
+- Does this PR (both public facing additions and internal implementation) follow established precedents in the project
+- Does it use terms that are unfamiliar to the project as of yet?
+
+### 6. Description Quality
 - Is there a clear explanation of what/why/how?
 - Are breaking changes documented?
 - Is backward compatibility addressed?
 
-### 6. Community Engagement
+### 7. Community Engagement
 - Are there comments, reviews, or discussions?
 - Has it been approved by maintainers?
 - Are there any conflicting opinions or unresolved concerns?
@@ -63,3 +67,7 @@ gh api repos/alpinejs/alpine/pulls/[number]/comments  # View comments
 npm test                     # Run all tests
 npm run build               # Build all packages
 ```
+
+## Summary
+
+After assessing the pull request on the above qualities, provide a summary explaining the problem this PR addresses and the fix, and why it's a good or bad fix. Do it in plain language as if you are personally advising me on what the PR is and weather or not I should merge it. And if not, what might need to be addressed first. If things need to be addressed, offer to address them yourself.

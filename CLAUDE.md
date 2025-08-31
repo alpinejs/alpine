@@ -18,6 +18,7 @@ When evaluating pull requests for Alpine.js, assess the following:
 - Is the code clean and maintainable?
 - Is the change focused and minimal?
 - Are there any unnecessary changes or complexity?
+- Does this PR contain changes that should apply elsewhere?
 
 ### 4. Simplicity
 - Is this a simple, focused change?

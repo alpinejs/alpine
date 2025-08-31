@@ -31,7 +31,11 @@ function generateEvaluator(el, expression, dataStack) {
 
         let evaluate = generateRuntimeFunction(expression)
 
-        let returnValue = evaluate(completeScope)
+        let returnValue = evaluate({
+            scope: completeScope,
+            allowGlobal: true,
+            forceBindingRootScopeToFunctions: true,
+        })
 
         if (shouldAutoEvaluateFunctions && typeof returnValue === 'function') {
             let nextReturnValue = returnValue.apply(returnValue, params)

@@ -30,23 +30,44 @@ describe('CSP Parser', () => {
     describe('Variable Access', () => {
         it('should access simple variables', () => {
             const scope = { foo: 'bar', count: 5 };
-            expect(generateRuntimeFunction('foo')(scope)).toBe('bar');
-            expect(generateRuntimeFunction('count')(scope)).toBe(5);
+            expect(generateRuntimeFunction('foo')({ scope })).toBe('bar');
+            expect(generateRuntimeFunction('count')({ scope })).toBe(5);
         });
 
         it('should throw on undefined variables', () => {
             expect(() => generateRuntimeFunction('nonExistent')()).toThrow('Undefined variable');
         });
 
-        it('should access global variables', () => {
-            expect(generateRuntimeFunction('console')()).toBe(console);
-            expect(generateRuntimeFunction('Math')()).toBe(Math);
-            expect(generateRuntimeFunction('JSON')()).toBe(JSON);
+        it('should not access global variables by default when called with no parameters', () => {
+            expect(() => generateRuntimeFunction('console')()).toThrow('Undefined variable: console');
+            expect(() => generateRuntimeFunction('Math')()).toThrow('Undefined variable: Math');
+            expect(() => generateRuntimeFunction('JSON')()).toThrow('Undefined variable: JSON');
         });
 
         it('should prefer scope over globals', () => {
             const scope = { console: 'local console' };
-            expect(generateRuntimeFunction('console')(scope)).toBe('local console');
+            expect(generateRuntimeFunction('console')({ scope })).toBe('local console');
+        });
+
+        it('should access global variables when allowGlobal is true', () => {
+            expect(generateRuntimeFunction('console')({ allowGlobal: true })).toBe(console);
+            expect(generateRuntimeFunction('Math')({ allowGlobal: true })).toBe(Math);
+            expect(generateRuntimeFunction('JSON')({ allowGlobal: true })).toBe(JSON);
+        });
+
+        it('should not access global variables when allowGlobal is false', () => {
+            expect(() => generateRuntimeFunction('console')({ allowGlobal: false })).toThrow('Undefined variable: console');
+            expect(() => generateRuntimeFunction('Math')({ allowGlobal: false })).toThrow('Undefined variable: Math');
+            expect(() => generateRuntimeFunction('JSON')({ allowGlobal: false })).toThrow('Undefined variable: JSON');
+        });
+
+        it('should default allowGlobal to false when empty object is passed', () => {
+            expect(() => generateRuntimeFunction('console')({})).toThrow('Undefined variable: console');
+        });
+
+        it('should prefer local scope over globals even when allowGlobal is true', () => {
+            const scope = { console: 'local console' };
+            expect(generateRuntimeFunction('console')({ scope, allowGlobal: true })).toBe('local console');
         });
     });
 
@@ -56,9 +77,9 @@ describe('CSP Parser', () => {
                 user: { name: 'John', age: 30 },
                 nested: { deep: { value: 'found' } }
             };
-            expect(generateRuntimeFunction('user.name')(scope)).toBe('John');
-            expect(generateRuntimeFunction('user.age')(scope)).toBe(30);
-            expect(generateRuntimeFunction('nested.deep.value')(scope)).toBe('found');
+            expect(generateRuntimeFunction('user.name')({ scope })).toBe('John');
+            expect(generateRuntimeFunction('user.age')({ scope })).toBe(30);
+            expect(generateRuntimeFunction('nested.deep.value')({ scope })).toBe('found');
         });
 
         it('should access properties with bracket notation', () => {
@@ -66,9 +87,9 @@ describe('CSP Parser', () => {
                 obj: { foo: 'bar', 'with-dash': 'works' },
                 key: 'foo'
             };
-            expect(generateRuntimeFunction('obj["foo"]')(scope)).toBe('bar');
-            expect(generateRuntimeFunction('obj["with-dash"]')(scope)).toBe('works');
-            expect(generateRuntimeFunction('obj[key]')(scope)).toBe('bar');
+            expect(generateRuntimeFunction('obj["foo"]')({ scope })).toBe('bar');
+            expect(generateRuntimeFunction('obj["with-dash"]')({ scope })).toBe('works');
+            expect(generateRuntimeFunction('obj[key]')({ scope })).toBe('bar');
         });
 
         it('should handle computed property access', () => {
@@ -76,13 +97,13 @@ describe('CSP Parser', () => {
                 arr: [1, 2, 3],
                 index: 1
             };
-            expect(generateRuntimeFunction('arr[index]')(scope)).toBe(2);
-            expect(generateRuntimeFunction('arr[0]')(scope)).toBe(1);
+            expect(generateRuntimeFunction('arr[index]')({ scope })).toBe(2);
+            expect(generateRuntimeFunction('arr[0]')({ scope })).toBe(1);
         });
 
         it('should throw on null/undefined property access', () => {
             const scope = { nullValue: null };
-            expect(() => generateRuntimeFunction('nullValue.prop')(scope)).toThrow('Cannot read property');
+            expect(() => generateRuntimeFunction('nullValue.prop')({ scope })).toThrow('Cannot read property');
         });
     });
 
@@ -92,8 +113,8 @@ describe('CSP Parser', () => {
                 getValue: () => 42,
                 getText: function() { return 'hello'; }
             };
-            expect(generateRuntimeFunction('getValue()')(scope)).toBe(42);
-            expect(generateRuntimeFunction('getText()')(scope)).toBe('hello');
+            expect(generateRuntimeFunction('getValue()')({ scope })).toBe(42);
+            expect(generateRuntimeFunction('getText()')({ scope })).toBe('hello');
         });
 
         it('should call functions with arguments', () => {
@@ -101,8 +122,8 @@ describe('CSP Parser', () => {
                 add: (a, b) => a + b,
                 greet: (name) => `Hello, ${name}!`
             };
-            expect(generateRuntimeFunction('add(2, 3)')(scope)).toBe(5);
-            expect(generateRuntimeFunction('greet("World")')(scope)).toBe('Hello, World!');
+            expect(generateRuntimeFunction('add(2, 3)')({ scope })).toBe(5);
+            expect(generateRuntimeFunction('greet("World")')({ scope })).toBe('Hello, World!');
         });
 
         it('should call methods on objects', () => {
@@ -113,8 +134,8 @@ describe('CSP Parser', () => {
                     add: function(n) { return this.value + n; }
                 }
             };
-            expect(generateRuntimeFunction('obj.getValue()')(scope)).toBe(10);
-            expect(generateRuntimeFunction('obj.add(5)')(scope)).toBe(15);
+            expect(generateRuntimeFunction('obj.getValue()')({ scope })).toBe(10);
+            expect(generateRuntimeFunction('obj.add(5)')({ scope })).toBe(15);
         });
 
         it('should preserve this context in method calls', () => {
@@ -124,7 +145,7 @@ describe('CSP Parser', () => {
                     increment: function() { this.count++; return this.count; }
                 }
             };
-            expect(generateRuntimeFunction('counter.increment()')(scope)).toBe(1);
+            expect(generateRuntimeFunction('counter.increment()')({ scope })).toBe(1);
             expect(scope.counter.count).toBe(1);
         });
 
@@ -136,13 +157,13 @@ describe('CSP Parser', () => {
                     }
                 }
             };
-            expect(generateRuntimeFunction('api.users.get(1)')(scope)).toEqual({ id: 1, name: 'User1' });
+            expect(generateRuntimeFunction('api.users.get(1)')({ scope })).toEqual({ id: 1, name: 'User1' });
         });
 
         it('should call global functions', () => {
-            expect(generateRuntimeFunction('parseInt("42")')()).toBe(42);
-            expect(generateRuntimeFunction('Math.max(1, 2, 3)')()).toBe(3);
-            expect(generateRuntimeFunction('JSON.stringify({a: 1})')()).toBe('{"a":1}');
+            expect(generateRuntimeFunction('parseInt("42")')({ allowGlobal: true })).toBe(42);
+            expect(generateRuntimeFunction('Math.max(1, 2, 3)')({ allowGlobal: true })).toBe(3);
+            expect(generateRuntimeFunction('JSON.stringify({a: 1})')({ allowGlobal: true })).toBe('{"a":1}');
         });
 
         it('should call methods with scope', () => {
@@ -153,7 +174,22 @@ describe('CSP Parser', () => {
                 }
             };
 
-            let fn = generateRuntimeFunction('foo.change')(scope)
+            let fn = generateRuntimeFunction('foo.change')({ scope, forceBindingRootScopeToFunctions: false })
+
+            fn.apply(fn, [])
+
+            expect(scope.foo.bar).toEqual('qux');
+        });
+
+        it('should call methods with root scope instead of nested scope if forceBindingRootScopeToFunctions is true', () => {
+            const scope = {
+                foo: {
+                    bar: 'baz',
+                    change() { this.foo.bar = 'qux' }
+                }
+            };
+
+            let fn = generateRuntimeFunction('foo.change')({ scope, forceBindingRootScopeToFunctions: true })
 
             fn.apply(fn, [])
 
@@ -174,7 +210,7 @@ describe('CSP Parser', () => {
 
         it('should parse arrays with variables', () => {
             const scope = { a: 1, b: 2, c: 3 };
-            expect(generateRuntimeFunction('[a, b, c]')(scope)).toEqual([1, 2, 3]);
+            expect(generateRuntimeFunction('[a, b, c]')({ scope })).toEqual([1, 2, 3]);
         });
 
         it('should parse nested arrays', () => {
@@ -200,7 +236,7 @@ describe('CSP Parser', () => {
 
         it('should parse objects with variable values', () => {
             const scope = { value: 'test', num: 100 };
-            expect(generateRuntimeFunction('{ prop: value, count: num }')(scope)).toEqual({
+            expect(generateRuntimeFunction('{ prop: value, count: num }')({ scope })).toEqual({
                 prop: 'test',
                 count: 100
             });
@@ -242,7 +278,7 @@ describe('CSP Parser', () => {
         it('should handle string concatenation', () => {
             expect(generateRuntimeFunction('"Hello" + " " + "World"')()).toBe('Hello World');
             const scope = { name: 'John' };
-            expect(generateRuntimeFunction('"Hello, " + name')(scope)).toBe('Hello, John');
+            expect(generateRuntimeFunction('"Hello, " + name')({ scope })).toBe('Hello, John');
         });
 
         it('should respect operator precedence', () => {
@@ -297,8 +333,8 @@ describe('CSP Parser', () => {
 
         it('should handle complex logical expressions', () => {
             const scope = { a: true, b: false, c: true };
-            expect(generateRuntimeFunction('a && (b || c)')(scope)).toBe(true);
-            expect(generateRuntimeFunction('!a || (b && c)')(scope)).toBe(false);
+            expect(generateRuntimeFunction('a && (b || c)')({ scope })).toBe(true);
+            expect(generateRuntimeFunction('!a || (b && c)')({ scope })).toBe(false);
         });
     });
 
@@ -307,7 +343,7 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('-5')()).toBe(-5);
             expect(generateRuntimeFunction('-(2 + 3)')()).toBe(-5);
             const scope = { value: 10 };
-            expect(generateRuntimeFunction('-value')(scope)).toBe(-10);
+            expect(generateRuntimeFunction('-value')({ scope })).toBe(-10);
         });
 
         it('should handle unary plus', () => {
@@ -325,27 +361,27 @@ describe('CSP Parser', () => {
 
         it('should handle ternary with expressions', () => {
             const scope = { age: 20 };
-            expect(generateRuntimeFunction('age >= 18 ? "adult" : "minor"')(scope)).toBe('adult');
+            expect(generateRuntimeFunction('age >= 18 ? "adult" : "minor"')({ scope })).toBe('adult');
             scope.age = 15;
-            expect(generateRuntimeFunction('age >= 18 ? "adult" : "minor"')(scope)).toBe('minor');
+            expect(generateRuntimeFunction('age >= 18 ? "adult" : "minor"')({ scope })).toBe('minor');
         });
 
         it('should handle nested ternary', () => {
             const scope = { score: 85 };
-            expect(generateRuntimeFunction('score >= 90 ? "A" : score >= 80 ? "B" : "C"')(scope)).toBe('B');
+            expect(generateRuntimeFunction('score >= 90 ? "A" : score >= 80 ? "B" : "C"')({ scope })).toBe('B');
         });
     });
 
     describe('Assignment Operators', () => {
         it('should handle simple assignment', () => {
             const scope = { x: 0 };
-            expect(generateRuntimeFunction('x = 5')(scope)).toBe(5);
+            expect(generateRuntimeFunction('x = 5')({ scope })).toBe(5);
             expect(scope.x).toBe(5);
         });
 
         it('should handle property assignment', () => {
             const scope = { obj: { prop: 0 } };
-            expect(generateRuntimeFunction('obj.prop = 10')(scope)).toBe(10);
+            expect(generateRuntimeFunction('obj.prop = 10')({ scope })).toBe(10);
             expect(scope.obj.prop).toBe(10);
         });
 
@@ -354,13 +390,13 @@ describe('CSP Parser', () => {
                 obj: { foo: 0 },
                 key: 'foo'
             };
-            expect(generateRuntimeFunction('obj[key] = 20')(scope)).toBe(20);
+            expect(generateRuntimeFunction('obj[key] = 20')({ scope })).toBe(20);
             expect(scope.obj.foo).toBe(20);
         });
 
         it('should handle chained assignment', () => {
             const scope = { a: 0, b: 0 };
-            expect(generateRuntimeFunction('a = b = 5')(scope)).toBe(5);
+            expect(generateRuntimeFunction('a = b = 5')({ scope })).toBe(5);
             expect(scope.a).toBe(5);
             expect(scope.b).toBe(5);
         });
@@ -369,33 +405,33 @@ describe('CSP Parser', () => {
     describe('Increment/Decrement Operators', () => {
         it('should handle prefix increment', () => {
             const scope = { x: 5 };
-            expect(generateRuntimeFunction('++x')(scope)).toBe(6);
+            expect(generateRuntimeFunction('++x')({ scope })).toBe(6);
             expect(scope.x).toBe(6);
         });
 
         it('should handle postfix increment', () => {
             const scope = { x: 5 };
-            expect(generateRuntimeFunction('x++')(scope)).toBe(5);
+            expect(generateRuntimeFunction('x++')({ scope })).toBe(5);
             expect(scope.x).toBe(6);
         });
 
         it('should handle prefix decrement', () => {
             const scope = { x: 5 };
-            expect(generateRuntimeFunction('--x')(scope)).toBe(4);
+            expect(generateRuntimeFunction('--x')({ scope })).toBe(4);
             expect(scope.x).toBe(4);
         });
 
         it('should handle postfix decrement', () => {
             const scope = { x: 5 };
-            expect(generateRuntimeFunction('x--')(scope)).toBe(5);
+            expect(generateRuntimeFunction('x--')({ scope })).toBe(5);
             expect(scope.x).toBe(4);
         });
 
         it('should handle increment on properties', () => {
             const scope = { obj: { count: 10 } };
-            expect(generateRuntimeFunction('obj.count++')(scope)).toBe(10);
+            expect(generateRuntimeFunction('obj.count++')({ scope })).toBe(10);
             expect(scope.obj.count).toBe(11);
-            expect(generateRuntimeFunction('++obj.count')(scope)).toBe(12);
+            expect(generateRuntimeFunction('++obj.count')({ scope })).toBe(12);
             expect(scope.obj.count).toBe(12);
         });
     });
@@ -412,8 +448,8 @@ describe('CSP Parser', () => {
                 user: { role: 'admin', active: true },
                 permissions: ['read', 'write', 'delete']
             };
-            expect(generateRuntimeFunction('user.role === "admin" && user.active')(scope)).toBe(true);
-            expect(generateRuntimeFunction('user.role === "user" || user.active')(scope)).toBe(true);
+            expect(generateRuntimeFunction('user.role === "admin" && user.active')({ scope })).toBe(true);
+            expect(generateRuntimeFunction('user.role === "user" || user.active')({ scope })).toBe(true);
         });
 
         it('should handle method calls with complex arguments', () => {
@@ -425,8 +461,8 @@ describe('CSP Parser', () => {
                 x: 2,
                 y: 3
             };
-            expect(generateRuntimeFunction('math.add(x * 2, y + 1)')(scope)).toBe(8);
-            expect(generateRuntimeFunction('math.multiply(math.add(x, y), 2)')(scope)).toBe(10);
+            expect(generateRuntimeFunction('math.add(x * 2, y + 1)')({ scope })).toBe(8);
+            expect(generateRuntimeFunction('math.multiply(math.add(x, y), 2)')({ scope })).toBe(10);
         });
     });
 
@@ -436,7 +472,7 @@ describe('CSP Parser', () => {
             const scope = {
                 getValue: function() { return this.value; }
             };
-            expect(generateRuntimeFunction('getValue()')(scope, context)).toBe(42);
+            expect(generateRuntimeFunction('getValue()')({ scope, context })).toBe(42);
         });
 
         it('should preserve method context over provided context', () => {
@@ -447,7 +483,7 @@ describe('CSP Parser', () => {
                     getValue: function() { return this.value; }
                 }
             };
-            expect(generateRuntimeFunction('obj.getValue()')(scope, context)).toBe(42);
+            expect(generateRuntimeFunction('obj.getValue()')({ scope, context })).toBe(42);
         });
     });
 
@@ -485,7 +521,7 @@ describe('CSP Parser', () => {
             const scope = {
                 a: { b: { c: { d: { e: 'deep' } } } }
             };
-            expect(generateRuntimeFunction('a.b.c.d.e')(scope)).toBe('deep');
+            expect(generateRuntimeFunction('a.b.c.d.e')({ scope })).toBe('deep');
         });
 
         it('should handle complex nested structures', () => {
@@ -498,8 +534,8 @@ describe('CSP Parser', () => {
                 },
                 index: 1
             };
-            expect(generateRuntimeFunction('data.users[index].name')(scope)).toBe('Bob');
-            expect(generateRuntimeFunction('data.users[0].scores[2]')(scope)).toBe(88);
+            expect(generateRuntimeFunction('data.users[index].name')({ scope })).toBe('Bob');
+            expect(generateRuntimeFunction('data.users[0].scores[2]')({ scope })).toBe(88);
         });
     });
 
@@ -584,7 +620,7 @@ describe('CSP Parser', () => {
         it('should not support dynamic code execution', () => {
             // eval is now accessible as a global, but the CSP will catch it at runtime
             // Here we test that eval runs but the string code isn't defined
-            expect(() => generateRuntimeFunction('eval("code")')()).toThrow('code is not defined');
+            expect(() => generateRuntimeFunction('eval("code")')({ allowGlobal: true })).toThrow('code is not defined');
 
             // new operator is not supported by parser
             expect(() => generateRuntimeFunction('new Function("code")')).toThrow();
@@ -605,7 +641,7 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('false || true;')()).toBe(true);
 
             const scope = { name: 'world' };
-            expect(generateRuntimeFunction('"hello " + name;')(scope)).toBe('hello world');
+            expect(generateRuntimeFunction('"hello " + name;')({ scope })).toBe('hello world');
         });
 
         it('should handle function calls with trailing semicolons', () => {
@@ -617,27 +653,27 @@ describe('CSP Parser', () => {
                 }
             };
 
-            expect(generateRuntimeFunction('getValue();')(scope)).toBe(42);
-            expect(generateRuntimeFunction('obj.method();')(scope)).toBe('test');
+            expect(generateRuntimeFunction('getValue();')({ scope })).toBe(42);
+            expect(generateRuntimeFunction('obj.method();')({ scope })).toBe('test');
         });
 
         it('should handle assignments with trailing semicolons', () => {
             const scope = { x: 0, obj: { prop: 5 } };
 
-            expect(generateRuntimeFunction('x = 10;')(scope)).toBe(10);
+            expect(generateRuntimeFunction('x = 10;')({ scope })).toBe(10);
             expect(scope.x).toBe(10);
 
-            expect(generateRuntimeFunction('obj.prop = 20;')(scope)).toBe(20);
+            expect(generateRuntimeFunction('obj.prop = 20;')({ scope })).toBe(20);
             expect(scope.obj.prop).toBe(20);
         });
 
         it('should handle increment/decrement with trailing semicolons', () => {
             const scope = { count: 5 };
 
-            expect(generateRuntimeFunction('++count;')(scope)).toBe(6);
+            expect(generateRuntimeFunction('++count;')({ scope })).toBe(6);
             expect(scope.count).toBe(6);
 
-            expect(generateRuntimeFunction('count--;')(scope)).toBe(6);
+            expect(generateRuntimeFunction('count--;')({ scope })).toBe(6);
             expect(scope.count).toBe(5);
         });
 
@@ -646,7 +682,7 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('false ? 1 : 2;')()).toBe(2);
 
             const scope = { age: 25 };
-            expect(generateRuntimeFunction('age >= 18 ? "adult" : "minor";')(scope)).toBe('adult');
+            expect(generateRuntimeFunction('age >= 18 ? "adult" : "minor";')({ scope })).toBe('adult');
         });
 
         it('should work without semicolons (backward compatibility)', () => {

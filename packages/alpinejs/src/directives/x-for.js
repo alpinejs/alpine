@@ -62,6 +62,13 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
         // we need to generate all the keys for every iteration up
         // front. These will be our source of truth for diffing.
         if (isObject(items)) {
+            // Support Set object, convert into key value
+            if (items instanceof Set) {
+                items = Object.fromEntries(
+                    Array.from(items).map((value, key) => [key, value])
+                );
+            }
+
             items = Object.entries(items).map(([key, value]) => {
                 let scope = getIterationScopeVariables(iteratorNames, value, key, items)
 

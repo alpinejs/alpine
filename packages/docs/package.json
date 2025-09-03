@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/docs",
-    "version": "3.14.9-revision.1",
+    "version": "3.15.0-revision.1",
     "description": "The documentation for Alpine",
     "author": "Caleb Porzio",
     "license": "MIT"

@@ -24,6 +24,7 @@ When evaluating pull requests for Alpine.js, assess the following:
 - Is this a simple, focused change?
 - Does it follow Alpine's philosophy of simplicity?
 - Could it be implemented more simply?
+- Are the proposed additions intuitive for users? or do they require extra knowledge that they have to dig for.
 
 ### 5. Precedent
 - Does this PR (both public facing additions and internal implementation) follow established precedents in the project
@@ -71,3 +72,5 @@ npm run build               # Build all packages
 ## Summary
 
 After assessing the pull request on the above qualities, provide a summary explaining the problem this PR addresses and the fix, and why it's a good or bad fix. Do it in plain language as if you are personally advising me on what the PR is and weather or not I should merge it. And if not, what might need to be addressed first. If things need to be addressed, offer to address them yourself.
+
+Please use code snippets to establish a starting point and and ending point if helpful. For example, when explaining the problem, it is often easier to provide a brief explanation alongside a code snippet of what is currently problematic, then when explaining the solution, showing what new code will allow a fix if applicable.

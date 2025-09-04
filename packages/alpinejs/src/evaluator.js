@@ -28,7 +28,7 @@ export function evaluateLater(...args) {
     return theEvaluatorFunction(...args)
 }
 
-let theEvaluatorFunction = normalEvaluator
+let theEvaluatorFunction = () => {}
 
 export function setEvaluator(newEvaluator) {
     theEvaluatorFunction = newEvaluator

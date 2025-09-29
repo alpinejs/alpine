@@ -25,7 +25,9 @@ export default function (Alpine) {
 
         let preferences = {
             hideGhost: ! modifiers.includes('ghost'),
-            useHandles: !! el.querySelector('[x-sort\\:handle]'),
+            useHandles: (!! el.querySelector('[x-sort\\:handle]')) || Array.from(el.querySelectorAll('template')).some(
+                tmpl => !! tmpl.content.querySelector('[x-sort\\:handle]')
+            ),
             group: getGroupName(el, modifiers),
         }
 

@@ -49,9 +49,40 @@ test.skip('can use a custom handle',
         get('ul li').eq(0).should(haveText('handle - foo'))
         get('ul li').eq(1).should(haveText('handle - bar'))
 
+        get('#1').drag('#2').then(() => {
+            get('ul li').eq(0).should(haveText('handle - foo'))
+            get('ul li').eq(1).should(haveText('handle - bar'))
+        })
+
         get('#1 span').drag('#2').then(() => {
             get('ul li').eq(0).should(haveText('handle - bar'))
             get('ul li').eq(1).should(haveText('handle - foo'))
+        })
+    },
+)
+
+test('can use a custom handle with x-for',
+    [html`
+        <div x-data="{items: ['1', '2']}">
+            <ul x-sort>
+                <template x-for="item in items" :key="item">
+                    <li :id="item"><span x-sort:handle>handle</span> - <span x-text="item"></span></li>
+                </template>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('ul li').eq(0).should(haveText('handle - 1'))
+        get('ul li').eq(1).should(haveText('handle - 2'))
+
+        get('#1').drag('#2').then(() => {
+            get('ul li').eq(0).should(haveText('handle - 1'))
+            get('ul li').eq(1).should(haveText('handle - 2'))
+        })
+
+        get('#1 span').eq(0).drag('#2').then(() => {
+            get('ul li').eq(0).should(haveText('handle - 2'))
+            get('ul li').eq(1).should(haveText('handle - 1'))
         })
     },
 )

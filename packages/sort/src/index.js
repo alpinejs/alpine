@@ -91,6 +91,12 @@ function initSortable(el, config, preferences, handle) {
 
         group: preferences.group,
 
+        scroll: true,
+
+        forceAutoScrollFallback: true,
+
+        scrollSensitivity: 50,
+
         filter(e) {
             // Normally, we would just filter out any elements without `[x-sort:item]`
             // on them, however for backwards compatibility (when we didn't require

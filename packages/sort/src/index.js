@@ -1,4 +1,5 @@
 import Sortable from 'sortablejs'
+import { walk } from '../../alpinejs/src/utils/walk'
 
 export default function (Alpine) {
     Alpine.directive('sort', (el, { value, modifiers, expression }, { effect, evaluate, evaluateLater, cleanup }) => {
@@ -25,7 +26,7 @@ export default function (Alpine) {
 
         let preferences = {
             hideGhost: ! modifiers.includes('ghost'),
-            useHandles: !! el.querySelector('[x-sort\\:handle]'),
+            useHandles: !! el.querySelector('[x-sort\\:handle],[wire\\:sort\\:handle]'),
             group: getGroupName(el, modifiers),
         }
 
@@ -69,9 +70,15 @@ function generateSortHandler(expression, evaluateLater) {
 
 function getConfigurationOverrides(el, modifiers, evaluate)
 {
-    return el.hasAttribute('x-sort:config')
-        ? evaluate(el.getAttribute('x-sort:config'))
-        : {}
+    if (el.hasAttribute('x-sort:config')) {
+        return evaluate(el.getAttribute('x-sort:config'))
+    }
+
+    if (el.hasAttribute('wire:sort:config')) {
+        return evaluate(el.getAttribute('wire:sort:config'))
+    }
+
+    return {}
 }
 
 function initSortable(el, config, preferences, handle) {
@@ -80,7 +87,7 @@ function initSortable(el, config, preferences, handle) {
     let options = {
         animation: 150,
 
-        handle: preferences.useHandles ? '[x-sort\\:handle]' : null,
+        handle: preferences.useHandles ? '[x-sort\\:handle],[wire\\:sort\\:handle]' : null,
 
         group: preferences.group,
 
@@ -88,9 +95,9 @@ function initSortable(el, config, preferences, handle) {
             // Normally, we would just filter out any elements without `[x-sort:item]`
             // on them, however for backwards compatibility (when we didn't require
             // `[x-sort:item]`) we will check for x-sort\\:item being used at all
-            if (! el.querySelector('[x-sort\\:item]')) return false
+            if (! el.querySelector('[x-sort\\:item],[wire\\:sort\\:item]')) return false
 
-            let itemHasAttribute = e.target.closest('[x-sort\\:item]')
+            let itemHasAttribute = e.target.closest('[x-sort\\:item],[wire\\:sort\\:item]')
 
             return itemHasAttribute ? false : true
         },
@@ -104,7 +111,19 @@ function initSortable(el, config, preferences, handle) {
                 }
             }
 
-            let key = e.item._x_sort_key
+            let key = undefined
+
+            // Support `x-sort:item` not being the first child...
+            walk(e.item, (el, skip) => {
+                if (key !== undefined) return
+
+                if (el._x_sort_key) {
+                    key = el._x_sort_key
+
+                    skip()
+                }
+            })
+
             let position = e.newIndex
 
             if (key !== undefined || key !== null) {
@@ -151,6 +170,10 @@ function getGroupName(el, modifiers)
 {
     if (el.hasAttribute('x-sort:group')) {
         return el.getAttribute('x-sort:group')
+    }
+
+    if (el.hasAttribute('wire:sort:group')) {
+        return el.getAttribute('wire:sort:group')
     }
 
     return modifiers.indexOf('group') !== -1 ? modifiers[modifiers.indexOf('group') + 1] : null

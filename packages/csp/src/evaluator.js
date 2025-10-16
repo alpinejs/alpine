@@ -33,7 +33,7 @@ function generateEvaluator(el, expression, dataStack) {
 
         let returnValue = evaluate({
             scope: completeScope,
-            allowGlobal: true,
+            allowGlobal: false,
             forceBindingRootScopeToFunctions: true,
         })
 

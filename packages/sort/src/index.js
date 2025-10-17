@@ -97,6 +97,9 @@ function initSortable(el, config, preferences, handle) {
 
         scrollSensitivity: 50,
 
+        // This is here so that if a div containing inputs or buttons has x-sort:ignore, it will not prevent interaction...
+        preventOnFilter: false,
+
         filter(e) {
             if (e.target.hasAttribute('x-sort:ignore') || e.target.hasAttribute('wire:sort:ignore')) return true
             if (e.target.closest('[x-sort\\:ignore]') || e.target.closest('[wire\\:sort\\:ignore]')) return true

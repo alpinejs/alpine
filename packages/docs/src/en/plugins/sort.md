@@ -206,6 +206,8 @@ You can use the `x-sort:ignore` directive to mark elements that should not trigg
 
 In the above example, users can click and drag the item itself, but clicking on the "Edit" button will not initiate a drag operation.
 
+> **Note:** Elements with `x-sort:ignore` will still function normally (buttons can be clicked, inputs can be focused, etc.) - they are only excluded from drag operations.
+
 <a name="ghost-elements"></a>
 ## Ghost elements
 

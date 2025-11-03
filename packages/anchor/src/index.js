@@ -22,9 +22,8 @@ export default function (Alpine) {
 
         if (! reference) throw 'Alpine: no element provided to x-anchor...'
 
+        let previousValue
         let compute = () => {
-            let previousValue
-
             computePosition(reference, el, {
                 placement,
                 middleware: [flip(), shift({padding: 5}), offset(offsetValue)],
@@ -35,9 +34,8 @@ export default function (Alpine) {
                 if (JSON.stringify({ x, y }) !== previousValue) {
                     el._x_anchor.x = x
                     el._x_anchor.y = y
+                    previousValue = JSON.stringify({ x, y })
                 }
-
-                previousValue = JSON.stringify({ x, y })
             })
         }
 

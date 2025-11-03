@@ -18,6 +18,7 @@ export default function on (el, event, modifiers, callback) {
     if (modifiers.includes('capture')) options.capture = true
     if (modifiers.includes('window')) listenerTarget = window
     if (modifiers.includes('document')) listenerTarget = document
+    if (modifiers.includes('visual')) listenerTarget = window.visualViewport
 
     // By wrapping the handler with debounce & throttle first, we ensure that the wrapping logic itself is not
     // throttled/debounced, only the user's callback is. This way, if the user expects

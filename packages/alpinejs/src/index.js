@@ -1,3 +1,5 @@
+console.log('Alpine.js - test output for Livewire CI')
+
 /**
  *           _
  *     /\   | |     (_)            (_)

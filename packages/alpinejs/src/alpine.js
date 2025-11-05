@@ -6,7 +6,7 @@ import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from '
 import { setEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions } from './evaluator'
 import { transition } from './directives/x-transition'
 import { clone, cloneNode, skipDuringClone, onlyDuringClone, interceptClone } from './clone'
-import { interceptor } from './interceptor'
+import { interceptor, initInterceptors } from './interceptor'
 import { getBinding as bound, extractProp } from './utils/bind'
 import { setErrorHandler } from './utils/error'
 import { debounce } from './utils/debounce'
@@ -16,7 +16,7 @@ import { entangle } from './entangle'
 import { nextTick } from './nextTick'
 import { walk } from './utils/walk'
 import { plugin } from './plugin'
-import { magic } from './magics'
+import { magic, injectMagics } from './magics'
 import { store } from './store'
 import { bind } from './binds'
 import { data } from './datas'
@@ -47,6 +47,8 @@ let Alpine = {
     mapAttributes,
     evaluateLater,
     interceptInit,
+    initInterceptors,
+    injectMagics,
     setEvaluator,
     mergeProxies,
     extractProp,

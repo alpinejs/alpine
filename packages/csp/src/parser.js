@@ -659,7 +659,7 @@ class Evaluator {
                 }
 
                 // Fallback to globals - let CSP catch dangerous ones at runtime
-                if (allowGlobal && typeof globalThis[node.name] !== 'undefined') {
+                if (allowGlobal && this.isGlobal(node.name)) {
                     const value = globalThis[node.name];
                     if (typeof value === 'function') {
                         return value.bind(globalThis);
@@ -675,12 +675,25 @@ class Evaluator {
                     throw new Error('Cannot read property of null or undefined');
                 }
 
-                let memberValue;
+                let property;
                 if (node.computed) {
-                    const property = this.evaluate({ node: node.property, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
-                    memberValue = object[property];
+                    property = this.evaluate({ node: node.property, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
                 } else {
-                    memberValue = object[node.property.name];
+                    property = node.property.name;
+                }
+
+                if (this.isBlacklisted(property)) {
+                    return undefined
+                }
+
+                let memberValue = object[property];
+
+                if (! allowGlobal && this.isGlobal(memberValue)) {
+                    return undefined
+                }
+
+                if (this.isDangerous(memberValue)) {
+                    return undefined
                 }
 
                 // If the accessed value is a function, bind it based on forceBindingRootScopeToFunctions flag
@@ -697,15 +710,24 @@ class Evaluator {
             case 'CallExpression':
                 const args = node.arguments.map(arg => this.evaluate({ node: arg, scope, context, allowGlobal, forceBindingRootScopeToFunctions }));
 
+                let returnValue;
+
                 if (node.callee.type === 'MemberExpression') {
                     // For member expressions, get the object and function separately to preserve context
                     const obj = this.evaluate({ node: node.callee.object, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
-                    let func;
+                    
+                    let prop;
                     if (node.callee.computed) {
-                        const prop = this.evaluate({ node: node.callee.property, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
-                        func = obj[prop];
+                        prop = this.evaluate({ node: node.callee.property, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
                     } else {
-                        func = obj[node.callee.property.name];
+                        prop = node.callee.property.name
+                    }
+
+                    let func;
+                    if (this.isBlacklisted(prop)) {
+                        func = undefined
+                    } else {
+                        func = obj[prop];
                     }
 
                     if (typeof func !== 'function') {
@@ -713,7 +735,7 @@ class Evaluator {
                     }
 
                     // For member expressions, always use the object as the 'this' context
-                    return func.apply(obj, args);
+                    returnValue = func.apply(obj, args);
                 } else {
                     // For direct function calls (identifiers), get the original function and apply context
                     if (node.callee.type === 'Identifier') {
@@ -733,7 +755,7 @@ class Evaluator {
 
                         // For direct calls, use provided context or the scope
                         const thisContext = context !== null ? context : scope;
-                        return func.apply(thisContext, args);
+                        returnValue = func.apply(thisContext, args);
                     } else {
                         // For other expressions
                         const callee = this.evaluate({ node: node.callee, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
@@ -742,9 +764,20 @@ class Evaluator {
                         }
 
                         // For other expressions, use provided context
-                        return callee.apply(context, args);
+                        returnValue = callee.apply(context, args);
                     }
                 }
+
+                // Check for global variables
+                if (! allowGlobal && this.isGlobal(returnValue)) {
+                    return undefined
+                }
+
+                if (this.isDangerous(returnValue)) {
+                    return undefined
+                }
+                
+                return returnValue
 
             case 'UnaryExpression':
                 const argument = this.evaluate({ node: node.argument, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
@@ -819,6 +852,8 @@ class Evaluator {
                     : this.evaluate({ node: node.alternate, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
 
             case 'AssignmentExpression':
+                throw new Error('Assignment is not allowed');
+
                 const value = this.evaluate({ node: node.right, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
 
                 if (node.left.type === 'Identifier') {
@@ -855,6 +890,35 @@ class Evaluator {
             default:
                 throw new Error(`Unknown node type: ${node.type}`);
         }
+    }
+
+    isGlobal(prop) {
+        if (typeof prop === 'string') {
+            return typeof globalThis[prop] !== 'undefined'
+        } else {
+            let found = false;
+            
+            for (let key in globalThis) {
+                if (globalThis[key] === val) {
+                    found = true;
+                    break;
+                }
+            }
+
+            return found;
+        }
+    }
+
+    isBlacklisted(keyword) {
+        return [
+            'constructor', 'prototype', '__proto__',
+            'insertAdjacentHTML',
+        ].includes(keyword)
+    }
+
+    isDangerous(el) {
+        return el instanceof HTMLIFrameElement
+            || el instanceof HTMLScriptElement
     }
 }
 

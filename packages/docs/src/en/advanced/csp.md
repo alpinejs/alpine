@@ -57,7 +57,6 @@ Here's a working counter component using Alpine's CSP build. Notice how most exp
     <body>
         <div x-data="{ count: 0, message: 'Hello' }">
             <button x-on:click="count++">Increment</button>
-            <button x-on:click="count = 0">Reset</button>
 
             <span x-text="count"></span>
             <span x-text="message + ' World'"></span>
@@ -84,50 +83,41 @@ The CSP build supports most JavaScript expressions you'd want to use in Alpine:
 ### Basic Operations
 ```alpine
 <!-- ✅ These work -->
-<div x-data="{ count: 5, name: 'Alpine' }">
+<div x-data="{ count: 5, name: 'Alpine', user: { name: '' }, items: ['a', 'b'] }">
+    <!-- Arithmetic -->
     <span x-text="count + 10"></span>
-    <span x-text="count > 3"></span>
-    <span x-text="count === 5 ? 'Yes' : 'No'"></span>
     <span x-text="'Hello ' + name"></span>
-    <div x-show="!loading && count > 0"></div>
-</div>
-```
+    
+    <!-- Conditionals -->
+    <div x-show="count > 3"></div>
+    <div x-show="count <= 5 && !loading"></div>
+    <div x-show="count === 5 ? 'Yes' : 'No'"></div>
 
-### Assignments and Updates
-```alpine
-<!-- ✅ These work -->
-<div x-data="{ count: 0, user: { name: '' } }">
-    <button x-on:click="count++">Increment</button>
-    <button x-on:click="count = 0">Reset</button>
+    <!-- Property access -->
     <input x-model="user.name">
-</div>
-```
 
-### Method Calls
-```alpine
-<!-- ✅ These work -->
-<div x-data="{ items: ['a', 'b'], getMessage: () => 'Hello' }">
-    <span x-text="getMessage()"></span>
+    <!-- Method calls -->
     <button x-on:click="items.push('c')">Add Item</button>
-</div>
-```
 
-### Global Variables and Functions
-```alpine
-<!-- ✅ These work -->
-<div x-data="{ count: 42 }">
-    <button x-on:click="console.log('Count is:', count)">Log Count</button>
-    <span x-text="Math.max(count, 100)"></span>
-    <span x-text="parseInt('123') + count"></span>
-    <span x-text="JSON.stringify({ value: count })"></span>
+    <!-- Updates -->
+    <button x-on:click="count++">Increment</button>
 </div>
 ```
 
 <a name="whats-not-supported"></a>
 ## What's Not Supported
 
-Some advanced JavaScript features aren't supported:
+Due to security concerns, some features aren't supported:
 
+### Assignments
+```alpine
+<!-- ❌ These don't work -->
+<div x-data="{ count: 0 }">
+    <button x-on:click="count = 5">Bad</button>
+</div>
+```
+
+### Complex Expressions
 ```alpine
 <!-- ❌ These don't work -->
 <div x-data>
@@ -143,6 +133,29 @@ Some advanced JavaScript features aren't supported:
     <!-- Spread operator -->
     <div x-data="{ ...defaults }">Bad</div>
 </div>
+```
+
+### Global Variables and Functions
+```alpine
+<!-- ❌ These don't work -->
+<div x-data="{ count: 42 }">
+    <button x-on:click="console.log('Count is:', count)"></button>
+    <span x-text="document.title"></span>
+    <span x-text="window.innerWidth"></span>
+    <span x-text="Math.max(count, 100)"></span>
+    <span x-text="parseInt('123') + count"></span>
+    <span x-text="JSON.stringify({ value: count })"></span>
+</div>
+```
+
+### HTML Injection
+```alpine
+<!-- ❌ These don't work -->
+<div x-data="{ message: 'Hello <span>World</span>' }">
+    <span x-html="message"></span>
+    <span x-init="$el.insertAdjacentHTML('beforeend', 'Hello <span>World</span>')"></span>
+</div>
+```
 ```
 
 <a name="when-to-extract-logic"></a>

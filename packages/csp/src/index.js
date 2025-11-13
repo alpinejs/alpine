@@ -34,4 +34,6 @@ import 'alpinejs/src/magics/index'
 
 import 'alpinejs/src/directives/index'
 
+import './directives/x-html' // Disable
+
 export default Alpine

@@ -1,3 +1,5 @@
+// @vitest-environment jsdom
+
 import { describe, it, expect } from 'vitest';
 import { generateRuntimeFunction } from '../../packages/csp/src/parser.js';
 
@@ -372,7 +374,7 @@ describe('CSP Parser', () => {
         });
     });
 
-    describe('Assignment Operators', () => {
+    describe('Assignment Operators', { skip: true }, () => {
         it('should handle simple assignment', () => {
             const scope = { x: 0 };
             expect(generateRuntimeFunction('x = 5')({ scope })).toBe(5);
@@ -657,7 +659,7 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('obj.method();')({ scope })).toBe('test');
         });
 
-        it('should handle assignments with trailing semicolons', () => {
+        it('should handle assignments with trailing semicolons', { skip: true }, () => {
             const scope = { x: 0, obj: { prop: 5 } };
 
             expect(generateRuntimeFunction('x = 10;')({ scope })).toBe(10);

@@ -64,7 +64,7 @@ test.csp('throws when parsing a property assignment',
         <button x-data x-on:click="$el.innerHTML = 'evil'"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => message.includes('Object assignments are prohibited') ? false : true)
+        cy.on('uncaught:exception', ({message}) => message.includes('Property assignments are prohibited') ? false : true)
         cy.get('button').click()
         cy.get('button').should(notContain('evil'))
     },
@@ -216,15 +216,20 @@ test.csp('throws when using x-html directive',
 test.csp('throws when non-enumerable global is accessed',
     [html`
         <div x-data="app">
-            <span x-text="obj() ? 'evil' : ''"></span>
+            <button x-on:click="show = true"></button>
+            <template x-if="show">
+                <span x-text="obj() ? 'evil' : ''"></span>
+            </template>
         </div>
     `,`
         Alpine.data('app', () => ({
+            show: true,
             obj() { return Object },
         }))
     `],
     (cy) => {
         cy.on('uncaught:exception', ({message}) => message.includes('Accessing global variables is prohibited') ? false : true)
+        cy.get('button').click()
         cy.get('span').should(notContain('evil'))
     },
 )

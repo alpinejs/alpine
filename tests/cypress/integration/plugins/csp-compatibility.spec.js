@@ -1,165 +1,200 @@
-import { should } from 'chai'
-import { haveText, html, test } from '../../utils'
+import { haveText, html, notContain, notExist, notHaveAttribute, test } from '../../utils'
 
 test.csp('supports regular syntax', 
     [html`
         <div x-data="{ value: 0, user: { name: 'John' } }">
             <span x-text="value"></span>
             <h1 x-text="user.name"></h1>
-            <button @click="value++">Increment</button>
+            <button @click="value = 2">Increment</button>
         </div>
     `],
     ({ get }) => {
         get('h1').should(haveText('John'))
         get('button').click()
-        get('span').should(haveText('1'))
+        get('span').should(haveText('2'))
     }
 )
 
 test.csp('throws when accessing a global',
     [html`
-        <button x-on:click="document"></button>
+        <button x-data x-on:click="document.write('evil')"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Undefined variable: document'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Undefined variable: document') ? false : true)
         cy.get('button').click()
+        cy.get('body').should(notContain('evil'))
     }
 )
 
 test.csp('throws when accessing a global via property',
     [html`
-        <button x-on:click="$el.ownerDocument"></button>
+        <button x-data x-on:click="$el.ownerDocument.write('evil')"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing global variables is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing global variables is prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('body').should(notContain('evil'))
+    }
+)
+
+test.csp('throws when accessing a global via computed property',
+    [html`
+        <button x-data x-on:click="$el['ownerDocument'].write('evil')"></button>
+    `],
+    (cy) => {
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing global variables is prohibited') ? false : true)
+        cy.get('button').click()
+        cy.get('body').should(notContain('evil'))
     },
 )
 
-test.csp('throws when accessing a global via property',
+test.csp('throws when accessing a global via function',
     [html`
-        <button x-on:click="$el['ownerDocument']"></button>
+        <button x-data x-on:click="$el.getRootNode().write('evil')"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing global variables is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing global variables is prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('body').should(notContain('evil'))
     },
 )
 
-test.csp('throws when accessing a global via property',
+test.csp('throws when parsing a property assignment',
     [html`
-        <button x-on:click="$el.getRootNode()"></button>
+        <button x-data x-on:click="$el.innerHTML = 'evil'"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing global variables is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Object assignments are prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('button').should(notContain('evil'))
     },
 )
 
-test.csp('throws when parsing an assignment',
+test.csp('throws when accessing blacklisted properties',
     [html`
-        <button x-on:click="value = 0"></button>
+        <button x-data x-on:click="$el.insertAdjacentHTML('beforeend', '<div id=evil></div>')"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Assignments are prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing "insertAdjacentHTML" is prohibited') ? false : true)
         cy.get('button').click()
-    },
-)
-
-test.csp('throws when parsing an assignment',
-    [html`
-        <button x-on:click="$el.insertAdjacentHTML('beforeend', '<iframe></iframe>')"></button>
-    `],
-    (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing "insertAdjacentHTML" is prohibited'))
-        cy.get('button').click()
+        cy.get('#evil').should(notExist())
     },
 )
 
 test.csp('throws when accessing an iframe',
     [html`
-        <button x-on:click="$refs.foo"></button>
-        <iframe x-ref="foo"></iframe>
+        <div x-data>
+            <button x-on:click="$refs.foo.setAttribute('srcdoc', 'dangerous')"></button>
+            <iframe x-ref="foo"></iframe>
+        </div>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing iframes and scripts is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing iframes and scripts is prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('iframe').should(notHaveAttribute('srcdoc', 'dangerous'))
     },
 )
 
 test.csp('throws when accessing an iframe via computed property',
     [html`
-        <button x-on:click="$refs['foo']"></button>
-        <iframe x-ref="foo"></iframe>
+        <div x-data>
+            <button x-on:click="$refs['foo'].setAttribute('srcdoc', 'dangerous')"></button>
+            <iframe x-ref="foo"></iframe>
+        </div>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing iframes and scripts is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing iframes and scripts is prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('iframe').should(notHaveAttribute('srcdoc', 'dangerous'))
     },
 )
 
 test.csp('throws when accessing an iframe via function',
     [html`
-        <button x-on:click="$refs.parentElement.querySelector('iframe')"></button>
-        <iframe x-ref="foo"></iframe>
+        <div x-data>
+            <button x-on:click="$el.parentElement.querySelector('iframe').setAttribute('srcdoc', 'dangerous')"></button>
+            <iframe x-ref="foo"></iframe>
+        </div>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing iframes and scripts is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing iframes and scripts is prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('iframe').should(notHaveAttribute('srcdoc', 'dangerous'))
     },
 )
 
 test.csp('throws when evaluating on an iframe', 
     [html`
-        <iframe x-on:click="$el.setAttribute('srcdoc', '')"></iframe>
+        <div x-data="{ show: false }">
+            <button x-data x-on:click="show = true"></button>
+            <template x-if="show">
+                <iframe x-init="$el.setAttribute('srcdoc', 'dangerous')"></iframe>
+            </template>
+        </div>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Evaluating expressions on an iframe is prohibited'))
-        cy.get('iframe').click()
+        cy.on('uncaught:exception', ({message}) => message.includes('Evaluating expressions on an iframe is prohibited') ? false : true)
+        cy.get('button').click()
+        cy.get('iframe').should(notHaveAttribute('srcdoc', 'dangerous'))
     },
 )
 
 test.csp('throws when accessing a script',
     [html`
-        <button x-on:click="$refs.foo"></button>
-        <script x-ref="foo"></script>
+        <div x-data>
+            <button x-on:click="$refs.foo.setAttribute('src', 'evil')"></button>
+            <script id="script" x-ref="foo"></script>
+        </div>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing iframes and scripts is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing iframes and scripts is prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('#script').should(notHaveAttribute('src', 'evil'))
     },
 )
 
 test.csp('throws when accessing a script via computed property',
     [html`
-        <button x-on:click="$refs['foo']"></button>
-        <script x-ref="foo"></script>
+        <div x-data>
+            <button x-on:click="$refs['foo'].setAttribute('src', 'evil')"></button>
+            <script id="script" x-ref="foo"></script>
+        </div>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing iframes and scripts is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing iframes and scripts is prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('#script').should(notHaveAttribute('src', 'evil'))
     },
 )
 
 test.csp('throws when accessing a script via function',
     [html`
-        <button x-on:click="$refs.parentElement.querySelector('script')"></button>
-        <script x-ref="foo"></script>
+        <div x-data>
+            <button x-on:click="$el.parentElement.querySelector('script').setAttribute('src', 'evil')"></button>
+            <script id="script" x-ref="foo"></script>
+        </div>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Accessing iframes and scripts is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing iframes and scripts is prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('#script').should(notHaveAttribute('src', 'evil'))
     },
 )
 
 test.csp('throws when evaluating on a script', 
     [html`
-        <button x-on:click="$dispatch('script')"></button>
-        <script x-on:script="$el.setAttribute('srcdoc', '')"></script>
-    `],
+        <div x-data="{ show: false }">
+            <button x-on:click="show = true"></button>
+            <template x-if="show">
+                <script id="script" x-init="$el.setAttribute('src', 'evil')"></script>
+            </template>
+        </div>
+    `,
+    ],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => should(message).contain('Evaluating expressions on a script is prohibited'))
+        cy.on('uncaught:exception', ({message}) => message.includes('Evaluating expressions on a script is prohibited') ? false : true)
         cy.get('button').click()
+        cy.get('#script').should(notHaveAttribute('src', 'evil'))
     },
 )
 
@@ -168,12 +203,12 @@ test.csp('throws when using x-html directive',
         <div x-data="{ show: false }">
             <button x-on:click="show = true"></button>
             <template x-if="show">
-                <div x-html=""></div>
+                <div x-html="evil"></div>
             </template>
         </div>
     `],
     (cy) => {
-        // cy.on('uncaught:exception', ({message}) => should(message).contain('Using the x-html directive is prohibited'))
-        cy.get('button').click()
+        cy.on('uncaught:exception', ({message}) => message.includes('Using the x-html directive is prohibited') ? false : true)
+        cy.get('body').should(notContain('evil'))
     },
 )

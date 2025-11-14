@@ -653,6 +653,8 @@ class Evaluator {
                 if (node.name in scope) {
                     const value = scope[node.name];
 
+                    this.checkForDangerousValues(value)
+
                     // If it's a function and we're accessing it directly (not calling it),
                     // bind it to scope to preserve 'this' context for later calls
                     if (typeof value === 'function') {
@@ -710,12 +712,9 @@ class Evaluator {
                         prop = node.callee.property.name
                     }
 
-                    let func;
-                    if (this.checkForDangerousKeywords(prop)) {
-                        func = undefined
-                    } else {
-                        func = obj[prop];
-                    }
+                    this.checkForDangerousKeywords(prop)
+
+                    let func = obj[prop];
 
                     if (typeof func !== 'function') {
                         throw new Error('Value is not a function');
@@ -831,7 +830,15 @@ class Evaluator {
                     : this.evaluate({ node: node.alternate, scope, context, forceBindingRootScopeToFunctions });
 
             case 'AssignmentExpression':
-                throw new Error('Assignments are prohibited');
+                const value = this.evaluate({ node: node.right, scope, context, forceBindingRootScopeToFunctions });
+
+                if (node.left.type === 'Identifier') {
+                    scope[node.left.name] = value;
+                    return value;
+                } else if (node.left.type === 'MemberExpression') {
+                    throw new Error('Object assignments are prohibited')
+                }
+                throw new Error('Invalid assignment target');
 
             case 'ArrayExpression':
                 return node.elements.map(el => this.evaluate({ node: el, scope, context, forceBindingRootScopeToFunctions }));

@@ -6,21 +6,21 @@ import { injectMagics } from 'alpinejs/src/magics'
 import { warn } from 'alpinejs/src/utils/warn'
 
 export function cspEvaluator(el, expression) {
-    if (el instanceof HTMLIFrameElement) {
-        warn('Alpine Expression Error: Cannot evaluate expressions on an iframe with the CSP build')
-        throw new Error('Cannot evaluate expressions on an iframe with the CSP build')
-    }
-
-    if (el instanceof HTMLScriptElement) {
-        warn('Alpine Expression Error: Cannot evaluate expressions on a script with the CSP build')
-        throw new Error('Cannot evaluate expressions on a script with the CSP build')
-    }
-
     let dataStack = generateDataStack(el)
 
     // Return if the provided expression is already a function...
     if (typeof expression === 'function') {
         return generateEvaluatorFromFunction(dataStack, expression)
+    }
+
+    if (el instanceof HTMLIFrameElement) {
+        warn('Cannot evaluate expressions on an iframe with the CSP build')
+        throw new Error('Alpine Expression Error: Cannot evaluate expressions on an iframe with the CSP build')
+    }
+
+    if (el instanceof HTMLScriptElement) {
+        warn('Cannot evaluate expressions on a script with the CSP build')
+        throw new Error('Alpine Expression Error: Cannot evaluate expressions on a script with the CSP build')
     }
 
     let evaluator = generateEvaluator(el, expression, dataStack)

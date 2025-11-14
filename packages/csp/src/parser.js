@@ -1,3 +1,5 @@
+let safemap = new WeakMap()
+
 class Token {
     constructor(type, value, start, end) {
         this.type = type;
@@ -642,7 +644,7 @@ class Parser {
 }
 
 class Evaluator {
-    evaluate({ node, scope = {}, context = null, allowGlobal = false, forceBindingRootScopeToFunctions = true }) {
+    evaluate({ node, scope = {}, context = null, forceBindingRootScopeToFunctions = true }) {
         switch (node.type) {
             case 'Literal':
                 return node.value;
@@ -650,51 +652,36 @@ class Evaluator {
             case 'Identifier':
                 if (node.name in scope) {
                     const value = scope[node.name];
+
                     // If it's a function and we're accessing it directly (not calling it),
                     // bind it to scope to preserve 'this' context for later calls
                     if (typeof value === 'function') {
                         return value.bind(scope);
                     }
-                    return value;
-                }
 
-                // Fallback to globals - let CSP catch dangerous ones at runtime
-                if (allowGlobal && this.isGlobal(node.name)) {
-                    const value = globalThis[node.name];
-                    if (typeof value === 'function') {
-                        return value.bind(globalThis);
-                    }
                     return value;
                 }
 
                 throw new Error(`Undefined variable: ${node.name}`);
 
             case 'MemberExpression':
-                const object = this.evaluate({ node: node.object, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                const object = this.evaluate({ node: node.object, scope, context, forceBindingRootScopeToFunctions });
                 if (object == null) {
                     throw new Error('Cannot read property of null or undefined');
                 }
 
                 let property;
                 if (node.computed) {
-                    property = this.evaluate({ node: node.property, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                    property = this.evaluate({ node: node.property, scope, context, forceBindingRootScopeToFunctions });
                 } else {
                     property = node.property.name;
                 }
 
-                if (this.isBlacklisted(property)) {
-                    return undefined
-                }
+                this.checkForDangerousKeywords(property)
 
                 let memberValue = object[property];
 
-                if (! allowGlobal && this.isGlobal(memberValue)) {
-                    return undefined
-                }
-
-                if (this.isDangerous(memberValue)) {
-                    return undefined
-                }
+                this.checkForDangerousValues(memberValue)
 
                 // If the accessed value is a function, bind it based on forceBindingRootScopeToFunctions flag
                 if (typeof memberValue === 'function') {
@@ -708,23 +695,23 @@ class Evaluator {
                 return memberValue;
 
             case 'CallExpression':
-                const args = node.arguments.map(arg => this.evaluate({ node: arg, scope, context, allowGlobal, forceBindingRootScopeToFunctions }));
+                const args = node.arguments.map(arg => this.evaluate({ node: arg, scope, context, forceBindingRootScopeToFunctions }));
 
                 let returnValue;
 
                 if (node.callee.type === 'MemberExpression') {
                     // For member expressions, get the object and function separately to preserve context
-                    const obj = this.evaluate({ node: node.callee.object, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                    const obj = this.evaluate({ node: node.callee.object, scope, context, forceBindingRootScopeToFunctions });
                     
                     let prop;
                     if (node.callee.computed) {
-                        prop = this.evaluate({ node: node.callee.property, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                        prop = this.evaluate({ node: node.callee.property, scope, context, forceBindingRootScopeToFunctions });
                     } else {
                         prop = node.callee.property.name
                     }
 
                     let func;
-                    if (this.isBlacklisted(prop)) {
+                    if (this.checkForDangerousKeywords(prop)) {
                         func = undefined
                     } else {
                         func = obj[prop];
@@ -740,11 +727,10 @@ class Evaluator {
                     // For direct function calls (identifiers), get the original function and apply context
                     if (node.callee.type === 'Identifier') {
                         const name = node.callee.name;
+
                         let func;
                         if (name in scope) {
                             func = scope[name];
-                        } else if (allowGlobal && typeof globalThis[name] !== 'undefined') {
-                            func = globalThis[name];
                         } else {
                             throw new Error(`Undefined variable: ${name}`);
                         }
@@ -758,7 +744,7 @@ class Evaluator {
                         returnValue = func.apply(thisContext, args);
                     } else {
                         // For other expressions
-                        const callee = this.evaluate({ node: node.callee, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                        const callee = this.evaluate({ node: node.callee, scope, context, forceBindingRootScopeToFunctions });
                         if (typeof callee !== 'function') {
                             throw new Error('Value is not a function');
                         }
@@ -768,19 +754,12 @@ class Evaluator {
                     }
                 }
 
-                // Check for global variables
-                if (! allowGlobal && this.isGlobal(returnValue)) {
-                    return undefined
-                }
-
-                if (this.isDangerous(returnValue)) {
-                    return undefined
-                }
+                this.checkForDangerousValues(returnValue)
                 
                 return returnValue
 
             case 'UnaryExpression':
-                const argument = this.evaluate({ node: node.argument, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                const argument = this.evaluate({ node: node.argument, scope, context, forceBindingRootScopeToFunctions });
                 switch (node.operator) {
                     case '!': return !argument;
                     case '-': return -argument;
@@ -805,9 +784,9 @@ class Evaluator {
 
                     return node.prefix ? scope[name] : oldValue;
                 } else if (node.argument.type === 'MemberExpression') {
-                    const obj = this.evaluate({ node: node.argument.object, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                    const obj = this.evaluate({ node: node.argument.object, scope, context, forceBindingRootScopeToFunctions });
                     const prop = node.argument.computed
-                        ? this.evaluate({ node: node.argument.property, scope, context, allowGlobal, forceBindingRootScopeToFunctions })
+                        ? this.evaluate({ node: node.argument.property, scope, context, forceBindingRootScopeToFunctions })
                         : node.argument.property.name;
 
                     const oldValue = obj[prop];
@@ -822,8 +801,8 @@ class Evaluator {
                 throw new Error('Invalid update expression target');
 
             case 'BinaryExpression':
-                const left = this.evaluate({ node: node.left, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
-                const right = this.evaluate({ node: node.right, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                const left = this.evaluate({ node: node.left, scope, context, forceBindingRootScopeToFunctions });
+                const right = this.evaluate({ node: node.right, scope, context, forceBindingRootScopeToFunctions });
 
                 switch (node.operator) {
                     case '+': return left + right;
@@ -846,43 +825,26 @@ class Evaluator {
                 }
 
             case 'ConditionalExpression':
-                const test = this.evaluate({ node: node.test, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                const test = this.evaluate({ node: node.test, scope, context, forceBindingRootScopeToFunctions });
                 return test
-                    ? this.evaluate({ node: node.consequent, scope, context, allowGlobal, forceBindingRootScopeToFunctions })
-                    : this.evaluate({ node: node.alternate, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                    ? this.evaluate({ node: node.consequent, scope, context, forceBindingRootScopeToFunctions })
+                    : this.evaluate({ node: node.alternate, scope, context, forceBindingRootScopeToFunctions });
 
             case 'AssignmentExpression':
-                throw new Error('Assignment is not allowed');
-
-                const value = this.evaluate({ node: node.right, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
-
-                if (node.left.type === 'Identifier') {
-                    scope[node.left.name] = value;
-                    return value;
-                } else if (node.left.type === 'MemberExpression') {
-                    const obj = this.evaluate({ node: node.left.object, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
-                    if (node.left.computed) {
-                        const prop = this.evaluate({ node: node.left.property, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
-                        obj[prop] = value;
-                    } else {
-                        obj[node.left.property.name] = value;
-                    }
-                    return value;
-                }
-                throw new Error('Invalid assignment target');
+                throw new Error('Assignments are prohibited');
 
             case 'ArrayExpression':
-                return node.elements.map(el => this.evaluate({ node: el, scope, context, allowGlobal, forceBindingRootScopeToFunctions }));
+                return node.elements.map(el => this.evaluate({ node: el, scope, context, forceBindingRootScopeToFunctions }));
 
             case 'ObjectExpression':
                 const result = {};
                 for (const prop of node.properties) {
                     const key = prop.computed
-                        ? this.evaluate({ node: prop.key, scope, context, allowGlobal, forceBindingRootScopeToFunctions })
+                        ? this.evaluate({ node: prop.key, scope, context, forceBindingRootScopeToFunctions })
                         : prop.key.type === 'Identifier'
                             ? prop.key.name
-                            : this.evaluate({ node: prop.key, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
-                    const value = this.evaluate({ node: prop.value, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+                            : this.evaluate({ node: prop.key, scope, context, forceBindingRootScopeToFunctions });
+                    const value = this.evaluate({ node: prop.value, scope, context, forceBindingRootScopeToFunctions });
                     result[key] = value;
                 }
                 return result;
@@ -892,33 +854,52 @@ class Evaluator {
         }
     }
 
-    isGlobal(prop) {
-        if (typeof prop === 'string') {
-            return typeof globalThis[prop] !== 'undefined'
-        } else {
-            let found = false;
-            
-            for (let key in globalThis) {
-                if (globalThis[key] === val) {
-                    found = true;
-                    break;
-                }
-            }
-
-            return found;
+    checkForDangerousKeywords(keyword) {
+        let blacklist = [
+            'constructor', 'prototype', '__proto__',
+            '__defineGetter__', '__defineSetter__',
+            'insertAdjacentHTML',
+        ]
+        
+        if (blacklist.includes(keyword)) {
+            throw new Error(`Accessing "${keyword}" is prohibited`)
         }
     }
 
-    isBlacklisted(keyword) {
-        return [
-            'constructor', 'prototype', '__proto__',
-            'insertAdjacentHTML',
-        ].includes(keyword)
+    checkForDangerousValues(prop) {
+        if (prop === null) {
+            return
+        }
+        
+        if (typeof prop !== 'object' && typeof prop !== 'function') {
+            return
+        }
+
+        if (safemap.has(prop)) {
+            return
+        }
+        
+        if (prop instanceof HTMLIFrameElement || prop instanceof HTMLScriptElement) {
+            throw new Error('Accessing iframes or scripts is prohibited')
+        }
+
+        if (this.isGlobal(prop)) {
+            throw new Error('Accessing global variables is prohibited')
+        }
+
+        safemap.set(prop, true)
+
+        return true
     }
 
-    isDangerous(el) {
-        return el instanceof HTMLIFrameElement
-            || el instanceof HTMLScriptElement
+    isGlobal(prop) {
+        for (let key in globalThis) {
+            if (globalThis[key] === prop) {
+                return true
+            }
+        }
+
+        return false
     }
 }
 
@@ -931,9 +912,9 @@ export function generateRuntimeFunction(expression) {
         const evaluator = new Evaluator();
 
         return function(options = {}) {
-            const { scope = {}, context = null, allowGlobal = false, forceBindingRootScopeToFunctions = false } = options;
+            const { scope = {}, context = null, forceBindingRootScopeToFunctions = false } = options;
             // Use the scope directly - mutations are expected for assignments
-            return evaluator.evaluate({ node: ast, scope, context, allowGlobal, forceBindingRootScopeToFunctions });
+            return evaluator.evaluate({ node: ast, scope, context, forceBindingRootScopeToFunctions });
         };
     } catch (error) {
         throw new Error(`CSP Parser Error: ${error.message}`);

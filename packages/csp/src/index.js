@@ -31,7 +31,13 @@ import { reactive, effect, stop, toRaw } from '@vue/reactivity'
 Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw })
 
 import 'alpinejs/src/magics/index'
-
 import 'alpinejs/src/directives/index'
+
+/**
+ * The `x-html` directive needs to be disabled here
+ * because it is not CSP friendly. To disable it,
+ * we'll override it with noop implementation.
+ */
+import './directives/x-html'
 
 export default Alpine

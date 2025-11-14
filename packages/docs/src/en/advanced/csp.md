@@ -106,31 +106,23 @@ The CSP build supports most JavaScript expressions you'd want to use in Alpine:
 ### Method Calls
 ```alpine
 <!-- ✅ These work -->
-<div x-data="{ items: ['a', 'b'], getMessage: () => 'Hello' }">
-    <span x-text="getMessage()"></span>
+<div x-data="{ items: ['a', 'b'] }">
     <button x-on:click="items.push('c')">Add Item</button>
-</div>
-```
-
-### Global Variables and Functions
-```alpine
-<!-- ✅ These work -->
-<div x-data="{ count: 42 }">
-    <button x-on:click="console.log('Count is:', count)">Log Count</button>
-    <span x-text="Math.max(count, 100)"></span>
-    <span x-text="parseInt('123') + count"></span>
-    <span x-text="JSON.stringify({ value: count })"></span>
 </div>
 ```
 
 <a name="whats-not-supported"></a>
 ## What's Not Supported
 
-Some advanced JavaScript features aren't supported:
+Some advanced and potentially dangerous JavaScript features aren't supported:
 
+### Complex Expressions
 ```alpine
 <!-- ❌ These don't work -->
-<div x-data>
+<div x-data="{ user: { name: '' } }">
+    <!-- Property assignments -->
+    <button x-on:click="user.name = 'John'">Bad</button>
+
     <!-- Arrow functions -->
     <button x-on:click="() => console.log('hi')">Bad</button>
 
@@ -142,6 +134,28 @@ Some advanced JavaScript features aren't supported:
 
     <!-- Spread operator -->
     <div x-data="{ ...defaults }">Bad</div>
+</div>
+```
+
+### Global Variables and Functions
+```alpine
+<!-- ❌ These don't work -->
+<div x-data>
+    <button x-on:click="console.log('hi')"></button>
+    <span x-text="document.title"></span>
+    <span x-text="window.innerWidth"></span>
+    <span x-text="Math.max(count, 100)"></span>
+    <span x-text="parseInt('123') + count"></span>
+    <span x-text="JSON.stringify({ value: count })"></span>
+</div>
+```
+
+### HTML Injection
+```alpine
+<!-- ❌ These don't work -->
+<div x-data="{ message: 'Hello <span>World</span>' }">
+    <span x-html="message"></span>
+    <span x-init="$el.insertAdjacentHTML('beforeend', message)"></span>
 </div>
 ```
 

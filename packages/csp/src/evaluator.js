@@ -26,6 +26,14 @@ function generateDataStack(el) {
 }
 
 function generateEvaluator(el, expression, dataStack) {
+    if (el instanceof HTMLIFrameElement) {
+        throw new Error('Evaluating expressions on an iframe is prohibited in the CSP build')
+    }
+
+    if (el instanceof HTMLScriptElement) {
+        throw new Error('Evaluating expressions on a script is prohibited in the CSP build')
+    }
+
     return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
         let completeScope = mergeProxies([scope, ...dataStack])
 
@@ -33,7 +41,6 @@ function generateEvaluator(el, expression, dataStack) {
 
         let returnValue = evaluate({
             scope: completeScope,
-            allowGlobal: false,
             forceBindingRootScopeToFunctions: true,
         })
 

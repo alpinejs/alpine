@@ -57,6 +57,7 @@ Here's a working counter component using Alpine's CSP build. Notice how most exp
     <body>
         <div x-data="{ count: 0, message: 'Hello' }">
             <button x-on:click="count++">Increment</button>
+            <button x-on:click="count = 0">Reset</button>
 
             <span x-text="count"></span>
             <span x-text="message + ' World'"></span>
@@ -83,44 +84,44 @@ The CSP build supports most JavaScript expressions you'd want to use in Alpine:
 ### Basic Operations
 ```alpine
 <!-- ✅ These work -->
-<div x-data="{ count: 5, name: 'Alpine', user: { name: '' }, items: ['a', 'b'] }">
-    <!-- Arithmetic -->
+<div x-data="{ count: 5, name: 'Alpine' }">
     <span x-text="count + 10"></span>
+    <span x-text="count > 3"></span>
+    <span x-text="count === 5 ? 'Yes' : 'No'"></span>
     <span x-text="'Hello ' + name"></span>
-    
-    <!-- Conditionals -->
-    <div x-show="count > 3"></div>
-    <div x-show="count <= 5 && !loading"></div>
-    <div x-show="count === 5 ? 'Yes' : 'No'"></div>
+    <div x-show="!loading && count > 0"></div>
+</div>
+```
 
-    <!-- Property access -->
-    <input x-model="user.name">
-
-    <!-- Method calls -->
-    <button x-on:click="items.push('c')">Add Item</button>
-
-    <!-- Updates -->
+### Assignments and Updates
+```alpine
+<!-- ✅ These work -->
+<div x-data="{ count: 0, user: { name: '' } }">
     <button x-on:click="count++">Increment</button>
+    <button x-on:click="count = 0">Reset</button>
+    <input x-model="user.name">
+</div>
+
+### Method Calls
+```alpine
+<!-- ✅ These work -->
+<div x-data="{ items: ['a', 'b'] }">
+    <button x-on:click="items.push('c')">Add Item</button>
 </div>
 ```
 
 <a name="whats-not-supported"></a>
 ## What's Not Supported
 
-Due to security concerns, some features aren't supported:
-
-### Assignments
-```alpine
-<!-- ❌ These don't work -->
-<div x-data="{ count: 0 }">
-    <button x-on:click="count = 5">Bad</button>
-</div>
-```
+Some advanced and potentially dangerous JavaScript features aren't supported:
 
 ### Complex Expressions
 ```alpine
 <!-- ❌ These don't work -->
-<div x-data>
+<div x-data="{ user: { name: '' } }">
+    <!-- Object assignments -->
+    <button x-on:click="user.name = 'John'">Bad</button>
+
     <!-- Arrow functions -->
     <button x-on:click="() => console.log('hi')">Bad</button>
 
@@ -138,8 +139,8 @@ Due to security concerns, some features aren't supported:
 ### Global Variables and Functions
 ```alpine
 <!-- ❌ These don't work -->
-<div x-data="{ count: 42 }">
-    <button x-on:click="console.log('Count is:', count)"></button>
+<div x-data>
+    <button x-on:click="console.log('hi')"></button>
     <span x-text="document.title"></span>
     <span x-text="window.innerWidth"></span>
     <span x-text="Math.max(count, 100)"></span>
@@ -155,7 +156,6 @@ Due to security concerns, some features aren't supported:
     <span x-html="message"></span>
     <span x-init="$el.insertAdjacentHTML('beforeend', 'Hello <span>World</span>')"></span>
 </div>
-```
 ```
 
 <a name="when-to-extract-logic"></a>

@@ -1,7 +1,12 @@
-let globals = new Set()
-Object.getOwnPropertyNames(globalThis).forEach(key => globals.add(globalThis[key]))
-
 let safemap = new WeakMap()
+let globals = new Set()
+
+Object.getOwnPropertyNames(globalThis).forEach(key => {
+    // Prevent Safari deprecation warning...
+    if (key === 'styleMedia') return
+
+    globals.add(globalThis[key])
+})
 
 class Token {
     constructor(type, value, start, end) {
@@ -839,7 +844,7 @@ class Evaluator {
                     scope[node.left.name] = value;
                     return value;
                 } else if (node.left.type === 'MemberExpression') {
-                    throw new Error('Property assignments are prohibited')
+                    throw new Error('Property assignments are prohibited in the CSP build')
                 }
                 throw new Error('Invalid assignment target');
 
@@ -872,7 +877,7 @@ class Evaluator {
         ]
         
         if (blacklist.includes(keyword)) {
-            throw new Error(`Accessing "${keyword}" is prohibited`)
+            throw new Error(`Accessing "${keyword}" is prohibited in the CSP build`)
         }
     }
 
@@ -890,11 +895,11 @@ class Evaluator {
         }
         
         if (prop instanceof HTMLIFrameElement || prop instanceof HTMLScriptElement) {
-            throw new Error('Accessing iframes and scripts is prohibited')
+            throw new Error('Accessing iframes and scripts is prohibited in the CSP build')
         }
 
         if (globals.has(prop)) {
-            throw new Error('Accessing global variables is prohibited')
+            throw new Error('Accessing global variables is prohibited in the CSP build')
         }
 
         safemap.set(prop, true)

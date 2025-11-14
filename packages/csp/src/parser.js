@@ -723,7 +723,6 @@ class Evaluator {
                     this.checkForDangerousKeywords(prop)
 
                     let func = obj[prop];
-
                     if (typeof func !== 'function') {
                         throw new Error('Value is not a function');
                     }

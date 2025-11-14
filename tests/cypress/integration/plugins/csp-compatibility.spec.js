@@ -209,6 +209,7 @@ test.csp('throws when using x-html directive',
     `],
     (cy) => {
         cy.on('uncaught:exception', ({message}) => message.includes('Using the x-html directive is prohibited') ? false : true)
+        cy.get('button').click()
         cy.get('body').should(notContain('evil'))
     },
 )
@@ -223,7 +224,7 @@ test.csp('throws when non-enumerable global is accessed',
         </div>
     `,`
         Alpine.data('app', () => ({
-            show: true,
+            show: false,
             obj() { return Object },
         }))
     `],

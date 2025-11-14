@@ -880,7 +880,7 @@ class Evaluator {
         }
         
         if (prop instanceof HTMLIFrameElement || prop instanceof HTMLScriptElement) {
-            throw new Error('Accessing iframes or scripts is prohibited')
+            throw new Error('Accessing iframes and scripts is prohibited')
         }
 
         if (this.isGlobal(prop)) {

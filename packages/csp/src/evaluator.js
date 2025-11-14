@@ -3,7 +3,6 @@ import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { tryCatch } from 'alpinejs/src/utils/error'
 import { generateRuntimeFunction } from './parser'
 import { injectMagics } from 'alpinejs/src/magics'
-import { warn } from 'alpinejs/src/utils/warn'
 
 export function cspEvaluator(el, expression) {
     let dataStack = generateDataStack(el)
@@ -14,13 +13,13 @@ export function cspEvaluator(el, expression) {
     }
 
     if (el instanceof HTMLIFrameElement) {
-        warn('Cannot evaluate expressions on an iframe with the CSP build')
-        throw new Error('Alpine Expression Error: Cannot evaluate expressions on an iframe with the CSP build')
+        console.warn('Alpine CSP Error: Evaluating expressions on an iframe is prohibited')
+        throw new Error('Alpine CSP Error: Evaluating expressions on an iframe is prohibited')
     }
 
     if (el instanceof HTMLScriptElement) {
-        warn('Cannot evaluate expressions on a script with the CSP build')
-        throw new Error('Alpine Expression Error: Cannot evaluate expressions on a script with the CSP build')
+        console.warn('Alpine CSP Error: Evaluating expressions on a script is prohibited')
+        throw new Error('Alpine CSP Error: Evaluating expressions on a script is prohibited')
     }
 
     let evaluator = generateEvaluator(el, expression, dataStack)

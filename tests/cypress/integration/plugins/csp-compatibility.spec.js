@@ -212,3 +212,19 @@ test.csp('throws when using x-html directive',
         cy.get('body').should(notContain('evil'))
     },
 )
+
+test.csp('throws when non-enumerable global is accessed',
+    [html`
+        <div x-data="app">
+            <span x-text="obj() ? 'evil' : ''"></span>
+        </div>
+    `,`
+        Alpine.data('app', () => ({
+            obj() { return Object },
+        }))
+    `],
+    (cy) => {
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing global variables is prohibited') ? false : true)
+        cy.get('span').should(notContain('evil'))
+    },
+)

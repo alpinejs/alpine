@@ -1,3 +1,6 @@
+let globals = new Set()
+Object.getOwnPropertyNames(globalThis).forEach(key => globals.add(globalThis[key]))
+
 let safemap = new WeakMap()
 
 class Token {
@@ -890,23 +893,13 @@ class Evaluator {
             throw new Error('Accessing iframes and scripts is prohibited')
         }
 
-        if (this.isGlobal(prop)) {
+        if (globals.has(prop)) {
             throw new Error('Accessing global variables is prohibited')
         }
 
         safemap.set(prop, true)
 
         return true
-    }
-
-    isGlobal(prop) {
-        for (let key in globalThis) {
-            if (globalThis[key] === prop) {
-                return true
-            }
-        }
-
-        return false
     }
 }
 

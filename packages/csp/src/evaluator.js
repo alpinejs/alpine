@@ -1,6 +1,6 @@
 import { generateEvaluatorFromFunction, shouldAutoEvaluateFunctions } from 'alpinejs/src/evaluator'
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
-import { handleError, tryCatch } from 'alpinejs/src/utils/error'
+import { tryCatch } from 'alpinejs/src/utils/error'
 import { generateRuntimeFunction } from './parser'
 import { injectMagics } from 'alpinejs/src/magics'
 

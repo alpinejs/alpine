@@ -16,7 +16,7 @@ The drag functionality used in this plugin is provided by the [SortableJS](https
 <a name="installation"></a>
 ## Installation
 
-You can use this plugin by either including it from a `<script>` tag or installing it via NPM:
+You can use this plugin by either including it from a `<script>` tag or installing it via a package manager:
 
 ### Via CDN
 
@@ -30,12 +30,13 @@ You can include the CDN build of this plugin as a `<script>` tag; just make sure
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 ```
 
-### Via NPM
+### Via Package Manager
 
-You can install Sort from NPM for use inside your bundle like so:
+You can install Sort from a package manager for use inside your bundle like so:
 
 ```shell
 npm install @alpinejs/sort
+bun install @alpinejs/sort
 ```
 
 Then initialize it from your bundle:

@@ -101,6 +101,7 @@ The CSP build supports most JavaScript expressions you'd want to use in Alpine:
     <button x-on:click="count = 0">Reset</button>
     <input x-model="user.name">
 </div>
+```
 
 ### Method Calls
 ```alpine
@@ -154,7 +155,7 @@ Some advanced and potentially dangerous JavaScript features aren't supported:
 <!-- ❌ These don't work -->
 <div x-data="{ message: 'Hello <span>World</span>' }">
     <span x-html="message"></span>
-    <span x-init="$el.insertAdjacentHTML('beforeend', 'Hello <span>World</span>')"></span>
+    <span x-init="$el.insertAdjacentHTML('beforeend', message)"></span>
 </div>
 ```
 

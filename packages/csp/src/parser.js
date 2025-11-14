@@ -839,7 +839,7 @@ class Evaluator {
                     scope[node.left.name] = value;
                     return value;
                 } else if (node.left.type === 'MemberExpression') {
-                    throw new Error('Object assignments are prohibited')
+                    throw new Error('Property assignments are prohibited')
                 }
                 throw new Error('Invalid assignment target');
 

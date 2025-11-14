@@ -51,25 +51,10 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('console')({ scope })).toBe('local console');
         });
 
-        it('should access global variables when allowGlobal is true', { skip: true }, () => {
-            expect(generateRuntimeFunction('console')({ allowGlobal: true })).toBe(console);
-            expect(generateRuntimeFunction('Math')({ allowGlobal: true })).toBe(Math);
-            expect(generateRuntimeFunction('JSON')({ allowGlobal: true })).toBe(JSON);
-        });
-
-        it('should not access global variables when allowGlobal is false', () => {
-            expect(() => generateRuntimeFunction('console')({ allowGlobal: false })).toThrow('Undefined variable: console');
-            expect(() => generateRuntimeFunction('Math')({ allowGlobal: false })).toThrow('Undefined variable: Math');
-            expect(() => generateRuntimeFunction('JSON')({ allowGlobal: false })).toThrow('Undefined variable: JSON');
-        });
-
-        it('should default allowGlobal to false when empty object is passed', () => {
-            expect(() => generateRuntimeFunction('console')({})).toThrow('Undefined variable: console');
-        });
-
-        it('should prefer local scope over globals even when allowGlobal is true', () => {
-            const scope = { console: 'local console' };
-            expect(generateRuntimeFunction('console')({ scope, allowGlobal: true })).toBe('local console');
+        it('should not access global variables', () => {
+            expect(() => generateRuntimeFunction('console')()).toThrow('Undefined variable: console');
+            expect(() => generateRuntimeFunction('Math')()).toThrow('Undefined variable: Math');
+            expect(() => generateRuntimeFunction('JSON')()).toThrow('Undefined variable: JSON');
         });
     });
 
@@ -160,12 +145,6 @@ describe('CSP Parser', () => {
                 }
             };
             expect(generateRuntimeFunction('api.users.get(1)')({ scope })).toEqual({ id: 1, name: 'User1' });
-        });
-
-        it('should call global functions', { skip: true }, () => {
-            expect(generateRuntimeFunction('parseInt("42")')({ allowGlobal: true })).toBe(42);
-            expect(generateRuntimeFunction('Math.max(1, 2, 3)')({ allowGlobal: true })).toBe(3);
-            expect(generateRuntimeFunction('JSON.stringify({a: 1})')({ allowGlobal: true })).toBe('{"a":1}');
         });
 
         it('should call methods with scope', () => {
@@ -374,26 +353,11 @@ describe('CSP Parser', () => {
         });
     });
 
-    describe('Assignment Operators', { skip: true }, () => {
+    describe('Assignment Operators', () => {
         it('should handle simple assignment', () => {
             const scope = { x: 0 };
             expect(generateRuntimeFunction('x = 5')({ scope })).toBe(5);
             expect(scope.x).toBe(5);
-        });
-
-        it('should handle property assignment', () => {
-            const scope = { obj: { prop: 0 } };
-            expect(generateRuntimeFunction('obj.prop = 10')({ scope })).toBe(10);
-            expect(scope.obj.prop).toBe(10);
-        });
-
-        it('should handle computed property assignment', () => {
-            const scope = {
-                obj: { foo: 0 },
-                key: 'foo'
-            };
-            expect(generateRuntimeFunction('obj[key] = 20')({ scope })).toBe(20);
-            expect(scope.obj.foo).toBe(20);
         });
 
         it('should handle chained assignment', () => {
@@ -619,13 +583,26 @@ describe('CSP Parser', () => {
             expect(() => generateRuntimeFunction('yield value')).toThrow();
         });
 
-        it('should not support dynamic code execution', { skip: true }, () => {
-            // eval is now accessible as a global, but the CSP will catch it at runtime
-            // Here we test that eval runs but the string code isn't defined
-            expect(() => generateRuntimeFunction('eval("code")')({ allowGlobal: true })).toThrow('code is not defined');
+        it('should not support dynamic code execution', () => {
+            // eval is not accessible as a global
+            expect(() => generateRuntimeFunction('eval("code")')()).toThrow('Undefined variable: eval');
 
             // new operator is not supported by parser
             expect(() => generateRuntimeFunction('new Function("code")')).toThrow();
+        });
+
+        it('should not call global functions', () => {
+            expect(() => generateRuntimeFunction('parseInt("42")')()).toThrow();
+            expect(() => generateRuntimeFunction('Math.max(1, 2, 3)')()).toThrow();
+            expect(() => generateRuntimeFunction('JSON.stringify({a: 1})')()).toThrow();
+        });
+
+        it('should not handle property assignment', () => {
+            expect(() => generateRuntimeFunction('obj.prop = 10')()).toThrow();
+        });
+
+        it('should not handle computed property assignment', () => {
+            expect(() => generateRuntimeFunction('obj[key] = 20')()).toThrow();
         });
     });
 
@@ -659,14 +636,11 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('obj.method();')({ scope })).toBe('test');
         });
 
-        it('should handle assignments with trailing semicolons', { skip: true }, () => {
+        it('should handle assignments with trailing semicolons', () => {
             const scope = { x: 0, obj: { prop: 5 } };
 
             expect(generateRuntimeFunction('x = 10;')({ scope })).toBe(10);
             expect(scope.x).toBe(10);
-
-            expect(generateRuntimeFunction('obj.prop = 20;')({ scope })).toBe(20);
-            expect(scope.obj.prop).toBe(20);
         });
 
         it('should handle increment/decrement with trailing semicolons', () => {

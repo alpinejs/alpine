@@ -120,7 +120,7 @@ Some advanced and potentially dangerous JavaScript features aren't supported:
 ```alpine
 <!-- ❌ These don't work -->
 <div x-data="{ user: { name: '' } }">
-    <!-- Object assignments -->
+    <!-- Property assignments -->
     <button x-on:click="user.name = 'John'">Bad</button>
 
     <!-- Arrow functions -->

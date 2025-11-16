@@ -34,3 +34,21 @@ test('sets text on SVG elements',
     `,
     ({ get }) => get('svg text').should(haveText('bar'))
 )
+
+test('ignores nullish values when requested',
+    html`
+        <div x-data="{ foo: null, baz: 'quux' }">
+            <button x-on:click="(foo = 'bar') && (baz = null)">Show "bar"</button>
+
+            <span x-text.ignore-nullish="foo">not set yet</span>
+            <section x-text.ignore-nullish="baz">not set yet</section>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('not set yet'))
+        get('section').should(haveText('quux'))
+        get('button').click()
+        get('span').should(haveText('bar'))
+        get('section').should(haveText('quux'))
+    }
+)

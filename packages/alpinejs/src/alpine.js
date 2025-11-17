@@ -13,6 +13,7 @@ import { debounce } from './utils/debounce'
 import { throttle } from './utils/throttle'
 import { setStyles } from './utils/styles'
 import { entangle } from './entangle'
+import { useState } from './useState'
 import { nextTick } from './nextTick'
 import { walk } from './utils/walk'
 import { plugin } from './plugin'
@@ -67,6 +68,7 @@ let Alpine = {
     evaluate,
     initTree,
     nextTick,
+    useState,
     prefixed,
     prefix,
     plugin,

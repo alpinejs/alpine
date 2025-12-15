@@ -50,6 +50,13 @@ export function normalEvaluator(el, expression) {
 
 export function generateEvaluatorFromFunction(dataStack, func) {
     return (receiver = () => {}, { scope = {}, params = [], context } = {}) => {
+        // If auto-evaluation is disabled, pass the function itself instead of calling it
+        if (! shouldAutoEvaluateFunctions) {
+            runIfTypeOfFunction(receiver, func, mergeProxies([scope, ...dataStack]), params)
+
+            return
+        }
+
         let result = func.apply(mergeProxies([scope, ...dataStack]), params)
 
         runIfTypeOfFunction(receiver, result)
@@ -67,7 +74,7 @@ function generateFunctionFromString(expression, el) {
 
     // Some expressions that are useful in Alpine are not valid as the right side of an expression.
     // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
-    // calling function so that we don't throw an error AND a "return" statement can b e used.
+    // calling function so that we don't throw an error AND a "return" statement can be used.
     let rightSideSafeExpression = 0
         // Support expressions starting with "if" statements like: "if (...) doSomething()"
         || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
@@ -147,5 +154,42 @@ export function runIfTypeOfFunction(receiver, value, scope, params, el) {
         value.then(i => receiver(i))
     } else {
         receiver(value)
+    }
+}
+
+export function evaluateRaw(el, expression, extras = {}) {
+    let overriddenMagics = {}
+
+    injectMagics(overriddenMagics, el)
+
+    let dataStack = [overriddenMagics, ...closestDataStack(el)]
+
+    let scope = mergeProxies([extras.scope ?? {}, ...dataStack])
+
+    if (expression.includes('await')) {
+        let AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
+
+        let func = new AsyncFunction(
+            ["scope"],
+            `with (scope) { return ${expression} }`
+        )
+
+        let result = func.call(extras.context, scope)
+
+        return result
+    } else {
+        let func = new Function(
+            ["scope"],
+            `with (scope) { return ${expression} }`
+        )
+
+        let result = func.call(extras.context, scope)
+
+        // If the result is a function, call it
+        if (typeof result === 'function' && shouldAutoEvaluateFunctions) {
+            return result()
+        }
+
+        return result
     }
 }

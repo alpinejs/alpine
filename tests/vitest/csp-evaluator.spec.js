@@ -19,6 +19,12 @@ describe('cspRawEvaluator', () => {
         expect(cspRawEvaluator(element, 'foo', { scope: { foo: 42 } })).toBe(42)
     });
 
+    it('with params', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+
+        expect(cspRawEvaluator(element, '(foo) => foo', { params: [42] })).toBe(42)
+    });
+
     it('auto-evaluating function expression', () => {
         let element = { parentNode: null, _x_dataStack: [] }
 

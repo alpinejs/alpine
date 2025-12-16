@@ -9,6 +9,8 @@ export function cspRawEvaluator(el, expression, extras = {}) {
 
     let scope = mergeProxies([extras.scope ?? {}, ...dataStack])
 
+    let params = extras.params ?? []
+
     let evaluate = generateRuntimeFunction(expression)
 
     let result = evaluate({
@@ -18,7 +20,7 @@ export function cspRawEvaluator(el, expression, extras = {}) {
 
     // If the result is a function, call it
     if (typeof result === 'function' && shouldAutoEvaluateFunctions) {
-        return result()
+        return result.apply(scope, params)
     }
 
     return result

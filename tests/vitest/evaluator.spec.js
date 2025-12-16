@@ -166,6 +166,12 @@ describe('evaluateRaw([String])', () => {
         expect(evaluateRaw(element, 'foo', { scope: { foo: 42 } })).toBe(42)
     });
 
+    it('with params', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+
+        expect(evaluateRaw(element, '(foo) => foo', { params: [42] })).toBe(42)
+    });
+
     it('auto-evaluating function expression', () => {
         let element = { parentNode: null, _x_dataStack: [] }
 

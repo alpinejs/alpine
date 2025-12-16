@@ -4,6 +4,28 @@ import { tryCatch } from 'alpinejs/src/utils/error'
 import { generateRuntimeFunction } from './parser'
 import { injectMagics } from 'alpinejs/src/magics'
 
+export function cspRawEvaluator(el, expression, extras = {}) {
+    let dataStack = generateDataStack(el)
+
+    let scope = mergeProxies([extras.scope ?? {}, ...dataStack])
+
+    let params = extras.params ?? []
+
+    let evaluate = generateRuntimeFunction(expression)
+
+    let result = evaluate({
+        scope,
+        forceBindingRootScopeToFunctions: true,
+    })
+
+    // If the result is a function, call it
+    if (typeof result === 'function' && shouldAutoEvaluateFunctions) {
+        return result.apply(scope, params)
+    }
+
+    return result
+}
+
 export function cspEvaluator(el, expression) {
     let dataStack = generateDataStack(el)
 

@@ -12,13 +12,19 @@ Sometimes, when you're using AlpineJS for a part of your template, there is a "b
 For `x-cloak` to work however, you must add the following CSS to the page.
 
 ```css
-[x-cloak] { display: none !important; }
+[x-cloak=""] { display: none !important; }
 ```
 
 The following example will hide the `<span>` tag until its `x-show` is specifically set to true, preventing any "blip" of the hidden element onto screen as Alpine loads.
 
 ```alpine
 <span x-cloak x-show="false">This will not 'blip' onto screen at any point</span>
+```
+
+You can also disable the cloaking by setting the attribute to any non-empty string. This is helpful when you have an element that you know will be visible immediately and don't want it to "blip" in.
+
+```alpine
+<span x-cloak="off" x-show="true">This will show immediately</span>
 ```
 
 `x-cloak` doesn't just work on elements hidden by `x-show` or `x-if`: it also ensures that elements containing data are hidden until the data is correctly set. The following example will hide the `<span>` tag until Alpine has set its text content to the `message` property.

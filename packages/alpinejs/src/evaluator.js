@@ -34,6 +34,12 @@ export function setEvaluator(newEvaluator) {
     theEvaluatorFunction = newEvaluator
 }
 
+let theRawEvaluatorFunction
+
+export function setRawEvaluator(newEvaluator) {
+    theRawEvaluatorFunction = newEvaluator
+}
+
 export function normalEvaluator(el, expression) {
     let overriddenMagics = {}
 
@@ -157,7 +163,11 @@ export function runIfTypeOfFunction(receiver, value, scope, params, el) {
     }
 }
 
-export function evaluateRaw(el, expression, extras = {}) {
+export function evaluateRaw(...args) {
+    return theRawEvaluatorFunction(...args)
+}
+
+export function normalRawEvaluator(el, expression, extras = {}) {
     let overriddenMagics = {}
 
     injectMagics(overriddenMagics, el)

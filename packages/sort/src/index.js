@@ -2,7 +2,7 @@ import Sortable from 'sortablejs'
 import { walk } from '../../alpinejs/src/utils/walk'
 
 export default function (Alpine) {
-    Alpine.directive('sort', (el, { value, modifiers, expression }, { effect, evaluate, evaluateLater, cleanup }) => {
+    Alpine.directive('sort', (el, { value, modifiers, expression }, { effect, evaluate, cleanup }) => {
         if (value === 'config') {
             return // This will get handled by the main directive...
         }
@@ -30,7 +30,7 @@ export default function (Alpine) {
             group: getGroupName(el, modifiers),
         }
 
-        let handleSort = generateSortHandler(expression, evaluateLater)
+        let handleSort = generateSortHandler(expression, evaluate)
 
         let config = getConfigurationOverrides(el, modifiers, evaluate)
 
@@ -42,29 +42,20 @@ export default function (Alpine) {
     })
 }
 
-function generateSortHandler(expression, evaluateLater) {
+function generateSortHandler(expression, evaluate) {
     // No handler was passed to x-sort...
     if ([undefined, null, ''].includes(expression)) return () => {}
 
-    let handle = evaluateLater(expression)
-
     return (key, position) => {
-        // In the case of `x-sort="handleSort"`, let us call it manually...
-        Alpine.dontAutoEvaluateFunctions(() => {
-            handle(
-                // If a function is returned, call it with the key/position params...
-                received => {
-                    if (typeof received === 'function') received(key, position)
-                },
-                // Provide $key and $position to the scope in case they want to call their own function...
-                { scope: {
-                    // Supporting both `$item` AND `$key` ($key for BC)...
-                    $key: key,
-                    $item: key,
-                    $position: position,
-                } },
-            )
-        })
+        evaluate(expression, { scope: {
+            // Supporting both `$item` AND `$key` ($key for BC)...
+            $key: key,
+            $item: key,
+            $position: position,
+        }, params: [
+            key,
+            position
+        ] })
     }
 }
 

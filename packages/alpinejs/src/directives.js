@@ -67,7 +67,16 @@ export function directives(el, attributes, originalAttributeOverride) {
         .sort(byPriority)
 
     if (el.tagName.toLowerCase() === 'option') {
-        nextTick(() => el.parentNode.dispatchEvent(new Event('change', {bubbles: true})));
+        nextTick(() => {
+            const modelName = el.parentNode.getAttribute('x-model');
+            if (modelName) {
+                const currentValue = evaluate(el.parentNode, modelName);
+                const values = Array.from(el.parentNode.options).map(opt => opt.value);
+                if (!values.includes(currentValue)) {
+                    el.parentNode.dispatchEvent(new Event('change', {bubbles: true}));
+                }
+            }
+        });
     }
 
     return directives.map(directive => {

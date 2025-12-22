@@ -72,9 +72,9 @@ export function directives(el, attributes, originalAttributeOverride) {
             if (modelName) {
                 const currentValue = evaluate(el.parentNode, modelName);
                 const values = Array.from(el.parentNode.options).map(opt => opt.value);
-                if (!values.includes(currentValue)) {
-                    el.parentNode.dispatchEvent(new Event('change', {bubbles: true}));
-                }
+
+                if (!values.includes(currentValue))  el.parentNode.dispatchEvent(new Event('change', {bubbles: true}))
+                else if (el.parentNode.value !== currentValue) el.parentNode.value = currentValue
             }
         });
     }

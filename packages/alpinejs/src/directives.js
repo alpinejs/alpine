@@ -1,6 +1,7 @@
-import { onAttributeRemoved, onElRemoved } from './mutation'
+import { onAttributeRemoved } from './mutation'
 import { evaluate, evaluateLater } from './evaluator'
 import { elementBoundEffect } from './reactivity'
+import { nextTick } from "./nextTick";
 import Alpine from './alpine'
 
 let prefixAsString = 'x-'
@@ -64,6 +65,19 @@ export function directives(el, attributes, originalAttributeOverride) {
         .filter(outNonAlpineAttributes)
         .map(toParsedDirectives(transformedAttributeMap, originalAttributeOverride))
         .sort(byPriority)
+
+    if (el.tagName.toLowerCase() === 'option') {
+        nextTick(() => {
+            const modelName = el.parentNode.getAttribute('x-model');
+            if (modelName) {
+                const currentValue = evaluate(el.parentNode, modelName);
+                const values = Array.from(el.parentNode.options).map(opt => opt.value);
+
+                if (!values.includes(currentValue))  el.parentNode.dispatchEvent(new Event('change', {bubbles: true}))
+                else if (el.parentNode.value !== currentValue) el.parentNode.value = currentValue
+            }
+        });
+    }
 
     return directives.map(directive => {
         return getDirectiveHandler(el, directive)

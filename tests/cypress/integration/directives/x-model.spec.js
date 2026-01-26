@@ -608,3 +608,37 @@ test('x-model.lazy still works as alias for change',
     }
 )
 
+test('x-model.blur.enter updates on blur OR enter (enter should work)',
+    html`
+    <div x-data="{ foo: '' }">
+        <input x-model.blur.enter="foo">
+        <span x-text="foo"></span>
+    </div>
+    `,
+    ({ get }) => {
+        // Test enter specifically - this was broken when blur modifier was also present
+        get('span').should(haveText(''))
+        get('input').type('bar')
+        get('span').should(haveText(''))
+        get('input').type('{enter}')
+        get('span').should(haveText('bar'))
+    }
+)
+
+test('x-model.enter.blur updates on enter OR blur (enter should work)',
+    html`
+    <div x-data="{ foo: '' }">
+        <input x-model.enter.blur="foo">
+        <span x-text="foo"></span>
+    </div>
+    `,
+    ({ get }) => {
+        // Test enter specifically with modifiers in different order
+        get('span').should(haveText(''))
+        get('input').type('bar')
+        get('span').should(haveText(''))
+        get('input').type('{enter}')
+        get('span').should(haveText('bar'))
+    }
+)
+

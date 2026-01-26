@@ -59,7 +59,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     // we'll listen for the change event instead of the "input" event.
     let event = (el.tagName.toLowerCase() === 'select')
         || ['checkbox', 'radio'].includes(el.type)
-        || modifiers.includes('lazy')
+        || (modifiers.includes('lazy') || modifiers.includes('change'))
             ? 'change' : 'input'
 
     // We only want to register the event listener when we're not cloning, since the

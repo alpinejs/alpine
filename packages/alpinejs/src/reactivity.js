@@ -1,5 +1,5 @@
 
-import { scheduler } from './scheduler'
+import { scheduler, startTransaction as startTx, commitTransaction as commitTx } from './scheduler'
 
 let reactive, effect, release, raw
 
@@ -83,6 +83,17 @@ export function watch(getter, callback) {
     })
 
     return () => release(effectReference)
+}
+
+export async function transaction(callback) {
+    startTx()
+
+    try {
+        await callback()
+        await Promise.resolve()  // Yield for mutation cleanup
+    } finally {
+        commitTx()
+    }
 }
 
 export {

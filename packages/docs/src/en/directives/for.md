@@ -221,7 +221,40 @@ To work around the limitation, use the following patterns:
 </table>
 ```
 
-3. Avoid `x-for`, instead use `x-html` with [`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) joined into a string with multiple children table elements. [→ Read more about `x-html`](/directives/html)
+3. Use `<div>` with CSS `display: contents` with parent CSS `display: table` to mimic table styling. [See this discussion.](https://github.com/alpinejs/alpine/discussions/3427)
+
+```alpine
+<style>
+  .table {
+    display: table;
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+
+  .row {
+    display: table-row;
+  }
+
+  .cell {
+    display: table-cell;
+    border: 1px solid black;
+    padding: 4px 8px;
+  }
+</style>
+
+<div x-data="the_data" class="table">
+    <div class="row">
+        <template x-for="(color, idx) in colors" :key="idx">
+            <div style="display: contents;">
+                <div class="cell" x-text="color"></div>
+                <div class="cell" x-text="idx"></div>
+            </div>
+        </template>
+    </div>
+</div>
+```
+
+4. Avoid `x-for`, instead use `x-html` with [`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) joined into a string with multiple children table elements. [→ Read more about `x-html`](/directives/html)
 
 For example, to generate this structure:
 

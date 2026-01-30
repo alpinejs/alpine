@@ -642,3 +642,21 @@ test('x-model.enter.blur updates on enter OR blur (enter should work)',
     }
 )
 
+test('x-model.blur syncs value before form submit handler runs',
+    html`
+    <div x-data="{ value: '', capturedValue: '' }">
+        <form @submit.prevent="capturedValue = value">
+            <input x-model.blur="value" type="text">
+        </form>
+        <span id="captured" x-text="capturedValue"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get('input').type('hello')
+        get('#captured').should(haveText(''))
+        // Submit the form without blurring the input first
+        get('form').then(([form]) => form.requestSubmit())
+        get('#captured').should(haveText('hello'))
+    }
+)
+

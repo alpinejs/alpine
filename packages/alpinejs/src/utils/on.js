@@ -66,6 +66,18 @@ export default function on (el, event, modifiers, callback) {
 
     if (modifiers.includes('self')) handler = wrapHandler(handler, (next, e) => { e.target === el && next(e) })
 
+    // Flush any pending model updates before submit handlers run
+    // (e.g. x-model.blur inputs that haven't synced yet).
+    if (event === 'submit') {
+        handler = wrapHandler(handler, (next, e) => {
+            if (e.target._x_pendingModelUpdates) {
+                e.target._x_pendingModelUpdates.forEach(fn => fn())
+            }
+
+            next(e)
+        })
+    }
+
     // Handle :keydown and :keyup listeners.
     // Handle :click and :auxclick listeners.
     if (isKeyEvent(event) || isClickEvent(event)) {

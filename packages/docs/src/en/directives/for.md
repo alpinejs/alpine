@@ -51,8 +51,8 @@ You may also pass objects to `x-for`.
 
 There are two rules worth noting about `x-for`:
 
-> `x-for` MUST be declared on a `<template>` element.
-> That `<template>` element MUST contain only one root element
+> 1. `x-for` MUST be declared on a `<template>` element;  
+> 2. That `<template>` element MUST contain only one root element.
 
 <a name="keys"></a>
 ## Keys
@@ -71,7 +71,7 @@ It is important to specify unique keys for each `x-for` iteration if you are goi
 </ul>
 ```
 
-Now if the colors are added, removed, re-ordered, or their "id"s change, Alpine will preserve or destroy the iterated `<li>`elements accordingly.
+Now if the colors are added, removed, re-ordered, or their "id"s change, Alpine will preserve or destroy the iterated `<li>` elements accordingly.
 
 <a name="accessing-indexes"></a>
 ## Accessing indexes
@@ -115,9 +115,7 @@ If you need to simply loop `n` number of times, rather than iterate through an a
 <a name="contents-of-a-template"></a>
 ## Contents of a `<template>`
 
-As mentioned above, an `<template>` tag must contain only one root element.
-
-For example, the following code will not work:
+As mentioned above, an `<template>` tag must contain only one root element. For example, the following code will not work:
 
 ```alpine
 <template x-for="color in colors">
@@ -132,4 +130,123 @@ but this code will work:
         <span>The next color is </span><span x-text="color">
     </p>
 </template>
+```
+
+### Limitations in `<table>`
+
+When using `x-for` to loop and generate `<td>`, `<th>`, and `<tr>` table elements inside `<table>`, take note that `<template>` must directly contains `<td>`, `<th>`, or `<tr>` as its only child element. If `<td>`, `<th>`, or `<tr>` is wrapped in another non-table element, the `<td>`, `<th>`, or `<tr>` elements will be removed from the template as it is viewed as illegal HTML syntax outside of `<table>`. [See this issue for more details.](https://github.com/alpinejs/alpine/discussions/935)
+
+For example, the following code will only show the `<th>` row but not any `<td>`s as the direct child element of `x-for` `<template>` is a `<div>` element.
+
+```alpine
+<table x-data="the_data" border="1">
+    <tr>
+        <th>Color</th>
+        <th>Index</th>
+    </tr>
+    <tr>
+        <template x-for="(color, idx) in colors">
+            <div>
+                <td x-text="color"></td>
+                <td x-text="idx"></td>
+            </div>
+        </template>
+    </tr>
+</table>
+```
+
+This also means that it is currently impossible to use `x-for` with multiple children `<td>`s to generate a flat element list, i.e. converting this code:
+
+```alpine
+<table x-data="the_data" border="1">
+    <tr>
+        <template x-for="(color, idx) in colors">
+            <td x-text="color"></td>
+            <td x-text="idx"></td>
+        </template>
+    </tr>
+</table>
+```
+
+to this structure:
+
+```html
+<table border="1">
+    <tr>
+        <td>Red</td>
+        <td>0</td>
+        <td>Green</td>
+        <td>1</td>
+        <td>Blue</td>
+        <td>2</td>
+    </tr>
+</table>
+```
+
+is currently impossible by using the HTML `<template>` element only.
+
+To work around the limitation, use the following patterns:
+
+1. Use `<td>`, `<th>`, or `<tr>` directly as the child element.
+
+```alpine
+<table x-data="the_data" border="1">
+    <tr>
+        <th>Color</th>
+        <th>Index</th>
+    </tr>
+    <template x-for="(color, idx) in colors">
+        <tr>
+            <td x-text="color"></td>
+            <td x-text="idx"></td>
+        </tr>
+    </template>
+</table>
+```
+
+2. Use `<tbody>` as the direct child element of `x-for` `<template>` if the repeating elements to combine flat is `<tr>`. [See this discussion.](https://github.com/alpinejs/alpine/discussions/935)
+
+```alpine
+<table x-data="the_data" border="1">
+    <tr>
+        <th>Color</th>
+        <th>Index</th>
+    </tr>
+    <template x-for="(color, idx) in colors">
+        <tbody>
+            <tr x-text="color"></td>
+            <td x-text="idx"></td>
+        </tr>
+    </template>
+</table>
+```
+
+3. Avoid `x-for`, instead use `x-html` with [`Array.map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) joined into a string with multiple children table elements. [→ Read more about `x-html`](/directives/html)
+
+For example, to generate this structure:
+
+```html
+<table border="1">
+    <tr>
+        <td>Red</td>
+        <td>0</td>
+        <td>Green</td>
+        <td>1</td>
+        <td>Blue</td>
+        <td>2</td>
+    </tr>
+</table>
+```
+
+You may use:
+```alpine
+<script>
+    const the_data = {
+        colors: ["Red", "Green", "Blue"]
+    }
+</script>
+<table x-data="the_data" border="1">
+    <tr x-html="colors.map((color, idx) => `<td>${color}</td><td>${idx}</td>`).join('')">
+    </tr>
+</table>
 ```

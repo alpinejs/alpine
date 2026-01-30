@@ -77,6 +77,19 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
 
         if (hasBlurModifier) {
             listeners.push(on(el, 'blur', modifiers, syncValue))
+
+            // The browser fires "submit" before "blur", so if this input
+            // is inside a form, the model value would be stale when the
+            // submit handler runs. Register a pending update on the form
+            // so it can be flushed before submit handlers execute.
+            if (el.form) {
+                let syncCallback = () => syncValue({ target: el })
+
+                if (!el.form._x_pendingModelUpdates) el.form._x_pendingModelUpdates = []
+                el.form._x_pendingModelUpdates.push(syncCallback)
+
+                cleanup(() => el.form._x_pendingModelUpdates.splice(el.form._x_pendingModelUpdates.indexOf(syncCallback), 1))
+            }
         }
 
         if (hasEnterModifier) {

@@ -68,16 +68,20 @@ export function watch(getter, callback) {
         JSON.stringify(value)
 
         if (! firstTime) {
-            // We have to queue this watcher as a microtask so that
-            // the watcher doesn't pick up its own dependencies.
-            queueMicrotask(() => {
-                callback(value, oldValue)
+            // For objects, always fire (deep watching may have detected nested changes).
+            // For primitives, only fire if value actually changed.
+            if (typeof value === 'object' || value !== oldValue) {
+                // We have to queue this watcher as a microtask so that
+                // the watcher doesn't pick up its own dependencies.
+                let previousValue = oldValue
 
-                oldValue = value
-            })
-        } else {
-            oldValue = value
+                queueMicrotask(() => {
+                    callback(value, previousValue)
+                })
+            }
         }
+
+        oldValue = value
 
         firstTime = false
     })

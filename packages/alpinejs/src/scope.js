@@ -15,18 +15,20 @@ export function hasScope(node) {
     return !! node._x_dataStack
 }
 
-export function closestDataStack(node) {
+export function closestDataStack(node, shouldStopAtNode = () => false) {
     if (node._x_dataStack) return node._x_dataStack
 
+    if (shouldStopAtNode(node)) return []
+
     if (typeof ShadowRoot === 'function' && node instanceof ShadowRoot) {
-        return closestDataStack(node.host)
+        return closestDataStack(node.host, shouldStopAtNode)
     }
 
     if (! node.parentNode) {
         return []
     }
 
-    return closestDataStack(node.parentNode)
+    return closestDataStack(node.parentNode, shouldStopAtNode)
 }
 
 export function closestDataProxy(el) {

@@ -156,10 +156,10 @@ export let haveComputedStyle = (name, value) => el => {
 }
 
 export let beAnchoredTo = (anchorEl, tolerance = 1) => el => {
-    const elRect = getBoundingRect(el)
-    const anchorElRect = getBoundingRect(anchorEl)
+    const elRect = getBoundingRect(el, true)
+    const anchorElRect = getBoundingRect(anchorEl, true)
     expect(elRect.left + elRect.width / 2).to.be.closeTo(anchorElRect.left + anchorElRect.width / 2, tolerance)
-    expect(elRect.left + elRect.width / 2).to.be.closeTo(anchorElRect.left + anchorElRect.width / 2, tolerance)
+    expect(elRect.top).to.be.closeTo(anchorElRect.bottom, tolerance)
 }
 
 export function getBoundingRect(el, useMarginBox = false) {

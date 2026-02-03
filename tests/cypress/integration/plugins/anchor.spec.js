@@ -1,4 +1,4 @@
-import { haveAttribute, haveComputedStyle, html, notHaveAttribute, test } from '../../utils'
+import { haveAttribute, haveComputedStyle, haveProperty, html, notHaveAttribute, test, beAnchoredTo } from '../../utils'
 
 test('can anchor an element',
     [html`
@@ -10,4 +10,24 @@ test('can anchor an element',
     ({ get }, reload) => {
         get('h1').should(haveComputedStyle('position', 'absolute'))
     },
+)
+
+test('can anchor to dynamic reference',
+    [html`
+        <div x-data="{ reference: null }" 
+            x-init="reference = document.getElementById('foo')"
+        >
+            <button id="foo">toggle foo</button>
+            <button id="bar" @click="reference = $el">toggle bar</button>
+            <h1 id="baz" x-anchor="reference">contents</h1>
+        </div>
+    `],
+    ({ get }, reload) => {
+        get('#foo').then(foo => {
+            get('#baz').should(beAnchoredTo(foo))
+        })
+        get('#bar').click().then(bar => {
+            get('#baz').should(beAnchoredTo(bar))
+        })
+    }
 )

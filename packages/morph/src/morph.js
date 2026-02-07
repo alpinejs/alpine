@@ -174,8 +174,11 @@ function createMorphContext(options = {}) {
             let name = domAttributes[i].name;
 
             if (! to.hasAttribute(name)) {
-                // Remove attribute...
-                from.removeAttribute(name)
+                if (name === 'open' && from.nodeName === 'DIALOG' && from.open) {
+                    from.close()
+                } else {
+                    from.removeAttribute(name)
+                }
             }
         }
 

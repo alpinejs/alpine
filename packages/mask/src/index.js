@@ -20,10 +20,10 @@ export default function (Alpine) {
                             evaluator(value => {
                                 result = typeof value === 'function' ? value(input) : value
                             }, { scope: {
-                                    // These are "magics" we'll make available to the x-mask:function:
-                                    '$input': input,
-                                    '$money': formatMoney.bind({ el }),
-                                }})
+                                // These are "magics" we'll make available to the x-mask:function:
+                                '$input': input,
+                                '$money': formatMoney.bind({ el }),
+                            }})
                         })
 
                         return result
@@ -182,7 +182,7 @@ export function formatMoney(input, delimiter = '.', thousands, precision = 2) {
 
     let minus = input.startsWith('-') ? '-' : ''
     let strippedInput = input.replaceAll(new RegExp(`[^0-9\\${delimiter}]`, 'g'), '')
-    let template = Array.from({length: strippedInput.split(delimiter)[0].length}).fill('9').join('')
+    let template = Array.from({ length: strippedInput.split(delimiter)[0].length }).fill('9').join('')
 
     template = `${minus}${addThousands(template, thousands)}`
 

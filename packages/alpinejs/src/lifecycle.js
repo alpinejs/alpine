@@ -66,7 +66,15 @@ export function findClosest(el, callback) {
 
     if (callback(el)) return el
 
-    return findClosest(el._x_teleportBack ?? el.parentElement, callback)
+    if (el._x_teleportBack) return findClosest(el._x_teleportBack, callback)
+
+    if (el.parentNode instanceof ShadowRoot) {
+        return findClosest(el.parentNode.host, callback)
+    }
+
+    if (! el.parentElement) return
+
+    return findClosest(el.parentElement, callback)
 }
 
 export function isRoot(el) {

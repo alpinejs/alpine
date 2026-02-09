@@ -12,14 +12,15 @@
         "dot-json": "^1.2.2",
         "esbuild": "~0.16.17",
         "jest": "^26.6.3",
-        "sortablejs": "^1.15.2"
+        "sortablejs": "^1.15.2",
+        "vitest": "^3.2.4"
     },
     "scripts": {
         "build": "node ./scripts/build.js",
         "watch": "node ./scripts/build.js --watch",
         "test": "cypress run --quiet",
         "cypress": "cypress open",
-        "jest": "jest test",
+        "vitest": "vitest run",
         "update-docs": "node ./scripts/update-docs.js",
         "release": "node ./scripts/release.js"
     }

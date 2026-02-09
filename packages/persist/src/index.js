@@ -65,7 +65,7 @@ function storageHas(key, storage) {
 }
 
 function storageGet(key, storage) {
-    let value = storage.getItem(key, storage)
+    let value = storage.getItem(key)
 
     if (value === undefined) return
 

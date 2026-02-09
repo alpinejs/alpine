@@ -149,6 +149,24 @@ test('$watch ignores other dependencies',
     }
 )
 
+test('deep $watch receives old value',
+    html`
+        <div
+            x-data="{ foo: { bar: 'baz' }, fresh: '', old: '' }"
+            x-init="$watch('foo', (value, oldValue) => { fresh = value.bar; old = oldValue.bar })"
+        >
+            <h1 x-text="fresh"></h1>
+            <h2 x-text="old"></h2>
+
+            <button x-on:click="foo.bar = 'bob'"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('h1').should(haveText('bob'))
+        get('h2').should(haveText('baz'))
+    }
+)
 
 test('deep $watch',
     html`
@@ -170,25 +188,3 @@ test('deep $watch',
     }
 )
 
-test('deep $watch receives old value',
-    html`
-        <div
-            x-data="{ foo: { bar: 'baz'}, fresh: '', old: '' }"
-            x-init="$watch('foo', (value, oldValue) => { fresh = value.bar; old = oldValue.bar; })"
-        >
-            <h1 x-text="fresh"></h1>
-            <h2 x-text="old"></h2>
-
-            <button x-on:click="foo.bar = 'bob'"></button>
-        </div>
-    `,
-    ({ get }) => {
-        get('button').click()
-        get('h1').should(haveText('bob'))
-        if ("structuredClone" in globalThis) {
-            get('h2').should(haveText('baz'))
-        } else {
-            get('h2').should(haveText('bob'))
-        }
-    }
-)

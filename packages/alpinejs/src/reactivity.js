@@ -57,8 +57,6 @@ export function elementBoundEffect(el) {
 }
 
 export function watch(getter, callback) {
-    const deepClone = obj => "structuredClone" in globalThis ? structuredClone(obj) : obj
-
     let firstTime = true
 
     let oldValue
@@ -75,10 +73,10 @@ export function watch(getter, callback) {
             queueMicrotask(() => {
                 callback(value, oldValue)
 
-                oldValue = deepClone(raw(value))
+                oldValue = typeof value === 'object' ? JSON.parse(JSON.stringify(raw(value))) : value
             })
         } else {
-            oldValue = deepClone(raw(value))
+            oldValue = typeof value === 'object' ? JSON.parse(JSON.stringify(raw(value))) : value
         }
 
         firstTime = false

@@ -23,9 +23,10 @@ import Alpine from './alpine'
  * It's the function that converts raw JavaScript string
  * expressions like @click="toggle()", into actual JS.
  */
-import { normalEvaluator } from './evaluator'
+import { normalEvaluator, normalRawEvaluator } from './evaluator'
 
 Alpine.setEvaluator(normalEvaluator)
+Alpine.setRawEvaluator(normalRawEvaluator)
 
 /**
  * _______________________________________________________

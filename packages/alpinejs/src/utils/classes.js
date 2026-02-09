@@ -12,7 +12,7 @@ export function setClasses(el, value) {
 }
 
 function splitClasses(classString) {
-  return classString.split(/\s/).filter(Boolean)
+    return classString.split(/\s/).filter(Boolean)
 }
 
 function setClassesFromString(el, classString) {

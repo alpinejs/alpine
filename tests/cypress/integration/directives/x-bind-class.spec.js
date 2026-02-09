@@ -82,7 +82,7 @@ test('classes are removed before being added',
     }
 )
 
-test.only('extra whitespace in class binding string syntax is ignored',
+test('extra whitespace in class binding string syntax is ignored',
     html`
         <div x-data>
             <span x-bind:class="'  foo  bar \n baz '"></span>

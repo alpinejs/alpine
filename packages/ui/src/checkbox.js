@@ -17,7 +17,7 @@ export default function (Alpine) {
             get isChecked() {
                 if ($data.__values) return $data.__values.includes($data.__value)
 
-                return $data.__checked;
+                return $data.__checked
             },
             get isDisabled() {
                 let disabled = $data.__disabled
@@ -42,8 +42,8 @@ function handleGroup(el, Alpine) {
                 init() {
                     queueMicrotask(() => {
                         this.__compareBy = Alpine.extractProp(el, 'by')
-                        this.__rootDisabled = Alpine.bound(el, 'disabled', false);
-                    });
+                        this.__rootDisabled = Alpine.bound(el, 'disabled', false)
+                    })
                 },
 
                 __toggleValue(value) {
@@ -68,8 +68,7 @@ function handleGroup(el, Alpine) {
                                 return Alpine.raw(a) === Alpine.raw(b)
                             }
 
-
-                            return a[property] === b[property];
+                            return a[property] === b[property]
                         }
                     }
 
@@ -108,7 +107,7 @@ function handleRoot(el, Alpine) {
                     if (groupEl) {
                         this.$data.__toggleValue(this.__value)
                     } else {
-                        this.__checked = !this.__checked;
+                        this.__checked = !this.__checked
                     }
                 },
             }

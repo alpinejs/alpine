@@ -13,20 +13,20 @@ export default function (Alpine) {
         }
     })
 
-    Alpine.directive('anchor', Alpine.skipDuringClone((el, { expression, modifiers, value }, { evaluate, effect, cleanup}) => {
+    Alpine.directive('anchor', Alpine.skipDuringClone((el, { expression, modifiers, value }, { evaluate, effect, cleanup }) => {
         let { placement, offsetValue, unstyled } = getOptions(modifiers)
 
         el._x_anchor = Alpine.reactive({ x: 0, y: 0 })
 
         let previousReference = null
-        let release = null;        
+        let release = null
 
         let effector = effect(() => {
             let reference = evaluate(expression)
             if (! reference) throw 'Alpine: no element provided to x-anchor...'
 
             if (previousReference !== reference) {
-                if (release) release();
+                if (release) release()
 
                 previousReference = reference
 
@@ -52,7 +52,7 @@ export default function (Alpine) {
                 release = autoUpdate(reference, el, () => compute())
             }
         })
-        
+
         cleanup(() => {
             effector()
             if (release) release()

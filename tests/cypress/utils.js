@@ -155,27 +155,6 @@ export let haveComputedStyle = (name, value) => el => {
     expect(win.getComputedStyle(el[0]).getPropertyValue(name)).to.eq(value)
 }
 
-export let beAnchoredTo = (anchorEl, tolerance = 1) => el => {
-    const elRect = getBoundingRect(el, true)
-    const anchorElRect = getBoundingRect(anchorEl, true)
-    expect(elRect.left + elRect.width / 2).to.be.closeTo(anchorElRect.left + anchorElRect.width / 2, tolerance)
-    expect(elRect.top).to.be.closeTo(anchorElRect.bottom, tolerance)
-}
-
-export function getBoundingRect(el, useMarginBox = false) {
-    const rect = el[0].getBoundingClientRect()
-    if (!useMarginBox) return rect
-
-    const win = el[0].ownerDocument.defaultView
-    const style = win.getComputedStyle(el[0])
-    const top = rect.top - parseFloat(style.marginTop)
-    const left = rect.left - parseFloat(style.marginLeft)
-    const width = rect.width + parseFloat(style.marginLeft) + parseFloat(style.marginRight)
-    const height = rect.height + parseFloat(style.marginTop) + parseFloat(style.marginBottom)
-
-    return { ...rect, top: top, right: left + width, bottom: top + height, left: left, width: width, height: height, x: left, y: top,}
-}
-
 export function root(el) {
     if (el._x_dataStack) return el
 

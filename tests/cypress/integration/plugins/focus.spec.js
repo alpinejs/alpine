@@ -439,6 +439,47 @@ test('$focus.focusables excludes elements with inert attribute',
     },
 )
 
+test('x-trap.noscroll does not add padding-right when scrollbar-gutter is stable',
+    [html`
+        <div x-data="{ open: false }">
+            <button id="open" @click="open = true">open</button>
+
+            <div x-trap.noscroll="open">
+                <button @click="open = false" id="close">close</button>
+            </div>
+
+            <div style="height: 100vh">&nbsp;</div>
+        </div>
+    `],
+    ({ get }) => {
+        cy.document().then(doc => {
+            // Set scrollbar-gutter: stable on html element
+            doc.documentElement.style.scrollbarGutter = 'stable'
+
+            // Check if the browser actually supports scrollbar-gutter
+            let computed = window.getComputedStyle(doc.documentElement).scrollbarGutter
+
+            if (! computed || computed === 'auto') {
+                // Browser doesn't support scrollbar-gutter, skip test
+                cy.log('Browser does not support scrollbar-gutter, skipping')
+                return
+            }
+
+            get('#open').click()
+            // overflow should be hidden, but padding-right should NOT be added
+            cy.document().then(doc => {
+                expect(doc.documentElement.style.overflow).to.equal('hidden')
+                expect(doc.documentElement.style.paddingRight).to.equal('')
+            })
+            get('#close').click()
+            // After closing, overflow should be restored
+            cy.document().then(doc => {
+                expect(doc.documentElement.style.overflow).to.not.equal('hidden')
+            })
+        })
+    },
+)
+
 test('x-trap handles dynamically added focusable elements',
     [html`
         <div x-data="{ open: false }">

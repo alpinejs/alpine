@@ -1,5 +1,5 @@
 
-import { scheduler } from './scheduler'
+import { scheduler, startTransaction as startTx, commitTransaction as commitTx } from './scheduler'
 
 let reactive, effect, release, raw
 
@@ -68,21 +68,36 @@ export function watch(getter, callback) {
         JSON.stringify(value)
 
         if (! firstTime) {
-            // We have to queue this watcher as a microtask so that
-            // the watcher doesn't pick up its own dependencies.
-            queueMicrotask(() => {
-                callback(value, oldValue)
+            // For objects, always fire (deep watching may have detected nested changes).
+            // For primitives, only fire if value actually changed.
+            if (typeof value === 'object' || value !== oldValue) {
+                // We have to queue this watcher as a microtask so that
+                // the watcher doesn't pick up its own dependencies.
+                let previousValue = oldValue
 
-                oldValue = value
-            })
-        } else {
-            oldValue = value
+                queueMicrotask(() => {
+                    callback(value, previousValue)
+                })
+            }
         }
+
+        oldValue = value
 
         firstTime = false
     })
 
     return () => release(effectReference)
+}
+
+export async function transaction(callback) {
+    startTx()
+
+    try {
+        await callback()
+        await Promise.resolve()  // Yield for mutation cleanup
+    } finally {
+        commitTx()
+    }
 }
 
 export {

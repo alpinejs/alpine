@@ -320,6 +320,58 @@ This is handy for things like real-time form-validation where you might not want
 <span x-show="username.length > 20">The username is too long.</span>
 ```
 
+<a name="change"></a>
+### `.change`
+
+`.change` syncs the data only when the input loses focus and its value has changed (the native `change` event). This is functionally equivalent to `.lazy`.
+
+```alpine
+<input type="text" x-model.change="username">
+```
+
+<a name="blur"></a>
+### `.blur`
+
+`.blur` syncs the data when the input loses focus, regardless of whether the value has changed.
+
+```alpine
+<input type="text" x-model.blur="email">
+```
+
+<a name="enter"></a>
+### `.enter`
+
+`.enter` syncs the data when the user presses the Enter key. This is useful for search fields where you want to trigger an action only when the user explicitly submits.
+
+```alpine
+<input type="text" x-model.enter="search">
+```
+
+> Note: `.enter` does not prevent the default behavior. If the input is inside a form, the form will still submit.
+
+<a name="combining-event-modifiers"></a>
+### Combining Event Modifiers
+
+The `.change`, `.blur`, and `.enter` modifiers can be combined to sync on multiple events. This is useful when you want to give users flexibility in how they submit data.
+
+```alpine
+<!-- Sync on blur OR enter -->
+<input type="text" x-model.blur.enter="search" placeholder="Press Enter or click away">
+
+<!-- Sync on change, blur, OR enter -->
+<input type="text" x-model.change.blur.enter="message">
+```
+
+<!-- START_VERBATIM -->
+<div class="demo">
+    <div x-data="{ search: '' }">
+        <input type="text" x-model.blur.enter="search" placeholder="Press Enter or click away">
+
+        <div class="pt-4">Search: <span x-text="search"></span></div>
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
 <a name="number"></a>
 ### `.number`
 

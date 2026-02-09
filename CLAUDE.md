@@ -24,6 +24,7 @@ When evaluating pull requests for Alpine.js, assess the following:
 - Is this a simple, focused change?
 - Does it follow Alpine's philosophy of simplicity?
 - Could it be implemented more simply?
+- Are the proposed additions intuitive for users? or do they require extra knowledge that they have to dig for.
 
 ### 5. Precedent
 - Does this PR (both public facing additions and internal implementation) follow established precedents in the project
@@ -50,24 +51,36 @@ Based on the above, rate as:
 Alpine.js is a monorepo with packages in `/packages/`:
 - Each package has its own package.json
 - Build outputs go to `dist/` with `.cjs.js`, `.esm.js`, and `.min.js` versions
-- Tests use Jest framework
+- Browser tests use Cypress, unit tests use Vitest
 - CI runs on GitHub Actions
 
 ## Common Commands
 
 ```bash
+# Build
+npm run build                # Build all packages
+
+# Browser tests (Cypress)
+npm test                     # Run all tests
+npx cypress run --spec ./tests/cypress/integration/[filename].spec.js  # Run single spec
+
+# Unit tests (Vitest)
+npx vitest run tests/vitest/[filename].spec.js  # Run single spec
+
 # Review PRs
-gh pr list                    # List open PRs
+gh pr list                   # List open PRs
 gh pr view [number]          # View PR details
 gh pr diff [number]          # View code changes
 gh pr checks [number]        # Check CI status
-gh api repos/alpinejs/alpine/pulls/[number]/comments  # View comments
-
-# Testing
-npm test                     # Run all tests
-npm run build               # Build all packages
 ```
+
+## Manual Testing
+
+1. Edit `./index.html` at project root
+2. Open in browser at `http://alpine.test/` (assumes local dev server mapped to directory name)
 
 ## Summary
 
 After assessing the pull request on the above qualities, provide a summary explaining the problem this PR addresses and the fix, and why it's a good or bad fix. Do it in plain language as if you are personally advising me on what the PR is and weather or not I should merge it. And if not, what might need to be addressed first. If things need to be addressed, offer to address them yourself.
+
+Please use code snippets to establish a starting point and and ending point if helpful. For example, when explaining the problem, it is often easier to provide a brief explanation alongside a code snippet of what is currently problematic, then when explaining the solution, showing what new code will allow a fix if applicable.

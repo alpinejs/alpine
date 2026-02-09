@@ -69,6 +69,10 @@ export function findClosest(el, callback) {
     // Support crawling up teleports.
     if (el._x_teleportBack) el = el._x_teleportBack
 
+    if (el.parentNode instanceof ShadowRoot) {
+        return findClosest(el.parentNode.host, callback)
+    }
+
     if (! el.parentElement) return
 
     return findClosest(el.parentElement, callback)

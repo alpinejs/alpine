@@ -175,6 +175,39 @@ By default, each `x-sort:item` element is draggable by clicking and dragging any
 
 As you can see in the above example, the hyphen "-" is draggable, but the item text ("foo") is not.
 
+<a name="ignoring-elements"></a>
+## Ignoring elements
+
+Sometimes you want to prevent certain elements within a sortable item from initiating a drag operation. This is especially useful when you have interactive elements like buttons, dropdowns, or links that users should be able to click without accidentally dragging the sortable item.
+
+You can use the `x-sort:ignore` directive to mark elements that should not trigger dragging:
+
+```alpine
+<ul x-sort>
+    <li x-sort:item>
+        <!-- ... -->
+
+        <button x-sort:ignore>Edit</button>
+    </li>
+
+    <li x-sort:item>
+        <!-- ... -->
+
+        <button x-sort:ignore>Edit</button>
+    </li>
+
+    <li x-sort:item>
+        <!-- ... -->
+
+        <button x-sort:ignore>Edit</button>
+    </li>
+</ul>
+```
+
+In the above example, users can click and drag the item itself, but clicking on the "Edit" button will not initiate a drag operation.
+
+> **Note:** Elements with `x-sort:ignore` will still function normally (buttons can be clicked, inputs can be focused, etc.) - they are only excluded from drag operations.
+
 <a name="ghost-elements"></a>
 ## Ghost elements
 

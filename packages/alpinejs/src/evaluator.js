@@ -34,6 +34,12 @@ export function setEvaluator(newEvaluator) {
     theEvaluatorFunction = newEvaluator
 }
 
+let theRawEvaluatorFunction
+
+export function setRawEvaluator(newEvaluator) {
+    theRawEvaluatorFunction = newEvaluator
+}
+
 export function normalEvaluator(el, expression) {
     let overriddenMagics = {}
 
@@ -50,6 +56,13 @@ export function normalEvaluator(el, expression) {
 
 export function generateEvaluatorFromFunction(dataStack, func) {
     return (receiver = () => {}, { scope = {}, params = [], context } = {}) => {
+        // If auto-evaluation is disabled, pass the function itself instead of calling it
+        if (! shouldAutoEvaluateFunctions) {
+            runIfTypeOfFunction(receiver, func, mergeProxies([scope, ...dataStack]), params)
+
+            return
+        }
+
         let result = func.apply(mergeProxies([scope, ...dataStack]), params)
 
         runIfTypeOfFunction(receiver, result)
@@ -67,7 +80,7 @@ function generateFunctionFromString(expression, el) {
 
     // Some expressions that are useful in Alpine are not valid as the right side of an expression.
     // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
-    // calling function so that we don't throw an error AND a "return" statement can b e used.
+    // calling function so that we don't throw an error AND a "return" statement can be used.
     let rightSideSafeExpression = 0
         // Support expressions starting with "if" statements like: "if (...) doSomething()"
         || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
@@ -147,5 +160,70 @@ export function runIfTypeOfFunction(receiver, value, scope, params, el) {
         value.then(i => receiver(i))
     } else {
         receiver(value)
+    }
+}
+
+export function evaluateRaw(...args) {
+    return theRawEvaluatorFunction(...args)
+}
+
+export function normalRawEvaluator(el, expression, extras = {}) {
+    let overriddenMagics = {}
+
+    injectMagics(overriddenMagics, el)
+
+    let dataStack = [overriddenMagics, ...closestDataStack(el)]
+
+    let scope = mergeProxies([extras.scope ?? {}, ...dataStack])
+
+    let params = extras.params ?? []
+
+    if (expression.includes('await')) {
+        let AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
+
+        // Some expressions that are useful in Alpine are not valid as the right side of an expression.
+        // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
+        // calling function so that we don't throw an error AND a "return" statement can be used.
+        let rightSideSafeExpression = 0
+            // Support expressions starting with "if" statements like: "if (...) doSomething()"
+            || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
+            // Support expressions starting with "let/const" like: "let foo = 'bar'"
+            || /^(let|const)\s/.test(expression.trim())
+                ? `(async()=>{ ${expression} })()`
+                : expression
+
+        let func = new AsyncFunction(
+            ["scope"],
+            `with (scope) { let __result = ${rightSideSafeExpression}; return __result }`
+        )
+
+        let result = func.call(extras.context, scope)
+
+        return result
+    } else {
+        // Some expressions that are useful in Alpine are not valid as the right side of an expression.
+        // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
+        // calling function so that we don't throw an error AND a "return" statement can be used.
+        let rightSideSafeExpression = 0
+            // Support expressions starting with "if" statements like: "if (...) doSomething()"
+            || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
+            // Support expressions starting with "let/const" like: "let foo = 'bar'"
+            || /^(let|const)\s/.test(expression.trim())
+                ? `(()=>{ ${expression} })()`
+                : expression
+
+        let func = new Function(
+            ["scope"],
+            `with (scope) { let __result = ${rightSideSafeExpression}; return __result }`
+        )
+
+        let result = func.call(extras.context, scope)
+
+        // If the result is a function, call it
+        if (typeof result === 'function' && shouldAutoEvaluateFunctions) {
+            return result.apply(scope, params)
+        }
+
+        return result
     }
 }

@@ -1061,3 +1061,41 @@ test('can ignore region between comment markers using skipUntil',
         get('li:nth-of-type(3)').should(haveText('baz'))
     },
 )
+
+test('morph properly closes dialog opened with showModal()',
+    [html`
+        <div x-data>
+            <dialog>
+                <p>Dialog content</p>
+            </dialog>
+            <button id="outside">Outside</button>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        // Open the dialog with showModal() so it enters the top layer
+        get('dialog').then(([dialog]) => {
+            dialog.showModal()
+            expect(dialog.open).to.be.true
+        })
+
+        // Morph to a version without 'open' attribute (same as original)
+        get('div').then(([el]) => {
+            window.Alpine.morph(el, `
+                <div x-data>
+                    <dialog>
+                        <p>Dialog content</p>
+                    </dialog>
+                    <button id="outside">Outside</button>
+                </div>
+            `)
+        })
+
+        // Dialog should be closed
+        get('dialog').then(([dialog]) => {
+            expect(dialog.open).to.be.false
+        })
+
+        // Page should not be inert — outside button should be clickable
+        get('#outside').click()
+    },
+)

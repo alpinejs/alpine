@@ -606,6 +606,34 @@ test('x-for throws descriptive error when key is undefined',
     true
 )
 
+test('iterates over a Set',
+    html`
+        <div x-data="{ items: new Set(['foo', 'bar']) }">
+            <template x-for="item in items">
+                <span x-text="item"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(2)').should(haveText('bar'))
+    }
+)
+
+test('iterates over a Map',
+    html`
+        <div x-data="{ items: new Map([['a', 'foo'], ['b', 'bar']]) }">
+            <template x-for="[key, value] in items">
+                <span x-text="key + ':' + value"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('a:foo'))
+        get('span:nth-of-type(2)').should(haveText('b:bar'))
+    }
+)
+
 // If x-for removes a child, all cleanups in the tree should be handled.
 test('x-for eagerly cleans tree',
     html`

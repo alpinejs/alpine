@@ -24,11 +24,12 @@ export default function (Alpine) {
             return
         }
 
+        let handleSelector = '[x-sort\\:handle],[wire\\:sort\\:handle]'
+
         let preferences = {
             hideGhost: ! modifiers.includes('ghost'),
-            useHandles: !! el.querySelector('[x-sort\\:handle],[wire\\:sort\\:handle]') || Array.from(el.querySelectorAll('template')).some(
-                tmpl => !! tmpl.content.querySelector('[x-sort\\:handle],[wire\\:sort\\:handle]')
-            ),
+            useHandles: !! el.querySelector(handleSelector)
+                || Array.from(el.querySelectorAll('template')).some(tmpl => tmpl.content.querySelector(handleSelector)),
             group: getGroupName(el, modifiers),
         }
 

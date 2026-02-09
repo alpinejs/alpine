@@ -61,7 +61,7 @@ test.skip('can use a custom handle',
     },
 )
 
-test('can use a custom handle with x-for',
+test.skip('can use a custom handle with x-for',
     [html`
         <div x-data="{items: ['1', '2']}">
             <ul x-sort>

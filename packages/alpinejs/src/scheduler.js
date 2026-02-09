@@ -3,8 +3,18 @@ let flushPending = false
 let flushing = false
 let queue = []
 let lastFlushedIndex = -1
+let transactionActive = false
 
 export function scheduler (callback) { queueJob(callback) }
+
+export function startTransaction() {
+    transactionActive = true
+}
+
+export function commitTransaction() {
+    transactionActive = false
+    queueFlush()
+}
 
 function queueJob(job) {
     if (! queue.includes(job)) queue.push(job)
@@ -19,6 +29,8 @@ export function dequeueJob(job) {
 
 function queueFlush() {
     if (! flushing && ! flushPending) {
+        if (transactionActive) return  // Block during transaction
+
         flushPending = true
 
         queueMicrotask(flushJobs)

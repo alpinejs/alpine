@@ -17,9 +17,10 @@ import Alpine from 'alpinejs/src/alpine'
  * interpret strings as runtime JS. We're going to use
  * a more CSP-friendly evaluator for this instead.
  */
-import { cspEvaluator } from './evaluator'
+import { cspEvaluator, cspRawEvaluator } from './evaluator'
 
 Alpine.setEvaluator(cspEvaluator)
+Alpine.setRawEvaluator(cspRawEvaluator)
 
 /**
  * The rest of this file bootstraps Alpine the way it is
@@ -31,7 +32,13 @@ import { reactive, effect, stop, toRaw } from '@vue/reactivity'
 Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw })
 
 import 'alpinejs/src/magics/index'
-
 import 'alpinejs/src/directives/index'
+
+/**
+ * The `x-html` directive needs to be disabled here
+ * because it is not CSP friendly. To disable it,
+ * we'll override it with noop implementation.
+ */
+import './directives/x-html'
 
 export default Alpine

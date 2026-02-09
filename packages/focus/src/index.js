@@ -120,6 +120,14 @@ export default function (Alpine) {
                 options.preventScroll = true
             }
 
+            if (modifiers.includes('inert')) {
+                options.onPostActivate = () => {
+                    Alpine.nextTick(() => {
+                        undoInert = setInert(el);
+                    });
+                }
+            }
+
             let trap = createFocusTrap(el, options)
 
             let undoInert = () => {}
@@ -143,7 +151,6 @@ export default function (Alpine) {
                 // Start trapping.
                 if (value && ! oldValue) {
                     if (modifiers.includes('noscroll')) undoDisableScrolling = disableScrolling()
-                    if (modifiers.includes('inert')) undoInert = setInert(el)
 
                     // Activate the trap after a generous tick. (Needed to play nice with transitions...)
                     setTimeout(() => {

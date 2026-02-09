@@ -311,7 +311,7 @@ By adding `.noautofocus`, Alpine will not automatically focus any elements when 
 <a name="preventscroll"></a>
 #### .preventscroll
 
-By default `x-trap` or rather `focus-trap` will scroll to the currently focussed element inside its content.  Adding `.preventscroll`, disables this effect.
+By default, when `x-trap` activates, it will scroll to the currently focused element inside its content. Adding `.preventscroll` disables this behavior.
 
 For example:
 

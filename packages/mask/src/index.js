@@ -40,7 +40,16 @@ export default function (Alpine) {
             }
 
             // Override x-model's initial value...
-            if (el._x_model) el._x_model.set(el.value)
+            if (el._x_model) {
+                // If the x-model value is the same, don't override it as that will trigger updates...
+                if (el._x_model.get() === el.value) return
+
+                // If the x-model value is `null` and the input value is an empty 
+                // string, don't override it as that will trigger updates...
+                if (el._x_model.get() === null && el.value === '') return
+
+                el._x_model.set(el.value)
+            }
         })
 
         const controller = new AbortController()

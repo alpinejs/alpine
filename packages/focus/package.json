@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/focus",
-    "version": "3.14.0",
+    "version": "3.15.8",
     "description": "Manage focus within a page",
     "homepage": "https://alpinejs.dev/plugins/focus",
     "repository": {
@@ -14,7 +14,7 @@
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
     "dependencies": {
-        "focus-trap": "^6.9.4",
-        "tabbable": "^5.3.3"
+        "focus-trap": "^8.0.0",
+        "tabbable": "^6.4.0"
     }
 }

@@ -65,6 +65,8 @@ If you wish to customize the durations specifically for entering and leaving, yo
 >
 ```
 
+> Despite not being included in the above snippet, `x-transition` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)
+
 <a name="customizing-delay"></a>
 ### Customizing delay
 

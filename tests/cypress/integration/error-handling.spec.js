@@ -200,3 +200,20 @@ test('evaluation with syntax error',
     assertConsoleInterceptorHadErrorWithCorrectElement(),
     true
 )
+
+test('custom error handler',
+    [html`
+        <div id="custom">
+            <div x-init="doesNotExist()"></div>
+        </div>
+    `,
+        setupConsoleInterceptor( "custom" ) + `
+        Alpine.setErrorHandler((error, el) => {
+            // Report parent element instead
+            console.warn(error, el.parentNode)
+        })
+        `,
+    ],
+    assertConsoleInterceptorHadErrorWithCorrectElement(),
+    true
+)

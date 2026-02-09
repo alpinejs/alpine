@@ -14,7 +14,7 @@
     "module": "dist/module.esm.js",
     "unpkg": "dist/cdn.min.js",
     "dependencies": {
-        "focus-trap": "^6.9.4",
-        "tabbable": "^5.3.3"
+        "focus-trap": "^8.0.0",
+        "tabbable": "^6.4.0"
     }
 }

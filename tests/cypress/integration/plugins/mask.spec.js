@@ -255,9 +255,9 @@ test('$money with custom decimal precision',
     }
 )
 
-test('$mask should process the value when updated by x-model',
+test('x-mask masks programmatic x-model updates',
     [html`
-        <div x-data="{value:55555}">
+        <div x-data="{ value: 55555 }">
             <input type="text" x-model="value" x-mask:dynamic="$money($input)">
             <button @click="value = 23420">Change</button>
         </div>

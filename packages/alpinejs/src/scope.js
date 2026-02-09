@@ -38,10 +38,10 @@ export function mergeProxies (objects) {
 }
 
 function keyInPrototypeChain(obj, key) {
+    if (obj === null || obj === Object.prototype) return null
     if (Object.prototype.hasOwnProperty.call(obj, key)) return obj
 
-    const proto = Object.getPrototypeOf(obj)
-    return proto && keyInPrototypeChain(proto, key)
+    return keyInPrototypeChain(Object.getPrototypeOf(obj), key)
 }
 
 let mergeProxyTrap = {

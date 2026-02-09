@@ -150,6 +150,34 @@ test('$watch ignores other dependencies',
 )
 
 
+test('$watch nested property does not fire when parent replaced but value unchanged',
+    html`
+        <div x-data="{ foo: { bar: { baz: 'hello' } }, callCount: 0 }" x-init="
+            $watch('foo.bar.baz', value => { callCount++ });
+        ">
+            <h1 x-text="foo.bar.baz"></h1>
+            <span x-text="callCount"></span>
+
+            <button id="same" x-on:click="foo = { bar: { baz: 'hello' } }"></button>
+            <button id="different" x-on:click="foo = { bar: { baz: 'world' } }"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('hello'))
+        get('span').should(haveText('0'))
+
+        // Replace parent with same nested value - should NOT fire
+        get('button#same').click()
+        get('h1').should(haveText('hello'))
+        get('span').should(haveText('0')) // callCount should still be 0
+
+        // Replace with different value - SHOULD fire
+        get('button#different').click()
+        get('h1').should(haveText('world'))
+        get('span').should(haveText('1')) // callCount should be 1
+    }
+)
+
 test('deep $watch',
     html`
         <div x-data="{ foo: { bar: 'baz'}, bob: 'lob' }" x-init="

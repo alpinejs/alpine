@@ -397,3 +397,67 @@ test('can disable x-trap autofocus with .noautofocus modifier',
         get('#2').should(haveFocus())
     }
 )
+
+test('x-trap works with radio button groups',
+    [html`
+        <div x-data="{ open: false }">
+            <input type="text" id="outside">
+            <button id="open" @click="open = true">open</button>
+            <div x-trap="open">
+                <input type="radio" name="choice" id="radio1" value="1" checked>
+                <input type="radio" name="choice" id="radio2" value="2">
+                <input type="radio" name="choice" id="radio3" value="3">
+                <button @click="open = false" id="close">close</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('#outside').focus()
+        get('#outside').should(haveFocus())
+        get('#open').click()
+        // Focus should be inside the trap (on the checked radio)
+        get('#radio1').should(haveFocus())
+        // Close and verify focus returns outside the trap
+        get('#close').click()
+        get('#open').should(haveFocus())
+    },
+)
+
+test('$focus.focusables excludes elements with inert attribute',
+    [html`
+        <div x-data>
+            <h1 x-text="$focus.within($refs.container).focusables().length"></h1>
+            <div x-ref="container">
+                <button>1</button>
+                <button inert>2</button>
+                <button>3</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('h1').should(haveText('2'))
+    },
+)
+
+test('x-trap handles dynamically added focusable elements',
+    [html`
+        <div x-data="{ open: false }">
+            <button id="open" @click="open = true">open</button>
+            <div x-trap="open" x-ref="trap">
+                <button id="first">first</button>
+                <button id="last" @click="$refs.trap.insertAdjacentHTML('beforeend', '<button id=dynamic>dynamic</button>')">add element</button>
+            </div>
+        </div>
+    `],
+    ({ get }) => {
+        get('#open').click()
+        get('#first').should(haveFocus())
+        cy.focused().tab()
+        get('#last').should(haveFocus())
+        get('#last').click()
+        cy.focused().tab()
+        get('#dynamic').should(haveFocus())
+        cy.focused().tab()
+        get('#first').should(haveFocus())
+    },
+)

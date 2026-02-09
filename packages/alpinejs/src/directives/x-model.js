@@ -1,10 +1,10 @@
+import bind, { isCheckbox, isRadio, safeParseBoolean } from '../utils/bind'
 import { evaluateLater } from '../evaluator'
 import { directive } from '../directives'
 import { mutateDom } from '../mutation'
 import { nextTick } from '../nextTick'
-import bind, { safeParseBoolean } from '../utils/bind'
-import on from '../utils/on'
 import { isCloning } from '../clone'
+import on from '../utils/on'
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
     let scopeTarget = el
@@ -55,23 +55,64 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         })
     }
 
-    // If the element we are binding to is a select, a radio, or checkbox
-    // we'll listen for the change event instead of the "input" event.
-    var event = (el.tagName.toLowerCase() === 'select')
-        || ['checkbox', 'radio'].includes(el.type)
-        || modifiers.includes('lazy')
-            ? 'change' : 'input'
+    // Check for explicit event modifiers (.change, .blur, .enter)
+    let hasChangeModifier = modifiers.includes('change') || modifiers.includes('lazy')
+    let hasBlurModifier = modifiers.includes('blur')
+    let hasEnterModifier = modifiers.includes('enter')
+    let hasExplicitEventModifiers = hasChangeModifier || hasBlurModifier || hasEnterModifier
 
-    // We only want to register the event listener when we're not cloning, since the
-    // mutation observer handles initializing the x-model directive already when
-    // the element is inserted into the DOM. Otherwise we register it twice.
-    let removeListener = isCloning ? () => {} : on(el, event, modifiers, (e) => {
-        setValue(getInputValue(el, modifiers, e, getValue()))
-    })
+    let removeListener
+
+    if (isCloning) {
+        removeListener = () => {}
+    } else if (hasExplicitEventModifiers) {
+        // When explicit event modifiers are present, attach listeners for each specified event
+        let listeners = []
+
+        let syncValue = (e) => setValue(getInputValue(el, modifiers, e, getValue()))
+
+        if (hasChangeModifier) {
+            listeners.push(on(el, 'change', modifiers, syncValue))
+        }
+
+        if (hasBlurModifier) {
+            listeners.push(on(el, 'blur', modifiers, syncValue))
+
+            // The browser fires "submit" before "blur", so if this input
+            // is inside a form, the model value would be stale when the
+            // submit handler runs. Register a pending update on the form
+            // so it can be flushed before submit handlers execute.
+            if (el.form) {
+                let syncCallback = () => syncValue({ target: el })
+
+                if (!el.form._x_pendingModelUpdates) el.form._x_pendingModelUpdates = []
+                el.form._x_pendingModelUpdates.push(syncCallback)
+
+                cleanup(() => el.form._x_pendingModelUpdates.splice(el.form._x_pendingModelUpdates.indexOf(syncCallback), 1))
+            }
+        }
+
+        if (hasEnterModifier) {
+            listeners.push(on(el, 'keydown', modifiers, (e) => {
+                if (e.key === 'Enter') syncValue(e)
+            }))
+        }
+
+        removeListener = () => listeners.forEach(remove => remove())
+    } else {
+        // Default behavior: select, checkbox, radio use 'change', others use 'input'
+        let event = (el.tagName.toLowerCase() === 'select')
+            || ['checkbox', 'radio'].includes(el.type)
+                ? 'change' : 'input'
+
+        removeListener = on(el, event, modifiers, (e) => {
+            setValue(getInputValue(el, modifiers, e, getValue()))
+        })
+    }
 
     if (modifiers.includes('fill'))
         if ([undefined, null, ''].includes(getValue())
-            || (el.type === 'checkbox' && Array.isArray(getValue()))
+            || (isCheckbox(el) && Array.isArray(getValue()))
             || (el.tagName.toLowerCase() === 'select' && el.multiple)) {
         setValue(
             getInputValue(el, modifiers, { target: el }, getValue())
@@ -138,7 +179,7 @@ function getInputValue(el, modifiers, event, currentValue) {
         // so we return event.target.value instead of event.detail
         if (event instanceof CustomEvent && event.detail !== undefined)
             return event.detail !== null && event.detail !== undefined ? event.detail : event.target.value
-        else if (el.type === 'checkbox') {
+        else if (isCheckbox(el)) {
             // If the data we are binding to is an array, toggle its value inside the array.
             if (Array.isArray(currentValue)) {
                 let newValue = null;
@@ -176,7 +217,7 @@ function getInputValue(el, modifiers, event, currentValue) {
         } else {
             let newValue
 
-            if (el.type === 'radio') {
+            if (isRadio(el)) {
                 if (event.target.checked) {
                     newValue = event.target.value
                 } else {

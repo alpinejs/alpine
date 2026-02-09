@@ -39,7 +39,7 @@ export default function bind(el, name, value, modifiers = []) {
 }
 
 function bindInputValue(el, value) {
-    if (el.type === 'radio') {
+    if (isRadio(el)) {
         // Set radio value from x-bind:value, if no "value" attribute exists.
         // If there are any initial state values, radio will have a correct
         // "checked" value since x-bind:value is processed before x-model.
@@ -55,7 +55,7 @@ function bindInputValue(el, value) {
                 el.checked = checkedAttrLooseCompare(el.value, value)
             }
         }
-    } else if (el.type === 'checkbox') {
+    } else if (isCheckbox(el)) {
         // If we are explicitly binding a string to the :value, set the string,
         // If the value is a boolean/array/number/null/undefined, leave it alone, it will be set to "on"
         // automatically.
@@ -224,4 +224,12 @@ function getAttributeBinding(el, name, fallback) {
     }
 
     return attr
+}
+
+export function isCheckbox(el) {
+    return el.type === 'checkbox' || el.localName === 'ui-checkbox' || el.localName === 'ui-switch'
+}
+
+export function isRadio(el) {
+    return el.type === 'radio' || el.localName === 'ui-radio'
 }

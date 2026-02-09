@@ -26,6 +26,8 @@ Here's the same component as above, but using the shorthand syntax instead:
 <button @click="alert('Hello World!')">Say Hi</button>
 ```
 
+> Despite not being included in the above snippet, `x-on` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)
+
 <a name="the-event-object"></a>
 ## The event object
 
@@ -111,8 +113,9 @@ Here's an example of a button that changes behaviour when the `Shift` key is hel
 
 ```alpine
 <button type="button"
+    x-data="{ message: 'select' }"
     @click="message = 'selected'"
-    @click.shift="message = 'added to selection'">
+    @click.shift="message = 'added to selection'"
     @mousemove.shift="message = 'add to selection'"
     @mouseout="message = 'select'"
     x-text="message"></button>
@@ -122,6 +125,7 @@ Here's an example of a button that changes behaviour when the `Shift` key is hel
 <div class="demo">
     <div x-data="{ message: '' }">
         <button type="button"
+            x-data="{ message: 'select' }"
             @click="message = 'selected'"
             @click.shift="message = 'added to selection'"
             @mousemove.shift="message = 'add to selection'"

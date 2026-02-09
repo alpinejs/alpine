@@ -228,7 +228,7 @@ For example:
 
 ```alpine
 <div x-data="{ open: false }">
-    <button>Open Dialog</button>
+    <button @click="open = true">Open Dialog</button>
 
     <div x-show="open" x-trap.noscroll="open">
         Dialog Contents

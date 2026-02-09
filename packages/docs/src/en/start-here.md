@@ -71,6 +71,8 @@ Everything in Alpine starts with an `x-data` directive. Inside of `x-data`, in p
 
 Every property inside this object will be made available to other directives inside this HTML element. In addition, when one of these properties changes, everything that relies on it will change as well.
 
+> `x-data` is required on a parent element for most Alpine directives to work.
+
 [→ Read more about `x-data`](/directives/data)
 
 Let's look at `x-on` and see how it can access and modify the `count` property from above:

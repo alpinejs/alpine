@@ -47,12 +47,10 @@ Each package should at least have: a "cdn" build that is self-initializing and c
 The bundling for Alpine V3 is handled exclusively by ESBuild. All of the configuration for these builds is stored in the `scripts/build.js` file.
 
 ### Testing
-There are 2 different testing tools used in this repo: Cypress (for integration tests), and Jest (for unit tests).
+There are 2 different testing tools used in this repo: Cypress (for integration tests), and Vitest (for unit tests).
 
-All tests are stored inside the `/tests` folder under `/tests/cypress` and `/tests/jest`.
+All tests are stored inside the `/tests` folder under `/tests/cypress` and `/tests/vitest`.
 
-You can run them both from the command line using: `npm run test`
+If you wish to only run Cypress and open it's user interface (recommended during development), you can run: `npm run cypress`
 
-If you wish to only run cypress and open it's user interface (recommended during development), you can run: `npm run cypress`
-
-If you wish to only run Jest tests, you can run `npm run jest` like normal and target specific tests. You can specify command line config options to forward to the jest command with `--` like so: `npm run jest -- --watch`
+If you wish to only run Vitest tests, you can run `npm run vitest` like normal and target specific tests.

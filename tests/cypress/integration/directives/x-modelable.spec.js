@@ -98,7 +98,7 @@ test('works when inside x-teleport',
 test('works when inside x-teleport when targeting parent',
     html`
         <div x-data="{ value: 'foo' }">
-            <h2 x-text="value"></h1>
+            <h2 x-text="value"></h2>
             
             <template x-teleport="body">
                 <div x-data="{ value: 'bar' }" x-modelable="value" x-model.parent="value">

@@ -22,7 +22,7 @@ export default function on (el, event, modifiers, callback) {
     // By wrapping the handler with debounce & throttle first, we ensure that the wrapping logic itself is not
     // throttled/debounced, only the user's callback is. This way, if the user expects
     // `e.preventDefault()` to happen, it'll still happen even if their callback gets throttled.
-    handler = addDebounceOrThrottle(modifiers, handler);
+    handler = addDebounceOrThrottle(modifiers, handler)
 
     if (modifiers.includes('prevent')) handler = wrapHandler(handler, (next, e) => { e.preventDefault(); next(e) })
     if (modifiers.includes('stop')) handler = wrapHandler(handler, (next, e) => { e.stopPropagation(); next(e) })
@@ -86,7 +86,7 @@ export default function on (el, event, modifiers, callback) {
     }
 }
 
-export function addDebounceOrThrottle(modifiers, handler){
+export function addDebounceOrThrottle(modifiers, handler) {
     if (modifiers.includes('debounce')) {
         let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
         let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
@@ -99,7 +99,7 @@ export function addDebounceOrThrottle(modifiers, handler){
 
         handler = throttle(handler, wait)
     }
-    return handler;
+    return handler
 }
 
 function dotSyntax(subject) {

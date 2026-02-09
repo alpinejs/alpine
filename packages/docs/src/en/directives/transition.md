@@ -21,9 +21,9 @@ The simplest way to achieve a transition using Alpine is by adding `x-transition
 <div x-data="{ open: false }">
     <button @click="open = ! open">Toggle</button>
 
-    <span x-show="open" x-transition>
+    <div x-show="open" x-transition>
         Hello 👋
-    </span>
+    </div>
 </div>
 ```
 
@@ -32,9 +32,9 @@ The simplest way to achieve a transition using Alpine is by adding `x-transition
     <div x-data="{ open: false }">
         <button @click="open = ! open">Toggle</button>
 
-        <span x-show="open" x-transition>
+        <div x-show="open" x-transition>
             Hello 👋
-        </span>
+        </div>
     </div>
 </div>
 <!-- END_VERBATIM -->
@@ -64,6 +64,8 @@ If you wish to customize the durations specifically for entering and leaving, yo
     x-transition:leave.duration.400ms
 >
 ```
+
+> Despite not being included in the above snippet, `x-transition` cannot be used if no parent element has `x-data` defined. [→ Read more about `x-data`](/directives/data)
 
 <a name="customizing-delay"></a>
 ### Customizing delay

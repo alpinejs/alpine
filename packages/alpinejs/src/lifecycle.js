@@ -69,6 +69,10 @@ export function findClosest(el, callback) {
     // Support crawling up teleports.
     if (el._x_teleportBack) el = el._x_teleportBack
 
+    if (el.parentNode instanceof ShadowRoot) {
+        return findClosest(el.parentNode.host, callback)
+    }
+
     if (! el.parentElement) return
 
     return findClosest(el.parentElement, callback)
@@ -82,14 +86,27 @@ let initInterceptors = []
 
 export function interceptInit(callback) { initInterceptors.push(callback) }
 
+let markerDispenser = 1
+
 export function initTree(el, walker = walk, intercept = () => {}) {
+    // Don't init a tree within a parent that is being ignored...
+    if (findClosest(el, i => i._x_ignore)) return
+
     deferHandlingDirectives(() => {
         walker(el, (el, skip) => {
+            // If the element has a marker, it's already been initialized...
+            if (el._x_marker) return
+
             intercept(el, skip)
 
             initInterceptors.forEach(i => i(el, skip))
 
             directives(el, el.attributes).forEach(handle => handle())
+
+            // Add a marker to the element so we can tell if it's been initialized...
+            // This is important so that we can prevent double-initialization of
+            // elements that are moved around on the page.
+            if (!el._x_ignore) el._x_marker = markerDispenser++
 
             el._x_ignore && skip()
         })
@@ -98,8 +115,9 @@ export function initTree(el, walker = walk, intercept = () => {}) {
 
 export function destroyTree(root, walker = walk) {
     walker(root, el => {
-        cleanupAttributes(el)
         cleanupElement(el)
+        cleanupAttributes(el)
+        delete el._x_marker
     })
 }
 

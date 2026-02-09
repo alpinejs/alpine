@@ -1,7 +1,30 @@
-import { generateEvaluatorFromFunction, runIfTypeOfFunction } from 'alpinejs/src/evaluator'
+import { generateEvaluatorFromFunction, shouldAutoEvaluateFunctions } from 'alpinejs/src/evaluator'
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { tryCatch } from 'alpinejs/src/utils/error'
+import { generateRuntimeFunction } from './parser'
 import { injectMagics } from 'alpinejs/src/magics'
+
+export function cspRawEvaluator(el, expression, extras = {}) {
+    let dataStack = generateDataStack(el)
+
+    let scope = mergeProxies([extras.scope ?? {}, ...dataStack])
+
+    let params = extras.params ?? []
+
+    let evaluate = generateRuntimeFunction(expression)
+
+    let result = evaluate({
+        scope,
+        forceBindingRootScopeToFunctions: true,
+    })
+
+    // If the result is a function, call it
+    if (typeof result === 'function' && shouldAutoEvaluateFunctions) {
+        return result.apply(scope, params)
+    }
+
+    return result
+}
 
 export function cspEvaluator(el, expression) {
     let dataStack = generateDataStack(el)
@@ -25,26 +48,36 @@ function generateDataStack(el) {
 }
 
 function generateEvaluator(el, expression, dataStack) {
+    if (el instanceof HTMLIFrameElement) {
+        throw new Error('Evaluating expressions on an iframe is prohibited in the CSP build')
+    }
+
+    if (el instanceof HTMLScriptElement) {
+        throw new Error('Evaluating expressions on a script is prohibited in the CSP build')
+    }
+
     return (receiver = () => {}, { scope = {}, params = [] } = {}) => {
         let completeScope = mergeProxies([scope, ...dataStack])
 
-        if (completeScope[expression] === undefined) {
-            throwExpressionError(el, expression)
+        let evaluate = generateRuntimeFunction(expression)
+
+        let returnValue = evaluate({
+            scope: completeScope,
+            forceBindingRootScopeToFunctions: true,
+        })
+
+        if (shouldAutoEvaluateFunctions && typeof returnValue === 'function') {
+            let nextReturnValue = returnValue.apply(returnValue, params)
+
+            if (nextReturnValue instanceof Promise) {
+                nextReturnValue.then(i =>  receiver(i))
+            } else {
+                receiver(nextReturnValue)
+            }
+        } else if (typeof returnValue === 'object' && returnValue instanceof Promise) {
+            returnValue.then(i => receiver(i))
+        } else {
+            receiver(returnValue)
         }
-
-        runIfTypeOfFunction(receiver, completeScope[expression], completeScope, params)
     }
-}
-
-function throwExpressionError(el, expression) {
-    console.warn(
-`Alpine Error: Alpine is unable to interpret the following expression using the CSP-friendly build:
-
-"${expression}"
-
-Read more about the Alpine's CSP-friendly build restrictions here: https://alpinejs.dev/advanced/csp
-
-`,
-el
-    )
 }

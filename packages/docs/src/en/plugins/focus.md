@@ -1,5 +1,5 @@
 ---
-order: 3
+order: 5
 title: Focus
 description: Easily manage focus within the page
 graph_image: https://alpinejs.dev/social_focus.jpg
@@ -228,7 +228,7 @@ For example:
 
 ```alpine
 <div x-data="{ open: false }">
-    <button>Open Dialog</button>
+    <button @click="open = true">Open Dialog</button>
 
     <div x-show="open" x-trap.noscroll="open">
         Dialog Contents

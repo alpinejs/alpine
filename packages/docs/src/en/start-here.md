@@ -71,6 +71,8 @@ Everything in Alpine starts with an `x-data` directive. Inside of `x-data`, in p
 
 Every property inside this object will be made available to other directives inside this HTML element. In addition, when one of these properties changes, everything that relies on it will change as well.
 
+> `x-data` is required on a parent element for most Alpine directives to work.
+
 [→ Read more about `x-data`](/directives/data)
 
 Let's look at `x-on` and see how it can access and modify the `count` property from above:
@@ -96,14 +98,14 @@ When a `click` event happens, Alpine will call the associated JavaScript express
 ### Reacting to changes
 
 ```alpine
-<h1 x-text="count"></h1>
+<span x-text="count"></span>
 ```
 
 `x-text` is an Alpine directive you can use to set the text content of an element to the result of a JavaScript expression.
 
-In this case, we're telling Alpine to always make sure that the contents of this `h1` tag reflect the value of the `count` property.
+In this case, we're telling Alpine to always make sure that the contents of this `span` tag reflect the value of the `count` property.
 
-In case it's not clear, `x-text`, like most directives accepts a plain JavaScript expression as an argument. So for example, you could instead set its contents to: `x-text="count * 2"` and the text content of the `h1` will now always be 2 times the value of `count`.
+In case it's not clear, `x-text`, like most directives accepts a plain JavaScript expression as an argument. So for example, you could instead set its contents to: `x-text="count * 2"` and the text content of the `span` will now always be 2 times the value of `count`.
 
 [→ Read more about `x-text`](/directives/text)
 

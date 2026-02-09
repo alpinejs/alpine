@@ -1,6 +1,6 @@
 import { skipDuringClone } from "../clone"
 import { directive } from "../directives"
-import { initTree } from "../lifecycle"
+import { initTree, destroyTree } from "../lifecycle"
 import { mutateDom } from "../mutation"
 import { addScopeToNode } from "../scope"
 import { warn } from "../utils/warn"
@@ -51,8 +51,6 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
 
         skipDuringClone(() => {
             initTree(clone)
-
-            clone._x_ignore = true
         })()
     })
 
@@ -64,7 +62,12 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
         })
     }
 
-    cleanup(() => clone.remove())
+    cleanup(() =>
+      mutateDom(() => {
+        clone.remove()
+        destroyTree(clone)
+      })
+    )
 })
 
 let teleportContainerDuringClone = document.createElement('div')

@@ -1,5 +1,5 @@
 ---
-order: 5
+order: 7
 title: Anchor
 description: Anchor an element's positioning to another element on the page
 graph_image: https://alpinejs.dev/social_anchor.jpg

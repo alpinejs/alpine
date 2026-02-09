@@ -33,10 +33,12 @@ This is by far the simplest way to get started with Alpine. Include the followin
 Notice the `@3.x.x` in the provided CDN link. This will pull the latest version of Alpine version 3. For stability in production, it's recommended that you hardcode the latest version in the CDN link.
 
 ```alpine
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.10/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.8/dist/cdn.min.js"></script>
 ```
 
 That's it! Alpine is now available for use inside your page.
+
+Note that you will still need to define a component with `x-data` in order for any Alpine.js attributes to work. See <https://github.com/alpinejs/alpine/discussions/3805> for more information.
 
 <a name="as-a-module"></a>
 ## As a module

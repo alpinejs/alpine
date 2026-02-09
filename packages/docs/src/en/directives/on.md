@@ -348,10 +348,10 @@ If you are listening for touch events, it's important to add `.passive` to your 
 <a name="passive-false"></a>
 ### .passive.false
 
-In modern browsers, `wheel` and `touchmove` event listeners are passive by default. Pass `.passive.false` to make these events cancelable, so that you can call `preventDefault` on them.
+In modern browsers, touch and wheel event listeners are passive by default. Pass `.passive.false` to make these events cancelable, so that you can call `preventDefault` on them.
 
 ```alpine
-<div @touchstart.passive.false="console.log($event.cancelable)">...</div>
+<div @touchmove.passive.false="$event.preventDefault()">...</div>
 ```
 
 ### .capture

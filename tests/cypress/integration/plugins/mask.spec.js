@@ -89,6 +89,21 @@ test('x-mask with x-model with initial value',
     },
 )
 
+test('x-mask with x-model if initial value is null it should remain null',
+    [html`
+        <div x-data="{ value: null }">
+            <input x-mask="(999) 999-9999" x-model="value" id="1">
+            <input id="2" x-model="value">
+            <span id="3" x-text="value === null ? 'NULL' : value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue(''))
+        get('#2').should(haveValue(''))
+        get('#3').contains('NULL')
+    },
+)
+
 test('x-mask with a falsy input',
     [html`<input x-data x-mask="">`],
     ({ get }) => {

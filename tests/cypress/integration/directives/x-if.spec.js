@@ -110,3 +110,40 @@ test('x-if removed dom does not attempt skipping already-processed reactive effe
         get('div#div-also-not-editing').should(exist())
     }
 )
+
+// If x-if evaluates to false, all cleanups in the tree should be handled.
+test('x-if eagerly cleans tree',
+    html`
+        <div x-data="{ show: false, count: 0 }">
+            <button @click="show^=true" x-text="count">Toggle</button>
+            <template x-if="show">
+                <div>
+                <template x-if="true">
+                    <p x-effect="if (show) count++">
+                    hello
+                    </p>
+                </template>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').should(haveText('0'))
+        get('button').click()
+        get('button').should(haveText('1'))
+        get('button').click()
+        get('button').should(haveText('1'))
+        get('button').click()
+        get('button').should(haveText('2'))
+        get('button').click()
+        get('button').should(haveText('2'))
+        get('button').click()
+        get('button').should(haveText('3'))
+        get('button').click()
+        get('button').should(haveText('3'))
+        get('button').click()
+        get('button').should(haveText('4'))
+        get('button').click()
+        get('button').should(haveText('4'))
+    }
+)

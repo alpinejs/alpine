@@ -89,3 +89,26 @@ test('store\'s "this" context is reactive for init function',
         get('span').should(haveText('1'))
     }
 )
+
+test('stores can have interceptors', 
+    [html`
+        <div x-data>
+        <span x-text="$store.test.count"></span>
+        </div>
+    `,
+    `
+        Alpine.store('test', {
+            init() {
+                this.count++
+            },
+            count: {
+                _x_interceptor: true,
+                initialize() {
+                    return 9
+                }
+            },
+        })
+    `],({ get }) => {
+        get('span').should(haveText('10'))
+    }
+)

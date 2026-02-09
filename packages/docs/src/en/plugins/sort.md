@@ -1,5 +1,5 @@
 ---
-order: 6
+order: 9
 title: Sort
 description: Easily re-order elements by dragging them with your mouse
 graph_image: https://alpinejs.dev/social_sort.jpg
@@ -95,7 +95,7 @@ You can react to sorting changes by passing a handler function to `x-sort` and a
 </div>
 <!-- END_VERBATIM -->
 
-The `x-sort` handler will be called every time the sort order of the items change. The `$item` magic will contain the key of the sorted element (derived from `x-sort:item`), and `$position` will contain the new position of the item (staring at index `0`).
+The `x-sort` handler will be called every time the sort order of the items change. The `$item` magic will contain the key of the sorted element (derived from `x-sort:item`), and `$position` will contain the new position of the item (starting at index `0`).
 
 You can also pass a handler function to `x-sort` and that function will receive the `item` and `position` as the first and second parameter:
 
@@ -174,6 +174,39 @@ By default, each `x-sort:item` element is draggable by clicking and dragging any
 <!-- END_VERBATIM -->
 
 As you can see in the above example, the hyphen "-" is draggable, but the item text ("foo") is not.
+
+<a name="ignoring-elements"></a>
+## Ignoring elements
+
+Sometimes you want to prevent certain elements within a sortable item from initiating a drag operation. This is especially useful when you have interactive elements like buttons, dropdowns, or links that users should be able to click without accidentally dragging the sortable item.
+
+You can use the `x-sort:ignore` directive to mark elements that should not trigger dragging:
+
+```alpine
+<ul x-sort>
+    <li x-sort:item>
+        <!-- ... -->
+
+        <button x-sort:ignore>Edit</button>
+    </li>
+
+    <li x-sort:item>
+        <!-- ... -->
+
+        <button x-sort:ignore>Edit</button>
+    </li>
+
+    <li x-sort:item>
+        <!-- ... -->
+
+        <button x-sort:ignore>Edit</button>
+    </li>
+</ul>
+```
+
+In the above example, users can click and drag the item itself, but clicking on the "Edit" button will not initiate a drag operation.
+
+> **Note:** Elements with `x-sort:ignore` will still function normally (buttons can be clicked, inputs can be focused, etc.) - they are only excluded from drag operations.
 
 <a name="ghost-elements"></a>
 ## Ghost elements

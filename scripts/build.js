@@ -1,4 +1,4 @@
-let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils');
+let { getFromPackageDotJson } = require('./utils');
 let fs = require('fs');
 let zlib = require('zlib');
 
@@ -9,8 +9,9 @@ let zlib = require('zlib');
     // 'history', - removed because this plugin has been moved to livewire/livewire until it's stable...
     // 'navigate', - remove because this plugin has been moved to livewire/livewire until it's stable...
     'intersect',
-    'persist',
     'collapse',
+    'persist',
+    'resize',
     'anchor',
     'morph',
     'focus',
@@ -73,9 +74,6 @@ function bundleFile(package, file) {
                 bundle: true,
                 target: ['node10.4'],
                 platform: 'node',
-            }).then(() => {
-                writeToPackageDotJson(package, 'main', `dist/${file.replace('.js', '.cjs.js')}`)
-                writeToPackageDotJson(package, 'module', `dist/${file.replace('.js', '.esm.js')}`)
             })
         },
     })[file]()

@@ -9,28 +9,26 @@ export function magic(name, callback) {
 }
 
 export function injectMagics(obj, el) {
+    let memoizedUtilities = getUtilities(el)
+
     Object.entries(magics).forEach(([name, callback]) => {
-        let memoizedUtilities = null;
-        function getUtilities() {
-            if (memoizedUtilities) {
-                return memoizedUtilities;
-            } else {
-                let [utilities, cleanup] = getElementBoundUtilities(el)
-
-                memoizedUtilities = {interceptor, ...utilities}
-
-                onElRemoved(el, cleanup)
-                return memoizedUtilities;
-            }
-        }
-
         Object.defineProperty(obj, `$${name}`, {
             get() {
-                return callback(el, getUtilities());
+                return callback(el, memoizedUtilities);
             },
             enumerable: false,
         })
     })
 
     return obj
+}
+
+export function getUtilities(el) {
+    let [utilities, cleanup] = getElementBoundUtilities(el)
+
+    let utils = { interceptor, ...utilities }
+
+    onElRemoved(el, cleanup)
+
+    return utils;
 }

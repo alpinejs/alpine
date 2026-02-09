@@ -1,5 +1,5 @@
 ---
-order: 4
+order: 6
 title: Collapse
 description: Collapse and expand elements with robust animations
 graph_image: https://alpinejs.dev/social_collapse.jpg

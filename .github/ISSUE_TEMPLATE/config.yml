@@ -1,11 +1,17 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Bug Report
-    url: https://github.com/alpinejs/alpine/discussions/new
-    about: Submit a GitHub issue
+  - name: Get help or ask a Question
+    url: https://github.com/alpinejs/alpine/discussions/new?category=1-help
+    about: Ask questions or get help from other community members
+
   - name: Feature Request
-    url: https://github.com/alpinejs/alpine/discussions/new
-    about: Request a feature to be added to the platform
-  - name: Ask a Question
-    url: https://github.com/alpinejs/alpine/discussions/new
-    about: Ask questions and discuss with other community members
+    url: https://github.com/alpinejs/alpine/discussions/new?category=3-feature-ideas
+    about: For ideas or feature requests
+
+  - name: Bug Report
+    url: https://github.com/alpinejs/alpine/discussions/new?category=5-bugs
+    about: Submit a bug report
+
+  - name: Documentation issue
+    url: https://github.com/alpinejs/alpine/pulls
+    about: For documentation issues, please open a pull request

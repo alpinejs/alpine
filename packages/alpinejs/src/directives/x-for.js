@@ -11,8 +11,7 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)
 
     let evaluateItems = evaluateLater(el, iteratorNames.items)
-    let evaluateKey = evaluateLater(
-        el,
+    let evaluateKey = evaluateLater(el,
         // the x-bind:key expression is stored for our use instead of evaluated.
         el._x_keyExpression || 'index'
     )
@@ -22,7 +21,7 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
 
     cleanup(() => {
-        Object.values(el._x_lookup).forEach(el =>
+        el._x_lookup.forEach(el =>
             mutateDom(() => {
                 destroyTree(el)
 
@@ -30,16 +29,16 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
             })
         )
 
-        delete el._x_prevKeys
         delete el._x_lookup
     })
 })
 
-
-const makeRefresher = scope => newScope => {
-    Object.entries(newScope).forEach(([key, value]) => {
-        scope[key] = value
-    })
+function refreshScope(scope) {
+    return (newScope) => {
+        Object.entries(newScope).forEach(([key, value]) => {
+            scope[key] = value
+        })
+    }
 }
 
 function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
@@ -48,41 +47,35 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
         // every bit of complexity in this function was added for
         // the purpose of making Alpine fast with large datas.
 
-        // Support number literals. Ex: x-for='i in 100'
+        // Support number literals. Ex: x-for="i in 100"
         if (isNumeric(items))
             items = Array.from({ length: items }, (_, i) => i + 1)
 
         if (items === undefined) items = []
 
-        /**
-         * In order to remove Elements early we need to generate the key/scope pairs
-         * up front, moving existing elements from the old lookup and to the new.
-         * This leaves only the Elements to be removed in the old lookup.
-         */
-        const oldLookup = templateEl._x_lookup
-        const lookup = new Map()
+        // In order to remove elements early we need to generate the key/scope
+        // pairs up front, moving existing elements from the old lookup to the
+        // new. This leaves only the elements to be removed in the old lookup.
+        let oldLookup = templateEl._x_lookup
+        let lookup = new Map()
         templateEl._x_lookup = lookup
-        
-        const hasStringKeys = isObject(items)
-        const scopeEntries = Object.entries(items).map(([index, item]) => {
-            if (!hasStringKeys) index = parseInt(index)
-            const scope = getIterationScopeVariables(iteratorNames, item, index, items)
-            let key;
-            evaluateKey(innerKey => {
-                    if (typeof innerKey === 'object')
-                        warn(
-                            'x-for key cannot be an object, it must be a string or an integer',
-                            templateEl
-                        )
 
-                    if (oldLookup.has(innerKey)) {
-                        lookup.set(innerKey, oldLookup.get(innerKey))
-                        oldLookup.delete(innerKey)
-                    }
-                    key = innerKey
-                },{ scope: { index, ...scope } }
-            )
-            return [key, scope];
+        let hasStringKeys = isObject(items)
+        let scopeEntries = Object.entries(items).map(([index, item]) => {
+            if (! hasStringKeys) index = parseInt(index)
+            let scope = getIterationScopeVariables(iteratorNames, item, index, items)
+            let key
+            evaluateKey(innerKey => {
+                if (typeof innerKey === 'object')
+                    warn('x-for key cannot be an object, it must be a string or an integer', templateEl)
+
+                if (oldLookup.has(innerKey)) {
+                    lookup.set(innerKey, oldLookup.get(innerKey))
+                    oldLookup.delete(innerKey)
+                }
+                key = innerKey
+            }, { scope: { index, ...scope } })
+            return [key, scope]
         })
 
         mutateDom(() => {
@@ -91,12 +84,12 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                 el.remove()
             })
 
-            const added = new Set()
+            let added = new Set()
 
             let prev = templateEl
             scopeEntries.forEach(([key, scope]) => {
                 if (lookup.has(key)) {
-                    const el = lookup.get(key)
+                    let el = lookup.get(key)
                     el._x_refreshXForScope(scope)
 
                     if (prev.nextElementSibling !== el) {
@@ -114,10 +107,10 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                     return
                 }
 
-                const clone = document.importNode(templateEl.content, true).firstElementChild
-                const reactiveScope = reactive(scope)
+                let clone = document.importNode(templateEl.content, true).firstElementChild
+                let reactiveScope = reactive(scope)
                 addScopeToNode(clone, reactiveScope, templateEl)
-                clone._x_refreshXForScope = makeRefresher(reactiveScope)
+                clone._x_refreshXForScope = refreshScope(reactiveScope)
 
                 lookup.set(key, clone)
                 added.add(clone)
@@ -137,7 +130,7 @@ function parseForExpression(expression) {
     let forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
     let inMatch = expression.match(forAliasRE)
 
-    if (!inMatch) return
+    if (! inMatch) return
 
     let res = {}
     res.items = inMatch[2].trim()
@@ -169,9 +162,8 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
         names.forEach((name, i) => {
             scopeVariables[name] = item[i]
         })
-        // Support object destructuring ({ foo: 'oof', bar: 'rab' }).
-    } else if (/^\{.*\}$/.test(iteratorNames.item) && isObject(item)
-    ) {
+    // Support object destructuring ({ foo: 'oof', bar: 'rab' }).
+    } else if (/^\{.*\}$/.test(iteratorNames.item) && ! Array.isArray(item) && typeof item === 'object') {
         let names = iteratorNames.item.replace('{', '').replace('}', '').split(',').map(i => i.trim())
 
         names.forEach(name => {
@@ -188,10 +180,10 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
     return scopeVariables
 }
 
-function isNumeric(subject) {
-    return !Array.isArray(subject) && !isNaN(subject)
+function isNumeric(subject){
+    return ! Array.isArray(subject) && ! isNaN(subject)
 }
 
 function isObject(subject) {
-    return typeof subject === 'object' && !Array.isArray(subject)
+    return typeof subject === 'object' && ! Array.isArray(subject)
 }

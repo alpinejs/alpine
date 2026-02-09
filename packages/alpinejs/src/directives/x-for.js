@@ -53,6 +53,10 @@ function loop(el, iteratorNames, evaluateItems, evaluateKey) {
 
         if (items === undefined) items = []
 
+        // Support Set and Map objects by converting to arrays.
+        if (items instanceof Set) items = Array.from(items)
+        if (items instanceof Map) items = Array.from(items)
+
         let lookup = el._x_lookup
         let prevKeys = el._x_prevKeys
         let scopes = []

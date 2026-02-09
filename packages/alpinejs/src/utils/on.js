@@ -66,6 +66,18 @@ export default function on (el, event, modifiers, callback) {
 
     if (modifiers.includes('self')) handler = wrapHandler(handler, (next, e) => { e.target === el && next(e) })
 
+    // Flush any pending model updates before submit handlers run
+    // (e.g. x-model.blur inputs that haven't synced yet).
+    if (event === 'submit') {
+        handler = wrapHandler(handler, (next, e) => {
+            if (e.target._x_pendingModelUpdates) {
+                e.target._x_pendingModelUpdates.forEach(fn => fn())
+            }
+
+            next(e)
+        })
+    }
+
     // Handle :keydown and :keyup listeners.
     // Handle :click and :auxclick listeners.
     if (isKeyEvent(event) || isClickEvent(event)) {
@@ -113,7 +125,9 @@ function isClickEvent(event) {
 
 function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
     let keyModifiers = modifiers.filter(i => {
-        return ! ['window', 'document', 'prevent', 'stop', 'once', 'capture', 'self', 'away', 'outside', 'passive'].includes(i)
+        // `preserve-scroll` is specifically for Livewire and is not used by Alpine...
+        // `blur`, `change`, `enter`, `lazy` are x-model event trigger modifiers, not key modifiers
+        return ! ['window', 'document', 'prevent', 'stop', 'once', 'capture', 'self', 'away', 'outside', 'passive', 'preserve-scroll', 'blur', 'change', 'lazy'].includes(i)
     })
 
     if (keyModifiers.includes('debounce')) {

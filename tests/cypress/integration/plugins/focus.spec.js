@@ -462,12 +462,12 @@ test('x-trap handles dynamically added focusable elements',
     },
 )
 
-test('can trap focus with preventscroll',
+test('can trap focus with nofocusscroll',
     [html`
         <div x-data="{ open: false }">
             <button id="open" @click="open = true">open</button>
 
-            <div x-trap.preventscroll="open" style="height: 100px; overflow: auto;">
+            <div x-trap.nofocusscroll="open" style="height: 100px; overflow: auto;">
                 <div style="height: 300px;"></div>
                 <button id="inside">inside</button>
             </div>
@@ -475,7 +475,7 @@ test('can trap focus with preventscroll',
     `],
     ({ get }) => {
         get('#open').click()
-        get('[x-trap\\.preventscroll]').should(($el) => {
+        get('[x-trap\\.nofocusscroll]').should(($el) => {
             expect($el[0].scrollTop).to.equal(0)
         })
     },

@@ -308,10 +308,10 @@ By default, when `x-trap` traps focus within an element, it focuses the first fo
 
 By adding `.noautofocus`, Alpine will not automatically focus any elements when trapping focus.
 
-<a name="preventscroll"></a>
-#### .preventscroll
+<a name="nofocusscroll"></a>
+#### .nofocusscroll
 
-By default, when `x-trap` activates, it will scroll to the currently focused element inside its content. Adding `.preventscroll` disables this behavior.
+By default, when `x-trap` activates, it will scroll to the currently focused element inside its content. Adding `.nofocusscroll` disables this behavior.
 
 For example:
 
@@ -319,7 +319,7 @@ For example:
 <div x-data="{ open: false }">
     <button @click="open = true">Open Dialog</button>
 
-    <div x-show="open" x-trap.preventscroll="open">
+    <div x-show="open" x-trap.nofocusscroll="open">
         Dialog Contents
         
         <input type="text" name="your_name" autofocus>

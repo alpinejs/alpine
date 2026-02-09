@@ -116,7 +116,7 @@ export default function (Alpine) {
                 if (autofocusEl) options.initialFocus = autofocusEl
             }
 
-            if (modifiers.includes('preventscroll')) {
+            if (modifiers.includes('nofocusscroll')) {
                 options.preventScroll = true
             }
 

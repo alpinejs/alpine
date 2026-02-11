@@ -345,6 +345,15 @@ If you are listening for touch events, it's important to add `.passive` to your 
 
 [→ Read more about passive listeners](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#improving_scrolling_performance_with_passive_listeners)
 
+<a name="passive-false"></a>
+### .passive.false
+
+In modern browsers, touch and wheel event listeners are passive by default. Pass `.passive.false` to make these events cancelable, so that you can call `preventDefault` on them.
+
+```alpine
+<div @touchmove.passive.false="$event.preventDefault()">...</div>
+```
+
 ### .capture
 
 Add this modifier if you want to execute this listener in the event's capturing phase, e.g. before the event bubbles from the target element up the DOM.

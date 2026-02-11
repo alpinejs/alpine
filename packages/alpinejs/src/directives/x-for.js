@@ -53,6 +53,10 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
 
         if (items === undefined) items = []
 
+        // Support Set and Map objects by converting to arrays.
+        if (items instanceof Set) items = Array.from(items)
+        if (items instanceof Map) items = Array.from(items)
+
         // In order to remove elements early we need to generate the key/scope
         // pairs up front, moving existing elements from the old lookup to the
         // new. This leaves only the elements to be removed in the old lookup.

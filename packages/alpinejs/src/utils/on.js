@@ -14,26 +14,18 @@ export default function on (el, event, modifiers, callback) {
 
     if (modifiers.includes("dot")) event = dotSyntax(event)
     if (modifiers.includes('camel')) event = camelCase(event)
-    if (modifiers.includes('passive')) options.passive = true
     if (modifiers.includes('capture')) options.capture = true
     if (modifiers.includes('window')) listenerTarget = window
     if (modifiers.includes('document')) listenerTarget = document
 
+    if (modifiers.includes('passive')) {
+        options.passive = modifiers[modifiers.indexOf('passive')+1] !== 'false'
+    }
+
     // By wrapping the handler with debounce & throttle first, we ensure that the wrapping logic itself is not
     // throttled/debounced, only the user's callback is. This way, if the user expects
     // `e.preventDefault()` to happen, it'll still happen even if their callback gets throttled.
-    if (modifiers.includes('debounce')) {
-        let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
-        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
-
-        handler = debounce(handler, wait)
-    }
-    if (modifiers.includes('throttle')) {
-        let nextModifier = modifiers[modifiers.indexOf('throttle')+1] || 'invalid-wait'
-        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
-
-        handler = throttle(handler, wait)
-    }
+    handler = addDebounceOrThrottle(modifiers, handler)
 
     if (modifiers.includes('prevent')) handler = wrapHandler(handler, (next, e) => { e.preventDefault(); next(e) })
     if (modifiers.includes('stop')) handler = wrapHandler(handler, (next, e) => { e.stopPropagation(); next(e) })
@@ -85,7 +77,7 @@ export default function on (el, event, modifiers, callback) {
             if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
                 return
             }
-            
+
             next(e)
         })
     }
@@ -95,6 +87,22 @@ export default function on (el, event, modifiers, callback) {
     return () => {
         listenerTarget.removeEventListener(event, handler, options)
     }
+}
+
+export function addDebounceOrThrottle(modifiers, handler) {
+    if (modifiers.includes('debounce')) {
+        let nextModifier = modifiers[modifiers.indexOf('debounce')+1] || 'invalid-wait'
+        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+
+        handler = debounce(handler, wait)
+    }
+    if (modifiers.includes('throttle')) {
+        let nextModifier = modifiers[modifiers.indexOf('throttle')+1] || 'invalid-wait'
+        let wait = isNumeric(nextModifier.split('ms')[0]) ? Number(nextModifier.split('ms')[0]) : 250
+
+        handler = throttle(handler, wait)
+    }
+    return handler
 }
 
 function dotSyntax(subject) {

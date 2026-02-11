@@ -42,13 +42,25 @@ export default function (Alpine) {
             // Override x-model's initial value...
             if (el._x_model) {
                 // If the x-model value is the same, don't override it as that will trigger updates...
-                if (el._x_model.get() === el.value) return
+                if (el._x_model.get() !== el.value) {
+                    // If the x-model value is `null` and the input value is an empty
+                    // string, don't override it as that will trigger updates...
+                    if (!(el._x_model.get() === null && el.value === '')) {
+                        el._x_model.set(el.value)
+                    }
+                }
 
-                // If the x-model value is `null` and the input value is an empty 
-                // string, don't override it as that will trigger updates...
-                if (el._x_model.get() === null && el.value === '') return
-
-                el._x_model.set(el.value)
+                let updater = el._x_forceModelUpdate
+                el._x_forceModelUpdate = (value) => {
+                    value = String(value)
+                    let template = templateFn(value)
+                    if (template && template !== 'false') {
+                        value = formatInput(template, value)
+                    }
+                    lastInputValue = value
+                    updater(value)
+                    el._x_model.set(value)
+                }
             }
         })
 

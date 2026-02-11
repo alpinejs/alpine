@@ -85,10 +85,10 @@ test('classes are removed before being added',
 test('extra whitespace in class binding string syntax is ignored',
     html`
         <div x-data>
-            <span x-bind:class="'  foo  bar  '"></span>
+            <span x-bind:class="'  foo  bar \n baz '"></span>
         </div>
     `,
-    ({ get }) => get('span').should(haveClasses(['foo', 'bar']))
+    ({ get }) => get('span').should(haveClasses(['foo', 'bar', 'baz']))
 )
 
 test('undefined class binding resolves to empty string',

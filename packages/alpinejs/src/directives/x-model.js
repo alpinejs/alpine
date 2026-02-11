@@ -4,7 +4,7 @@ import { directive } from '../directives'
 import { mutateDom } from '../mutation'
 import { nextTick } from '../nextTick'
 import { isCloning } from '../clone'
-import on from '../utils/on'
+import on, { addDebounceOrThrottle } from '../utils/on'
 import { findClosest } from '../lifecycle'
 
 directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
@@ -148,6 +148,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         set(value) {
             setValue(value)
         },
+        setWithModifiers: addDebounceOrThrottle(modifiers, setValue),
     }
 
     el._x_forceModelUpdate = (value) => {

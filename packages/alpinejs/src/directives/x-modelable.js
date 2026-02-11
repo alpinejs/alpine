@@ -21,7 +21,7 @@ directive('modelable', (el, { expression }, { effect, evaluateLater, cleanup }) 
         el._x_removeModelListeners['default']()
 
         let outerGet = el._x_model.get
-        let outerSet = el._x_model.set
+        let outerSet = el._x_model.setWithModifiers
 
         let releaseEntanglement = entangle(
             {

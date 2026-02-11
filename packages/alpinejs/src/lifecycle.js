@@ -1,4 +1,4 @@
-import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes, cleanupElement, setComponentRootSelector } from "./mutation"
+import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes, cleanupElement, setMutationSelectors } from "./mutation"
 import { deferHandlingDirectives, directiveExists, directives } from "./directives"
 import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
@@ -16,7 +16,7 @@ export function start() {
     dispatch(document, 'alpine:init')
     dispatch(document, 'alpine:initializing')
 
-    setComponentRootSelector(rootSelectors().join(','))
+    setMutationSelectors(rootSelectors().join(','), allSelectors().join(','))
 
     startObservingMutations()
 

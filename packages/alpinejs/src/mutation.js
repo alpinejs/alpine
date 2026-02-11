@@ -49,9 +49,9 @@ export function cleanupElement(el) {
 
 // Two-observer pattern:
 // 1. Component observer: watches subtree changes (childList + attributes)
-//    inside each [x-data] component root.
+//    inside each component root and teleported tree.
 // 2. Document observer: lightweight childList-only watcher on document.body
-//    to detect new top-level [x-data] elements being added to the page.
+//    to detect new Alpine elements being added to the page.
 //
 // This reduces how often Alpine's mutation callback fires for DOM changes
 // that have nothing to do with Alpine components (e.g. third-party scripts).
@@ -63,15 +63,18 @@ let currentlyObserving = false
 
 let componentObserverOptions = { subtree: true, childList: true, attributes: true, attributeOldValue: true }
 
-// Track observed components so we can re-observe after disconnect...
+// Track observed trees so we can re-observe after disconnect...
 let observedComponents = new Set
 
-// The root selector (e.g. "[x-data]") is set by lifecycle.js during start()
-// to avoid a circular dependency with directives.js...
+// rootSelector matches component roots (e.g. "[x-data]")
+// initSelector matches all Alpine-relevant elements (e.g. "[x-data],[x-init]")
+// Set by lifecycle.js during start() to avoid circular dependency with directives.js...
 let rootSelector = null
+let initSelector = null
 
-export function setComponentRootSelector(selector) {
-    rootSelector = selector
+export function setMutationSelectors(root, init) {
+    rootSelector = root
+    initSelector = init
 }
 
 export function observeComponent(el) {
@@ -146,11 +149,19 @@ export function flushObserver() {
 export function mutateDom(callback) {
     if (! currentlyObserving) return callback()
 
-    stopObservingMutations()
+    // Flush any pending records from BEFORE this call so they
+    // get processed. Then run the callback. Then discard
+    // records caused by Alpine's own DOM changes.
+    // This is O(1) — no disconnect/reconnect needed.
+    flushObserver()
 
     let result = callback()
 
-    startObservingMutations()
+    // Discard mutation records caused by Alpine's own DOM changes.
+    // takeRecords() grabs pending records synchronously, preventing
+    // the observer callback from firing for them...
+    componentObserver.takeRecords()
+    documentObserver.takeRecords()
 
     return result
 }
@@ -180,19 +191,28 @@ function onDocumentMutate(mutations) {
         mutations[i].addedNodes.forEach(node => {
             if (node.nodeType !== 1) return
 
+            // If the added node is a component root, start observing it...
             if (node.matches && node.matches(rootSelector)) {
-                if (! node._x_marker) {
-                    onElAddeds.forEach(cb => cb(node))
-                }
                 observeComponent(node)
             }
 
+            // If the added node is any Alpine element, initialize it...
+            if (node.matches && node.matches(initSelector)) {
+                if (! node._x_marker) {
+                    onElAddeds.forEach(cb => cb(node))
+                }
+            }
+
+            // Also check for Alpine elements nested inside the added node...
             if (node.querySelectorAll) {
                 node.querySelectorAll(rootSelector).forEach(el => {
+                    observeComponent(el)
+                })
+
+                node.querySelectorAll(initSelector).forEach(el => {
                     if (! el._x_marker) {
                         onElAddeds.forEach(cb => cb(el))
                     }
-                    observeComponent(el)
                 })
             }
         })

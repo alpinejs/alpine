@@ -1,7 +1,7 @@
 import { skipDuringClone } from "../clone"
 import { directive } from "../directives"
 import { initTree, destroyTree } from "../lifecycle"
-import { mutateDom } from "../mutation"
+import { mutateDom, observeComponent, forgetComponent } from "../mutation"
 import { addScopeToNode } from "../scope"
 import { warn } from "../utils/warn"
 
@@ -54,6 +54,10 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
         })()
     })
 
+    // Observe the teleported tree for mutations since it lives
+    // outside its component root in the DOM...
+    observeComponent(clone)
+
     el._x_teleportPutBack = () => {
         let target = getTarget(expression)
 
@@ -62,12 +66,14 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
         })
     }
 
-    cleanup(() =>
+    cleanup(() => {
+      forgetComponent(clone)
+
       mutateDom(() => {
         clone.remove()
         destroyTree(clone)
       })
-    )
+    })
 })
 
 let teleportContainerDuringClone = document.createElement('div')

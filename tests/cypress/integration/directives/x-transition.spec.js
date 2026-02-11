@@ -81,6 +81,27 @@ test('transition:enter in nested x-show visually runs',
     }
 )
 
+test('newlines in transition class string are handled',
+    html`
+        <style>
+            .transition { transition-property: background-color, border-color, color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+            .duration-100 { transition-duration: 100ms; }
+        </style>
+        <div x-data="{ show: false }">
+            <button x-on:click="show = ! show"></button>
+
+            <span x-show="show" x-transition:enter="transition
+                duration-100">thing</span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(beHidden())
+        get('button').click()
+        get('span').should(beVisible())
+        get('span').should(haveClasses(['transition', 'duration-100']))
+    }
+)
+
 test('transition duration and delay with and without ms syntax',
     html`
         <div x-data="{ showMs: false, showBlank: false }">

@@ -11,10 +11,12 @@ export function setClasses(el, value) {
     return setClassesFromString(el, value)
 }
 
-function setClassesFromString(el, classString) {
-    let split = classString => classString.split(' ').filter(Boolean)
+function splitClasses(classString) {
+    return classString.split(/\s/).filter(Boolean)
+}
 
-    let missingClasses = classString => classString.split(' ').filter(i => ! el.classList.contains(i)).filter(Boolean)
+function setClassesFromString(el, classString) {
+    let missingClasses = classString => splitClasses(classString).filter(i => ! el.classList.contains(i)).filter(Boolean)
 
     let addClassesAndReturnUndo = classes => {
         el.classList.add(...classes)
@@ -29,10 +31,8 @@ function setClassesFromString(el, classString) {
 }
 
 function setClassesFromObject(el, classObject) {
-    let split = classString => classString.split(' ').filter(Boolean)
-
-    let forAdd = Object.entries(classObject).flatMap(([classString, bool]) => bool ? split(classString) : false).filter(Boolean)
-    let forRemove = Object.entries(classObject).flatMap(([classString, bool]) => ! bool ? split(classString) : false).filter(Boolean)
+    let forAdd = Object.entries(classObject).flatMap(([classString, bool]) => bool ? splitClasses(classString) : false).filter(Boolean)
+    let forRemove = Object.entries(classObject).flatMap(([classString, bool]) => ! bool ? splitClasses(classString) : false).filter(Boolean)
 
     let added = []
     let removed = []

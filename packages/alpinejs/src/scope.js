@@ -37,6 +37,13 @@ export function mergeProxies (objects) {
     return new Proxy({ objects }, mergeProxyTrap);
 }
 
+function keyInPrototypeChain(obj, key) {
+    if (obj === null || obj === Object.prototype) return null
+    if (Object.prototype.hasOwnProperty.call(obj, key)) return obj
+
+    return keyInPrototypeChain(Object.getPrototypeOf(obj), key)
+}
+
 let mergeProxyTrap = {
     ownKeys({ objects }) {
         return Array.from(
@@ -66,10 +73,12 @@ let mergeProxyTrap = {
     },
 
     set({ objects }, name, value, thisProxy) {
-        const target =
-            objects.find((obj) =>
-                Object.prototype.hasOwnProperty.call(obj, name)
-            ) || objects[objects.length - 1];
+        let target;
+        for (const obj of objects) {
+            target = keyInPrototypeChain(obj, name);
+            if (target) break;
+        }
+        if (!target) target = objects[objects.length - 1];
         const descriptor = Object.getOwnPropertyDescriptor(target, name);
         if (descriptor?.set && descriptor?.get)
             // Can't use Reflect.set here due to [upstream bug](https://github.com/vuejs/core/blob/31abdc8adad569d83b476c340e678c4daa901545/packages/reactivity/src/baseHandlers.ts#L148) in @vue/reactivity

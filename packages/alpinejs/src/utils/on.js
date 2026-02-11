@@ -14,10 +14,13 @@ export default function on (el, event, modifiers, callback) {
 
     if (modifiers.includes("dot")) event = dotSyntax(event)
     if (modifiers.includes('camel')) event = camelCase(event)
-    if (modifiers.includes('passive')) options.passive = true
     if (modifiers.includes('capture')) options.capture = true
     if (modifiers.includes('window')) listenerTarget = window
     if (modifiers.includes('document')) listenerTarget = document
+
+    if (modifiers.includes('passive')) {
+        options.passive = modifiers[modifiers.indexOf('passive')+1] !== 'false'
+    }
 
     // By wrapping the handler with debounce & throttle first, we ensure that the wrapping logic itself is not
     // throttled/debounced, only the user's callback is. This way, if the user expects
@@ -85,7 +88,7 @@ export default function on (el, event, modifiers, callback) {
             if (isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers)) {
                 return
             }
-            
+
             next(e)
         })
     }

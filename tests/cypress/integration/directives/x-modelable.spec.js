@@ -68,3 +68,78 @@ test('x-modelable removes the event listener used by corresponding x-model',
         get('h2').should(haveText('foo'))
     }
 )
+
+test('works when inside x-teleport',
+    html`
+        <div x-data="{ outer: 'foo' }">
+            <template x-teleport="body">
+                <div x-data="{ inner: 'bar' }" x-modelable="inner" x-model="outer">
+                    <h1 x-text="outer"></h1>
+                    <h2 x-text="inner"></h2>
+
+                    <button @click="inner = 'bob'" id="1">change inner</button>
+                    <button @click="outer = 'lob'" id="2">change outer</button>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('foo'))
+        get('h2').should(haveText('foo'))
+        get('#1').click()
+        get('h1').should(haveText('bob'))
+        get('h2').should(haveText('bob'))
+        get('#2').click()
+        get('h1').should(haveText('lob'))
+        get('h2').should(haveText('lob'))
+    }
+)
+
+test('works when inside x-teleport when targeting parent',
+    html`
+        <div x-data="{ value: 'foo' }">
+            <h2 x-text="value"></h2>
+            
+            <template x-teleport="body">
+                <div x-data="{ value: 'bar' }" x-modelable="value" x-model.parent="value">
+                    <h1 x-text="value"></h1>
+
+                    <button @click="value = 'bob'" id="1">change to bob</button>
+                    <button @click="value = 'lob'" id="2">change to lob</button>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('foo'))
+        get('h2').should(haveText('foo'))
+        get('#1').click()
+        get('h1').should(haveText('bob'))
+        get('h2').should(haveText('bob'))
+        get('#2').click()
+        get('h1').should(haveText('lob'))
+        get('h2').should(haveText('lob'))
+    }
+)
+
+test('works when inside x-teleport with x-data directly on it',
+    html`
+        <div>
+            <template x-teleport="body" x-data="{ value: 'foo' }">
+                <div x-data="{ value: 'bar' }" x-modelable="value" x-model.parent="value">
+                    <h1 x-text="value"></h1>
+
+                    <button @click="value = 'bob'" id="1">change to bob</button>
+                    <button @click="value = 'lob'" id="2">change to lob</button>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('foo'))
+        get('#1').click()
+        get('h1').should(haveText('bob'))
+        get('#2').click()
+        get('h1').should(haveText('lob'))
+    }
+)

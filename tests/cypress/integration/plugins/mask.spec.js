@@ -5,7 +5,7 @@ test('x-mask',
     ({ get }) => {
         // Type a phone number:
         get('input').type('12').should(haveValue('(12'))
-        get('input').type('3').should(haveValue('(123) '))
+        get('input').type('3 ').should(haveValue('(123) '))
         get('input').type('4567890').should(haveValue('(123) 456-7890'))
         // Clear it & paste formatted version in:
         get('input').type('{selectAll}{backspace}')
@@ -32,6 +32,30 @@ test('x-mask',
     },
 )
 
+test('x-mask autocomplete',
+    [html`<input x-data x-mask="+1 (999) 999-9999">`],
+    ({ get }) => {
+        // Type a phone number:
+        get('input').type('21').should(haveValue('+1 (21'))
+        get('input').type('3 ').should(haveValue('+1 (213) '))
+        get('input').type('4567890').should(haveValue('+1 (213) 456-7890'))
+        // Clear it & paste formatted version in:
+        get('input').type('{selectAll}{backspace}')
+        get('input').invoke('val', '+1 (213) 456-7890').trigger('blur')
+        get('input').should(haveValue('+1 (213) 456-7890'))
+        // Clear it & paste un-formatted version in:
+        get('input').type('{selectAll}{backspace}')
+        get('input').invoke('val', '2134567890').trigger('blur')
+        get('input').should(haveValue('+1 (213) 456-7890'))
+        // Clear it and start with an area code starting with 1:
+        get('input').type('{selectAll}{backspace}')
+        get('input').type('1 ').should(haveValue('+1 '))
+        get('input').type('2').should(haveValue('+1 (2'))
+        get('input').type('13 ').should(haveValue('+1 (213) '))
+        get('input').type('456 78-90').should(haveValue('+1 (213) 456-7890'))
+    },
+)
+
 test('x-mask with x-model',
     [html`
         <div x-data="{ value: '' }">
@@ -43,7 +67,7 @@ test('x-mask with x-model',
         // Type a phone number:
         get('#1').type('12').should(haveValue('(12'))
         get('#2').should(haveValue('(12'))
-        get('#1').type('3').should(haveValue('(123) '))
+        get('#1').type('3 ').should(haveValue('(123) '))
         get('#2').should(haveValue('(123) '))
         get('#1').type('4567890').should(haveValue('(123) 456-7890'))
         get('#2').should(haveValue('(123) 456-7890'))
@@ -134,15 +158,15 @@ test('x-mask with non wildcard alpha-numeric characters (b)',
         get('input').type('a').should(haveValue('ba'))
         get('input').type('a').should(haveValue('ba'))
         get('input').type('3').should(haveValue('ba3'))
-        get('input').type('z').should(haveValue('ba3zb'))
-        get('input').type('{backspace}{backspace}4').should(haveValue('ba34b'))
+        get('input').type('z ').should(haveValue('ba3zb'))
+        get('input').type('{backspace}{backspace}4 ').should(haveValue('ba34b'))
     }
 )
 
 test('x-mask:dynamic',
     [html`<input x-data x-mask:dynamic="'(999)'">`],
     ({ get }) => {
-        get('input').type('123').should(haveValue('(123)'))
+        get('input').type('123 ').should(haveValue('(123)'))
     }
 )
 
@@ -161,7 +185,7 @@ test('$money',
         get('input').type('{leftArrow}7').should(haveValue('1,234,567.87'))
         get('input').type('{leftArrow}{leftArrow}{leftArrow}89').should(haveValue('123,456,789.87'))
         get('input').type('{leftArrow}{leftArrow}{leftArrow}{leftArrow}12').should(haveValue('12,345,612,789.87'))
-        get('input').type('{leftArrow}3').should(haveValue('123,456,123,789.87'))
+        get('input').type('3').should(haveValue('123,456,123,789.87'))
         // Clear it & paste formatted version in:
         get('input').type('{selectAll}{backspace}')
         get('input').invoke('val', '123,456,132,789.87').trigger('blur')

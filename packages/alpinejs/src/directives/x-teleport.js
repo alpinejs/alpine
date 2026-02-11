@@ -67,12 +67,12 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
     }
 
     cleanup(() => {
-      forgetComponent(clone)
+        forgetComponent(clone)
 
-      mutateDom(() => {
-        clone.remove()
-        destroyTree(clone)
-      })
+        mutateDom(() => {
+            clone.remove()
+            destroyTree(clone)
+        })
     })
 })
 

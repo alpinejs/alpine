@@ -1,4 +1,4 @@
-import { haveAttribute, haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
+import { haveAttribute, haveFocus, haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
 
 test('can morph components and preserve Alpine state',
     [html`
@@ -1097,5 +1097,39 @@ test('morph properly closes dialog opened with showModal()',
 
         // Page should not be inert — outside button should be clickable
         get('#outside').click()
+    },
+)
+
+test('can morph elements with x-ref when root data node is outside morph window',
+    [html`
+        <div x-data="{ value: 'initial' }">
+            <section>
+                <input x-ref="myInput" x-model="value">
+                <button @click="$refs.myInput.focus()">Focus</button>
+                <span x-text="value"></span>
+            </section>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <section>
+                <input x-ref="myInput" x-model="value">
+                <button @click="$refs.myInput.focus()">Focus</button>
+                <span x-text="value"></span>
+                <p>New element</p>
+            </section>
+        `
+
+        get('input').clear().type('test')
+        get('span').should(haveText('test'))
+
+        get('section').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('span').should(haveText('test'))
+        get('p').should(haveText('New element'))
+        
+        // Verify x-ref still works after morph
+        get('button').click()
+        get('input').should(haveFocus())
     },
 )

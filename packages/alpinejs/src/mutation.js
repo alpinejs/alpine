@@ -1,4 +1,5 @@
 import { dequeueJob } from "./scheduler";
+
 let onAttributeAddeds = []
 let onElRemoveds = []
 let onElAddeds = []
@@ -46,12 +47,62 @@ export function cleanupElement(el) {
     while (el._x_cleanups?.length) el._x_cleanups.pop()()
 }
 
-let observer = new MutationObserver(onMutate)
+// Two-observer pattern:
+// 1. Component observer: watches subtree changes (childList + attributes)
+//    inside each [x-data] component root.
+// 2. Document observer: lightweight childList-only watcher on document.body
+//    to detect new top-level [x-data] elements being added to the page.
+//
+// This reduces how often Alpine's mutation callback fires for DOM changes
+// that have nothing to do with Alpine components (e.g. third-party scripts).
+
+let componentObserver = new MutationObserver(onMutate)
+let documentObserver = new MutationObserver(onDocumentMutate)
 
 let currentlyObserving = false
 
+let componentObserverOptions = { subtree: true, childList: true, attributes: true, attributeOldValue: true }
+
+// Track observed components so we can re-observe after disconnect...
+let observedComponents = new Set
+
+// The root selector (e.g. "[x-data]") is set by lifecycle.js during start()
+// to avoid a circular dependency with directives.js...
+let rootSelector = null
+
+export function setComponentRootSelector(selector) {
+    rootSelector = selector
+}
+
+export function observeComponent(el) {
+    observedComponents.add(el)
+
+    if (! currentlyObserving) return
+    if (el._x_observing) return
+
+    el._x_observing = true
+
+    componentObserver.observe(el, componentObserverOptions)
+}
+
+export function forgetComponent(el) {
+    observedComponents.delete(el)
+    delete el._x_observing
+}
+
 export function startObservingMutations() {
-    observer.observe(document, { subtree: true, childList: true, attributes: true, attributeOldValue: true })
+    // Re-observe all tracked components...
+    observedComponents.forEach(el => {
+        if (el.isConnected) {
+            el._x_observing = true
+            componentObserver.observe(el, componentObserverOptions)
+        }
+    })
+
+    // Watch the document for new top-level components being added...
+    if (document.body) {
+        documentObserver.observe(document.body, { childList: true, subtree: true })
+    }
 
     currentlyObserving = true
 }
@@ -59,7 +110,13 @@ export function startObservingMutations() {
 export function stopObservingMutations() {
     flushObserver()
 
-    observer.disconnect()
+    componentObserver.disconnect()
+    documentObserver.disconnect()
+
+    // Clear observation flags so they get re-set on restart...
+    observedComponents.forEach(el => {
+        delete el._x_observing
+    })
 
     currentlyObserving = false
 }
@@ -67,9 +124,11 @@ export function stopObservingMutations() {
 let queuedMutations = []
 
 export function flushObserver() {
-    let records = observer.takeRecords()
+    let records = componentObserver.takeRecords()
+    let docRecords = documentObserver.takeRecords()
 
     queuedMutations.push(() => records.length > 0 && onMutate(records))
+    queuedMutations.push(() => docRecords.length > 0 && onDocumentMutate(docRecords))
 
     let queueLengthWhenTriggered = queuedMutations.length
 
@@ -109,6 +168,55 @@ export function flushAndStopDeferringMutations() {
     onMutate(deferredMutations)
 
     deferredMutations = []
+}
+
+function onDocumentMutate(mutations) {
+    if (isCollecting) return
+    if (! rootSelector) return
+
+    for (let i = 0; i < mutations.length; i++) {
+        if (mutations[i].type !== 'childList') continue
+
+        mutations[i].addedNodes.forEach(node => {
+            if (node.nodeType !== 1) return
+
+            if (node.matches && node.matches(rootSelector)) {
+                if (! node._x_marker) {
+                    onElAddeds.forEach(cb => cb(node))
+                }
+                observeComponent(node)
+            }
+
+            if (node.querySelectorAll) {
+                node.querySelectorAll(rootSelector).forEach(el => {
+                    if (! el._x_marker) {
+                        onElAddeds.forEach(cb => cb(el))
+                    }
+                    observeComponent(el)
+                })
+            }
+        })
+
+        mutations[i].removedNodes.forEach(node => {
+            if (node.nodeType !== 1) return
+
+            if (node.matches && node.matches(rootSelector)) {
+                if (node._x_marker) {
+                    onElRemoveds.forEach(cb => cb(node))
+                }
+                forgetComponent(node)
+            }
+
+            if (node.querySelectorAll) {
+                node.querySelectorAll(rootSelector).forEach(el => {
+                    if (el._x_marker) {
+                        onElRemoveds.forEach(cb => cb(el))
+                    }
+                    forgetComponent(el)
+                })
+            }
+        })
+    }
 }
 
 function onMutate(mutations) {

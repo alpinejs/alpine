@@ -3,6 +3,7 @@ import { initInterceptors } from '../interceptor'
 import { injectDataProviders } from '../datas'
 import { addRootSelector } from '../lifecycle'
 import { interceptClone, isCloning, isCloningLegacy } from '../clone'
+import { observeComponent, forgetComponent } from '../mutation'
 import { addScopeToNode } from '../scope'
 import { injectMagics, magic } from '../magics'
 import { reactive } from '../reactivity'
@@ -33,10 +34,14 @@ directive('data', ((el, { expression }, { cleanup }) => {
 
     let undo = addScopeToNode(el, reactiveData)
 
+    observeComponent(el)
+
     reactiveData['init'] && evaluate(el, reactiveData['init'])
 
     cleanup(() => {
         reactiveData['destroy'] && evaluate(el, reactiveData['destroy'])
+
+        forgetComponent(el)
 
         undo()
     })

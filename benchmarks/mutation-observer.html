@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpine.js MutationObserver Benchmark</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        h1 { font-size: 1.5rem; }
+        .controls { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0; }
+        button { padding: 0.5rem 1rem; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #f8f8f8; }
+        button:hover { background: #e8e8e8; }
+        #results { background: #f4f4f4; padding: 1rem; border-radius: 4px; font-family: monospace; white-space: pre-wrap; font-size: 0.85rem; min-height: 200px; }
+        .alpine-zone { border: 1px solid #ccc; padding: 0.5rem; margin: 0.5rem 0; border-radius: 4px; display: none; }
+        #non-alpine-zone { border: 1px dashed #999; padding: 0.5rem; margin: 0.5rem 0; border-radius: 4px; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Alpine.js MutationObserver Benchmark</h1>
+    <p>This page measures how Alpine's mutation observer behaves when third-party
+    scripts mutate the DOM outside Alpine components. The two-observer pattern
+    should dramatically reduce callback invocations from non-Alpine mutations.</p>
+
+    <div class="controls">
+        <button onclick="runBenchmark('non-alpine-mutations')">Benchmark: Non-Alpine DOM Mutations</button>
+        <button onclick="runBenchmark('alpine-mutations')">Benchmark: Alpine Component Mutations</button>
+        <button onclick="runBenchmark('mixed')">Benchmark: Mixed Mutations</button>
+        <button onclick="runBenchmark('add-components')">Benchmark: Add New Components</button>
+    </div>
+
+    <div id="results">Click a benchmark to start...</div>
+
+    <!-- Alpine components -->
+    <div class="alpine-zone" id="alpine-zone">
+        <div x-data="{ items: [], add() { this.items.push(Date.now()) }, clear() { this.items = [] } }">
+            <template x-for="item in items" :key="item">
+                <span x-text="item"></span>
+            </template>
+        </div>
+    </div>
+
+    <!-- Non-Alpine zone (simulating third-party scripts) -->
+    <div id="non-alpine-zone"></div>
+
+    <!-- Injection point for dynamic components -->
+    <div id="injection-point"></div>
+
+    <script src="/packages/alpinejs/dist/cdn.js" defer></script>
+
+    <script>
+        let results = document.getElementById('results');
+
+        function log(msg) {
+            results.textContent += msg + '\n';
+        }
+
+        function clearLog() {
+            results.textContent = '';
+        }
+
+        // Monkey-patch MutationObserver to count invocations
+        let originalMO = window.MutationObserver;
+        let observerCallCounts = { total: 0 };
+        let tracking = false;
+
+        window.MutationObserver = class extends originalMO {
+            constructor(callback) {
+                let wrappedCallback = function(mutations, observer) {
+                    if (tracking) {
+                        observerCallCounts.total++;
+                    }
+                    return callback(mutations, observer);
+                };
+                super(wrappedCallback);
+            }
+        };
+
+        function resetCounts() {
+            observerCallCounts.total = 0;
+        }
+
+        async function runBenchmark(type) {
+            clearLog();
+            log(`=== Benchmark: ${type} ===\n`);
+
+            let iterations = 1000;
+            let zone = document.getElementById('non-alpine-zone');
+            let injectionPoint = document.getElementById('injection-point');
+
+            // Warm up
+            await new Promise(r => setTimeout(r, 100));
+
+            if (type === 'non-alpine-mutations') {
+                log(`Creating ${iterations} DOM nodes OUTSIDE Alpine components...`);
+                log('(This simulates third-party scripts like analytics, ads, chat widgets)\n');
+
+                resetCounts();
+                tracking = true;
+                let start = performance.now();
+
+                for (let i = 0; i < iterations; i++) {
+                    let el = document.createElement('div');
+                    el.textContent = `Third-party node ${i}`;
+                    el.className = 'tp-widget';
+                    zone.appendChild(el);
+                }
+
+                // Wait for microtasks to flush
+                await new Promise(r => setTimeout(r, 50));
+
+                let elapsed = performance.now() - start;
+                tracking = false;
+
+                log(`Time: ${elapsed.toFixed(2)}ms`);
+                log(`Observer callback invocations: ${observerCallCounts.total}`);
+                log(`Nodes created: ${iterations}`);
+                log(`\nWith the old single-observer pattern, ALL ${iterations} mutations`);
+                log(`would fire Alpine's onMutate callback. With the two-observer`);
+                log(`pattern, only the lightweight document observer fires, which`);
+                log(`quickly filters out non-component nodes.`);
+
+                // Clean up
+                zone.innerHTML = '';
+
+            } else if (type === 'alpine-mutations') {
+                log(`Triggering ${iterations} mutations INSIDE an Alpine component...`);
+                log('(This tests that Alpine components still work correctly)\n');
+
+                let alpineEl = document.querySelector('[x-data]');
+                let component = alpineEl.__x || Alpine.$data(alpineEl);
+
+                resetCounts();
+                tracking = true;
+                let start = performance.now();
+
+                for (let i = 0; i < iterations; i++) {
+                    let span = document.createElement('span');
+                    span.textContent = `item-${i}`;
+                    alpineEl.appendChild(span);
+                }
+
+                await new Promise(r => setTimeout(r, 50));
+
+                let elapsed = performance.now() - start;
+                tracking = false;
+
+                log(`Time: ${elapsed.toFixed(2)}ms`);
+                log(`Observer callback invocations: ${observerCallCounts.total}`);
+                log(`Nodes created: ${iterations}`);
+
+                // Clean up - remove non-template spans
+                alpineEl.querySelectorAll('span').forEach(s => s.remove());
+
+            } else if (type === 'mixed') {
+                log(`Creating ${iterations} nodes each inside AND outside Alpine...`);
+                log('(Simulates a busy page with Alpine + third-party scripts)\n');
+
+                let alpineEl = document.querySelector('[x-data]');
+
+                resetCounts();
+                tracking = true;
+                let start = performance.now();
+
+                for (let i = 0; i < iterations; i++) {
+                    // Non-Alpine mutation
+                    let ext = document.createElement('div');
+                    ext.textContent = `external-${i}`;
+                    zone.appendChild(ext);
+
+                    // Alpine mutation
+                    let int = document.createElement('span');
+                    int.textContent = `internal-${i}`;
+                    alpineEl.appendChild(int);
+                }
+
+                await new Promise(r => setTimeout(r, 50));
+
+                let elapsed = performance.now() - start;
+                tracking = false;
+
+                log(`Time: ${elapsed.toFixed(2)}ms`);
+                log(`Observer callback invocations: ${observerCallCounts.total}`);
+                log(`Total nodes created: ${iterations * 2}`);
+
+                // Clean up
+                zone.innerHTML = '';
+                alpineEl.querySelectorAll('span').forEach(s => s.remove());
+
+            } else if (type === 'add-components') {
+                let count = 100;
+                log(`Dynamically adding ${count} new Alpine components...`);
+                log('(Tests that new x-data elements are detected and initialized)\n');
+
+                resetCounts();
+                tracking = true;
+                let start = performance.now();
+
+                for (let i = 0; i < count; i++) {
+                    let el = document.createElement('div');
+                    el.setAttribute('x-data', `{ n: ${i} }`);
+                    el.innerHTML = `<span x-text="n"></span>`;
+                    injectionPoint.appendChild(el);
+                }
+
+                await new Promise(r => setTimeout(r, 200));
+
+                let elapsed = performance.now() - start;
+                tracking = false;
+
+                let initialized = injectionPoint.querySelectorAll('span').length;
+                let withContent = [...injectionPoint.querySelectorAll('span')].filter(s => s.textContent !== '').length;
+
+                log(`Time: ${elapsed.toFixed(2)}ms`);
+                log(`Observer callback invocations: ${observerCallCounts.total}`);
+                log(`Components added: ${count}`);
+                log(`Components initialized: ${withContent}/${initialized}`);
+
+                // Clean up
+                injectionPoint.innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>

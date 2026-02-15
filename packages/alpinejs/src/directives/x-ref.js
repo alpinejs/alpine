@@ -6,6 +6,8 @@ function handler () {}
 handler.inline = (el, { expression }, { cleanup }) => {
     let root = closestRoot(el)
 
+    if (! root) return
+
     if (! root._x_refs) root._x_refs = {}
 
     root._x_refs[expression] = el

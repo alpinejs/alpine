@@ -70,6 +70,40 @@ test('@click.away with x-collapse and borders (prevent race condition)',
     }
 )
 
+test('x-collapse.min supports unitless values (defaults to px)',
+    [html`
+        <div x-data="{ expanded: false }">
+            <button @click="expanded = ! expanded">toggle</button>
+            <h1 x-show="expanded" x-collapse.min.50>contents</h1>
+        </div>
+    `],
+    ({ get }) => {
+        get('h1').should(haveComputedStyle('height', '50px'))
+        get('h1').should(haveAttribute('style', 'height: 50px; overflow: hidden;'))
+        get('button').click()
+        get('h1').should(haveAttribute('style', 'height: auto;'))
+        get('button').click()
+        get('h1').should(haveComputedStyle('height', '50px'))
+        get('h1').should(haveAttribute('style', 'height: 50px; overflow: hidden;'))
+    },
+)
+
+test('x-collapse.min supports CSS variable via var()',
+    [html`
+        <div x-data="{ expanded: false }" style="--collapse-min: 40px">
+            <button @click="expanded = ! expanded">toggle</button>
+            <h1 x-show="expanded" x-collapse.min.var(--collapse-min)>contents</h1>
+        </div>
+    `],
+    ({ get }) => {
+        get('h1').should(haveComputedStyle('height', '40px'))
+        get('button').click()
+        get('h1').should(haveAttribute('style', 'height: auto;'))
+        get('button').click()
+        get('h1').should(haveComputedStyle('height', '40px'))
+    },
+)
+
 // https://github.com/alpinejs/alpine/issues/2335
 test('double-click on x-collapse does not mix styles up',
     [html`

@@ -12,10 +12,10 @@ export default function (Alpine) {
 
     function collapse(el, { modifiers }) {
         let duration = modifierValue(modifiers, 'duration', 250) / 1000
-        let floor = modifierValue(modifiers, 'min', 0)
+        let floor = modifierValue(modifiers, 'min', '0px')
         let fullyHide = ! modifiers.includes('min')
 
-        if (! el._x_isShown) el.style.height = `${floor}px`
+        if (! el._x_isShown) el.style.height = floor
         // We use the hidden attribute for the benefit of Tailwind
         // users as the .space utility will ignore [hidden] elements.
         // We also use display:none as the hidden attribute has very
@@ -49,11 +49,11 @@ export default function (Alpine) {
 
                 let full = el.getBoundingClientRect().height
 
-                if (current === full) { current = floor }
+                let startHeight = (current === full) ? floor : current+'px'
 
                 Alpine.transition(el, Alpine.setStyles, {
                     during: transitionStyles,
-                    start: { height: current+'px' },
+                    start: { height: startHeight },
                     end: { height: full+'px' },
                 }, () => el._x_isShown = true, () => {
                     if (Math.abs(el.getBoundingClientRect().height - full) < 1) {
@@ -68,12 +68,12 @@ export default function (Alpine) {
                 Alpine.transition(el, setFunction, {
                     during: transitionStyles,
                     start: { height: full+'px' },
-                    end: { height: floor+'px' },
+                    end: { height: floor },
                 }, () => el.style.overflow = 'hidden', () => {
                     el._x_isShown = false
 
                     // check if element is fully collapsed
-                    if (el.style.height == `${floor}px` && fullyHide) {
+                    if (el.style.height == floor && fullyHide) {
                         el.style.display = 'none'
                         el.hidden = true
                     }
@@ -88,7 +88,7 @@ function modifierValue(modifiers, key, fallback) {
     if (modifiers.indexOf(key) === -1) return fallback
 
     // If it IS present, grab the value after it: x-show.transition.duration.500ms
-    const rawValue = modifiers[modifiers.indexOf(key) + 1]
+    let rawValue = modifiers[modifiers.indexOf(key) + 1]
 
     if (! rawValue) return fallback
 
@@ -99,9 +99,12 @@ function modifierValue(modifiers, key, fallback) {
     }
 
     if (key === 'min') {
-        // Support x-collapse.min.100px && min.100
-        let match = rawValue.match(/([0-9]+)px/)
-        if (match) return match[1]
+        // Support CSS variables: x-collapse.min.var(--collapse-min)
+        if (rawValue.startsWith('var(')) return rawValue
+
+        // Support values with units: x-collapse.min.100px, x-collapse.min.50vh
+        let match = rawValue.match(/^([0-9]+(?:\.[0-9]+)?)(px|%|em|rem|vh|vw|vmin|vmax|svh|svw|lvh|lvw|dvh|dvw)?$/)
+        if (match) return match[1] + (match[2] || 'px')
     }
 
     return rawValue

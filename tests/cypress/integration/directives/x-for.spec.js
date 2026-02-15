@@ -670,3 +670,36 @@ test('x-for eagerly cleans tree',
         get('#toggle').should(haveText('8'))
     }
 )
+
+// To support rerendering alongside x-sort
+test('x-for handles moved elements correctly',
+    html`
+        <div x-data="{ items: [1,2,3] }">
+            <button
+                id="swap"
+                @click="items.splice(0,0,...items.splice(1,1))">
+                Swap first 2
+            </button>
+            <button id="move"
+                @click="document.querySelector('[data-num]:nth-of-type(1)').before(document.querySelector('[data-num]:nth-of-type(2)'))">
+                Move elements
+            </button>
+            <template x-for="num in items" :key="num">
+                <div :data-num=num x-text="num"></div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('[data-num]:nth-of-type(1)').should(haveText('1'))
+        get('[data-num]:nth-of-type(2)').should(haveText('2'))
+        get('[data-num]:nth-of-type(3)').should(haveText('3'))
+        get('button#move').click()
+        get('[data-num]:nth-of-type(1)').should(haveText('2'))
+        get('[data-num]:nth-of-type(2)').should(haveText('1'))
+        get('[data-num]:nth-of-type(3)').should(haveText('3'))
+        get('button#swap').click()
+        get('[data-num]:nth-of-type(1)').should(haveText('2'))
+        get('[data-num]:nth-of-type(2)').should(haveText('1'))
+        get('[data-num]:nth-of-type(3)').should(haveText('3'))
+    }
+)

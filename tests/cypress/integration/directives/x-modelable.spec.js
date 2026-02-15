@@ -69,6 +69,54 @@ test('x-modelable removes the event listener used by corresponding x-model',
     }
 )
 
+test('x-modelable works with .debounce modifier',
+    html`
+        <div x-data="{ outer: 'foo' }">
+            <div x-data="{ inner: 'bar' }" x-modelable="inner" x-model.debounce="outer">
+                <h1 x-text="outer"></h1>
+                <h2 x-text="inner"></h2>
+
+                <button @click="inner = 'bob'" id="1">change inner</button>
+                <button @click="inner = 'lob'" id="2">change inner</button>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('foo'))
+        get('h2').should(haveText('foo'))
+        get('#1').click()
+        get('h1').should(haveText('bob'))
+        get('h2').should(haveText('bob'))
+        get('#2').click()
+        get('h1').should(haveText('bob'))
+        get('h2').should(haveText('lob'))
+    }
+)
+
+test('x-modelable works with .throttle modifier',
+    html`
+        <div x-data="{ outer: 'foo' }">
+            <div x-data="{ inner: 'bar' }" x-modelable="inner" x-model.throttle="outer">
+                <h1 x-text="outer"></h1>
+                <h2 x-text="inner"></h2>
+
+                <button @click="inner = 'bob'" id="1">change inner</button>
+                <button @click="inner = 'lob'" id="2">change inner</button>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('foo'))
+        get('h2').should(haveText('foo'))
+        get('#1').click()
+        get('h1').should(haveText('bob'))
+        get('h2').should(haveText('bob'))
+        get('#2').click()
+        get('h1').should(haveText('bob'))
+        get('h2').should(haveText('lob'))
+    }
+)
+
 test('works when inside x-teleport',
     html`
         <div x-data="{ outer: 'foo' }">
@@ -99,7 +147,7 @@ test('works when inside x-teleport when targeting parent',
     html`
         <div x-data="{ value: 'foo' }">
             <h2 x-text="value"></h2>
-            
+
             <template x-teleport="body">
                 <div x-data="{ value: 'bar' }" x-modelable="value" x-model.parent="value">
                     <h1 x-text="value"></h1>

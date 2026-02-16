@@ -1,4 +1,4 @@
-import { haveAttribute, haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
+import { haveAttribute, haveFocus, haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
 
 test('can morph components and preserve Alpine state',
     [html`
@@ -1097,5 +1097,38 @@ test('morph properly closes dialog opened with showModal()',
 
         // Page should not be inert — outside button should be clickable
         get('#outside').click()
+    },
+)
+
+test('can morph child element containing x-ref without crashing',
+    [html`
+        <div x-data="{ value: 'initial' }">
+            <section>
+                <input x-ref="myInput" x-model="value">
+                <button @click="$refs.myInput.focus()">Focus</button>
+                <span x-text="value"></span>
+            </section>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        get('span').should(haveText('initial'))
+
+        // Morph a CHILD element (section), not the x-data root
+        get('section').then(([el]) => {
+            window.Alpine.morph(el, `
+                <section>
+                    <input x-ref="myInput" x-model="value">
+                    <button @click="$refs.myInput.focus()">Focus</button>
+                    <span x-text="value"></span>
+                </section>
+            `)
+        })
+
+        // State should be preserved
+        get('span').should(haveText('initial'))
+
+        // Verify $refs still resolves after morph
+        get('button').click()
+        get('input').should(haveFocus())
     },
 )

@@ -60,12 +60,13 @@ export function watch(getter, callback) {
     let firstTime = true
 
     let oldValue
+    let oldValueJSON
 
     let effectReference = effect(() => {
         let value = getter()
 
         // JSON.stringify touches every single property at any level enabling deep watching
-        JSON.stringify(value)
+        let newJSON = JSON.stringify(value)
 
         if (! firstTime) {
             // For objects, always fire (deep watching may have detected nested changes).
@@ -73,7 +74,13 @@ export function watch(getter, callback) {
             if (typeof value === 'object' || value !== oldValue) {
                 // We have to queue this watcher as a microtask so that
                 // the watcher doesn't pick up its own dependencies.
-                let previousValue = oldValue
+
+                // For objects, parse the stored JSON snapshot to get a plain clone
+                // of the previous state. Without this, oldValue and value are the
+                // same reference and oldValue would reflect the already-mutated state.
+                let previousValue = typeof oldValue === 'object'
+                    ? JSON.parse(oldValueJSON)
+                    : oldValue
 
                 queueMicrotask(() => {
                     callback(value, previousValue)
@@ -82,6 +89,7 @@ export function watch(getter, callback) {
         }
 
         oldValue = value
+        oldValueJSON = newJSON
 
         firstTime = false
     })

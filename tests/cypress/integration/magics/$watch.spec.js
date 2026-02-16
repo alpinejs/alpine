@@ -198,3 +198,57 @@ test('deep $watch',
     }
 )
 
+test('deep $watch receives old value',
+    html`
+        <div x-data="{ foo: { bar: 'baz' }, fresh: '', old: '' }" x-init="
+            $watch('foo', (value, oldValue) => { fresh = value.bar; old = oldValue.bar })
+        ">
+            <h1 x-text="fresh"></h1>
+            <h2 x-text="old"></h2>
+
+            <button x-on:click="foo.bar = 'bob'"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('h1').should(haveText('bob'))
+        get('h2').should(haveText('baz'))
+    }
+)
+
+test('deep $watch receives old value for arrays',
+    html`
+        <div x-data="{ list: ['one'], newVal: '', oldVal: '' }" x-init="
+            $watch('list', (value, oldValue) => { newVal = value.join(','); oldVal = oldValue.join(',') })
+        ">
+            <h1 x-text="newVal"></h1>
+            <h2 x-text="oldVal"></h2>
+
+            <button x-on:click="list.push('two')"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('h1').should(haveText('one,two'))
+        get('h2').should(haveText('one'))
+    }
+)
+
+test('deep $watch receives old value with null',
+    html`
+        <div x-data="{ foo: null, fresh: '', old: '' }" x-init="
+            $watch('foo', (value, oldValue) => { fresh = JSON.stringify(value); old = JSON.stringify(oldValue) })
+        ">
+            <h1 x-text="fresh"></h1>
+            <h2 x-text="old"></h2>
+
+            <button x-on:click="foo = { bar: 'baz' }"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('h1').should(haveText('{"bar":"baz"}'))
+        get('h2').should(haveText('null'))
+    }
+)
+

@@ -858,6 +858,70 @@ test('nested x-for where inner loop uses multi-element',
     }
 )
 
+test('x-for multi-element works with x-if as one of the children',
+    html`
+        <div x-data="{ items: ['foo', 'bar'], show: true }">
+            <button x-on:click="show = !show">toggle</button>
+            <template x-for="item in items">
+                <h3 x-text="item"></h3>
+                <template x-if="show">
+                    <span x-text="item + '!'"></span>
+                </template>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h3').should(haveLength(2))
+        get('span').should(haveLength(2))
+        get('span:nth-of-type(1)').should(haveText('foo!'))
+        get('button').click()
+        get('h3').should(haveLength(2))
+        get('span').should(notExist())
+        get('button').click()
+        get('span').should(haveLength(2))
+    }
+)
+
+test('x-for multi-element handles event listeners per iteration',
+    html`
+        <div x-data="{ items: ['foo', 'bar'], output: '' }">
+            <template x-for="item in items">
+                <h3 x-text="item"></h3>
+                <button x-on:click="output = item">click</button>
+            </template>
+            <span id="output" x-text="output"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('#output').should(haveText(''))
+        get('button:nth-of-type(1)').click()
+        get('#output').should(haveText('foo'))
+        get('button:nth-of-type(2)').click()
+        get('#output').should(haveText('bar'))
+    }
+)
+
+test('x-for multi-element handles large lists',
+    html`
+        <div x-data="{ items: Array.from({length: 200}, (_, i) => i) }">
+            <button x-on:click="items = items.slice().reverse()">reverse</button>
+            <template x-for="item in items" :key="item">
+                <span x-text="item"></span>
+                <i x-text="item * 2"></i>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveLength(200))
+        get('i').should(haveLength(200))
+        get('span:nth-of-type(1)').should(haveText('0'))
+        get('span:nth-of-type(200)').should(haveText('199'))
+        get('button').click()
+        get('span:nth-of-type(1)').should(haveText('199'))
+        get('span:nth-of-type(200)').should(haveText('0'))
+    }
+)
+
 // To support rerendering alongside x-sort
 test('x-for handles moved elements correctly',
     html`

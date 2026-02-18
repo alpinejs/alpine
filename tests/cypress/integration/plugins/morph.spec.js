@@ -1062,6 +1062,47 @@ test('can ignore region between comment markers using skipUntil',
     },
 )
 
+test('can morph component containing multi-element x-for and preserve state',
+    [html`
+        <div x-data="{ items: ['foo', 'bar'] }">
+            <button @click="items = ['foo', 'bar', 'baz']">add</button>
+            <template x-for="item in items">
+                <h3 x-text="item"></h3>
+                <span x-text="item + '!'"></span>
+            </template>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = html`
+            <div x-data="{ items: ['foo', 'bar'] }">
+                <button @click="items = ['foo', 'bar', 'baz']">add</button>
+                <p>New element</p>
+                <template x-for="item in items">
+                    <h3 x-text="item"></h3>
+                    <span x-text="item + '!'"></span>
+                </template>
+            </div>
+        `
+
+        get('h3:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(1)').should(haveText('foo!'))
+        get('h3:nth-of-type(2)').should(haveText('bar'))
+        get('span:nth-of-type(2)').should(haveText('bar!'))
+
+        // Add an item before morphing to change Alpine state
+        get('button').click()
+        get('h3').should(haveLength(3))
+
+        // Morph — Alpine state (items now has 3 elements) should survive
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('p').should(haveText('New element'))
+        get('h3').should(haveLength(3))
+        get('h3:nth-of-type(3)').should(haveText('baz'))
+        get('span:nth-of-type(3)').should(haveText('baz!'))
+    },
+)
+
 test('morph properly closes dialog opened with showModal()',
     [html`
         <div x-data>

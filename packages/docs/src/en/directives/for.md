@@ -49,10 +49,9 @@ You may also pass objects to `x-for`.
 </div>
 <!-- END_VERBATIM -->
 
-There are two rules worth noting about `x-for`:
+There is one rule worth noting about `x-for`:
 
 > `x-for` MUST be declared on a `<template>` element.
-> That `<template>` element MUST contain only one root element
 
 <a name="keys"></a>
 ## Keys
@@ -115,21 +114,40 @@ If you need to simply loop `n` number of times, rather than iterate through an a
 <a name="contents-of-a-template"></a>
 ## Contents of a `<template>`
 
-As mentioned above, an `<template>` tag must contain only one root element.
-
-For example, the following code will not work:
+Alpine supports multiple root elements inside an `x-for` template. Each iteration will render all children:
 
 ```alpine
-<template x-for="color in colors">
-    <span>The next color is </span><span x-text="color">
-</template>
+<table x-data="{ colors: ['Red', 'Orange', 'Yellow'] }">
+    <tr>
+        <template x-for="(color, index) in colors">
+            <td x-text="index"></td>
+            <td x-text="color"></td>
+        </template>
+    </tr>
+</table>
 ```
 
-but this code will work:
+If you only have one root element, that works too — it's just not required:
+
 ```alpine
 <template x-for="color in colors">
     <p>
         <span>The next color is </span><span x-text="color">
     </p>
 </template>
+```
+
+### Limitations with `<table>` elements
+
+HTML tables have strict parsing rules — a `<div>` is not valid inside `<tr>`, so the browser will strip it before Alpine runs. If you need to iterate table cells, either place multiple `<td>` elements directly in the template (as shown above) or use `<tr>` as the root element:
+
+```alpine
+<table x-data="{ colors: ['Red', 'Orange', 'Yellow'] }">
+    <template x-for="(color, index) in colors">
+        <tr>
+            <td x-text="index"></td>
+            <td x-text="color"></td>
+        </tr>
+    </template>
+</table>
 ```

@@ -671,6 +671,257 @@ test('x-for eagerly cleans tree',
     }
 )
 
+test('x-for renders multiple root elements per iteration',
+    html`
+        <div x-data="{ items: ['foo', 'bar'] }">
+            <template x-for="item in items">
+                <h3 x-text="item"></h3>
+                <span x-text="item + '!'"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h3:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(1)').should(haveText('foo!'))
+        get('h3:nth-of-type(2)').should(haveText('bar'))
+        get('span:nth-of-type(2)').should(haveText('bar!'))
+    }
+)
+
+test('x-for multi-element reacts to additions',
+    html`
+        <div x-data="{ items: ['foo'] }">
+            <button x-on:click="items = ['foo', 'bar']">add</button>
+            <template x-for="item in items">
+                <h3 x-text="item"></h3>
+                <span x-text="item + '!'"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h3').should(haveLength(1))
+        get('span').should(haveLength(1))
+        get('button').click()
+        get('h3').should(haveLength(2))
+        get('span').should(haveLength(2))
+        get('h3:nth-of-type(2)').should(haveText('bar'))
+        get('span:nth-of-type(2)').should(haveText('bar!'))
+    }
+)
+
+test('x-for multi-element removes all elements in a group',
+    html`
+        <div x-data="{ items: ['foo', 'bar', 'baz'] }">
+            <button x-on:click="items = []">clear</button>
+            <template x-for="item in items">
+                <h3 x-text="item"></h3>
+                <span x-text="item + '!'"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h3').should(haveLength(3))
+        get('span').should(haveLength(3))
+        get('button').click()
+        get('h3').should(notExist())
+        get('span').should(notExist())
+    }
+)
+
+test('x-for multi-element reorders groups correctly with keys',
+    html`
+        <div x-data="{ items: ['foo', 'bar'] }">
+            <button x-on:click="items = ['bar', 'foo']">reverse</button>
+            <template x-for="item in items" :key="item">
+                <h3 x-text="item"></h3>
+                <span x-text="item + '!'"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h3:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(1)').should(haveText('foo!'))
+        get('h3:nth-of-type(2)').should(haveText('bar'))
+        get('span:nth-of-type(2)').should(haveText('bar!'))
+        get('button').click()
+        get('h3:nth-of-type(1)').should(haveText('bar'))
+        get('span:nth-of-type(1)').should(haveText('bar!'))
+        get('h3:nth-of-type(2)').should(haveText('foo'))
+        get('span:nth-of-type(2)').should(haveText('foo!'))
+    }
+)
+
+test('x-for multi-element scope updates reactively',
+    html`
+        <div x-data="{ items: [{name: 'foo'}, {name: 'bar'}] }">
+            <button x-on:click="items[0].name = 'baz'">update</button>
+            <template x-for="item in items">
+                <h3 x-text="item.name"></h3>
+                <span x-text="item.name.toUpperCase()"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h3:nth-of-type(1)').should(haveText('foo'))
+        get('span:nth-of-type(1)').should(haveText('FOO'))
+        get('button').click()
+        get('h3:nth-of-type(1)').should(haveText('baz'))
+        get('span:nth-of-type(1)').should(haveText('BAZ'))
+    }
+)
+
+test('x-for multi-element handles empty array then add',
+    html`
+        <div x-data="{ items: [] }">
+            <button x-on:click="items = ['foo']">add</button>
+            <template x-for="item in items">
+                <h3 x-text="item"></h3>
+                <span x-text="item + '!'"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h3').should(notExist())
+        get('span').should(notExist())
+        get('button').click()
+        get('h3').should(haveLength(1))
+        get('span').should(haveLength(1))
+    }
+)
+
+test('x-for works with tr as root element inside table',
+    html`
+        <table x-data="{ colors: ['Red', 'Green', 'Blue'] }">
+            <template x-for="(color, index) in colors">
+                <tr>
+                    <td x-text="color"></td>
+                    <td x-text="index"></td>
+                </tr>
+            </template>
+        </table>
+    `,
+    ({ get }) => {
+        get('tr:nth-of-type(1) td:nth-of-type(1)').should(haveText('Red'))
+        get('tr:nth-of-type(1) td:nth-of-type(2)').should(haveText('0'))
+        get('tr:nth-of-type(2) td:nth-of-type(1)').should(haveText('Green'))
+        get('tr:nth-of-type(2) td:nth-of-type(2)').should(haveText('1'))
+        get('tr:nth-of-type(3) td:nth-of-type(1)').should(haveText('Blue'))
+        get('tr:nth-of-type(3) td:nth-of-type(2)').should(haveText('2'))
+    }
+)
+
+test('x-for renders multiple td elements per iteration inside a table row',
+    html`
+        <table x-data="{ colors: ['Red', 'Green', 'Blue'] }">
+            <tr>
+                <template x-for="(color, idx) in colors">
+                    <td x-text="color"></td>
+                    <td x-text="idx"></td>
+                </template>
+            </tr>
+        </table>
+    `,
+    ({ get }) => {
+        get('td:nth-of-type(1)').should(haveText('Red'))
+        get('td:nth-of-type(2)').should(haveText('0'))
+        get('td:nth-of-type(3)').should(haveText('Green'))
+        get('td:nth-of-type(4)').should(haveText('1'))
+        get('td:nth-of-type(5)').should(haveText('Blue'))
+        get('td:nth-of-type(6)').should(haveText('2'))
+    }
+)
+
+test('nested x-for where inner loop uses multi-element',
+    html`
+        <div x-data="{ groups: [{name: 'A', items: [1, 2]}, {name: 'B', items: [3]}] }">
+            <template x-for="group in groups">
+                <section>
+                    <h2 x-text="group.name"></h2>
+                    <ul>
+                        <template x-for="item in group.items">
+                            <li x-text="item"></li>
+                            <li x-text="item * 10"></li>
+                        </template>
+                    </ul>
+                </section>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('section:nth-of-type(1) h2').should(haveText('A'))
+        get('section:nth-of-type(1) li:nth-of-type(1)').should(haveText('1'))
+        get('section:nth-of-type(1) li:nth-of-type(2)').should(haveText('10'))
+        get('section:nth-of-type(1) li:nth-of-type(3)').should(haveText('2'))
+        get('section:nth-of-type(1) li:nth-of-type(4)').should(haveText('20'))
+        get('section:nth-of-type(2) li:nth-of-type(1)').should(haveText('3'))
+        get('section:nth-of-type(2) li:nth-of-type(2)').should(haveText('30'))
+    }
+)
+
+test('x-for multi-element works with x-if as one of the children',
+    html`
+        <div x-data="{ items: ['foo', 'bar'], show: true }">
+            <button x-on:click="show = !show">toggle</button>
+            <template x-for="item in items">
+                <h3 x-text="item"></h3>
+                <template x-if="show">
+                    <span x-text="item + '!'"></span>
+                </template>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('h3').should(haveLength(2))
+        get('span').should(haveLength(2))
+        get('span:nth-of-type(1)').should(haveText('foo!'))
+        get('button').click()
+        get('h3').should(haveLength(2))
+        get('span').should(notExist())
+        get('button').click()
+        get('span').should(haveLength(2))
+    }
+)
+
+test('x-for multi-element handles event listeners per iteration',
+    html`
+        <div x-data="{ items: ['foo', 'bar'], output: '' }">
+            <template x-for="item in items">
+                <h3 x-text="item"></h3>
+                <button x-on:click="output = item">click</button>
+            </template>
+            <span id="output" x-text="output"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('#output').should(haveText(''))
+        get('button:nth-of-type(1)').click()
+        get('#output').should(haveText('foo'))
+        get('button:nth-of-type(2)').click()
+        get('#output').should(haveText('bar'))
+    }
+)
+
+test('x-for multi-element handles large lists',
+    html`
+        <div x-data="{ items: Array.from({length: 200}, (_, i) => i) }">
+            <button x-on:click="items = items.slice().reverse()">reverse</button>
+            <template x-for="item in items" :key="item">
+                <span x-text="item"></span>
+                <i x-text="item * 2"></i>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveLength(200))
+        get('i').should(haveLength(200))
+        get('span:nth-of-type(1)').should(haveText('0'))
+        get('span:nth-of-type(200)').should(haveText('199'))
+        get('button').click()
+        get('span:nth-of-type(1)').should(haveText('199'))
+        get('span:nth-of-type(200)').should(haveText('0'))
+    }
+)
+
 // To support rerendering alongside x-sort
 test('x-for handles moved elements correctly',
     html`

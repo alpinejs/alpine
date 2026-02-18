@@ -21,11 +21,19 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
     effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
 
     cleanup(() => {
-        el._x_lookup.forEach(el =>
+        el._x_lookup.forEach(entry =>
             mutateDom(() => {
-                destroyTree(el)
-
-                el.remove()
+                if (entry.startComment) {
+                    entry.elements.forEach(child => {
+                        destroyTree(child)
+                        child.remove()
+                    })
+                    entry.startComment.remove()
+                    entry.endComment.remove()
+                } else {
+                    destroyTree(entry)
+                    entry.remove()
+                }
             })
         )
 
@@ -42,6 +50,8 @@ function refreshScope(scope) {
 }
 
 function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
+    let isFragment = templateEl.content.children.length > 1
+
     evaluateItems(items => {
         // Prepare yourself. There's a lot going on here. Take heart,
         // every bit of complexity in this function was added for
@@ -83,9 +93,19 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
         })
 
         mutateDom(() => {
-            oldLookup.forEach((el) => {
-                destroyTree(el)
-                el.remove()
+            // Cleanup removed items
+            oldLookup.forEach((entry) => {
+                if (isFragment) {
+                    entry.elements.forEach(el => {
+                        destroyTree(el)
+                        el.remove()
+                    })
+                    entry.startComment.remove()
+                    entry.endComment.remove()
+                } else {
+                    destroyTree(entry)
+                    entry.remove()
+                }
             })
 
             let added = new Set()
@@ -93,36 +113,81 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
             let prev = templateEl
             scopeEntries.forEach(([key, scope]) => {
                 if (lookup.has(key)) {
-                    let el = lookup.get(key)
-                    el._x_refreshXForScope(scope)
+                    let entry = lookup.get(key)
+                    entry._x_refreshXForScope(scope)
 
-                    if (prev.nextElementSibling !== el) {
-                        if (prev.nextElementSibling)
-                            el.replaceWith(prev.nextElementSibling)
-                        prev.after(el)
-                    }
-                    prev = el
+                    if (isFragment) {
+                        let { startComment, endComment, elements } = entry
 
-                    if (el._x_currentIfEl) {
-                        if (el.nextElementSibling !== el._x_currentIfEl)
-                            prev.after(el._x_currentIfEl)
-                        prev = el._x_currentIfEl
+                        // Check if group is already in correct position
+                        if (prev.nextSibling !== startComment) {
+                            prev.after(startComment)
+                            let cursor = startComment
+                            elements.forEach(el => {
+                                cursor.after(el)
+                                cursor = el
+                            })
+                            cursor.after(endComment)
+                        }
+                        prev = endComment
+                    } else {
+                        if (prev.nextElementSibling !== entry) {
+                            if (prev.nextElementSibling)
+                                entry.replaceWith(prev.nextElementSibling)
+                            prev.after(entry)
+                        }
+                        prev = entry
+
+                        if (entry._x_currentIfEl) {
+                            if (entry.nextElementSibling !== entry._x_currentIfEl)
+                                prev.after(entry._x_currentIfEl)
+                            prev = entry._x_currentIfEl
+                        }
                     }
                     return
                 }
 
-                let clone = document.importNode(templateEl.content, true).firstElementChild
-                let reactiveScope = reactive(scope)
-                addScopeToNode(clone, reactiveScope, templateEl)
-                clone._x_refreshXForScope = refreshScope(reactiveScope)
+                // New item — clone and insert
+                if (isFragment) {
+                    let startComment = document.createComment(' [x-for] ')
+                    let endComment = document.createComment(' [/x-for] ')
+                    let fragment = document.importNode(templateEl.content, true)
+                    let elements = Array.from(fragment.children)
 
-                lookup.set(key, clone)
-                added.add(clone)
+                    let reactiveScope = reactive(scope)
+                    let group = { startComment, endComment, elements }
 
-                prev.after(clone)
-                prev = clone
+                    elements.forEach(el => {
+                        addScopeToNode(el, reactiveScope, templateEl)
+                    })
+
+                    group._x_refreshXForScope = refreshScope(reactiveScope)
+
+                    lookup.set(key, group)
+
+                    prev.after(startComment)
+                    let cursor = startComment
+                    elements.forEach(el => {
+                        cursor.after(el)
+                        cursor = el
+                        added.add(el)
+                    })
+                    cursor.after(endComment)
+                    prev = endComment
+                } else {
+                    let clone = document.importNode(templateEl.content, true).firstElementChild
+                    let reactiveScope = reactive(scope)
+                    addScopeToNode(clone, reactiveScope, templateEl)
+                    clone._x_refreshXForScope = refreshScope(reactiveScope)
+
+                    lookup.set(key, clone)
+                    added.add(clone)
+
+                    prev.after(clone)
+                    prev = clone
+                }
             })
-            skipDuringClone(() => added.forEach(clone => initTree(clone)))()
+            skipDuringClone(() => added.forEach(el => initTree(el)))()
         })
     })
 }

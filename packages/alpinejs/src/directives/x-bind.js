@@ -6,7 +6,9 @@ import { applyBindingsObject, injectBindingProviders } from '../binds'
 
 mapAttributes(startingWith(':', into(prefix('bind:'))))
 
-let handler = (el, { value, modifiers, expression, original }, { effect, cleanup }) => {
+let handler = (el, directive, { effect, cleanup }) => {
+    let { value, modifiers, expression, original } = directive
+
     if (! value) {
         let bindingProviders = {}
         injectBindingProviders(bindingProviders)
@@ -22,7 +24,9 @@ let handler = (el, { value, modifiers, expression, original }, { effect, cleanup
 
     if (value === 'key') return storeKeyForXFor(el, expression)
 
-    if (el._x_inlineBindings && el._x_inlineBindings[value] && el._x_inlineBindings[value].extract) {
+    let inlineBinding = directive._x_inlineBinding || cacheInlineBinding(el, value, expression)
+
+    if (inlineBinding.extract) {
         return
     }
 
@@ -43,18 +47,24 @@ let handler = (el, { value, modifiers, expression, original }, { effect, cleanup
     })
 }
 
-// @todo: see if I can take advantage of the object created here inside the
-// non-inline handler above so we're not duplicating work twice...
-handler.inline = (el, { value, modifiers, expression }) => {
-    if (! value) return;
+handler.inline = (el, directive) => {
+    let { value, expression } = directive
 
-    if (! el._x_inlineBindings) el._x_inlineBindings = {}
+    if (! value) return
 
-    el._x_inlineBindings[value] = { expression, extract: false }
+    directive._x_inlineBinding = cacheInlineBinding(el, value, expression)
 }
 
 directive('bind', handler)
 
 function storeKeyForXFor(el, expression) {
     el._x_keyExpression = expression
+}
+
+function cacheInlineBinding(el, value, expression) {
+    if (! el._x_inlineBindings) el._x_inlineBindings = {}
+
+    el._x_inlineBindings[value] = { expression, extract: false }
+
+    return el._x_inlineBindings[value]
 }

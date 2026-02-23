@@ -385,7 +385,7 @@ By default, any data stored in a property via `x-model` is stored as a string. T
 <a name="boolean"></a>
 ### `.boolean`
 
-By default, any data stored in a property via `x-model` is stored as a string. To force Alpine to store the value as a JavaScript boolean, add the `.boolean` modifier. Both integers (1/0) and strings (true/false) are valid boolean values.
+By default, any data stored in a property via `x-model` is stored as a string. To force Alpine to store the value as a JavaScript boolean, add the `.boolean` modifier. Both integers (1/0) and strings (true/false) are valid boolean values. Matching is case-insensitive and ignores surrounding whitespace.
 
 ```alpine
 <select x-model.boolean="isActive">

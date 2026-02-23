@@ -135,11 +135,23 @@ function checkedAttrLooseCompare(valueA, valueB) {
 }
 
 export function safeParseBoolean(rawValue) {
-    if ([1, '1', 'true', 'on', 'yes', true].includes(rawValue)) {
+    if ([1, true].includes(rawValue)) {
         return true
     }
 
-    if ([0, '0', 'false', 'off', 'no', false].includes(rawValue)) {
+    if ([0, false].includes(rawValue)) {
+        return false
+    }
+
+    let normalizedString = typeof rawValue === 'string'
+        ? rawValue.trim().toLowerCase()
+        : rawValue
+
+    if (['1', 'true', 'on', 'yes'].includes(normalizedString)) {
+        return true
+    }
+
+    if (['0', 'false', 'off', 'no'].includes(normalizedString)) {
         return false
     }
 

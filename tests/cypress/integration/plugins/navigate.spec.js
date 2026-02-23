@@ -1,8 +1,8 @@
-import { beEqualTo, beVisible, haveAttribute, haveFocus, haveText, html, notBeVisible, test } from '../../utils'
+import { beEqualTo, haveAttribute, haveFocus, haveText, html } from '../../utils'
 
-// Skipping these tests because the plugin has been moved to livewire/livewire until it's stablhese tests because the plugin has been moved to livewire/livewire until it's stable...
-describe.skip('Navigate tests', function () {
-    it.skip('navigates pages without reload',
+// The navigate plugin suite is currently maintained in livewire/livewire.
+describe.skip('Navigate tests (moved to livewire/livewire)', function () {
+    it('navigates pages without reload',
         () => {
             cy.intercept('/first', {
                 headers: { 'content-type': 'text/html' },
@@ -50,7 +50,7 @@ describe.skip('Navigate tests', function () {
         },
     )
 
-    it.skip('autofocuses autofocus elements',
+    it('autofocuses autofocus elements',
         () => {
             cy.intercept('/first', {
                 headers: { 'content-type': 'text/html' },
@@ -89,7 +89,7 @@ describe.skip('Navigate tests', function () {
         },
     )
 
-    it.skip('scripts and styles are properly merged/run or skipped',
+    it('scripts and styles are properly merged/run or skipped',
         () => {
             cy.intercept('/first', {
                 headers: { 'content-type': 'text/html' },

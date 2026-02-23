@@ -1,7 +1,7 @@
 import { haveText, html, test } from '../../utils'
 
-// Skipping these tests because the plugin has been moved to livewire/livewire until it's stablhese tests because the plugin has been moved to livewire/livewire until it's stable...
-describe.skip('History tests', function () {
+// The history plugin suite is currently maintained in livewire/livewire.
+describe.skip('History tests (moved to livewire/livewire)', function () {
     test('value is reflected in query string upon changing',
         [html`
             <div x-data="{ count: $queryString(1) }">
@@ -218,4 +218,3 @@ describe.skip('History tests', function () {
         },
     )
 })
-

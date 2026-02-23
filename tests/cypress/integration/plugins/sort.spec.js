@@ -1,11 +1,8 @@
 import { haveText, html, test } from '../../utils'
 
-/**
- * Skipping all these tests because they are flaky in CI.
- * They should all pass locally though...
- */
+const stableSortTest = test.retry(2)
 
-test.skip('basic drag sorting works',
+stableSortTest('basic drag sorting works',
     [html`
         <div x-data>
             <ul x-sort>
@@ -36,7 +33,7 @@ test.skip('basic drag sorting works',
     },
 )
 
-test.skip('can use a custom handle',
+stableSortTest('can use a custom handle',
     [html`
         <div x-data>
             <ul x-sort>
@@ -56,7 +53,7 @@ test.skip('can use a custom handle',
     },
 )
 
-test.skip('can move items between groups',
+stableSortTest('can move items between groups',
     [html`
         <div x-data>
             <ul x-sort x-sort:group="one">
@@ -85,7 +82,7 @@ test.skip('can move items between groups',
     },
 )
 
-test.skip('sort handle method',
+stableSortTest('sort handle method',
     [html`
         <div x-data="{ handle(key, position) { $refs.outlet.textContent = key+'-'+position } }">
             <ul x-sort="handle">

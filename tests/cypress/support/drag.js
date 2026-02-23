@@ -15,8 +15,8 @@ function isAttached(element) {
 }
 
 const DragSimulator = {
-    MAX_TRIES: 5,
-    DELAY_INTERVAL_MS: 10,
+    MAX_TRIES: 20,
+    DELAY_INTERVAL_MS: 20,
     counter: 0,
     targetElement: null,
     rectsEqual(r1, r2) {
@@ -130,12 +130,14 @@ const DragSimulator = {
         })
     },
     drag(sourceWrapper, targetSelector, options) {
-        this.init(sourceWrapper, targetSelector, options)
+        return this.init(sourceWrapper, targetSelector, options)
             .then(() => this.dragstart())
             .then(() => this.dragover())
             .then((success) => {
                 if (success) {
-                    return this.drop().then(() => true)
+                    return this.drop()
+                        .then(() => cy.get('body', { log: false }).should('not.have.class', 'sorting'))
+                        .then(() => true)
                 } else {
                     return false
                 }
@@ -145,10 +147,12 @@ const DragSimulator = {
         const { deltaX, deltaY } = options
         const { top, left } = sourceWrapper.offset()
         const finalCoords = { clientX: left + deltaX, clientY: top + deltaY }
-        this.init(sourceWrapper, sourceWrapper, options)
+
+        return this.init(sourceWrapper, sourceWrapper, options)
             .then(() => this.dragstart({ clientX: left, clientY: top }))
             .then(() => this.dragover(finalCoords))
             .then(() => this.drop(finalCoords))
+            .then(() => cy.get('body', { log: false }).should('not.have.class', 'sorting'))
     },
 }
 

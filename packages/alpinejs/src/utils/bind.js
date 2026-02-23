@@ -3,7 +3,7 @@ import { reactive } from '../reactivity'
 import { setClasses } from './classes'
 import { setStyles } from './styles'
 
-export default function bind(el, name, value, modifiers = []) {
+export default function bind(el, name, value, modifiers = [], { fromModel = false } = {}) {
     // Register bound data as pure observable data for other APIs to use.
     if (! el._x_bindings) el._x_bindings = reactive({})
 
@@ -13,7 +13,7 @@ export default function bind(el, name, value, modifiers = []) {
 
     switch (name) {
         case 'value':
-            bindInputValue(el, value)
+            bindInputValue(el, value, fromModel)
             break;
 
         case 'style':
@@ -38,7 +38,7 @@ export default function bind(el, name, value, modifiers = []) {
     }
 }
 
-function bindInputValue(el, value) {
+function bindInputValue(el, value, fromModel) {
     if (isRadio(el)) {
         // Set radio value from x-bind:value, if no "value" attribute exists.
         // If there are any initial state values, radio will have a correct
@@ -47,8 +47,7 @@ function bindInputValue(el, value) {
             el.value = value
         }
 
-        // @todo: yuck
-        if (window.fromModel) {
+        if (fromModel) {
             if (typeof value === 'boolean') {
                 el.checked = safeParseBoolean(el.value) === value
             } else {

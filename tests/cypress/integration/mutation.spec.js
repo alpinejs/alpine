@@ -220,6 +220,23 @@ test('no side effects when directives are added to an element that is removed af
     }
 )
 
+test('reinitializes component when x-data attribute is changed in-place',
+    html`
+        <div x-data="{ count: 1 }">
+            <span x-text="count"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('1'))
+
+        get('div').then(($div) => {
+            $div[0].setAttribute('x-data', '{ count: 99 }')
+        })
+
+        get('span').should(haveText('99'))
+    }
+)
+
 test(
     "previously initialized elements are not reinitialized on being moved",
     html`

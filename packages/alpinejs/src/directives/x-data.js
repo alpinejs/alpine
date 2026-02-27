@@ -5,7 +5,7 @@ import { addRootSelector } from '../lifecycle'
 import { interceptClone, isCloning, isCloningLegacy } from '../clone'
 import { addScopeToNode } from '../scope'
 import { injectMagics, magic } from '../magics'
-import { reactive } from '../reactivity'
+import { reactive, raw } from '../reactivity'
 import { evaluate } from '../evaluator'
 
 addRootSelector(() => `[${prefix('data')}]`)
@@ -25,6 +25,44 @@ directive('data', ((el, { expression }, { cleanup }) => {
 
     if (data === undefined || data === true) data = {}
 
+    // Check for previous reactive data (stashed before cleanup could remove it)
+    let existingReactive = el._x_previousData
+
+    if (existingReactive) {
+        let rawExisting = raw(existingReactive)
+
+        // Remove keys that no longer exist in the new expression
+        Object.keys(rawExisting).forEach(key => {
+            if (key.startsWith('$')) return
+            if (key === 'init' || key === 'destroy') return
+            if (!(key in data)) delete existingReactive[key]
+        })
+
+        // Assign new/updated values — triggers reactive effects
+        Object.assign(existingReactive, data)
+
+        // Restore magics in case cleanup stripped them
+        injectMagics(existingReactive, el)
+
+        // Re-add scope (cleanup already removed it via undo())
+        let undo = addScopeToNode(el, existingReactive)
+
+        // Skip initInterceptors — interceptors like $persist were already
+        // initialized on the first run and their state should be preserved.
+
+        // Note: init() intentionally re-fires on the root element (not children).
+        // In practice, Livewire/morphing x-data expressions are plain data objects
+        // that won't have init, so this is a no-op for the primary use case.
+        existingReactive['init'] && evaluate(el, existingReactive['init'])
+
+        cleanup(() => {
+            existingReactive['destroy'] && evaluate(el, existingReactive['destroy'])
+            undo()
+        })
+
+        return
+    }
+
     injectMagics(data, el)
 
     let reactiveData = reactive(data)
@@ -32,6 +70,9 @@ directive('data', ((el, { expression }, { cleanup }) => {
     initInterceptors(reactiveData)
 
     let undo = addScopeToNode(el, reactiveData)
+
+    // Stash for future in-place mutations
+    el._x_previousData = reactiveData
 
     reactiveData['init'] && evaluate(el, reactiveData['init'])
 

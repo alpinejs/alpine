@@ -237,6 +237,70 @@ test('reinitializes component when x-data attribute is changed in-place',
     }
 )
 
+test('in-place x-data mutation removes keys that no longer exist',
+    html`
+        <div x-data="{ count: 1, label: 'hi' }">
+            <span id="count" x-text="count"></span>
+            <span id="label" x-text="typeof label"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('#count').should(haveText('1'))
+        get('#label').should(haveText('string'))
+
+        get('div').then(($div) => {
+            $div[0].setAttribute('x-data', '{ count: 99 }')
+        })
+
+        get('#count').should(haveText('99'))
+        get('#label').should(haveText('undefined'))
+    }
+)
+
+test('in-place x-data mutation preserves child component state',
+    html`
+        <div id="parent" x-data="{ count: 1 }">
+            <span id="parent-count" x-text="count"></span>
+            <div x-data="{ childState: 'preserved' }">
+                <span id="child-state" x-text="childState"></span>
+                <span id="child-parent" x-text="count"></span>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('#parent-count').should(haveText('1'))
+        get('#child-state').should(haveText('preserved'))
+        get('#child-parent').should(haveText('1'))
+
+        get('#parent').then(($div) => {
+            $div[0].setAttribute('x-data', '{ count: 99 }')
+        })
+
+        get('#parent-count').should(haveText('99'))
+        get('#child-state').should(haveText('preserved'))
+        get('#child-parent').should(haveText('99'))
+    }
+)
+
+test('in-place x-data mutation handles rapid consecutive changes',
+    html`
+        <div x-data="{ count: 1 }">
+            <span x-text="count"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('1'))
+
+        get('div').then(($div) => {
+            $div[0].setAttribute('x-data', '{ count: 5 }')
+            $div[0].setAttribute('x-data', '{ count: 10 }')
+            $div[0].setAttribute('x-data', '{ count: 99 }')
+        })
+
+        get('span').should(haveText('99'))
+    }
+)
+
 test(
     "previously initialized elements are not reinitialized on being moved",
     html`

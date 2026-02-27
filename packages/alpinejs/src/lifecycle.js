@@ -117,6 +117,7 @@ export function destroyTree(root, walker = walk) {
         cleanupElement(el)
         cleanupAttributes(el)
         delete el._x_marker
+        delete el._x_previousData
     })
 }
 

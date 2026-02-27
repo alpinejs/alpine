@@ -239,21 +239,21 @@ test('reinitializes component when x-data attribute is changed in-place',
 
 test('in-place x-data mutation removes keys that no longer exist',
     html`
-        <div x-data="{ count: 1, label: 'hi' }">
+        <div x-data="{ count: 1, extra: 'hi' }">
             <span id="count" x-text="count"></span>
-            <span id="label" x-text="typeof label"></span>
+            <span id="extra-type" x-text="typeof extra"></span>
         </div>
     `,
     ({ get }) => {
         get('#count').should(haveText('1'))
-        get('#label').should(haveText('string'))
+        get('#extra-type').should(haveText('string'))
 
         get('div').then(($div) => {
             $div[0].setAttribute('x-data', '{ count: 99 }')
         })
 
         get('#count').should(haveText('99'))
-        get('#label').should(haveText('undefined'))
+        get('#extra-type').should(haveText('undefined'))
     }
 )
 

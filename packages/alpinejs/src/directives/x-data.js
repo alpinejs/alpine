@@ -41,9 +41,6 @@ directive('data', ((el, { expression }, { cleanup }) => {
         // Assign new/updated values — triggers reactive effects
         Object.assign(existingReactive, data)
 
-        // Restore magics in case cleanup stripped them
-        injectMagics(existingReactive, el)
-
         // Re-add scope (cleanup already removed it via undo())
         let undo = addScopeToNode(el, existingReactive)
 

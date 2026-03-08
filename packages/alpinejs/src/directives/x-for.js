@@ -123,6 +123,14 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                 prev = clone
             })
             skipDuringClone(() => added.forEach(clone => initTree(clone)))()
+
+            let parentSelect = templateEl.closest('select')
+
+            if (parentSelect && parentSelect._x_forceModelUpdate && parentSelect._x_model) {
+                queueMicrotask(() => {
+                    parentSelect._x_forceModelUpdate(parentSelect._x_model.get())
+                })
+            }
         })
     })
 }

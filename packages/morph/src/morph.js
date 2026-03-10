@@ -552,7 +552,9 @@ function monkeyPatchDomSetAttributeToAllowAtSymbols() {
             return original.call(this, name, value)
         }
 
-        hostDiv.innerHTML = `<span ${name}="${value}"></span>`
+        let escapedValue = value.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+
+        hostDiv.innerHTML = `<span ${name}="${escapedValue}"></span>`
 
         let attr = hostDiv.firstElementChild.getAttributeNode(name)
 

@@ -14,7 +14,7 @@ export default function (Alpine) {
     })
 
     Alpine.directive('anchor', Alpine.skipDuringClone((el, { expression, modifiers, value }, { evaluate, effect, cleanup }) => {
-        let { placement, offsetValue, unstyled } = getOptions(modifiers)
+        let { placement, offsetValue, unstyled, strategy } = getOptions(modifiers)
 
         el._x_anchor = Alpine.reactive({ x: 0, y: 0 })
 
@@ -35,9 +35,10 @@ export default function (Alpine) {
 
                     computePosition(reference, el, {
                         placement,
+                        strategy,
                         middleware: [flip(), shift({padding: 5}), offset(offsetValue)],
                     }).then(({ x, y }) => {
-                        unstyled || setStyles(el, x, y)
+                        unstyled || setStyles(el, x, y, strategy)
 
                         // Only trigger Alpine reactivity when the value actually changes...
                         if (JSON.stringify({ x, y }) !== previousValue) {
@@ -61,17 +62,17 @@ export default function (Alpine) {
 
     // When cloning (or "morphing"), we will graft the style and position data from the live tree...
     (el, { expression, modifiers, value }, { cleanup, evaluate }) => {
-        let { placement, offsetValue, unstyled } = getOptions(modifiers)
+        let { placement, offsetValue, unstyled, strategy } = getOptions(modifiers)
 
         if (el._x_anchor) {
-            unstyled || setStyles(el, el._x_anchor.x, el._x_anchor.y)
+            unstyled || setStyles(el, el._x_anchor.x, el._x_anchor.y, strategy)
         }
     }))
 }
 
-function setStyles(el, x, y) {
+function setStyles(el, x, y, strategy = 'absolute') {
     Object.assign(el.style, {
-        left: x+'px', top: y+'px', position: 'absolute',
+        left: x+'px', top: y+'px', position: strategy,
     })
 }
 
@@ -86,5 +87,7 @@ function getOptions(modifiers) {
     }
     let unstyled = modifiers.includes('no-style')
 
-    return { placement, offsetValue, unstyled }
+    let strategy = modifiers.includes('fixed') ? 'fixed' : 'absolute'
+
+    return { placement, offsetValue, unstyled, strategy }
 }

@@ -116,6 +116,35 @@ Here is an example of using `.bottom-start` to position a dropdown below and to 
 </div>
 <!-- END_VERBATIM -->
 
+<a name="fixed-positioning"></a>
+### Fixed Positioning
+
+By default, `x-anchor` applies `position: absolute` to the anchored element. However, there are scenarios—such as when your reference element is inside a container with `overflow: hidden` or when you want the popover to stay pinned to the viewport during scroll—where you need fixed positioning instead.
+
+You can instruct Floating UI to use a fixed positioning strategy by adding the `.fixed` modifier:
+
+```html
+<div x-data="{ open: false }">
+    <button x-ref="button" @click="open = ! open">Toggle</button>
+ 
+    <div x-show="open" x-anchor.fixed="$refs.button">
+        This element is now fixed to the viewport, anchored to the button.
+    </div>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div x-data="{ open: false }" class="demo overflow-hidden">
+    <div class="flex justify-center">
+        <button x-ref="button" @click="open = ! open">Toggle</button>
+    </div>
+
+    <div x-show="open" x-anchor.fixed="$refs.button" class="bg-white rounded p-4 border shadow z-10">
+        Dropdown content
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
 <a name="offset"></a>
 ## Offset
 

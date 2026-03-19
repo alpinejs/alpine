@@ -28,7 +28,7 @@ export function evaluateLater(...args) {
     return theEvaluatorFunction(...args)
 }
 
-let theEvaluatorFunction = () => {}
+let theEvaluatorFunction = () => { }
 
 export function setEvaluator(newEvaluator) {
     theEvaluatorFunction = newEvaluator
@@ -55,9 +55,9 @@ export function normalEvaluator(el, expression) {
 }
 
 export function generateEvaluatorFromFunction(dataStack, func) {
-    return (receiver = () => {}, { scope = {}, params = [], context } = {}) => {
+    return (receiver = () => { }, { scope = {}, params = [], context } = {}) => {
         // If auto-evaluation is disabled, pass the function itself instead of calling it
-        if (! shouldAutoEvaluateFunctions) {
+        if (!shouldAutoEvaluateFunctions) {
             runIfTypeOfFunction(receiver, func, mergeProxies([scope, ...dataStack]), params)
 
             return
@@ -76,7 +76,7 @@ function generateFunctionFromString(expression, el) {
         return evaluatorMemo[expression]
     }
 
-    let AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
+    let AsyncFunction = Object.getPrototypeOf(async function() { }).constructor
 
     // Some expressions that are useful in Alpine are not valid as the right side of an expression.
     // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
@@ -86,8 +86,19 @@ function generateFunctionFromString(expression, el) {
         || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
         // Support expressions starting with "let/const" like: "let foo = 'bar'"
         || /^(let|const)\s/.test(expression.trim())
-            ? `(async()=>{ ${expression} })()`
-            : expression
+        // Support expressions that assign a function like: "$el.fn = () => { ... }"
+        // regex breakdown:
+        // [^!=<>] : anything but '='
+        // = : followed by =
+        // \s*(async\s+)? : potentially followed by async keyword
+        // (\(.*?\)\s*=> : parens followed by => for short function definition
+        // OR
+        // [\w$]+\s*=> : single param arrow function like x => 5*x
+        // OR
+        // function\s*\( : the function keyword and an open parens
+        || /[^!=<>]=\s*(async\s+)?(\(.*?\)\s*=>|[\w$]+\s*=>|function\s*\()/.test(expression)
+        ? `(async()=>{ ${expression} })()`
+        : expression
 
     const safeAsyncFunction = () => {
         try {
@@ -101,8 +112,8 @@ function generateFunctionFromString(expression, el) {
             })
 
             return func
-        } catch ( error ) {
-            handleError( error, el, expression )
+        } catch (error) {
+            handleError(error, el, expression)
             return Promise.resolve()
         }
     }
@@ -116,15 +127,15 @@ function generateFunctionFromString(expression, el) {
 function generateEvaluatorFromString(dataStack, expression, el) {
     let func = generateFunctionFromString(expression, el)
 
-    return (receiver = () => {}, { scope = {}, params = [], context } = {}) => {
+    return (receiver = () => { }, { scope = {}, params = [], context } = {}) => {
         func.result = undefined
         func.finished = false
 
         // Run the function.
 
-        let completeScope = mergeProxies([ scope, ...dataStack ])
+        let completeScope = mergeProxies([scope, ...dataStack])
 
-        if (typeof func === 'function' ) {
+        if (typeof func === 'function') {
             let promise = func.call(context, func, completeScope).catch((error) => handleError(error, el, expression))
 
             // Check if the function ran synchronously,
@@ -140,8 +151,8 @@ function generateEvaluatorFromString(dataStack, expression, el) {
                 // If not, return the result when the promise resolves.
                 promise.then(result => {
                     runIfTypeOfFunction(receiver, result, completeScope, params, el)
-                }).catch( error => handleError( error, el, expression ) )
-                .finally( () => func.result = undefined )
+                }).catch(error => handleError(error, el, expression))
+                    .finally(() => func.result = undefined)
             }
         }
     }
@@ -152,7 +163,7 @@ export function runIfTypeOfFunction(receiver, value, scope, params, el) {
         let result = value.apply(scope, params)
 
         if (result instanceof Promise) {
-            result.then(i => runIfTypeOfFunction(receiver, i, scope, params)).catch( error => handleError( error, el, value ) )
+            result.then(i => runIfTypeOfFunction(receiver, i, scope, params)).catch(error => handleError(error, el, value))
         } else {
             receiver(result)
         }
@@ -179,7 +190,7 @@ export function normalRawEvaluator(el, expression, extras = {}) {
     let params = extras.params ?? []
 
     if (expression.includes('await')) {
-        let AsyncFunction = Object.getPrototypeOf(async function(){}).constructor
+        let AsyncFunction = Object.getPrototypeOf(async function() { }).constructor
 
         // Some expressions that are useful in Alpine are not valid as the right side of an expression.
         // Here we'll detect if the expression isn't valid for an assignment and wrap it in a self-
@@ -189,8 +200,8 @@ export function normalRawEvaluator(el, expression, extras = {}) {
             || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
             // Support expressions starting with "let/const" like: "let foo = 'bar'"
             || /^(let|const)\s/.test(expression.trim())
-                ? `(async()=>{ ${expression} })()`
-                : expression
+            ? `(async()=>{ ${expression} })()`
+            : expression
 
         let func = new AsyncFunction(
             ["scope"],
@@ -209,8 +220,8 @@ export function normalRawEvaluator(el, expression, extras = {}) {
             || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
             // Support expressions starting with "let/const" like: "let foo = 'bar'"
             || /^(let|const)\s/.test(expression.trim())
-                ? `(()=>{ ${expression} })()`
-                : expression
+            ? `(()=>{ ${expression} })()`
+            : expression
 
         let func = new Function(
             ["scope"],

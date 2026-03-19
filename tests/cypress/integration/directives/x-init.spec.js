@@ -43,6 +43,24 @@ test('x-init will not evaluate expression if it is empty',
     ({ get }) => get('span').should(haveText('bar'))
 )
 
+test('arrow function assignment in x-init should not execute the function body',
+    html`
+        <div x-data="{ flag: false }" x-init="$el.fn = () => { flag = true }">
+            <span x-text="flag"></span>
+        </div>
+    `,
+    ({ get }) => get('span').should(haveText('false'))
+)
+
+test('arrow function assignment in x-init should not execute the function body when after a first statement',
+    html`
+        <div x-data="{ flag: false }" x-init="0; $el.fn = () => { flag = true }">
+            <span x-text="flag"></span>
+        </div>
+    `,
+    ({ get }) => get('span').should(haveText('false'))
+)
+
 test('component nested into x-init without x-data are not initialised twice',
     html`
         <div x-init="$el.setAttribute('attribute', 'value')">

@@ -660,3 +660,18 @@ test('x-model.blur syncs value before form submit handler runs',
     }
 )
 
+test('x-model with dotted expression does not overwrite checkbox submission value',
+    html`
+    <div x-data="{ form: { agree: undefined } }">
+        <input type="checkbox" name="agree" x-model="form.agree">
+    </div>
+    `,
+    ({ get }) => {
+        get('input').should(haveValue('on'))
+        get('input').should(notBeChecked())
+        get('input').check()
+        get('input').should(beChecked())
+        get('input').should(haveValue('on'))
+    }
+)
+

@@ -155,10 +155,23 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         // If nested model key is undefined, set the default value to empty string.
         if (value === undefined && typeof expression === 'string' && expression.match(/\./)) value = ''
 
-        // @todo: This is nasty
-        window.fromModel = true
-        mutateDom(() => bind(el, 'value', value))
-        delete window.fromModel
+        mutateDom(() => {
+            if (isCheckbox(el)) {
+                if (Array.isArray(value)) {
+                    el.checked = value.some(val => val == el.value)
+                } else {
+                    el.checked = !!value
+                }
+            } else if (isRadio(el)) {
+                if (typeof value === 'boolean') {
+                    el.checked = safeParseBoolean(el.value) === value
+                } else {
+                    el.checked = el.value == value
+                }
+            } else {
+                bind(el, 'value', value)
+            }
+        })
     }
 
     effect(() => {

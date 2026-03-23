@@ -200,8 +200,8 @@ export function normalRawEvaluator(el, expression, extras = {}) {
             || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
             // Support expressions starting with "let/const" like: "let foo = 'bar'"
             || /^(let|const)\s/.test(expression.trim())
-            ? `(async()=>{ ${expression} })()`
-            : expression
+                ? `(async()=>{ ${expression} })()`
+                : expression
 
         let func = new AsyncFunction(
             ["scope"],
@@ -220,8 +220,8 @@ export function normalRawEvaluator(el, expression, extras = {}) {
             || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
             // Support expressions starting with "let/const" like: "let foo = 'bar'"
             || /^(let|const)\s/.test(expression.trim())
-            ? `(()=>{ ${expression} })()`
-            : expression
+                ? `(()=>{ ${expression} })()`
+                : expression
 
         let func = new Function(
             ["scope"],

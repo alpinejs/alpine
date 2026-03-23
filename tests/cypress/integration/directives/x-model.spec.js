@@ -660,3 +660,74 @@ test('x-model.blur syncs value before form submit handler runs',
     }
 )
 
+test('x-model.blur cleanup does not crash when element is removed from DOM',
+    html`
+    <div x-data="{ show: true, value: '' }">
+        <form>
+            <template x-if="show">
+                <input x-model.blur="value" type="text">
+            </template>
+        </form>
+        <button @click="show = false">hide</button>
+        <span x-text="value"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get('input').type('hello')
+        get('input').blur()
+        get('span').should(haveText('hello'))
+        // Remove the input from the DOM via x-if — this triggers cleanup
+        get('button').click()
+        get('input').should('not.exist')
+        // Alpine should still be functional after cleanup
+        get('span').should(haveText('hello'))
+    }
+)
+
+test('x-model.blur cleanup does not crash when element without form is removed',
+    html`
+    <div x-data="{ show: true, value: '' }">
+        <template x-if="show">
+            <input x-model.blur="value" type="text">
+        </template>
+        <button @click="show = false">hide</button>
+        <span x-text="value"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get('input').type('world')
+        get('input').blur()
+        get('span').should(haveText('world'))
+        get('button').click()
+        get('input').should('not.exist')
+        get('span').should(haveText('world'))
+    }
+)
+
+test('x-model.blur form submit still works after sibling input is removed',
+    html`
+    <div x-data="{ showExtra: true, name: '', extra: '', submitted: '' }">
+        <form @submit.prevent="submitted = name + extra">
+            <input id="name" x-model.blur="name" type="text">
+            <template x-if="showExtra">
+                <input id="extra" x-model.blur="extra" type="text">
+            </template>
+            <button id="remove" type="button" @click="showExtra = false">remove</button>
+            <button id="submit" type="submit">submit</button>
+        </form>
+        <span x-text="submitted"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get('#name').type('Alice')
+        get('#extra').type('!')
+        get('#extra').blur()
+        // Remove the extra input — cleanup must not corrupt the form
+        get('#remove').click()
+        get('#extra').should('not.exist')
+        // Submit should still work with the remaining input
+        get('form').then(([form]) => form.requestSubmit())
+        get('span').should(haveText('Alice!'))
+    }
+)
+

@@ -84,12 +84,17 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             // submit handler runs. Register a pending update on the form
             // so it can be flushed before submit handlers execute.
             if (el.form) {
+                let form = el.form
                 let syncCallback = () => syncValue({ target: el })
 
-                if (!el.form._x_pendingModelUpdates) el.form._x_pendingModelUpdates = []
-                el.form._x_pendingModelUpdates.push(syncCallback)
+                if (!form._x_pendingModelUpdates) form._x_pendingModelUpdates = []
+                form._x_pendingModelUpdates.push(syncCallback)
 
-                cleanup(() => el.form._x_pendingModelUpdates.splice(el.form._x_pendingModelUpdates.indexOf(syncCallback), 1))
+                cleanup(() => {
+                    if (form._x_pendingModelUpdates) {
+                        form._x_pendingModelUpdates.splice(form._x_pendingModelUpdates.indexOf(syncCallback), 1)
+                    }
+                })
             }
         }
 

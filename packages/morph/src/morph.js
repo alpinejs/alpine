@@ -370,6 +370,9 @@ function createMorphContext(options = {}) {
             // Patch elements
             context.patch(currentFrom, currentTo)
 
+            // Directives like x-if and x-for insert sibling elements
+            // that they manage. Skip past them — they'll be handled
+            // by Alpine's reactivity after the morph completes...
             if (currentFrom._x_lastRenderedEl) {
                 currentFromNext = getNextSibling(from, currentFrom._x_lastRenderedEl)
             }

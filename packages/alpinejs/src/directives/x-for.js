@@ -125,6 +125,8 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
             })
             added.forEach(clone => initTree(clone))
 
+            // Mark the last rendered element so morph can skip
+            // past these items instead of trying to diff them...
             if (prev !== templateEl) {
                 templateEl._x_lastRenderedEl = prev
             } else {

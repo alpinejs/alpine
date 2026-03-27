@@ -26,6 +26,8 @@ directive('if', skipDuringClone((el, { expression }, { effect, cleanup }) => {
 
         el._x_currentIfEl = clone
 
+        // Mark the last rendered element so morph can skip
+        // past it instead of trying to diff it...
         el._x_lastRenderedEl = clone
 
         el._x_undoIf = () => {

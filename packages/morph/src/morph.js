@@ -370,6 +370,10 @@ function createMorphContext(options = {}) {
             // Patch elements
             context.patch(currentFrom, currentTo)
 
+            if (currentFrom._x_lastRenderedEl) {
+                currentFromNext = getNextSibling(from, currentFrom._x_lastRenderedEl)
+            }
+
             currentTo = currentTo && getNextSibling(to, currentTo) // dom.next(from, toChildren, currentTo))
 
             currentFrom = currentFromNext

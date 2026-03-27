@@ -660,6 +660,31 @@ test('x-model.blur syncs value before form submit handler runs',
     }
 )
 
+test('x-model.blur does not throw when input is removed from form',
+    html`
+    <div x-data="{ value: '' }">
+        <form>
+            <input x-model.blur="value" type="text">
+        </form>
+        <span x-text="value"></span>
+    </div>
+    `,
+    ({ get }) => {
+        get('input').type('hello')
+
+        // Remove the input from the form, triggering Alpine's MutationObserver cleanup.
+        // After detachment, el.form is null, so the cleanup callback must guard against this.
+        get('input').then(([input]) => {
+            input.remove()
+        })
+
+        // Wait for MutationObserver to process the removal and run cleanups
+        cy.wait(100)
+
+        get('input').should('not.exist')
+    }
+)
+
 test('x-model with dotted expression that evaluates to undefined does not overwrite value attribute',
     html`
     <div x-data="{ form: { agree: undefined } }">

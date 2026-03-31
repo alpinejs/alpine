@@ -145,6 +145,18 @@ You can instruct Floating UI to use a fixed positioning strategy by adding the `
 </div>
 <!-- END_VERBATIM -->
 
+You can also combine the .match-width modifier with .fixed to make the anchored element match the width of the reference element:
+
+```html
+<div x-data="{ open: false }">
+    <button x-ref="button" @click="open = ! open">Toggle</button>
+ 
+    <div x-show="open" x-anchor.fixed.match-width="$refs.button">
+        This element is now fixed to the viewport, anchored to the button, and matches the button's width.
+    </div>
+</div>
+```
+
 <a name="offset"></a>
 ## Offset
 

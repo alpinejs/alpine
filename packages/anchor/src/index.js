@@ -1,4 +1,4 @@
-import { computePosition, autoUpdate, flip, offset, shift } from '@floating-ui/dom'
+import { computePosition, autoUpdate, flip, offset, shift, size } from '@floating-ui/dom'
 
 export default function (Alpine) {
     Alpine.magic('anchor', el => {
@@ -14,7 +14,7 @@ export default function (Alpine) {
     })
 
     Alpine.directive('anchor', Alpine.skipDuringClone((el, { expression, modifiers, value }, { evaluate, effect, cleanup }) => {
-        let { placement, offsetValue, unstyled, strategy } = getOptions(modifiers)
+        let { placement, offsetValue, unstyled, strategy, matchWidth } = getOptions(modifiers)
 
         el._x_anchor = Alpine.reactive({ x: 0, y: 0 })
 
@@ -33,10 +33,24 @@ export default function (Alpine) {
                 let compute = () => {
                     let previousValue
 
+                    let middleware = [
+                        flip(),
+                        shift({padding: 5}),
+                        offset(offsetValue)
+                    ]
+
+                    if (matchWidth) {
+                        middleware.push(size({
+                            apply({rects, elements}) {
+                                elements.floating.style.width = `${rects.reference.width}px`
+                            },
+                        }))
+                    }
+
                     computePosition(reference, el, {
                         placement,
                         strategy,
-                        middleware: [flip(), shift({padding: 5}), offset(offsetValue)],
+                        middleware,
                     }).then(({ x, y }) => {
                         unstyled || setStyles(el, x, y, strategy)
 
@@ -89,5 +103,7 @@ function getOptions(modifiers) {
 
     let strategy = modifiers.includes('fixed') ? 'fixed' : 'absolute'
 
-    return { placement, offsetValue, unstyled, strategy }
+    let matchWidth = modifiers.includes('match-width')
+
+    return { placement, offsetValue, unstyled, strategy, matchWidth }
 }

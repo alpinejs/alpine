@@ -2,8 +2,8 @@ let safemap = new WeakMap()
 let globals = new Set()
 
 Object.getOwnPropertyNames(globalThis).forEach(key => {
-    // Prevent Safari deprecation warning...
-    if (key === 'styleMedia') return
+    // Prevent Chrome and Safari deprecation warning...
+    if (key === "styleMedia" || key === "sharedStorage") return
 
     globals.add(globalThis[key])
 })
@@ -712,7 +712,7 @@ class Evaluator {
                 if (node.callee.type === 'MemberExpression') {
                     // For member expressions, get the object and function separately to preserve context
                     const obj = this.evaluate({ node: node.callee.object, scope, context, forceBindingRootScopeToFunctions });
-                    
+
                     let prop;
                     if (node.callee.computed) {
                         prop = this.evaluate({ node: node.callee.property, scope, context, forceBindingRootScopeToFunctions });
@@ -761,7 +761,7 @@ class Evaluator {
                 }
 
                 this.checkForDangerousValues(returnValue)
-                
+
                 return returnValue
 
             case 'UnaryExpression':
@@ -874,7 +874,7 @@ class Evaluator {
             '__defineGetter__', '__defineSetter__',
             'insertAdjacentHTML',
         ]
-        
+
         if (blacklist.includes(keyword)) {
             throw new Error(`Accessing "${keyword}" is prohibited in the CSP build`)
         }
@@ -884,7 +884,7 @@ class Evaluator {
         if (prop === null) {
             return
         }
-        
+
         if (typeof prop !== 'object' && typeof prop !== 'function') {
             return
         }
@@ -892,7 +892,7 @@ class Evaluator {
         if (safemap.has(prop)) {
             return
         }
-        
+
         if (prop instanceof HTMLIFrameElement || prop instanceof HTMLScriptElement) {
             throw new Error('Accessing iframes and scripts is prohibited in the CSP build')
         }

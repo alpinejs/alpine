@@ -21,9 +21,9 @@ export default function (Alpine) {
         let previousReference = null
         let release = null
 
-        let effector = effect(() => {
+        effect(() => {
             let reference = evaluate(expression)
-            if (! reference) throw 'Alpine: no element provided to x-anchor...'
+            if (! reference) return
 
             if (previousReference !== reference) {
                 if (release) release()
@@ -54,7 +54,6 @@ export default function (Alpine) {
         })
 
         cleanup(() => {
-            effector()
             if (release) release()
         })
     },

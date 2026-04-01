@@ -143,6 +143,35 @@ You can add an offset to your anchored element using the `.offset.[px value]` mo
 </div>
 <!-- END_VERBATIM -->
 
+<a name="prevent-flipping"></a>
+## Prevent flipping position
+
+By default, `x-anchor` will flip the position of the anchored element if it doesn't have enough room to render below the reference element.
+
+You can prevent this behavior by adding the `.noflip` modifier:
+
+```alpine
+<div x-data="{ open: false }">
+    <button x-ref="button" @click="open = ! open">Toggle</button>
+
+    <div x-show="open" x-anchor.noflip="$refs.button">
+        Dropdown content
+    </div>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div x-data="{ open: false }" class="demo overflow-hidden">
+    <div class="flex justify-center">
+        <button x-ref="button" @click="open = ! open">Toggle</button>
+    </div>
+
+    <div x-show="open" x-anchor.noflip="$refs.button" class="bg-white rounded p-4 border shadow z-10">
+        Dropdown content
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
 <a name="manual-styling"></a>
 ## Manual styling
 
@@ -210,4 +239,3 @@ Because `x-anchor` accepts a reference to any DOM element, you can use utilities
     </div>
 </div>
 <!-- END_VERBATIM -->
-

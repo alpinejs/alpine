@@ -1132,3 +1132,21 @@ test('can morph child element containing x-ref without crashing',
         get('input').should(haveFocus())
     },
 )
+
+test('$refs are available during morph',
+    [html`
+        <div x-data>
+            <span x-ref="foo" data-value="bar"></span>
+            <p x-text="$refs.foo ? $refs.foo.dataset.value : 'missing'"></p>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        get('p').should(haveText('bar'))
+
+        let toHtml = document.querySelector('div').outerHTML
+
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('p').should(haveText('bar'))
+    },
+)

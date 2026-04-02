@@ -1,5 +1,4 @@
 let { writeToPackageDotJson, getFromPackageDotJson } = require('./utils')
-let { execSync } = require('child_process')
 let fs = require('fs')
 
 let version = process.argv[2]
@@ -21,8 +20,6 @@ if (version === prevVersion) {
     process.exit(1)
 }
 
-let run = cmd => execSync(cmd, { cwd: __dirname + '/..', stdio: 'inherit' })
-
 // Bump all package.json versions
 let packages = [
     'alpinejs', 'docs', 'ui', 'csp', 'intersect', 'resize',
@@ -40,14 +37,3 @@ let docs = fs.readFileSync(docsFile, 'utf8')
 docs = docs.replace(prevVersion, version)
 fs.writeFileSync(docsFile, docs)
 console.log('Updated installation docs: ' + prevVersion + ' -> ' + version)
-
-// Commit and push
-run('git add -A')
-run('git commit -m "Bump version to ' + version + '"')
-run('git push')
-
-console.log('\nDone! Opening GitHub release page...\n')
-
-// Open the new release page with the tag pre-filled
-let url = 'https://github.com/alpinejs/alpine/releases/new?tag=v' + version + '&target=main&title=v' + version
-run('open "' + url + '"')

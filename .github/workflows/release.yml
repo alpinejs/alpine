@@ -1,26 +1,85 @@
 name: Release
+
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 3.15.12 or v3.15.12)'
+        required: true
+        type: string
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
     environment: release
     permissions:
       id-token: write
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+
       - run: npm install -g npm@latest
+
+      # ── Normalize version ──────────────────────────────────────────
+      - name: Normalize version
+        id: version
+        run: |
+          RAW="${{ github.event.inputs.version }}"
+          VERSION="${RAW#v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format: $VERSION (expected X.Y.Z)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      # ── Verify tag doesn't already exist ───────────────────────────
+      - name: Verify tag doesn't exist
+        run: |
+          if git ls-remote --tags origin | grep -q "refs/tags/${{ steps.version.outputs.tag }}$"; then
+            echo "::error::Tag ${{ steps.version.outputs.tag }} already exists"
+            exit 1
+          fi
+
+      # ── Install dependencies ───────────────────────────────────────
       - run: npm install
+
+      # ── Bump versions ──────────────────────────────────────────────
+      - name: Bump versions in all packages
+        run: node scripts/prep-release.js ${{ steps.version.outputs.version }}
+
+      # ── Commit and push version bumps ──────────────────────────────
+      - name: Commit version bumps
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Bump version to ${{ steps.version.outputs.version }}"
+          git push
+
+      # ── Build ──────────────────────────────────────────────────────
       - run: npm run build
+
+      # ── Create GitHub release ──────────────────────────────────────
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            --target main \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes
+
+      # ── Publish all packages to npm ────────────────────────────────
       - name: Publish all packages to npm
         run: |
           FAILED=""

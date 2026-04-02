@@ -111,6 +111,9 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                     return
                 }
 
+                if (templateEl.content.children.length > 1)
+                    warn('x-for templates require a single root element, additional elements will be ignored.', templateEl)
+
                 let clone = document.importNode(templateEl.content, true).firstElementChild
                 let reactiveScope = reactive(scope)
                 addScopeToNode(clone, reactiveScope, templateEl)

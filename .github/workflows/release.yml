@@ -23,9 +23,17 @@ jobs:
       - run: npm run build
       - name: Publish all packages to npm
         run: |
+          FAILED=""
           for pkg in alpinejs csp intersect collapse persist resize anchor morph focus sort mask ui docs; do
             echo "Publishing $pkg..."
             cd packages/$pkg
-            npm publish --access public --provenance
+            if ! npm publish --access public --provenance 2>&1; then
+              echo "::warning::Failed to publish $pkg"
+              FAILED="$FAILED $pkg"
+            fi
             cd ../..
           done
+          if [ -n "$FAILED" ]; then
+            echo "::error::Failed to publish:$FAILED"
+            exit 1
+          fi

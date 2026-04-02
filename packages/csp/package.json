@@ -2,6 +2,11 @@
     "name": "@alpinejs/csp",
     "version": "3.15.11",
     "description": "A CSP-friendly build of AlpineJS",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git",
+        "directory": "packages/csp"
+    },
     "author": "Caleb Porzio",
     "license": "MIT",
     "main": "dist/module.cjs.js",

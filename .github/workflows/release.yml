@@ -1,0 +1,29 @@
+name: Release
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install
+      - run: npm run build
+      - run: npm run test
+      - run: npm run vitest
+      - name: Publish all packages to npm
+        run: |
+          for pkg in alpinejs csp intersect collapse persist resize anchor morph focus sort mask ui docs; do
+            echo "Publishing $pkg..."
+            cd packages/$pkg
+            npm publish --access public --provenance
+            cd ../..
+          done

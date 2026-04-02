@@ -86,7 +86,7 @@ jobs:
           for pkg in alpinejs csp intersect collapse persist resize anchor morph focus sort mask ui docs; do
             echo "Publishing $pkg..."
             cd packages/$pkg
-            if ! npm publish --access public --provenance 2>&1; then
+            if ! npm publish --access public --provenance --dry-run 2>&1; then
               echo "::warning::Failed to publish $pkg"
               FAILED="$FAILED $pkg"
             fi

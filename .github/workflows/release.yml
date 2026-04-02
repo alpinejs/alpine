@@ -51,7 +51,7 @@ jobs:
           fi
 
       # ── Install dependencies ───────────────────────────────────────
-      - run: npm install
+      - run: npm ci
 
       # ── Bump versions ──────────────────────────────────────────────
       - name: Bump versions in all packages

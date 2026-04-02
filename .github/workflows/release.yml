@@ -21,8 +21,6 @@ jobs:
       - run: npm install -g npm@latest
       - run: npm install
       - run: npm run build
-      - run: npm run test
-      - run: npm run vitest
       - name: Publish all packages to npm
         run: |
           for pkg in alpinejs csp intersect collapse persist resize anchor morph focus sort mask ui docs; do

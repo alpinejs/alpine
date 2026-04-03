@@ -34,7 +34,7 @@ export default function (Alpine) {
                     let previousValue
 
                     let middleware = [
-                        flip(),
+                        allowFlip && flip(),
                         shift({padding: 5}),
                         offset(offsetValue)
                     ]
@@ -45,10 +45,6 @@ export default function (Alpine) {
                                 elements.floating.style.width = `${rects.reference.width}px`
                             },
                         }))
-                    }
-
-                    if(allowFlip){
-                        middleware.push(flip())
                     }
 
                     computePosition(reference, el, {

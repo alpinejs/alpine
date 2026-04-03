@@ -84,12 +84,17 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             // submit handler runs. Register a pending update on the form
             // so it can be flushed before submit handlers execute.
             if (el.form) {
+                let form = el.form
                 let syncCallback = () => syncValue({ target: el })
 
-                if (!el.form._x_pendingModelUpdates) el.form._x_pendingModelUpdates = []
-                el.form._x_pendingModelUpdates.push(syncCallback)
+                if (!form._x_pendingModelUpdates) form._x_pendingModelUpdates = []
+                form._x_pendingModelUpdates.push(syncCallback)
 
-                cleanup(() => el.form._x_pendingModelUpdates.splice(el.form._x_pendingModelUpdates.indexOf(syncCallback), 1))
+                cleanup(() => {
+                    if (form._x_pendingModelUpdates) {
+                        form._x_pendingModelUpdates.splice(form._x_pendingModelUpdates.indexOf(syncCallback), 1)
+                    }
+                })
             }
         }
 
@@ -155,10 +160,23 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         // If nested model key is undefined, set the default value to empty string.
         if (value === undefined && typeof expression === 'string' && expression.match(/\./)) value = ''
 
-        // @todo: This is nasty
-        window.fromModel = true
-        mutateDom(() => bind(el, 'value', value))
-        delete window.fromModel
+        mutateDom(() => {
+            if (isCheckbox(el)) {
+                if (Array.isArray(value)) {
+                    el.checked = value.some(val => val == el.value)
+                } else {
+                    el.checked = !!value
+                }
+            } else if (isRadio(el)) {
+                if (typeof value === 'boolean') {
+                    el.checked = safeParseBoolean(el.value) === value
+                } else {
+                    el.checked = el.value == value
+                }
+            } else {
+                bind(el, 'value', value)
+            }
+        })
     }
 
     effect(() => {

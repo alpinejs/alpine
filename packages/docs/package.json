@@ -1,7 +1,12 @@
 {
     "name": "@alpinejs/docs",
-    "version": "3.15.8",
+    "version": "3.15.11",
     "description": "The documentation for Alpine",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git",
+        "directory": "packages/docs"
+    },
     "author": "Caleb Porzio",
     "license": "MIT"
 }

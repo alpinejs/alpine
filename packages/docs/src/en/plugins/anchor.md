@@ -116,6 +116,37 @@ Here is an example of using `.bottom-start` to position a dropdown below and to 
 </div>
 <!-- END_VERBATIM -->
 
+<a name="fixed-positioning"></a>
+### Fixed positioning
+
+By default, `x-anchor` applies `position: absolute` to the anchored element. This is fine for most cases, but it falls apart when the reference element lives inside a container with `overflow: hidden`, `overflow: clip`, or `overflow: auto`—the anchored element is clipped along with it.
+
+You can instruct Floating UI to use a fixed positioning strategy instead by adding the `.fixed` modifier:
+
+```html
+<div x-data="{ open: false }">
+    <button x-ref="button" @click="open = ! open">Toggle</button>
+
+    <div x-show="open" x-anchor.fixed="$refs.button">
+        Dropdown content
+    </div>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div x-data="{ open: false }" class="demo overflow-hidden">
+    <div class="flex justify-center">
+        <button x-ref="button" @click="open = ! open">Toggle</button>
+    </div>
+
+    <div x-show="open" x-anchor.fixed="$refs.button" class="bg-white rounded p-4 border shadow z-10">
+        Dropdown content
+    </div>
+</div>
+<!-- END_VERBATIM -->
+
+> **Heads up:** a `transform`, `filter`, `perspective`, `backdrop-filter`, `will-change`, or `contain` on any ancestor element creates a new containing block for `position: fixed` descendants ([per the CSS spec](https://developer.mozilla.org/en-US/docs/Web/CSS/position#fixed_positioning)). When that happens, `.fixed` will behave like `position: absolute` relative to that ancestor—and won't escape its `overflow: hidden`. If `.fixed` seems to be doing nothing, check for a transformed ancestor.
+
 <a name="offset"></a>
 ## Offset
 
@@ -209,6 +240,18 @@ Below is an example of bypassing `x-anchor`'s internal styling and instead apply
     </div>
 </div>
 <!-- END_VERBATIM -->
+
+> **Combining `.no-style` with `.fixed`:** when you opt out of Alpine's internal styling and also want fixed positioning, remember to set `position: 'fixed'` yourself. `$anchor.x` and `$anchor.y` are returned in the coordinate space of whichever strategy is active—absolute coordinates are relative to the offset parent, fixed coordinates are relative to the viewport—so applying the wrong `position` will put your element in the wrong place.
+>
+> ```alpine
+> <div
+>     x-show="open"
+>     x-anchor.no-style.fixed="$refs.button"
+>     x-bind:style="{ position: 'fixed', top: $anchor.y+'px', left: $anchor.x+'px' }"
+> >
+>     Dropdown content
+> </div>
+> ```
 
 <a name="from-id"></a>
 ## Anchor to an ID

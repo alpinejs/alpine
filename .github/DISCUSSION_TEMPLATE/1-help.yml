@@ -1,0 +1,91 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hi there!
+
+        Thank you for using Alpine.js!
+
+        Many of the people who help resolve issues here are enthusiastic Alpine users like yourself who volunteer their time to support fellow community members.
+
+        **To respect everyone's valuable time and help you resolve your issue as quickly as possible, before posting, please**
+
+        * Update to the latest version of Alpine.js
+        * Before opening a help request, please search the existing discussions.
+
+        To address this help request, we need the following information.
+
+  - type: input
+    id: alpine-version
+    attributes:
+      label: Alpine.js version
+      description: Which version of Alpine.js are you using? Please provide the full version, e.g. v3.15.11.
+      placeholder: v3.15.11
+    validations:
+      required: true
+
+  - type: input
+    id: browser-os
+    attributes:
+      label: Browser and operating system
+      description: Which browser and operating system are you using?
+      placeholder: Chrome on macOS
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What do you need help with?
+      description: Please provide a clear and concise description of what you need help with.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Code snippets
+      description: Please include a code snippet we can copy and paste to understand your issue. Use as little code as possible.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        Include code snippets in triple backticks (\```) with "html" or "js" for better readability. Here's an example:
+
+        \```html
+        <!-- Your code here -->
+        \```
+
+        \```js
+        // Your code here
+        \```
+
+  - type: textarea
+    attributes:
+      label: How do you expect it to work?
+      description: Please describe how you expect it to work.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        **We will close this discussion for any of the following reasons**
+
+        * We cannot understand the issue with the provided information
+        * The discussion is a duplicate
+
+  - type: checkboxes
+    attributes:
+      label: Please confirm (incomplete submissions will not be addressed)
+      options:
+        - label: I have provided easy and step-by-step instructions to understand my issue.
+          required: true
+        - label: I have provided code samples as text and NOT images.
+          required: true
+        - label: I understand my help request will be removed if I haven't met the criteria above.
+          required: true
+
+  - type: markdown
+    attributes:
+      value: Thank you!

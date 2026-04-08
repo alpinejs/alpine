@@ -4,7 +4,7 @@ contact_links:
     url: https://github.com/alpinejs/alpine/discussions/new?category=1-help
     about: Ask questions or get help from other community members
 
-  - name: Feature Request
+  - name: Feature request
     url: https://github.com/alpinejs/alpine/discussions/new?category=3-feature-ideas
     about: For ideas or feature requests
 

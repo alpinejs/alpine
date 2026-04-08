@@ -1,4 +1,4 @@
-name: Bug Report
+name: Bug report
 description: Found a bug in Alpine? Submit a report. For help or questions, use Discussions.
 body:
   - type: markdown

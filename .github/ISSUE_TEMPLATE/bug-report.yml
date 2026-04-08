@@ -55,7 +55,7 @@ body:
         Include code snippets in triple backticks (\```) with "html" or "js" for better readability. Here's an example:
 
         \```html
-        <!-- Your code here -->
+        // Your code here
         \```
 
         \```js

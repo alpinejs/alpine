@@ -6,4 +6,11 @@ body:
 
         Please don't open a bug discussion here. Instead, submit a bug report using the link below:
 
-        **[Submit a bug report](https://github.com/alpinejs/alpine/issues/new?template=bug-report.yml)**
+        **[Submit a bug report](https://github.com/alpinejs/alpine/issues/new/choose)**
+
+  - type: checkboxes
+    attributes:
+      label: Please use Issues for bug reports
+      options:
+        - label: I understand that bug reports should be submitted as Issues, not Discussions.
+          required: true

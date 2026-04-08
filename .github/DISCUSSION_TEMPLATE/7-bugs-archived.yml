@@ -1,0 +1,9 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug reports have moved to Issues
+
+        Please don't open a bug discussion here. Instead, submit a bug report using the link below:
+
+        **[Submit a bug report](https://github.com/alpinejs/alpine/issues/new?template=bug-report.yml)**

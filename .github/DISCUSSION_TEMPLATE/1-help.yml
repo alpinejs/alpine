@@ -20,14 +20,7 @@ body:
   - type: textarea
     attributes:
       label: What do you need help with?
-      description: Please provide a clear description of what you need help with.
-    validations:
-      required: true
-
-  - type: textarea
-    attributes:
-      label: Code snippets
-      description: Please include a code snippet so we can understand your issue. Use as little code as possible.
+      description: Please provide a clear description of what you need help with, along with code snippets and screenshots or screen recordings if they help illustrate your issue.
     validations:
       required: true
 
@@ -43,13 +36,6 @@ body:
         \```js
         // Your code here
         \```
-
-  - type: textarea
-    attributes:
-      label: Screenshots/screen recordings
-      description: Include screenshots or screen recordings if they help illustrate your issue.
-    validations:
-      required: false
 
   - type: textarea
     attributes:

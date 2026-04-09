@@ -597,12 +597,26 @@ describe('CSP Parser', () => {
             expect(() => generateRuntimeFunction('JSON.stringify({a: 1})')()).toThrow();
         });
 
-        it('should not handle property assignment', () => {
-            expect(() => generateRuntimeFunction('obj.prop = 10')()).toThrow();
+        it('should handle scope property assignment', () => {
+            const scope = { obj: { prop: 0 } };
+            generateRuntimeFunction('obj.prop = 10')({ scope });
+            expect(scope.obj.prop).toBe(10);
         });
 
-        it('should not handle computed property assignment', () => {
-            expect(() => generateRuntimeFunction('obj[key] = 20')()).toThrow();
+        it('should handle computed scope property assignment', () => {
+            const scope = { obj: {}, key: 'x' };
+            generateRuntimeFunction('obj[key] = 20')({ scope });
+            expect(scope.obj.x).toBe(20);
+        });
+
+        it('should block DOM node property assignment', () => {
+            const scope = { $el: document.createElement('div') };
+            expect(() => generateRuntimeFunction('$el.innerHTML = "evil"')({ scope })).toThrow('DOM nodes are prohibited');
+        });
+
+        it('should block DOM node computed property assignment', () => {
+            const scope = { $el: document.createElement('div'), key: 'innerHTML' };
+            expect(() => generateRuntimeFunction('$el[key] = "evil"')({ scope })).toThrow('DOM nodes are prohibited');
         });
     });
 

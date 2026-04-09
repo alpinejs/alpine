@@ -794,6 +794,10 @@ class Evaluator {
                     const prop = node.argument.computed
                         ? this.evaluate({ node: node.argument.property, scope, context, forceBindingRootScopeToFunctions })
                         : node.argument.property.name;
+                    if (obj instanceof Node) {
+                        throw new Error('Property assignments on DOM nodes are prohibited in the CSP build');
+                    }
+                    this.checkForDangerousKeywords(prop);
 
                     const oldValue = obj[prop];
                     if (node.operator === '++') {
@@ -843,7 +847,17 @@ class Evaluator {
                     scope[node.left.name] = value;
                     return value;
                 } else if (node.left.type === 'MemberExpression') {
-                    throw new Error('Property assignments are prohibited in the CSP build')
+                    const obj = this.evaluate({ node: node.left.object, scope, context, forceBindingRootScopeToFunctions });
+                    const prop = node.left.computed
+                        ? this.evaluate({ node: node.left.property, scope, context, forceBindingRootScopeToFunctions })
+                        : node.left.property.name;
+                    if (obj instanceof Node) {
+                        throw new Error('Property assignments on DOM nodes are prohibited in the CSP build');
+                    }
+                    this.checkForDangerousKeywords(prop);
+
+                    obj[prop] = value;
+                    return value;
                 }
                 throw new Error('Invalid assignment target');
 

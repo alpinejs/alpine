@@ -95,3 +95,187 @@ describe('cspRawEvaluator', () => {
         expect(cspRawEvaluator(element, '!false')).toBe(true)
     });
 });
+
+describe('MemberExpression assignments', () => {
+    it('simple dot-path assignment (x-model="form.name" setter)', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { form: { name: '' }, __placeholder: 'Alice' }
+
+        cspRawEvaluator(element, 'form.name = __placeholder', { scope })
+
+        expect(scope.form.name).toBe('Alice')
+    });
+
+    it('nested dot-path assignment', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { a: { b: { c: 0 } }, __placeholder: 42 }
+
+        cspRawEvaluator(element, 'a.b.c = __placeholder', { scope })
+
+        expect(scope.a.b.c).toBe(42)
+    });
+
+    it('computed property assignment', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: {}, key: 'x', __placeholder: 1 }
+
+        cspRawEvaluator(element, 'obj[key] = __placeholder', { scope })
+
+        expect(scope.obj.x).toBe(1)
+    });
+
+    it('assignment returns the assigned value', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { form: { name: '' }, __placeholder: 'Alice' }
+
+        let result = cspRawEvaluator(element, 'form.name = __placeholder', { scope })
+
+        expect(result).toBe('Alice')
+    });
+
+    it('computed property with string literal key', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: {}, __placeholder: 'hello' }
+
+        cspRawEvaluator(element, "obj['key'] = __placeholder", { scope })
+
+        expect(scope.obj.key).toBe('hello')
+    });
+
+    it('array index assignment', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { arr: ['a', 'b', 'c'], __placeholder: 'z' }
+
+        cspRawEvaluator(element, 'arr[0] = __placeholder', { scope })
+
+        expect(scope.arr[0]).toBe('z')
+        expect(scope.arr).toEqual(['z', 'b', 'c'])
+    });
+
+    it('right-hand side reads a member expression', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { form: { name: '' }, other: { value: 'Bob' } }
+
+        cspRawEvaluator(element, 'form.name = other.value', { scope })
+
+        expect(scope.form.name).toBe('Bob')
+    });
+
+    it('identifier assignment still works (regression guard)', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { name: '', __placeholder: 'Carol' }
+
+        cspRawEvaluator(element, 'name = __placeholder', { scope })
+
+        expect(scope.name).toBe('Carol')
+    });
+
+    it('dangerous keyword assignment is still blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: {}, __placeholder: 'evil' }
+
+        expect(() => {
+            cspRawEvaluator(element, 'obj.__proto__ = __placeholder', { scope })
+        }).toThrow('prohibited')
+
+        expect(() => {
+            cspRawEvaluator(element, 'obj.constructor = __placeholder', { scope })
+        }).toThrow('prohibited')
+
+        expect(() => {
+            cspRawEvaluator(element, 'obj.prototype = __placeholder', { scope })
+        }).toThrow('prohibited')
+    });
+
+    it('DOM node check takes precedence over dangerous keyword check', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        let scope = { $el: domNode, __placeholder: 'evil' }
+
+        expect(() => {
+            cspRawEvaluator(element, '$el.__proto__ = __placeholder', { scope })
+        }).toThrow('DOM nodes are prohibited')
+    });
+
+    it('DOM node update check takes precedence over dangerous keyword check', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        let scope = { $el: domNode }
+
+        expect(() => {
+            cspRawEvaluator(element, '$el.__proto__++', { scope })
+        }).toThrow('DOM nodes are prohibited')
+    });
+
+    it('postfix increment on scope object', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: { count: 0 } }
+
+        let result = cspRawEvaluator(element, 'obj.count++', { scope })
+
+        expect(scope.obj.count).toBe(1)
+        expect(result).toBe(0)
+    });
+
+    it('prefix increment on scope object', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: { count: 0 } }
+
+        let result = cspRawEvaluator(element, '++obj.count', { scope })
+
+        expect(scope.obj.count).toBe(1)
+        expect(result).toBe(1)
+    });
+
+    it('decrement on scope object', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: { count: 5 } }
+
+        cspRawEvaluator(element, 'obj.count--', { scope })
+
+        expect(scope.obj.count).toBe(4)
+    });
+
+    it('computed property update expression', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: { x: 10 }, key: 'x' }
+
+        cspRawEvaluator(element, 'obj[key]++', { scope })
+
+        expect(scope.obj.x).toBe(11)
+    });
+
+    it('dangerous keyword update expression is blocked on scope object', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: {} }
+
+        expect(() => {
+            cspRawEvaluator(element, 'obj.__proto__++', { scope })
+        }).toThrow('prohibited')
+    });
+
+    it('DOM node property assignment is blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        let scope = { $el: domNode, __placeholder: 'evil' }
+
+        expect(() => {
+            cspRawEvaluator(element, '$el.innerHTML = __placeholder', { scope })
+        }).toThrow('DOM nodes are prohibited')
+
+        expect(() => {
+            cspRawEvaluator(element, '$el.textContent = __placeholder', { scope })
+        }).toThrow('DOM nodes are prohibited')
+    });
+
+    it('DOM node update expression is blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        domNode.count = 5
+        let scope = { $el: domNode }
+
+        expect(() => {
+            cspRawEvaluator(element, '$el.count++', { scope })
+        }).toThrow('DOM nodes are prohibited')
+    });
+});

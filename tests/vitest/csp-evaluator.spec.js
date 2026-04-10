@@ -194,7 +194,7 @@ describe('MemberExpression assignments', () => {
 
         expect(() => {
             cspRawEvaluator(element, '$el.__proto__ = __placeholder', { scope })
-        }).toThrow('DOM nodes are prohibited')
+        }).toThrow('DOM objects are prohibited')
     });
 
     it('DOM node update check takes precedence over dangerous keyword check', () => {
@@ -204,7 +204,7 @@ describe('MemberExpression assignments', () => {
 
         expect(() => {
             cspRawEvaluator(element, '$el.__proto__++', { scope })
-        }).toThrow('DOM nodes are prohibited')
+        }).toThrow('DOM objects are prohibited')
     });
 
     it('postfix increment on scope object', () => {
@@ -261,11 +261,11 @@ describe('MemberExpression assignments', () => {
 
         expect(() => {
             cspRawEvaluator(element, '$el.innerHTML = __placeholder', { scope })
-        }).toThrow('DOM nodes are prohibited')
+        }).toThrow('DOM objects are prohibited')
 
         expect(() => {
             cspRawEvaluator(element, '$el.textContent = __placeholder', { scope })
-        }).toThrow('DOM nodes are prohibited')
+        }).toThrow('DOM objects are prohibited')
     });
 
     it('DOM node update expression is blocked', () => {
@@ -276,6 +276,56 @@ describe('MemberExpression assignments', () => {
 
         expect(() => {
             cspRawEvaluator(element, '$el.count++', { scope })
-        }).toThrow('DOM nodes are prohibited')
+        }).toThrow('DOM objects are prohibited')
+    });
+
+    it('setAttribute is blocked via keyword blocklist', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        let scope = { $el: domNode }
+
+        expect(() => {
+            cspRawEvaluator(element, '$el.setAttribute("onclick", "alert(1)")', { scope })
+        }).toThrow('prohibited')
+    });
+
+    it('setAttributeNS is blocked via keyword blocklist', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        let scope = { $el: domNode }
+
+        expect(() => {
+            cspRawEvaluator(element, '$el.setAttributeNS(null, "onclick", "alert(1)")', { scope })
+        }).toThrow('prohibited')
+    });
+
+    it('setAttribute via computed property is blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        let scope = { $el: domNode, method: 'setAttribute' }
+
+        expect(() => {
+            cspRawEvaluator(element, '$el[method]("onclick", "alert(1)")', { scope })
+        }).toThrow('prohibited')
+    });
+
+    it('CSSStyleDeclaration assignment is blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        let scope = { style: domNode.style, __placeholder: 'red' }
+
+        expect(() => {
+            cspRawEvaluator(element, 'style.background = __placeholder', { scope })
+        }).toThrow('DOM objects are prohibited')
+    });
+
+    it('DOMStringMap assignment is blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        let scope = { dataset: domNode.dataset, __placeholder: 'evil' }
+
+        expect(() => {
+            cspRawEvaluator(element, 'dataset.key = __placeholder', { scope })
+        }).toThrow('DOM objects are prohibited')
     });
 });

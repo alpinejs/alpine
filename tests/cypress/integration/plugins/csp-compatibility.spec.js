@@ -78,7 +78,7 @@ test.csp('throws when assigning to a DOM node property',
         <button x-data x-on:click="$el.innerHTML = 'evil'"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => message.includes('Property assignments on DOM nodes are prohibited') ? false : true)
+        cy.on('uncaught:exception', ({message}) => message.includes('Property assignments on DOM objects are prohibited') ? false : true)
         cy.get('button').click()
         cy.get('button').should(notContain('evil'))
     },

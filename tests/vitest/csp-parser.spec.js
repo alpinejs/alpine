@@ -611,12 +611,23 @@ describe('CSP Parser', () => {
 
         it('should block DOM node property assignment', () => {
             const scope = { $el: document.createElement('div') };
-            expect(() => generateRuntimeFunction('$el.innerHTML = "evil"')({ scope })).toThrow('DOM nodes are prohibited');
+            expect(() => generateRuntimeFunction('$el.innerHTML = "evil"')({ scope })).toThrow('DOM objects are prohibited');
         });
 
         it('should block DOM node computed property assignment', () => {
             const scope = { $el: document.createElement('div'), key: 'innerHTML' };
-            expect(() => generateRuntimeFunction('$el[key] = "evil"')({ scope })).toThrow('DOM nodes are prohibited');
+            expect(() => generateRuntimeFunction('$el[key] = "evil"')({ scope })).toThrow('DOM objects are prohibited');
+        });
+
+        it('should block setAttribute on DOM nodes', () => {
+            const scope = { $el: document.createElement('div') };
+            expect(() => generateRuntimeFunction('$el.setAttribute("onclick", "alert(1)")')({ scope })).toThrow('prohibited');
+        });
+
+        it('should block CSSStyleDeclaration assignment', () => {
+            const el = document.createElement('div');
+            const scope = { style: el.style };
+            expect(() => generateRuntimeFunction('style.background = "red"')({ scope })).toThrow('DOM objects are prohibited');
         });
     });
 

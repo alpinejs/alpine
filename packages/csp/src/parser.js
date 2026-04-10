@@ -794,6 +794,10 @@ class Evaluator {
                     const prop = node.argument.computed
                         ? this.evaluate({ node: node.argument.property, scope, context, forceBindingRootScopeToFunctions })
                         : node.argument.property.name;
+                    if (this.isDOMObject(obj)) {
+                        throw new Error('Property assignments on DOM objects are prohibited in the CSP build');
+                    }
+                    this.checkForDangerousKeywords(prop);
 
                     const oldValue = obj[prop];
                     if (node.operator === '++') {
@@ -843,7 +847,17 @@ class Evaluator {
                     scope[node.left.name] = value;
                     return value;
                 } else if (node.left.type === 'MemberExpression') {
-                    throw new Error('Property assignments are prohibited in the CSP build')
+                    const obj = this.evaluate({ node: node.left.object, scope, context, forceBindingRootScopeToFunctions });
+                    const prop = node.left.computed
+                        ? this.evaluate({ node: node.left.property, scope, context, forceBindingRootScopeToFunctions })
+                        : node.left.property.name;
+                    if (this.isDOMObject(obj)) {
+                        throw new Error('Property assignments on DOM objects are prohibited in the CSP build');
+                    }
+                    this.checkForDangerousKeywords(prop);
+
+                    obj[prop] = value;
+                    return value;
                 }
                 throw new Error('Invalid assignment target');
 
@@ -868,11 +882,21 @@ class Evaluator {
         }
     }
 
+    isDOMObject(obj) {
+        return obj instanceof Node
+            || (typeof CSSStyleDeclaration !== 'undefined' && obj instanceof CSSStyleDeclaration)
+            || (typeof DOMStringMap !== 'undefined' && obj instanceof DOMStringMap)
+            || (typeof DOMTokenList !== 'undefined' && obj instanceof DOMTokenList)
+            || (typeof NamedNodeMap !== 'undefined' && obj instanceof NamedNodeMap)
+    }
+
     checkForDangerousKeywords(keyword) {
         let blacklist = [
             'constructor', 'prototype', '__proto__',
             '__defineGetter__', '__defineSetter__',
             'insertAdjacentHTML',
+            'setAttribute', 'setAttributeNS',
+            'setAttributeNode', 'setAttributeNodeNS',
         ]
 
         if (blacklist.includes(keyword)) {

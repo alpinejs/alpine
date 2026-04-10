@@ -15,6 +15,20 @@ test.csp('supports regular syntax',
     }
 )
 
+test.csp('supports x-model with dotted path',
+    [html`
+        <div x-data="{ form: { name: 'initial' } }">
+            <input x-model="form.name" />
+            <span x-text="form.name"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('span').should(haveText('initial'))
+        get('input').clear().type('updated')
+        get('span').should(haveText('updated'))
+    }
+)
+
 test.csp('throws when accessing a global',
     [html`
         <button x-data x-on:click="document.write('evil')"></button>
@@ -59,12 +73,12 @@ test.csp('throws when accessing a global via function',
     },
 )
 
-test.csp('throws when parsing a property assignment',
+test.csp('throws when assigning to a DOM node property',
     [html`
         <button x-data x-on:click="$el.innerHTML = 'evil'"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => message.includes('Property assignments are prohibited') ? false : true)
+        cy.on('uncaught:exception', ({message}) => message.includes('Property assignments on DOM objects are prohibited') ? false : true)
         cy.get('button').click()
         cy.get('button').should(notContain('evil'))
     },

@@ -528,12 +528,14 @@ describe('CSP Parser', () => {
             expect(() => generateRuntimeFunction('[a, b] = arr')).toThrow();
         });
 
-        it('should not support optional chaining', () => {
-            expect(() => generateRuntimeFunction('obj?.prop')).toThrow();
+        it('should support optional chaining', () => {
+            const scope = { obj: { prop: 'value' } };
+            expect(generateRuntimeFunction('obj?.prop')({ scope })).toBe('value');
         });
 
-        it('should not support nullish coalescing', () => {
-            expect(() => generateRuntimeFunction('value ?? default')).toThrow();
+        it('should support nullish coalescing', () => {
+            const scope = { value: null, fallback: 'default' };
+            expect(generateRuntimeFunction('value ?? fallback')({ scope })).toBe('default');
         });
 
         it('should not support compound assignment', () => {
@@ -628,6 +630,137 @@ describe('CSP Parser', () => {
             const el = document.createElement('div');
             const scope = { style: el.style };
             expect(() => generateRuntimeFunction('style.background = "red"')({ scope })).toThrow('DOM objects are prohibited');
+        });
+    });
+
+    describe('Optional Chaining', () => {
+        it('should access property when object exists', () => {
+            const scope = { obj: { prop: 'value' } };
+            expect(generateRuntimeFunction('obj?.prop')({ scope })).toBe('value');
+        });
+
+        it('should return undefined when object is null', () => {
+            const scope = { obj: null };
+            expect(generateRuntimeFunction('obj?.prop')({ scope })).toBe(undefined);
+        });
+
+        it('should return undefined when object is undefined', () => {
+            const scope = { obj: undefined };
+            expect(generateRuntimeFunction('obj?.prop')({ scope })).toBe(undefined);
+        });
+
+        it('should handle chained optional access', () => {
+            const scope = { a: { b: { c: 'deep' } } };
+            expect(generateRuntimeFunction('a?.b?.c')({ scope })).toBe('deep');
+        });
+
+        it('should short-circuit chained optional access', () => {
+            const scope = { a: null };
+            expect(generateRuntimeFunction('a?.b?.c')({ scope })).toBe(undefined);
+        });
+
+        it('should handle computed optional access', () => {
+            const scope = { obj: { foo: 'bar' }, key: 'foo' };
+            expect(generateRuntimeFunction('obj?.[key]')({ scope })).toBe('bar');
+        });
+
+        it('should return undefined for computed access on null', () => {
+            const scope = { obj: null, key: 'foo' };
+            expect(generateRuntimeFunction('obj?.[key]')({ scope })).toBe(undefined);
+        });
+
+        it('should handle optional call when function exists', () => {
+            const scope = { fn: () => 42 };
+            expect(generateRuntimeFunction('fn?.()')({ scope })).toBe(42);
+        });
+
+        it('should return undefined for optional call on null', () => {
+            const scope = { fn: null };
+            expect(generateRuntimeFunction('fn?.()')({ scope })).toBe(undefined);
+        });
+
+        it('should return undefined for optional call on undefined', () => {
+            const scope = { fn: undefined };
+            expect(generateRuntimeFunction('fn?.()')({ scope })).toBe(undefined);
+        });
+
+        it('should handle optional call on member expression', () => {
+            const scope = { obj: { method: (x) => x * 2 } };
+            expect(generateRuntimeFunction('obj.method?.(5)')({ scope })).toBe(10);
+        });
+
+        it('should return undefined for optional call on missing method', () => {
+            const scope = { obj: {} };
+            expect(generateRuntimeFunction('obj.method?.()')({ scope })).toBe(undefined);
+        });
+
+        it('should block dangerous keywords with optional chaining', () => {
+            const scope = { obj: {} };
+            expect(() => generateRuntimeFunction('obj?.__proto__')({ scope })).toThrow('prohibited');
+        });
+
+        it('should block dangerous keywords with optional chaining on DOM element', () => {
+            const scope = { $el: document.createElement('div') };
+            expect(() => generateRuntimeFunction('$el?.insertAdjacentHTML')({ scope })).toThrow('prohibited');
+        });
+
+        it('should not confuse ternary with optional chaining', () => {
+            expect(generateRuntimeFunction('true ? 0.5 : 0')()).toBe(0.5);
+            expect(generateRuntimeFunction('false ? 0.5 : 0')()).toBe(0);
+        });
+    });
+
+    describe('Nullish Coalescing', () => {
+        it('should return left when not nullish', () => {
+            const scope = { a: 'hello', b: 'fallback' };
+            expect(generateRuntimeFunction('a ?? b')({ scope })).toBe('hello');
+        });
+
+        it('should return right when left is null', () => {
+            const scope = { a: null, b: 'fallback' };
+            expect(generateRuntimeFunction('a ?? b')({ scope })).toBe('fallback');
+        });
+
+        it('should return right when left is undefined', () => {
+            const scope = { a: undefined, b: 'fallback' };
+            expect(generateRuntimeFunction('a ?? b')({ scope })).toBe('fallback');
+        });
+
+        it('should return left when left is 0 (unlike ||)', () => {
+            const scope = { a: 0, b: 'fallback' };
+            expect(generateRuntimeFunction('a ?? b')({ scope })).toBe(0);
+        });
+
+        it('should return left when left is empty string (unlike ||)', () => {
+            const scope = { a: '', b: 'fallback' };
+            expect(generateRuntimeFunction('a ?? b')({ scope })).toBe('');
+        });
+
+        it('should return left when left is false (unlike ||)', () => {
+            const scope = { a: false, b: 'fallback' };
+            expect(generateRuntimeFunction('a ?? b')({ scope })).toBe(false);
+        });
+
+        it('should work with literal fallback', () => {
+            const scope = { a: null };
+            expect(generateRuntimeFunction("a ?? 'default'")({ scope })).toBe('default');
+        });
+    });
+
+    describe('Optional Chaining + Nullish Coalescing Combined', () => {
+        it('should combine optional chaining with nullish coalescing', () => {
+            const scope = { obj: { prop: 'value' } };
+            expect(generateRuntimeFunction("obj?.prop ?? 'default'")({ scope })).toBe('value');
+        });
+
+        it('should fall back when optional chaining returns undefined', () => {
+            const scope = { obj: null };
+            expect(generateRuntimeFunction("obj?.prop ?? 'default'")({ scope })).toBe('default');
+        });
+
+        it('should handle deeply chained with fallback', () => {
+            const scope = { a: { b: null } };
+            expect(generateRuntimeFunction("a?.b?.c ?? 'missing'")({ scope })).toBe('missing');
         });
     });
 

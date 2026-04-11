@@ -96,6 +96,134 @@ describe('cspRawEvaluator', () => {
     });
 });
 
+describe('Optional chaining', () => {
+    it('obj?.prop returns value when obj exists', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { user: { name: 'Alice' } }
+
+        expect(cspRawEvaluator(element, 'user?.name', { scope })).toBe('Alice')
+    });
+
+    it('obj?.prop returns undefined when obj is null', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { user: null }
+
+        expect(cspRawEvaluator(element, 'user?.name', { scope })).toBe(undefined)
+    });
+
+    it('obj?.prop returns undefined when obj is undefined', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { user: undefined }
+
+        expect(cspRawEvaluator(element, 'user?.name', { scope })).toBe(undefined)
+    });
+
+    it('chained a?.b?.c', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+
+        expect(cspRawEvaluator(element, 'a?.b?.c', { scope: { a: { b: { c: 42 } } } })).toBe(42)
+        expect(cspRawEvaluator(element, 'a?.b?.c', { scope: { a: null } })).toBe(undefined)
+    });
+
+    it('computed optional access obj?.[key]', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: { x: 'found' }, key: 'x' }
+
+        expect(cspRawEvaluator(element, 'obj?.[key]', { scope })).toBe('found')
+    });
+
+    it('fn?.() returns result when fn exists', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { fn: () => 99 }
+
+        expect(cspRawEvaluator(element, 'fn?.()', { scope })).toBe(99)
+    });
+
+    it('fn?.() returns undefined when fn is null', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { fn: null }
+
+        expect(cspRawEvaluator(element, 'fn?.()', { scope })).toBe(undefined)
+    });
+
+    it('obj.method?.() with member callee', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: { greet: (name) => `hi ${name}` } }
+
+        expect(cspRawEvaluator(element, 'obj.greet?.("world")', { scope })).toBe('hi world')
+    });
+
+    it('security: obj?.__proto__ blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { obj: {} }
+
+        expect(() => {
+            cspRawEvaluator(element, 'obj?.__proto__', { scope })
+        }).toThrow('prohibited')
+    });
+
+    it('security: $el?.insertAdjacentHTML blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let domNode = document.createElement('div')
+        let scope = { $el: domNode }
+
+        expect(() => {
+            cspRawEvaluator(element, '$el?.insertAdjacentHTML', { scope })
+        }).toThrow('prohibited')
+    });
+});
+
+describe('Nullish coalescing', () => {
+    it('a ?? b returns a when a is not nullish', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { a: 'hello', b: 'fallback' }
+
+        expect(cspRawEvaluator(element, 'a ?? b', { scope })).toBe('hello')
+    });
+
+    it('a ?? b returns b when a is null', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { a: null, b: 'fallback' }
+
+        expect(cspRawEvaluator(element, 'a ?? b', { scope })).toBe('fallback')
+    });
+
+    it('a ?? b returns b when a is undefined', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { a: undefined, b: 'fallback' }
+
+        expect(cspRawEvaluator(element, 'a ?? b', { scope })).toBe('fallback')
+    });
+
+    it('a ?? b returns a when a is 0 (unlike ||)', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { a: 0, b: 'fallback' }
+
+        expect(cspRawEvaluator(element, 'a ?? b', { scope })).toBe(0)
+    });
+
+    it('a ?? b returns a when a is empty string (unlike ||)', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { a: '', b: 'fallback' }
+
+        expect(cspRawEvaluator(element, 'a ?? b', { scope })).toBe('')
+    });
+
+    it('a ?? b returns a when a is false (unlike ||)', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { a: false, b: 'fallback' }
+
+        expect(cspRawEvaluator(element, 'a ?? b', { scope })).toBe(false)
+    });
+
+    it('obj?.prop ?? default end-to-end', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+
+        expect(cspRawEvaluator(element, "user?.name ?? 'anon'", { scope: { user: { name: 'Alice' } } })).toBe('Alice')
+        expect(cspRawEvaluator(element, "user?.name ?? 'anon'", { scope: { user: null } })).toBe('anon')
+    });
+});
+
 describe('MemberExpression assignments', () => {
     it('simple dot-path assignment (x-model="form.name" setter)', () => {
         let element = { parentNode: null, _x_dataStack: [] }

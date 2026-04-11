@@ -29,6 +29,19 @@ test.csp('supports x-model with dotted path',
     }
 )
 
+test.csp('x-text with optional chaining and nullish coalescing',
+    [html`
+        <div x-data="{ user: null, config: { theme: 'dark' } }">
+            <span id="fallback" x-text="user?.name ?? 'anonymous'"></span>
+            <span id="value" x-text="config?.theme ?? 'light'"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#fallback').should(haveText('anonymous'))
+        get('#value').should(haveText('dark'))
+    }
+)
+
 test.csp('throws when accessing a global',
     [html`
         <button x-data x-on:click="document.write('evil')"></button>

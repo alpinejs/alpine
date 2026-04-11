@@ -197,6 +197,12 @@ class Tokenizer {
         } else if (char === '-' && next === '-') {
             this.position += 2;
             this.tokens.push(new Token('OPERATOR', '--', start, this.position));
+        } else if (char === '?' && next === '?') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '??', start, this.position));
+        } else if (char === '?' && next === '.' && !this.isDigit(nextNext)) {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '?.', start, this.position));
         }
         // Single-character operators and punctuation
         else {
@@ -252,7 +258,7 @@ class Parser {
     }
 
     parseTernary() {
-        const expr = this.parseLogicalOr();
+        const expr = this.parseNullishCoalescing();
 
         if (this.match('PUNCTUATION', '?')) {
             const consequent = this.parseExpression();
@@ -263,6 +269,23 @@ class Parser {
                 test: expr,
                 consequent,
                 alternate
+            };
+        }
+
+        return expr;
+    }
+
+    parseNullishCoalescing() {
+        let expr = this.parseLogicalOr();
+
+        while (this.match('OPERATOR', '??')) {
+            const operator = this.previous().value;
+            const right = this.parseLogicalOr();
+            expr = {
+                type: 'BinaryExpression',
+                operator,
+                left: expr,
+                right
             };
         }
 
@@ -444,6 +467,32 @@ class Parser {
                     callee: expr,
                     arguments: args
                 };
+            } else if (this.match('OPERATOR', '?.')) {
+                if (this.match('PUNCTUATION', '(')) {
+                    const args = this.parseArguments();
+                    expr = {
+                        type: 'OptionalCallExpression',
+                        callee: expr,
+                        arguments: args
+                    };
+                } else if (this.match('PUNCTUATION', '[')) {
+                    const property = this.parseExpression();
+                    this.consume('PUNCTUATION', ']');
+                    expr = {
+                        type: 'OptionalMemberExpression',
+                        object: expr,
+                        property,
+                        computed: true
+                    };
+                } else {
+                    const property = this.consume('IDENTIFIER');
+                    expr = {
+                        type: 'OptionalMemberExpression',
+                        object: expr,
+                        property: { type: 'Identifier', name: property.value },
+                        computed: false
+                    };
+                }
             } else {
                 break;
             }
@@ -704,6 +753,35 @@ class Evaluator {
 
                 return memberValue;
 
+            case 'OptionalMemberExpression':
+                const optObject = this.evaluate({ node: node.object, scope, context, forceBindingRootScopeToFunctions });
+                if (optObject == null) {
+                    return undefined;
+                }
+
+                let optProperty;
+                if (node.computed) {
+                    optProperty = this.evaluate({ node: node.property, scope, context, forceBindingRootScopeToFunctions });
+                } else {
+                    optProperty = node.property.name;
+                }
+
+                this.checkForDangerousKeywords(optProperty)
+
+                let optMemberValue = optObject[optProperty];
+
+                this.checkForDangerousValues(optMemberValue)
+
+                if (typeof optMemberValue === 'function') {
+                    if (forceBindingRootScopeToFunctions) {
+                        return optMemberValue.bind(scope);
+                    } else {
+                        return optMemberValue.bind(optObject);
+                    }
+                }
+
+                return optMemberValue;
+
             case 'CallExpression':
                 const args = node.arguments.map(arg => this.evaluate({ node: arg, scope, context, forceBindingRootScopeToFunctions }));
 
@@ -763,6 +841,65 @@ class Evaluator {
                 this.checkForDangerousValues(returnValue)
 
                 return returnValue
+
+            case 'OptionalCallExpression':
+                const optCallArgs = node.arguments.map(arg => this.evaluate({ node: arg, scope, context, forceBindingRootScopeToFunctions }));
+
+                let optCallReturnValue;
+
+                if (node.callee.type === 'MemberExpression' || node.callee.type === 'OptionalMemberExpression') {
+                    const obj = this.evaluate({ node: node.callee.object, scope, context, forceBindingRootScopeToFunctions });
+
+                    if (obj == null) return undefined;
+
+                    let prop;
+                    if (node.callee.computed) {
+                        prop = this.evaluate({ node: node.callee.property, scope, context, forceBindingRootScopeToFunctions });
+                    } else {
+                        prop = node.callee.property.name
+                    }
+
+                    this.checkForDangerousKeywords(prop)
+
+                    let func = obj[prop];
+                    if (func == null) return undefined;
+                    if (typeof func !== 'function') {
+                        throw new Error('Value is not a function');
+                    }
+
+                    optCallReturnValue = func.apply(obj, optCallArgs);
+                } else {
+                    if (node.callee.type === 'Identifier') {
+                        const name = node.callee.name;
+
+                        let func;
+                        if (name in scope) {
+                            func = scope[name];
+                        } else {
+                            return undefined;
+                        }
+
+                        if (func == null) return undefined;
+                        if (typeof func !== 'function') {
+                            throw new Error('Value is not a function');
+                        }
+
+                        const thisContext = context !== null ? context : scope;
+                        optCallReturnValue = func.apply(thisContext, optCallArgs);
+                    } else {
+                        const callee = this.evaluate({ node: node.callee, scope, context, forceBindingRootScopeToFunctions });
+                        if (callee == null) return undefined;
+                        if (typeof callee !== 'function') {
+                            throw new Error('Value is not a function');
+                        }
+
+                        optCallReturnValue = callee.apply(context, optCallArgs);
+                    }
+                }
+
+                this.checkForDangerousValues(optCallReturnValue)
+
+                return optCallReturnValue
 
             case 'UnaryExpression':
                 const argument = this.evaluate({ node: node.argument, scope, context, forceBindingRootScopeToFunctions });
@@ -830,6 +967,7 @@ class Evaluator {
                     case '>=': return left >= right;
                     case '&&': return left && right;
                     case '||': return left || right;
+                    case '??': return left != null ? left : right;
                     default:
                         throw new Error(`Unknown binary operator: ${node.operator}`);
                 }

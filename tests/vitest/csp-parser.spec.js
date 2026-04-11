@@ -514,8 +514,8 @@ describe('CSP Parser', () => {
             expect(() => generateRuntimeFunction('function() { return 5; }')).toThrow();
         });
 
-        it('should not support template literals', () => {
-            expect(() => generateRuntimeFunction('`hello`')).toThrow();
+        it('should support template literals', () => {
+            expect(generateRuntimeFunction('`hello`')()).toBe('hello');
         });
 
         it('should not support spread operator', () => {
@@ -628,6 +628,89 @@ describe('CSP Parser', () => {
             const el = document.createElement('div');
             const scope = { style: el.style };
             expect(() => generateRuntimeFunction('style.background = "red"')({ scope })).toThrow('DOM objects are prohibited');
+        });
+    });
+
+    describe('Template Literals', () => {
+        it('should parse plain template literal', () => {
+            expect(generateRuntimeFunction('`hello`')()).toBe('hello');
+        });
+
+        it('should parse empty template literal', () => {
+            expect(generateRuntimeFunction('``')()).toBe('');
+        });
+
+        it('should parse template literal with single interpolation', () => {
+            const scope = { name: 'world' };
+            expect(generateRuntimeFunction('`hello ${name}`')({ scope })).toBe('hello world');
+        });
+
+        it('should parse template literal with multiple interpolations', () => {
+            const scope = { a: 'foo', b: 'bar' };
+            expect(generateRuntimeFunction('`${a} and ${b}`')({ scope })).toBe('foo and bar');
+        });
+
+        it('should parse template literal with member expression', () => {
+            const scope = { obj: { prop: 'value' } };
+            expect(generateRuntimeFunction('`result: ${obj.prop}`')({ scope })).toBe('result: value');
+        });
+
+        it('should parse template literal with binary expression', () => {
+            const scope = { a: 2, b: 3 };
+            expect(generateRuntimeFunction('`sum: ${a + b}`')({ scope })).toBe('sum: 5');
+        });
+
+        it('should parse template literal with ternary expression', () => {
+            const scope = { x: true };
+            expect(generateRuntimeFunction('`${x ? "yes" : "no"}`')({ scope })).toBe('yes');
+        });
+
+        it('should handle escaped backtick', () => {
+            expect(generateRuntimeFunction('`escaped \\` backtick`')()).toBe('escaped ` backtick');
+        });
+
+        it('should handle escaped dollar-brace', () => {
+            expect(generateRuntimeFunction('`escaped \\${not interpolated}`')()).toBe('escaped ${not interpolated}');
+        });
+
+        it('should handle null/undefined interpolation as empty string', () => {
+            const scope = { val: null };
+            expect(generateRuntimeFunction('`value: ${val}`')({ scope })).toBe('value: ');
+        });
+
+        it('should handle number interpolation', () => {
+            const scope = { count: 42 };
+            expect(generateRuntimeFunction('`count: ${count}`')({ scope })).toBe('count: 42');
+        });
+
+        it('should handle newline escape sequence', () => {
+            expect(generateRuntimeFunction('`line1\\nline2`')()).toBe('line1\nline2');
+        });
+
+        it('should handle tab escape sequence', () => {
+            expect(generateRuntimeFunction('`col1\\tcol2`')()).toBe('col1\tcol2');
+        });
+
+        it('should throw on unterminated template literal', () => {
+            expect(() => generateRuntimeFunction('`unterminated')).toThrow('Unterminated template literal');
+        });
+
+        it('should throw on unclosed interpolation', () => {
+            expect(() => generateRuntimeFunction('`hello ${name')).toThrow('Unterminated template expression');
+        });
+
+        it('should parse consecutive interpolations with no text between', () => {
+            const scope = { a: 'x', b: 'y' };
+            expect(generateRuntimeFunction('`${a}${b}`')({ scope })).toBe('xy');
+        });
+
+        it('should use template literal as operand in ternary', () => {
+            const scope = { x: true };
+            expect(generateRuntimeFunction('x ? `yes` : `no`')({ scope })).toBe('yes');
+        });
+
+        it('should not support nested template literals', () => {
+            expect(() => generateRuntimeFunction('`outer ${`inner`}`')).toThrow();
         });
     });
 

@@ -96,6 +96,62 @@ describe('cspRawEvaluator', () => {
     });
 });
 
+describe('Template literals', () => {
+    it('plain template literal', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+
+        expect(cspRawEvaluator(element, '`hello`')).toBe('hello')
+    });
+
+    it('template literal with interpolation', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { name: 'Alice' }
+
+        expect(cspRawEvaluator(element, '`hi ${name}`', { scope })).toBe('hi Alice')
+    });
+
+    it('template literal with multiple interpolations', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { a: 'x', b: 'y' }
+
+        expect(cspRawEvaluator(element, '`${a}-${b}`', { scope })).toBe('x-y')
+    });
+
+    it('template literal with expression', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { x: 2, y: 3 }
+
+        expect(cspRawEvaluator(element, '`result: ${x + y}`', { scope })).toBe('result: 5')
+    });
+
+    it('template literal with null interpolation', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { val: null }
+
+        expect(cspRawEvaluator(element, '`value: ${val}`', { scope })).toBe('value: ')
+    });
+
+    it('template literal with undefined interpolation', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { val: undefined }
+
+        expect(cspRawEvaluator(element, '`value: ${val}`', { scope })).toBe('value: ')
+    });
+
+    it('should block dangerous keywords inside interpolation', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+
+        expect(() => cspRawEvaluator(element, '`${document.cookie}`')).toThrow()
+    });
+
+    it('should block dangerous values inside interpolation', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { el: document.createElement('div') }
+
+        expect(() => cspRawEvaluator(element, '`${el.insertAdjacentHTML}`', { scope })).toThrow()
+    });
+});
+
 describe('MemberExpression assignments', () => {
     it('simple dot-path assignment (x-model="form.name" setter)', () => {
         let element = { parentNode: null, _x_dataStack: [] }

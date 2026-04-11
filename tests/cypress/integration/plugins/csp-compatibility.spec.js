@@ -29,6 +29,14 @@ test.csp('supports x-model with dotted path',
     }
 )
 
+// Plain string instead of html`` — the tagged template's strings.raw mangles backticks
+test.csp('x-text with template literal interpolation',
+    ['<div x-data="{ count: 3 }"><span x-text="`Count: ${count}`"></span></div>'],
+    ({ get }) => {
+        get('span').should(haveText('Count: 3'))
+    }
+)
+
 test.csp('throws when accessing a global',
     [html`
         <button x-data x-on:click="document.write('evil')"></button>

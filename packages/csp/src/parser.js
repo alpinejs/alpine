@@ -37,6 +37,8 @@ class Tokenizer {
                 this.readIdentifierOrKeyword();
             } else if (char === '"' || char === "'") {
                 this.readString();
+            } else if (char === '`') {
+                this.readTemplateLiteral();
             } else if (char === '/' && this.peek() === '/') {
                 this.skipLineComment();
             } else {
@@ -156,6 +158,84 @@ class Tokenizer {
         }
 
         throw new Error(`Unterminated string starting at position ${start}`);
+    }
+
+    readTemplateLiteral() {
+        const start = this.position;
+        this.position++; // Skip opening backtick
+
+        this.tokens.push(new Token('TEMPLATE_START', '`', start, this.position));
+
+        let value = '';
+        let quasiStart = this.position;
+
+        while (this.position < this.input.length) {
+            const char = this.input[this.position];
+
+            if (char === '\\') {
+                this.position++;
+                if (this.position < this.input.length) {
+                    const escaped = this.input[this.position];
+                    switch (escaped) {
+                        case 'n': value += '\n'; break;
+                        case 't': value += '\t'; break;
+                        case 'r': value += '\r'; break;
+                        case '\\': value += '\\'; break;
+                        case '`': value += '`'; break;
+                        case '$': value += '$'; break;
+                        default: value += escaped;
+                    }
+                    this.position++;
+                }
+            } else if (char === '$' && this.peek() === '{') {
+                this.tokens.push(new Token('TEMPLATE_QUASI', value, quasiStart, this.position));
+                value = '';
+
+                this.position += 2; // Skip ${
+                this.tokens.push(new Token('TEMPLATE_EXPR_START', '${', this.position - 2, this.position));
+
+                let braceDepth = 1;
+                while (this.position < this.input.length && braceDepth > 0) {
+                    this.skipWhitespace();
+                    if (this.position >= this.input.length || (this.input[this.position] === '}' && braceDepth === 1)) break;
+
+                    const innerChar = this.input[this.position];
+                    if (innerChar === '{') {
+                        braceDepth++;
+                        this.readOperatorOrPunctuation();
+                    } else if (innerChar === '}') {
+                        braceDepth--;
+                        if (braceDepth > 0) this.readOperatorOrPunctuation();
+                    } else if (this.isDigit(innerChar)) {
+                        this.readNumber();
+                    } else if (this.isAlpha(innerChar) || innerChar === '_' || innerChar === '$') {
+                        this.readIdentifierOrKeyword();
+                    } else if (innerChar === '"' || innerChar === "'") {
+                        this.readString();
+                    } else {
+                        this.readOperatorOrPunctuation();
+                    }
+                }
+
+                if (this.position < this.input.length && this.input[this.position] === '}') {
+                    this.position++; // Skip closing }
+                    this.tokens.push(new Token('TEMPLATE_EXPR_END', '}', this.position - 1, this.position));
+                } else if (this.position >= this.input.length) {
+                    throw new Error(`Unterminated template expression starting at position ${this.position}`);
+                }
+                quasiStart = this.position;
+            } else if (char === '`') {
+                this.tokens.push(new Token('TEMPLATE_QUASI', value, quasiStart, this.position));
+                this.position++; // Skip closing backtick
+                this.tokens.push(new Token('TEMPLATE_END', '`', this.position - 1, this.position));
+                return;
+            } else {
+                value += char;
+                this.position++;
+            }
+        }
+
+        throw new Error(`Unterminated template literal starting at position ${start}`);
     }
 
     readOperatorOrPunctuation() {
@@ -465,6 +545,31 @@ class Parser {
         return args;
     }
 
+    parseTemplateLiteral() {
+        const quasis = [];
+        const expressions = [];
+
+        while (!this.match('TEMPLATE_END')) {
+            if (this.match('TEMPLATE_QUASI')) {
+                quasis.push({
+                    type: 'TemplateElement',
+                    value: this.previous().value
+                });
+            } else if (this.match('TEMPLATE_EXPR_START')) {
+                expressions.push(this.parseExpression());
+                this.consume('TEMPLATE_EXPR_END', '}');
+            } else {
+                throw new Error('Unexpected token in template literal');
+            }
+        }
+
+        return {
+            type: 'TemplateLiteral',
+            quasis,
+            expressions
+        };
+    }
+
     parsePrimary() {
         // Numbers
         if (this.match('NUMBER')) {
@@ -474,6 +579,11 @@ class Parser {
         // Strings
         if (this.match('STRING')) {
             return { type: 'Literal', value: this.previous().value };
+        }
+
+        // Template literals
+        if (this.match('TEMPLATE_START')) {
+            return this.parseTemplateLiteral();
         }
 
         // Booleans
@@ -876,6 +986,17 @@ class Evaluator {
                     result[key] = value;
                 }
                 return result;
+
+            case 'TemplateLiteral':
+                let templateResult = '';
+                for (let i = 0; i < node.quasis.length; i++) {
+                    templateResult += node.quasis[i].value;
+                    if (i < node.expressions.length) {
+                        const exprValue = this.evaluate({ node: node.expressions[i], scope, context, forceBindingRootScopeToFunctions });
+                        templateResult += exprValue == null ? '' : String(exprValue);
+                    }
+                }
+                return templateResult;
 
             default:
                 throw new Error(`Unknown node type: ${node.type}`);

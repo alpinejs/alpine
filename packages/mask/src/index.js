@@ -52,6 +52,14 @@ export default function (Alpine) {
 
                 let updater = el._x_forceModelUpdate
                 el._x_forceModelUpdate = (value) => {
+                    // If the model value was cleared (e.g. the parent object was
+                    // removed), just clear the input — don't format and write back
+                    // as that would resurrect the model path with an empty value.
+                    if (value === undefined) {
+                        lastInputValue = ''
+                        return updater(value)
+                    }
+
                     value = String(value)
                     let template = templateFn(value)
                     if (template && template !== 'false') {

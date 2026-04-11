@@ -1,4 +1,4 @@
-import { haveData, haveValue, html, test } from '../../utils'
+import { haveData, haveText, haveValue, html, test } from '../../utils'
 
 test('x-mask',
     [html`<input x-data x-mask="(999) 999-9999">`],
@@ -291,5 +291,35 @@ test('x-mask masks programmatic x-model updates',
         get('button').click()
         get('input').should(haveValue('23,420'))
         get('div').should(haveData('value', '23,420'))
+    }
+)
+
+test('x-mask with x-model initializes missing object key',
+    [html`
+        <div x-data="{ form: {} }">
+            <input x-model="form.amount" x-mask:dynamic="$money($input)" id="1">
+            <span id="output" x-text="'amount' in form ? 'EXISTS:' + form.amount : 'GONE'"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#output').should(haveText('EXISTS:'))
+        get('#1').type('1234').should(haveValue('1,234'))
+        get('#output').should(haveText('EXISTS:1,234'))
+    }
+)
+
+test('x-mask does not resurrect x-model value when model is cleared',
+    [html`
+        <div x-data="{ form: { amount: '5000' } }">
+            <input x-model="form.amount" x-mask:dynamic="$money($input)">
+            <span id="output" x-text="'amount' in form ? 'EXISTS' : 'GONE'"></span>
+            <button @click="form = {}">clear</button>
+        </div>
+    `],
+    ({ get }) => {
+        get('input').should(haveValue('5,000'))
+        get('#output').should(haveText('EXISTS'))
+        get('button').click()
+        get('#output').should(haveText('GONE'))
     }
 )

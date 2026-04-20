@@ -237,14 +237,11 @@ test.skip('can use custom sortablejs configuration',
     },
 )
 
-test.skip('does not throw when a sort item contains a template inside an SVG',
+test('does not throw when a sort item contains a template inside an SVG',
     [html`
         <div x-data>
             <ul x-sort>
-                <li id="1">
-                    <svg><template name="line"><path></path></template></svg>
-                    foo
-                </li>
+                <li id="1"><svg><template name="line"><path></path></template></svg>foo</li>
                 <li id="2">bar</li>
             </ul>
         </div>

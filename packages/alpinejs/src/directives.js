@@ -206,8 +206,8 @@ const DEFAULT = 'DEFAULT'
 let directiveOrder = [
     'ignore',
     'ref',
-    'data',
     'id',
+    'data',
     'anchor',
     'bind',
     'init',

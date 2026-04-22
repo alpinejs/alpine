@@ -8,8 +8,6 @@ import { warn } from "../utils/warn"
 directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
     if (el.tagName.toLowerCase() !== 'template') warn('x-teleport can only be used on a <template> tag', el)
 
-    let target = getTarget(expression)
-
     let clone = el.content.cloneNode(true).firstElementChild
 
     // Add reference to element on <template x-teleport, and visa versa.
@@ -46,38 +44,37 @@ directive('teleport', (el, { modifiers, expression }, { cleanup }) => {
         }
     }
 
-    mutateDom(() => {
-        placeInDom(clone, target, modifiers)
-
-        skipDuringClone(() => {
-            initTree(clone)
-        })()
-    })
-
-    el._x_teleportPutBack = () => {
+    // During clone mode (used by Alpine.morph to seed new server HTML), the clone
+    // only needs to exist as `el._x_teleport` so morph can patch it. Attaching it
+    // to the DOM or registering its cleanup would leak a detached node every morph.
+    skipDuringClone(() => {
         let target = getTarget(expression)
 
         mutateDom(() => {
-            placeInDom(el._x_teleport, target, modifiers)
-        })
-    }
+            placeInDom(clone, target, modifiers)
 
-    cleanup(() =>
-      mutateDom(() => {
-        clone.remove()
-        destroyTree(clone)
-      })
-    )
+            initTree(clone)
+        })
+
+        el._x_teleportPutBack = () => {
+            let target = getTarget(expression)
+
+            mutateDom(() => {
+                placeInDom(el._x_teleport, target, modifiers)
+            })
+        }
+
+        cleanup(() =>
+            mutateDom(() => {
+                clone.remove()
+                destroyTree(clone)
+            })
+        )
+    })()
 })
 
-let teleportContainerDuringClone = document.createElement('div')
-
 function getTarget(expression) {
-    let target = skipDuringClone(() => {
-        return document.querySelector(expression)
-    }, () => {
-        return teleportContainerDuringClone
-    })()
+    let target = document.querySelector(expression)
 
     if (! target) warn(`Cannot find x-teleport element for selector: "${expression}"`)
 

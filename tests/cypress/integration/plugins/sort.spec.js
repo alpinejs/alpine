@@ -237,6 +237,21 @@ test.skip('can use custom sortablejs configuration',
     },
 )
 
+test('does not throw when a sort item contains a template inside an SVG',
+    [html`
+        <div x-data>
+            <ul x-sort>
+                <li id="1"><svg><template name="line"><path></path></template></svg>foo</li>
+                <li id="2">bar</li>
+            </ul>
+        </div>
+    `],
+    ({ get }) => {
+        get('ul li').eq(0).should(haveText('foo'))
+        get('ul li').eq(1).should(haveText('bar'))
+    },
+)
+
 test.skip('works with Livewire morphing',
     [html`
         <div x-data>

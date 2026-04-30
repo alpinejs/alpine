@@ -29,7 +29,7 @@ export default function (Alpine) {
         let preferences = {
             hideGhost: ! modifiers.includes('ghost'),
             useHandles: !! el.querySelector(handleSelector)
-                || Array.from(el.querySelectorAll('template')).some(tmpl => tmpl.content.querySelector(handleSelector)),
+                || Array.from(el.querySelectorAll('template:not(svg template)')).some(tmpl => tmpl.content?.querySelector(handleSelector)),
             group: getGroupName(el, modifiers),
         }
 

@@ -134,6 +134,41 @@ test('can morph teleports',
     },
 )
 
+test('morphing teleports does not leak detached teleport clones',
+    [html`
+        <div x-data="{ count: 1 }" id="a">
+            <button @click="count++">Inc</button>
+
+            <template x-teleport="#b">
+                <div>
+                    <h1 x-text="count"></h1>
+                </div>
+            </template>
+        </div>
+
+        <div id="b"></div>
+    `],
+    ({ get }, reload, window, document) => {
+        let toHtml = document.querySelector('div#a').outerHTML
+
+        get('div#a').then(([el]) => {
+            for (let i = 0; i < 5; i++) {
+                window.Alpine.morph(el, toHtml)
+            }
+        })
+
+        get('template[data-teleport-template]').then(([template]) => {
+            let probe = template.cloneNode(true)
+            window.Alpine.cloneNode(template, probe)
+
+            let container = probe._x_teleport.parentElement
+            let siblings = container ? container.children.length : 1
+
+            cy.wrap(siblings).should('equal', 1)
+        })
+    },
+)
+
 test('can morph teleports in different places with IDs',
     [html`
         <div x-data="{ count: 1 }" id="a">

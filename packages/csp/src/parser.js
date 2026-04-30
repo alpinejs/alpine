@@ -812,7 +812,15 @@ class Evaluator {
 
             case 'BinaryExpression':
                 const left = this.evaluate({ node: node.left, scope, context, forceBindingRootScopeToFunctions });
-                const right = this.evaluate({ node: node.right, scope, context, forceBindingRootScopeToFunctions });
+
+                // Wrapped in a function so && and || can skip it when short-circuiting.
+                const evalRight = () => this.evaluate({ node: node.right, scope, context, forceBindingRootScopeToFunctions });
+
+                // Short-circuit && and || so side-effects on the right aren't evaluated when the result is already determined.
+                if (node.operator === '&&') return left && evalRight();
+                if (node.operator === '||') return left || evalRight();
+
+                const right = evalRight();
 
                 switch (node.operator) {
                     case '+': return left + right;
@@ -828,8 +836,6 @@ class Evaluator {
                     case '>': return left > right;
                     case '<=': return left <= right;
                     case '>=': return left >= right;
-                    case '&&': return left && right;
-                    case '||': return left || right;
                     default:
                         throw new Error(`Unknown binary operator: ${node.operator}`);
                 }

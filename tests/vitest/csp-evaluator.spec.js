@@ -94,6 +94,54 @@ describe('cspRawEvaluator', () => {
         expect(cspRawEvaluator(element, 'true || false')).toBe(true)
         expect(cspRawEvaluator(element, '!false')).toBe(true)
     });
+
+    it('&& evaluates right side when left side is truthy', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let rightCalled = false
+        let scope = {
+            left: true,
+            right: () => { rightCalled = true; return 'from right' },
+        }
+
+        expect(cspRawEvaluator(element, 'left && right()', { scope })).toBe('from right')
+        expect(rightCalled).toBe(true)
+    });
+
+    it('&& short-circuits when left side is falsy', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let rightCalled = false
+        let scope = {
+            left: false,
+            right: () => { rightCalled = true; return true },
+        }
+
+        expect(cspRawEvaluator(element, 'left && right()', { scope })).toBe(false)
+        expect(rightCalled).toBe(false)
+    });
+
+    it('|| short-circuits when left side is truthy', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let rightCalled = false
+        let scope = {
+            left: true,
+            right: () => { rightCalled = true; return false },
+        }
+
+        expect(cspRawEvaluator(element, 'left || right()', { scope })).toBe(true)
+        expect(rightCalled).toBe(false)
+    });
+
+    it('|| evaluates right side when left side is falsy', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let rightCalled = false
+        let scope = {
+            left: false,
+            right: () => { rightCalled = true; return 'from right' },
+        }
+
+        expect(cspRawEvaluator(element, 'left || right()', { scope })).toBe('from right')
+        expect(rightCalled).toBe(true)
+    });
 });
 
 describe('MemberExpression assignments', () => {

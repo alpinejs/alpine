@@ -14,16 +14,16 @@ export default function (Alpine) {
     })
 
     Alpine.directive('anchor', Alpine.skipDuringClone((el, { expression, modifiers, value }, { evaluate, effect, cleanup }) => {
-        let { placement, offsetValue, unstyled } = getOptions(modifiers)
+        let { placement, offsetValue, unstyled, allowFlip } = getOptions(modifiers)
 
         el._x_anchor = Alpine.reactive({ x: 0, y: 0 })
 
         let previousReference = null
         let release = null
 
-        let effector = effect(() => {
+        effect(() => {
             let reference = evaluate(expression)
-            if (! reference) throw 'Alpine: no element provided to x-anchor...'
+            if (! reference) return
 
             if (previousReference !== reference) {
                 if (release) release()
@@ -35,7 +35,7 @@ export default function (Alpine) {
 
                     computePosition(reference, el, {
                         placement,
-                        middleware: [flip(), shift({padding: 5}), offset(offsetValue)],
+                        middleware: [allowFlip && flip(), shift({padding: 5}), offset(offsetValue)],
                     }).then(({ x, y }) => {
                         unstyled || setStyles(el, x, y)
 
@@ -54,7 +54,6 @@ export default function (Alpine) {
         })
 
         cleanup(() => {
-            effector()
             if (release) release()
         })
     },
@@ -85,6 +84,7 @@ function getOptions(modifiers) {
         offsetValue = modifiers[idx + 1] !== undefined ? Number(modifiers[idx + 1]) : offsetValue
     }
     let unstyled = modifiers.includes('no-style')
+    let allowFlip = ! modifiers.includes('noflip')
 
-    return { placement, offsetValue, unstyled }
+    return { placement, offsetValue, unstyled, allowFlip }
 }

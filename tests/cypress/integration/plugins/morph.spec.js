@@ -1233,3 +1233,21 @@ test('morph preserves x-if content and nested Alpine state across morph',
         get('#count').should(haveText('1'))
     },
 )
+
+test('$refs are available during morph',
+    [html`
+        <div x-data>
+            <span x-ref="foo" data-value="bar"></span>
+            <p x-text="$refs.foo ? $refs.foo.dataset.value : 'missing'"></p>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        get('p').should(haveText('bar'))
+
+        let toHtml = document.querySelector('div').outerHTML
+
+        get('div').then(([el]) => window.Alpine.morph(el, toHtml))
+
+        get('p').should(haveText('bar'))
+    },
+)

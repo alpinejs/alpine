@@ -179,6 +179,16 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
         })
     }
 
+    if (el.tagName === 'SELECT') {
+        let observer = new MutationObserver(() => {
+            el._x_forceModelUpdate(getValue())
+        })
+
+        observer.observe(el, { childList: true })
+
+        cleanup(() => observer.disconnect())
+    }
+
     effect(() => {
         // We need to make sure we're always "getting" the value up front,
         // so that we don't run into a situation where because of the early

@@ -695,3 +695,60 @@ test('x-model with dotted expression that evaluates to undefined does not overwr
         get('input').should(haveValue('on'))
     }
 )
+
+test('x-model initializes single select values rendered with x-for', html`
+    <div x-data="{ color: 'Orange' }">
+        <select x-model="color">
+            <template x-for="color in ['Red', 'Orange', 'Yellow']">
+                <option :value="color" x-text="color"></option>
+            </template>
+        </select>
+    </div>
+`, ({ get }) => {
+    get('select').should(haveValue('Orange'))
+})
+
+test('x-model re-syncs select value after x-for re-renders options', html`
+    <div x-data="{ colors: ['Red'], color: 'Red' }">
+        <select x-model="color">
+            <template x-for="colorOption in colors" :key="colorOption">
+                <option :value="colorOption" x-text="colorOption"></option>
+            </template>
+        </select>
+
+        <button @click="colors = ['Orange']; color = 'Orange'">Change</button>
+    </div>
+`, ({ get }) => {
+    get('select').should(haveValue('Red'))
+    get('button').click()
+    get('select').should(haveValue('Orange'))
+})
+
+test('x-model initializes multiple select values rendered with x-for', html`
+    <div x-data="{ colors: ['Orange', 'Yellow'] }">
+        <select x-model="colors" multiple>
+            <template x-for="color in ['Red', 'Orange', 'Yellow']">
+                <option :value="color" x-text="color"></option>
+            </template>
+        </select>
+    </div>
+`, ({ get }) => {
+    get('option[value="Red"]').should('not.be.selected')
+    get('option[value="Orange"]').should('be.selected')
+    get('option[value="Yellow"]').should('be.selected')
+})
+
+test('x-model does not fire change handlers when x-for options initialize', html`
+    <div x-data="{ color: 'Orange', changes: 0 }">
+        <select x-model="color" @change="changes++">
+            <template x-for="color in ['Red', 'Orange', 'Yellow']">
+                <option :value="color" x-text="color"></option>
+            </template>
+        </select>
+
+        <span x-text="changes"></span>
+    </div>
+`, ({ get }) => {
+    get('select').should(haveValue('Orange'))
+    get('span').should(haveText('0'))
+})

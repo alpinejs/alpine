@@ -9,6 +9,24 @@ test('sets attribute bindings on initialize',
     ({ get }) => get('span').should(haveAttribute('foo', 'bar'))
 )
 
+test('object bound to regular attribute is serialized as JSON',
+    html`
+        <div x-data="{ config: { year: 2024, month: 3 } }">
+            <span :data-config="config"></span>
+        </div>
+    `,
+    ({ get }) => get('span').should(haveAttribute('data-config', '{"year":2024,"month":3}'))
+)
+
+test('array bound to regular attribute is serialized as JSON',
+    html`
+        <div x-data="{ items: [1, 2, 3] }">
+            <span :data-items="items"></span>
+        </div>
+    `,
+    ({ get }) => get('span').should(haveAttribute('data-items', '[1,2,3]'))
+)
+
 test('sets undefined nested keys to empty string',
     html`
         <div x-data="{ nested: {} }">

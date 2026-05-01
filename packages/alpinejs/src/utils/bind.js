@@ -92,6 +92,7 @@ function bindAttribute(el, name, value) {
         el.removeAttribute(name)
     } else {
         if (isBooleanAttr(name)) value = name
+        if (isObjectAttr(value)) value = JSON.stringify(value)
 
         setIfChanged(el, name, value)
     }
@@ -174,6 +175,10 @@ function isBooleanAttr(attrName) {
 
 function attributeShouldntBePreservedIfFalsy(name) {
     return ! ['aria-pressed', 'aria-checked', 'aria-expanded', 'aria-selected'].includes(name)
+}
+
+function isObjectAttr(value) {
+    return typeof value === 'object' && value !== null
 }
 
 export function getBinding(el, name, fallback) {

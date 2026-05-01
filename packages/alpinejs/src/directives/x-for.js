@@ -7,7 +7,7 @@ import { mutateDom } from '../mutation'
 import { warn } from '../utils/warn'
 import { skipDuringClone } from '../clone'
 
-directive('for', (el, { expression }, { effect, cleanup }) => {
+directive('for', skipDuringClone((el, { expression }, { effect, cleanup }) => {
     let iteratorNames = parseForExpression(expression)
 
     let evaluateItems = evaluateLater(el, iteratorNames.items)
@@ -30,8 +30,9 @@ directive('for', (el, { expression }, { effect, cleanup }) => {
         )
 
         delete el._x_lookup
+        delete el._x_lastRenderedEl
     })
-})
+}))
 
 function refreshScope(scope) {
     return (newScope) => {
@@ -125,7 +126,15 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                 prev.after(clone)
                 prev = clone
             })
-            skipDuringClone(() => added.forEach(clone => initTree(clone)))()
+            added.forEach(clone => initTree(clone))
+
+            // Mark the last rendered element so morph can skip
+            // past these items instead of trying to diff them...
+            if (prev !== templateEl) {
+                templateEl._x_lastRenderedEl = prev
+            } else {
+                delete templateEl._x_lastRenderedEl
+            }
         })
     })
 }

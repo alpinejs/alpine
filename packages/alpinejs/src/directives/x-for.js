@@ -51,7 +51,7 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
         if (isNumeric(items))
             items = Array.from({ length: items }, (_, i) => i + 1)
 
-        if (items === undefined) items = []
+        if (items === undefined || items === null) items = []
 
         // Support Set and Map objects by converting to arrays.
         if (items instanceof Set) items = Array.from(items)
@@ -110,6 +110,9 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                     }
                     return
                 }
+
+                if (templateEl.content.children.length > 1)
+                    warn('x-for templates require a single root element, additional elements will be ignored.', templateEl)
 
                 let clone = document.importNode(templateEl.content, true).firstElementChild
                 let reactiveScope = reactive(scope)
@@ -193,7 +196,8 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
 }
 
 function isNumeric(subject){
-    return ! Array.isArray(subject) && ! isNaN(subject)
+    // `isNaN` throws on null-prototype objects, so skip objects before calling it.
+    return typeof subject !== 'object' && ! isNaN(subject)
 }
 
 function isObject(subject) {

@@ -56,9 +56,10 @@ function bundleFile(package, file) {
             })
 
         },
-        // This file outputs two files: an esm module and a cjs module.
-        // The ESM one is meant for "import" statements (bundlers and new browsers)
-        // and the cjs one is meant for "require" statements (node).
+        // This file outputs three files: an esm module, a minified esm module,
+        // and a cjs module. The ESM ones are meant for "import" statements
+        // (bundlers and new browsers) and the cjs one is meant for "require"
+        // statements (node).
         'module.js': () => {
             build({
                 entryPoints: [`packages/${package}/builds/${file}`],
@@ -66,6 +67,19 @@ function bundleFile(package, file) {
                 bundle: true,
                 platform: 'neutral',
                 mainFields: ['module', 'main'],
+            })
+
+            // Build a minified ESM version for browsers loading modules
+            // directly (e.g. `<script type="module">` importing from node_modules).
+            build({
+                entryPoints: [`packages/${package}/builds/${file}`],
+                outfile: `packages/${package}/dist/${file.replace('.js', '.esm.min.js')}`,
+                bundle: true,
+                minify: true,
+                platform: 'neutral',
+                mainFields: ['module', 'main'],
+            }).then(() => {
+                outputSize(package, `packages/${package}/dist/${file.replace('.js', '.esm.min.js')}`)
             })
 
             build({

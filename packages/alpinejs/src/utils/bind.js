@@ -46,15 +46,6 @@ function bindInputValue(el, value) {
         if (el.attributes.value === undefined) {
             el.value = value
         }
-
-        // @todo: yuck
-        if (window.fromModel) {
-            if (typeof value === 'boolean') {
-                el.checked = safeParseBoolean(el.value) === value
-            } else {
-                el.checked = checkedAttrLooseCompare(el.value, value)
-            }
-        }
     } else if (isCheckbox(el)) {
         // If we are explicitly binding a string to the :value, set the string,
         // If the value is a boolean/array/number/null/undefined, leave it alone, it will be set to "on"
@@ -101,6 +92,7 @@ function bindAttribute(el, name, value) {
         el.removeAttribute(name)
     } else {
         if (isBooleanAttr(name)) value = name
+        if (isObjectAttr(value)) value = JSON.stringify(value)
 
         setIfChanged(el, name, value)
     }
@@ -183,6 +175,10 @@ function isBooleanAttr(attrName) {
 
 function attributeShouldntBePreservedIfFalsy(name) {
     return ! ['aria-pressed', 'aria-checked', 'aria-expanded', 'aria-selected'].includes(name)
+}
+
+function isObjectAttr(value) {
+    return typeof value === 'object' && value !== null
 }
 
 export function getBinding(el, name, fallback) {

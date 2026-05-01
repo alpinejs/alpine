@@ -634,6 +634,20 @@ test('iterates over a Map',
     }
 )
 
+test('iterates over a null-prototype object (e.g. Object.groupBy result)',
+    html`
+        <div x-data="{ items: Object.assign(Object.create(null), { a: 'foo', b: 'bar' }) }">
+            <template x-for="(value, key) in items" :key="key">
+                <span x-text="key + ':' + value"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('span:nth-of-type(1)').should(haveText('a:foo'))
+        get('span:nth-of-type(2)').should(haveText('b:bar'))
+    }
+)
+
 // If x-for removes a child, all cleanups in the tree should be handled.
 test('x-for eagerly cleans tree',
     html`

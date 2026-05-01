@@ -1,16 +1,12 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Get help or ask a Question
+  - name: Get help or ask a question
     url: https://github.com/alpinejs/alpine/discussions/new?category=1-help
     about: Ask questions or get help from other community members
 
-  - name: Feature Request
+  - name: Feature request
     url: https://github.com/alpinejs/alpine/discussions/new?category=3-feature-ideas
     about: For ideas or feature requests
-
-  - name: Bug Report
-    url: https://github.com/alpinejs/alpine/discussions/new?category=5-bugs
-    about: Submit a bug report
 
   - name: Documentation issue
     url: https://github.com/alpinejs/alpine/pulls

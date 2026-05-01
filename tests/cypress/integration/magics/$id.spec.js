@@ -128,6 +128,28 @@ test('$id scopes can be reset',
     }
 )
 
+test('$id resolves consistently when x-id and x-data are on the same element',
+    html`
+        <div x-data>
+            <div
+                x-id="['a']"
+                x-data="{ idFromData: $id('a'), anotherIdFromData: $id('a') }"
+            >
+                <p><span id="from-data" x-text="idFromData"></span></p>
+                <p><span id="from-data-2" x-text="anotherIdFromData"></span></p>
+                <p><span id="from-text" x-text="$id('a')"></span></p>
+                <p><span id="from-text-2" x-text="$id('a')"></span></p>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('#from-data').should(haveText('a-1'))
+        get('#from-data-2').should(haveText('a-1'))
+        get('#from-text').should(haveText('a-1'))
+        get('#from-text-2').should(haveText('a-1'))
+    }
+)
+
 test('can be used with morph without losing track',
     [html`
         <div x-data>

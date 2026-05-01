@@ -1,0 +1,100 @@
+name: Bug report
+description: Found a bug in Alpine? Submit a report. For help or questions, use Discussions.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hi there!
+
+        Thank you for using Alpine.js!
+
+        Many of the people who help resolve issues here are enthusiastic Alpine users like yourself who volunteer their time to support fellow community members.
+
+        **To respect everyone's valuable time and help you resolve your issue as quickly as possible, before posting an issue, please**
+
+        * Update to the latest version of Alpine.js
+        * Before opening a bug report, please search the existing issues.
+
+        To address this bug as fast as possible, we need the following information.
+
+  - type: input
+    id: alpine-version
+    attributes:
+      label: Alpine.js version
+      description: Which version of Alpine.js are you using? Please provide the full version, e.g. v3.15.11.
+      placeholder: v3.15.11
+    validations:
+      required: true
+
+  - type: input
+    id: browser-os
+    attributes:
+      label: Browser and operating system
+      description: Which browser and operating system are you using?
+      placeholder: Chrome on macOS
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Describe the issue you're experiencing
+      description: Please provide a clear description of the issue you're experiencing.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Code snippets to reproduce the issue
+      description: Please include a code snippet we can copy and paste to reproduce the issue. Use as little code as possible to reproduce the issue.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        Include code snippets in triple backticks (\```) with "html" or "js" for better readability. Here's an example:
+
+        \```html
+        // Your code here
+        \```
+
+        \```js
+        // Your code here
+        \```
+
+  - type: textarea
+    attributes:
+      label: Screenshots/screen recordings
+      description: Please provide screenshots or screen recordings if they help illustrate the problem.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: How do you expect it to work?
+      description: Please describe how you expect it to work.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        **We will close this issue for any of the following reasons**
+
+        * We cannot reproduce the issue with the provided code snippets
+        * The issue is a duplicate
+
+  - type: checkboxes
+    attributes:
+      label: Please confirm (incomplete submissions will not be addressed)
+      options:
+        - label: I have provided easy and step-by-step instructions to reproduce the bug.
+          required: true
+        - label: I have provided code samples as text and NOT images.
+          required: true
+        - label: I understand my bug report will be removed if I haven't met the criteria above.
+          required: true
+
+  - type: markdown
+    attributes:
+      value: Thank you!

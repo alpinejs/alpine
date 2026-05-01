@@ -20,6 +20,7 @@
         "cypress": "cypress open",
         "vitest": "vitest run",
         "update-docs": "node ./scripts/update-docs.js",
-        "release": "node ./scripts/release.js"
+        "release": "node ./scripts/release.js",
+        "prep-release": "node ./scripts/prep-release.js"
     }
 }

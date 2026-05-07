@@ -63,6 +63,16 @@ function bindInputValue(el, value) {
         }
     } else if (el.tagName === 'SELECT') {
         updateSelect(el, value)
+    } else if (el.tagName === 'OPTION') {
+        // The .value property of an <option> reflects its text content when no
+        // value attribute is present, so we must set the attribute explicitly
+        // to avoid el.value drifting when sibling directives (e.g. x-text) write text.
+        // null/undefined/false removes the attribute, allowing the DOM's text-fallback to apply.
+        if (value === null || value === undefined || value === false) {
+            if (el.hasAttribute('value')) el.removeAttribute('value')
+        } else {
+            setIfChanged(el, 'value', value)
+        }
     } else {
         if (el.value === value) return
 

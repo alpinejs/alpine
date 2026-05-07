@@ -519,3 +519,46 @@ test('x-bind updates checked attribute and property after user interaction',
         get('input').should(haveProperty('checked', true))
     }
 )
+
+test('option element value attribute is set when bound to empty string',
+    html`
+        <div x-data="{
+            options: [
+                { value: '', label: 'Empty' },
+                { value: 'foo', label: 'Foo' },
+                { value: 'bar', label: 'Bar' },
+            ]
+        }">
+            <select>
+                <template x-for="option in options" :key="option.label">
+                    <option :value="option.value" x-text="option.label"></option>
+                </template>
+            </select>
+        </div>
+    `,
+    ({ get }) => {
+        get('option:nth-of-type(1)').should(haveAttribute('value', ''))
+        get('option:nth-of-type(1)').should(haveValue(''))
+        get('option:nth-of-type(2)').should(haveAttribute('value', 'foo'))
+        get('option:nth-of-type(2)').should(haveValue('foo'))
+        get('option:nth-of-type(3)').should(haveAttribute('value', 'bar'))
+        get('option:nth-of-type(3)').should(haveValue('bar'))
+    }
+)
+
+test('option element value attribute is removed when bound value is null or undefined, falling back to text label',
+    html`
+        <div x-data="{ nullValue: null, undefinedValue: undefined }">
+            <select>
+                <option :value="nullValue" x-text="'Null Label'"></option>
+                <option :value="undefinedValue" x-text="'Undefined Label'"></option>
+            </select>
+        </div>
+    `,
+    ({ get }) => {
+        get('option:nth-of-type(1)').should(notHaveAttribute('value'))
+        get('option:nth-of-type(1)').should(haveValue('Null Label'))
+        get('option:nth-of-type(2)').should(notHaveAttribute('value'))
+        get('option:nth-of-type(2)').should(haveValue('Undefined Label'))
+    }
+)

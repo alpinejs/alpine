@@ -66,7 +66,12 @@ function bindInputValue(el, value) {
     } else if (el.tagName === 'OPTION') {
         bindAttribute(el, 'value', value)
     } else {
-        if (el.value === value) return
+        // For non-null objects, reference equality doesn't imply state
+        // equality: reactive proxies can mutate internally while the
+        // top-level reference stays the same. Without this guard, custom
+        // elements receiving an object value via x-bind:value or x-model
+        // would never see those nested updates.
+        if (el.value === value && (typeof value !== 'object' || value === null)) return
 
         el.value = value === undefined ? '' : value
     }

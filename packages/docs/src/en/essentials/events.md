@@ -71,7 +71,7 @@ In addition to listening for browser events, you can dispatch them as well. This
 Alpine exposes a magic helper called `$dispatch` for this:
 
 ```alpine
-<div @foo="console.log('foo was dispatched')">
+<div x-data @foo="console.log('foo was dispatched')">
     <button @click="$dispatch('foo')"></button>
 </div>
 ```

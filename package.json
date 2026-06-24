@@ -6,8 +6,8 @@
     "devDependencies": {
         "axios": "^0.21.1",
         "chalk": "^4.1.1",
-        "cypress": "^9.7.0",
-        "cypress-plugin-tab": "^1.0.5",
+        "cypress": "^10.11.0",
+        "cypress-plugin-tab": "^2.0.0",
         "dot-json": "^1.2.2",
         "esbuild": "~0.16.17",
         "jest": "^26.6.3",

@@ -130,7 +130,7 @@ test('.margin',
         <span x-text="count"></span>
         <div id="buffer-top" style="height: calc(100vh - 50px); margin-top: 100vh; background: pink"></div>
         <div id="buffer-bottom" style="height: 50px; background: green"></div>
-        <div x-intersect.margin.100px="count++;$nextTick(() => console.log(count))" id="1">hi</div>
+        <div x-intersect.margin.200px="count++;$nextTick(() => console.log(count))" id="1">hi</div>
     </div>
     `],
     ({ get }) => {

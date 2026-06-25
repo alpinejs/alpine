@@ -132,10 +132,44 @@ test.only('.margin',
         <div id="buffer-bottom" style="height: 50px; background: green"></div>
         <div x-intersect.margin.100px="count++;$nextTick(() => console.log(count))" id="1">hi</div>
     </div>
+    `, `
+        window.intersectRecords = []
+        let NativeIntersectionObserver = window.IntersectionObserver
+
+        window.IntersectionObserver = class extends NativeIntersectionObserver {
+            constructor(callback, options) {
+                window.intersectOptions = options
+
+                super((entries, observer) => {
+                    window.intersectRecords.push(entries.map(entry => ({
+                        isIntersecting: entry.isIntersecting,
+                        intersectionRatio: entry.intersectionRatio,
+                        boundingClientRect: {
+                            top: entry.boundingClientRect.top,
+                            bottom: entry.boundingClientRect.bottom,
+                            height: entry.boundingClientRect.height,
+                        },
+                        rootBounds: {
+                            top: entry.rootBounds.top,
+                            bottom: entry.rootBounds.bottom,
+                            height: entry.rootBounds.height,
+                        },
+                        intersectionRect: {
+                            top: entry.intersectionRect.top,
+                            bottom: entry.intersectionRect.bottom,
+                            height: entry.intersectionRect.height,
+                        },
+                    })))
+
+                    callback(entries, observer)
+                }, options)
+            }
+        }
     `],
-    ({ get }) => {
+    ({ get, wait, window }) => {
         get('span').should(haveText('0'))
         get('#buffer-top').scrollIntoView({duration: 100})
+        wait(500)
         get('#1').then(([el]) => {
             let doc = el.ownerDocument
             let win = doc.defaultView
@@ -154,6 +188,9 @@ test.only('.margin',
                 bufferTopBottom: bufferTopRect.bottom,
                 bufferBottomTop: bufferBottomRect.top,
                 bufferBottomBottom: bufferBottomRect.bottom,
+                count: doc.querySelector('span').textContent,
+                intersectOptions: win.intersectOptions,
+                intersectRecords: win.intersectRecords,
             }, null, 2))
         })
         get('span').should(haveText('1'))

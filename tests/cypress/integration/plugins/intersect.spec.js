@@ -136,6 +136,26 @@ test.only('.margin',
     ({ get }) => {
         get('span').should(haveText('0'))
         get('#buffer-top').scrollIntoView({duration: 100})
+        get('#1').then(([el]) => {
+            let doc = el.ownerDocument
+            let win = doc.defaultView
+            let rect = el.getBoundingClientRect()
+            let bufferTopRect = doc.querySelector('#buffer-top').getBoundingClientRect()
+            let bufferBottomRect = doc.querySelector('#buffer-bottom').getBoundingClientRect()
+
+            throw new Error(JSON.stringify({
+                innerHeight: win.innerHeight,
+                scrollY: win.scrollY,
+                documentScrollTop: doc.documentElement.scrollTop,
+                bodyScrollTop: doc.body.scrollTop,
+                targetTop: rect.top,
+                targetBottom: rect.bottom,
+                bufferTopTop: bufferTopRect.top,
+                bufferTopBottom: bufferTopRect.bottom,
+                bufferBottomTop: bufferBottomRect.top,
+                bufferBottomBottom: bufferBottomRect.bottom,
+            }, null, 2))
+        })
         get('span').should(haveText('1'))
         get('#1').scrollIntoView({duration: 100})
         get('span').should(haveText('1'))

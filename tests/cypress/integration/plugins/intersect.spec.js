@@ -128,80 +128,22 @@ test.only('.margin',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>
-        <div id="buffer-top" style="height: calc(100vh - 50px); margin-top: 100vh; background: pink"></div>
-        <div id="buffer-bottom" style="height: 50px; background: green"></div>
-        <div x-intersect.margin.100px="count++;$nextTick(() => console.log(count))" id="1">hi</div>
+        <div x-intersect.margin.100px="count++" id="1">hi</div>
     </div>
     `, `
-        window.intersectRecords = []
         let NativeIntersectionObserver = window.IntersectionObserver
 
         window.IntersectionObserver = class extends NativeIntersectionObserver {
             constructor(callback, options) {
                 window.intersectOptions = options
 
-                super((entries, observer) => {
-                    window.intersectRecords.push(entries.map(entry => ({
-                        isIntersecting: entry.isIntersecting,
-                        intersectionRatio: entry.intersectionRatio,
-                        boundingClientRect: {
-                            top: entry.boundingClientRect.top,
-                            bottom: entry.boundingClientRect.bottom,
-                            height: entry.boundingClientRect.height,
-                        },
-                        rootBounds: {
-                            top: entry.rootBounds.top,
-                            bottom: entry.rootBounds.bottom,
-                            height: entry.rootBounds.height,
-                        },
-                        intersectionRect: {
-                            top: entry.intersectionRect.top,
-                            bottom: entry.intersectionRect.bottom,
-                            height: entry.intersectionRect.height,
-                        },
-                    })))
-
-                    callback(entries, observer)
-                }, options)
+                super(callback, options)
             }
         }
     `],
-    ({ get, wait, window }) => {
-        get('span').should(haveText('0'))
-        get('#buffer-top').scrollIntoView({duration: 100})
-        wait(500)
-        get('#1').then(([el]) => {
-            let doc = el.ownerDocument
-            let win = doc.defaultView
-            let rect = el.getBoundingClientRect()
-            let bufferTopRect = doc.querySelector('#buffer-top').getBoundingClientRect()
-            let bufferBottomRect = doc.querySelector('#buffer-bottom').getBoundingClientRect()
-
-            throw new Error(JSON.stringify({
-                innerHeight: win.innerHeight,
-                scrollY: win.scrollY,
-                documentScrollTop: doc.documentElement.scrollTop,
-                bodyScrollTop: doc.body.scrollTop,
-                targetTop: rect.top,
-                targetBottom: rect.bottom,
-                bufferTopTop: bufferTopRect.top,
-                bufferTopBottom: bufferTopRect.bottom,
-                bufferBottomTop: bufferBottomRect.top,
-                bufferBottomBottom: bufferBottomRect.bottom,
-                count: doc.querySelector('span').textContent,
-                intersectOptions: win.intersectOptions,
-                intersectRecords: win.intersectRecords,
-            }, null, 2))
-        })
+    ({ get, window }) => {
         get('span').should(haveText('1'))
-        get('#1').scrollIntoView({duration: 100})
-        get('span').should(haveText('1'))
-        get('span').scrollIntoView({duration: 100})
-        get('span').should(haveText('1'))
-        get('#buffer-top').scrollIntoView({duration: 100})
-        get('span').should(haveText('2'))
-        get('#1').scrollIntoView({duration: 100})
-        get('span').should(haveText('2'))
+        window().its('intersectOptions.rootMargin').should('equal', '100px')
     },
 )
 

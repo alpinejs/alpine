@@ -124,26 +124,27 @@ test('.once',
     },
 )
 
-test('.margin',
+test.only('.margin',
     [html`
     <div x-data="{ count: 0 }">
-        <div x-intersect.margin.100px="count++" id="1">hi</div>
+        <span x-text="count"></span>
+        <div id="buffer-top" style="height: calc(100vh - 50px); margin-top: 100vh; background: pink"></div>
+        <div id="buffer-bottom" style="height: 50px; background: green"></div>
+        <div x-intersect.margin.100px="count++;$nextTick(() => console.log(count))" id="1">hi</div>
     </div>
-    `, `
-        window.intersectOptions = null
-        window.IntersectionObserver = class {
-            constructor(callback, options) {
-                window.intersectOptions = options
-            }
-
-            observe() {}
-
-            disconnect() {}
-        }
     `],
-    ({ get, window }) => {
-        get('#1')
-        window().its('intersectOptions.rootMargin').should('equal', '100px')
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('#buffer-top').scrollIntoView({duration: 100})
+        get('span').should(haveText('1'))
+        get('#1').scrollIntoView({duration: 100})
+        get('span').should(haveText('1'))
+        get('span').scrollIntoView({duration: 100})
+        get('span').should(haveText('1'))
+        get('#buffer-top').scrollIntoView({duration: 100})
+        get('span').should(haveText('2'))
+        get('#1').scrollIntoView({duration: 100})
+        get('span').should(haveText('2'))
     },
 )
 

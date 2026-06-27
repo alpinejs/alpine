@@ -5,6 +5,7 @@ export default function (Alpine) {
         let options = {
             rootMargin: getRootMargin(modifiers),
             threshold: getThreshold(modifiers),
+            root: modifiers.includes('parent') ? el.parentElement : null
         }
 
         let observer = new IntersectionObserver(entries => {

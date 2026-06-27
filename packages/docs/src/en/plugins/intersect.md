@@ -174,8 +174,10 @@ get a pixel value.
 <a name="parent"></a>
 ### .parent
 
-Allows for the underlying `IntersectionObserver` to use the viewport of the parent element, rather than the default, which is the browser.
+By default, `x-intersect` observes the element against the browser's viewport. The `.parent` modifier sets the `root` of the underlying `IntersectionObserver` to the element's parent instead, so the expression evaluates based on whether the element is visible within its parent rather than the whole page.
+
+This is handy when the element lives inside a scrollable container, or any time you care about visibility relative to the parent and not the viewport.
 
 ```alpine
-<div x-intersect.parent="shown = true">...</div> // Mark as shown when element is moves inside it's parents viewport.
+<div x-intersect.parent="shown = true">...</div> // Mark as shown when the element scrolls into view within its parent
 ```

@@ -68,9 +68,7 @@ export default function (Alpine) {
                     value = String(value)
                     let template = templateFn(value)
                     if (template && template !== 'false') {
-                        let formatted = formatInputValues(template, value)
-
-                        value = formatted.masked
+                        value = formatInput(template, value)
                     }
                     lastInputValue = value
                     updater(value)

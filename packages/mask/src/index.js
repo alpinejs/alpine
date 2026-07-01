@@ -42,14 +42,12 @@ export default function (Alpine) {
 
             // Override x-model's initial value...
             if (el._x_model) {
-                if (! isDisplayOnly) {
-                    // If the x-model value is the same, don't override it as that will trigger updates...
-                    if (el._x_model.get() !== el.value) {
-                        // If the x-model value is `null` and the input value is an empty
-                        // string, don't override it as that will trigger updates...
-                        if (!(el._x_model.get() === null && el.value === '')) {
-                            el._x_model.set(el.value)
-                        }
+                // If the x-model value is the same, don't override it as that will trigger updates...
+                if (! isDisplayOnly && el._x_model.get() !== el.value) {
+                    // If the x-model value is `null` and the input value is an empty
+                    // string, don't override it as that will trigger updates...
+                    if (!(el._x_model.get() === null && el.value === '')) {
+                        el._x_model.set(el.value)
                     }
                 }
 
@@ -71,7 +69,10 @@ export default function (Alpine) {
                     }
                     lastInputValue = value
                     updater(value)
-                    if (! isDisplayOnly) el._x_model.set(value)
+
+                    if (! isDisplayOnly) {
+                        el._x_model.set(value)
+                    }
                 }
             }
         })
@@ -103,6 +104,7 @@ export default function (Alpine) {
             // If a template value is `falsy`, then don't process the input value
             if(!template || template === 'false') {
                 removeUnmaskedModelValue()
+
                 return false
             }
 
@@ -132,11 +134,15 @@ export default function (Alpine) {
         }
 
         function setUnmaskedModelValue(value) {
-            if (isDisplayOnly) el._x_modelValue = value
+            if (! isDisplayOnly) return
+
+            el._x_modelValue = value
         }
 
         function removeUnmaskedModelValue() {
-            if (isDisplayOnly) delete el._x_modelValue
+            if (! isDisplayOnly) return
+
+            delete el._x_modelValue
         }
     }).before('model')
 }

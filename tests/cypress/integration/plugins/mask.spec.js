@@ -163,6 +163,25 @@ test('x-mask.display masks programmatic x-model updates without masking the mode
     },
 )
 
+test('x-mask.display refreshes unmasked model value after programmatic x-model updates',
+    [html`
+        <div x-data="{ value: '1000' }">
+            <input x-mask.display="9,999" x-model.enter="value" id="1">
+            <span id="2" x-text="value"></span>
+            <button @click="value = '2345'">Change</button>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('1,000'))
+        get('#2').should(haveText('1000'))
+        get('button').click()
+        get('#1').should(haveValue('2,345'))
+        get('#2').should(haveText('2345'))
+        get('#1').type('{enter}')
+        get('#2').should(haveText('2345'))
+    },
+)
+
 test('x-mask.display preserves x-model number modifier',
     [html`
         <div x-data="{ value: '' }">

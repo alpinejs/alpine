@@ -5,14 +5,6 @@ export default function (Alpine) {
         let lastInputValue = ''
         let isDisplayOnly = modifiers.includes('display')
 
-        let setModelValue = value => {
-            if (isDisplayOnly) el._x_modelValue = value
-        }
-
-        let clearModelValue = () => {
-            if (isDisplayOnly) delete el._x_modelValue
-        }
-
         queueMicrotask(() => {
             if (['function', 'dynamic'].includes(value)) {
                 // This is an x-mask:function directive.
@@ -68,7 +60,7 @@ export default function (Alpine) {
                     // as that would resurrect the model path with an empty value.
                     if (value === undefined) {
                         lastInputValue = ''
-                        clearModelValue()
+                        removeUnmaskedModelValue()
                         return updater(value)
                     }
 
@@ -89,7 +81,7 @@ export default function (Alpine) {
         cleanup(() => {
             controller.abort()
 
-            clearModelValue()
+            removeUnmaskedModelValue()
         })
 
         el.addEventListener('input', () => processInputValue(el), {
@@ -110,13 +102,13 @@ export default function (Alpine) {
 
             // If a template value is `falsy`, then don't process the input value
             if(!template || template === 'false') {
-                clearModelValue()
+                removeUnmaskedModelValue()
                 return false
             }
 
             let formatted = formatInputValues(template, input)
 
-            setModelValue(formatted.unmasked)
+            setUnmaskedModelValue(formatted.unmasked)
 
             // If they hit backspace, don't process input.
             if (lastInputValue.length - el.value.length === 1) {
@@ -137,6 +129,14 @@ export default function (Alpine) {
             } else {
                 setInput()
             }
+        }
+
+        function setUnmaskedModelValue(value) {
+            if (isDisplayOnly) el._x_modelValue = value
+        }
+
+        function removeUnmaskedModelValue() {
+            if (isDisplayOnly) delete el._x_modelValue
         }
     }).before('model')
 }

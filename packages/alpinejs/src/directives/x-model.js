@@ -247,6 +247,7 @@ function getInputValue(el, modifiers, event, currentValue) {
         } else {
             let newValue
 
+            // Allow plugins to override the value x-model reads from the element.
             if ('_x_modelValue' in event.target) {
                 newValue = event.target._x_modelValue
             } else if (isRadio(el)) {

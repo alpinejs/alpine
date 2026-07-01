@@ -124,7 +124,7 @@ test('.once',
     },
 )
 
-test.only('.margin',
+test('.margin',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>

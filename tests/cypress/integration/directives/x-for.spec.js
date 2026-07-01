@@ -412,6 +412,32 @@ test('x-for over range using i in property syntax',
     ({ get }) => get('span').should(haveLength('10'))
 )
 
+test('keyed range loops refresh reused item scopes before child effects run',
+    html`
+        <div x-data="{ start: 0, end: 25 }">
+            <button id="shrink" @click="end = 15">shrink</button>
+            <button id="shift" @click="start = 12; end = 30">shift</button>
+
+            <template x-for="i in end - start" :key="start + i">
+                <span x-text="start + i"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        let haveTexts = texts => els => {
+            expect(Array.from(els, el => el.textContent)).to.deep.equal(texts)
+        }
+
+        get('span').should(haveTexts(Array.from({ length: 25 }, (_, i) => String(i + 1))))
+
+        get('#shrink').click()
+        get('span').should(haveTexts(Array.from({ length: 15 }, (_, i) => String(i + 1))))
+
+        get('#shift').click()
+        get('span').should(haveTexts(Array.from({ length: 18 }, (_, i) => String(i + 13))))
+    }
+)
+
 test.retry(2)('x-for with an array of numbers',
     `
         <div x-data="{ items: [] }">

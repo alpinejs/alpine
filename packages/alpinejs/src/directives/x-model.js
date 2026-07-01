@@ -247,7 +247,9 @@ function getInputValue(el, modifiers, event, currentValue) {
         } else {
             let newValue
 
-            if (isRadio(el)) {
+            if ('_x_modelValue' in event.target) {
+                newValue = event.target._x_modelValue
+            } else if (isRadio(el)) {
                 if (event.target.checked) {
                     newValue = event.target.value
                 } else {
@@ -255,10 +257,6 @@ function getInputValue(el, modifiers, event, currentValue) {
                 }
             } else {
                 newValue = event.target.value
-            }
-
-            if ('_x_modelValue' in event.target) {
-                newValue = event.target._x_modelValue
             }
 
             if (modifiers.includes('number')) {

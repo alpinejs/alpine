@@ -128,9 +128,12 @@ test('.margin',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>
-        <div id="buffer-top" style="height: calc(100vh - 50px); margin-top: 100vh; background: pink"></div>
-        <div id="buffer-bottom" style="height: 50px; background: green"></div>
-        <div x-intersect.margin.100px="count++;$nextTick(() => console.log(count))" id="1">hi</div>
+        <div id="container" style="height: 200px; overflow-y: scroll;">
+            <div id="buffer-top" style="height: 150px; margin-top: 200px; background: pink"></div>
+            <div id="buffer-bottom" style="height: 50px; background: green"></div>
+            <div x-intersect.parent.margin.100px="count++;$nextTick(() => console.log(count))" id="1">hi</div>
+            <div style="height: 300px;"></div>
+        </div>
     </div>
     `],
     ({ get }) => {
@@ -139,7 +142,7 @@ test('.margin',
         get('span').should(haveText('1'))
         get('#1').scrollIntoView({duration: 100})
         get('span').should(haveText('1'))
-        get('span').scrollIntoView({duration: 100})
+        get('#container').scrollTo(0, 0, {duration: 100})
         get('span').should(haveText('1'))
         get('#buffer-top').scrollIntoView({duration: 100})
         get('span').should(haveText('2'))

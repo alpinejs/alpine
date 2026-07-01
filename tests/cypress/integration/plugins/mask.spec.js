@@ -294,6 +294,26 @@ test('x-mask masks programmatic x-model updates',
     }
 )
 
+test('x-mask can change with x-model without reusing previous masks',
+    [html`
+        <div x-data="{ value: '12345' }">
+            <input x-ref="input" x-model="value" x-mask="99999">
+            <button id="short" @click="$refs.input.setAttribute('x-mask', '9999'); value = '1234'">Short</button>
+            <button id="long" @click="$refs.input.setAttribute('x-mask', '99999'); value = '12345'">Long</button>
+        </div>
+    `],
+    ({ get }) => {
+        get('input').should(haveValue('12345'))
+
+        get('#short').click()
+        get('input').should(haveValue('1234'))
+
+        get('#long').click()
+        get('input').should(haveValue('12345'))
+        get('div').should(haveData('value', '12345'))
+    }
+)
+
 test('x-mask with x-model initializes missing object key',
     [html`
         <div x-data="{ form: {} }">

@@ -3,7 +3,7 @@ export default function (Alpine) {
     Alpine.directive('mask', (el, { value, expression, modifiers }, { effect, evaluateLater, cleanup }) => {
         let templateFn = () => expression
         let lastInputValue = ''
-        let isDisplayOnly = modifiers.includes('display')
+        let modelValue = createModelValueHandler(el, modifiers.includes('display'))
 
         queueMicrotask(() => {
             if (['function', 'dynamic'].includes(value)) {
@@ -42,14 +42,7 @@ export default function (Alpine) {
 
             // Override x-model's initial value...
             if (el._x_model) {
-                // If the x-model value is the same, don't override it as that will trigger updates...
-                if (! isDisplayOnly && el._x_model.get() !== el.value) {
-                    // If the x-model value is `null` and the input value is an empty
-                    // string, don't override it as that will trigger updates...
-                    if (!(el._x_model.get() === null && el.value === '')) {
-                        el._x_model.set(el.value)
-                    }
-                }
+                modelValue.initialize()
 
                 let updater = el._x_forceModelUpdate
                 el._x_forceModelUpdate = (value) => {
@@ -58,21 +51,22 @@ export default function (Alpine) {
                     // as that would resurrect the model path with an empty value.
                     if (value === undefined) {
                         lastInputValue = ''
-                        removeUnmaskedModelValue()
+                        modelValue.remove()
+
                         return updater(value)
                     }
 
                     value = String(value)
                     let template = templateFn(value)
-                    if (template && template !== 'false') {
-                        value = formatInput(template, value)
-                    }
-                    lastInputValue = value
-                    updater(value)
+                    let formatted = { masked: value, unmasked: value }
 
-                    if (! isDisplayOnly) {
-                        el._x_model.set(value)
+                    if (template && template !== 'false') {
+                        formatted = formatInputValues(template, value)
                     }
+
+                    lastInputValue = formatted.masked
+                    updater(formatted.masked)
+                    modelValue.onProgrammaticUpdate(formatted)
                 }
             }
         })
@@ -82,7 +76,7 @@ export default function (Alpine) {
         cleanup(() => {
             controller.abort()
 
-            removeUnmaskedModelValue()
+            modelValue.remove()
         })
 
         el.addEventListener('input', () => processInputValue(el), {
@@ -103,14 +97,14 @@ export default function (Alpine) {
 
             // If a template value is `falsy`, then don't process the input value
             if(!template || template === 'false') {
-                removeUnmaskedModelValue()
+                modelValue.remove()
 
                 return false
             }
 
             let formatted = formatInputValues(template, input)
 
-            setUnmaskedModelValue(formatted.unmasked)
+            modelValue.onInput(formatted)
 
             // If they hit backspace, don't process input.
             if (lastInputValue.length - el.value.length === 1) {
@@ -132,19 +126,44 @@ export default function (Alpine) {
                 setInput()
             }
         }
-
-        function setUnmaskedModelValue(value) {
-            if (! isDisplayOnly) return
-
-            el._x_modelValue = value
-        }
-
-        function removeUnmaskedModelValue() {
-            if (! isDisplayOnly) return
-
-            delete el._x_modelValue
-        }
     }).before('model')
+}
+
+function createModelValueHandler(el, isDisplayOnly) {
+    if (isDisplayOnly) {
+        return {
+            initialize() {},
+            onInput({ unmasked }) {
+                el._x_modelValue = unmasked
+            },
+            onProgrammaticUpdate({ unmasked }) {
+                el._x_modelValue = unmasked
+            },
+            remove() {
+                delete el._x_modelValue
+            },
+        }
+    }
+
+    return {
+        initialize() {
+            let value = el._x_model.get()
+
+            // If the x-model value is the same, don't override it as that will trigger updates...
+            if (value === el.value) return
+
+            // If the x-model value is `null` and the input value is an empty
+            // string, don't override it as that will trigger updates...
+            if (value === null && el.value === '') return
+
+            el._x_model.set(el.value)
+        },
+        onInput() {},
+        onProgrammaticUpdate({ masked }) {
+            el._x_model.set(masked)
+        },
+        remove() {},
+    }
 }
 
 export function restoreCursorPosition(el, template, callback) {

@@ -4,11 +4,8 @@ export default function (Alpine) {
         let templateFn = () => expression
         let lastInputValue = ''
         let undoModelUpdate = () => {}
-        let cleanedUp = false
 
         queueMicrotask(() => {
-            if (cleanedUp) return
-
             if (['function', 'dynamic'].includes(value)) {
                 // This is an x-mask:function directive.
 
@@ -87,7 +84,6 @@ export default function (Alpine) {
         const controller = new AbortController()
 
         cleanup(() => {
-            cleanedUp = true
             controller.abort()
             undoModelUpdate()
         })

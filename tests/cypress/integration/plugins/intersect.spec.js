@@ -128,102 +128,22 @@ test.only('.margin',
     [html`
     <div x-data="{ count: 0 }">
         <span x-text="count"></span>
-        <div style="height: 200vh;"></div>
-        <div x-intersect.margin.100px="count++" id="1" style="height: 20px;">hi</div>
+        <div id="buffer-top" style="height: calc(100vh - 50px); margin-top: 100vh; background: pink"></div>
+        <div id="buffer-bottom" style="height: 50px; background: green"></div>
+        <div x-intersect.margin.100px="count++;$nextTick(() => console.log(count))" id="1">hi</div>
     </div>
-    `, `
-        // Cypress 15's AUT iframe clips native positive root margins, so keep
-        // this margin-specific test focused on Alpine's observer options.
-        let px = value => Number((value || '0px').replace('px', ''))
-
-        let margins = (value = '0px') => {
-            let values = value.trim().split(/\\s+/)
-
-            return {
-                top: px(values[0]),
-                bottom: px(values[2] || values[0]),
-            }
-        }
-
-        window.IntersectionObserver = class {
-            constructor(callback, options = {}) {
-                this.callback = callback
-                this.options = options
-                this.targets = new Set()
-                this.states = new Map()
-                this.check = this.check.bind(this)
-
-                window.addEventListener('scroll', this.check)
-            }
-
-            observe(target) {
-                this.targets.add(target)
-                this.check()
-            }
-
-            disconnect() {
-                window.removeEventListener('scroll', this.check)
-                this.targets.clear()
-            }
-
-            check() {
-                let margin = margins(this.options.rootMargin)
-                let entries = []
-
-                this.targets.forEach(target => {
-                    let rect = target.getBoundingClientRect()
-                    let isIntersecting = rect.bottom > -margin.top && rect.top < window.innerHeight + margin.bottom
-
-                    if (this.states.get(target) === isIntersecting) return
-
-                    this.states.set(target, isIntersecting)
-                    entries.push({ target, isIntersecting })
-                })
-
-                entries.length && this.callback(entries, this)
-            }
-        }
     `],
-    ({ get, window, scrollTo }) => {
-        let placeTargetBelowViewport = distance => {
-            window().then(win => {
-                let target = win.document.getElementById('1')
-                let targetTop = target.getBoundingClientRect().top + win.scrollY
-
-                scrollTo(0, targetTop - win.innerHeight - distance, { duration: 100 })
-            })
-        }
-
-        let waitForObserver = () => {
-            window().then(win => new Promise(resolve => {
-                win.requestAnimationFrame(() => win.requestAnimationFrame(resolve))
-            }))
-        }
-
+    ({ get }) => {
         get('span').should(haveText('0'))
-        placeTargetBelowViewport(150)
-        waitForObserver()
-        get('span').should(haveText('0'))
-
-        placeTargetBelowViewport(50)
-        waitForObserver()
+        get('#buffer-top').scrollIntoView({duration: 100})
         get('span').should(haveText('1'))
-        window().then(win => {
-            let targetTop = win.document.getElementById('1').getBoundingClientRect().top
-
-            expect(targetTop).to.be.greaterThan(win.innerHeight)
-            expect(targetTop).to.be.lessThan(win.innerHeight + 100)
-        })
-
-        placeTargetBelowViewport(-10)
-        waitForObserver()
+        get('#1').scrollIntoView({duration: 100})
         get('span').should(haveText('1'))
-
-        placeTargetBelowViewport(150)
-        waitForObserver()
+        get('span').scrollIntoView({duration: 100})
         get('span').should(haveText('1'))
-
-        placeTargetBelowViewport(50)
+        get('#buffer-top').scrollIntoView({duration: 100})
+        get('span').should(haveText('2'))
+        get('#1').scrollIntoView({duration: 100})
         get('span').should(haveText('2'))
     },
 )

@@ -10,5 +10,5 @@ jobs:
           node-version: '20'
       - run: npm install
       - run: npm run build
-      - run: npm run test -- --spec tests/cypress/integration/plugins/intersect.spec.js
-      # - run: npm run vitest
+      - run: npm run test
+      - run: npm run vitest

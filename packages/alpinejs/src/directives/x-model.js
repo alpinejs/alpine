@@ -257,6 +257,10 @@ function getInputValue(el, modifiers, event, currentValue) {
                 newValue = event.target.value
             }
 
+            if ('_x_modelValue' in event.target) {
+                newValue = event.target._x_modelValue
+            }
+
             if (modifiers.includes('number')) {
                 return safeParseNumber(newValue)
             } else if (modifiers.includes('boolean')) {

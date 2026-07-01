@@ -108,7 +108,7 @@ export default function (Alpine) {
 
             // If they hit backspace, don't process input.
             if (lastInputValue.length - el.value.length === 1) {
-                return lastInputValue = input
+                return lastInputValue = el.value
             }
 
             let setInput = () => {

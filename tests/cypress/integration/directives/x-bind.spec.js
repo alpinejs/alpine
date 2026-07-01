@@ -580,3 +580,30 @@ test('option element value attribute is removed when bound value is null or unde
         get('option:nth-of-type(2)').should(haveValue('Undefined Label'))
     }
 )
+
+test(':value on a custom element re-syncs when bound object data mutates',
+    html`
+        <script>
+            if (! customElements.get('value-display')) {
+                customElements.define('value-display', class extends HTMLElement {
+                    get value() { return this._value }
+                    set value(v) {
+                        this._value = v
+                        this.textContent = JSON.stringify(v)
+                    }
+                })
+            }
+        </script>
+
+        <div x-data="{ data: [{ label: 'Mon', value: 100 }] }">
+            <value-display :value="data"></value-display>
+
+            <button @click="data[0].value = 999">Mutate</button>
+        </div>
+    `,
+    ({ get }) => {
+        get('value-display').should(haveText('[{"label":"Mon","value":100}]'))
+        get('button').click()
+        get('value-display').should(haveText('[{"label":"Mon","value":999}]'))
+    }
+)

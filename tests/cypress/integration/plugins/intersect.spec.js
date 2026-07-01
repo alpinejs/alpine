@@ -168,3 +168,31 @@ test('.threshold',
         get('span').should(haveText('1'))
     },
 )
+
+test('.parent observes the element relative to its parent, not the viewport',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+
+        <!-- Push the scroll container far below the viewport so a window-rooted
+             observer would never fire. Only a parent-rooted one should. -->
+        <div style="height: 200vh;"></div>
+
+        <div id="container" style="height: 200px; overflow-y: scroll;">
+            <div style="height: 250px;">spacer</div>
+            <div style="height: 200px" x-intersect.parent="count++">content</div>
+        </div>
+    </div>
+    `],
+    ({ get }) => {
+        // The content starts below the container's scrolled viewport, so it
+        // hasn't intersected yet.
+        get('span').should(haveText('0'))
+
+        // Scrolling *within the container* (the observer's root) brings the
+        // content into view and triggers the intersection — even though the
+        // container itself is well below the browser's viewport.
+        get('#container').scrollTo(0, 250, {duration: 100})
+        get('span').should(haveText('1'))
+    },
+)

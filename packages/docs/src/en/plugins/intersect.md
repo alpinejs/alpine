@@ -170,3 +170,14 @@ get a pixel value.
 ```alpine
 <div x-intersect.margin.-100px="visible = true">...</div> // Mark as visible when element is more than 100 pixels into the viewport.
 ```
+
+<a name="parent"></a>
+### .parent
+
+By default, `x-intersect` observes the element against the browser's viewport. The `.parent` modifier sets the `root` of the underlying `IntersectionObserver` to the element's parent instead, so the expression evaluates based on whether the element is visible within its parent rather than the whole page.
+
+This is handy when the element lives inside a scrollable container, or any time you care about visibility relative to the parent and not the viewport.
+
+```alpine
+<div x-intersect.parent="shown = true">...</div> // Mark as shown when the element scrolls into view within its parent
+```

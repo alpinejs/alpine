@@ -3,19 +3,14 @@ export default function (Alpine) {
     Alpine.directive('mask', (el, { value, expression, modifiers }, { effect, evaluateLater, cleanup }) => {
         let templateFn = () => expression
         let lastInputValue = ''
-        let lastTemplate = null
         let isDisplayOnly = modifiers.includes('display')
 
-        let transformModelValue = value => {
-            let template = lastTemplate || templateFn(value)
-
-            return template && template !== 'false'
-                ? unmaskInput(template, value)
-                : value
+        let setModelValue = value => {
+            if (isDisplayOnly) el._x_modelValue = value
         }
 
-        if (isDisplayOnly) {
-            el._x_modelValueTransformer = transformModelValue
+        let clearModelValue = () => {
+            if (isDisplayOnly) delete el._x_modelValue
         }
 
         queueMicrotask(() => {
@@ -73,18 +68,21 @@ export default function (Alpine) {
                     // as that would resurrect the model path with an empty value.
                     if (value === undefined) {
                         lastInputValue = ''
+                        clearModelValue()
                         return updater(value)
                     }
 
                     value = String(value)
+                    let modelValue = value
                     let template = templateFn(value)
                     if (template && template !== 'false') {
-                        lastTemplate = template
-                        value = formatInput(template, value)
-                    } else {
-                        lastTemplate = null
+                        let formatted = formatInputValues(template, value)
+
+                        value = formatted.masked
+                        modelValue = formatted.unmasked
                     }
                     lastInputValue = value
+                    setModelValue(modelValue)
                     updater(value)
                     if (! isDisplayOnly) el._x_model.set(value)
                 }
@@ -96,9 +94,7 @@ export default function (Alpine) {
         cleanup(() => {
             controller.abort()
 
-            if (el._x_modelValueTransformer === transformModelValue) {
-                delete el._x_modelValueTransformer
-            }
+            clearModelValue()
         })
 
         el.addEventListener('input', () => processInputValue(el), {
@@ -119,11 +115,13 @@ export default function (Alpine) {
 
             // If a template value is `falsy`, then don't process the input value
             if(!template || template === 'false') {
-                lastTemplate = null
+                clearModelValue()
                 return false
             }
 
-            lastTemplate = template
+            let formatted = formatInputValues(template, input)
+
+            setModelValue(formatted.unmasked)
 
             // If they hit backspace, don't process input.
             if (lastInputValue.length - el.value.length === 1) {
@@ -131,7 +129,7 @@ export default function (Alpine) {
             }
 
             let setInput = () => {
-                lastInputValue = el.value = formatInput(template,input)
+                lastInputValue = el.value = formatted.masked
             }
 
             if (shouldRestoreCursor) {
@@ -170,9 +168,14 @@ let regexes = {
 }
 
 export function formatInput(template, input) {
+    return formatInputValues(template, input).masked
+}
+
+function formatInputValues(template, input) {
     let templateMark = 0
     let inputMark = 0
-    let output = ''
+    let masked = ''
+    let unmasked = ''
 
     // Walk the template and input chars simultaneously one by one...
     while (templateMark < template.length && inputMark < input.length) {
@@ -183,14 +186,15 @@ export function formatInput(template, input) {
         if (templateChar in regexes) {
             // If the input is "allowed" based on the placeholder...
             if (regexes[templateChar].test(inputChar)) {
-                output += inputChar
+                masked += inputChar
+                unmasked += inputChar
 
                 templateMark++
             }
 
             inputMark++
         } else { // We've encountered a template literal...
-            output += templateChar
+            masked += templateChar
 
             templateMark++
 
@@ -198,34 +202,7 @@ export function formatInput(template, input) {
         }
     }
 
-    return output
-}
-
-export function unmaskInput(template, input) {
-    let templateMark = 0
-    let inputMark = 0
-    let output = ''
-
-    while (templateMark < template.length && inputMark < input.length) {
-        let templateChar = template[templateMark]
-        let inputChar = input[inputMark]
-
-        if (templateChar in regexes) {
-            if (regexes[templateChar].test(inputChar)) {
-                output += inputChar
-
-                templateMark++
-            }
-
-            inputMark++
-        } else {
-            templateMark++
-
-            if (templateChar === input[inputMark]) inputMark++
-        }
-    }
-
-    return output
+    return { masked, unmasked }
 }
 
 export function formatMoney(input, delimiter = '.', thousands, precision = 2) {

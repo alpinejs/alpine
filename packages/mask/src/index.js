@@ -1,8 +1,9 @@
 
 export default function (Alpine) {
-    Alpine.directive('mask', (el, { value, expression }, { effect, evaluateLater, cleanup }) => {
+    Alpine.directive('mask', (el, { value, expression, modifiers }, { effect, evaluateLater, cleanup }) => {
         let templateFn = () => expression
         let lastInputValue = ''
+        let modelValue = createModelValueHandler(el, modifiers.includes('display'))
 
         queueMicrotask(() => {
             if (['function', 'dynamic'].includes(value)) {
@@ -41,14 +42,7 @@ export default function (Alpine) {
 
             // Override x-model's initial value...
             if (el._x_model) {
-                // If the x-model value is the same, don't override it as that will trigger updates...
-                if (el._x_model.get() !== el.value) {
-                    // If the x-model value is `null` and the input value is an empty
-                    // string, don't override it as that will trigger updates...
-                    if (!(el._x_model.get() === null && el.value === '')) {
-                        el._x_model.set(el.value)
-                    }
-                }
+                modelValue.initialize()
 
                 let updater = el._x_forceModelUpdate
                 el._x_forceModelUpdate = (value) => {
@@ -57,17 +51,22 @@ export default function (Alpine) {
                     // as that would resurrect the model path with an empty value.
                     if (value === undefined) {
                         lastInputValue = ''
+                        modelValue.remove()
+
                         return updater(value)
                     }
 
                     value = String(value)
                     let template = templateFn(value)
+                    let formatted = { masked: value, unmasked: value }
+
                     if (template && template !== 'false') {
-                        value = formatInput(template, value)
+                        formatted = formatInputValues(template, value)
                     }
-                    lastInputValue = value
-                    updater(value)
-                    el._x_model.set(value)
+
+                    lastInputValue = formatted.masked
+                    updater(formatted.masked)
+                    modelValue.onProgrammaticUpdate(formatted)
                 }
             }
         })
@@ -76,6 +75,8 @@ export default function (Alpine) {
 
         cleanup(() => {
             controller.abort()
+
+            modelValue.remove()
         })
 
         el.addEventListener('input', () => processInputValue(el), {
@@ -95,7 +96,15 @@ export default function (Alpine) {
             let template = templateFn(input)
 
             // If a template value is `falsy`, then don't process the input value
-            if(!template || template === 'false') return false
+            if(!template || template === 'false') {
+                modelValue.remove()
+
+                return false
+            }
+
+            let formatted = formatInputValues(template, input)
+
+            modelValue.onInput(formatted)
 
             // If they hit backspace, don't process input.
             if (lastInputValue.length - el.value.length === 1) {
@@ -103,7 +112,7 @@ export default function (Alpine) {
             }
 
             let setInput = () => {
-                lastInputValue = el.value = formatInput(template,input)
+                lastInputValue = el.value = formatted.masked
             }
 
             if (shouldRestoreCursor) {
@@ -118,6 +127,43 @@ export default function (Alpine) {
             }
         }
     }).before('model')
+}
+
+function createModelValueHandler(el, isDisplayOnly) {
+    if (isDisplayOnly) {
+        return {
+            initialize() {},
+            onInput({ unmasked }) {
+                el._x_modelValue = unmasked
+            },
+            onProgrammaticUpdate({ unmasked }) {
+                el._x_modelValue = unmasked
+            },
+            remove() {
+                delete el._x_modelValue
+            },
+        }
+    }
+
+    return {
+        initialize() {
+            let value = el._x_model.get()
+
+            // If the x-model value is the same, don't override it as that will trigger updates...
+            if (value === el.value) return
+
+            // If the x-model value is `null` and the input value is an empty
+            // string, don't override it as that will trigger updates...
+            if (value === null && el.value === '') return
+
+            el._x_model.set(el.value)
+        },
+        onInput() {},
+        onProgrammaticUpdate({ masked }) {
+            el._x_model.set(masked)
+        },
+        remove() {},
+    }
 }
 
 export function restoreCursorPosition(el, template, callback) {
@@ -142,9 +188,14 @@ let regexes = {
 }
 
 export function formatInput(template, input) {
+    return formatInputValues(template, input).masked
+}
+
+function formatInputValues(template, input) {
     let templateMark = 0
     let inputMark = 0
-    let output = ''
+    let masked = ''
+    let unmasked = ''
 
     // Walk the template and input chars simultaneously one by one...
     while (templateMark < template.length && inputMark < input.length) {
@@ -155,14 +206,15 @@ export function formatInput(template, input) {
         if (templateChar in regexes) {
             // If the input is "allowed" based on the placeholder...
             if (regexes[templateChar].test(inputChar)) {
-                output += inputChar
+                masked += inputChar
+                unmasked += inputChar
 
                 templateMark++
             }
 
             inputMark++
         } else { // We've encountered a template literal...
-            output += templateChar
+            masked += templateChar
 
             templateMark++
 
@@ -170,7 +222,7 @@ export function formatInput(template, input) {
         }
     }
 
-    return output
+    return { masked, unmasked }
 }
 
 export function formatMoney(input, delimiter = '.', thousands, precision = 2) {

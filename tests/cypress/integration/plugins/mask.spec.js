@@ -113,6 +113,146 @@ test('x-mask with x-model with initial value',
     },
 )
 
+test('x-mask.display with x-model keeps initial model value unmasked',
+    [html`
+        <div x-data="{ value: '1000' }">
+            <input x-mask.display="9,999" x-model="value" id="1">
+            <input x-model="value" id="2">
+            <span id="3" x-text="value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('1,000'))
+        get('#2').should(haveValue('1000'))
+        get('#3').should(haveText('1000'))
+    },
+)
+
+test('x-mask.display with x-model stores user input unmasked',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask.display="9,999" x-model="value" id="1">
+            <input x-model="value" id="2">
+            <span id="3" x-text="value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').type('1234').should(haveValue('1,234'))
+        get('#2').should(haveValue('1234'))
+        get('#3').should(haveText('1234'))
+    },
+)
+
+test('x-mask.display masks programmatic x-model updates without masking the model value',
+    [html`
+        <div x-data="{ value: '1000' }">
+            <input x-mask.display="9,999" x-model="value" id="1">
+            <input x-model="value" id="2">
+            <span id="3" x-text="value"></span>
+            <button @click="value = '2345'">Change</button>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('1,000'))
+        get('#2').should(haveValue('1000'))
+        get('#3').should(haveText('1000'))
+        get('button').click()
+        get('#1').should(haveValue('2,345'))
+        get('#2').should(haveValue('2345'))
+        get('#3').should(haveText('2345'))
+    },
+)
+
+test('x-mask.display refreshes unmasked model value after programmatic x-model updates',
+    [html`
+        <div x-data="{ value: '1000' }">
+            <input x-mask.display="9,999" x-model.enter="value" id="1">
+            <span id="2" x-text="value"></span>
+            <button @click="value = '2345'">Change</button>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('1,000'))
+        get('#2').should(haveText('1000'))
+        get('button').click()
+        get('#1').should(haveValue('2,345'))
+        get('#2').should(haveText('2345'))
+        get('#1').type('{enter}')
+        get('#2').should(haveText('2345'))
+    },
+)
+
+test('x-mask.display preserves x-model number modifier',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask.display="9,999" x-model.number="value" id="1">
+            <span id="2" x-text="typeof value + ':' + value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').type('1234').should(haveValue('1,234'))
+        get('#2').should(haveText('number:1234'))
+    },
+)
+
+test('x-mask.display preserves x-model blur modifier',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask.display="9,999" x-model.blur="value" id="1">
+            <span id="2" x-text="value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').type('1234').should(haveValue('1,234'))
+        get('#2').should(haveText(''))
+        get('#1').blur()
+        get('#2').should(haveText('1234'))
+    },
+)
+
+test('x-mask.display preserves x-model change modifier',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask.display="9,999" x-model.change="value" id="1">
+            <span id="2" x-text="value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').type('1234').should(haveValue('1,234'))
+        get('#2').should(haveText(''))
+        get('#1').blur()
+        get('#2').should(haveText('1234'))
+    },
+)
+
+test('x-mask.display preserves x-model debounce modifier',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask.display="9,999" x-model.debounce.50ms="value" id="1">
+            <span id="2" x-text="value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').type('1234').should(haveValue('1,234'))
+        get('#2').should(haveText('1234'))
+    },
+)
+
+test('x-mask.display preserves x-model enter modifier',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask.display="9,999" x-model.enter="value" id="1">
+            <span id="2" x-text="value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').type('1234').should(haveValue('1,234'))
+        get('#2').should(haveText(''))
+        get('#1').type('{enter}')
+        get('#2').should(haveText('1234'))
+    },
+)
+
 test('x-mask with x-model if initial value is null it should remain null',
     [html`
         <div x-data="{ value: null }">

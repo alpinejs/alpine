@@ -1,8 +1,22 @@
 
 export default function (Alpine) {
-    Alpine.directive('mask', (el, { value, expression }, { effect, evaluateLater, cleanup }) => {
+    Alpine.directive('mask', (el, { value, expression, modifiers }, { effect, evaluateLater, cleanup }) => {
         let templateFn = () => expression
         let lastInputValue = ''
+        let lastTemplate = null
+        let isDisplayOnly = modifiers.includes('display')
+
+        let transformModelValue = value => {
+            let template = lastTemplate || templateFn(value)
+
+            return template && template !== 'false'
+                ? unmaskInput(template, value)
+                : value
+        }
+
+        if (isDisplayOnly) {
+            el._x_modelValueTransformer = transformModelValue
+        }
 
         queueMicrotask(() => {
             if (['function', 'dynamic'].includes(value)) {
@@ -41,12 +55,14 @@ export default function (Alpine) {
 
             // Override x-model's initial value...
             if (el._x_model) {
-                // If the x-model value is the same, don't override it as that will trigger updates...
-                if (el._x_model.get() !== el.value) {
-                    // If the x-model value is `null` and the input value is an empty
-                    // string, don't override it as that will trigger updates...
-                    if (!(el._x_model.get() === null && el.value === '')) {
-                        el._x_model.set(el.value)
+                if (! isDisplayOnly) {
+                    // If the x-model value is the same, don't override it as that will trigger updates...
+                    if (el._x_model.get() !== el.value) {
+                        // If the x-model value is `null` and the input value is an empty
+                        // string, don't override it as that will trigger updates...
+                        if (!(el._x_model.get() === null && el.value === '')) {
+                            el._x_model.set(el.value)
+                        }
                     }
                 }
 
@@ -63,11 +79,14 @@ export default function (Alpine) {
                     value = String(value)
                     let template = templateFn(value)
                     if (template && template !== 'false') {
+                        lastTemplate = template
                         value = formatInput(template, value)
+                    } else {
+                        lastTemplate = null
                     }
                     lastInputValue = value
                     updater(value)
-                    el._x_model.set(value)
+                    if (! isDisplayOnly) el._x_model.set(value)
                 }
             }
         })
@@ -76,6 +95,10 @@ export default function (Alpine) {
 
         cleanup(() => {
             controller.abort()
+
+            if (el._x_modelValueTransformer === transformModelValue) {
+                delete el._x_modelValueTransformer
+            }
         })
 
         el.addEventListener('input', () => processInputValue(el), {
@@ -95,7 +118,12 @@ export default function (Alpine) {
             let template = templateFn(input)
 
             // If a template value is `falsy`, then don't process the input value
-            if(!template || template === 'false') return false
+            if(!template || template === 'false') {
+                lastTemplate = null
+                return false
+            }
+
+            lastTemplate = template
 
             // If they hit backspace, don't process input.
             if (lastInputValue.length - el.value.length === 1) {
@@ -164,6 +192,33 @@ export function formatInput(template, input) {
         } else { // We've encountered a template literal...
             output += templateChar
 
+            templateMark++
+
+            if (templateChar === input[inputMark]) inputMark++
+        }
+    }
+
+    return output
+}
+
+export function unmaskInput(template, input) {
+    let templateMark = 0
+    let inputMark = 0
+    let output = ''
+
+    while (templateMark < template.length && inputMark < input.length) {
+        let templateChar = template[templateMark]
+        let inputChar = input[inputMark]
+
+        if (templateChar in regexes) {
+            if (regexes[templateChar].test(inputChar)) {
+                output += inputChar
+
+                templateMark++
+            }
+
+            inputMark++
+        } else {
             templateMark++
 
             if (templateChar === input[inputMark]) inputMark++

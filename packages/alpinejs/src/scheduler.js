@@ -17,7 +17,7 @@ export function commitTransaction() {
 }
 
 function queueJob(job) {
-    if (! queue.includes(job)) queue.push(job)
+    if (! queue.includes(job, lastFlushedIndex + 1)) queue.push(job)
 
     queueFlush()
 }

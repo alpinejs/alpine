@@ -163,6 +163,34 @@ test('x-mask.display masks programmatic x-model updates without masking the mode
     },
 )
 
+test('x-mask.display preserves x-model number modifier',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask.display="9,999" x-model.number="value" id="1">
+            <span id="2" x-text="typeof value + ':' + value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').type('1234').should(haveValue('1,234'))
+        get('#2').should(haveText('number:1234'))
+    },
+)
+
+test('x-mask.display preserves x-model blur modifier',
+    [html`
+        <div x-data="{ value: '' }">
+            <input x-mask.display="9,999" x-model.blur="value" id="1">
+            <span id="2" x-text="value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').type('1234').should(haveValue('1,234'))
+        get('#2').should(haveText(''))
+        get('#1').blur()
+        get('#2').should(haveText('1234'))
+    },
+)
+
 test('x-mask with x-model if initial value is null it should remain null',
     [html`
         <div x-data="{ value: null }">

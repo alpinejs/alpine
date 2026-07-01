@@ -3,15 +3,9 @@ export default function (Alpine) {
     Alpine.directive('mask', (el, { value, expression, modifiers }, { effect, evaluateLater, cleanup }) => {
         let templateFn = () => expression
         let lastInputValue = ''
+        let lastModelValue = ''
         let isDisplayOnly = modifiers.includes('display')
-
-        let setModelValue = value => {
-            if (isDisplayOnly) el._x_modelValue = value
-        }
-
-        let clearModelValue = () => {
-            if (isDisplayOnly) delete el._x_modelValue
-        }
+        let restoreValueGetter = () => {}
 
         queueMicrotask(() => {
             if (['function', 'dynamic'].includes(value)) {
@@ -42,10 +36,10 @@ export default function (Alpine) {
                     // - Initializing the mask on the input if it has an initial value.
                     // - Running the template function to set up reactivity, so that
                     //   when a dependency inside it changes, the input re-masks.
-                    processInputValue(el, false)
+                    processInputValue(el, false, false)
                 })
             } else {
-                processInputValue(el, false)
+                processInputValue(el, false, false)
             }
 
             // Override x-model's initial value...
@@ -68,21 +62,17 @@ export default function (Alpine) {
                     // as that would resurrect the model path with an empty value.
                     if (value === undefined) {
                         lastInputValue = ''
-                        clearModelValue()
                         return updater(value)
                     }
 
                     value = String(value)
-                    let modelValue = value
                     let template = templateFn(value)
                     if (template && template !== 'false') {
                         let formatted = formatInputValues(template, value)
 
                         value = formatted.masked
-                        modelValue = formatted.unmasked
                     }
                     lastInputValue = value
-                    setModelValue(modelValue)
                     updater(value)
                     if (! isDisplayOnly) el._x_model.set(value)
                 }
@@ -94,7 +84,7 @@ export default function (Alpine) {
         cleanup(() => {
             controller.abort()
 
-            clearModelValue()
+            restoreValueGetter()
         })
 
         el.addEventListener('input', () => processInputValue(el), {
@@ -106,26 +96,37 @@ export default function (Alpine) {
 
         // Don't "restoreCursorPosition" on "blur", because Safari
         // will re-focus the input and cause a focus trap.
-        el.addEventListener('blur', () => processInputValue(el, false), { signal: controller.signal })
+        el.addEventListener('blur', () => processInputValue(el, false), { signal: controller.signal, capture: true })
+        el.addEventListener('change', () => processInputValue(el, false), { signal: controller.signal, capture: true })
+        el.addEventListener('keydown', event => {
+            if (event.key !== 'Enter') return
 
-        function processInputValue (el, shouldRestoreCursor = true) {
+            exposeModelValue(lastModelValue, true)
+        }, { signal: controller.signal, capture: true })
+
+        function processInputValue (el, shouldRestoreCursor = true, shouldExposeModelValue = true) {
+            restoreValueGetter()
+
             let input = el.value
 
             let template = templateFn(input)
 
             // If a template value is `falsy`, then don't process the input value
             if(!template || template === 'false') {
-                clearModelValue()
+                lastModelValue = input
+                exposeModelValue(input, shouldExposeModelValue)
                 return false
             }
 
             let formatted = formatInputValues(template, input)
 
-            setModelValue(formatted.unmasked)
+            lastModelValue = formatted.unmasked
 
             // If they hit backspace, don't process input.
             if (lastInputValue.length - el.value.length === 1) {
-                return lastInputValue = el.value
+                exposeModelValue(formatted.unmasked, shouldExposeModelValue)
+
+                return lastInputValue = input
             }
 
             let setInput = () => {
@@ -142,8 +143,77 @@ export default function (Alpine) {
             } else {
                 setInput()
             }
+
+            exposeModelValue(formatted.unmasked, shouldExposeModelValue)
+        }
+
+        function exposeModelValue(value, shouldExposeModelValue) {
+            if (! isDisplayOnly || ! shouldExposeModelValue) return
+
+            restoreValueGetter()
+
+            let descriptor = Object.getOwnPropertyDescriptor(el, 'value')
+            let nativeDescriptor = getNativeValueDescriptor(el)
+
+            let restore = () => {
+                if (restoreValueGetter !== restore) return
+
+                if (descriptor) {
+                    Object.defineProperty(el, 'value', descriptor)
+                } else {
+                    delete el.value
+                }
+
+                restoreValueGetter = () => {}
+            }
+
+            restoreValueGetter = restore
+
+            Object.defineProperty(el, 'value', {
+                configurable: true,
+                get() {
+                    return value
+                },
+                set(value) {
+                    nativeDescriptor.set.call(el, value)
+                },
+            })
+
+            setTimeout(restore, getModelValueExposureDuration(el))
         }
     }).before('model')
+}
+
+function getNativeValueDescriptor(el) {
+    let prototype = Object.getPrototypeOf(el)
+
+    while (prototype) {
+        let descriptor = Object.getOwnPropertyDescriptor(prototype, 'value')
+
+        if (descriptor) return descriptor
+
+        prototype = Object.getPrototypeOf(prototype)
+    }
+}
+
+function getModelValueExposureDuration(el) {
+    let modifiers = getModelModifiers(el)
+    let debounce = modifiers.indexOf('debounce')
+
+    if (debounce === -1) return 0
+
+    let duration = modifiers[debounce + 1] || 'invalid-wait'
+    let milliseconds = Number(duration.split('ms')[0])
+
+    return (isNaN(milliseconds) ? 250 : milliseconds) + 25
+}
+
+function getModelModifiers(el) {
+    let modelAttribute = Array.from(el.attributes).find(attribute => {
+        return attribute.name === 'x-model' || attribute.name.startsWith('x-model.')
+    })
+
+    return modelAttribute ? modelAttribute.name.split('.').slice(1) : []
 }
 
 export function restoreCursorPosition(el, template, callback) {

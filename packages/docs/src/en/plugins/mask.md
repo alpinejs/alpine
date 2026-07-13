@@ -184,3 +184,29 @@ You can also override the default precision of 2 digits by using any desired num
     <input type="text" x-mask:dynamic="$money($input, '.', ',', 4)"  placeholder="0.0001">
 </div>
 <!-- END_VERBATIM -->
+
+<a name="display-only-masks"></a>
+
+## Display-only Masks
+
+By default, any formatting applied by `x-mask` is included in the value stored by `x-model`.
+
+If you only want the mask to affect what is displayed in the input, use the `.display` modifier. The input will display the masked value, while the bound property stores the unmasked value.
+
+```alpine
+<div x-data="{ amount: '1000' }">
+    <input x-mask:dynamic.display="$money($input)" x-model="amount">
+
+    <p>Model value: <span x-text="amount"></span></p>
+</div>
+```
+
+<!-- START_VERBATIM -->
+<div class="demo" x-data="{ amount: '1000' }">
+    <input x-mask:dynamic.display="$money($input)" x-model="amount">
+
+    <div class="pt-4">Model value: <span x-text="amount"></span></div>
+</div>
+<!-- END_VERBATIM -->
+
+In the above example, the input displays `1,000`, while `amount` remains `1000`. If `amount` is changed programmatically, the input will display the newly formatted value.

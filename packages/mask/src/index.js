@@ -109,7 +109,7 @@ export default function (Alpine) {
             modelValue.onInput(formatted)
 
             // If they hit backspace, don't process input.
-            if (lastInputValue.length - el.value.length === 1) {
+            if (lastInputValue.length - el.value.length === 1 && formatted.masked.length >= el.value.length) {
                 return lastInputValue = el.value
             }
 

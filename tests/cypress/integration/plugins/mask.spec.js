@@ -157,6 +157,23 @@ test('x-mask.display preserves the cursor after deleting from a dynamic mask',
     },
 )
 
+test('x-mask.display reformats a dynamic mask after deleting a separator-adjacent digit',
+    [html`
+        <div x-data="{ value: 1500 }">
+            <input x-mask:dynamic.display="$money($input, '.', ',', 0)" x-model.number="value" id="1">
+            <span id="2" x-text="typeof value + ':' + value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('1,500'))
+        get('#1').type('{leftArrow}{leftArrow}{backspace}').should(haveValue('100'))
+        get('#1').should(($input) => {
+            expect($input[0].selectionStart).to.equal(1)
+        })
+        get('#2').should(haveText('number:100'))
+    },
+)
+
 test('x-mask.display masks programmatic x-model updates without masking the model value',
     [html`
         <div x-data="{ value: '1000' }">

@@ -143,6 +143,20 @@ test('x-mask.display with x-model stores user input unmasked',
     },
 )
 
+test('x-mask.display preserves the cursor after deleting from a dynamic mask',
+    [html`
+        <div x-data="{ value: '1000' }">
+            <input x-mask:dynamic.display="$money($input, '.', ',', 0)" x-model="value" id="1">
+            <span id="2" x-text="value"></span>
+        </div>
+    `],
+    ({ get }) => {
+        get('#1').should(haveValue('1,000'))
+        get('#1').type('{leftArrow}{leftArrow}{backspace}5').should(haveValue('1,500'))
+        get('#2').should(haveText('1500'))
+    },
+)
+
 test('x-mask.display masks programmatic x-model updates without masking the model value',
     [html`
         <div x-data="{ value: '1000' }">

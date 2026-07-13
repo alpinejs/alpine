@@ -65,7 +65,9 @@ export default function (Alpine) {
                     }
 
                     lastInputValue = formatted.masked
-                    updater(formatted.masked)
+                    if (modelValue.shouldUpdateInput(formatted)) {
+                        updater(formatted.masked)
+                    }
                     modelValue.onProgrammaticUpdate(formatted)
                 }
             }
@@ -131,10 +133,16 @@ export default function (Alpine) {
 
 function createModelValueHandler(el, isDisplayOnly) {
     if (isDisplayOnly) {
+        let inputValue
+
         return {
             initialize() {},
             onInput({ unmasked }) {
+                inputValue = unmasked
                 el._x_modelValue = unmasked
+            },
+            shouldUpdateInput({ unmasked }) {
+                return document.activeElement !== el || inputValue !== unmasked
             },
             onProgrammaticUpdate({ unmasked }) {
                 el._x_modelValue = unmasked
@@ -159,6 +167,9 @@ function createModelValueHandler(el, isDisplayOnly) {
             el._x_model.set(el.value)
         },
         onInput() {},
+        shouldUpdateInput() {
+            return true
+        },
         onProgrammaticUpdate({ masked }) {
             el._x_model.set(masked)
         },

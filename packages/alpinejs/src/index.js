@@ -39,7 +39,26 @@ Alpine.setRawEvaluator(normalRawEvaluator)
  */
 import { reactive, effect, stop, toRaw } from '@vue/reactivity'
 
-Alpine.setReactivityEngine({ reactive, effect, release: stop, raw: toRaw })
+Alpine.setReactivityEngine({
+    reactive,
+    // Since Vue 3.2, the scheduler is called with no arguments, so we wrap
+    // the effect to hand Alpine's scheduler the runner it expects to queue.
+    effect: (callback, options = {}) => {
+        let runner = effect(callback, {
+            scheduler: () => {
+                // A self-triggering effect can notify before `runner` is
+                // assigned; Vue 3.1 silently dropped those, so we do too.
+                if (! runner) return
+
+                options.scheduler ? options.scheduler(runner) : runner()
+            },
+        })
+
+        return runner
+    },
+    release: stop,
+    raw: toRaw,
+})
 
 /**
  * _______________________________________________________

@@ -10,6 +10,8 @@ import { evaluate } from '../evaluator'
 
 addRootSelector(() => `[${prefix('data')}]`)
 
+let dataToReconcile = new WeakMap
+
 directive('data', ((el, { expression }, { cleanup }) => {
     if (shouldSkipRegisteringDataDuringClone(el)) return
 
@@ -27,18 +29,46 @@ directive('data', ((el, { expression }, { cleanup }) => {
 
     injectMagics(data, el)
 
-    let reactiveData = reactive(data)
+    let reactiveData = dataToReconcile.get(el)
 
-    initInterceptors(reactiveData)
+    dataToReconcile.delete(el)
+
+    if (reactiveData) {
+        Object.keys(data).forEach(key => {
+            let descriptor = Object.getOwnPropertyDescriptor(data, key)
+            let existingDescriptor = Object.getOwnPropertyDescriptor(reactiveData, key)
+
+            if (descriptor.get || descriptor.set || existingDescriptor?.get || existingDescriptor?.set) {
+                if (existingDescriptor) delete reactiveData[key]
+                if (! existingDescriptor) reactiveData[key] = undefined
+
+                descriptor.get || descriptor.set
+                    ? Object.defineProperty(reactiveData, key, descriptor)
+                    : reactiveData[key] = data[key]
+            } else {
+                reactiveData[key] = data[key]
+            }
+        })
+
+        Object.keys(reactiveData)
+            .filter(key => ! Object.prototype.hasOwnProperty.call(data, key))
+            .forEach(key => delete reactiveData[key])
+    } else {
+        reactiveData = reactive(data)
+    }
+
+    initInterceptors(reactiveData, cleanup)
 
     let undo = addScopeToNode(el, reactiveData)
 
     reactiveData['init'] && evaluate(el, reactiveData['init'])
 
-    cleanup(() => {
+    cleanup((isReplaced) => {
         reactiveData['destroy'] && evaluate(el, reactiveData['destroy'])
 
         undo()
+
+        if (isReplaced) dataToReconcile.set(el, reactiveData)
     })
 }))
 

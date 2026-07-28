@@ -28,12 +28,12 @@ export function onAttributeRemoved(el, name, callback) {
     el._x_attributeCleanups[name].push(callback)
 }
 
-export function cleanupAttributes(el, names) {
+export function cleanupAttributes(el, names, replacements = []) {
     if (! el._x_attributeCleanups) return
 
     Object.entries(el._x_attributeCleanups).forEach(([name, value]) => {
         if (names === undefined || names.includes(name)) {
-            value.forEach(i => i())
+            value.forEach(i => i(replacements.includes(name)))
 
             delete el._x_attributeCleanups[name]
         }
@@ -160,12 +160,14 @@ function onMutate(mutations) {
 
             let add = () => {
                 if (! addedAttributes.has(el)) addedAttributes.set(el, [])
+                if (addedAttributes.get(el).some(attr => attr.name === name)) return
 
                 addedAttributes.get(el).push({ name,  value: el.getAttribute(name) })
             }
 
             let remove = () => {
                 if (! removedAttributes.has(el)) removedAttributes.set(el, [])
+                if (removedAttributes.get(el).includes(name)) return
 
                 removedAttributes.get(el).push(name)
             }
@@ -185,7 +187,9 @@ function onMutate(mutations) {
     }
 
     removedAttributes.forEach((attrs, el) => {
-        cleanupAttributes(el, attrs)
+        let replacements = addedAttributes.get(el)?.map(attr => attr.name) || []
+
+        cleanupAttributes(el, attrs, replacements)
     })
 
     addedAttributes.forEach((attrs, el) => {

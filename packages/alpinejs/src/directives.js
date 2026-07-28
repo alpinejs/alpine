@@ -119,7 +119,7 @@ export function getElementBoundUtilities(el) {
         evaluate: evaluate.bind(evaluate, el),
     }
 
-    let doCleanup = () => cleanups.forEach(i => i())
+    let doCleanup = (...args) => cleanups.forEach(i => i(...args))
 
     return [utilities, doCleanup]
 }

@@ -12,7 +12,7 @@ export default function (Alpine) {
             let dummy = new Map();
 
             storage = {
-                getItem: dummy.get.bind(dummy),
+                getItem: key => dummy.has(key) ? dummy.get(key) : null,
                 setItem: dummy.set.bind(dummy)
             }
         }
@@ -61,7 +61,9 @@ export default function (Alpine) {
 }
 
 function storageHas(key, storage) {
-    return storage.getItem(key) !== null
+    let value = storage.getItem(key)
+
+    return value !== null && value !== undefined
 }
 
 function storageGet(key, storage) {

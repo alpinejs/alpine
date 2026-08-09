@@ -1,7 +1,7 @@
 // Warning: The concept of "interceptors" in Alpine is not public API and is subject to change
 // without tagging a major release.
 
-export function initInterceptors(data) {
+export function initInterceptors(data, cleanup = () => {}) {
     let isObject = val => typeof val === 'object' && !Array.isArray(val) && val !== null
 
     let recurse = (obj, basePath = '') => {
@@ -13,7 +13,7 @@ export function initInterceptors(data) {
             let path = basePath === '' ? key : `${basePath}.${key}`
 
             if (typeof value === 'object' && value !== null && value._x_interceptor) {
-                obj[key] = value.initialize(data, path, key)
+                obj[key] = value.initialize(data, path, key, cleanup)
             } else {
                 if (isObject(value) && value !== obj && ! (value instanceof Element)) {
                     recurse(value, path)
@@ -31,8 +31,8 @@ export function interceptor(callback, mutateObj = () => {}) {
 
         _x_interceptor: true,
 
-        initialize(data, path, key) {
-            return callback(this.initialValue, () => get(data, path), (value) => set(data, path, value), path, key)
+        initialize(data, path, key, cleanup) {
+            return callback(this.initialValue, () => get(data, path), (value) => set(data, path, value), path, key, cleanup)
         }
     }
 
@@ -43,12 +43,12 @@ export function interceptor(callback, mutateObj = () => {}) {
             // Support nesting interceptors.
             let initialize = obj.initialize.bind(obj)
 
-            obj.initialize = (data, path, key) => {
-                let innerValue = initialValue.initialize(data, path, key)
+            obj.initialize = (data, path, key, cleanup) => {
+                let innerValue = initialValue.initialize(data, path, key, cleanup)
 
                 obj.initialValue = innerValue
 
-                return initialize(data, path, key)
+                return initialize(data, path, key, cleanup)
             }
         } else {
             obj.initialValue = initialValue

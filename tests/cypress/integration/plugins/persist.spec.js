@@ -227,6 +227,25 @@ test('can persist using global Alpine.$persist within Alpine.store',
     },
 )
 
+test('can persist a primitive as a direct Alpine store',
+    [html`
+        <div x-data>
+            <button @click="$store.language = $store.language === 'EN' ? 'IT' : 'EN'"></button>
+            <span x-text="$store.language"></span>
+        </div>
+    `, `
+        Alpine.store('language', Alpine.$persist('EN').as('direct-store-language'))
+    `],
+    ({ get, window }, reload) => {
+        get('span').should(haveText('EN'))
+        get('button').click()
+        get('span').should(haveText('IT'))
+        window().its('localStorage.direct-store-language').should(beEqualTo(JSON.stringify('IT')))
+        reload()
+        get('span').should(haveText('IT'))
+    },
+)
+
 test('persist in Stores is available in init call',
     [html`
         <div x-data>

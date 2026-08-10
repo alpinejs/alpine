@@ -1,0 +1,106 @@
+name: Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 3.15.12 or v3.15.12)'
+        required: true
+        type: string
+      previous_tag:
+        description: 'Previous tag for generated release notes (e.g. v3.15.11)'
+        required: false
+        type: string
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: draft-release
+  cancel-in-progress: false
+
+jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm install -g npm@latest
+
+      - name: Normalize and validate release inputs
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PREVIOUS_TAG: ${{ inputs.previous_tag }}
+        run: |
+          version="${INPUT_VERSION#v}"
+
+          if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid version format: ${version} (expected X.Y.Z)"
+            exit 1
+          fi
+
+          echo "VERSION=${version}" >> "$GITHUB_ENV"
+          echo "RELEASE_TAG=v${version}" >> "$GITHUB_ENV"
+
+          if [[ -n "${INPUT_PREVIOUS_TAG}" ]]; then
+            previous_tag="v${INPUT_PREVIOUS_TAG#v}"
+
+            if [[ ! "${previous_tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::Invalid previous tag format: ${previous_tag} (expected vX.Y.Z)"
+              exit 1
+            fi
+
+            echo "PREVIOUS_TAG=${previous_tag}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Verify tag does not exist
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "::error::Tag ${RELEASE_TAG} already exists"
+            exit 1
+          fi
+
+      - run: npm ci
+
+      - name: Bump versions in all packages
+        run: node scripts/prep-release.js "$VERSION"
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Commit version bumps
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Bump version to ${VERSION}"
+          git push origin HEAD:main
+          echo "RELEASE_TARGET=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Create draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          args=(
+            "${RELEASE_TAG}"
+            --draft
+            --target "${RELEASE_TARGET}"
+            --title "${RELEASE_TAG}"
+            --generate-notes
+          )
+
+          if [[ -n "${PREVIOUS_TAG}" ]]; then
+            args+=(--notes-start-tag "${PREVIOUS_TAG}")
+          fi
+
+          gh release create "${args[@]}"

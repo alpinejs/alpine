@@ -1,15 +1,15 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release (e.g. 3.15.12 or v3.15.12)'
-        required: true
-        type: string
+  release:
+    types: [published]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -17,11 +17,11 @@ jobs:
     environment: release
     permissions:
       id-token: write
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.release.tag_name }}
 
       - uses: actions/setup-node@v4
         with:
@@ -29,70 +29,43 @@ jobs:
 
       - run: npm install -g npm@latest
 
-      # ── Normalize version ──────────────────────────────────────────
-      - name: Normalize version
-        id: version
+      - name: Verify release version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          RAW="${{ github.event.inputs.version }}"
-          VERSION="${RAW#v}"
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Invalid version format: $VERSION (expected X.Y.Z)"
-            exit 1
-          fi
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          version="${RELEASE_TAG#v}"
 
-      # ── Verify tag doesn't already exist ───────────────────────────
-      - name: Verify tag doesn't exist
-        run: |
-          if git ls-remote --tags origin | grep -q "refs/tags/${{ steps.version.outputs.tag }}$"; then
-            echo "::error::Tag ${{ steps.version.outputs.tag }} already exists"
+          if [[ ! "${RELEASE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid release tag: ${RELEASE_TAG} (expected vX.Y.Z)"
             exit 1
           fi
 
-      # ── Install dependencies ───────────────────────────────────────
+          package_version=$(node -p "require('./packages/alpinejs/package.json').version")
+
+          if [[ "${package_version}" != "${version}" ]]; then
+            echo "::error::Release tag ${RELEASE_TAG} does not match package version ${package_version}"
+            exit 1
+          fi
+
       - run: npm ci
 
-      # ── Bump versions ──────────────────────────────────────────────
-      - name: Bump versions in all packages
-        run: node scripts/prep-release.js ${{ steps.version.outputs.version }}
+      - name: Build packages
+        run: npm run build
 
-      # ── Commit and push version bumps ──────────────────────────────
-      - name: Commit version bumps
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "Bump version to ${{ steps.version.outputs.version }}"
-          git push
-
-      # ── Build ──────────────────────────────────────────────────────
-      - run: npm run build
-
-      # ── Create GitHub release ──────────────────────────────────────
-      - name: Create GitHub release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            --target main \
-            --title "${{ steps.version.outputs.tag }}" \
-            --generate-notes
-
-      # ── Publish all packages to npm ────────────────────────────────
       - name: Publish all packages to npm
         run: |
-          FAILED=""
+          failed=""
+
           for pkg in alpinejs csp intersect collapse persist resize anchor morph focus sort mask ui docs; do
-            echo "Publishing $pkg..."
-            cd packages/$pkg
-            if ! npm publish --access public --provenance 2>&1; then
-              echo "::warning::Failed to publish $pkg"
-              FAILED="$FAILED $pkg"
+            echo "Publishing ${pkg}..."
+
+            if ! (cd "packages/${pkg}" && npm publish --access public --provenance); then
+              echo "::warning::Failed to publish ${pkg}"
+              failed="${failed} ${pkg}"
             fi
-            cd ../..
           done
-          if [ -n "$FAILED" ]; then
-            echo "::error::Failed to publish:$FAILED"
+
+          if [[ -n "${failed}" ]]; then
+            echo "::error::Failed to publish:${failed}"
             exit 1
           fi

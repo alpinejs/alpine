@@ -17,7 +17,7 @@ export default function (Alpine) {
             }
         }
 
-        return Alpine.interceptor((initialValue, getter, setter, path, key, cleanup) => {
+        return Alpine.interceptor((initialValue, getter, setter, path, key, cleanup = () => {}) => {
             let lookup = alias || `_x_${path}`
 
             let initial = storageHas(lookup, storage)

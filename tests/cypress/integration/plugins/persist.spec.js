@@ -91,6 +91,52 @@ test('can persist boolean',
     },
 )
 
+test('does not persist undefined values',
+    [html`
+        <div x-data="{ foo: $persist('bar').as('no-undefined') }">
+            <button @click="foo = undefined"></button>
+            <span x-text="foo === undefined ? 'undefined' : foo"></span>
+        </div>
+    `],
+    ({ get, window }, reload) => {
+        get('span').should(haveText('bar'))
+        get('button').click()
+        get('span').should(haveText('undefined'))
+        window().then((win) => {
+            expect(win.localStorage.getItem('no-undefined')).to.equal(null)
+        })
+        reload()
+        get('span').should(haveText('bar'))
+    },
+)
+
+test('does not write undefined values to custom storage without removeItem',
+    [html`
+        <div x-data="{ foo: $persist('bar').as('custom-undefined').using(window.customStorage) }">
+            <button @click="foo = undefined"></button>
+            <span x-text="foo === undefined ? 'undefined' : foo"></span>
+        </div>
+    `, `
+        window.customStorage = {
+            values: {},
+            writes: {},
+            getItem(key) { return this.values[key] ?? null },
+            setItem(key, value) { this.values[key] = value; this.writes[key] = (this.writes[key] || 0) + 1 },
+        }
+    `],
+    ({ get, window }) => {
+        get('span').should(haveText('bar'))
+        window().then((win) => {
+            win.customStorage.writes['custom-undefined'] = 0
+        })
+        get('button').click()
+        get('span').should(haveText('undefined'))
+        window().then((win) => {
+            expect(win.customStorage.writes['custom-undefined']).to.equal(0)
+        })
+    },
+)
+
 test('can persist multiple components using the same property',
     [html`
         <div x-data="{ duplicate: $persist('foo') }">

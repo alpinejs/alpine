@@ -77,5 +77,15 @@ function storageGet(key, storage) {
 }
 
 function storageSet(key, value, storage) {
+    // Avoid persisting "undefined" values. JSON.stringify(undefined) returns
+    // undefined, which the storage API coerces into the string "undefined".
+    // On the next page load, JSON.parse("undefined") would throw and break
+    // the component that initialized that persisted value.
+    if (value === undefined) {
+        storage.removeItem?.(key)
+
+        return
+    }
+
     storage.setItem(key, JSON.stringify(value))
 }

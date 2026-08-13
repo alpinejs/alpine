@@ -44,6 +44,7 @@ The test fails with five rows when structural jobs preserve notification order. 
 - A nested structural-on-structural reproduction fails without parent ordering and passes with it.
 - Full Vitest: 177 passed and 1 skipped.
 - Focused Cypress: 103 passed across `x-for`, `x-if`, `x-html`, `x-model`, `$nextTick`, and mutation cleanup.
+- The complete Cypress suite passes.
 - Production build passes.
 
 Synthetic Node/V8 scheduler-only timings show small queues paying sub-microsecond to low-microsecond overhead and 1,000-job queues improving because Set membership replaces repeated array scans. These are directional only; browser/DOM benchmarks remain required.

@@ -38,7 +38,7 @@ Creation order alone is insufficient. Alpine supports moving initialized nodes, 
 - When structural work is pending, the unprocessed queue tail is sorted by current logical depth and then creation order; ordinary jobs retain FIFO order after structural work.
 - Logical depth follows teleport-back links and shadow hosts rather than relying only on physical DOM placement.
 - If an ordinary job schedules structural work, the unprocessed tail is sorted again before the next job without moving work ahead of jobs that already ran.
-- A single Set dedupes job identities for the entire flush.
+- The existing `queue.includes(job)` check continues to dedupe job identities for the entire flush.
 - `dequeueJob` retains its existing pending-work semantics.
 
 ## Evidence so far
@@ -59,15 +59,15 @@ Three alternating browser runs produced these average medians:
 
 | Workload | `main` | spike |
 | --- | ---: | ---: |
-| 1,000 leaf effects | 3.13 ms | 3.03 ms |
-| 100 sibling `x-for` directives with 1,000 leaves | 8.20 ms | 8.03 ms |
-| 100 nested outer loops with 500 inner leaves | 3.33 ms | 3.33 ms |
-| 100 `x-if` directives | 1.03 ms | 1.07 ms |
-| 100 replacing `x-html` directives | 16.40 ms | 1.80 ms |
+| 1,000 leaf effects | 3.50 ms | 3.40 ms |
+| 100 sibling `x-for` directives with 1,000 leaves | 8.93 ms | 8.70 ms |
+| 100 nested outer loops with 500 inner leaves | 3.63 ms | 3.67 ms |
+| 100 `x-if` directives | 1.07 ms | 1.10 ms |
+| 100 replacing `x-html` directives | 17.30 ms | 1.80 ms |
 
 The `x-html` improvement is not scheduler magic: `main` leaves each replaced child's reactive effect subscribed, so obsolete detached effects accumulate throughout the benchmark. Destroying the old Alpine tree prevents that leak and lets the scheduler dequeue those obsolete jobs.
 
-Scheduler-only worst cases remain below DOM-scale costs. At 10,000 queued jobs, adding one structural job to the Set-backed queue added about 0.04 ms. Sorting and running 10,000 structural jobs took about 5.9 ms. The common all-ordinary 10,000-job queue improved from about 7.3 ms to 0.48 ms because Set membership replaces repeated `Array.includes` scans. These synthetic numbers are directional; the browser measurements above are the release signal.
+The final minimal version deliberately retains Alpine's existing `Array.includes` dedupe instead of mixing a queue-membership optimization into this fix. The browser measurements above were rerun after that scheduler reduction.
 
 ## Prior art
 

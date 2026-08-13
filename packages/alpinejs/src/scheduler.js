@@ -3,7 +3,6 @@ let flushPending = false
 let flushing = false
 let queue = []
 let lastFlushedIndex = -1
-let queuedJobs = new Set
 let queueNeedsSort = false
 let transactionActive = false
 
@@ -19,11 +18,10 @@ export function commitTransaction() {
 }
 
 function queueJob(job) {
-    if (! queuedJobs.has(job)) {
-        queuedJobs.add(job)
+    if (! queue.includes(job)) {
         queue.push(job)
 
-        if (isStructural(job)) queueNeedsSort = true
+        if (job._x_schedulerPriority !== undefined) queueNeedsSort = true
     }
 
     queueFlush()
@@ -34,7 +32,6 @@ export function dequeueJob(job) {
 
     if (index !== -1 && index > lastFlushedIndex) {
         queue.splice(index, 1)
-        queuedJobs.delete(job)
     }
 }
 
@@ -61,7 +58,6 @@ export function flushJobs() {
 
     queue.length = 0
     lastFlushedIndex = -1
-    queuedJobs.clear()
     queueNeedsSort = false
 
     flushing = false

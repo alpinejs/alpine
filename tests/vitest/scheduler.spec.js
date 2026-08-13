@@ -4,8 +4,8 @@ import { dequeueJob, flushJobs, scheduler } from '../../packages/alpinejs/src/sc
 afterEach(() => flushJobs())
 
 describe('scheduler priorities', () => {
-    let structural = (callback, priority = 0) => {
-        callback._x_schedulerPriority = { el: null, order: priority }
+    let structural = (callback, priority = 0, el = null) => {
+        callback._x_schedulerPriority = { el, order: priority }
 
         return callback
     }
@@ -31,6 +31,17 @@ describe('scheduler priorities', () => {
         expect(runs).toEqual(['structural', 'default'])
     })
 
+    it('preserves ordinary FIFO order when structural work is promoted', () => {
+        let runs = []
+
+        scheduler(() => runs.push('default one'))
+        scheduler(() => runs.push('default two'))
+        scheduler(structural(() => runs.push('structural')))
+        flushJobs()
+
+        expect(runs).toEqual(['structural', 'default one', 'default two'])
+    })
+
     it('uses creation order to run structural parents before children at the same depth', () => {
         let runs = []
         let child = structural(() => runs.push('child'), 2)
@@ -38,6 +49,21 @@ describe('scheduler priorities', () => {
 
         scheduler(child)
         scheduler(parent)
+        flushJobs()
+
+        expect(runs).toEqual(['parent', 'child'])
+    })
+
+    it('uses current tree depth before creation order', () => {
+        let runs = []
+        let root = { parentElement: null }
+        let parentElement = { parentElement: root }
+        let childElement = { parentElement: parentElement }
+        let olderChild = structural(() => runs.push('child'), 1, childElement)
+        let newerParent = structural(() => runs.push('parent'), 2, parentElement)
+
+        scheduler(olderChild)
+        scheduler(newerParent)
         flushJobs()
 
         expect(runs).toEqual(['parent', 'child'])
@@ -54,6 +80,21 @@ describe('scheduler priorities', () => {
         flushJobs()
 
         expect(runs).toEqual(['default one', 'new structural', 'default two'])
+    })
+
+    it('reorders structural work added while draining structural work', () => {
+        let runs = []
+        let parent = structural(() => runs.push('parent'), 1)
+        let child = structural(() => {
+            runs.push('child')
+            scheduler(parent)
+        }, 2)
+
+        scheduler(child)
+        scheduler(() => runs.push('default'))
+        flushJobs()
+
+        expect(runs).toEqual(['child', 'parent', 'default'])
     })
 
     it('preserves whole-flush deduping after a job has run', () => {

@@ -39,7 +39,7 @@ export function elementBoundEffect(el) {
             : undefined
         let effectReference = effect(callback)
 
-        if (priority !== undefined) {
+        if (priority !== undefined && effectReference !== undefined) {
             effectReference._x_schedulerPriority = { el, order: priority }
         }
 

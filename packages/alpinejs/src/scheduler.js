@@ -68,7 +68,8 @@ export function flushJobs() {
 }
 
 function sortPendingJobs(start) {
-    let sorted = queue.slice(start).sort(compareJobs)
+    let depths = new Map
+    let sorted = queue.slice(start).sort((a, b) => compareJobs(a, b, depths))
 
     for (let i = 0; i < sorted.length; i++) {
         queue[start + i] = sorted[i]
@@ -77,12 +78,12 @@ function sortPendingJobs(start) {
     queueNeedsSort = false
 }
 
-function compareJobs(a, b) {
+function compareJobs(a, b, depths) {
     if (! isStructural(a)) return isStructural(b) ? 1 : 0
     if (! isStructural(b)) return -1
 
-    let depthDifference = getElementDepth(a._x_schedulerPriority.el)
-        - getElementDepth(b._x_schedulerPriority.el)
+    let depthDifference = getElementDepth(a._x_schedulerPriority.el, depths)
+        - getElementDepth(b._x_schedulerPriority.el, depths)
 
     return depthDifference || a._x_schedulerPriority.order - b._x_schedulerPriority.order
 }
@@ -91,8 +92,11 @@ function isStructural(job) {
     return job._x_schedulerPriority !== undefined
 }
 
-function getElementDepth(el) {
+function getElementDepth(el, depths) {
+    if (depths.has(el)) return depths.get(el)
+
     let depth = 0
+    let owner = el
 
     while (el) {
         depth++
@@ -105,6 +109,8 @@ function getElementDepth(el) {
             el = el.parentElement
         }
     }
+
+    depths.set(owner, depth)
 
     return depth
 }

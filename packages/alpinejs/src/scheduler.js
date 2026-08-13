@@ -1,11 +1,10 @@
 
 let flushPending = false
 let flushing = false
-let structuralQueue = []
-let structuralQueueNeedsSort = false
 let queue = []
 let lastFlushedIndex = -1
 let queuedJobs = new Set
+let queueNeedsSort = false
 let transactionActive = false
 
 export function scheduler (callback) { queueJob(callback) }
@@ -22,27 +21,15 @@ export function commitTransaction() {
 function queueJob(job) {
     if (! queuedJobs.has(job)) {
         queuedJobs.add(job)
+        queue.push(job)
 
-        if (job._x_schedulerPriority === 'structural') {
-            structuralQueue.push(job)
-            structuralQueueNeedsSort = true
-        } else {
-            queue.push(job)
-        }
+        if (isStructural(job)) queueNeedsSort = true
     }
 
     queueFlush()
 }
 
 export function dequeueJob(job) {
-    let structuralIndex = structuralQueue.indexOf(job)
-
-    if (structuralIndex !== -1) {
-        structuralQueue.splice(structuralIndex, 1)
-        queuedJobs.delete(job)
-        return
-    }
-
     let index = queue.indexOf(job)
 
     if (index !== -1 && index > lastFlushedIndex) {
@@ -65,30 +52,59 @@ export function flushJobs() {
     flushPending = false
     flushing = true
 
-    while (structuralQueue.length || lastFlushedIndex + 1 < queue.length) {
-        flushStructuralJobs()
+    for (let i = 0; i < queue.length; i++) {
+        if (queueNeedsSort) sortPendingJobs(i)
 
-        if (lastFlushedIndex + 1 < queue.length) {
-            queue[++lastFlushedIndex]()
-        }
+        queue[i]()
+        lastFlushedIndex = i
     }
 
-    structuralQueue.length = 0
-    structuralQueueNeedsSort = false
     queue.length = 0
     lastFlushedIndex = -1
     queuedJobs.clear()
+    queueNeedsSort = false
 
     flushing = false
 }
 
-function flushStructuralJobs() {
-    while (structuralQueue.length) {
-        if (structuralQueueNeedsSort) {
-            structuralQueue.sort((a, b) => (b._x_schedulerOrder ?? Infinity) - (a._x_schedulerOrder ?? Infinity))
-            structuralQueueNeedsSort = false
-        }
+function sortPendingJobs(start) {
+    let sorted = queue.slice(start).sort(compareJobs)
 
-        structuralQueue.pop()()
+    for (let i = 0; i < sorted.length; i++) {
+        queue[start + i] = sorted[i]
     }
+
+    queueNeedsSort = false
+}
+
+function compareJobs(a, b) {
+    if (! isStructural(a)) return isStructural(b) ? 1 : 0
+    if (! isStructural(b)) return -1
+
+    let depthDifference = getElementDepth(a._x_schedulerPriority.el)
+        - getElementDepth(b._x_schedulerPriority.el)
+
+    return depthDifference || a._x_schedulerPriority.order - b._x_schedulerPriority.order
+}
+
+function isStructural(job) {
+    return job._x_schedulerPriority !== undefined
+}
+
+function getElementDepth(el) {
+    let depth = 0
+
+    while (el) {
+        depth++
+
+        if (el._x_teleportBack) {
+            el = el._x_teleportBack
+        } else if (typeof ShadowRoot === 'function' && el.parentNode instanceof ShadowRoot) {
+            el = el.parentNode.host
+        } else {
+            el = el.parentElement
+        }
+    }
+
+    return depth
 }

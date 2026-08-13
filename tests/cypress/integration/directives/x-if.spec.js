@@ -74,6 +74,54 @@ test('x-if removed dom does not evaluate reactive expressions in dom tree',
     }
 )
 
+test('x-if removes a nested x-for before the loop evaluates invalidated state',
+    html`
+        <div x-data="{ user: { items: ['one', 'two'] } }">
+            <button @click="user = null">Log out</button>
+
+            <template x-if="user">
+                <div>
+                    <template x-for="item in user.items" :key="item">
+                        <span x-text="item"></span>
+                    </template>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should('have.length', 2)
+        get('button').click()
+        get('span').should(notExist())
+    }
+)
+
+test('x-if removes an older x-for moved into its subtree before the loop evaluates invalidated state',
+    html`
+        <div x-data="{
+            user: { items: ['one', 'two'] },
+            moveLoop() {
+                document.querySelector('#slot').append(document.querySelector('#loop'))
+            },
+        }">
+            <div id="loop">
+                <template x-for="item in user.items" :key="item">
+                    <span x-text="item"></span>
+                </template>
+            </div>
+
+            <button id="move-and-logout" @click="moveLoop(); user = null">Move and log out</button>
+
+            <template x-if="user">
+                <div id="slot"></div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('#move-and-logout').click()
+        get('#loop').should(notExist())
+    }
+)
+
 // Attempting to skip an already-flushed reactive effect would cause inconsistencies when updating other effects.
 // See https://github.com/alpinejs/alpine/issues/2803 for more details.
 test('x-if removed dom does not attempt skipping already-processed reactive effects in dom tree',

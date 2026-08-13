@@ -2,7 +2,7 @@
 import { scheduler, startTransaction as startTx, commitTransaction as commitTx } from './scheduler'
 
 let reactive, effect, release, raw
-let nextEffectOrder = 0
+let nextStructuralEffectPriority = 0
 
 let shouldSchedule = true
 export function disableEffectScheduling(callback) {
@@ -32,11 +32,16 @@ export function elementBoundEffect(el) {
     let cleanup = () => {}
 
     let wrappedEffect = (callback, options) => {
-        let order = nextEffectOrder++
+        // Effects run immediately and can create nested structural effects, so
+        // reserve the parent's priority before invoking the effect callback.
+        let priority = options?.priority === 'structural'
+            ? nextStructuralEffectPriority++
+            : undefined
         let effectReference = effect(callback)
 
-        effectReference._x_schedulerOrder = order
-        effectReference._x_schedulerPriority = options?.priority
+        if (priority !== undefined) {
+            effectReference._x_schedulerPriority = { el, order: priority }
+        }
 
         if (! el._x_effects) {
             el._x_effects = new Set

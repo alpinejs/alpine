@@ -50,6 +50,23 @@ test('x-html runs even after x-if or x-for',
     }
 )
 
+test('x-html removes a nested x-for before the loop evaluates invalidated state',
+    html`
+        <div x-data="{
+            user: { items: ['one', 'two'] },
+            content: '<template x-for=&quot;item in user.items&quot; :key=&quot;item&quot;><span x-text=&quot;item&quot;></span></template>',
+        }">
+            <button @click="user = null">Clear</button>
+            <div x-html="user ? content : ''"></div>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should('have.length', 2)
+        get('button').click()
+        get('span').should('not.exist')
+    }
+)
+
 test('x-html sets HTML to a blank string when value is `null`',
     html`
         <div x-data="{ html: null }">

@@ -13,11 +13,13 @@ The goal is to prevent consumers from observing stale structure. The goal is not
 
 ## Proposed invariant
 
-Before Alpine runs an ordinary effect, it drains every pending structural effect. Structural effects run parent before child.
+Before Alpine runs an ordinary effect, it drains every pending structural effect. Structural effects run parent before child based on their current logical-tree depth, with creation order as the tie-breaker.
 
 Alpine keeps its existing whole-flush dedupe contract: a job runs at most once during a flush.
 
-The first implementation marks only `x-for` as structural. `x-if` and `x-html` should not be promoted merely because they manipulate DOM; each directive should need a concrete ordering case and focused coverage.
+The implementation marks `x-for`, `x-if`, and `x-html` as structural. Promoting only `x-for` makes it run ahead of an `x-if` or `x-html` ancestor that is trying to remove it, allowing the loop to evaluate invalidated state before it is destroyed. Focused tests cover both compositions.
+
+`x-html` also needs to destroy Alpine's old child tree before replacing `innerHTML`. Without that lifecycle cleanup, removed descendant effects remain queued even when `x-html` runs first.
 
 ## Why parent-before-child is required
 
@@ -29,13 +31,13 @@ The test fails with five rows when structural jobs preserve notification order. 
 
 ## Prototype mechanics
 
-- Element-bound effects receive a monotonically increasing creation order.
+- Structural element-bound effects retain their owner element and receive a monotonically increasing creation order.
 - An effect can opt into the `structural` scheduler phase.
-- Structural jobs collect separately from ordinary jobs.
-- Each structural wave is sorted once by creation order and drained before the next ordinary job.
-- If an ordinary job schedules structural work, the scheduler drains that work before continuing the ordinary queue.
-- A single Set dedupes identities across both queues for the entire flush.
-- `dequeueJob` can still remove destroyed pending work from either queue.
+- When structural work is pending, the unprocessed queue tail is sorted by current logical depth and then creation order; ordinary jobs retain FIFO order after structural work.
+- Logical depth follows teleport-back links and shadow hosts rather than relying only on physical DOM placement.
+- If an ordinary job schedules structural work, the unprocessed tail is sorted again before the next job without moving work ahead of jobs that already ran.
+- A single Set dedupes job identities for the entire flush.
+- `dequeueJob` retains its existing pending-work semantics.
 
 ## Evidence so far
 
@@ -77,9 +79,9 @@ Structural-first scheduling guarantees ordering for work invalidated before the 
 
 ## Next gates
 
-1. Decide whether creation order is the correct definition of logical parenthood, especially for teleports, morphing, cloning, and moved nodes.
+1. Validate logical depth ordering through teleports, morphing, cloning, moved nodes, and same-handler move-plus-invalidation cases.
 2. Run the full Cypress matrix, not only the focused structural/cleanup suites.
 3. Add browser benchmarks for many sibling and nested `x-for` effects.
 4. Test integration against Livewire morph and transaction batching.
 5. Decide whether scheduler metadata should live on runner functions, as Vue does with job flags and IDs, or in private WeakMaps.
-6. Only after those gates, decide whether `x-if` or `x-html` has a demonstrated reason to join the structural phase.
+6. Verify that the three-directive structural set is closed under every supported nesting order; do not add leaf directives to the phase.

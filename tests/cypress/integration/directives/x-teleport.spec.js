@@ -153,6 +153,33 @@ test(
     }
 );
 
+test('structural effects retain parent-before-child order through a teleport',
+    [html`
+        <div x-data="{ user: { items: ['one', 'two'] } }">
+            <button @click="user = null">Log out</button>
+
+            <template x-if="user">
+                <div>
+                    <template x-teleport="#target">
+                        <div>
+                            <template x-for="item in user.items" :key="item">
+                                <span x-text="item"></span>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+
+        <section id="target"></section>
+    `],
+    ({ get }) => {
+        get('#target span').should('have.length', 2)
+        get('button').click()
+        get('#target span').should(notExist())
+    },
+)
+
 test('$refs inside teleport can be accessed outside',
     [html`
         <div x-data="{ count: 1 }" id="a">

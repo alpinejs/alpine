@@ -50,6 +50,44 @@ test('x-html runs even after x-if or x-for',
     }
 )
 
+test('x-html removes a nested x-for before the loop evaluates invalidated state',
+    html`
+        <div x-data="{
+            user: { items: ['one', 'two'] },
+            content: '<template x-for=&quot;item in user.items&quot; :key=&quot;item&quot;><span x-text=&quot;item&quot;></span></template>',
+        }">
+            <button @click="user = null">Clear</button>
+            <div x-html="user ? content : ''"></div>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should('have.length', 2)
+        get('button').click()
+        get('span').should('not.exist')
+    }
+)
+
+test('x-html destroys the replaced Alpine tree exactly once',
+    [html`
+        <div x-data="{ content: '<div id=&quot;child&quot; x-data=&quot;child&quot;></div>' }">
+            <button @click="content = ''">Clear</button>
+            <div x-html="content"></div>
+        </div>
+    `, `
+        window.destroyCount = 0
+
+        Alpine.data('child', () => ({
+            destroy() { window.destroyCount++ },
+        }))
+    `],
+    ({ get, window }) => {
+        get('#child').should('exist')
+        get('button').click()
+        get('#child').should('not.exist')
+        window().its('destroyCount').should('equal', 1)
+    }
+)
+
 test('x-html sets HTML to a blank string when value is `null`',
     html`
         <div x-data="{ html: null }">

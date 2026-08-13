@@ -1238,6 +1238,59 @@ test('morph with x-for does not duplicate items when data changes before morph',
     },
 )
 
+test('morph transaction refreshes reused keyed-range scopes before child effects run',
+    [html`
+        <div x-data>
+            <div id="root">
+                <template x-for="i in $store.test.end - $store.test.start" :key="$store.test.start + i">
+                    <span x-text="$store.test.start + i"></span>
+                </template>
+            </div>
+        </div>
+    `, `
+        Alpine.store('test', { start: 0, end: 25 })
+    `],
+    ({ get }, reload, window) => {
+        let texts = length => Array.from({ length }, (_, index) => String(index + 1))
+        let haveTexts = expected => elements => {
+            expect(Array.from(elements, element => element.textContent)).to.deep.equal(expected)
+        }
+
+        get('span').should(haveTexts(texts(25)))
+
+        get('#root').then(async ([el]) => {
+            // A server morph contains the x-for template, not Alpine's
+            // client-created loop clones.
+            let toHtml = `<div id="root">
+                <template x-for="i in $store.test.end - $store.test.start" :key="$store.test.start + i">
+                    <span x-text="$store.test.start + i"></span>
+                </template>
+            </div>`
+
+            await window.Alpine.transaction(async () => {
+                window.Alpine.store('test').end = 15
+                window.Alpine.morph(el, toHtml)
+            })
+
+            await new Promise(queueMicrotask)
+
+            expect(Array.from(el.querySelectorAll('span'), element => element.textContent))
+                .to.deep.equal(texts(15))
+
+            await window.Alpine.transaction(async () => {
+                window.Alpine.store('test').start = 12
+                window.Alpine.store('test').end = 30
+                window.Alpine.morph(el, toHtml)
+            })
+
+            await new Promise(queueMicrotask)
+
+            expect(Array.from(el.querySelectorAll('span'), element => element.textContent))
+                .to.deep.equal(Array.from({ length: 18 }, (_, index) => String(index + 13)))
+        })
+    },
+)
+
 test('morph preserves x-if content and nested Alpine state across morph',
     [html`
         <div x-data id="root">

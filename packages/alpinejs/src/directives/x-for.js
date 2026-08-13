@@ -18,7 +18,7 @@ directive('for', skipDuringClone((el, { expression }, { effect, cleanup }) => {
 
     el._x_lookup = new Map()
 
-    effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey))
+    effect(() => loop(el, iteratorNames, evaluateItems, evaluateKey), { priority: 'structural' })
 
     cleanup(() => {
         el._x_lookup.forEach(el =>

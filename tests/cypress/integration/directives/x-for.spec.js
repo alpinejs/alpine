@@ -412,6 +412,85 @@ test('x-for over range using i in property syntax',
     ({ get }) => get('span').should(haveLength('10'))
 )
 
+test('keyed range loops refresh reused item scopes before child effects run',
+    html`
+        <div x-data="{ start: 0, end: 25 }">
+            <button id="shrink" @click="end = 15">shrink</button>
+            <button id="shift" @click="start = 12; end = 30">shift</button>
+
+            <template x-for="i in end - start" :key="start + i">
+                <span x-text="start + i"></span>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        let haveTexts = texts => els => {
+            expect(Array.from(els, el => el.textContent)).to.deep.equal(texts)
+        }
+
+        get('span').should(haveTexts(Array.from({ length: 25 }, (_, i) => String(i + 1))))
+
+        get('#shrink').click()
+        get('span').should(haveTexts(Array.from({ length: 15 }, (_, i) => String(i + 1))))
+
+        get('#shift').click()
+        get('span').should(haveTexts(Array.from({ length: 18 }, (_, i) => String(i + 13))))
+    }
+)
+
+test('nested keyed range loops refresh parent and child scopes before leaf effects run',
+    html`
+        <div x-data="{ outerStart: 0, outerEnd: 3, innerStart: 0, innerEnd: 3 }">
+            <button id="shrink" @click="outerEnd = 2; innerEnd = 2">shrink</button>
+            <button id="shift" @click="outerStart = 1; outerEnd = 3; innerStart = 1; innerEnd = 3">shift</button>
+
+            <template x-for="outer in outerEnd - outerStart" :key="outerStart + outer">
+                <div>
+                    <template x-for="inner in innerEnd - innerStart" :key="innerStart + inner">
+                        <span x-text="(outerStart + outer) + ':' + (innerStart + inner)"></span>
+                    </template>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        let haveTexts = texts => els => {
+            expect(Array.from(els, el => el.textContent)).to.deep.equal(texts)
+        }
+
+        get('#shrink').click()
+        get('span').should(haveTexts(['1:1', '1:2', '2:1', '2:2']))
+
+        get('#shift').click()
+        get('span').should(haveTexts(['2:2', '2:3', '3:2', '3:3']))
+    }
+)
+
+test('parent keyed ranges refresh before nested structural effects use their scopes',
+    html`
+        <div x-data="{ start: 0, end: 3 }">
+            <button id="shrink" @click="end = 2">shrink</button>
+            <button id="shift" @click="start = 1; end = 3">shift</button>
+
+            <template x-for="outer in end - start" :key="start + outer">
+                <div :data-key="start + outer">
+                    <template x-for="inner in start + (outer * 2)" :key="inner">
+                        <span x-text="inner"></span>
+                    </template>
+                </div>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('#shrink').click()
+        get('[data-key="2"] span').should(haveLength('4'))
+
+        get('#shift').click()
+        get('[data-key="2"] span').should(haveLength('3'))
+        get('[data-key="3"] span').should(haveLength('5'))
+    }
+)
+
 test.retry(2)('x-for with an array of numbers',
     `
         <div x-data="{ items: [] }">

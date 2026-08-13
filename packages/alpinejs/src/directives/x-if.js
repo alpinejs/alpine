@@ -54,7 +54,7 @@ directive('if', skipDuringClone((el, { expression }, { effect, cleanup }) => {
 
     effect(() => evaluate(value => {
         value ? show() : hide()
-    }))
+    }), { priority: 'structural' })
 
     cleanup(() => el._x_undoIf && el._x_undoIf())
 }))

@@ -49,7 +49,10 @@ Creation order alone is insufficient. Alpine supports moving initialized nodes, 
 - Moved initialized nodes preserve current parent-before-child ordering.
 - Teleported descendants follow the teleport source's logical ancestry.
 - Livewire's real request, transaction, and morph path produces 1–15 and then 13–30 with a Livewire bundle built against this branch.
-- Full Vitest: 184 passed and 1 skipped.
+- A deterministic browser stress test validates 800 seeded batches across nested keyed scopes, removing ancestors, teleports, `x-html`, reused keys, shuffled assignment order, and transaction/non-transaction flushes. It checks the complete rendered state after every flush.
+- A scheduler property test validates 3,200 randomized jobs across logical depth, teleport backlinks, ordinary FIFO order, and pending-job removal.
+- Both stress tests were mutation-tested: disabling structural priority fails the browser oracle on its first seeded batch, and replacing logical depth with static creation order fails the scheduler property on its first seed.
+- Full Vitest: 185 passed and 1 skipped.
 - Focused Cypress covers `x-for`, `x-if`, `x-html`, teleport, cloning, morphing, transaction batching, and mutation cleanup.
 - The complete Cypress suite passes.
 - Production build passes.

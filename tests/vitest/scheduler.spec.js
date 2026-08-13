@@ -161,4 +161,75 @@ describe('scheduler priorities', () => {
 
         expect(runs).toEqual(['kept'])
     })
+
+    it('preserves structural depth order and ordinary FIFO order across randomized queues', () => {
+        let randomFor = seed => () => {
+            seed |= 0
+            seed = seed + 0x6D2B79F5 | 0
+            let value = Math.imul(seed ^ seed >>> 15, 1 | seed)
+            value = value + Math.imul(value ^ value >>> 7, 61 | value) ^ value
+
+            return ((value ^ value >>> 14) >>> 0) / 4294967296
+        }
+        let shuffle = (values, random) => {
+            for (let i = values.length - 1; i > 0; i--) {
+                let swap = Math.floor(random() * (i + 1))
+                let cached = values[i]
+                values[i] = values[swap]
+                values[swap] = cached
+            }
+
+            return values
+        }
+        let chain = depth => {
+            let el = null
+
+            for (let i = 0; i < depth; i++) el = { parentElement: el }
+
+            return el
+        }
+        let elementAtLogicalDepth = (depth, teleported) => {
+            if (! teleported) return chain(depth)
+
+            return {
+                parentElement: chain(20),
+                _x_teleportBack: chain(depth - 1),
+            }
+        }
+
+        for (let seed = 1; seed <= 32; seed++) {
+            let random = randomFor(seed)
+            let runs = []
+            let jobs = Array.from({ length: 100 }, (_, index) => {
+                let depth = Math.floor(random() * 12) + 1
+                let isStructural = random() < .45
+                let job = () => runs.push(index)
+
+                if (isStructural) {
+                    job._x_schedulerPriority = {
+                        el: elementAtLogicalDepth(depth, depth > 1 && random() < .35),
+                        order: index,
+                    }
+                }
+
+                return { depth, index, isStructural, job, removed: random() < .12 }
+            })
+            let notified = shuffle([...jobs], random)
+
+            notified.forEach(({ job }) => scheduler(job))
+            notified.filter(({ removed }) => removed).forEach(({ job }) => dequeueJob(job))
+
+            flushJobs()
+
+            let remaining = notified.filter(({ removed }) => ! removed)
+            let expected = [
+                ...remaining
+                    .filter(({ isStructural }) => isStructural)
+                    .sort((a, b) => a.depth - b.depth || a.index - b.index),
+                ...remaining.filter(({ isStructural }) => ! isStructural),
+            ].map(({ index }) => index)
+
+            expect(runs, `seed ${seed}`).toEqual(expected)
+        }
+    })
 })

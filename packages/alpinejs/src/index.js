@@ -48,8 +48,8 @@ Alpine.setReactivityEngine({
 
         runner = effect(callback, {
             scheduler: () => {
-                // A self-triggering effect can notify before `runner` is
-                // assigned; Vue 3.1 silently dropped those, so we do too.
+                // Defensively preserve Vue 3.1's behavior if an engine ever
+                // schedules during its initial run, before returning a runner.
                 if (! runner) return
 
                 options.scheduler ? options.scheduler(runner) : runner()

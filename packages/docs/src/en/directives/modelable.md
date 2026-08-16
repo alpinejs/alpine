@@ -34,3 +34,5 @@ Here's a simple example of using `x-modelable` to expose a variable for binding 
 As you can see the outer scope property "number" is now bound to the inner scope property "count".
 
 Typically this feature would be used in conjunction with a backend templating framework like Laravel Blade. It's useful for abstracting away Alpine components into backend templates and exposing state to the outside through `x-model` as if it were a native input.
+
+> **Note:** `x-modelable` syncs values with a JSON clone (`JSON.parse(JSON.stringify(...))`). That only preserves JSON-serializable data: plain objects, arrays, strings, numbers, booleans, and `null`. Values such as `File`, `FileList`, `Map`, `Set`, `Date`, class instances, and DOM nodes are silently stripped or converted. For those, dispatch the value with [`$dispatch('input', value)`](/magics/dispatch#dispatching-to-x-model) instead — `x-model` picks up `event.detail` without cloning.

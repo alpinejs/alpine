@@ -3,6 +3,7 @@ export default function (Alpine) {
     Alpine.directive('mask', (el, { value, expression }, { effect, evaluateLater, cleanup }) => {
         let templateFn = () => expression
         let lastInputValue = ''
+        let undoModelUpdate = () => {}
 
         queueMicrotask(() => {
             if (['function', 'dynamic'].includes(value)) {
@@ -51,7 +52,7 @@ export default function (Alpine) {
                 }
 
                 let updater = el._x_forceModelUpdate
-                el._x_forceModelUpdate = (value) => {
+                let update = (value) => {
                     // If the model value was cleared (e.g. the parent object was
                     // removed), just clear the input — don't format and write back
                     // as that would resurrect the model path with an empty value.
@@ -69,6 +70,14 @@ export default function (Alpine) {
                     updater(value)
                     el._x_model.set(value)
                 }
+
+                el._x_forceModelUpdate = update
+
+                undoModelUpdate = () => {
+                    if (el._x_forceModelUpdate === update) {
+                        el._x_forceModelUpdate = updater
+                    }
+                }
             }
         })
 
@@ -76,6 +85,7 @@ export default function (Alpine) {
 
         cleanup(() => {
             controller.abort()
+            undoModelUpdate()
         })
 
         el.addEventListener('input', () => processInputValue(el), {

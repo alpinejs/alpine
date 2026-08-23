@@ -16,6 +16,7 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction("'world'")()).toBe('world');
             expect(generateRuntimeFunction('"escaped \\"quotes\\""')()).toBe('escaped "quotes"');
             expect(generateRuntimeFunction("'mixed \"quotes\"'")()).toBe('mixed "quotes"');
+            expect(generateRuntimeFunction("'tes\\u0027t'")()).toBe("tes't");
         });
 
         it('should parse booleans', () => {

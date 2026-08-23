@@ -139,6 +139,18 @@ class Tokenizer {
                     case 'r': value += '\r'; break;
                     case '\\': value += '\\'; break;
                     case quote: value += quote; break;
+                    case 'u': {
+                        const codeUnit = this.input.slice(this.position + 1, this.position + 5);
+
+                        if (/^[0-9a-fA-F]{4}$/.test(codeUnit)) {
+                            value += String.fromCharCode(parseInt(codeUnit, 16));
+                            this.position += 4;
+                        } else {
+                            value += char;
+                        }
+
+                        break;
+                    }
                     default: value += char;
                 }
                 escaped = false;

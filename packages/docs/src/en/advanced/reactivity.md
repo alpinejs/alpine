@@ -10,7 +10,7 @@ Alpine is "reactive" in the sense that when you change a piece of data, everythi
 Every bit of reactivity that takes place in Alpine, happens because of two very important reactive functions in Alpine's core: `Alpine.reactive()`, and `Alpine.effect()`.
 
 > Alpine uses VueJS's reactivity engine under the hood to provide these functions.
-> [→ Read more about @vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity)
+> [→ Browse the @vue/reactivity source](https://github.com/vuejs/core/tree/main/packages/reactivity)
 
 Understanding these two functions will give you super powers as an Alpine developer, but also just as a web developer in general.
 
@@ -49,10 +49,10 @@ The main difference here is that any time you modify or retrieve (get or set) a 
 
 `Alpine.reactive` is only the first half of the story. `Alpine.effect` is the other half, let's dig in.
 
-<a name="alpine-effect"></a><a name="alpine-effect"></a>
+<a name="alpine-effect"></a>
 ## Alpine.effect()
 
-`Alpine.effect` accepts a single callback function. As soon as `Alpine.effect` is called, it will run the provided function, but actively look for any interactions with reactive data. If it detects an interaction (a get or set from the aforementioned reactive proxy) it will keep track of it and make sure to re-run the callback if any of reactive data changes in the future. For example:
+`Alpine.effect` accepts a single callback function. As soon as `Alpine.effect` is called, it runs the provided function and watches for reads from reactive data. Each reactive property read during that execution becomes a dependency. When one of those properties changes later, Alpine runs the callback again. For example:
 
 ```js
 let data = Alpine.reactive({ count: 1 })
@@ -62,9 +62,17 @@ Alpine.effect(() => {
 })
 ```
 
-When this code is first run, "1" will be logged to the console. Any time `data.count` changes, it's value will be logged to the console again.
+When this code is first run, "1" will be logged to the console. Any time `data.count` changes, its value will be logged to the console again.
 
 This is the mechanism that unlocks all of the reactivity at the core of Alpine.
+
+### How dependency tracking works
+
+Dependency collection happens while the effect callback is running. Reading `data.count` inside the callback registers that property with the effect. Changing `data.count` later notifies the effect, which runs again and collects the dependencies used by that execution.
+
+Reads made after the callback has returned, such as inside a `setTimeout` callback, are not automatically tracked by the original effect.
+
+Alpine delegates this behavior to Vue's reactivity package. For a deeper explanation of the proxy, dependency-map, and `track`/`trigger` model, see [Vue's reactivity internals](https://frontendatlas.com/vue/trivia/vue-reactivity-system).
 
 To connect the dots further, let's look at a simple "counter" component example without using Alpine syntax at all, only using `Alpine.reactive` and `Alpine.effect`:
 

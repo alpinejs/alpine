@@ -1,5 +1,50 @@
 import { haveText, test, html } from '../../utils'
 
+let controllableIntersectionObserver = `
+    window.intersectionEntry = { isIntersecting: true, intersectionRatio: 0.5 }
+    window.intersectionObservers = []
+
+    window.IntersectionObserver = class {
+        constructor(callback) {
+            this.callback = callback
+            this.connected = false
+            this.records = []
+
+            window.intersectionObservers.push(this)
+        }
+
+        observe() {
+            this.connected = true
+
+            queueMicrotask(() => {
+                if (this.connected) this.callback([window.intersectionEntry])
+            })
+        }
+
+        disconnect() {
+            this.connected = false
+        }
+
+        takeRecords() {
+            let records = this.records
+
+            this.records = []
+
+            return records
+        }
+
+        notify(entry) {
+            window.intersectionEntry = entry
+            this.callback([entry])
+        }
+
+        queue(entry) {
+            window.intersectionEntry = entry
+            this.records.push(entry)
+        }
+    }
+`
+
 test('can intersect',
     [html`
     <div x-data="{ count: 0 }">
@@ -197,5 +242,159 @@ test('.parent observes the element relative to its parent, not the viewport',
         // container itself is well below the browser's viewport.
         get('#container').scrollTo(0, 250, {duration: 100})
         get('span').should(haveText('1'))
+    },
+)
+
+test('.dwell evaluates after the threshold remains continuously satisfied',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+
+        <div id="container" style="height: 200px; overflow-y: scroll;">
+            <div style="height: 200px;">spacer</div>
+            <div style="height: 200px" x-intersect.half.dwell.100ms="count++">content</div>
+        </div>
+    </div>
+    `],
+    ({ get }) => {
+        get('#container').scrollTo(0, 100, {duration: 0})
+        get('#container').wait(50).scrollTo(0, 0, {duration: 0})
+        get('span').wait(100).should(haveText('0'))
+        get('#container').scrollTo(0, 100, {duration: 0})
+        get('span').wait(150).should(haveText('1'))
+    },
+)
+
+test('.dwell waits for 250 milliseconds by default',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+        <div x-intersect.dwell="count++">content</div>
+    </div>
+    `, controllableIntersectionObserver],
+    ({ get }) => {
+        get('span').wait(200).should(haveText('0'))
+        get('span').wait(100).should(haveText('1'))
+    },
+)
+
+test('.dwell reconciles queued threshold changes before evaluating',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+        <div x-intersect.half.dwell.200ms="count++">content</div>
+    </div>
+    `, controllableIntersectionObserver],
+    ({ get }, reload, window) => {
+        get('span').wait(100).then(() => {
+            window.intersectionObservers[0].queue({ isIntersecting: true, intersectionRatio: 0.49 })
+        })
+        get('span').wait(150).should(haveText('0'))
+    },
+)
+
+test('.dwell evaluates again after leaving and re-entering',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+
+        <div id="container" style="height: 200px; overflow-y: scroll;">
+            <div style="height: 200px;">spacer</div>
+            <div style="height: 200px" x-intersect.half.dwell.100ms="count++">content</div>
+        </div>
+    </div>
+    `],
+    ({ get }) => {
+        get('#container').scrollTo(0, 100, {duration: 0})
+        get('span').wait(150).should(haveText('1'))
+        get('#container').scrollTo(0, 0, {duration: 0})
+        get('#container').wait(50).scrollTo(0, 100, {duration: 0})
+        get('span').wait(150).should(haveText('2'))
+    },
+)
+
+test('.dwell and .once evaluate only once',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+
+        <div id="container" style="height: 200px; overflow-y: scroll;">
+            <div style="height: 200px;">spacer</div>
+            <div style="height: 200px" x-intersect.half.dwell.100ms.once="count++">content</div>
+        </div>
+    </div>
+    `],
+    ({ get }) => {
+        get('#container').scrollTo(0, 100, {duration: 0})
+        get('span').wait(150).should(haveText('1'))
+        get('#container').scrollTo(0, 0, {duration: 0})
+        get('#container').wait(50).scrollTo(0, 100, {duration: 0})
+        get('span').wait(150).should(haveText('1'))
+    },
+)
+
+test(':leave.dwell uses the configured threshold',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+
+        <div id="container" style="height: 200px; overflow-y: scroll;">
+            <div style="height: 200px" x-intersect:leave.half.dwell.100ms="count++">content</div>
+            <div style="height: 200px;">spacer</div>
+        </div>
+    </div>
+    `],
+    ({ get }) => {
+        get('span').should(haveText('0'))
+        get('#container').scrollTo(0, 110, {duration: 0})
+        get('span').wait(150).should(haveText('1'))
+    },
+)
+
+test('.dwell restarts when the page becomes visible',
+    [html`
+    <div x-data="{ count: 0 }">
+        <span x-text="count"></span>
+
+        <div x-intersect.half.dwell.100ms="count++">content</div>
+    </div>
+    `, controllableIntersectionObserver],
+    ({ get }, reload, window, document) => {
+        get('span').wait(50).then(() => {
+            Object.defineProperty(document, 'hidden', { configurable: true, value: true })
+            document.dispatchEvent(new Event('visibilitychange'))
+
+            window.intersectionEntry = { isIntersecting: true, intersectionRatio: 0.49 }
+
+            Object.defineProperty(document, 'hidden', { configurable: true, value: false })
+            document.dispatchEvent(new Event('visibilitychange'))
+        })
+        get('span').wait(150).should(haveText('0'))
+        get('span').then(() => {
+            window.intersectionObservers[window.intersectionObservers.length - 1]
+                .notify({ isIntersecting: true, intersectionRatio: 0.5 })
+        })
+        get('span').wait(150).should(haveText('1'))
+    },
+)
+
+test('.dwell cancels when the element is removed',
+    [html`
+    <div x-data="{ count: 0, show: true }">
+        <span x-text="count"></span>
+        <button id="remove" @click="show = false">remove</button>
+
+        <div id="container" style="height: 200px; overflow-y: scroll;">
+            <div style="height: 200px;">spacer</div>
+            <template x-if="show">
+                <div style="height: 200px" x-intersect.half.dwell.100ms="count++">content</div>
+            </template>
+        </div>
+    </div>
+    `],
+    ({ get }) => {
+        get('#container').scrollTo(0, 100, {duration: 0})
+        get('#remove').wait(50).click()
+        get('span').wait(100).should(haveText('0'))
     },
 )

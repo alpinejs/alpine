@@ -110,6 +110,35 @@ Sometimes it's useful to evaluate an expression only the first time an element e
 <div x-intersect.once="shown = true">...</div>
 ```
 
+<a name="dwell"></a>
+### .dwell
+
+Sometimes an element should remain in view for a short period before the expression evaluates. The `.dwell` modifier waits for 250 milliseconds of continuous intersection by default:
+
+```alpine
+<div x-intersect.dwell="viewed = true">...</div>
+```
+
+Append a duration to customize the wait:
+
+```alpine
+<div x-intersect.half.dwell.500ms="viewed = true">...</div>
+```
+
+Here the expression evaluates only after at least half of the element remains visible for 500 milliseconds. Leaving that threshold or hiding the page cancels the pending wait. The full duration must elapse again after the threshold is restored or the page becomes visible.
+
+With `x-intersect:leave`, the duration instead begins when visibility falls below the configured threshold:
+
+```alpine
+<div x-intersect:leave.half.dwell.500ms="viewed = false">...</div>
+```
+
+Combine `.dwell` with `.once` when the expression should evaluate only after the first completed interval:
+
+```alpine
+<div x-intersect.half.dwell.500ms.once="viewed = true">...</div>
+```
+
 <a name="half"></a>
 ### .half
 

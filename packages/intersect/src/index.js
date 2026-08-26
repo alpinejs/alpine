@@ -1,11 +1,18 @@
 export default function (Alpine) {
     Alpine.directive('intersect', Alpine.skipDuringClone((el, { value, expression, modifiers }, { evaluateLater, cleanup }) => {
         let evaluate = evaluateLater(expression)
+        let threshold = getThreshold(modifiers)
 
         let options = {
             rootMargin: getRootMargin(modifiers),
-            threshold: getThreshold(modifiers),
+            threshold,
             root: modifiers.includes('parent') ? el.parentElement : null
+        }
+
+        if (modifiers.includes('dwell')) {
+            observeForDwell(el, value, modifiers, evaluate, cleanup, options, threshold)
+
+            return
         }
 
         let observer = new IntersectionObserver(entries => {
@@ -25,6 +32,132 @@ export default function (Alpine) {
             observer.disconnect()
         })
     }))
+}
+
+function observeForDwell(el, value, modifiers, evaluate, cleanup, options, threshold) {
+    let dwellTimeout
+    let lastEntry
+    let hasEvaluated = false
+    let isConfirmingDwell = false
+    let duration = getDwellDuration(modifiers)
+    let observer
+
+    let clearDwellTimeout = () => {
+        clearTimeout(dwellTimeout)
+        dwellTimeout = undefined
+    }
+
+    let completeDwell = () => {
+        isConfirmingDwell = false
+
+        if (! lastEntry || document.hidden || ! meetsDwellThreshold(lastEntry, value, threshold)) return
+
+        hasEvaluated = true
+
+        evaluate()
+
+        if (modifiers.includes('once')) {
+            observer.disconnect()
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
+        }
+    }
+
+    let observe = () => {
+        observer && observer.disconnect()
+
+        observer = new IntersectionObserver(handleEntries, options)
+        observer.observe(el)
+    }
+
+    let confirmDwell = () => {
+        dwellTimeout = undefined
+
+        if (document.hidden) return
+
+        let pendingEntries = observer.takeRecords()
+
+        if (pendingEntries.some(entry => ! meetsDwellThreshold(entry, value, threshold))) {
+            handleEntries(pendingEntries)
+
+            return
+        }
+
+        isConfirmingDwell = true
+        lastEntry = undefined
+
+        observe()
+    }
+
+    let beginDwell = () => {
+        if (dwellTimeout !== undefined || hasEvaluated || document.hidden || ! lastEntry) return
+        if (! meetsDwellThreshold(lastEntry, value, threshold)) return
+
+        dwellTimeout = setTimeout(confirmDwell, duration)
+    }
+
+    let handleEntries = entries => {
+        entries.forEach(entry => {
+            lastEntry = entry
+
+            if (! meetsDwellThreshold(entry, value, threshold)) {
+                clearDwellTimeout()
+
+                hasEvaluated = false
+                isConfirmingDwell = false
+
+                return
+            }
+
+            if (isConfirmingDwell) {
+                completeDwell()
+
+                return
+            }
+
+            beginDwell()
+        })
+    }
+
+    let handleVisibilityChange = () => {
+        if (document.hidden) {
+            clearDwellTimeout()
+
+            lastEntry = undefined
+            hasEvaluated = false
+            isConfirmingDwell = false
+
+            observer.disconnect()
+
+            return
+        }
+
+        observe()
+    }
+
+    observe()
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    cleanup(() => {
+        clearDwellTimeout()
+        observer.disconnect()
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+    })
+}
+
+function meetsDwellThreshold(entry, value, threshold) {
+    let meetsThreshold = threshold === 0
+        ? entry.isIntersecting
+        : entry.isIntersecting && entry.intersectionRatio >= threshold
+
+    return value === 'leave' ? ! meetsThreshold : meetsThreshold
+}
+
+function getDwellDuration(modifiers) {
+    let rawDuration = modifiers[modifiers.indexOf('dwell') + 1] || ''
+    let match = rawDuration.match(/^([0-9]+)(ms)?$/)
+
+    return match ? Number(match[1]) : 250
 }
 
 function getThreshold(modifiers) {

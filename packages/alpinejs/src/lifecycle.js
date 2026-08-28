@@ -3,6 +3,8 @@ import { deferHandlingDirectives, directiveExists, directives } from "./directiv
 import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
+import { handleError } from './utils/error'
+import { deleteDeferredInit, getDeferredInit, hasDeferredInit, setDeferredInit } from './deferred-init'
 
 let started = false
 
@@ -22,6 +24,8 @@ export function start() {
     onElRemoved(el => destroyTree(el))
 
     onAttributesAdded((el, attrs) => {
+        if (queueDeferredAttributes(el, attrs)) return
+
         directives(el, attrs).forEach(handle => handle())
     })
 
@@ -85,20 +89,90 @@ let initInterceptors = []
 
 export function interceptInit(callback) { initInterceptors.push(callback) }
 
+let currentInitContext
+
+export function deferInit(el, promise) {
+    if (currentInitContext?.el === el) {
+        currentInitContext.promises.push(Promise.resolve(promise))
+
+        return
+    }
+
+    let deferred = getDeferredInit(el)
+
+    if (! deferred) {
+        deferred = createDeferredInit(el)
+
+        setDeferredInit(el, deferred)
+    }
+
+    addDeferredPromise(deferred, promise)
+}
+
+export function isDeferringInit(el) {
+    return !! findDeferredInit(el)
+}
+
 let markerDispenser = 1
 
-export function initTree(el, walker = walk, intercept = () => {}) {
+export function initTree(el, walker = walk, intercept = () => {}, resuming = null) {
     // Don't init a tree within a parent that is being ignored...
     if (findClosest(el, i => i._x_ignore)) return
+    if (isDeferringInit(el)) return
+
+    let root = el
 
     deferHandlingDirectives(() => {
         walker(el, (el, skip) => {
+            let resume = el === root ? resuming : null
+
             // If the element has a marker, it's already been initialized...
-            if (el._x_marker) return
+            if (el._x_marker) {
+                initializeDeferredAttributes(el, resuming)
 
-            intercept(el, skip)
+                return
+            }
 
-            initInterceptors.forEach(i => i(el, skip))
+            if (hasDeferredInit(el)) return skip()
+
+            let interceptors = resume?.interceptors || [intercept, ...initInterceptors]
+            let interceptorIndex = resume?.interceptorIndex || 0
+            let skipDescendants = resume?.skipDescendants || false
+
+            let skipAndRemember = () => {
+                skipDescendants = true
+
+                skip()
+            }
+
+            for (; interceptorIndex < interceptors.length; interceptorIndex++) {
+                let context = { el, promises: [] }
+                let previousContext = currentInitContext
+
+                currentInitContext = context
+
+                try {
+                    interceptors[interceptorIndex](el, skipAndRemember)
+                } finally {
+                    currentInitContext = previousContext
+                }
+
+                if (context.promises.length) {
+                    let deferred = createDeferredInit(el, {
+                        walker,
+                        intercept,
+                        interceptors,
+                        interceptorIndex: interceptorIndex + 1,
+                        skipDescendants,
+                    })
+
+                    setDeferredInit(el, deferred)
+                    context.promises.forEach(promise => addDeferredPromise(deferred, promise))
+                    skip()
+
+                    return
+                }
+            }
 
             directives(el, el.attributes).forEach(handle => handle())
 
@@ -107,13 +181,86 @@ export function initTree(el, walker = walk, intercept = () => {}) {
             // elements that are moved around on the page.
             if (!el._x_ignore) el._x_marker = markerDispenser++
 
-            el._x_ignore && skip()
+            if (el._x_ignore || skipDescendants) skip()
         })
     })
 }
 
+function createDeferredInit(el, resume = {}) {
+    return {
+        el,
+        pending: 0,
+        attributes: new Map(),
+        walker: resume.walker || walk,
+        intercept: resume.intercept || (() => {}),
+        interceptors: resume.interceptors,
+        interceptorIndex: resume.interceptorIndex,
+        skipDescendants: resume.skipDescendants,
+    }
+}
+
+function addDeferredPromise(deferred, promise) {
+    deferred.pending++
+
+    Promise.resolve(promise).then(
+        () => settleDeferredInit(deferred),
+        error => {
+            try {
+                handleError(error, deferred.el)
+            } finally {
+                settleDeferredInit(deferred)
+            }
+        },
+    )
+}
+
+function settleDeferredInit(deferred) {
+    deferred.pending--
+
+    if (deferred.pending > 0) return
+    if (getDeferredInit(deferred.el) !== deferred) return
+
+    deleteDeferredInit(deferred.el)
+
+    if (! deferred.el.isConnected) return
+
+    initTree(deferred.el, deferred.walker, deferred.intercept, deferred)
+}
+
+function findDeferredInit(el) {
+    let root = findClosest(el, element => hasDeferredInit(element))
+
+    return root ? getDeferredInit(root) : undefined
+}
+
+function queueDeferredAttributes(el, attrs) {
+    let deferred = findDeferredInit(el)
+
+    if (! deferred) return false
+
+    let attributes = deferred.attributes.get(el) || new Set()
+
+    attrs.forEach(attribute => attributes.add(attribute.name))
+    deferred.attributes.set(el, attributes)
+
+    return true
+}
+
+function initializeDeferredAttributes(el, deferred) {
+    let attributeNames = deferred?.attributes.get(el)
+
+    if (! attributeNames) return
+
+    let attributes = Array.from(attributeNames)
+        .filter(name => el.hasAttribute(name))
+        .map(name => ({ name, value: el.getAttribute(name) }))
+
+    directives(el, attributes).forEach(handle => handle())
+}
+
 export function destroyTree(root, walker = walk) {
     walker(root, el => {
+        deleteDeferredInit(el)
         cleanupElement(el)
         cleanupAttributes(el)
         delete el._x_marker

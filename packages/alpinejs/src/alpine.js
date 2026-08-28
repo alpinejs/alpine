@@ -1,6 +1,6 @@
 import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw, watch, transaction } from './reactivity'
 import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } from './directives'
-import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle'
+import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit, deferInit } from './lifecycle'
 import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation'
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope'
 import { setEvaluator, setRawEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions, evaluateRaw } from './evaluator'
@@ -48,6 +48,7 @@ let Alpine = {
     mapAttributes,
     evaluateLater,
     interceptInit,
+    deferInit,
     initInterceptors,
     injectMagics,
     setEvaluator,

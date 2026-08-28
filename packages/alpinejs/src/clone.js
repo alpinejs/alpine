@@ -1,5 +1,5 @@
 import { effect, release, overrideEffect } from "./reactivity"
-import { initTree, isRoot } from "./lifecycle"
+import { initTree, isDeferringInit, isRoot } from "./lifecycle"
 import { walk } from "./utils/walk"
 
 export let isCloning = false
@@ -20,6 +20,8 @@ export function interceptClone(callback) {
 
 export function cloneNode(from, to)
 {
+    if (isDeferringInit(from)) return
+
     interceptors.forEach(i => i(from, to))
 
     isCloning = true
@@ -42,6 +44,8 @@ export let isCloningLegacy = false
 
 /** deprecated */
 export function clone(oldEl, newEl) {
+    if (isDeferringInit(oldEl)) return
+
     if (! newEl._x_dataStack) newEl._x_dataStack = oldEl._x_dataStack
 
     isCloning = true

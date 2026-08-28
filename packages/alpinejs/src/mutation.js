@@ -1,4 +1,5 @@
 import { dequeueJob } from "./scheduler";
+import { hasDeferredInit } from './deferred-init'
 let onAttributeAddeds = []
 let onElRemoveds = []
 let onElAddeds = []
@@ -131,7 +132,7 @@ function onMutate(mutations) {
                 if (node.nodeType !== 1) return
 
                 // No need to process removed nodes that haven't been initialized by Alpine...
-                if (! node._x_marker) return
+                if (! node._x_marker && ! hasDeferredInit(node)) return
 
                 removedNodes.add(node)
             })

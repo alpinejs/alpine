@@ -61,6 +61,23 @@ window.Alpine = Alpine
 window.Alpine.start()
 ```
 
+<a name="deferring-initialization"></a>
+### Deferring initialization
+
+An extension that needs to load something before Alpine initializes a tree can defer that tree from an initialization interceptor:
+
+```js
+Alpine.interceptInit((el) => {
+    if (! el.hasAttribute('x-needs-library')) return
+
+    Alpine.deferInit(el, import('./library.js'))
+})
+```
+
+`Alpine.deferInit()` must be called synchronously from the interceptor. Alpine will leave the element and its descendants uninitialized until every deferred promise settles, then continue from the next interceptor without re-running earlier ones. Rejected promises are passed to Alpine's error handler before initialization continues.
+
+Other trees continue initializing normally, and the global `alpine:initialized` event remains synchronous: it may fire before a deferred tree has resumed.
+
 Now that we know where to use these extension APIs, let's look more closely at how to use each one:
 
 <a name="custom-directives"></a>

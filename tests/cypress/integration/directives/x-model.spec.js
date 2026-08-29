@@ -752,3 +752,63 @@ test('x-model does not fire change handlers when x-for options initialize', html
     get('select').should(haveValue('Orange'))
     get('span').should(haveText('0'))
 })
+
+test('x-model with dependent selects keeps placeholder selected when model matches no option', html`
+    <div x-data="{ category: null, type: null, types: { fruit: ['Apple', 'Banana'], veg: ['Carrot'] } }">
+        <select id="category" x-model="category">
+            <option :selected="category === null" disabled hidden value>Select category</option>
+            <option value="fruit">Fruit</option>
+            <option value="veg">Veg</option>
+        </select>
+
+        <select id="type" x-model="type">
+            <option :selected="type === null" disabled hidden value>Select type</option>
+            <template x-for="t in (types[category] || [])" :key="t">
+                <option :value="t" x-text="t"></option>
+            </template>
+        </select>
+
+        <p id="model-type" x-text="String(type)"></p>
+    </div>
+`, ({ get }) => {
+    get('#category').select('fruit')
+    get('#model-type').should(haveText('null'))
+    get('#type option').first().should('be.selected')
+    get('#type').then(el => expect(el[0].selectedIndex).to.equal(0))
+})
+
+test('x-model with dependent selects allows selecting the first option after parent changes', html`
+    <div x-data="{ category: null, type: null, types: { fruit: ['Apple', 'Banana'], veg: ['Carrot'] } }">
+        <select id="category" x-model="category">
+            <option :selected="category === null" disabled hidden value>Select category</option>
+            <option value="fruit">Fruit</option>
+            <option value="veg">Veg</option>
+        </select>
+
+        <select id="type" x-model="type">
+            <option :selected="type === null" disabled hidden value>Select type</option>
+            <template x-for="t in (types[category] || [])" :key="t">
+                <option :value="t" x-text="t"></option>
+            </template>
+        </select>
+
+        <p id="model-type" x-text="String(type)"></p>
+    </div>
+`, ({ get }) => {
+    get('#category').select('fruit')
+    get('#model-type').should(haveText('null'))
+    get('#type').select('Apple')
+    get('#model-type').should(haveText('Apple'))
+})
+
+test('x-model with select whose model matches no option sets selectedIndex to -1', html`
+    <div x-data="{ color: null }">
+        <select x-model="color">
+            <template x-for="c in ['Red', 'Green']">
+                <option :value="c" x-text="c"></option>
+            </template>
+        </select>
+    </div>
+`, ({ get }) => {
+    get('select').then(el => expect(el[0].selectedIndex).to.equal(-1))
+})

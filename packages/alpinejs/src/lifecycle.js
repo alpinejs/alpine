@@ -1,5 +1,6 @@
 import { startObservingMutations, onAttributesAdded, onElAdded, onElRemoved, cleanupAttributes, cleanupElement } from "./mutation"
 import { deferHandlingDirectives, directiveExists, directives } from "./directives"
+import { queueAttributesForDeferredTree } from "./deferInit"
 import { dispatch } from './utils/dispatch'
 import { walk } from "./utils/walk"
 import { warn } from './utils/warn'
@@ -22,6 +23,10 @@ export function start() {
     onElRemoved(el => destroyTree(el))
 
     onAttributesAdded((el, attrs) => {
+        // Attributes added inside a suspended tree are held and replayed
+        // when the tree resumes...
+        if (queueAttributesForDeferredTree(el, attrs)) return
+
         directives(el, attrs).forEach(handle => handle())
     })
 

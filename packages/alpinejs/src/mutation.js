@@ -84,6 +84,17 @@ export function flushObserver() {
     })
 }
 
+export function flushPendingMutations() {
+    // Deliver everything synchronously: batches already queued by
+    // flushObserver, plus whatever the observer has seen but not
+    // yet handed over...
+    while (queuedMutations.length > 0) queuedMutations.shift()()
+
+    let records = observer.takeRecords()
+
+    if (records.length > 0) onMutate(records)
+}
+
 export function mutateDom(callback) {
     if (! currentlyObserving) return callback()
 

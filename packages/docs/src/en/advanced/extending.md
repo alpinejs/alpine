@@ -376,3 +376,31 @@ export default function (Alpine) {
 You'll see that `Alpine.plugin` is incredibly simple. It accepts a callback and immediately invokes it while providing the `Alpine` global as a parameter for use inside of it.
 
 Then you can go about extending Alpine as you please.
+
+<a name="deferring-initialization"></a>
+## Deferring initialization
+
+Alpine initializes a tree of elements synchronously. Integrations that load JavaScript for a component asynchronously — a script module that registers an `Alpine.data()` provider, for example — can lose that race: Alpine evaluates `x-data="someComponent"` before the registration exists.
+
+`Alpine.deferInit(el, promise)` suspends initialization of one element's tree until a promise settles. Nothing inside the tree initializes while it's suspended: directives don't evaluate, nodes added inside it wait, and attribute changes are held and replayed when the tree resumes. The rest of the page initializes normally.
+
+```js
+Alpine.interceptInit(el => {
+    if (el.hasAttribute('data-widget') && ! widgetIsLoaded(el)) {
+        Alpine.deferInit(el, loadWidget(el))
+    }
+})
+```
+
+(`Alpine.interceptInit()` is Alpine's low-level integration hook — its callback runs for every element just before that element initializes.)
+
+A few things to know about the contract:
+
+- Registering must happen synchronously — from an `Alpine.interceptInit()` callback before the element initializes, or on an already-initialized element to suspend future activity in its tree (a morph that's about to bring in new markup, for example).
+- Calling `deferInit()` on the same element again before it resumes adds another prerequisite: the tree initializes after every registered promise settles.
+- A rejected promise is reported through Alpine's error handler, then the tree initializes anyway — a failed prerequisite never leaves a tree permanently suspended.
+- If the element has left the DOM by the time the promise settles, nothing happens. If it re-enters later, it initializes like any other added node.
+- When a suspended tree resumes, init interceptors run again for elements that hadn't initialized yet. Only defer while your prerequisite is still outstanding — like the `widgetIsLoaded()` check above — so the resume pass initializes normally instead of suspending again.
+- `[x-cloak]` attributes inside a suspended tree stay in place until it resumes, so the existing cloaking pattern hides not-yet-ready content.
+- `alpine:initialized` does not wait for suspended trees — it fires when the synchronous pass over the page completes.
+- The promise is expected to settle. A prerequisite that never settles leaves its tree suspended indefinitely — put timeouts on operations that need them before handing the promise to Alpine.

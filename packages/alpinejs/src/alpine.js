@@ -2,6 +2,7 @@ import { setReactivityEngine, disableEffectScheduling, reactive, effect, release
 import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } from './directives'
 import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle'
 import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation'
+import { deferInit } from './deferInit'
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope'
 import { setEvaluator, setRawEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions, evaluateRaw } from './evaluator'
 import { transition } from './directives/x-transition'
@@ -62,6 +63,7 @@ let Alpine = {
     transition, // INTERNAL
     setStyles, // INTERNAL
     mutateDom,
+    deferInit,
     directive,
     entangle,
     throttle,

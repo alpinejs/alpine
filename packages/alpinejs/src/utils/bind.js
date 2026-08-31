@@ -131,7 +131,7 @@ function updateSelect(el, value) {
     })
 
     if (! hasMatch && ! el.multiple) {
-        let defaultSelectedOption = Array.from(el.options).find(option => option.hasAttribute('selected'))
+        let defaultSelectedOption = Array.from(el.options).filter(option => option.hasAttribute('selected')).pop()
 
         if (defaultSelectedOption) {
             defaultSelectedOption.selected = true

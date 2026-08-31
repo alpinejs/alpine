@@ -812,3 +812,18 @@ test('x-model with select whose model matches no option sets selectedIndex to -1
 `, ({ get }) => {
     get('select').then(el => expect(el[0].selectedIndex).to.equal(-1))
 })
+
+test('x-model with single select whose model matches no option preserves the last selected option', html`
+    <div x-data="{ color: 'Blue' }">
+        <select x-model="color">
+            <option value="Red" selected>Red</option>
+            <option value="Green" selected>Green</option>
+            <option value="Yellow">Yellow</option>
+        </select>
+    </div>
+`, ({ get }) => {
+    get('option[value="Red"]').should('not.be.selected')
+    get('option[value="Green"]').should('be.selected')
+    get('option[value="Yellow"]').should('not.be.selected')
+    get('select').should(haveValue('Green'))
+})

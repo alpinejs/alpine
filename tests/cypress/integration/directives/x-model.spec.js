@@ -752,3 +752,21 @@ test('x-model does not fire change handlers when x-for options initialize', html
     get('select').should(haveValue('Orange'))
     get('span').should(haveText('0'))
 })
+
+test('x-model.enter still syncs when a value modifier is also present',
+    html`
+    <div x-data="{ foo: '' }">
+        <input x-model.enter.number="foo">
+        <span x-text="foo"></span>
+        <h1 x-text="typeof foo"></h1>
+    </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText(''))
+        get('input').type('42')
+        get('span').should(haveText(''))
+        get('input').type('{enter}')
+        get('span').should(haveText('42'))
+        get('h1').should(haveText('number'))
+    }
+)

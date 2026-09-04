@@ -377,3 +377,72 @@ describe('MemberExpression assignments', () => {
         }).toThrow('DOM objects are prohibited')
     });
 });
+
+describe('DOM access restrictions', () => {
+    function domEl() {
+        let node = document.createElement('div')
+        node.innerHTML = '<template></template>'
+        return node
+    }
+
+    it('document objects are not accessible', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { doc: document }
+
+        expect(() => cspRawEvaluator(element, 'doc', { scope })).toThrow('prohibited')
+    });
+
+    it('an owner document reached through the DOM is not accessible', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { $el: domEl() }
+
+        expect(() => {
+            cspRawEvaluator(element, "$el.querySelector('template').content.ownerDocument", { scope })
+        }).toThrow('prohibited')
+    });
+
+    it('element factory methods are blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { doc: document }
+
+        expect(() => cspRawEvaluator(element, "doc.createElement('div')", { scope })).toThrow('prohibited')
+        expect(() => cspRawEvaluator(element, "doc.createElementNS('http://www.w3.org/2000/svg', 'a')", { scope })).toThrow('prohibited')
+    });
+
+    it('svg script elements are treated like script elements', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let node = document.createElementNS('http://www.w3.org/2000/svg', 'script')
+        let scope = { s: node }
+
+        // jsdom does not always implement the SVG script interface; assert only when it does.
+        if (typeof SVGScriptElement !== 'undefined' && node instanceof SVGScriptElement) {
+            expect(() => cspRawEvaluator(element, 's', { scope })).toThrow('prohibited')
+        }
+    });
+
+    it('node insertion methods are blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { $el: domEl(), child: document.createElement('span') }
+
+        for (let method of ['appendChild', 'insertBefore', 'replaceChild', 'insertAdjacentElement']) {
+            expect(() => cspRawEvaluator(element, `$el.${method}(child)`, { scope })).toThrow('prohibited')
+        }
+    });
+
+    it('writes to non-node DOM wrappers are blocked', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let anchor = document.createElementNS('http://www.w3.org/2000/svg', 'a')
+        let scope = { ref: anchor.href, val: 'x' }
+
+        if (typeof SVGAnimatedString !== 'undefined' && scope.ref instanceof SVGAnimatedString) {
+            expect(() => cspRawEvaluator(element, 'ref.baseVal = val', { scope })).toThrow('prohibited')
+        }
+    });
+
+    it('component methods named like DOM helpers still work', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let scope = { list: { items: [], append(x) { this.items.push(x); return this.items.length } } }
+
+        expect(cspRawEvaluator(element, "list.append('a')", { scope })).toBe(1)
+    });
+});

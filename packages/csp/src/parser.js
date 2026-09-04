@@ -910,20 +910,29 @@ class Evaluator {
     }
 
     isDOMObject(obj) {
-        return obj instanceof Node
-            || (typeof CSSStyleDeclaration !== 'undefined' && obj instanceof CSSStyleDeclaration)
-            || (typeof DOMStringMap !== 'undefined' && obj instanceof DOMStringMap)
-            || (typeof DOMTokenList !== 'undefined' && obj instanceof DOMTokenList)
-            || (typeof NamedNodeMap !== 'undefined' && obj instanceof NamedNodeMap)
+        if (obj instanceof Node) return true
+        if (typeof CSSStyleDeclaration !== 'undefined' && obj instanceof CSSStyleDeclaration) return true
+        if (typeof DOMStringMap !== 'undefined' && obj instanceof DOMStringMap) return true
+        if (typeof DOMTokenList !== 'undefined' && obj instanceof DOMTokenList) return true
+        if (typeof NamedNodeMap !== 'undefined' && obj instanceof NamedNodeMap) return true
+
+        // Catch host DOM/SVG/CSS interface objects not enumerated above.
+        let ctor = obj != null && obj.constructor
+        if (ctor && typeof ctor.name === 'string' && /^(SVG|CSS|DOM)[A-Z]/.test(ctor.name)) return true
+
+        return false
     }
 
     checkForDangerousKeywords(keyword) {
         let blacklist = [
             'constructor', 'prototype', '__proto__',
             '__defineGetter__', '__defineSetter__',
-            'insertAdjacentHTML',
+            'insertAdjacentHTML', 'insertAdjacentElement', 'insertAdjacentText',
             'setAttribute', 'setAttributeNS',
             'setAttributeNode', 'setAttributeNodeNS',
+            'createElement', 'createElementNS',
+            'createDocumentFragment', 'createContextualFragment',
+            'appendChild', 'insertBefore', 'replaceChild',
         ]
 
         if (blacklist.includes(keyword)) {
@@ -944,8 +953,14 @@ class Evaluator {
             return
         }
 
-        if (prop instanceof HTMLIFrameElement || prop instanceof HTMLScriptElement) {
+        if (prop instanceof HTMLIFrameElement
+            || prop instanceof HTMLScriptElement
+            || (typeof SVGScriptElement !== 'undefined' && prop instanceof SVGScriptElement)) {
             throw new Error('Accessing iframes and scripts is prohibited in the CSP build')
+        }
+
+        if (typeof Document !== 'undefined' && prop instanceof Document) {
+            throw new Error('Accessing document objects is prohibited in the CSP build')
         }
 
         if (globals.has(prop)) {

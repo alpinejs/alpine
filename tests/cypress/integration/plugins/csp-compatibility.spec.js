@@ -50,7 +50,7 @@ test.csp('throws when accessing a global via property',
         <button x-data x-on:click="$el.ownerDocument.write('evil')"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => message.includes('Accessing global variables is prohibited') ? false : true)
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing document objects is prohibited') ? false : true)
         cy.get('button').click()
         cy.get('body').should(notContain('evil'))
     }
@@ -61,7 +61,7 @@ test.csp('throws when accessing a global via computed property',
         <button x-data x-on:click="$el['ownerDocument'].write('evil')"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => message.includes('Accessing global variables is prohibited') ? false : true)
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing document objects is prohibited') ? false : true)
         cy.get('button').click()
         cy.get('body').should(notContain('evil'))
     },
@@ -72,7 +72,7 @@ test.csp('throws when accessing a global via function',
         <button x-data x-on:click="$el.getRootNode().write('evil')"></button>
     `],
     (cy) => {
-        cy.on('uncaught:exception', ({message}) => message.includes('Accessing global variables is prohibited') ? false : true)
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing document objects is prohibited') ? false : true)
         cy.get('button').click()
         cy.get('body').should(notContain('evil'))
     },
@@ -251,5 +251,29 @@ test.csp('throws when non-enumerable global is accessed',
         cy.on('uncaught:exception', ({message}) => message.includes('Accessing global variables is prohibited') ? false : true)
         cy.get('button').click()
         cy.get('span').should(notContain('evil'))
+    },
+)
+
+test.csp('throws when accessing an owner document',
+    [html`
+        <button x-data x-on:click="$el.parentElement.querySelector('template').content.ownerDocument.createElement('div')"></button>
+        <template></template>
+    `],
+    (cy) => {
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing document objects is prohibited') ? false : true)
+        cy.get('button').click()
+    },
+)
+
+test.csp('throws when inserting a node into the DOM',
+    [html`
+        <div x-data>
+            <button x-on:click="$root.appendChild($refs.item)"></button>
+            <span x-ref="item">item</span>
+        </div>
+    `],
+    (cy) => {
+        cy.on('uncaught:exception', ({message}) => message.includes('Accessing "appendChild" is prohibited') ? false : true)
+        cy.get('button').click()
     },
 )

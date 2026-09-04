@@ -5,7 +5,16 @@ Object.getOwnPropertyNames(globalThis).forEach(key => {
     // Prevent Chrome and Safari deprecation warning...
     if (key === "styleMedia" || key === "sharedStorage") return
 
-    globals.add(globalThis[key])
+    let value
+
+    try {
+        value = globalThis[key]
+    } catch {
+        // Some globals throw when accessed in sandboxed contexts...
+        return
+    }
+
+    globals.add(value)
 })
 
 class Token {

@@ -1,0 +1,24 @@
+<html>
+    <p id="status">not initialized</p>
+
+    <script>
+        window.addEventListener('message', event => {
+            if (event.source !== document.querySelector('iframe').contentWindow) return
+            if (event.data !== 'initialized') return
+
+            document.querySelector('#status').textContent = event.data
+        })
+    </script>
+
+    <iframe sandbox="allow-scripts" srcdoc='
+        <span x-data="{ status: &apos;initialized&apos; }" x-text="status">not initialized</span>
+
+        <script>
+            document.addEventListener("alpine:initialized", () => {
+                parent.postMessage(document.querySelector("span").textContent, "*")
+            })
+        </script>
+
+        <script src="/../../packages/csp/dist/cdn.js"></script>
+    '></iframe>
+</html>

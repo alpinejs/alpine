@@ -1,5 +1,10 @@
 import { haveText, html, notContain, notExist, notHaveAttribute, test } from '../../utils'
 
+it('initializes in a sandboxed iframe without same-origin access', () => {
+    cy.visit(__dirname+'/../../spec-csp-sandboxed.html')
+    cy.get('#status').should(haveText('initialized'))
+})
+
 test.csp('supports regular syntax', 
     [html`
         <div x-data="{ value: 0, user: { name: 'John' } }">

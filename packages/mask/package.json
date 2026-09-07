@@ -1,6 +1,6 @@
 {
     "name": "@alpinejs/mask",
-    "version": "3.17.1",
+    "version": "3.17.2",
     "description": "An Alpine plugin for input masking",
     "homepage": "https://alpinejs.dev/plugins/mask",
     "repository": {

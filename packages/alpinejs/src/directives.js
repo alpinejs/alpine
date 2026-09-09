@@ -3,6 +3,7 @@ import { evaluate, evaluateLater } from './evaluator'
 import { elementBoundEffect } from './reactivity'
 import Alpine from './alpine'
 
+let modifierOperatorAsString = '.'
 let prefixAsString = 'x-'
 let valueOperatorAsString = ':'
 
@@ -183,7 +184,7 @@ function outNonAlpineAttributes({ name }) {
     return alpineAttributeRegex().test(name)
 }
 
-let alpineAttributeRegex = () => (new RegExp(`^${prefixAsString}(.+?)(?=${RegExp.escape(valueOperatorAsString)}|\.|$)\\b`))
+let alpineAttributeRegex = () => (new RegExp(`^${prefixAsString}(.+?)(?=${RegExp.escape(valueOperatorAsString)}|${RegExp.escape(modifierOperatorAsString)}|$)\\b`))
 
 function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) {
     return ({ name, value }) => {
@@ -193,13 +194,13 @@ function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) 
 
         let typeMatch = name.match(alpineAttributeRegex())
         let valueMatch = name.match(new RegExp(`${RegExp.escape(valueOperatorAsString)}([a-zA-Z0-9\\-_:]+)`))
-        let modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
+        let modifiers = name.match(new RegExp(`${RegExp.escape(modifierOperatorAsString)}[^.\\]]+(?=[^\\]]*$)`, 'g')) || []
         let original = originalAttributeOverride || transformedAttributeMap[name] || name
 
         return {
             type: typeMatch ? typeMatch[1] : null,
             value: valueMatch ? valueMatch[1] : null,
-            modifiers: modifiers.map(i => i.replace('.', '')),
+            modifiers: modifiers.map(i => i.replace(modifierOperatorAsString, '')),
             expression: value,
             original,
         }

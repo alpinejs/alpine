@@ -1,4 +1,4 @@
-import { haveAttribute, haveData, haveText, html, test } from '../utils'
+import { haveAttribute, haveText, html, notBeChecked, test } from '../utils'
 
 test('can set a custom x- prefix',
     html`
@@ -44,19 +44,12 @@ test('can set a custom modifier operator',
             })
         </script>
 
-        <div x-data="{ defaultPrevented: null }">
-            <button
-                x-on:mousedown--modifier--passive="
-                    $event.preventDefault();
-                    defaultPrevented = $event.defaultPrevented;
-                "
-            >
-                <span></span>
-            </button>
+        <div x-data="{}">
+            <input type="checkbox" x-on:click--modifier--prevent>
         </div>
     `,
     ({ get }) => {
-        get('button').click()
-        get('div').should(haveData('defaultPrevented', false))
+        get('input').check()
+        get('input').should(notBeChecked())
     }
 )

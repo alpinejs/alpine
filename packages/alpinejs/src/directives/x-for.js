@@ -143,7 +143,7 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
 function parseForExpression(expression) {
     let forIteratorRE = /,([^,\}\]]*)(?:,([^,\}\]]*))?$/
     let stripParensRE = /^\s*\(|\)\s*$/g
-    let forAliasRE = /([\s\S]*?)\s+(?:in|of)\s+([\s\S]*)/
+    let forAliasRE = /([\s\S]*?)\b(?:in|of)\b([\s\S]*)/
     let inMatch = expression.match(forAliasRE)
 
     if (! inMatch) return

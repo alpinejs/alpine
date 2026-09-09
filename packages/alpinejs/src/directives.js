@@ -198,7 +198,7 @@ function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) 
 
         let typeMatch = name.match(alpineAttributeRegex())
         let valueMatch = name.match(new RegExp(`${RegExp.escape(valueOperatorAsString)}([a-zA-Z0-9\\-_:]+)`))
-        let modifiers = name.match(new RegExp(`${RegExp.escape(modifierOperatorAsString)}[^.\\]]+(?=[^\\]]*$)`, 'g')) || []
+        let modifiers = name.match(new RegExp(`${RegExp.escape(modifierOperatorAsString)}(.+?)(?=${RegExp.escape(modifierOperatorAsString)}|\\]|$)(?=[^\\]]*$)`, 'g')) || []
         let original = originalAttributeOverride || transformedAttributeMap[name] || name
 
         return {

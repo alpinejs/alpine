@@ -14,6 +14,10 @@ export function setPrefix(newPrefix) {
     prefixAsString = newPrefix
 }
 
+export function useValueOperator(newOperator) {
+    valueOperatorAsString = newOperator
+}
+
 let directiveHandlers = {}
 
 export function directive(name, callback) {

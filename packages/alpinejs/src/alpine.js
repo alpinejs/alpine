@@ -1,5 +1,5 @@
 import { setReactivityEngine, disableEffectScheduling, reactive, effect, release, raw, watch, transaction } from './reactivity'
-import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed } from './directives'
+import { mapAttributes, directive, setPrefix as prefix, prefix as prefixed, useValueOperator } from './directives'
 import { start, addRootSelector, addInitSelector, closestRoot, findClosest, initTree, destroyTree, interceptInit } from './lifecycle'
 import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation'
 import { deferInit } from './deferInit'
@@ -86,6 +86,7 @@ let Alpine = {
     walk,
     data,
     bind,
+    useValueOperator,
 }
 
 export default Alpine

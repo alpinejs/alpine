@@ -183,7 +183,7 @@ function outNonAlpineAttributes({ name }) {
     return alpineAttributeRegex().test(name)
 }
 
-let alpineAttributeRegex = () => (new RegExp(`^${prefixAsString}([^${valueOperatorAsString}^.]+)\\b`))
+let alpineAttributeRegex = () => (new RegExp(`^${prefixAsString}([^${RegExp.escape(valueOperatorAsString)}^.]+)\\b`))
 
 function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) {
     return ({ name, value }) => {
@@ -192,7 +192,7 @@ function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) 
         if (name === value) value = ''
 
         let typeMatch = name.match(alpineAttributeRegex())
-        let valueMatch = name.match(new RegExp(`${valueOperatorAsString}([a-zA-Z0-9\\-_:]+)`))
+        let valueMatch = name.match(new RegExp(`${RegExp.escape(valueOperatorAsString)}([a-zA-Z0-9\\-_:]+)`))
         let modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
         let original = originalAttributeOverride || transformedAttributeMap[name] || name
 

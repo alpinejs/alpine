@@ -15,6 +15,10 @@ export function setPrefix(newPrefix) {
     prefixAsString = newPrefix
 }
 
+export function useModifierOperator(newOperator) {
+    modifierOperatorAsString = newOperator
+}
+
 export function useValueOperator(newOperator) {
     valueOperatorAsString = newOperator
 }

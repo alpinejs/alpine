@@ -1,4 +1,4 @@
-import { haveAttribute, haveText, html, test } from '../utils'
+import { haveAttribute, haveData, haveText, html, test } from '../utils'
 
 test('can set a custom x- prefix',
     html`
@@ -33,5 +33,30 @@ test('can set a custom value operator',
         get('span').should(haveAttribute('foo', 'bar'))
         get('button').click()
         get('span').should(haveAttribute('foo', 'baz'))
+    }
+)
+
+test('can set a custom modifier operator',
+    html`
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.useModifierOperator('--modifier--')
+            })
+        </script>
+
+        <div x-data="{ defaultPrevented: null }">
+            <button
+                x-on:mousedown--modifier--passive="
+                    $event.preventDefault();
+                    defaultPrevented = $event.defaultPrevented;
+                "
+            >
+                <span></span>
+            </button>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('div').should(haveData('defaultPrevented', false))
     }
 )

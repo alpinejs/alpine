@@ -4,6 +4,7 @@ import { elementBoundEffect } from './reactivity'
 import Alpine from './alpine'
 
 let prefixAsString = 'x-'
+let valueOperatorAsString = ':'
 
 export function prefix(subject = '') {
     return prefixAsString + subject
@@ -46,7 +47,7 @@ export function directives(el, attributes, originalAttributeOverride) {
         vAttributes = vAttributes.map(attribute => {
             if (staticAttributes.find(attr => attr.name === attribute.name)) {
                 return {
-                    name: `x-bind:${attribute.name}`,
+                    name: `x-bind${valueOperatorAsString}${attribute.name}`,
                     value: `"${attribute.value}"`,
                 }
             }
@@ -178,7 +179,7 @@ function outNonAlpineAttributes({ name }) {
     return alpineAttributeRegex().test(name)
 }
 
-let alpineAttributeRegex = () => (new RegExp(`^${prefixAsString}([^:^.]+)\\b`))
+let alpineAttributeRegex = () => (new RegExp(`^${prefixAsString}([^${valueOperatorAsString}^.]+)\\b`))
 
 function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) {
     return ({ name, value }) => {
@@ -187,7 +188,7 @@ function toParsedDirectives(transformedAttributeMap, originalAttributeOverride) 
         if (name === value) value = ''
 
         let typeMatch = name.match(alpineAttributeRegex())
-        let valueMatch = name.match(/:([a-zA-Z0-9\-_:]+)/)
+        let valueMatch = name.match(new RegExp(`${valueOperatorAsString}([a-zA-Z0-9\\-_:]+)`))
         let modifiers = name.match(/\.[^.\]]+(?=[^\]]*$)/g) || []
         let original = originalAttributeOverride || transformedAttributeMap[name] || name
 

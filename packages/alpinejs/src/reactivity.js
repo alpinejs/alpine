@@ -1,5 +1,5 @@
 
-import { scheduler, startTransaction as startTx, commitTransaction as commitTx } from './scheduler'
+import { scheduler, dequeueJob, startTransaction as startTx, commitTransaction as commitTx } from './scheduler'
 
 let reactive, effect, release, raw
 let nextStructuralEffectOrder = 0
@@ -104,7 +104,13 @@ export function watch(getter, callback) {
         firstTime = false
     })
 
-    return () => release(effectReference)
+    return () => {
+        // This effect isn't tracked in an element's _x_effects, so cleanupElement()
+        // never dequeues it automatically.
+        dequeueJob(effectReference)
+
+        release(effectReference)
+    }
 }
 
 export async function transaction(callback) {

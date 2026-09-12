@@ -252,3 +252,22 @@ test('deep $watch receives old value with null',
     }
 )
 
+test('$watch does not fire for a change made after its element is removed',
+    html`
+        <div x-data="{ calls: 0 }">
+            <div
+                x-data="{ foo: 'bar' }"
+                x-init="$watch('foo', () => { calls++ })"
+            >
+                <button x-on:click="$root.remove(); foo = 'baz'"></button>
+            </div>
+
+            <span x-text="calls"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('span').should(haveText('0'))
+    }
+)
+

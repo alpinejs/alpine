@@ -191,3 +191,19 @@ test('works when inside x-teleport with x-data directly on it',
         get('h1').should(haveText('lob'))
     }
 )
+
+test('x-modelable does not resync for a change made after its element is removed',
+    html`
+        <div x-data="{ outer: 'foo' }">
+            <div x-data="{ inner: 'bar' }" x-modelable="inner" x-model="outer">
+                <button x-on:click="$root.remove(); inner = 'baz'"></button>
+            </div>
+
+            <h1 x-text="outer"></h1>
+        </div>
+    `,
+    ({ get }) => {
+        get('button').click()
+        get('h1').should(haveText('foo'))
+    }
+)

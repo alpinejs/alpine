@@ -1,4 +1,5 @@
 import { effect, release } from './reactivity'
+import { dequeueJob } from './scheduler'
 
 export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set: innerSet }) {
     let firstRun = true
@@ -30,6 +31,10 @@ export function entangle({ get: outerGet, set: outerSet }, { get: innerGet, set:
     })
 
     return () => {
+        // This effect isn't tracked in an element's _x_effects, so cleanupElement()
+        // never dequeues it automatically.
+        dequeueJob(reference)
+
         release(reference)
     }
 }

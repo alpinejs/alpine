@@ -107,6 +107,28 @@ test('can add new directive',
     }
 )
 
+test('continues observing mutations when mutateDom callback throws',
+    html`
+        <div id="target"></div>
+    `,
+    ({ get }, reload, window) => {
+        expect(window.Alpine.mutateDom(() => 'result')).to.equal('result')
+
+        expect(() => {
+            window.Alpine.mutateDom(() => {
+                throw new Error('expected test error')
+            })
+        }).to.throw('expected test error')
+
+        let component = window.document.createElement('div')
+        component.setAttribute('x-data', "{ message: 'initialized' }")
+        component.innerHTML = '<span x-text="message"></span>'
+        window.document.querySelector('#target').appendChild(component)
+
+        get('#target span').should(haveText('initialized'))
+    }
+)
+
 test('can pause and queue mutations for later resuming/flushing',
     html`
         <div x-data="{ foo: 1 }">

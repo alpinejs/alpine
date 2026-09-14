@@ -93,6 +93,44 @@ describe('CSP Parser', () => {
             const scope = { nullValue: null };
             expect(() => generateRuntimeFunction('nullValue.prop')({ scope })).toThrow('Cannot read property');
         });
+
+        it('should access a keyword-named property', () => {
+            const scope = {
+                obj: {
+                    new: 'value'
+                }
+            };
+            expect(generateRuntimeFunction('obj.new')({ scope })).toBe('value');
+        });
+
+        it('should access a boolean-named property', () => {
+            const scope = {
+                obj: {
+                    true: 'a',
+                    false: 'b'
+                }
+            };
+            expect(generateRuntimeFunction('obj.true')({ scope })).toBe('a');
+            expect(generateRuntimeFunction('obj.false')({ scope })).toBe('b');
+        });
+
+        it('should access a null-named property', () => {
+            const scope = {
+                obj: {
+                    null: 'value'
+                }
+            };
+            expect(generateRuntimeFunction('obj.null')({ scope })).toBe('value');
+        });
+
+        it('should access an undefined-named property', () => {
+            const scope = {
+                obj: {
+                    undefined: 'value'
+                }
+            };
+            expect(generateRuntimeFunction('obj.undefined')({ scope })).toBe('value');
+        });
     });
 
     describe('Function Calls', () => {
@@ -177,6 +215,44 @@ describe('CSP Parser', () => {
 
             expect(scope.foo.bar).toEqual('qux');
         });
+
+        it('should call a keyword-named method', () => {
+            const scope = {
+                obj: {
+                    delete: (arg) => 'called ' + arg
+                }
+            };
+            expect(generateRuntimeFunction("obj.delete('test')")({ scope })).toBe('called test');
+        });
+
+        it('should call a boolean-named method', () => {
+            const scope = {
+                obj: {
+                    true: (arg) => 'called ' + arg,
+                    false: (arg) => 'called ' + arg
+                }
+            };
+            expect(generateRuntimeFunction("obj.true('test')")({ scope })).toBe('called test');
+            expect(generateRuntimeFunction("obj.false('test')")({ scope })).toBe('called test');
+        });
+
+        it('should call a null-named method', () => {
+            const scope = {
+                obj: {
+                    null: (arg) => 'called ' + arg
+                }
+            };
+            expect(generateRuntimeFunction("obj.null('test')")({ scope })).toBe('called test');
+        });
+
+        it('should call an undefined-named method', () => {
+            const scope = {
+                obj: {
+                    undefined: (arg) => 'called ' + arg
+                }
+            };
+            expect(generateRuntimeFunction("obj.undefined('test')")({ scope })).toBe('called test');
+        });
     });
 
     describe('Array Literals', () => {
@@ -228,6 +304,22 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('{ outer: { inner: "value" } }')()).toEqual({
                 outer: { inner: 'value' }
             });
+        });
+
+        it('should parse an object literal with a keyword key', () => {
+            expect(generateRuntimeFunction('{ new: 1 }')()).toEqual({ new: 1 });
+        });
+
+        it('should parse an object literal with a boolean key', () => {
+            expect(generateRuntimeFunction('{ true: 1, false: 2 }')()).toEqual({ true: 1, false: 2 });
+        });
+
+        it('should parse an object literal with a null key', () => {
+            expect(generateRuntimeFunction('{ null: 1 }')()).toEqual({ null: 1 });
+        });
+
+        it('should parse an object literal with an undefined key', () => {
+            expect(generateRuntimeFunction('{ undefined: 1 }')()).toEqual({ undefined: 1 });
         });
     });
 
@@ -459,6 +551,7 @@ describe('CSP Parser', () => {
             expect(() => generateRuntimeFunction('5 +')).toThrow('CSP Parser Error');
             expect(() => generateRuntimeFunction('{ foo: }')).toThrow('CSP Parser Error');
             expect(() => generateRuntimeFunction('"unclosed string')).toThrow('Unterminated string');
+            expect(() => generateRuntimeFunction('obj.')).toThrow('Expected an identifier name');
         });
 
         it('should provide helpful runtime errors', () => {

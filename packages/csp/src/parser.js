@@ -26,6 +26,9 @@ class Token {
     }
 }
 
+// Token types allowed as a property or method name (object key, or after `.`)
+const IDENTIFIER_NAME_TYPES = ['IDENTIFIER', 'KEYWORD', 'BOOLEAN', 'NULL', 'UNDEFINED'];
+
 class Tokenizer {
     constructor(input) {
         this.input = input;
@@ -442,11 +445,11 @@ class Parser {
 
         while (true) {
             if (this.match('PUNCTUATION', '.')) {
-                const property = this.consume('IDENTIFIER');
+                const name = this.consumeIdentifierName();
                 expr = {
                     type: 'MemberExpression',
                     object: expr,
-                    property: { type: 'Identifier', name: property.value },
+                    property: { type: 'Identifier', name },
                     computed: false
                 };
             } else if (this.match('PUNCTUATION', '[')) {
@@ -568,8 +571,8 @@ class Parser {
 
             if (this.match('STRING')) {
                 key = { type: 'Literal', value: this.previous().value };
-            } else if (this.match('IDENTIFIER')) {
-                const name = this.previous().value;
+            } else if (this.checkIdentifierName()) {
+                const name = this.consumeIdentifierName();
                 key = { type: 'Identifier', name };
             } else if (this.match('PUNCTUATION', '[')) {
                 key = this.parseExpression();
@@ -669,6 +672,26 @@ class Parser {
         }
         if (this.check(type)) return this.advance();
         throw new Error(`Expected ${type} but got ${this.current().type} "${this.current().value}"`);
+    }
+
+    checkIdentifierName() {
+        if (this.isAtEnd()) return false;
+        return IDENTIFIER_NAME_TYPES.includes(this.current().type);
+    }
+
+    consumeIdentifierName() {
+        if (!this.checkIdentifierName()) {
+            throw new Error(`Expected an identifier name but got ${this.current().type} "${this.current().value}"`);
+        }
+
+        const token = this.advance();
+
+        switch (token.type) {
+            case 'BOOLEAN': return token.value ? 'true' : 'false';
+            case 'NULL': return 'null';
+            case 'UNDEFINED': return 'undefined';
+            default: return token.value;
+        }
     }
 }
 

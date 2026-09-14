@@ -8,6 +8,9 @@ const alpinePackageJson = JSON.parse(
 const alpineVersion = alpinePackageJson.version;
 
 export default defineConfig({
+    test: {
+        include: ['tests/vitest/**/*.spec.js'],
+    },
     define: {
         'ALPINE_VERSION': `'${alpineVersion}'`,
     },

@@ -257,10 +257,11 @@ test('.dwell evaluates after the threshold remains continuously satisfied',
     </div>
     `],
     ({ get }) => {
-        get('#container').scrollTo(0, 100, {duration: 0})
+        // Scroll past half to avoid rounding at the exact 0.5 intersection ratio.
+        get('#container').scrollTo(0, 110, {duration: 0})
         get('#container').wait(50).scrollTo(0, 0, {duration: 0})
         get('span').wait(100).should(haveText('0'))
-        get('#container').scrollTo(0, 100, {duration: 0})
+        get('#container').scrollTo(0, 110, {duration: 0})
         get('span').wait(150).should(haveText('1'))
     },
 )
@@ -305,10 +306,10 @@ test('.dwell evaluates again after leaving and re-entering',
     </div>
     `],
     ({ get }) => {
-        get('#container').scrollTo(0, 100, {duration: 0})
+        get('#container').scrollTo(0, 110, {duration: 0})
         get('span').wait(150).should(haveText('1'))
         get('#container').scrollTo(0, 0, {duration: 0})
-        get('#container').wait(50).scrollTo(0, 100, {duration: 0})
+        get('#container').wait(50).scrollTo(0, 110, {duration: 0})
         get('span').wait(150).should(haveText('2'))
     },
 )
@@ -325,10 +326,10 @@ test('.dwell and .once evaluate only once',
     </div>
     `],
     ({ get }) => {
-        get('#container').scrollTo(0, 100, {duration: 0})
+        get('#container').scrollTo(0, 110, {duration: 0})
         get('span').wait(150).should(haveText('1'))
         get('#container').scrollTo(0, 0, {duration: 0})
-        get('#container').wait(50).scrollTo(0, 100, {duration: 0})
+        get('#container').wait(50).scrollTo(0, 110, {duration: 0})
         get('span').wait(150).should(haveText('1'))
     },
 )

@@ -645,6 +645,41 @@ test('.dot modifier correctly binds event listener',
         get('span').should(haveText('baz'))
     }
 )
+
+test('.camel and .dot modifiers bind event names that contain "click"',
+    html`
+        <div x-data="{ foo: 'bar', baz: 'bar' }"
+            x-on:click-outside.camel="foo = 'baz'"
+            x-on:item-clicked.dot="baz = 'baz'">
+            <button x-on:click="$dispatch('clickOutside'); $dispatch('item.clicked')"></button>
+
+            <span x-text="foo"></span>
+            <h1 x-text="baz"></h1>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('button').click()
+        get('span').should(haveText('baz'))
+        get('h1').should(haveText('baz'))
+    }
+)
+
+test('.passive.false modifier does not swallow click listeners',
+    html`
+        <div x-data="{ foo: 'bar' }">
+            <button x-on:click.passive.false="foo = 'baz'"></button>
+
+            <span x-text="foo"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('bar'))
+        get('button').click()
+        get('span').should(haveText('baz'))
+    }
+)
+
 test('underscores are allowed in event names',
     html`
         <div x-data="{ foo: 'bar' }" x-on:event_name="foo = 'baz'">

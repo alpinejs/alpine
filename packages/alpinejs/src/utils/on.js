@@ -131,11 +131,25 @@ function isClickEvent(event) {
     return ['contextmenu','click','mouse'].some(i => event.includes(i))
 }
 
+// Every modifier x-on and x-model consume themselves. None of them is a key
+// name, so none of them may be mistaken for one. (`enter` is deliberately
+// absent: it is a real key. `preserve-scroll` is specifically for Livewire
+// and is not used by Alpine...)
+const nonKeyModifiers = [
+    // x-on's own modifiers:
+    'window', 'document', 'prevent', 'stop', 'once', 'capture', 'self',
+    'away', 'outside', 'passive', 'dot', 'camel', 'preserve-scroll',
+    // x-model's own modifiers:
+    'blur', 'change', 'lazy', 'number', 'boolean', 'trim', 'fill',
+    'unintrusive', 'parent',
+]
+
 function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
-    let keyModifiers = modifiers.filter(i => {
-        // `preserve-scroll` is specifically for Livewire and is not used by Alpine...
-        // `blur`, `change`, `enter`, `lazy` are x-model event trigger modifiers, not key modifiers
-        return ! ['window', 'document', 'prevent', 'stop', 'once', 'capture', 'self', 'away', 'outside', 'passive', 'preserve-scroll', 'blur', 'change', 'lazy'].includes(i)
+    let keyModifiers = modifiers.filter((modifier, index) => {
+        // `.passive.false` - the argument isn't a key name either.
+        if (modifier === 'false' && modifiers[index - 1] === 'passive') return false
+
+        return ! nonKeyModifiers.includes(modifier)
     })
 
     if (keyModifiers.includes('debounce')) {

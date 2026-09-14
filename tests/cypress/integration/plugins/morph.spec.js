@@ -1339,3 +1339,22 @@ test('$refs are available during morph',
         get('p').should(haveText('bar'))
     },
 )
+
+test('wont run x-data init() method twice when morph patches a node to add x-data',
+    [html`
+        <div id="from"></div>
+    `],
+    ({ get }, reload, window) => {
+        window.timesInitRan = 0
+
+        let toHtml = html`
+            <div id="from" x-data="{ init() { window.timesInitRan++ } }"></div>
+        `
+
+        get('#from').then(([el]) => {
+            window.Alpine.morph(el, toHtml)
+        })
+
+        cy.wrap(window).its('timesInitRan').should('equal', 1)
+    },
+)

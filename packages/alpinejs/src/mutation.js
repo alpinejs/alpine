@@ -100,11 +100,11 @@ export function mutateDom(callback) {
 
     stopObservingMutations()
 
-    let result = callback()
-
-    startObservingMutations()
-
-    return result
+    try {
+        return callback()
+    } finally {
+        startObservingMutations()
+    }
 }
 
 let isCollecting = false

@@ -99,6 +99,28 @@ test('removes the visual viewport listener when the directive is cleaned up',
     },
 )
 
+test('removes the visual viewport listener during its initial evaluation',
+    [html`
+    <div x-data="{ count: 0 }">
+        <h1 x-text="count"></h1>
+
+        <div x-resize.viewport="count++; window.Alpine.destroyTree($el)"></div>
+
+        <button @click="window.testViewport.dispatchEvent(new Event('resize'))">resize</button>
+    </div>
+    `, `
+        window.testViewport = Object.assign(new EventTarget(), { width: 320, height: 480 })
+        Object.defineProperty(window, 'visualViewport', { configurable: true, value: window.testViewport })
+    `],
+    ({ get }) => {
+        get('h1').should(haveText('1'))
+
+        get('button').click()
+
+        get('h1').should(haveText('1'))
+    },
+)
+
 test('falls back to observing the document when visualViewport is unavailable',
     [html`
     <div x-data="{ width: 0, height: 0 }">

@@ -6,11 +6,15 @@ export default function (Alpine) {
             evaluator(() => {}, { scope: { '$width': width, '$height': height }})
         }
 
-        let off = modifiers.includes('viewport')
-            ? onViewportResize(evaluate)
-            : modifiers.includes('document')
-                ? onDocumentResize(evaluate)
-                : onElResize(el, evaluate)
+        if (modifiers.includes('viewport')) {
+            onViewportResize(evaluate, cleanup)
+
+            return
+        }
+
+        let off = modifiers.includes('document')
+            ? onDocumentResize(evaluate)
+            : onElResize(el, evaluate)
 
         cleanup(() => off())
     }))
@@ -28,17 +32,20 @@ function onElResize(el, callback) {
     return () => observer.disconnect()
 }
 
-function onViewportResize(callback) {
+function onViewportResize(callback, cleanup) {
     let viewport = window.visualViewport
 
-    if (! viewport) return onElResize(document.documentElement, callback)
+    if (! viewport) {
+        cleanup(onElResize(document.documentElement, callback))
+
+        return
+    }
 
     let evaluate = () => callback(viewport.width, viewport.height)
 
     viewport.addEventListener('resize', evaluate)
+    cleanup(() => viewport.removeEventListener('resize', evaluate))
     evaluate()
-
-    return () => viewport.removeEventListener('resize', evaluate)
 }
 
 let documentResizeObserver

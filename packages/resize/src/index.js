@@ -31,7 +31,7 @@ function onElResize(el, callback) {
 function onViewportResize(callback) {
     let viewport = window.visualViewport
 
-    if (! viewport) return onDocumentResize(callback)
+    if (! viewport) return onElResize(document.documentElement, callback)
 
     let evaluate = () => callback(viewport.width, viewport.height)
 

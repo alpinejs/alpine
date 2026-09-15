@@ -66,6 +66,8 @@ Alpine.plugin(mask)
 
 The primary API for using this plugin is the `x-mask` directive.
 
+> **Heads up:** Use `x-mask` with an input type that supports text selection, such as `text` or `tel`. It is not compatible with `type="number"`, which does not support the browser selection APIs that masking requires. For a numeric keyboard on mobile, use `type="text"` with `inputmode="numeric"` or `inputmode="decimal"` instead.
+
 Let's start by looking at the following simple example of a date field:
 
 ```alpine

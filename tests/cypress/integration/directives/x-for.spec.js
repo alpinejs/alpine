@@ -840,16 +840,16 @@ test('x-for handles moved elements correctly',
 test('reorders nested x-for children together',
     html`
         <div x-data="{
-            items: [
+            groups: [
                 { key: 'a', values: ['aa', 'ab'] },
                 { key: 'b', values: ['ba', 'bb'] },
                 { key: 'c', values: ['ca', 'cb'] },
             ],
         }">
-            <button @click="items.reverse()">Reverse</button>
+            <button @click="groups.reverse()">Reverse</button>
 
-            <template x-for="item in items" :key="item.key">
-                <template x-for="value in item.values" :key="value">
+            <template x-for="group in groups" :key="group.key">
+                <template x-for="value in group.values" :key="value">
                     <div class="value" x-text="value"></div>
                 </template>
             </template>
@@ -897,5 +897,118 @@ test('reorders nested x-if children together',
         get('.value').eq(0).should(haveText('3'))
         get('.value').eq(1).should(haveText('2'))
         get('.value').eq(2).should(haveText('1'))
+    }
+)
+
+test('reorders nested x-for children together when an x-if is toggled',
+    html`
+        <div x-data="{
+            items: [
+                { key: 'a', visible: true, values: ['aa', 'ab'] },
+                { key: 'b', visible: true, values: ['ba', 'bb'] },
+                { key: 'c', visible: true, values: ['ca', 'cb'] },
+            ],
+            toggle(key) {
+                let item = this.items.find(item => item.key === key)
+                item.visible = ! item.visible
+            },
+        }">
+            <button @click="toggle('b')">Toggle b</button>
+            <button @click="items.reverse()">Reverse</button>
+
+            <template x-for="item in items" :key="item.key">
+                <template x-if="item.visible">
+                    <template x-for="value in item.values" :key="value">
+                        <div class="value" x-text="value"></div>
+                    </template>
+                </template>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('.value').eq(0).should(haveText('aa'))
+        get('.value').eq(1).should(haveText('ab'))
+        get('.value').eq(2).should(haveText('ba'))
+        get('.value').eq(3).should(haveText('bb'))
+        get('.value').eq(4).should(haveText('ca'))
+        get('.value').eq(5).should(haveText('cb'))
+
+        get('button:nth-of-type(1)').click()
+
+        get('.value').should(haveLength('4'))
+        get('.value').eq(0).should(haveText('aa'))
+        get('.value').eq(1).should(haveText('ab'))
+        get('.value').eq(2).should(haveText('ca'))
+        get('.value').eq(3).should(haveText('cb'))
+
+        get('button:nth-of-type(2)').click()
+
+        get('.value').should(haveLength('4'))
+        get('.value').eq(0).should(haveText('ca'))
+        get('.value').eq(1).should(haveText('cb'))
+        get('.value').eq(2).should(haveText('aa'))
+        get('.value').eq(3).should(haveText('ab'))
+
+        get('button:nth-of-type(1)').click()
+
+        get('.value').should(haveLength('6'))
+        get('.value').eq(0).should(haveText('ca'))
+        get('.value').eq(1).should(haveText('cb'))
+        get('.value').eq(2).should(haveText('ba'))
+        get('.value').eq(3).should(haveText('bb'))
+        get('.value').eq(4).should(haveText('aa'))
+        get('.value').eq(5).should(haveText('ab'))
+    }
+)
+
+test('reorders nested x-for children together when a nested x-for is empty',
+    html`
+        <div x-data="{
+            groups: [
+                { key: 'a', values: ['aa', 'ab'] },
+                { key: 'b', values: ['ba', 'bb'] },
+            ],
+            clear() {
+                this.groups[0].values = []
+            },
+        }">
+            <button id="clear" @click="clear()">Clear a</button>
+            <button id="reverse" @click="groups.reverse()">Reverse</button>
+
+            <div id="subject">
+                <template x-for="group in groups" :key="group.key">
+                    <template x-for="value in group.values" :key="value">
+                        <div class="value" x-text="value"></div>
+                    </template>
+                </template>
+                <p>After</p>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('.value').should(haveLength('4'))
+        get('.value').eq(0).should(haveText('aa'))
+        get('.value').eq(1).should(haveText('ab'))
+        get('.value').eq(2).should(haveText('ba'))
+        get('.value').eq(3).should(haveText('bb'))
+
+        get('#clear').click()
+
+        get('.value').should(haveLength('2'))
+        get('.value').eq(0).should(haveText('ba'))
+        get('.value').eq(1).should(haveText('bb'))
+
+        get('#reverse').click()
+
+        get('.value').eq(0).should(haveText('ba'))
+        get('.value').eq(1).should(haveText('bb'))
+        get('#subject p').should(haveText('After'))
+
+        get('#reverse').click()
+
+        get('.value').should(haveLength('2'))
+        get('.value').eq(0).should(haveText('ba'))
+        get('.value').eq(1).should(haveText('bb'))
+        get('#subject p').should(haveText('After'))
     }
 )

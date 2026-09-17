@@ -117,12 +117,11 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
             })
             added.forEach(clone => initTree(clone))
 
-            prev = getLastRenderedElement(prev)
-
             // Mark the last rendered element so morph can skip
             // past these items instead of trying to diff them...
             if (prev !== templateEl) {
-                templateEl._x_lastRenderedEl = prev
+                let last = lookup.get(scopeEntries[scopeEntries.length - 1][0])
+                templateEl._x_lastRenderedEl = getLastRenderedElement(last)
             } else {
                 delete templateEl._x_lastRenderedEl
             }
@@ -199,15 +198,12 @@ function moveBlock(el, target) {
     let last = getLastRenderedElement(el)
     if (target.nextElementSibling === el) return last
 
+    let end = last.nextElementSibling
     let fragment = new DocumentFragment()
-    while (el) {
+
+    while (el !== end) {
         let next = el.nextElementSibling
         fragment.appendChild(el)
-
-        if (el === last) {
-            break
-        }
-
         el = next
     }
 

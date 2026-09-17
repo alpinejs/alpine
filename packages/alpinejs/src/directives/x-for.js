@@ -97,18 +97,7 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                     let el = lookup.get(key)
                     el._x_refreshXForScope(scope)
 
-                    if (prev.nextElementSibling !== el) {
-                        if (prev.nextElementSibling)
-                            el.replaceWith(prev.nextElementSibling)
-                        prev.after(el)
-                    }
-                    prev = el
-
-                    if (el._x_currentIfEl) {
-                        if (el.nextElementSibling !== el._x_currentIfEl)
-                            prev.after(el._x_currentIfEl)
-                        prev = el._x_currentIfEl
-                    }
+                    prev = moveBlock(el, prev)
                     return
                 }
 
@@ -127,6 +116,8 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                 prev = clone
             })
             added.forEach(clone => initTree(clone))
+
+            prev = getLastRenderedElement(prev)
 
             // Mark the last rendered element so morph can skip
             // past these items instead of trying to diff them...
@@ -194,6 +185,34 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
     if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items
 
     return scopeVariables
+}
+
+function getLastRenderedElement(el) {
+    while (el._x_lastRenderedEl) {
+        el = el._x_lastRenderedEl
+    }
+
+    return el
+}
+
+function moveBlock(el, target) {
+    let last = getLastRenderedElement(el)
+    if (target.nextElementSibling === el) return last
+
+    let fragment = new DocumentFragment()
+    while (el) {
+        let next = el.nextElementSibling
+        fragment.appendChild(el)
+
+        if (el === last) {
+            break
+        }
+
+        el = next
+    }
+
+    target.after(fragment)
+    return last
 }
 
 function isNumeric(subject){

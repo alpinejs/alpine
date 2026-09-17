@@ -836,3 +836,66 @@ test('x-for handles moved elements correctly',
         get('[data-num]:nth-of-type(3)').should(haveText('3'))
     }
 )
+
+test('reorders nested x-for children together',
+    html`
+        <div x-data="{
+            items: [
+                { key: 'a', values: ['aa', 'ab'] },
+                { key: 'b', values: ['ba', 'bb'] },
+                { key: 'c', values: ['ca', 'cb'] },
+            ],
+        }">
+            <button @click="items.reverse()">Reverse</button>
+
+            <template x-for="item in items" :key="item.key">
+                <template x-for="value in item.values" :key="value">
+                    <div class="value" x-text="value"></div>
+                </template>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('.value').eq(0).should(haveText('aa'))
+        get('.value').eq(1).should(haveText('ab'))
+        get('.value').eq(2).should(haveText('ba'))
+        get('.value').eq(3).should(haveText('bb'))
+        get('.value').eq(4).should(haveText('ca'))
+        get('.value').eq(5).should(haveText('cb'))
+
+        get('button').click()
+
+        get('.value').eq(0).should(haveText('ca'))
+        get('.value').eq(1).should(haveText('cb'))
+        get('.value').eq(2).should(haveText('ba'))
+        get('.value').eq(3).should(haveText('bb'))
+        get('.value').eq(4).should(haveText('aa'))
+        get('.value').eq(5).should(haveText('ab'))
+    }
+)
+
+test('reorders nested x-if children together',
+    html`
+        <div x-data="{ items: [1, 2, 3] }">
+            <button @click="items.reverse()">Reverse</button>
+            <template x-for="n in items" :key="n">
+                <template x-if="true">
+                    <template x-if="true">
+                        <span class="value" x-text="n"></span>
+                    </template>
+                </template>
+            </template>
+        </div>
+    `,
+    ({ get }) => {
+        get('.value').eq(0).should(haveText('1'))
+        get('.value').eq(1).should(haveText('2'))
+        get('.value').eq(2).should(haveText('3'))
+
+        get('button').click()
+
+        get('.value').eq(0).should(haveText('3'))
+        get('.value').eq(1).should(haveText('2'))
+        get('.value').eq(2).should(haveText('1'))
+    }
+)

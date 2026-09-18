@@ -196,13 +196,13 @@ function getLastRenderedElement(el) {
 
 function moveBlock(el, target) {
     let last = getLastRenderedElement(el)
-    if (target.nextElementSibling === el) return last
+    if (target.nextSibling === el) return last
 
-    let end = last.nextElementSibling
+    let end = last.nextSibling
     let fragment = new DocumentFragment()
 
     while (el !== end) {
-        let next = el.nextElementSibling
+        let next = el.nextSibling
         fragment.appendChild(el)
         el = next
     }

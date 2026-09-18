@@ -1065,3 +1065,60 @@ test('reorders an x-for after its last nested x-if child is hidden',
         get('#subject p').should(haveText('After'))
     }
 )
+
+test('reorders non-element nodes rendered by a custom structural directive',
+    [html`
+        <div x-data="{ items: ['a', 'b', 'c'] }">
+            <button @click="items.reverse()">Reverse</button>
+
+            <div id="subject">
+                <template x-for="item in items" :key="item">
+                    <template x-render-block="item"></template>
+                </template>
+            </div>
+        </div>
+    `,
+        `
+        Alpine.directive('render-block', (el, { expression }, { evaluate, cleanup }) => {
+            let value = evaluate(expression)
+            let text = document.createTextNode(value)
+            let comment = document.createComment(value)
+            let end = document.createElement('span')
+            end.textContent = value.toUpperCase()
+
+            el._x_lastRenderedEl = end
+
+            Alpine.mutateDom(() => {
+                el.after(text, comment, end)
+            })
+
+            cleanup(() => {
+                text.remove()
+                comment.remove()
+                end.remove()
+                delete el._x_lastRenderedEl
+            })
+        })
+    `],
+    ({ get }) => {
+        get('#subject').should(subject => {
+            expect(subject.text().replace(/\s/g, '')).to.equal('aAbBcC')
+        })
+
+        get('button').click()
+
+        get('#subject').should(subject => {
+            expect(subject.text().replace(/\s/g, '')).to.equal('cCbBaA')
+
+            subject.children('span').each((_, span) => {
+                let comment = span.previousSibling
+                let text = comment.previousSibling
+
+                expect(comment.nodeType).to.equal(Node.COMMENT_NODE)
+                expect(comment.data).to.equal(span.textContent.toLowerCase())
+                expect(text.nodeType).to.equal(Node.TEXT_NODE)
+                expect(text.data).to.equal(span.textContent.toLowerCase())
+            })
+        })
+    }
+)

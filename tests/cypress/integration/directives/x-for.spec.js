@@ -1012,3 +1012,56 @@ test('reorders nested x-for children together when a nested x-for is empty',
         get('#subject p').should(haveText('After'))
     }
 )
+
+test('reorders an x-for after its last nested x-if child is hidden',
+    html`
+        <div x-data="{
+            groups: [
+                { key: 'a', items: [{ key: 'a', visible: true }] },
+                { key: 'b', items: [{ key: 'b', visible: true }] },
+            ],
+            toggle(key) {
+                let group = this.groups.find(group => group.key === key)
+                group.items[0].visible = ! group.items[0].visible
+            },
+        }">
+            <button id="toggle-b" @click="toggle('b')">Toggle b</button>
+            <button id="reverse" @click="groups.reverse()">Reverse</button>
+
+            <div id="subject">
+                <template x-for="group in groups" :key="group.key">
+                    <template x-for="item in group.items" :key="item.key">
+                        <template x-if="item.visible">
+                            <span class="value" x-text="item.key"></span>
+                        </template>
+                    </template>
+                </template>
+
+                <p>After</p>
+            </div>
+        </div>
+    `,
+    ({ get }) => {
+        get('.value').eq(0).should(haveText('a'))
+        get('.value').eq(1).should(haveText('b'))
+
+        get('#toggle-b').click()
+
+        get('.value').should(haveLength(1))
+        get('.value').eq(0).should(haveText('a'))
+
+        get('#reverse').click()
+
+        get('.value').should(haveLength(1))
+        get('.value').eq(0).should(haveText('a'))
+        get('#subject p').should(haveText('After'))
+
+        get('#toggle-b').click()
+
+        get('.value').should(haveLength(2))
+        get('.value').eq(0).should(haveText('b'))
+        get('.value').eq(1).should(haveText('a'))
+
+        get('#subject p').should(haveText('After'))
+    }
+)

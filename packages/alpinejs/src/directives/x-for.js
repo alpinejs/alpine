@@ -121,7 +121,7 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
             // past these items instead of trying to diff them...
             if (prev !== templateEl) {
                 let last = lookup.get(scopeEntries[scopeEntries.length - 1][0])
-                templateEl._x_lastRenderedEl = getLastRenderedElement(last)
+                templateEl._x_lastRenderedEl = last
             } else {
                 delete templateEl._x_lastRenderedEl
             }

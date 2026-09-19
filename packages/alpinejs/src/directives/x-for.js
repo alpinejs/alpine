@@ -5,6 +5,7 @@ import { reactive } from '../reactivity'
 import { initTree, destroyTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
 import { warn } from '../utils/warn'
+import { resolveBlockEnd } from '../utils/blocks'
 import { skipDuringClone } from '../clone'
 
 directive('for', skipDuringClone((el, { expression }, { effect, cleanup }) => {
@@ -186,16 +187,11 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
     return scopeVariables
 }
 
-function getLastRenderedElement(el) {
-    while (el._x_lastRenderedEl) {
-        el = el._x_lastRenderedEl
-    }
-
-    return el
-}
-
 function moveBlock(el, target) {
-    let last = getLastRenderedElement(el)
+    // Move the root and its rendered siblings after the target as one block,
+    // including text and comment nodes. Return the last node so the next
+    // block can be placed after it...
+    let last = resolveBlockEnd(el)
     if (target.nextSibling === el) return last
 
     let end = last.nextSibling

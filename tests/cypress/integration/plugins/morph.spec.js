@@ -1,4 +1,4 @@
-import { haveAttribute, haveFocus, haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
+import { haveAttribute, haveFocus, haveLength, haveText, haveValue, haveHtml, html, notExist, test } from '../../utils'
 
 test('can morph components and preserve Alpine state',
     [html`
@@ -1234,6 +1234,48 @@ test('morph with x-for does not duplicate items when data changes before morph',
             await new Promise(queueMicrotask)
 
             expect(el.querySelectorAll('p').length).to.equal(3)
+        })
+    },
+)
+
+test('morph does not duplicate the sibling after nested x-if children are hidden',
+    html`
+        <div x-data="{ items: ['a', 'b'], visible: true }">
+            <button @click="visible = false">Hide</button>
+
+            <div id="subject">
+                <template x-for="item in items" :key="item">
+                    <template x-if="visible">
+                        <span x-text="item"></span>
+                    </template>
+                </template>
+
+                <p>After</p>
+            </div>
+        </div>
+    `,
+    ({ get }, reload, window) => {
+        get('#subject span').eq(0).should(haveText('a'))
+        get('#subject span').eq(1).should(haveText('b'))
+        get('#subject p').should(haveText('After'))
+
+        get('button').click()
+
+        get('#subject span').should(notExist())
+
+        get('#subject').then(([el]) => window.Alpine.morph(el, `
+            <div id="subject">
+                <template x-for="item in items" :key="item">
+                    <template x-if="visible">
+                        <span x-text="item"></span>
+                    </template>
+                </template>
+                <p>After morph</p>
+            </div>
+        `))
+
+        get('#subject').then(([el]) => {
+            expect(Array.from(el.querySelectorAll('p'), p => p.textContent)).to.deep.equal(['After morph'])
         })
     },
 )

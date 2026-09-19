@@ -1197,7 +1197,7 @@ test('reorders nested x-for children together when an x-if is toggled',
             ],
             toggle(key) {
                 let item = this.items.find(item => item.key === key)
-                item.visible = !item.visible
+                item.visible = ! item.visible
             },
         }">
             <button @click="toggle('b')">Toggle b</button>

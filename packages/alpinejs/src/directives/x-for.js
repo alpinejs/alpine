@@ -124,8 +124,8 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
             })
             added.forEach(clone => initTree(clone))
 
-            // Mark the last rendered element so morph can skip
-            // past these items instead of trying to diff them...
+            // Keep a link to the last iteration's root so x-for and morph can
+            // resolve the current block end when nested directives change it...
             if (prev !== templateEl) {
                 let last = lookup.get(scopeEntries[scopeEntries.length - 1][0])
                 templateEl._x_lastRenderedEl = last

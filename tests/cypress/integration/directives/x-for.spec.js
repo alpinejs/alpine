@@ -894,7 +894,7 @@ test('reorders nested x-for children together',
         <div x-data="{
             groups: [
                 { key: 'a', values: ['aa', 'ab'] },
-                { key: 'b', values: ['ba', 'bb'] },
+                { key: 'b', values: ['ba'] },
                 { key: 'c', values: ['ca', 'cb'] },
             ],
         }">
@@ -908,21 +908,21 @@ test('reorders nested x-for children together',
         </div>
     `,
     ({ get }) => {
+        get('.value').should(haveLength(5))
         get('.value').eq(0).should(haveText('aa'))
         get('.value').eq(1).should(haveText('ab'))
         get('.value').eq(2).should(haveText('ba'))
-        get('.value').eq(3).should(haveText('bb'))
-        get('.value').eq(4).should(haveText('ca'))
-        get('.value').eq(5).should(haveText('cb'))
+        get('.value').eq(3).should(haveText('ca'))
+        get('.value').eq(4).should(haveText('cb'))
 
         get('button').click()
 
+        get('.value').should(haveLength(5))
         get('.value').eq(0).should(haveText('ca'))
         get('.value').eq(1).should(haveText('cb'))
         get('.value').eq(2).should(haveText('ba'))
-        get('.value').eq(3).should(haveText('bb'))
-        get('.value').eq(4).should(haveText('aa'))
-        get('.value').eq(5).should(haveText('ab'))
+        get('.value').eq(3).should(haveText('aa'))
+        get('.value').eq(4).should(haveText('ab'))
     }
 )
 
@@ -937,9 +937,15 @@ test('reorders nested x-if children together',
                     </template>
                 </template>
             </template>
+            <p>After</p>
         </div>
     `,
     ({ get }) => {
+        let original
+
+        get('.value').should(haveLength(3)).then(elements => {
+            original = Array.from(elements)
+        })
         get('.value').eq(0).should(haveText('1'))
         get('.value').eq(1).should(haveText('2'))
         get('.value').eq(2).should(haveText('3'))
@@ -949,6 +955,235 @@ test('reorders nested x-if children together',
         get('.value').eq(0).should(haveText('3'))
         get('.value').eq(1).should(haveText('2'))
         get('.value').eq(2).should(haveText('1'))
+        get('.value').should(elements => {
+            expect(Array.from(elements)).to.deep.equal([...original].reverse())
+        })
+
+        get('button').click()
+
+        get('.value').should(elements => {
+            expect(Array.from(elements)).to.deep.equal(original)
+            expect(Array.from(elements, el => el.textContent)).to.deep.equal(['1', '2', '3'])
+        })
+        get('p').should(haveText('After')).should(([el]) => {
+            expect(el.previousElementSibling).to.equal(original[2])
+        })
+    }
+)
+
+test('reorders nested x-for blocks and preserves local state',
+    html`
+        <div x-data="{ groups: [
+            { key: 'a', values: ['aa', 'ab'] },
+            { key: 'b', values: ['ba', 'bb'] },
+            { key: 'c', values: ['ca', 'cb'] },
+        ] }">
+            <button id="reverse" @click="groups.reverse()">Reverse</button>
+            <button id="insert" @click="groups.splice(1, 0, { key: 'd', values: ['da', 'db'] })">Insert</button>
+            <button id="remove" @click="groups = groups.filter(group => group.key !== 'b')">Remove</button>
+
+            <template x-for="group in groups" :key="group.key">
+                <template x-for="value in group.values" :key="value">
+                    <button class="item" :data-key="value" x-data="{ count: 0 }"
+                        @click="count++" x-text="value + ':' + count"></button>
+                </template>
+            </template>
+            <p>After</p>
+        </div>
+    `,
+    ({ get }) => {
+        let haveTexts = expected => elements => {
+            expect(Array.from(elements, el => el.textContent)).to.deep.equal(expected)
+        }
+
+        let original
+
+        get('.item').should(haveTexts(['aa:0', 'ab:0', 'ba:0', 'bb:0', 'ca:0', 'cb:0']))
+            .then(elements => original = Array.from(elements))
+
+        get('[data-key="ab"]').click()
+        get('#reverse').click()
+
+        get('.item').should(haveTexts(['ca:0', 'cb:0', 'ba:0', 'bb:0', 'aa:0', 'ab:1']))
+            .should(elements => {
+                expect(Array.from(elements)).to.deep.equal([
+                    original[4], original[5], original[2], original[3], original[0], original[1],
+                ])
+            })
+
+        get('#insert').click()
+        get('.item').should(haveTexts(['ca:0', 'cb:0', 'da:0', 'db:0', 'ba:0', 'bb:0', 'aa:0', 'ab:1']))
+
+        get('#remove').click()
+        get('.item').should(haveTexts(['ca:0', 'cb:0', 'da:0', 'db:0', 'aa:0', 'ab:1']))
+
+        get('#reverse').click()
+        get('.item').should(haveTexts(['aa:0', 'ab:1', 'da:0', 'db:0', 'ca:0', 'cb:0']))
+        get('[data-key="ab"]').click().should(haveText('ab:2'))
+
+        get('p').should(haveText('After')).should(([el]) => {
+            expect(el.previousElementSibling).to.equal(original[5])
+        })
+    }
+)
+
+test('reorders mixed template blocks after their contents change',
+    html`
+        <div x-data="{ groups: [
+            { key: 'a', children: [1, 2] },
+            { key: 'b', children: [] },
+            { key: 'c', children: [3] },
+        ] }">
+            <button id="grow" @click="groups[2].children.push(4, 5)">Grow</button>
+            <button id="reverse" @click="groups.reverse()">Reverse</button>
+            <button id="shrink" @click="groups[0].children.splice(1)">Shrink</button>
+            <button id="fill" @click="groups[1].children = [7]">Fill</button>
+
+            <template x-for="(group, index) in groups" :key="group.key">
+                <template x-if="true">
+                    <template x-for="child in group.children" :key="child">
+                        <template x-if="child % 2">
+                            <span x-text="group.key + ':' + child + ':' + index"></span>
+                        </template>
+                    </template>
+                </template>
+            </template>
+            <p>After</p>
+        </div>
+    `,
+    ({ get }) => {
+        let haveTexts = expected => elements => {
+            expect(Array.from(elements, el => el.textContent)).to.deep.equal(expected)
+        }
+
+        get('span').should(haveTexts(['a:1:0', 'c:3:2']))
+
+        get('#grow').click()
+        get('span').should(haveTexts(['a:1:0', 'c:3:2', 'c:5:2']))
+
+        get('#reverse').click()
+        get('span').should(haveTexts(['c:3:0', 'c:5:0', 'a:1:2']))
+
+        get('#shrink').click()
+        get('span').should(haveTexts(['c:3:0', 'a:1:2']))
+
+        get('#fill').click()
+        get('span').should(haveTexts(['c:3:0', 'b:7:1', 'a:1:2']))
+
+        get('#reverse').click()
+        get('span').should(haveTexts(['a:1:0', 'b:7:1', 'c:3:2']))
+
+        get('p').should(haveText('After')).should(([el]) => {
+            expect(el.previousElementSibling.textContent).to.equal('c:3:2')
+        })
+    }
+)
+
+test('cleans up removed template blocks exactly once',
+    [html`
+        <div x-data="{ show: true, items: ['a', 'b', 'c'] }">
+            <button id="reverse" @click="items.reverse()">Reverse</button>
+            <button id="remove" @click="items.splice(1, 1)">Remove</button>
+            <button id="clear" @click="items = []">Clear</button>
+            <button id="restore" @click="items = ['d']">Restore</button>
+            <button id="hide" @click="show = false">Hide</button>
+
+            <template x-if="show">
+                <template x-for="item in items" :key="item">
+                    <template x-if="true">
+                        <template x-for="n in [1, 2]" :key="n">
+                            <span x-data="{
+                                init() {
+                                    $store.lifecycle.created++
+                                },
+                                destroy() {
+                                    $store.lifecycle.destroyed++
+                                },
+                            }" x-text="item + n"></span>
+                        </template>
+                    </template>
+                </template>
+            </template>
+            <output x-text="$store.lifecycle.created + ':' + $store.lifecycle.destroyed"></output>
+        </div>
+    `, `Alpine.store('lifecycle', { created: 0, destroyed: 0 })`],
+    ({ get }) => {
+        let haveTexts = expected => elements => {
+            expect(Array.from(elements, el => el.textContent)).to.deep.equal(expected)
+        }
+
+        get('span').should(haveTexts(['a1', 'a2', 'b1', 'b2', 'c1', 'c2']))
+        get('output').should(haveText('6:0'))
+
+        get('#reverse').click()
+        get('span').should(haveTexts(['c1', 'c2', 'b1', 'b2', 'a1', 'a2']))
+        get('output').should(haveText('6:0'))
+
+        get('#remove').click()
+        get('span').should(haveTexts(['c1', 'c2', 'a1', 'a2']))
+        get('output').should(haveText('6:2'))
+
+        get('#clear').click()
+        get('span').should(notExist())
+        get('output').should(haveText('6:6'))
+
+        get('#restore').click()
+        get('span').should(haveTexts(['d1', 'd2']))
+        get('output').should(haveText('8:6'))
+
+        get('#hide').click()
+        get('span').should(notExist())
+        get('output').should(haveText('8:8'))
+        get('template').should(haveLength(1))
+    }
+)
+
+test('reorders nested blocks while adding children and removing a group in one update',
+    html`
+        <div x-data="{ groups: [
+            { key: 'a', items: [{ key: 'a1', visible: true }, { key: 'a2', visible: false }] },
+            { key: 'b', items: [{ key: 'b1', visible: true }, { key: 'b2', visible: true }] },
+            { key: 'c', items: [{ key: 'c1', visible: true }, { key: 'c2', visible: true }] },
+        ] }">
+            <button @click="
+                groups.reverse();
+                groups.forEach(group => group.items.reverse());
+                groups[0].items.push({ key: 'c3', visible: true });
+                groups.pop()">
+                Update
+            </button>
+            <template x-for="group in groups" :key="group.key">
+                <template x-if="true">
+                    <template x-for="item in group.items" :key="item.key">
+                        <template x-if="item.visible">
+                            <span x-text="item.key"></span>
+                        </template>
+                    </template>
+                </template>
+            </template>
+            <p>After</p>
+        </div>
+    `,
+    ({ get }) => {
+        let haveTexts = expected => elements => {
+            expect(Array.from(elements, el => el.textContent)).to.deep.equal(expected)
+        }
+        let original
+
+        get('span').should(haveTexts(['a1', 'b1', 'b2', 'c1', 'c2']))
+            .then(elements => original = Array.from(elements))
+
+        get('button').click()
+
+        get('span').should(haveTexts(['c2', 'c1', 'c3', 'b2', 'b1'])).should(elements => {
+            expect([elements[0], elements[1], elements[3], elements[4]])
+                .to.deep.equal([original[4], original[3], original[2], original[1]])
+            expect(original[0].isConnected).to.equal(false)
+        })
+
+        get('p').should(haveText('After')).should(([el]) => {
+            expect(el.previousElementSibling).to.equal(original[1])
+        })
     }
 )
 
@@ -962,7 +1197,7 @@ test('reorders nested x-for children together when an x-if is toggled',
             ],
             toggle(key) {
                 let item = this.items.find(item => item.key === key)
-                item.visible = ! item.visible
+                item.visible = !item.visible
             },
         }">
             <button @click="toggle('b')">Toggle b</button>

@@ -1238,6 +1238,45 @@ test('morph with x-for does not duplicate items when data changes before morph',
     },
 )
 
+test('morph preserves visible nested x-if children and updates their next sibling',
+    html`
+        <div x-data="{ items: ['a', 'b'] }">
+            <div id="subject">
+                <template x-for="item in items" :key="item">
+                    <template x-if="true">
+                        <span x-text="item"></span>
+                    </template>
+                </template>
+                <p>After</p>
+            </div>
+        </div>
+    `,
+    ({ get }, reload, window) => {
+        let original
+
+        get('#subject span').should(haveLength(2)).then(elements => {
+            original = Array.from(elements)
+        })
+
+        get('#subject').then(([el]) => window.Alpine.morph(el, `
+            <div id="subject">
+                <template x-for="item in items" :key="item">
+                    <template x-if="true">
+                        <span x-text="item"></span>
+                    </template>
+                </template>
+                <p>After morph</p>
+            </div>
+        `))
+
+        get('#subject span').should(elements => {
+            expect(Array.from(elements)).to.deep.equal(original)
+            expect(Array.from(elements, el => el.textContent)).to.deep.equal(['a', 'b'])
+        })
+        get('#subject > p').should(haveLength(1)).should(haveText('After morph'))
+    },
+)
+
 test('morph does not duplicate the sibling after nested x-if children are hidden',
     html`
         <div x-data="{ items: ['a', 'b'], visible: true }">
@@ -1277,6 +1316,140 @@ test('morph does not duplicate the sibling after nested x-if children are hidden
         get('#subject').then(([el]) => {
             expect(Array.from(el.querySelectorAll('p'), p => p.textContent)).to.deep.equal(['After morph'])
         })
+    },
+)
+
+test('morph preserves nested x-if blocks after their boundaries change',
+    html`
+        <div x-data="{ items: ['a', 'b'], visible: true }">
+            <button id="reverse" @click="items.reverse()">Reverse</button>
+            <button id="hide" @click="visible = false">Hide</button>
+            <button id="show" @click="visible = true">Show</button>
+
+            <div id="subject">
+                <template x-for="item in items" :key="item">
+                    <template x-if="visible">
+                        <template x-if="true">
+                            <span x-text="item"></span>
+                        </template>
+                    </template>
+                </template>
+                <p>After</p>
+            </div>
+        </div>
+    `,
+    ({ get }, reload, window) => {
+        let haveTexts = expected => elements => {
+            expect(Array.from(elements, el => el.textContent)).to.deep.equal(expected)
+        }
+        let revision = 0
+        let morph = expected => {
+            let label = `After ${++revision}`
+            let original
+
+            get('#subject').then(([el]) => {
+                original = Array.from(el.querySelectorAll('span'))
+                window.Alpine.morph(el, `
+                    <div id="subject">
+                        <template x-for="item in items" :key="item">
+                            <template x-if="visible">
+                                <template x-if="true">
+                                    <span x-text="item"></span>
+                                </template>
+                            </template>
+                        </template>
+                        <p>${label}</p>
+                    </div>
+                `)
+            })
+            get('#subject').should(([el]) => {
+                expect(Array.from(el.querySelectorAll('span'))).to.deep.equal(original)
+                expect(Array.from(el.querySelectorAll('span'), node => node.textContent)).to.deep.equal(expected)
+                expect(el.lastElementChild.tagName).to.equal('P')
+            })
+            get('#subject > p').should(haveLength(1)).should(haveText(label))
+        }
+
+        get('#subject span').should(haveTexts(['a', 'b']))
+        morph(['a', 'b'])
+
+        get('#reverse').click()
+        get('#subject span').should(haveTexts(['b', 'a']))
+        morph(['b', 'a'])
+
+        get('#hide').click()
+        get('#subject span').should(notExist())
+        morph([])
+
+        get('#show').click()
+        get('#subject span').should(haveTexts(['b', 'a']))
+        morph(['b', 'a'])
+    },
+)
+
+test('morph preserves nested x-for blocks after their boundaries change',
+    html`
+        <div x-data="{ items: ['a', 'b'], children: [1] }">
+            <button id="reverse" @click="items.reverse()">Reverse</button>
+            <button id="grow" @click="children.push(2)">Grow</button>
+            <button id="clear" @click="children = []">Clear</button>
+            <button id="restore" @click="children = [3]">Restore</button>
+
+            <div id="subject">
+                <template x-for="item in items" :key="item">
+                    <template x-for="child in children" :key="child">
+                        <span x-text="item + ':' + child"></span>
+                    </template>
+                </template>
+                <p>After</p>
+            </div>
+        </div>
+    `,
+    ({ get }, reload, window) => {
+        let haveTexts = expected => elements => {
+            expect(Array.from(elements, el => el.textContent)).to.deep.equal(expected)
+        }
+        let revision = 0
+        let morph = expected => {
+            let label = `After ${++revision}`
+            let original
+
+            get('#subject').then(([el]) => {
+                original = Array.from(el.querySelectorAll('span'))
+                window.Alpine.morph(el, `
+                    <div id="subject">
+                        <template x-for="item in items" :key="item">
+                            <template x-for="child in children" :key="child">
+                                <span x-text="item + ':' + child"></span>
+                            </template>
+                        </template>
+                        <p>${label}</p>
+                    </div>
+                `)
+            })
+            get('#subject').should(([el]) => {
+                expect(Array.from(el.querySelectorAll('span'))).to.deep.equal(original)
+                expect(Array.from(el.querySelectorAll('span'), node => node.textContent)).to.deep.equal(expected)
+                expect(el.lastElementChild.tagName).to.equal('P')
+            })
+            get('#subject > p').should(haveLength(1)).should(haveText(label))
+        }
+
+        get('#subject span').should(haveTexts(['a:1', 'b:1']))
+        morph(['a:1', 'b:1'])
+
+        get('#reverse').click()
+        get('#grow').click()
+        get('#subject span').should(haveTexts(['b:1', 'b:2', 'a:1', 'a:2']))
+        morph(['b:1', 'b:2', 'a:1', 'a:2'])
+
+        get('#clear').click()
+        get('#subject span').should(notExist())
+        morph([])
+
+        get('#restore').click()
+        get('#subject span').should(haveTexts(['b:3', 'a:3']))
+        morph(['b:3', 'a:3'])
     },
 )
 

@@ -98,6 +98,12 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                     let el = lookup.get(key)
                     el._x_refreshXForScope(scope)
 
+                    // Swap whole blocks so the items between them stay in place.
+                    let next = prev.nextElementSibling
+                    if (next && next !== el) {
+                        moveBlock(next, resolveBlockEnd(el))
+                    }
+
                     prev = moveBlock(el, prev)
                     return
                 }

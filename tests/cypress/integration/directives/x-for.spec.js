@@ -1,4 +1,4 @@
-import { exist, haveLength, haveText, html, notExist, test } from '../../utils'
+import { exist, haveFocus, haveLength, haveText, html, notExist, test } from '../../utils'
 
 test('renders loops with x-for',
     html`
@@ -834,6 +834,58 @@ test('x-for handles moved elements correctly',
         get('[data-num]:nth-of-type(1)').should(haveText('2'))
         get('[data-num]:nth-of-type(2)').should(haveText('1'))
         get('[data-num]:nth-of-type(3)').should(haveText('3'))
+    }
+)
+
+test('swaps elements without disturbing focus in the middle',
+    html`
+        <div x-data="{ items: [1, 2, 3, 4, 5] }">
+            <template x-for="item in items" :key="item">
+                <input :data-item="item">
+            </template>
+        </div>
+    `,
+    ({ get }, reload, window) => {
+        get('input').should(haveLength(5))
+        get('[data-item="3"]').first().focus()
+
+        // Change the data without clicking a button, which would move focus.
+        get('[x-data]').then(([el]) => {
+            window.Alpine.$data(el).items = [5, 2, 3, 4, 1]
+        })
+
+        get('input').should(elements => {
+            expect(Array.from(elements, el => Number(el.dataset.item))).to.deep.equal([5, 2, 3, 4, 1])
+        })
+        get('[data-item="3"]').first().should(haveFocus())
+    }
+)
+
+test('swaps nested template blocks without disturbing focus in the middle',
+    html`
+        <div x-data="{ items: [1, 2, 3, 4, 5] }">
+            <template x-for="item in items" :key="item">
+                <template x-if="true">
+                    <template x-for="n in [1, 2]" :key="n">
+                        <input :data-item="item">
+                    </template>
+                </template>
+            </template>
+        </div>
+    `,
+    ({ get }, reload, window) => {
+        get('input').should(haveLength(10))
+        get('[data-item="3"]').first().focus()
+
+        // Change the data without clicking a button, which would move focus.
+        get('[x-data]').then(([el]) => {
+            window.Alpine.$data(el).items = [5, 2, 3, 4, 1]
+        })
+
+        get('input').should(elements => {
+            expect(Array.from(elements, el => Number(el.dataset.item))).to.deep.equal([5, 5, 2, 2, 3, 3, 4, 4, 1, 1])
+        })
+        get('[data-item="3"]').first().should(haveFocus())
     }
 )
 

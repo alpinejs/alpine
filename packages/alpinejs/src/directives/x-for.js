@@ -5,6 +5,7 @@ import { reactive } from '../reactivity'
 import { initTree, destroyTree } from '../lifecycle'
 import { mutateDom } from '../mutation'
 import { warn } from '../utils/warn'
+import { resolveBlockEnd } from '../utils/blocks'
 import { skipDuringClone } from '../clone'
 
 directive('for', skipDuringClone((el, { expression }, { effect, cleanup }) => {
@@ -97,18 +98,13 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
                     let el = lookup.get(key)
                     el._x_refreshXForScope(scope)
 
-                    if (prev.nextElementSibling !== el) {
-                        if (prev.nextElementSibling)
-                            el.replaceWith(prev.nextElementSibling)
-                        prev.after(el)
+                    // Swap whole blocks so the items between them stay in place.
+                    let next = prev.nextElementSibling
+                    if (next && next !== el) {
+                        moveBlock(next, resolveBlockEnd(el))
                     }
-                    prev = el
 
-                    if (el._x_currentIfEl) {
-                        if (el.nextElementSibling !== el._x_currentIfEl)
-                            prev.after(el._x_currentIfEl)
-                        prev = el._x_currentIfEl
-                    }
+                    prev = moveBlock(el, prev)
                     return
                 }
 
@@ -128,10 +124,11 @@ function loop(templateEl, iteratorNames, evaluateItems, evaluateKey) {
             })
             added.forEach(clone => initTree(clone))
 
-            // Mark the last rendered element so morph can skip
-            // past these items instead of trying to diff them...
+            // Keep a link to the last iteration's root so x-for and morph can
+            // resolve the current block end when nested directives change it...
             if (prev !== templateEl) {
-                templateEl._x_lastRenderedEl = prev
+                let last = lookup.get(scopeEntries[scopeEntries.length - 1][0])
+                templateEl._x_lastRenderedEl = last
             } else {
                 delete templateEl._x_lastRenderedEl
             }
@@ -194,6 +191,26 @@ function getIterationScopeVariables(iteratorNames, item, index, items) {
     if (iteratorNames.collection) scopeVariables[iteratorNames.collection] = items
 
     return scopeVariables
+}
+
+function moveBlock(el, target) {
+    // Move the root and its rendered siblings after the target as one block,
+    // including text and comment nodes. Return the last node so the next
+    // block can be placed after it...
+    let last = resolveBlockEnd(el)
+    if (target.nextSibling === el) return last
+
+    let end = last.nextSibling
+    let fragment = new DocumentFragment()
+
+    while (el !== end) {
+        let next = el.nextSibling
+        fragment.appendChild(el)
+        el = next
+    }
+
+    target.after(fragment)
+    return last
 }
 
 function isNumeric(subject){

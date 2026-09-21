@@ -197,7 +197,13 @@ class Tokenizer {
             this.tokens.push(new Token('OPERATOR', '!==', start, this.position));
         }
         // Two-character operators
-        else if (char === '=' && next === '=') {
+        else if (char === '?' && next === '?') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '??', start, this.position));
+        } else if (char === '?' && next === '.') {
+            this.position += 2;
+            this.tokens.push(new Token('OPERATOR', '?.', start, this.position));
+        } else if (char === '=' && next === '=') {
             this.position += 2;
             this.tokens.push(new Token('OPERATOR', '==', start, this.position));
         } else if (char === '!' && next === '=') {
@@ -276,7 +282,7 @@ class Parser {
     }
 
     parseTernary() {
-        const expr = this.parseLogicalOr();
+        const expr = this.parseNullishCoalescing();
 
         if (this.match('PUNCTUATION', '?')) {
             const consequent = this.parseExpression();
@@ -287,6 +293,23 @@ class Parser {
                 test: expr,
                 consequent,
                 alternate
+            };
+        }
+
+        return expr;
+    }
+
+    parseNullishCoalescing() {
+        let expr = this.parseLogicalOr();
+
+        while (this.match('OPERATOR', '??')) {
+            const operator = this.previous().value;
+            const right = this.parseLogicalOr();
+            expr = {
+                type: 'BinaryExpression',
+                operator,
+                left: expr,
+                right
             };
         }
 
@@ -442,9 +465,43 @@ class Parser {
 
     parseMember() {
         let expr = this.parsePrimary();
+        let isChain = false;
 
         while (true) {
-            if (this.match('PUNCTUATION', '.')) {
+            if (this.match('OPERATOR', '?.')) {
+                // Every link after `?.` belongs to one chain, and a nullish base
+                // short-circuits the whole chain to `undefined`, as in JavaScript...
+                isChain = true;
+
+                if (this.match('PUNCTUATION', '(')) {
+                    const args = this.parseArguments();
+                    expr = {
+                        type: 'CallExpression',
+                        callee: expr,
+                        arguments: args,
+                        optional: true
+                    };
+                } else if (this.match('PUNCTUATION', '[')) {
+                    const property = this.parseExpression();
+                    this.consume('PUNCTUATION', ']');
+                    expr = {
+                        type: 'MemberExpression',
+                        object: expr,
+                        property,
+                        computed: true,
+                        optional: true
+                    };
+                } else {
+                    const name = this.consumeIdentifierName();
+                    expr = {
+                        type: 'MemberExpression',
+                        object: expr,
+                        property: { type: 'Identifier', name },
+                        computed: false,
+                        optional: true
+                    };
+                }
+            } else if (this.match('PUNCTUATION', '.')) {
                 const name = this.consumeIdentifierName();
                 expr = {
                     type: 'MemberExpression',
@@ -471,6 +528,10 @@ class Parser {
             } else {
                 break;
             }
+        }
+
+        if (isChain) {
+            expr = { type: 'ChainExpression', expression: expr };
         }
 
         return expr;
@@ -695,6 +756,10 @@ class Parser {
     }
 }
 
+// Thrown by an optional link whose base is nullish, caught by the enclosing
+// ChainExpression, which then evaluates to `undefined`...
+const CHAIN_SHORT_CIRCUIT = Symbol('optional chain short-circuit');
+
 class Evaluator {
     evaluate({ node, scope = {}, context = null, forceBindingRootScopeToFunctions = true }) {
         switch (node.type) {
@@ -718,9 +783,20 @@ class Evaluator {
 
                 throw new Error(`Undefined variable: ${node.name}`);
 
+            case 'ChainExpression':
+                try {
+                    return this.evaluate({ node: node.expression, scope, context, forceBindingRootScopeToFunctions });
+                } catch (error) {
+                    if (error === CHAIN_SHORT_CIRCUIT) return undefined;
+
+                    throw error;
+                }
+
             case 'MemberExpression':
                 const object = this.evaluate({ node: node.object, scope, context, forceBindingRootScopeToFunctions });
                 if (object == null) {
+                    if (node.optional) throw CHAIN_SHORT_CIRCUIT;
+
                     throw new Error('Cannot read property of null or undefined');
                 }
 
@@ -749,13 +825,17 @@ class Evaluator {
                 return memberValue;
 
             case 'CallExpression':
-                const args = node.arguments.map(arg => this.evaluate({ node: arg, scope, context, forceBindingRootScopeToFunctions }));
+                // Arguments are evaluated once the call is known to happen, so that an
+                // optional call that short-circuits leaves them untouched...
+                const evalArgs = () => node.arguments.map(arg => this.evaluate({ node: arg, scope, context, forceBindingRootScopeToFunctions }));
 
                 let returnValue;
 
                 if (node.callee.type === 'MemberExpression') {
                     // For member expressions, get the object and function separately to preserve context
                     const obj = this.evaluate({ node: node.callee.object, scope, context, forceBindingRootScopeToFunctions });
+
+                    if (obj == null && node.callee.optional) throw CHAIN_SHORT_CIRCUIT;
 
                     let prop;
                     if (node.callee.computed) {
@@ -767,12 +847,13 @@ class Evaluator {
                     this.checkForDangerousKeywords(prop)
 
                     let func = obj[prop];
+                    if (func == null && node.optional) throw CHAIN_SHORT_CIRCUIT;
                     if (typeof func !== 'function') {
                         throw new Error('Value is not a function');
                     }
 
                     // For member expressions, always use the object as the 'this' context
-                    returnValue = func.apply(obj, args);
+                    returnValue = func.apply(obj, evalArgs());
                 } else {
                     // For direct function calls (identifiers), get the original function and apply context
                     if (node.callee.type === 'Identifier') {
@@ -785,22 +866,24 @@ class Evaluator {
                             throw new Error(`Undefined variable: ${name}`);
                         }
 
+                        if (func == null && node.optional) throw CHAIN_SHORT_CIRCUIT;
                         if (typeof func !== 'function') {
                             throw new Error('Value is not a function');
                         }
 
                         // For direct calls, use provided context or the scope
                         const thisContext = context !== null ? context : scope;
-                        returnValue = func.apply(thisContext, args);
+                        returnValue = func.apply(thisContext, evalArgs());
                     } else {
                         // For other expressions
                         const callee = this.evaluate({ node: node.callee, scope, context, forceBindingRootScopeToFunctions });
+                        if (callee == null && node.optional) throw CHAIN_SHORT_CIRCUIT;
                         if (typeof callee !== 'function') {
                             throw new Error('Value is not a function');
                         }
 
                         // For other expressions, use provided context
-                        returnValue = callee.apply(context, args);
+                        returnValue = callee.apply(context, evalArgs());
                     }
                 }
 
@@ -863,6 +946,7 @@ class Evaluator {
                 // Short-circuit && and || so side-effects on the right aren't evaluated when the result is already determined.
                 if (node.operator === '&&') return left && evalRight();
                 if (node.operator === '||') return left || evalRight();
+                if (node.operator === '??') return left ?? evalRight();
 
                 const right = evalRight();
 

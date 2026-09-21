@@ -46,3 +46,99 @@ test('can react to the resizing of the document',
         get('h2').should(haveText('750'))
     },
 )
+
+test('can react to the resizing of the visual viewport',
+    [html`
+    <div x-data="{ width: 0, height: 0 }">
+        <h1 x-text="width"></h1>
+        <h2 x-text="height"></h2>
+
+        <div x-resize.viewport="width = $width; height = $height"></div>
+
+        <button @click="window.testViewport.width = 400; window.testViewport.height = 600; window.testViewport.dispatchEvent(new Event('resize'))">resize</button>
+    </div>
+    `, `
+        window.testViewport = Object.assign(new EventTarget(), { width: 320, height: 480 })
+        Object.defineProperty(window, 'visualViewport', { configurable: true, value: window.testViewport })
+    `],
+    ({ get }) => {
+        get('h1').should(haveText('320'))
+        get('h2').should(haveText('480'))
+
+        get('button').click()
+
+        get('h1').should(haveText('400'))
+        get('h2').should(haveText('600'))
+    },
+)
+
+test('removes the visual viewport listener when the directive is cleaned up',
+    [html`
+    <div x-data="{ shown: true, count: 0 }">
+        <h1 x-text="count"></h1>
+
+        <template x-if="shown">
+            <div x-resize.viewport="count++"></div>
+        </template>
+
+        <button id="remove" @click="shown = false">remove</button>
+        <button id="resize" @click="window.testViewport.dispatchEvent(new Event('resize'))">resize</button>
+    </div>
+    `, `
+        window.testViewport = Object.assign(new EventTarget(), { width: 320, height: 480 })
+        Object.defineProperty(window, 'visualViewport', { configurable: true, value: window.testViewport })
+    `],
+    ({ get }) => {
+        get('h1').should(haveText('1'))
+
+        get('button#remove').click()
+        get('[x-resize\\.viewport]').should('not.exist')
+        get('button#resize').click()
+
+        get('h1').should(haveText('1'))
+    },
+)
+
+test('removes the visual viewport listener during its initial evaluation',
+    [html`
+    <div x-data="{ count: 0 }">
+        <h1 x-text="count"></h1>
+
+        <div x-resize.viewport="count++; window.Alpine.destroyTree($el)"></div>
+
+        <button @click="window.testViewport.dispatchEvent(new Event('resize'))">resize</button>
+    </div>
+    `, `
+        window.testViewport = Object.assign(new EventTarget(), { width: 320, height: 480 })
+        Object.defineProperty(window, 'visualViewport', { configurable: true, value: window.testViewport })
+    `],
+    ({ get }) => {
+        get('h1').should(haveText('1'))
+
+        get('button').click()
+
+        get('h1').should(haveText('1'))
+    },
+)
+
+test('falls back to observing the document when visualViewport is unavailable',
+    [html`
+    <div x-data="{ width: 0, height: 0 }">
+        <h1 x-text="width"></h1>
+        <h2 x-text="height"></h2>
+
+        <div x-resize.viewport="width = $width; height = $height"></div>
+    </div>
+    `, `
+        Object.defineProperty(window, 'visualViewport', { configurable: true, value: null })
+    `],
+    ({ get }) => {
+        get('h1').should(notHaveText('0'))
+        get('h2').should(notHaveText('0'))
+
+        cy.viewport(550, 750)
+
+        get('h1').should(haveText('550'))
+        get('h2').should(haveText('750'))
+    },
+)

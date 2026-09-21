@@ -277,3 +277,19 @@ test.csp('throws when inserting a node into the DOM',
         cy.get('button').click()
     },
 )
+
+test.csp('supports JSON.parse() with a string, as emitted by Laravel\'s @js() for arrays and objects',
+    [html`
+        <div x-data="{ items: JSON.parse('[\u0022a\u0022,\u0022b\u0022,\u0022c\u0022]'), user: JSON.parse('{\u0022name\u0022:\u0022John\u0022}') }">
+            <span x-text="items.length"></span>
+            <h1 x-text="user.name"></h1>
+            <button @click="items = JSON.parse('[1]')">Replace</button>
+        </div>
+    `],
+    ({ get }) => {
+        get('span').should(haveText('3'))
+        get('h1').should(haveText('John'))
+        get('button').click()
+        get('span').should(haveText('1'))
+    }
+)

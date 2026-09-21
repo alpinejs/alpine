@@ -111,6 +111,16 @@ The CSP build supports most JavaScript expressions you'd want to use in Alpine:
 </div>
 ```
 
+### Multiple Expressions
+```alpine
+<!-- ✅ These work -->
+<div x-data="{ open: false, count: 0 }">
+    <button x-on:click="count++; open = true">Increment and open</button>
+</div>
+```
+
+Expressions separated by a semicolon are evaluated in order, and the value of the last one is the result.
+
 <a name="whats-not-supported"></a>
 ## What's Not Supported
 

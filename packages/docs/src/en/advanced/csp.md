@@ -111,6 +111,19 @@ The CSP build supports most JavaScript expressions you'd want to use in Alpine:
 </div>
 ```
 
+### Optional Chaining and Nullish Coalescing
+```alpine
+<!-- ✅ These work -->
+<div x-data="{ user: null, title: undefined }">
+    <span x-text="user?.name"></span>
+    <span x-text="user?.profile.name"></span>
+    <span x-text="user?.greet()"></span>
+    <span x-text="title ?? 'Untitled'"></span>
+</div>
+```
+
+Both behave as they do in JavaScript: a chain whose base is `null` or `undefined` evaluates to `undefined` without touching the rest of the chain, and `??` only falls through for `null` and `undefined`, leaving `0`, `''` and `false` alone.
+
 <a name="whats-not-supported"></a>
 ## What's Not Supported
 

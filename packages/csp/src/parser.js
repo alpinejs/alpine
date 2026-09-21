@@ -749,6 +749,20 @@ class Evaluator {
                 return memberValue;
 
             case 'CallExpression':
+                // `JSON.parse()` with a single string argument is the one call on a
+                // global this build allows. Laravel's `Js::from()` and `@js()` emit it
+                // for every array and object, and parsing JSON runs no code. Nothing
+                // else on `JSON` is reachable, and a `JSON` defined in scope still wins...
+                if (this.isJsonParseIntrinsic(node, scope)) {
+                    const json = this.evaluate({ node: node.arguments[0], scope, context, forceBindingRootScopeToFunctions });
+
+                    if (typeof json !== 'string') {
+                        throw new Error('JSON.parse() only accepts a single string argument in the CSP build');
+                    }
+
+                    return JSON.parse(json);
+                }
+
                 const args = node.arguments.map(arg => this.evaluate({ node: arg, scope, context, forceBindingRootScopeToFunctions }));
 
                 let returnValue;
@@ -961,6 +975,16 @@ class Evaluator {
         if (blacklist.includes(keyword)) {
             throw new Error(`Accessing "${keyword}" is prohibited in the CSP build`)
         }
+    }
+
+    isJsonParseIntrinsic(node, scope) {
+        return node.callee.type === 'MemberExpression'
+            && ! node.callee.computed
+            && node.callee.object.type === 'Identifier'
+            && node.callee.object.name === 'JSON'
+            && ! ('JSON' in scope)
+            && node.callee.property.name === 'parse'
+            && node.arguments.length === 1;
     }
 
     checkForDangerousValues(prop) {

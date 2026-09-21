@@ -1,4 +1,4 @@
-import { haveText, html, notContain, notExist, notHaveAttribute, test } from '../../utils'
+import { beVisible, haveText, html, notBeVisible, notContain, notExist, notHaveAttribute, test } from '../../utils'
 
 it('initializes in a sandboxed iframe without same-origin access', () => {
     cy.visit(__dirname+'/../../spec-csp-sandboxed.html')
@@ -275,5 +275,22 @@ test.csp('throws when inserting a node into the DOM',
     (cy) => {
         cy.on('uncaught:exception', ({message}) => message.includes('Accessing "appendChild" is prohibited') ? false : true)
         cy.get('button').click()
+    },
+)
+
+test.csp('supports multiple expressions separated by semicolons',
+    [html`
+        <div x-data="{ open: false, count: 0 }">
+            <button x-on:click="count++; open = true"></button>
+            <span id="count" x-text="count"></span>
+            <span id="open" x-show="open">open</span>
+        </div>
+    `],
+    (cy) => {
+        cy.get('#count').should(haveText('0'))
+        cy.get('#open').should(notBeVisible())
+        cy.get('button').click()
+        cy.get('#count').should(haveText('1'))
+        cy.get('#open').should(beVisible())
     },
 )

@@ -241,15 +241,20 @@ class Parser {
         if (this.isAtEnd()) {
             throw new Error('Empty expression');
         }
-        const expr = this.parseExpression();
+        const expressions = [this.parseExpression()];
 
-        // Allow optional trailing semicolon
-        this.match('PUNCTUATION', ';');
+        // Semicolons separate expressions, and a trailing one is allowed...
+        while (this.match('PUNCTUATION', ';') && !this.isAtEnd()) {
+            expressions.push(this.parseExpression());
+        }
 
         if (!this.isAtEnd()) {
             throw new Error(`Unexpected token: ${this.current().value}`);
         }
-        return expr;
+
+        if (expressions.length === 1) return expressions[0];
+
+        return { type: 'SequenceExpression', expressions };
     }
 
     parseExpression() {
@@ -698,6 +703,12 @@ class Parser {
 class Evaluator {
     evaluate({ node, scope = {}, context = null, forceBindingRootScopeToFunctions = true }) {
         switch (node.type) {
+            case 'SequenceExpression':
+                // Evaluated in order, the last value is the result...
+                return node.expressions.reduce((result, expression) => {
+                    return this.evaluate({ node: expression, scope, context, forceBindingRootScopeToFunctions });
+                }, undefined);
+
             case 'Literal':
                 return node.value;
 

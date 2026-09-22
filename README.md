@@ -35,6 +35,7 @@ Package | Description
 [docs](packages/docs) | The Alpine documentation
 [focus](packages/focus) | A plugin that allows you to manage focus inside an element
 [history](packages/history) | A plugin for binding data to query string parameters using the history API (name is likely to change)
+[html-safe](packages/html-safe) | A plugin for rendering sanitized HTML through a fixed tag/attribute allowlist, without eval or new Function
 [intersect](packages/intersect) | A plugin for triggering JS expressions based on elements intersecting with the viewport
 [mask](packages/mask) | A plugin for automatically formatting a text input field as a user types
 [morph](packages/morph) | A plugin for morphing HTML (like morphdom) inside the page intelligently

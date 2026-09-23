@@ -99,6 +99,8 @@ Tags such as `img`, `picture`, `time`, and `data` are intentionally left out for
 
 `class` is allowed and copied through unvalidated, same as `data-*`. Note that on sites using a CSS framework with a build-time class scanner (for example a utility-CSS framework with arbitrary-value syntax like `class="bg-[url(...)]"`), an attacker-controlled `class` value can act as a resource-loading vector — but only when that scanner is actually active, in which case the same risk exists anywhere else user content reaches a `class` attribute on the page, independent of this plugin. This plugin does not special-case any particular CSS framework's scanner behavior.
 
+For the full reasoning behind every tag and attribute decision above — including what's deliberately left out and why — see [`DECISIONS.md`](https://github.com/alpinejs/alpine/blob/main/packages/html-safe/DECISIONS.md) in the package source.
+
 <a name="allowed-attributes"></a>
 ## Allowed attributes
 

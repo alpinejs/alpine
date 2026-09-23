@@ -122,7 +122,7 @@ test('img and iframe are fully stripped',
 
 test('disallowed attributes are stripped, element is kept',
     [html`
-        <div x-data="{ text: '<span style=&quot;color:red&quot; onclick=&quot;alert(1)&quot; id=&quot;x&quot; class=&quot;y&quot; aria-hidden=&quot;true&quot;>Styled</span>' }">
+        <div x-data="{ text: '<span style=&quot;color:red&quot; onclick=&quot;alert(1)&quot; id=&quot;x&quot; aria-hidden=&quot;true&quot;>Styled</span>' }">
             <span x-html-safe="text"></span>
         </div>
     `],
@@ -130,7 +130,6 @@ test('disallowed attributes are stripped, element is kept',
         get('span > span').should(notHaveAttribute('style'))
         get('span > span').should(notHaveAttribute('onclick'))
         get('span > span').should(notHaveAttribute('id'))
-        get('span > span').should(notHaveAttribute('class'))
         get('span > span').should(notHaveAttribute('aria-hidden'))
         get('span > span').should(contain('Styled'))
     },
@@ -138,11 +137,12 @@ test('disallowed attributes are stripped, element is kept',
 
 test('allowed generic attributes pass through',
     [html`
-        <div x-data="{ text: '<span aria-label=&quot;Close&quot; hidden role=&quot;alert&quot; data-product-id=&quot;42&quot; lang=&quot;en&quot; dir=&quot;ltr&quot;>x</span>' }">
+        <div x-data="{ text: '<span class=&quot;price&quot; aria-label=&quot;Close&quot; hidden role=&quot;alert&quot; data-product-id=&quot;42&quot; lang=&quot;en&quot; dir=&quot;ltr&quot;>x</span>' }">
             <span x-html-safe="text"></span>
         </div>
     `],
     ({ get }) => {
+        get('span > span').should(haveAttribute('class', 'price'))
         get('span > span').should(haveAttribute('aria-label', 'Close'))
         get('span > span').should(haveAttribute('hidden', 'hidden'))
         get('span > span').should(haveAttribute('role', 'alert'))
@@ -303,14 +303,14 @@ test('Alpine directives on injected content are stripped and never execute',
     },
 )
 
-test('tailwind arbitrary-value class injection is blocked by stripping class entirely',
+test('class passes through untouched, including tailwind arbitrary-value syntax',
     [html`
         <div x-data="{ text: '<span class=&quot;bg-[url(https://evil.com/track)]&quot;>Text</span>' }">
             <span x-html-safe="text"></span>
         </div>
     `],
     ({ get }) => {
-        get('span > span').should(notHaveAttribute('class'))
+        get('span > span').should(haveAttribute('class', 'bg-[url(https://evil.com/track)]'))
     },
 )
 

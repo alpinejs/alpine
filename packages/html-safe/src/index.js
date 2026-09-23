@@ -51,7 +51,7 @@ const Validators = {
     unboundedInt: isNumberBetween(-Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
 }
 
-const GENERIC_ATTRS = new Set(['title', 'aria-label', 'hidden', 'role', 'lang', 'dir'])
+const GENERIC_ATTRS = new Set(['title', 'aria-label', 'hidden', 'role', 'lang', 'dir', 'class'])
 
 const TAG_ATTRS = {
     a: { href: [Validators.safeUrl], target: [Validators.targetKeyword], rel: [] },

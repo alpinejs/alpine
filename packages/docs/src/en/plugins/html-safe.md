@@ -95,7 +95,9 @@ table, thead, tbody, tfoot, tr, th, td, caption, colgroup, col
 
 Tags such as `img`, `picture`, `time`, and `data` are intentionally left out for now. They need dedicated validation (resource loading, date and time formats) that hasn't been built yet.
 
-`id`, `class`, `name`, and `style` are never allowed on any tag. `id` and `name` enable [DOM clobbering](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/DOM_Clobbering), `style` is a layout-attack vector, and an attacker-controlled `class` value can act as a resource-loading vector on sites that read class names to generate CSS (for example utility-CSS frameworks with arbitrary-value syntax like `class="bg-[url(...)]"`).
+`id`, `name`, and `style` are never allowed on any tag. `id` and `name` enable [DOM clobbering](https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/DOM_Clobbering), and `style` is a layout-attack vector.
+
+`class` is allowed and copied through unvalidated, same as `data-*`. Note that on sites using a CSS framework with a build-time class scanner (for example a utility-CSS framework with arbitrary-value syntax like `class="bg-[url(...)]"`), an attacker-controlled `class` value can act as a resource-loading vector — but only when that scanner is actually active, in which case the same risk exists anywhere else user content reaches a `class` attribute on the page, independent of this plugin. This plugin does not special-case any particular CSS framework's scanner behavior.
 
 <a name="allowed-attributes"></a>
 ## Allowed attributes
@@ -109,6 +111,7 @@ These attributes are available on every allowed tag:
 | `hidden` | Hides content from display and the accessibility tree in one attribute, with no value to inject |
 | `role` | |
 | `lang`, `dir` | |
+| `class` | Copied unvalidated. See the note above about CSS-framework class scanners. |
 | `data-*` | Copied via the browser's `dataset` API. The plugin copies the values; validating them is your component's responsibility. |
 
 These attributes are available only on specific tags, each with its own validation:

@@ -162,6 +162,18 @@ describe('scheduler priorities', () => {
         expect(runs).toEqual(['kept'])
     })
 
+    it('keeps flushing jobs after a job throws', () => {
+        let runs = []
+
+        scheduler(() => { throw new Error('boom') })
+        expect(() => flushJobs()).toThrow('boom')
+
+        scheduler(() => runs.push('next'))
+        flushJobs()
+
+        expect(runs).toEqual(['next'])
+    })
+
     it('preserves structural depth order and ordinary FIFO order across randomized queues', () => {
         let randomFor = seed => () => {
             seed |= 0

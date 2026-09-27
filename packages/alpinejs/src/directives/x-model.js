@@ -184,7 +184,7 @@ directive('model', (el, { modifiers, expression }, { effect, cleanup }) => {
             el._x_forceModelUpdate(getValue())
         })
 
-        observer.observe(el, { childList: true })
+        observer.observe(el, { childList: true, subtree: true })
 
         cleanup(() => observer.disconnect())
     }

@@ -1,4 +1,4 @@
-import { haveAttribute, haveFocus, haveLength, haveText, haveValue, haveHtml, html, test } from '../../utils'
+import { haveAttribute, haveFocus, haveLength, haveText, haveValue, haveHtml, html, notHaveAttribute, test } from '../../utils'
 
 test('can morph components and preserve Alpine state',
     [html`
@@ -1356,5 +1356,34 @@ test('wont run x-data init() method twice when morph patches a node to add x-dat
         })
 
         cy.wrap(window).its('timesInitRan').should('equal', 1)
+    },
+)
+
+test('morphing does not re-apply x-cloak to an already initialized element',
+    [html`
+        <style>[x-cloak] { display: none; }</style>
+
+        <div x-data>
+            <p x-cloak>foo</p>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        get('p').should(notHaveAttribute('x-cloak'))
+
+        get('div').then(([el]) => {
+            let toHtml = el.outerHTML.replace('<p>', '<p x-cloak>')
+
+            window.heightsDuringMorph = []
+
+            new MutationObserver(() => {
+                window.heightsDuringMorph.push(el.querySelector('p').offsetHeight)
+            }).observe(el, { subtree: true, childList: true, attributes: true, characterData: true })
+
+            window.Alpine.morph(el, toHtml.replace('foo', 'bar'))
+        })
+
+        get('p').should(haveText('bar'))
+        get('p').should(notHaveAttribute('x-cloak'))
+        cy.window().its('heightsDuringMorph').should('have.length.greaterThan', 0).and('not.include', 0)
     },
 )

@@ -259,13 +259,17 @@ Colors: <span x-text="color"></span>
 <!-- END_VERBATIM -->
 
 <a name="dynamically-populated-select-options"></a>
-### Dynamically populated Select Options
+### Dynamically populated select options
+
+`x-model` keeps the selection synchronized when options are added or removed dynamically, including options nested inside an `<optgroup>`.
 
 ```alpine
 <select x-model="color">
-    <template x-for="color in ['Red', 'Orange', 'Yellow']">
-        <option x-text="color"></option>
-    </template>
+    <optgroup label="Colors">
+        <template x-for="color in ['Red', 'Orange', 'Yellow']">
+            <option x-text="color"></option>
+        </template>
+    </optgroup>
 </select>
 
 Color: <span x-text="color"></span>
@@ -273,11 +277,13 @@ Color: <span x-text="color"></span>
 
 <!-- START_VERBATIM -->
 <div class="demo">
-    <div x-data="{ color: '' }">
+    <div x-data="{ color: 'Orange' }">
         <select x-model="color">
-            <template x-for="color in ['Red', 'Orange', 'Yellow']">
-                <option x-text="color"></option>
-            </template>
+            <optgroup label="Colors">
+                <template x-for="color in ['Red', 'Orange', 'Yellow']">
+                    <option x-text="color"></option>
+                </template>
+            </optgroup>
         </select>
 
         <div class="pt-4">Color: <span x-text="color"></span></div>

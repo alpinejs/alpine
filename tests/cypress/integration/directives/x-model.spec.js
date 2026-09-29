@@ -738,6 +738,37 @@ test('x-model initializes multiple select values rendered with x-for', html`
     get('option[value="Yellow"]').should('be.selected')
 })
 
+test('x-model initializes select values rendered with x-for inside an optgroup', html`
+    <div x-data="{ color: 'Orange' }">
+        <select x-model="color">
+            <optgroup label="Colors">
+                <template x-for="color in ['Red', 'Orange', 'Yellow']">
+                    <option :value="color" x-text="color"></option>
+                </template>
+            </optgroup>
+        </select>
+    </div>
+`, ({ get }) => {
+    get('select').should(haveValue('Orange'))
+})
+
+test('x-model re-syncs when x-for adds a matching option inside an optgroup', html`
+    <div x-data="{ colors: ['Red', 'Blue'], color: 'Green' }">
+        <select x-model="color">
+            <optgroup label="Colors">
+                <template x-for="colorOption in colors" :key="colorOption">
+                    <option :value="colorOption" x-text="colorOption"></option>
+                </template>
+            </optgroup>
+        </select>
+
+        <button @click="colors = ['Orange', 'Green']">Change</button>
+    </div>
+`, ({ get }) => {
+    get('button').click()
+    get('select').should(haveValue('Green'))
+})
+
 test('x-model does not fire change handlers when x-for options initialize', html`
     <div x-data="{ color: 'Orange', changes: 0 }">
         <select x-model="color" @change="changes++">

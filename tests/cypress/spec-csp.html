@@ -35,6 +35,12 @@
                 document.querySelector('blockquote').after(readyEl)
             })
 
+            // Load the html-safe plugin. Unlike other plugins, this one has CSP-specific
+            // tests (see html-safe.spec.js's test.csp cases), so it must be loaded here too.
+            let htmlSafeScript = document.createElement('script')
+            htmlSafeScript.src = '/../../packages/html-safe/dist/cdn.js'
+            root.after(htmlSafeScript)
+
             // Load Alpine.
             let script = document.createElement('script')
             script.src = '/../../packages/csp/dist/cdn.js'

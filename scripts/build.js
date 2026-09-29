@@ -11,6 +11,7 @@ let zlib = require('zlib');
     'intersect',
     'collapse',
     'persist',
+    'html-safe',
     'resize',
     'anchor',
     'morph',

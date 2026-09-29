@@ -1,0 +1,20 @@
+{
+    "name": "@alpinejs/html-safe",
+    "version": "3.17.4",
+    "description": "Render sanitized HTML through an allowlist, without eval or new Function",
+    "homepage": "https://alpinejs.dev/plugins/html-safe",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alpinejs/alpine.git",
+        "directory": "packages/html-safe"
+    },
+    "license": "MIT",
+    "main": "dist/module.cjs.js",
+    "module": "dist/module.esm.js",
+    "unpkg": "dist/cdn.min.js",
+    "exports": {
+        "import": "./dist/module.esm.js",
+        "require": "./dist/module.cjs.js"
+    },
+    "dependencies": {}
+}

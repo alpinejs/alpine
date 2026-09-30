@@ -1387,3 +1387,134 @@ test('morphing does not re-apply x-cloak to an already initialized element',
         cy.window().its('heightsDuringMorph').should('have.length.greaterThan', 0).and('not.include', 0)
     },
 )
+
+test('morphBetween moves detached media nodes instead of cloning',
+    [html`
+        <div id="root"></div>
+    `],
+    ({ get }, reload, window, document) => {
+        let root = document.querySelector('#root')
+        let start = document.createComment('[morph-start]')
+        let end = document.createComment('[morph-end]')
+        let placeholder = document.createElement('span')
+
+        placeholder.textContent = 'loading'
+        root.append(start, placeholder, end)
+
+        // Same shape Livewire passes: a detached element tree (not a string)
+        let toContainer = document.createElement('div')
+
+        toContainer.innerHTML = `
+            <video id="media" muted playsinline>
+                <source src="/alpine-morph-test-media.mp4" type="video/mp4">
+            </video>
+        `
+
+        let videoBefore = toContainer.querySelector('#media')
+
+        window.Alpine.morphBetween(start, end, toContainer)
+
+        let videoAfter = document.querySelector('#media')
+
+        // Detached to-nodes should be moved into the live range, not cloneNode'd
+        expect(videoAfter).to.equal(videoBefore)
+        expect(toContainer.contains(videoBefore)).to.equal(false)
+        expect(root.contains(videoAfter)).to.equal(true)
+
+        get('#media').should(haveAttribute('muted', ''))
+    },
+)
+
+test('morphBetween moves detached nodes when from side is empty',
+    [html`
+        <div id="root"></div>
+    `],
+    ({ get }, reload, window, document) => {
+        let root = document.querySelector('#root')
+        let start = document.createComment('[morph-start]')
+        let end = document.createComment('[morph-end]')
+
+        root.append(start, end)
+
+        let toContainer = document.createElement('div')
+
+        toContainer.innerHTML = `
+            <video id="media" muted playsinline>
+                <source src="/alpine-morph-test-media.mp4" type="video/mp4">
+            </video>
+            <span id="label">done</span>
+        `
+
+        let videoBefore = toContainer.querySelector('#media')
+
+        window.Alpine.morphBetween(start, end, toContainer)
+
+        expect(document.querySelector('#media')).to.equal(videoBefore)
+        get('#label').should(haveText('done'))
+    },
+)
+
+test('morph swaps different tags by moving detached to-nodes',
+    [html`
+        <div id="root"></div>
+    `],
+    ({ get }, reload, window, document) => {
+        let root = document.querySelector('#root')
+        let start = document.createComment('[morph-start]')
+        let end = document.createComment('[morph-end]')
+        let fromEl = document.createElement('span')
+
+        fromEl.id = 'from'
+        fromEl.textContent = 'placeholder'
+        root.append(start, fromEl, end)
+
+        let toContainer = document.createElement('div')
+
+        toContainer.innerHTML = `
+            <video id="media" muted playsinline>
+                <source src="/alpine-morph-test-media.mp4" type="video/mp4">
+            </video>
+        `
+
+        let videoBefore = toContainer.querySelector('#media')
+
+        window.Alpine.morphBetween(start, end, toContainer)
+
+        // span → video goes through swapElements → transferNode
+        expect(document.querySelector('#media')).to.equal(videoBefore)
+        expect(document.querySelector('#from')).to.equal(null)
+    },
+)
+
+test('morph clones when the to-node is already connected',
+    [html`
+        <div id="from-root">
+            <span id="from">old</span>
+        </div>
+        <div id="donor">
+            <video id="live-to" muted playsinline></video>
+        </div>
+    `],
+    ({ get }, reload, window, document) => {
+        let from = document.querySelector('#from')
+        let to = document.querySelector('#live-to')
+
+        // Preconditions
+        expect(to.isConnected).to.equal(true)
+        expect(document.querySelector('#donor').contains(to)).to.equal(true)
+
+        // Different tags → swapElements → transferNode
+        window.Alpine.morph(from, to)
+
+        let cloned = document.querySelector('#from-root video')
+        let original = document.querySelector('#donor #live-to')
+
+        // Clone landed where `from` was
+        expect(cloned).to.not.equal(null)
+        expect(cloned).to.not.equal(to)
+
+        // Original stayed in the donor
+        expect(original).to.equal(to)
+        expect(document.querySelector('#donor').contains(to)).to.equal(true)
+    },
+)

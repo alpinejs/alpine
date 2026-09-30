@@ -427,7 +427,7 @@ function createMorphContext(options = {}) {
 
     context.addNodeBefore = function(parent, node, beforeMe) {
         if(! shouldSkip(context.adding, node)) {
-            let clone = node.cloneNode(true)
+            let clone = context.transferNode(node)
 
             parent.insertBefore(clone, beforeMe)
 

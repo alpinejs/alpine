@@ -138,7 +138,7 @@ function createMorphContext(options = {}) {
     context.swapElements = function(from, to) {
         if (shouldSkip(context.removing, from)) return
 
-        let toCloned = to.cloneNode(true)
+        let toCloned = context.transferNode(to)
 
         if (shouldSkip(context.adding, toCloned)) return
 
@@ -200,6 +200,9 @@ function createMorphContext(options = {}) {
         let currentFrom = getFirstNode(from)
 
         while (currentTo) {
+            // Capture before any transferNode/move so the to-walk stays valid.
+            let nextTo = getNextSibling(to, currentTo)
+
             // If the "from" element has a dynamically bound "id" (x-bind:id="..."),
             // Let's transfer it to the "to" element so that there isn't a key mismatch...
             seedingMatchingId(currentTo, currentFrom)
@@ -232,14 +235,14 @@ function createMorphContext(options = {}) {
                 } else {
                     if(! shouldSkip(context.adding, currentTo)) {
                         // Add element...
-                        let clone = currentTo.cloneNode(true)
+                        let clone = context.transferNode(currentTo)
 
                         from.appendChild(clone)
 
                         context.added(clone)
                     }
 
-                    currentTo = getNextSibling(to, currentTo)
+                    currentTo = nextTo
 
                     continue
                 }
@@ -328,7 +331,7 @@ function createMorphContext(options = {}) {
                     currentFrom = context.addNodeBefore(from, currentTo, currentFrom)
                     fromKeyHoldovers[fromKey].remove()
                     currentFrom = getNextSibling(from, currentFrom)
-                    currentTo = getNextSibling(to, currentTo)
+                    currentTo = nextTo
 
                     continue
                 }
@@ -357,7 +360,7 @@ function createMorphContext(options = {}) {
                         currentFrom = context.addNodeBefore(from, currentTo, currentFrom)
                         fromKeyHoldovers[fromKey].remove()
                         currentFrom = getNextSibling(from, currentFrom)
-                        currentTo = getNextSibling(to, currentTo)
+                        currentTo = nextTo
 
                         continue
                     }
@@ -377,7 +380,7 @@ function createMorphContext(options = {}) {
                 currentFromNext = getNextSibling(from, currentFrom._x_lastRenderedEl)
             }
 
-            currentTo = currentTo && getNextSibling(to, currentTo) // dom.next(from, toChildren, currentTo))
+            currentTo = nextTo // dom.next(from, toChildren, currentTo))
 
             currentFrom = currentFromNext
         }
@@ -434,6 +437,13 @@ function createMorphContext(options = {}) {
         }
 
         return node
+    }
+
+    // Detached "to" trees are disposable blueprints. Moving avoids
+    // cloneNode() duplicating media resource selection (video/audio/source).
+    // Connected nodes must still be cloned so we don't steal live DOM.
+    context.transferNode = function (node) {
+        return node.isConnected ? node.cloneNode(true) : node
     }
 
     return context

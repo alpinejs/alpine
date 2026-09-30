@@ -118,11 +118,27 @@ function setPropertyIfChanged(el, propName, value) {
 }
 
 function updateSelect(el, value) {
-    const arrayWrappedValue = [].concat(value).map(value => { return value + '' })
+    let arrayWrappedValue = [].concat(value).map(value => { return value + '' })
+
+    let hasMatch = false
 
     Array.from(el.options).forEach(option => {
-        option.selected = arrayWrappedValue.includes(option.value)
+        let isMatch = arrayWrappedValue.includes(option.value)
+
+        if (isMatch) hasMatch = true
+
+        option.selected = isMatch
     })
+
+    if (! hasMatch && ! el.multiple) {
+        let defaultSelectedOption = Array.from(el.options).filter(option => option.hasAttribute('selected')).pop()
+
+        if (defaultSelectedOption) {
+            defaultSelectedOption.selected = true
+        } else {
+            el.selectedIndex = -1
+        }
+    }
 }
 
 function camelCase(subject) {

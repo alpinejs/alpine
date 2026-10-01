@@ -446,3 +446,32 @@ describe('DOM access restrictions', () => {
         expect(cspRawEvaluator(element, "list.append('a')", { scope })).toBe(1)
     });
 });
+
+describe('skipAutoEvaluate()', () => {
+    it('is not called by the expression that produced it', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let calls = 0
+        let scope = { unwatch: null, subscribe: () => Alpine.skipAutoEvaluate(() => calls++) }
+
+        Alpine.evaluate(element, 'subscribe()', { scope })
+        Alpine.evaluate(element, 'unwatch = subscribe()', { scope })
+        cspRawEvaluator(element, 'unwatch = subscribe()', { scope })
+
+        expect(calls).toBe(0)
+    });
+
+    it('is called by later expressions', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let calls = 0
+        let scope = { unwatch: null, subscribe: () => Alpine.skipAutoEvaluate(() => calls++) }
+
+        Alpine.evaluate(element, 'unwatch = subscribe()', { scope })
+        Alpine.evaluate(element, 'unwatch', { scope })
+
+        expect(calls).toBe(1)
+
+        cspRawEvaluator(element, 'unwatch', { scope })
+
+        expect(calls).toBe(2)
+    });
+});

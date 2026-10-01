@@ -204,3 +204,96 @@ describe('evaluateRaw([String])', () => {
         expect(result.foo).toBe('bar')
     });
 })
+
+describe('skipAutoEvaluate()', () => {
+    it('returns the function as is', () => {
+        let func = () => {}
+
+        expect(Alpine.skipAutoEvaluate(func)).toBe(func)
+    });
+
+    it('is not called by the expression that produced it', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let calls = 0
+        let scope = { unwatch: null, foo: null, subscribe: () => Alpine.skipAutoEvaluate(() => calls++) }
+
+        evaluate(element, 'subscribe()', { scope })
+        evaluate(element, 'unwatch = subscribe()', { scope })
+        evaluate(element, '(foo = 1, subscribe())', { scope })
+        evaluate(element, 'unwatch = subscribe(); foo = 1', { scope })
+
+        expect(calls).toBe(0)
+    });
+
+    it('is called by later expressions', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let calls = 0
+        let scope = { unwatch: null, subscribe: () => Alpine.skipAutoEvaluate(() => calls++) }
+
+        evaluate(element, 'unwatch = subscribe()', { scope })
+        evaluate(element, 'unwatch', { scope })
+
+        expect(calls).toBe(1)
+
+        scope.unwatch()
+
+        expect(calls).toBe(2)
+    });
+
+    it('is not called by an async expression that produced it', async () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let calls = 0
+        let tick = () => new Promise(resolve => setTimeout(resolve))
+        let scope = {
+            unwatch: null,
+            tick,
+            subscribe: () => Alpine.skipAutoEvaluate(() => calls++),
+            subscribeAsync: async () => { await tick(); return Alpine.skipAutoEvaluate(() => calls++) },
+        }
+
+        evaluate(element, 'unwatch = subscribe(); await tick()', { scope })
+        evaluate(element, 'let foo = await tick(); return subscribe()', { scope })
+        evaluate(element, 'await subscribeAsync()', { scope })
+        evaluate(element, 'subscribeAsync', { scope })
+
+        await new Promise(resolve => setTimeout(resolve, 10))
+
+        expect(calls).toBe(0)
+    });
+
+    it('is not called by a nested expression or the one around it', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let calls = 0
+        let scope = { subscribe: () => Alpine.skipAutoEvaluate(() => calls++) }
+
+        scope.nested = () => evaluate(element, 'subscribe()', { scope })
+
+        evaluate(element, 'nested()', { scope })
+
+        expect(calls).toBe(0)
+    });
+
+    it('is not called by a function expression that produced it', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let calls = 0
+        let scope = { subscribe: () => Alpine.skipAutoEvaluate(() => calls++) }
+
+        evaluate(element, function () { return this.subscribe() }, { scope })
+
+        expect(calls).toBe(0)
+    });
+
+    it('is not called by a raw expression that produced it', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+        let calls = 0
+        let scope = { unwatch: null, subscribe: () => Alpine.skipAutoEvaluate(() => calls++) }
+
+        evaluateRaw(element, 'unwatch = subscribe()', { scope })
+
+        expect(calls).toBe(0)
+
+        evaluateRaw(element, 'unwatch', { scope })
+
+        expect(calls).toBe(1)
+    });
+})

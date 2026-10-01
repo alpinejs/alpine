@@ -4,6 +4,25 @@ import { tryCatch, handleError } from './utils/error'
 
 export let shouldAutoEvaluateFunctions = true
 
+// Functions passed to skipAutoEvaluate() are numbered, so an evaluation won't call
+// the ones skipped while it was running (like the "unwatch" returned by $watch),
+// but any later evaluation still will.
+export let skipCount = 0
+
+let skippedAt = new WeakMap()
+
+export function skipAutoEvaluate(func) {
+    skippedAt.set(func, ++skipCount)
+
+    return func
+}
+
+export function shouldAutoEvaluate(value, startedAt) {
+    return shouldAutoEvaluateFunctions
+        && typeof value === 'function'
+        && ! (skippedAt.get(value) > startedAt)
+}
+
 export function dontAutoEvaluateFunctions(callback) {
     let cache = shouldAutoEvaluateFunctions
 
@@ -63,9 +82,11 @@ export function generateEvaluatorFromFunction(dataStack, func) {
             return
         }
 
+        let startedAt = skipCount
+
         let result = func.apply(mergeProxies([scope, ...dataStack]), params)
 
-        runIfTypeOfFunction(receiver, result)
+        runIfTypeOfFunction(receiver, result, undefined, undefined, undefined, startedAt)
     }
 }
 
@@ -125,12 +146,14 @@ function generateEvaluatorFromString(dataStack, expression, el) {
         let completeScope = mergeProxies([ scope, ...dataStack ])
 
         if (typeof func === 'function' ) {
+            let startedAt = skipCount
+
             let promise = func.call(context, func, completeScope).catch((error) => handleError(error, el, expression))
 
             // Check if the function ran synchronously,
             if (func.finished) {
                 // Return the immediate result.
-                runIfTypeOfFunction(receiver, func.result, completeScope, params, el)
+                runIfTypeOfFunction(receiver, func.result, completeScope, params, el, startedAt)
                 // Once the function has run, we clear func.result so we don't create
                 // memory leaks. func is stored in the evaluatorMemo and every time
                 // it runs, it assigns the evaluated expression to result which could
@@ -139,7 +162,7 @@ function generateEvaluatorFromString(dataStack, expression, el) {
             } else {
                 // If not, return the result when the promise resolves.
                 promise.then(result => {
-                    runIfTypeOfFunction(receiver, result, completeScope, params, el)
+                    runIfTypeOfFunction(receiver, result, completeScope, params, el, startedAt)
                 }).catch( error => handleError( error, el, expression ) )
                 .finally( () => func.result = undefined )
             }
@@ -147,12 +170,12 @@ function generateEvaluatorFromString(dataStack, expression, el) {
     }
 }
 
-export function runIfTypeOfFunction(receiver, value, scope, params, el) {
-    if (shouldAutoEvaluateFunctions && typeof value === 'function') {
+export function runIfTypeOfFunction(receiver, value, scope, params, el, startedAt = skipCount) {
+    if (shouldAutoEvaluate(value, startedAt)) {
         let result = value.apply(scope, params)
 
         if (result instanceof Promise) {
-            result.then(i => runIfTypeOfFunction(receiver, i, scope, params)).catch( error => handleError( error, el, value ) )
+            result.then(i => runIfTypeOfFunction(receiver, i, scope, params, el, startedAt)).catch( error => handleError( error, el, value ) )
         } else {
             receiver(result)
         }
@@ -217,10 +240,12 @@ export function normalRawEvaluator(el, expression, extras = {}) {
             `with (scope) { let __result = ${rightSideSafeExpression}; return __result }`
         )
 
+        let startedAt = skipCount
+
         let result = func.call(extras.context, scope)
 
         // If the result is a function, call it
-        if (typeof result === 'function' && shouldAutoEvaluateFunctions) {
+        if (shouldAutoEvaluate(result, startedAt)) {
             return result.apply(scope, params)
         }
 

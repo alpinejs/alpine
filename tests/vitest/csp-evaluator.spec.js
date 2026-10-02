@@ -458,6 +458,10 @@ describe('skipAutoEvaluate()', () => {
         cspRawEvaluator(element, 'unwatch = subscribe()', { scope })
 
         expect(calls).toBe(0)
+
+        scope.unwatch()
+
+        expect(calls).toBe(1)
     });
 
     it('is called by later expressions', () => {

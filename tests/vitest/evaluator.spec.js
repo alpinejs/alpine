@@ -223,6 +223,10 @@ describe('skipAutoEvaluate()', () => {
         evaluate(element, 'unwatch = subscribe(); foo = 1', { scope })
 
         expect(calls).toBe(0)
+
+        scope.unwatch()
+
+        expect(calls).toBe(1)
     });
 
     it('is called by later expressions', () => {
@@ -259,6 +263,10 @@ describe('skipAutoEvaluate()', () => {
         await new Promise(resolve => setTimeout(resolve, 10))
 
         expect(calls).toBe(0)
+
+        scope.unwatch()
+
+        expect(calls).toBe(1)
     });
 
     it('is not called by a nested expression or the one around it', () => {
@@ -268,9 +276,13 @@ describe('skipAutoEvaluate()', () => {
 
         scope.nested = () => evaluate(element, 'subscribe()', { scope })
 
-        evaluate(element, 'nested()', { scope })
+        let unwatch = evaluate(element, 'nested()', { scope })
 
         expect(calls).toBe(0)
+
+        unwatch()
+
+        expect(calls).toBe(1)
     });
 
     it('is not called by a function expression that produced it', () => {
@@ -278,9 +290,13 @@ describe('skipAutoEvaluate()', () => {
         let calls = 0
         let scope = { subscribe: () => Alpine.skipAutoEvaluate(() => calls++) }
 
-        evaluate(element, function () { return this.subscribe() }, { scope })
+        let unwatch = evaluate(element, function () { return this.subscribe() }, { scope })
 
         expect(calls).toBe(0)
+
+        unwatch()
+
+        expect(calls).toBe(1)
     });
 
     it('is not called by a raw expression that produced it', () => {

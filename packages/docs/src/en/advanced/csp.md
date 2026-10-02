@@ -111,6 +111,16 @@ The CSP build supports most JavaScript expressions you'd want to use in Alpine:
 </div>
 ```
 
+### JSON.parse()
+```alpine
+<!-- ✅ This works -->
+<div x-data="{ items: JSON.parse('[\u0022a\u0022,\u0022b\u0022]') }">
+    <span x-text="items.length"></span>
+</div>
+```
+
+`JSON.parse()` with a single string argument is the one call on a global the CSP build allows. Server-side helpers such as Laravel's `@js()` and `Js::from()` emit it for every array and object, and parsing JSON runs no code. The rest of the `JSON` global stays unavailable.
+
 <a name="whats-not-supported"></a>
 ## What's Not Supported
 
@@ -149,6 +159,8 @@ Some advanced and potentially dangerous JavaScript features aren't supported:
     <span x-text="JSON.stringify({ value: count })"></span>
 </div>
 ```
+
+The only exception is `JSON.parse()` with a string, see [above](#whats-supported).
 
 ### HTML Injection
 ```alpine

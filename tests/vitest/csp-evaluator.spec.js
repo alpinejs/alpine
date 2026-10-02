@@ -446,3 +446,57 @@ describe('DOM access restrictions', () => {
         expect(cspRawEvaluator(element, "list.append('a')", { scope })).toBe(1)
     });
 });
+
+describe('JSON.parse() intrinsic', () => {
+    let element = { parentNode: null, _x_dataStack: [] }
+
+    it('parses an object from a string literal', () => {
+        expect(cspRawEvaluator(element, "JSON.parse('{\"recordKey\":\"1\",\"nested\":{\"a\":true,\"b\":null}}')"))
+            .toEqual({ recordKey: '1', nested: { a: true, b: null } })
+    });
+
+    it('parses an array from a string literal', () => {
+        expect(cspRawEvaluator(element, "JSON.parse('[1,\"two\",false]')")).toEqual([1, 'two', false])
+    });
+
+    it('parses the output of Laravel\'s Js::from(), with its unicode escapes', () => {
+        expect(cspRawEvaluator(element, "JSON.parse('{\\u0022a\\u0022:\\u0022b \\u003Cc\\u003E\\u0022}')")).toEqual({ a: 'b <c>' })
+    });
+
+    it('can be used as an argument and as a member base', () => {
+        let scope = { count: (items) => items.length }
+
+        expect(cspRawEvaluator(element, "count(JSON.parse('[1,2,3]'))", { scope })).toBe(3)
+        expect(cspRawEvaluator(element, "JSON.parse('{\"a\":{\"b\":2}}').a.b")).toBe(2)
+    });
+
+    it('returns a fresh value on every evaluation', () => {
+        let first = cspRawEvaluator(element, "JSON.parse('[1]')")
+        let second = cspRawEvaluator(element, "JSON.parse('[1]')")
+
+        expect(first).not.toBe(second)
+    });
+
+    it('accepts a string from scope, not only a literal', () => {
+        let scope = { raw: '{"ok":true}' }
+
+        expect(cspRawEvaluator(element, 'JSON.parse(raw)', { scope })).toEqual({ ok: true })
+    });
+
+    it('rejects a non-string argument and a wrong arity', () => {
+        expect(() => cspRawEvaluator(element, 'JSON.parse(42)')).toThrow()
+        expect(() => cspRawEvaluator(element, "JSON.parse('[]', null)")).toThrow()
+    });
+
+    it('does not expose the rest of the JSON global', () => {
+        expect(() => cspRawEvaluator(element, 'JSON.stringify(1)')).toThrow('Undefined variable: JSON')
+        expect(() => cspRawEvaluator(element, 'JSON')).toThrow('Undefined variable: JSON')
+        expect(() => cspRawEvaluator(element, "JSON['parse']('[]')")).toThrow('Undefined variable: JSON')
+    });
+
+    it('lets a JSON defined in scope take precedence', () => {
+        let scope = { JSON: { parse: () => 'from scope' } }
+
+        expect(cspRawEvaluator(element, "JSON.parse('[]')", { scope })).toBe('from scope')
+    });
+});

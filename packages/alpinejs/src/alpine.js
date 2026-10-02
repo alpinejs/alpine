@@ -4,7 +4,7 @@ import { start, addRootSelector, addInitSelector, closestRoot, findClosest, init
 import { onElRemoved, onAttributeRemoved, onAttributesAdded, mutateDom, deferMutations, flushAndStopDeferringMutations, startObservingMutations, stopObservingMutations } from './mutation'
 import { deferInit } from './deferInit'
 import { mergeProxies, closestDataStack, addScopeToNode, scope as $data } from './scope'
-import { setEvaluator, setRawEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions, evaluateRaw } from './evaluator'
+import { setEvaluator, setRawEvaluator, evaluate, evaluateLater, dontAutoEvaluateFunctions, evaluateRaw, skipAutoEvaluate } from './evaluator'
 import { transition } from './directives/x-transition'
 import { clone, cloneNode, skipDuringClone, onlyDuringClone, interceptClone } from './clone'
 import { interceptor, initInterceptors } from './interceptor'
@@ -31,6 +31,7 @@ let Alpine = {
     version: ALPINE_VERSION,
     flushAndStopDeferringMutations,
     dontAutoEvaluateFunctions,
+    skipAutoEvaluate,
     disableEffectScheduling,
     startObservingMutations,
     stopObservingMutations,

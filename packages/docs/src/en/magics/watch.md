@@ -36,6 +36,21 @@ When the `<button>` is pressed, `foo.bar` will be set to "bob", and "bob" will b
 </div>
 ```
 
+<a name="stopping-a-watcher"></a>
+### Stopping a watcher
+
+`$watch` returns a function you can call to stop watching:
+
+```alpine
+<div x-data="{ open: false, unwatch: null }" x-init="unwatch = $watch('open', value => console.log(value))">
+    <button @click="open = ! open">Toggle Open</button>
+
+    <button @click="unwatch">Stop watching</button>
+</div>
+```
+
+Even though Alpine calls functions returned by an expression, the one returned by `$watch` isn't called by the expression that started the watcher, so `x-init` keeps watching.
+
 <a name="deep-watching"></a>
 ### Deep watching
 

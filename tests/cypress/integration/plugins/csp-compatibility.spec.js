@@ -277,3 +277,30 @@ test.csp('throws when inserting a node into the DOM',
         cy.get('button').click()
     },
 )
+
+test.csp('$watch returns a function to stop watching',
+    [html`
+        <div x-data="watcher" x-init="unwatch = $watch('foo', update)">
+            <h1 x-text="bob"></h1>
+
+            <button id="change" x-on:click="foo = foo + '!'"></button>
+            <button id="unwatch" x-on:click="unwatch"></button>
+        </div>
+    `,
+    `
+        Alpine.data('watcher', () => ({
+            foo: 'bar',
+            bob: 'lob',
+            unwatch: null,
+            update(value) { this.bob = value },
+        }))
+    `],
+    ({ get }) => {
+        get('h1').should(haveText('lob'))
+        get('#change').click()
+        get('h1').should(haveText('bar!'))
+        get('#unwatch').click()
+        get('#change').click()
+        get('h1').should(haveText('bar!'))
+    },
+)

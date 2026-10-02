@@ -1,4 +1,4 @@
-import { generateEvaluatorFromFunction, shouldAutoEvaluateFunctions } from 'alpinejs/src/evaluator'
+import { generateEvaluatorFromFunction, shouldAutoEvaluate, skipCount } from 'alpinejs/src/evaluator'
 import { closestDataStack, mergeProxies } from 'alpinejs/src/scope'
 import { tryCatch } from 'alpinejs/src/utils/error'
 import { generateRuntimeFunction } from './parser'
@@ -13,13 +13,15 @@ export function cspRawEvaluator(el, expression, extras = {}) {
 
     let evaluate = generateRuntimeFunction(expression)
 
+    let startedAt = skipCount
+
     let result = evaluate({
         scope,
         forceBindingRootScopeToFunctions: true,
     })
 
     // If the result is a function, call it
-    if (typeof result === 'function' && shouldAutoEvaluateFunctions) {
+    if (shouldAutoEvaluate(result, startedAt)) {
         return result.apply(scope, params)
     }
 
@@ -61,12 +63,14 @@ function generateEvaluator(el, expression, dataStack) {
 
         let evaluate = generateRuntimeFunction(expression)
 
+        let startedAt = skipCount
+
         let returnValue = evaluate({
             scope: completeScope,
             forceBindingRootScopeToFunctions: true,
         })
 
-        if (shouldAutoEvaluateFunctions && typeof returnValue === 'function') {
+        if (shouldAutoEvaluate(returnValue, startedAt)) {
             let nextReturnValue = returnValue.apply(returnValue, params)
 
             if (nextReturnValue instanceof Promise) {

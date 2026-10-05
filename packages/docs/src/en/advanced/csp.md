@@ -159,6 +159,15 @@ Some advanced and potentially dangerous JavaScript features aren't supported:
 </div>
 ```
 
+If you need to render HTML on the CSP build, use the [HTML Safe plugin](/plugins/html-safe)'s `x-html-safe` directive instead. It sanitizes content through a fixed tag and attribute allowlist rather than setting `innerHTML` directly, so it works without `unsafe-eval`:
+
+```alpine
+<!-- ✅ This works on the CSP build -->
+<div x-data="{ message: 'Hello <span>World</span>' }">
+    <span x-html-safe="message"></span>
+</div>
+```
+
 <a name="when-to-extract-logic"></a>
 ## When to Extract Logic
 

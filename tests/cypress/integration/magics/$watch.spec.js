@@ -271,3 +271,21 @@ test('$watch does not fire for a change made after its element is removed',
     }
 )
 
+test('$watch returns a function to stop watching',
+    html`
+        <div x-data="{ foo: 'bar', bob: 'lob', unwatch: null }" x-init="unwatch = $watch('foo', value => bob = value)">
+            <h1 x-text="bob"></h1>
+
+            <button id="change" x-on:click="foo = foo + '!'"></button>
+            <button id="unwatch" x-on:click="unwatch"></button>
+        </div>
+    `,
+    ({ get }) => {
+        get('h1').should(haveText('lob'))
+        get('#change').click()
+        get('h1').should(haveText('bar!'))
+        get('#unwatch').click()
+        get('#change').click()
+        get('h1').should(haveText('bar!'))
+    }
+)

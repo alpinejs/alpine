@@ -1,3 +1,5 @@
+import { resolveBlockEnd } from '../../alpinejs/src/utils/blocks'
+
 let resolveStep = () => {}
 
 let logger = () => {}
@@ -374,7 +376,7 @@ function createMorphContext(options = {}) {
             // that they manage. Skip past them — they'll be handled
             // by Alpine's reactivity after the morph completes...
             if (currentFrom._x_lastRenderedEl) {
-                currentFromNext = getNextSibling(from, currentFrom._x_lastRenderedEl)
+                currentFromNext = getNextSibling(from, resolveBlockEnd(currentFrom))
             }
 
             currentTo = currentTo && getNextSibling(to, currentTo) // dom.next(from, toChildren, currentTo))

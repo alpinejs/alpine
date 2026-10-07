@@ -47,18 +47,20 @@ export function flushJobs() {
     flushPending = false
     flushing = true
 
-    for (let i = 0; i < queue.length; i++) {
-        if (queueNeedsSort) sortPendingJobs(i)
+    try {
+        for (let i = 0; i < queue.length; i++) {
+            if (queueNeedsSort) sortPendingJobs(i)
 
-        queue[i]()
-        lastFlushedIndex = i
+            queue[i]()
+            lastFlushedIndex = i
+        }
+    } finally {
+        queue.length = 0
+        lastFlushedIndex = -1
+        queueNeedsSort = false
+
+        flushing = false
     }
-
-    queue.length = 0
-    lastFlushedIndex = -1
-    queueNeedsSort = false
-
-    flushing = false
 }
 
 function sortPendingJobs(start) {

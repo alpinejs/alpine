@@ -622,14 +622,6 @@ describe('CSP Parser', () => {
             expect(() => generateRuntimeFunction('[a, b] = arr')).toThrow();
         });
 
-        it('should not support optional chaining', () => {
-            expect(() => generateRuntimeFunction('obj?.prop')).toThrow();
-        });
-
-        it('should not support nullish coalescing', () => {
-            expect(() => generateRuntimeFunction('value ?? default')).toThrow();
-        });
-
         it('should not support compound assignment', () => {
             expect(() => generateRuntimeFunction('x += 5')).toThrow();
             expect(() => generateRuntimeFunction('x *= 2')).toThrow();
@@ -785,5 +777,82 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction('2 + 3')()).toBe(5);
             expect(generateRuntimeFunction('true ? "yes" : "no"')()).toBe('yes');
         });
+    });
+});
+
+describe('Optional chaining and nullish coalescing', () => {
+    it('reads through optional members', () => {
+        expect(generateRuntimeFunction('user?.name')({ scope: { user: { name: 'John' } } })).toBe('John');
+        expect(generateRuntimeFunction('user?.name')({ scope: { user: null } })).toBe(undefined);
+        expect(generateRuntimeFunction('user?.name')({ scope: { user: undefined } })).toBe(undefined);
+        expect(generateRuntimeFunction("user?.['name']")({ scope: { user: { name: 'John' } } })).toBe('John');
+        expect(generateRuntimeFunction("user?.['name']")({ scope: { user: null } })).toBe(undefined);
+    });
+
+    it('short-circuits the whole chain, not only the next link', () => {
+        expect(generateRuntimeFunction('user?.profile.name')({ scope: { user: null } })).toBe(undefined);
+        expect(generateRuntimeFunction('user?.profile.name.length')({ scope: { user: null } })).toBe(undefined);
+        expect(generateRuntimeFunction('user?.profile.name')({ scope: { user: { profile: { name: 'John' } } } })).toBe('John');
+    });
+
+    it('stops the short-circuit at parentheses, as JavaScript does', () => {
+        expect(() => generateRuntimeFunction('(user?.profile).name')({ scope: { user: null } })).toThrow();
+    });
+
+    it('calls optionally', () => {
+        expect(generateRuntimeFunction('fn?.()')({ scope: { fn: () => 42 } })).toBe(42);
+        expect(generateRuntimeFunction('fn?.()')({ scope: { fn: null } })).toBe(undefined);
+        expect(generateRuntimeFunction('obj.fn?.()')({ scope: { obj: {} } })).toBe(undefined);
+        expect(generateRuntimeFunction('obj?.fn()')({ scope: { obj: null } })).toBe(undefined);
+        expect(generateRuntimeFunction('obj?.fn()')({ scope: { obj: { fn: () => 'called' } } })).toBe('called');
+        expect(generateRuntimeFunction('getFn()?.()')({ scope: { getFn: () => null } })).toBe(undefined);
+        expect(generateRuntimeFunction('getFn()?.()')({ scope: { getFn: () => () => 'called' } })).toBe('called');
+    });
+
+    it('does not evaluate the arguments of a call that short-circuits', () => {
+        let calls = 0;
+        let scope = { obj: null, arg: () => ++calls };
+
+        expect(generateRuntimeFunction('obj?.fn(arg())')({ scope })).toBe(undefined);
+        expect(calls).toBe(0);
+    });
+
+    it('still throws for a missing base or a non-function', () => {
+        expect(() => generateRuntimeFunction('missing?.name')({ scope: {} })).toThrow('Undefined variable: missing');
+        expect(() => generateRuntimeFunction('user.name()')({ scope: { user: { name: 'John' } } })).toThrow('not a function');
+    });
+
+    it('keeps the ternary working next to the new operators', () => {
+        expect(generateRuntimeFunction('ok ? 1 : 2')({ scope: { ok: true } })).toBe(1);
+        expect(generateRuntimeFunction("user?.name ? 'named' : 'anonymous'")({ scope: { user: null } })).toBe('anonymous');
+    });
+
+    it('coalesces only null and undefined', () => {
+        expect(generateRuntimeFunction("value ?? 'default'")({ scope: { value: null } })).toBe('default');
+        expect(generateRuntimeFunction("value ?? 'default'")({ scope: { value: undefined } })).toBe('default');
+        expect(generateRuntimeFunction("value ?? 'default'")({ scope: { value: 0 } })).toBe(0);
+        expect(generateRuntimeFunction("value ?? 'default'")({ scope: { value: '' } })).toBe('');
+        expect(generateRuntimeFunction("value ?? 'default'")({ scope: { value: false } })).toBe(false);
+    });
+
+    it('short-circuits the right side of ??', () => {
+        let calls = 0;
+        let scope = { value: 'set', fallback: () => { calls++; return 'fallback' } };
+
+        expect(generateRuntimeFunction('value ?? fallback()')({ scope })).toBe('set');
+        expect(calls).toBe(0);
+        expect(generateRuntimeFunction('missing ?? fallback()')({ scope: { ...scope, missing: null } })).toBe('fallback');
+        expect(calls).toBe(1);
+    });
+
+    it('binds ?? looser than || and tighter than the ternary', () => {
+        expect(generateRuntimeFunction("(value ?? 'a') ? 'yes' : 'no'")({ scope: { value: null } })).toBe('yes');
+        expect(generateRuntimeFunction("value ?? other || 'c'")({ scope: { value: null, other: 'b' } })).toBe('b');
+        expect(generateRuntimeFunction("value ?? 'default' ? 'yes' : 'no'")({ scope: { value: null } })).toBe('yes');
+    });
+
+    it('combines with optional chaining as templates use it', () => {
+        expect(generateRuntimeFunction("data?.badgeColorClasses ?? ''")({ scope: { data: null } })).toBe('');
+        expect(generateRuntimeFunction("data?.badgeColorClasses ?? ''")({ scope: { data: { badgeColorClasses: 'fi-color' } } })).toBe('fi-color');
     });
 });

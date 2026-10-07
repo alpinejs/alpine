@@ -277,3 +277,22 @@ test.csp('throws when inserting a node into the DOM',
         cy.get('button').click()
     },
 )
+
+test.csp('supports optional chaining and nullish coalescing',
+    [html`
+        <div x-data="{ user: null, title: undefined }">
+            <span id="name" x-text="user?.profile.name ?? 'anonymous'"></span>
+            <span id="title" x-text="title ?? 'untitled'"></span>
+            <button id="set-user" x-on:click="user = { profile: { name: 'John' } }"></button>
+            <button id="set-title" x-on:click="title = ''"></button>
+        </div>
+    `],
+    (cy) => {
+        cy.get('#name').should(haveText('anonymous'))
+        cy.get('#title').should(haveText('untitled'))
+        cy.get('#set-user').click()
+        cy.get('#name').should(haveText('John'))
+        cy.get('#set-title').click()
+        cy.get('#title').should(haveText(''))
+    },
+)

@@ -787,3 +787,41 @@ describe('CSP Parser', () => {
         });
     });
 });
+
+describe('Expression sequences', () => {
+    it('evaluates semicolon-separated expressions in order and returns the last value', () => {
+        const scope = { count: 0, log: [] };
+
+        expect(generateRuntimeFunction("log.push('first'); log.push('second'); count = count + 1")({ scope })).toBe(1);
+        expect(scope.log).toEqual(['first', 'second']);
+        expect(scope.count).toBe(1);
+    });
+
+    it('lets a later expression read what an earlier one assigned', () => {
+        const scope = { a: null, b: null };
+
+        expect(generateRuntimeFunction('a = 5; b = a * 2')({ scope })).toBe(10);
+        expect(scope).toEqual({ a: 5, b: 10 });
+    });
+
+    it('accepts a trailing semicolon and whitespace around separators', () => {
+        const scope = { count: 0 };
+
+        expect(generateRuntimeFunction('count++; count++;')({ scope })).toBe(1);
+        expect(scope.count).toBe(2);
+        expect(generateRuntimeFunction(' count++ ;count++ ')({ scope })).toBe(3);
+    });
+
+    it('rejects empty expressions between separators', () => {
+        expect(() => generateRuntimeFunction(';')).toThrow();
+        expect(() => generateRuntimeFunction('a;;b')).toThrow();
+        expect(() => generateRuntimeFunction('; a')).toThrow();
+    });
+
+    it('does not wrap a single expression', () => {
+        const scope = { count: 0 };
+
+        expect(generateRuntimeFunction('count++;')({ scope })).toBe(0);
+        expect(scope.count).toBe(1);
+    });
+});

@@ -1,7 +1,8 @@
 import { directive } from '../directives'
 import { entangle } from '../entangle';
+import { skipDuringClone } from '../clone'
 
-directive('modelable', (el, { expression }, { effect, evaluateLater, cleanup }) => {
+directive('modelable', skipDuringClone((el, { expression }, { effect, evaluateLater, cleanup }) => {
     let func = evaluateLater(expression)
     let innerGet = () => { let result; func(i => result = i); return result; }
     let evaluateInnerSet = evaluateLater(`${expression} = __placeholder`)
@@ -36,4 +37,4 @@ directive('modelable', (el, { expression }, { effect, evaluateLater, cleanup }) 
 
         cleanup(releaseEntanglement)
     })
-})
+}))

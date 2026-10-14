@@ -1387,3 +1387,64 @@ test('morphing does not re-apply x-cloak to an already initialized element',
         cy.window().its('heightsDuringMorph').should('have.length.greaterThan', 0).and('not.include', 0)
     },
 )
+
+test('x-modelable keeps a change made right after a morph',
+    [html`
+        <div x-data="{ count: 0 }">
+            <div id="counter" x-data="{ value: 0 }" x-modelable="value" x-model="count"></div>
+
+            <span x-text="count"></span>
+        </div>
+    `],
+    ({ get }, reload, window) => {
+        get('span').should(haveText('0'))
+
+        get('#counter').then(([el]) => {
+            window.Alpine.morph(el, el.outerHTML)
+
+            window.Alpine.$data(el).value++
+        })
+
+        get('span').should(haveText('1'))
+    },
+)
+
+test('morphing an x-modelable element does not leave a binding behind',
+    [html`
+        <div x-data="{ _count: 0, get count() { window.reads++; return this._count }, set count(value) { this._count = value } }">
+            <div id="counter" x-data="{ value: 0 }" x-modelable="value" x-model="count"></div>
+
+            <span x-text="count"></span>
+        </div>
+    `],
+    ({ get }, reload, window) => {
+        let readsBeforeMorphing
+
+        get('span').should(haveText('0'))
+
+        get('#counter').then(([el]) => {
+            window.reads = 0
+
+            window.Alpine.$data(el).value++
+        })
+
+        get('span').should(haveText('1'))
+
+        get('#counter').then(([el]) => {
+            readsBeforeMorphing = window.reads
+
+            for (let i = 0; i < 5; i++) window.Alpine.morph(el, el.outerHTML)
+
+            // Let the morphs settle before changing the value again...
+            window.setTimeout(() => {
+                window.reads = 0
+
+                window.Alpine.$data(el).value++
+            })
+        })
+
+        get('span').should(haveText('2'))
+
+        cy.window().then(() => expect(window.reads).to.equal(readsBeforeMorphing))
+    },
+)

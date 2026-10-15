@@ -84,8 +84,8 @@ function generateFunctionFromString(expression, el) {
     let rightSideSafeExpression = 0
         // Support expressions starting with "if" statements like: "if (...) doSomething()"
         || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
-        // Support expressions starting with "let/const" like: "let foo = 'bar'"
-        || /^(let|const)\s/.test(expression.trim())
+        // Support expressions starting with "let/const/var" like: "let foo = 'bar'"
+        || /^(let|const|var)\s/.test(expression.trim())
             ? `(async()=>{ ${expression} })()`
             : expression
 
@@ -187,8 +187,8 @@ export function normalRawEvaluator(el, expression, extras = {}) {
         let rightSideSafeExpression = 0
             // Support expressions starting with "if" statements like: "if (...) doSomething()"
             || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
-            // Support expressions starting with "let/const" like: "let foo = 'bar'"
-            || /^(let|const)\s/.test(expression.trim())
+            // Support expressions starting with "let/const/var" like: "let foo = 'bar'"
+            || /^(let|const|var)\s/.test(expression.trim())
                 ? `(async()=>{ ${expression} })()`
                 : expression
 
@@ -207,8 +207,8 @@ export function normalRawEvaluator(el, expression, extras = {}) {
         let rightSideSafeExpression = 0
             // Support expressions starting with "if" statements like: "if (...) doSomething()"
             || /^[\n\s]*if.*\(.*\)/.test(expression.trim())
-            // Support expressions starting with "let/const" like: "let foo = 'bar'"
-            || /^(let|const)\s/.test(expression.trim())
+            // Support expressions starting with "let/const/var" like: "let foo = 'bar'"
+            || /^(let|const|var)\s/.test(expression.trim())
                 ? `(()=>{ ${expression} })()`
                 : expression
 

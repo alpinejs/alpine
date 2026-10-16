@@ -152,9 +152,8 @@ Some advanced and potentially dangerous JavaScript features aren't supported:
 
 ### HTML Injection
 ```alpine
-<!-- ❌ These don't work -->
+<!-- ❌ This doesn't work -->
 <div x-data="{ message: 'Hello <span>World</span>' }">
-    <span x-html="message"></span>
     <span x-init="$el.insertAdjacentHTML('beforeend', message)"></span>
 </div>
 ```

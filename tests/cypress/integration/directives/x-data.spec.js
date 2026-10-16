@@ -1,4 +1,4 @@
-import { haveText, html, test } from '../../utils'
+import { haveLength, haveText, html, test } from '../../utils'
 
 test('x-data attribute value is optional',
     html`
@@ -235,5 +235,79 @@ test('removing and later re-adding x-data creates a new reactive object',
             expect(window.Alpine.$data(el).version).to.equal(2)
             expect(el._x_dataStack[0]).not.to.equal(window.originalScope)
         })
+    },
+)
+
+test('replacing x-data with getters that use parent scope keeps the component working',
+    html`
+        <div x-data="{ selection: null }">
+            <div id="component" x-data="{
+                options: ['a', 'b'],
+                get isAllSelected() { return this.options.length == this.selection.length },
+                label: 'before',
+                isReadonly: false,
+            }">
+                <span id="label" x-text="label"></span>
+                <template x-for="option in options"><span class="option" x-show="! isReadonly" x-text="option"></span></template>
+            </div>
+        </div>
+    `,
+    ({ get }, reload, window) => {
+        get('#component').then(([el]) => {
+            el.setAttribute('x-data', `{
+                options: ['a', 'b', 'c'],
+                get isAllSelected() { return this.options.length == this.selection.length },
+                label: 'after',
+                isReadonly: false,
+            }`)
+        })
+
+        get('#label').should(haveText('after'))
+        get('.option').should(haveLength(3))
+        get('.option:last-child').should(haveText('c'))
+    },
+)
+
+test('replacing x-data does not evaluate the old getters',
+    html`
+        <div id="component" x-data="{
+            count: 1,
+            get replaced() { window.oldGetterCalls = (window.oldGetterCalls || 0) + 1; return this.count },
+            get removed() { window.oldGetterCalls = (window.oldGetterCalls || 0) + 1; return this.count },
+        }"></div>
+    `,
+    ({ get }, reload, window) => {
+        get('#component').then(([el]) => {
+            window.oldGetterCalls = 0
+
+            el.setAttribute('x-data', "{ count: 2, get replaced() { return this.count } }")
+        })
+
+        get('#component').should(([el]) => {
+            expect(window.Alpine.$data(el).count).to.equal(2)
+        })
+
+        get('#component').then(([el]) => {
+            expect(window.oldGetterCalls).to.equal(0)
+            expect(window.Alpine.$data(el).replaced).to.equal(2)
+            expect('removed' in window.Alpine.$data(el)).to.equal(false)
+        })
+    },
+)
+
+test('replacing an x-data getter re-runs effects that depend on it',
+    html`
+        <div id="component" x-data="{ count: 2, get total() { return this.count * 2 } }">
+            <span x-text="total"></span>
+        </div>
+    `,
+    ({ get }) => {
+        get('span').should(haveText('4'))
+
+        get('#component').then(([el]) => {
+            el.setAttribute('x-data', "{ count: 2, get total() { return this.count * 3 } }")
+        })
+
+        get('span').should(haveText('6'))
     },
 )

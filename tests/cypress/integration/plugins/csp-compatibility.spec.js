@@ -217,19 +217,12 @@ test.csp('throws when evaluating on a script',
     },
 )
 
-test.csp('throws when using x-html directive',
+test.csp('x-html allows alpine code within',
     [html`
-        <div x-data="{ show: false }">
-            <button x-on:click="show = true"></button>
-            <template x-if="show">
-                <div x-html="evil"></div>
-            </template>
-        </div>
+        <div x-data="{ foo: '<h1 x-text=&quot;bar&quot;></h1>', bar: 'baz' }" x-html="foo"></div>
     `],
-    (cy) => {
-        cy.on('uncaught:exception', ({message}) => message.includes('Using the x-html directive is prohibited') ? false : true)
-        cy.get('button').click()
-        cy.get('body').should(notContain('evil'))
+    ({ get }) => {
+        get('h1').should(haveText('baz'))
     },
 )
 

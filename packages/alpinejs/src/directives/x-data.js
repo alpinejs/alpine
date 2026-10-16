@@ -5,7 +5,7 @@ import { addRootSelector } from '../lifecycle'
 import { interceptClone, isCloning, isCloningLegacy, skipDuringClone } from '../clone'
 import { addScopeToNode } from '../scope'
 import { injectMagics, magic } from '../magics'
-import { reactive } from '../reactivity'
+import { reactive, raw } from '../reactivity'
 import { evaluate } from '../evaluator'
 
 addRootSelector(() => `[${prefix('data')}]`)
@@ -81,15 +81,26 @@ directive('data', ((el, { expression }, { cleanup }) => {
 }))
 
 function reconcileData(target, source) {
+    let rawTarget = raw(target)
+
+    // The reactive proxy reads a property's old value when it's set or deleted. Swap
+    // old accessors for plain values on the raw object first, so an old getter is
+    // never evaluated (it would run without access to the parent scope)...
+    let oldAccessors = Object.keys(rawTarget).filter(key => isAccessor(Object.getOwnPropertyDescriptor(rawTarget, key)))
+
+    oldAccessors.forEach(key => {
+        Object.defineProperty(rawTarget, key, { value: undefined, writable: true, enumerable: true, configurable: true })
+    })
+
     Object.keys(source).forEach(key => {
         let descriptor = Object.getOwnPropertyDescriptor(source, key)
         let existingDescriptor = Object.getOwnPropertyDescriptor(target, key)
 
-        if (descriptor.get || descriptor.set || existingDescriptor?.get || existingDescriptor?.set) {
+        if (isAccessor(descriptor) || oldAccessors.includes(key)) {
             if (existingDescriptor) delete target[key]
             if (! existingDescriptor) target[key] = undefined
 
-            descriptor.get || descriptor.set
+            isAccessor(descriptor)
                 ? Object.defineProperty(target, key, descriptor)
                 : target[key] = source[key]
         } else {
@@ -100,6 +111,10 @@ function reconcileData(target, source) {
     Object.keys(target)
         .filter(key => ! Object.prototype.hasOwnProperty.call(source, key))
         .forEach(key => delete target[key])
+}
+
+function isAccessor(descriptor) {
+    return !! (descriptor?.get || descriptor?.set)
 }
 
 interceptClone((from, to) => {

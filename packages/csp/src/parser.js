@@ -3,7 +3,7 @@ let globals = new Set()
 
 Object.getOwnPropertyNames(globalThis).forEach(key => {
     // Prevent Chrome and Safari deprecation warning...
-    if (key === "styleMedia" || key === "sharedStorage") return
+    if (key === "styleMedia" || key === "sharedStorage" || key === "fence") return
 
     let value
 

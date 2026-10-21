@@ -147,13 +147,11 @@ test('fixed strategy survives a morph (clone branch re-applies strategy)',
     },
 )
 
-test('does not position an element until it is shown',
+test('does not position an element hidden by x-show without x-cloak until it is shown',
     [html`
-        <style>[x-cloak] { display: none !important; }</style>
-
         <div x-data="{ open: false }">
             <button x-ref="foo" @click="open = true">toggle</button>
-            <h1 x-cloak x-show="open" x-anchor="$refs.foo">contents</h1>
+            <h1 x-show="open" x-anchor="$refs.foo">contents</h1>
         </div>
     `],
     ({ get }) => {
@@ -210,12 +208,36 @@ test('stops tracking when destroyed',
             destroyed.setAttribute('x-anchor.bottom-start', 'reference')
 
             Alpine.initTree(destroyed)
-            Alpine.destroyTree(destroyed)
+            Alpine.nextTick(() => Alpine.destroyTree(destroyed))
         })
     `],
     ({ get }) => {
         get('#move').click()
         get('h1').should(haveText('200'))
         cy.window().its('destroyed.style.left').should('eq', '100px')
+    },
+)
+
+test('never starts tracking when destroyed before its first tick',
+    [html`
+        <div x-data="{ left: 100 }">
+            <button x-ref="foo" :style="{ position: 'fixed', top: '200px', left: left + 'px' }">reference</button>
+            <button id="move" @click="left += 100">move</button>
+            <h1 x-anchor.bottom-start="$refs.foo" x-text="$anchor.x"></h1>
+        </div>
+    `, `
+        document.addEventListener('alpine:initialized', () => {
+            window.reference = document.querySelector('button')
+            window.destroyed = document.createElement('h2')
+            destroyed.setAttribute('x-anchor.bottom-start', 'reference')
+
+            Alpine.initTree(destroyed)
+            Alpine.destroyTree(destroyed)
+        })
+    `],
+    ({ get }) => {
+        get('#move').click()
+        get('h1').should(haveText('200'))
+        cy.window().its('destroyed.style.left').should('eq', '')
     },
 )

@@ -23,7 +23,7 @@ export default function (Alpine) {
         let release = () => {}
         let start = () => {}
 
-        let hidden = () => getComputedStyle(el).display === 'none'
+        let hidden = () => el.style.display === 'none'
 
         let stop = () => {
             if (tracking) release()
@@ -67,17 +67,20 @@ export default function (Alpine) {
                     tracking = true
                 }
 
-                start()
+                // Wait for x-show to initialize so elements that start out hidden are never tracked...
+                queueMicrotask(() => start())
             }
         })
 
-        // Only track the position while visible. Elements get hidden by x-show's inline style, x-cloak, classes, etc...
+        // x-show hides with an inline "display: none", so only track the position while visible...
         let observer = new MutationObserver(() => hidden() ? stop() : start())
 
-        observer.observe(el, { attributes: true })
+        observer.observe(el, { attributes: true, attributeFilter: ['style'] })
 
         cleanup(() => {
             observer.disconnect()
+
+            start = () => {}
 
             stop()
         })

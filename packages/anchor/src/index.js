@@ -19,14 +19,24 @@ export default function (Alpine) {
         el._x_anchor = Alpine.reactive({ x: 0, y: 0 })
 
         let previousReference = null
-        let release = null
+        let tracking = false
+        let release = () => {}
+        let start = () => {}
+
+        let hidden = () => getComputedStyle(el).display === 'none'
+
+        let stop = () => {
+            if (tracking) release()
+
+            tracking = false
+        }
 
         effect(() => {
             let reference = evaluate(expression)
             if (! reference) return
 
             if (previousReference !== reference) {
-                if (release) release()
+                stop()
 
                 previousReference = reference
 
@@ -50,12 +60,26 @@ export default function (Alpine) {
                     })
                 }
 
-                release = autoUpdate(reference, el, () => compute())
+                start = () => {
+                    if (tracking || hidden()) return
+
+                    release = autoUpdate(reference, el, () => compute())
+                    tracking = true
+                }
+
+                start()
             }
         })
 
+        // Only track the position while visible. Elements get hidden by x-show's inline style, x-cloak, classes, etc...
+        let observer = new MutationObserver(() => hidden() ? stop() : start())
+
+        observer.observe(el, { attributes: true })
+
         cleanup(() => {
-            if (release) release()
+            observer.disconnect()
+
+            stop()
         })
     },
 

@@ -57,6 +57,16 @@ describe('evaluate([String])', () => {
         expect(evaluate(element, 'let foo = 42')).toBe(undefined)
     });
 
+    it('var declaration', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+
+        let scope = { foo: 21, result: null }
+
+        evaluate(element, 'var bar = foo * 2; result = bar', { scope })
+
+        expect(scope.result).toBe(42)
+    });
+
     it('await', () => {
         let element = { parentNode: null, _x_dataStack: [] }
 
@@ -184,6 +194,12 @@ describe('evaluateRaw([String])', () => {
         Alpine.dontAutoEvaluateFunctions(() => {
             expect(evaluateRaw(element, '() => 42')()).toBe(42)
         })
+    });
+
+    it('var declaration', () => {
+        let element = { parentNode: null, _x_dataStack: [] }
+
+        expect(evaluateRaw(element, 'var foo = 21; return foo * 2')).toBe(42)
     });
 
     it('await returns promise directly', async () => {

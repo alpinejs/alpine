@@ -19,14 +19,24 @@ export default function (Alpine) {
         el._x_anchor = Alpine.reactive({ x: 0, y: 0 })
 
         let previousReference = null
-        let release = null
+        let tracking = false
+        let release = () => {}
+        let start = () => {}
+
+        let hidden = () => el.style.display === 'none'
+
+        let stop = () => {
+            if (tracking) release()
+
+            tracking = false
+        }
 
         effect(() => {
             let reference = evaluate(expression)
             if (! reference) return
 
             if (previousReference !== reference) {
-                if (release) release()
+                stop()
 
                 previousReference = reference
 
@@ -50,12 +60,29 @@ export default function (Alpine) {
                     })
                 }
 
-                release = autoUpdate(reference, el, () => compute())
+                start = () => {
+                    if (tracking || hidden()) return
+
+                    release = autoUpdate(reference, el, () => compute())
+                    tracking = true
+                }
+
+                // Wait for x-show to initialize so elements that start out hidden are never tracked...
+                queueMicrotask(() => start())
             }
         })
 
+        // x-show hides with an inline "display: none", so only track the position while visible...
+        let observer = new MutationObserver(() => hidden() ? stop() : start())
+
+        observer.observe(el, { attributes: true, attributeFilter: ['style'] })
+
         cleanup(() => {
-            if (release) release()
+            observer.disconnect()
+
+            start = () => {}
+
+            stop()
         })
     },
 

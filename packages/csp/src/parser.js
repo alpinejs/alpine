@@ -151,12 +151,29 @@ class Tokenizer {
                     case 'r': value += '\r'; break;
                     case '\\': value += '\\'; break;
                     case quote: value += quote; break;
+                    case 'b': value += '\b'; break;
+                    case 'f': value += '\f'; break;
+                    case 'v': value += '\v'; break;
+                    case '0': value += this.isDigit(this.peek()) ? char : '\0'; break;
+                    case 'x':
                     case 'u': {
-                        const codeUnit = this.input.slice(this.position + 1, this.position + 5);
+                        const pattern = char === 'x'
+                            ? /^[0-9a-fA-F]{2}/
+                            : /^(?:[0-9a-fA-F]{4}|\{[0-9a-fA-F]+\})/;
+                        const match = pattern.exec(this.input.slice(this.position + 1));
 
-                        if (/^[0-9a-fA-F]{4}$/.test(codeUnit)) {
-                            value += String.fromCharCode(parseInt(codeUnit, 16));
-                            this.position += 4;
+                        if (!match) {
+                            value += char;
+                            break;
+                        }
+
+                        const escape = match[0];
+                        const hex = escape.startsWith('{') ? escape.slice(1, -1) : escape;
+                        const codePoint = parseInt(hex, 16);
+
+                        if (codePoint <= 0x10FFFF) {
+                            value += String.fromCodePoint(codePoint);
+                            this.position += escape.length;
                         } else {
                             value += char;
                         }

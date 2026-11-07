@@ -19,6 +19,15 @@ describe('CSP Parser', () => {
             expect(generateRuntimeFunction("'tes\\u0027t'")()).toBe("tes't");
         });
 
+        it.each([
+            [String.raw`'\x27'`, "'"],
+            [String.raw`'a\u{1F600}b'`, 'a😀b'],
+            [String.raw`'\u{10FFFF}'`, '\u{10FFFF}'],
+            [String.raw`'\b\f\v\0'`, '\b\f\v\0'],
+        ])('should decode string escapes in %s', (expression, expected) => {
+            expect(generateRuntimeFunction(expression)()).toBe(expected);
+        });
+
         it('should parse booleans', () => {
             expect(generateRuntimeFunction('true')()).toBe(true);
             expect(generateRuntimeFunction('false')()).toBe(false);

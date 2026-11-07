@@ -486,6 +486,23 @@ describe('CSP Parser', () => {
             expect(scope.x).toBe(4);
         });
 
+        it.each([
+            ['x++', 5, 6],
+            ['x--', 5, 4],
+            ['++x', 6, 6],
+            ['--x', 4, 4],
+        ])('should coerce a string operand in %s', (expression, result, updated) => {
+            const scope = { x: '5' };
+            expect(generateRuntimeFunction(expression)({ scope })).toBe(result);
+            expect(scope.x).toBe(updated);
+        });
+
+        it('should preserve BigInt when updating a computed property', () => {
+            const scope = { obj: { count: 10n }, key: 'count' };
+            expect(generateRuntimeFunction('++obj[key]')({ scope })).toBe(11n);
+            expect(scope.obj.count).toBe(11n);
+        });
+
         it('should handle increment on properties', () => {
             const scope = { obj: { count: 10 } };
             expect(generateRuntimeFunction('obj.count++')({ scope })).toBe(10);

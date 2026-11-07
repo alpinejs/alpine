@@ -825,14 +825,10 @@ class Evaluator {
                         throw new Error(`Undefined variable: ${name}`);
                     }
 
-                    const oldValue = scope[name];
                     if (node.operator === '++') {
-                        scope[name] = oldValue + 1;
-                    } else if (node.operator === '--') {
-                        scope[name] = oldValue - 1;
+                        return node.prefix ? ++scope[name] : scope[name]++;
                     }
-
-                    return node.prefix ? scope[name] : oldValue;
+                    return node.prefix ? --scope[name] : scope[name]--;
                 } else if (node.argument.type === 'MemberExpression') {
                     const obj = this.evaluate({ node: node.argument.object, scope, context, forceBindingRootScopeToFunctions });
                     const prop = node.argument.computed
@@ -843,14 +839,10 @@ class Evaluator {
                     }
                     this.checkForDangerousKeywords(prop);
 
-                    const oldValue = obj[prop];
                     if (node.operator === '++') {
-                        obj[prop] = oldValue + 1;
-                    } else if (node.operator === '--') {
-                        obj[prop] = oldValue - 1;
+                        return node.prefix ? ++obj[prop] : obj[prop]++;
                     }
-
-                    return node.prefix ? obj[prop] : oldValue;
+                    return node.prefix ? --obj[prop] : obj[prop]--;
                 }
                 throw new Error('Invalid update expression target');
 

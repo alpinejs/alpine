@@ -191,7 +191,7 @@ Before V3, if `x-init` received a return value that is `typeof` "function", it w
 <div x-data x-init="$nextTick(() => { ... })">...</div>
 ```
 
-[→ Read more about $nextTick](/magics/next-tick)
+[→ Read more about $nextTick](/magics/nextTick)
 
 <a name="no-false-return-from-event-handlers"></a>
 ### Returning `false` from event handlers no longer implicitly "preventDefault"s

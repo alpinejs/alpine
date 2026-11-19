@@ -96,12 +96,18 @@ The CSP build supports most JavaScript expressions you'd want to use in Alpine:
 ### Assignments and Updates
 ```alpine
 <!-- ✅ These work -->
-<div x-data="{ count: 0, user: { name: '' } }">
+<div x-data="{ count: 0, user: { name: '', age: 30 }, items: ['a', 'b'] }">
     <button x-on:click="count++">Increment</button>
     <button x-on:click="count = 0">Reset</button>
+    <button x-on:click="count = count + 5">Add five</button>
+    <button x-on:click="user.name = 'John'">Set name</button>
+    <button x-on:click="items[0] = 'z'">Replace first item</button>
+    <button x-on:click="user.age++">Birthday</button>
     <input x-model="user.name">
 </div>
 ```
+
+You can assign to variables and to properties of your component's data (`user.name`, `user['name']`, `items[0]`), and use `++` and `--` on both. Property assignment needs v3.15.12 or later; earlier versions only allow assigning to a plain variable such as `count = 0`.
 
 ### Method Calls
 ```alpine
@@ -119,9 +125,12 @@ Some advanced and potentially dangerous JavaScript features aren't supported:
 ### Complex Expressions
 ```alpine
 <!-- ❌ These don't work -->
-<div x-data="{ user: { name: '' } }">
-    <!-- Property assignments -->
-    <button x-on:click="user.name = 'John'">Bad</button>
+<div x-data="{ count: 0, user: { name: '' } }">
+    <!-- Compound assignment operators (write count = count + 1 instead) -->
+    <button x-on:click="count += 1">Bad</button>
+
+    <!-- Assigning to properties of DOM elements -->
+    <button x-on:click="$el.innerHTML = 'Hello'">Bad</button>
 
     <!-- Arrow functions -->
     <button x-on:click="() => console.log('hi')">Bad</button>
